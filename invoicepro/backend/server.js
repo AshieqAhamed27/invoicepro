@@ -8,12 +8,28 @@ const invoiceRoutes = require('./routes/invoices');
 
 const app = express();
 
-// Middleware
+// ✅ Allowed origins (frontend + local)
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://invoicepro-lime.vercel.app'
+];
+
+// ✅ CORS configuration (robust)
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://your-vercel-app.vercel.app'], // ✅ add your frontend URL
+    origin: function(origin, callback) {
+        // allow requests with no origin (like Postman)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 
+// Middleware
 app.use(express.json());
 
 // Routes
@@ -25,10 +41,10 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'InvoicePro API is running' });
 });
 
-// Connect to MongoDB and start server
+// Port
 const PORT = process.env.PORT || 5000;
 
-// ❌ REMOVE fallback localhost
+// MongoDB (from Render env variable)
 const MONGO_URI = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URI)
