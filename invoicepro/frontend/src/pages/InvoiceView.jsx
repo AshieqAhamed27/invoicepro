@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
+import html2pdf from 'html2pdf.js';
 
 const formatCurrency = (amount, currency) => {
   const symbol = currency === 'INR' ? '₹' : '$';
@@ -45,161 +46,19 @@ export default function InvoiceView() {
     }
   };
 
-  const handleDownloadPDF = async () => {
-    setDownloading(true);
-    try {
-      const { default: jsPDF } = await import('jspdf');
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pageW = 210;
-      const pageH = 297;
-      const margin = 20;
+  const handleDownloadPDF = () => {
+  const element = printRef.current;
 
-      const companyName = user?.companyName || user?.name || 'Freelancer';
-      const symbol = invoice.currency === 'INR' ? '₹' : '$';
-
-      // Background
-      doc.setFillColor(15, 15, 10);
-      doc.rect(0, 0, pageW, 45, 'F');
-
-      // Company name
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(22);
-      doc.setFont('helvetica', 'bold');
-      doc.text(companyName, margin, 22);
-
-      // Invoice label
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(180, 180, 160);
-      doc.text('INVOICE', pageW - margin, 18, { align: 'right' });
-      doc.setFontSize(14);
-      doc.setTextColor(251, 191, 36);
-      doc.setFont('helvetica', 'bold');
-      doc.text(invoice.invoiceNumber, pageW - margin, 27, { align: 'right' });
-
-      // Status badge
-      doc.setFontSize(8);
-      doc.setTextColor(180, 180, 160);
-      doc.setFont('helvetica', 'normal');
-      doc.text(invoice.status.toUpperCase(), pageW - margin, 36, { align: 'right' });
-
-      // Info section
-      let y = 60;
-      doc.setTextColor(30, 30, 22);
-
-      // Bill To
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 88);
-      doc.setFont('helvetica', 'bold');
-      doc.text('BILL TO', margin, y);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(30, 30, 22);
-      doc.setFontSize(12);
-      y += 6;
-      doc.text(invoice.clientName, margin, y);
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 88);
-      y += 5;
-      doc.text(invoice.clientEmail, margin, y);
-
-      // Dates
-      const rightCol = pageW - margin;
-      let ry = 60;
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(100, 100, 88);
-      doc.text('INVOICE DATE', rightCol, ry, { align: 'right' });
-      ry += 6;
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(30, 30, 22);
-      doc.setFontSize(10);
-      doc.text(formatDate(invoice.date), rightCol, ry, { align: 'right' });
-
-      if (invoice.dueDate) {
-        ry += 10;
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(100, 100, 88);
-        doc.text('DUE DATE', rightCol, ry, { align: 'right' });
-        ry += 6;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(30, 30, 22);
-        doc.text(formatDate(invoice.dueDate), rightCol, ry, { align: 'right' });
-      }
-
-      // Divider
-      y = 100;
-      doc.setDrawColor(220, 220, 210);
-      doc.setLineWidth(0.5);
-      doc.line(margin, y, pageW - margin, y);
-
-      // Service table header
-      y += 8;
-      doc.setFillColor(245, 245, 240);
-      doc.rect(margin, y - 4, pageW - 2 * margin, 10, 'F');
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(100, 100, 88);
-      doc.text('DESCRIPTION', margin + 3, y + 2);
-      doc.text('AMOUNT', rightCol - 3, y + 2, { align: 'right' });
-
-      // Service row
-      y += 14;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.setTextColor(30, 30, 22);
-      const descLines = doc.splitTextToSize(invoice.serviceDescription, pageW - 2 * margin - 50);
-      doc.text(descLines, margin + 3, y);
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(11);
-      doc.text(`${symbol}${Number(invoice.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, rightCol - 3, y, { align: 'right' });
-
-      // Total box
-      y = y + (descLines.length * 5) + 12;
-      doc.setFillColor(15, 15, 10);
-      doc.rect(pageW - margin - 60, y - 5, 60, 18, 'F');
-      doc.setTextColor(180, 180, 160);
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text('TOTAL DUE', pageW - margin - 5, y + 1, { align: 'right' });
-      doc.setTextColor(251, 191, 36);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${symbol}${Number(invoice.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, pageW - margin - 5, y + 9, { align: 'right' });
-
-      // Notes
-      if (invoice.notes) {
-        y += 30;
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(100, 100, 88);
-        doc.text('NOTES', margin, y);
-        y += 6;
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(60, 60, 50);
-        doc.setFontSize(9);
-        const noteLines = doc.splitTextToSize(invoice.notes, pageW - 2 * margin);
-        doc.text(noteLines, margin, y);
-      }
-
-      // Footer
-      doc.setFillColor(245, 245, 240);
-      doc.rect(0, pageH - 20, pageW, 20, 'F');
-      doc.setFontSize(8);
-      doc.setTextColor(150, 150, 130);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Generated with InvoicePro', pageW / 2, pageH - 8, { align: 'center' });
-
-      doc.save(`${invoice.invoiceNumber}-${invoice.clientName}.pdf`);
-    } catch (err) {
-      console.error('PDF error:', err);
-      alert('Failed to generate PDF. Please try again.');
-    } finally {
-      setDownloading(false);
-    }
+  const opt = {
+    margin: 10,
+    filename: `${invoice.invoiceNumber}-${invoice.clientName}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
+
+  html2pdf().set(opt).from(element).save();
+};
 
   if (loading) {
     return (
@@ -260,7 +119,7 @@ export default function InvoiceView() {
         </div>
 
         {/* Invoice Document */}
-        <div ref={printRef} className="bg-white rounded-2xl shadow-sm border border-ink-100 overflow-hidden fade-in">
+        <div ref={printRef} className="bg-white text-black p-6 max-w-2xl mx-auto">
           {/* Header */}
           <div className="bg-ink-900 px-8 py-8 flex items-start justify-between">
             <div>
