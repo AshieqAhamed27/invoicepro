@@ -8,17 +8,16 @@ const invoiceRoutes = require('./routes/invoices');
 
 const app = express();
 
-// ✅ Allowed origins (frontend + local)
+// ✅ Allowed frontend origins
 const allowedOrigins = [
     'http://localhost:5173',
     'https://invoicepro-lime.vercel.app'
 ];
 
-// ✅ CORS configuration (robust)
+// ✅ CORS setup
 app.use(cors({
     origin: function(origin, callback) {
-        // allow requests with no origin (like Postman)
-        if (!origin) return callback(null, true);
+        if (!origin) return callback(null, true); // allow Postman
 
         if (allowedOrigins.includes(origin)) {
             callback(null, true);
@@ -44,12 +43,18 @@ app.get('/api/health', (req, res) => {
 // Port
 const PORT = process.env.PORT || 5000;
 
-// MongoDB (from Render env variable)
+// MongoDB URI
 const MONGO_URI = process.env.MONGO_URI;
 
-mongoose.connect(MONGO_URI)
+// ✅ FIXED MongoDB connection
+mongoose.connect(MONGO_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        family: 4 // 🔥 fixes ECONNREFUSED error
+    })
     .then(() => {
         console.log('✅ Connected to MongoDB');
+
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
         });
