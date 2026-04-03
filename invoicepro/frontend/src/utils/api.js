@@ -18,7 +18,7 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// ✅ Handle auth error (FIXED)
+// ✅ Handle auth errors safely
 api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -26,8 +26,11 @@ api.interceptors.response.use(
             error.response &&
             (error.response.status === 401 || error.response.status === 403)
         ) {
+            alert("Session expired. Please login again.");
+
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+
             window.location.href = '/login';
         }
 
