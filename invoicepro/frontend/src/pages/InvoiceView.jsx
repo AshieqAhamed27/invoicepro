@@ -46,23 +46,23 @@ export default function InvoiceView() {
 
   // ✅ PDF FUNCTION
   const handleDownloadPDF = () => {
-  const element = printRef.current;
+    const element = printRef.current;
 
-  if (!element) {
-    alert("PDF error: content not found");
-    return;
-  }
+    if (!element) {
+      alert("PDF error: content not found");
+      return;
+    }
 
-  const opt = {
-    margin: 10,
-    filename: `invoice-${invoice.invoiceNumber}.pdf`,
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    const opt = {
+      margin: 10,
+      filename: `invoice-${invoice.invoiceNumber}.pdf`,
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
   };
-
-  html2pdf().set(opt).from(element).save();
-};
 
   if (loading) {
     return (
@@ -82,15 +82,13 @@ export default function InvoiceView() {
 
         {/* BUTTON */}
         <button
-          onClick={({handleDownloadPDF}) => {
-            alert("Pay ₹49 to download PDF");
-          }}
+          onClick={handleDownloadPDF}
           className="mb-4 bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg"
         >
-          Download PDF (₹49)
+          Download PDF
         </button>
 
-        {/* INVOICE */}
+        {/* INVOICEgit add . */}
         <div
           ref={printRef}
           className="bg-white text-black p-8 rounded-xl shadow-lg border"
