@@ -1,166 +1,197 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
+import html2pdf from 'html2pdf.js/dist/html2pdf.min.js';
 
-const today = new Date().toISOString().split('T')[0];
+const formatCurrency = (amount, currency) => {
+  const symbol = currency === 'INR' ? '₹' : '$';
+  return `${symbol}${Number(amount).toLocaleString('en-IN', {
+    minimumFractionDigits: 2
+  })}`;
+};
 
-export default function CreateInvoice() {
-  const navigate = useNavigate();
+const formatDate = (d) => {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+};
+
+export default function InvoiceView() {
+  const { id } = useParams();
   const user = getUser();
 
-  const [form, setForm] = useState({
-    clientName: '',
-    clientEmail: '',
-    serviceDescription: '',
-    amount: '',
-    currency: 'INR',
-    date: today,
-    dueDate: '',
-    notes: '',
-  });
+  const [invoice, setInvoice] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const [logo, setLogo] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const printRef = useRef();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    fetchInvoice();
+  }, [id]);
 
-  const handleLogoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogo(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
+  const fetchInvoice = async () => {
     try {
-      const res = await api.post('/invoices', {
-        ...form,
-        logo,
-      });
-
-      navigate(`/invoice/${res.data.invoice._id}`);
+      const res = await api.get(`/invoices/${id}`);
+      setInvoice(res.data.invoice);
     } catch {
-      alert('Failed to create invoice');
+      alert('Invoice not found');
     } finally {
       setLoading(false);
     }
   };
 
-  const previewAmount = form.amount
-    ? `${form.currency === 'INR' ? '₹' : '$'}${Number(form.amount).toLocaleString('en-IN', {
-        minimumFractionDigits: 2,
-      })}`
-    : '—';
+  // ✅ PDF FUNCTION
+  const handleDownloadPDF = () => {
+    const element = printRef.current;
+
+    if (!element) {
+      alert('PDF error');
+      return;
+    }
+
+    const opt = {
+      margin: 10,
+      filename: `invoice-${invoice.invoiceNumber}.pdf`,
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!invoice) return null;
+
+  const companyName = user?.companyName || user?.name || 'InvoicePro';
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
 
-      <main className="max-w-4xl mx-auto p-6">
+      <main className="max-w-3xl mx-auto p-4">
 
-        <h1 className="text-2xl font-bold mb-6">Create Invoice</h1>
+        {/* DOWNLOAD BUTTON */}
+        <button
+          onClick={handleDownloadPDF}
+          className="mb-4 bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg"
+        >
+          Download PDF
+        </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* INVOICE */}
+        <div
+          ref={printRef}
+          className="bg-white p-8 rounded-xl shadow-lg border"
+        >
 
-          {/* FORM */}
-          <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow space-y-4">
+          {/* HEADER */}
+          <div className="flex justify-between items-center border-b pb-4 mb-6">
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {/* LEFT */}
+            <div className="flex items-center gap-3">
 
-              <input
-                name="clientName"
-                placeholder="Client Name"
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg px-4 py-2"
+              {/* ✅ LOGO (fallback always shows) */}
+              <img
+                src={
+                  invoice?.logo ||
+                  "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                }
+                alt="logo"
+                className="h-12 w-12 object-contain"
               />
 
-              <input
-                name="clientEmail"
-                placeholder="Client Email"
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg px-4 py-2"
-              />
-
-              <textarea
-                name="serviceDescription"
-                placeholder="Service Description"
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg px-4 py-2"
-              />
-
-              <input
-                name="amount"
-                type="number"
-                placeholder="Amount"
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg px-4 py-2"
-              />
-
-              {/* LOGO */}
               <div>
-                <label className="text-sm text-gray-600">Upload Logo</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="w-full mt-1"
-                />
+                {/* ✅ COMPANY NAME */}
+                <h1 className="text-xl font-bold">
+                  {companyName}
+                </h1>
+
+                {/* ✅ WEBSITE */}
+                <p className="text-xs text-gray-400">
+                  www.invoicepro.com
+                </p>
+
+                {/* ✅ TAGLINE */}
+                <p className="text-xs text-gray-500">
+                  Professional Invoice Generator
+                </p>
               </div>
 
-              <button
-                type="submit"
-                className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800"
-              >
-                {loading ? 'Creating...' : 'Create Invoice'}
-              </button>
+            </div>
 
-            </form>
+            {/* RIGHT */}
+            <div className="text-right">
+              <p className="text-xs text-gray-400">INVOICE</p>
+              <p className="font-bold text-lg">
+                {invoice.invoiceNumber}
+              </p>
+            </div>
+
           </div>
 
-          {/* PREVIEW */}
-          <div className="bg-white p-6 rounded-xl shadow">
+          {/* CLIENT */}
+          <div className="mb-6">
+            <p className="text-sm text-gray-500">Bill To</p>
+            <p className="font-semibold">{invoice.clientName}</p>
+            <p className="text-gray-600">{invoice.clientEmail}</p>
+          </div>
 
-            {logo && (
-              <div className="flex justify-center mb-4">
-                <img src={logo} alt="logo" className="h-16" />
-              </div>
+          {/* DATES */}
+          <div className="mb-6">
+            <p><strong>Date:</strong> {formatDate(invoice.date)}</p>
+            {invoice.dueDate && (
+              <p><strong>Due:</strong> {formatDate(invoice.dueDate)}</p>
             )}
+          </div>
 
-            <h3 className="font-bold mb-3">Preview</h3>
+          {/* TABLE */}
+          <div className="border rounded-lg overflow-hidden mb-6">
 
-            <p>{form.clientName || 'Client Name'}</p>
-            <p className="text-sm text-gray-500">
-              {form.clientEmail || 'Email'}
-            </p>
+            <div className="bg-gray-100 px-4 py-2 flex justify-between text-sm font-semibold">
+              <span>Description</span>
+              <span>Amount</span>
+            </div>
 
-            <p className="mt-3">
-              {form.serviceDescription || 'Service Description'}
-            </p>
-
-            <h2 className="text-xl font-bold mt-4">
-              {previewAmount}
-            </h2>
+            <div className="px-4 py-3 flex justify-between">
+              <span>{invoice.serviceDescription}</span>
+              <span className="font-bold">
+                {formatCurrency(invoice.amount, invoice.currency)}
+              </span>
+            </div>
 
           </div>
+
+          {/* TOTAL */}
+          <div className="text-right mb-6">
+            <p className="text-gray-500 text-sm">Total</p>
+            <h2 className="text-2xl font-bold text-green-600">
+              {formatCurrency(invoice.amount, invoice.currency)}
+            </h2>
+          </div>
+
+          {/* NOTES */}
+          {invoice.notes && (
+            <div className="border-t pt-4">
+              <p className="text-sm text-gray-500">Notes</p>
+              <p>{invoice.notes}</p>
+            </div>
+          )}
 
         </div>
       </main>
     </div>
   );
 }
-
