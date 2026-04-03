@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
@@ -7,7 +7,9 @@ import html2pdf from 'html2pdf.js/dist/html2pdf.min.js';
 
 const formatCurrency = (amount, currency) => {
   const symbol = currency === 'INR' ? '₹' : '$';
-  return `${symbol}${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+  return `${symbol}${Number(amount).toLocaleString('en-IN', {
+    minimumFractionDigits: 2
+  })}`;
 };
 
 const formatDate = (d) => {
@@ -25,7 +27,6 @@ export default function InvoiceView() {
 
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
 
   const printRef = useRef();
 
@@ -49,7 +50,7 @@ export default function InvoiceView() {
     const element = printRef.current;
 
     if (!element) {
-      alert("PDF error: content not found");
+      alert('PDF error');
       return;
     }
 
@@ -67,12 +68,14 @@ export default function InvoiceView() {
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
-        <p>Loading...</p>
+        Loading...
       </div>
     );
   }
 
-  const companyName = user?.companyName || user?.name || 'Your Company';
+  if (!invoice) return null;
+
+  const companyName = user?.companyName || user?.name || 'InvoicePro';
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -80,7 +83,7 @@ export default function InvoiceView() {
 
       <main className="max-w-3xl mx-auto p-4">
 
-        {/* BUTTON */}
+        {/* DOWNLOAD BUTTON */}
         <button
           onClick={handleDownloadPDF}
           className="mb-4 bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg"
@@ -88,31 +91,43 @@ export default function InvoiceView() {
           Download PDF
         </button>
 
-        {/* INVOICEgit add . */}
+        {/* INVOICE */}
         <div
           ref={printRef}
-          className="bg-white text-black p-8 rounded-xl shadow-lg border"
-          style={{ fontFamily: 'Arial' }}
+          className="bg-white p-8 rounded-xl shadow-lg border"
         >
 
           {/* HEADER */}
           <div className="flex justify-between items-center border-b pb-4 mb-6">
 
-            <div>
-              {/* ✅ LOGO */}
+            {/* LEFT */}
+            <div className="flex items-center gap-3">
+
               {invoice.logo && (
-                <img src={invoice.logo} alt="logo" className="h-12 mb-2" />
+                <img
+                  src={invoice.logo}
+                  alt="logo"
+                  className="h-12 w-12 object-contain"
+                />
               )}
 
-              <h1 className="text-2xl font-bold text-gray-800">
-                {companyName}
-              </h1>
-              <p className="text-sm text-gray-500">{user?.email}</p>
+              <div>
+                <h1 className="text-xl font-bold">{companyName}</h1>
+                <p className="text-xs text-gray-400">
+                  www.invoicepro.com
+                </p>
+                <p className="text-xs text-gray-500">
+                  Professional Invoice Generator
+                </p>
+              </div>
             </div>
 
+            {/* RIGHT */}
             <div className="text-right">
               <p className="text-xs text-gray-400">INVOICE</p>
-              <p className="font-bold text-lg">{invoice.invoiceNumber}</p>
+              <p className="font-bold text-lg">
+                {invoice.invoiceNumber}
+              </p>
             </div>
 
           </div>
@@ -120,7 +135,7 @@ export default function InvoiceView() {
           {/* CLIENT */}
           <div className="mb-6">
             <p className="text-sm text-gray-500">Bill To</p>
-            <p className="font-semibold text-gray-800">{invoice.clientName}</p>
+            <p className="font-semibold">{invoice.clientName}</p>
             <p className="text-gray-600">{invoice.clientEmail}</p>
           </div>
 
