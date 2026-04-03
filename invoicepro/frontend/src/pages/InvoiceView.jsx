@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
-import html2pdf from 'html2pdf.js';
+import html2pdf from 'html2pdf.js/dist/html2pdf.min.js';
 
 const formatCurrency = (amount, currency) => {
   const symbol = currency === 'INR' ? '₹' : '$';
@@ -46,22 +46,23 @@ export default function InvoiceView() {
 
   // ✅ PDF FUNCTION
   const handleDownloadPDF = () => {
-    setDownloading(true);
+  const element = printRef.current;
 
-    const element = printRef.current;
+  if (!element) {
+    alert("PDF error: content not found");
+    return;
+  }
 
-    const opt = {
-      margin: 10,
-      filename: `${invoice.invoiceNumber}.pdf`,
-      image: { type: 'jpeg', quality: 1 },
-      html2canvas: { scale: 3, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(element).save().then(() => {
-      setDownloading(false);
-    });
+  const opt = {
+    margin: 10,
+    filename: `invoice-${invoice.invoiceNumber}.pdf`,
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
+
+  html2pdf().set(opt).from(element).save();
+};
 
   if (loading) {
     return (
@@ -81,7 +82,7 @@ export default function InvoiceView() {
 
         {/* BUTTON */}
         <button
-          onClick={() => {
+          onClick={({handleDownloadPDF}) => {
             alert("Pay ₹49 to download PDF");
           }}
           className="mb-4 bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg"
