@@ -12,7 +12,9 @@ const STATUS_COLORS = {
 
 const formatCurrency = (amount, currency) => {
   const symbol = currency === 'INR' ? '₹' : '$';
-  return `${symbol}${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+  return `${symbol}${Number(amount).toLocaleString('en-IN', {
+    minimumFractionDigits: 2
+  })}`;
 };
 
 export default function Dashboard() {
@@ -29,8 +31,15 @@ export default function Dashboard() {
   const fetchInvoices = async () => {
     try {
       const res = await api.get('/invoices');
-      setInvoices(res.data.invoices || []);
-    } catch {
+
+      // ✅ SAFE CHECK
+      const validInvoices = (res.data.invoices || []).filter(
+        (inv) => inv && inv._id
+      );
+
+      setInvoices(validInvoices);
+    } catch (err) {
+      console.error(err);
       alert('Failed to load invoices');
     } finally {
       setLoading(false);
@@ -69,7 +78,7 @@ export default function Dashboard() {
           </div>
 
           <Link
-            to="/create-invoice"  // ✅ FIXED
+            to="/create-invoice"
             className="bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800"
           >
             + Create Invoice
@@ -138,7 +147,7 @@ export default function Dashboard() {
                 <div className="flex gap-4">
                   <Link
                     to={`/invoice/${inv._id}`}
-                    className="text-blue-600 text-sm"
+                    className="text-blue-600 text-sm hover:underline"
                   >
                     View
                   </Link>
