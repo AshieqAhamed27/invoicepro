@@ -39,7 +39,7 @@ export default function Navbar() {
         </span>
 
         <Link
-          to="/create"
+          to="/create-invoice"  // ✅ FIXED
           className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 transition"
         >
           + New Invoice
@@ -77,7 +77,7 @@ export default function Navbar() {
           </span>
 
           <Link
-            to="/create"
+            to="/create-invoice"  // ✅ FIXED
             onClick={() => setMenuOpen(false)}
             className="bg-black text-white px-4 py-2 rounded-lg text-sm text-center"
           >

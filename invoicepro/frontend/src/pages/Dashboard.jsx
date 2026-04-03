@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
@@ -15,20 +15,12 @@ const formatCurrency = (amount, currency) => {
   return `${symbol}${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 };
 
-const formatDate = (d) =>
-  new Date(d).toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
 
-  const user = getUser();
-  const navigate = useNavigate();
+  const user = getUser() || {};
 
   useEffect(() => {
     fetchInvoices();
@@ -37,7 +29,7 @@ export default function Dashboard() {
   const fetchInvoices = async () => {
     try {
       const res = await api.get('/invoices');
-      setInvoices(res.data.invoices);
+      setInvoices(res.data.invoices || []);
     } catch {
       alert('Failed to load invoices');
     } finally {
@@ -57,7 +49,7 @@ export default function Dashboard() {
 
   const totalRevenue = invoices
     .filter((i) => i.status === 'paid')
-    .reduce((sum, i) => sum + i.amount, 0);
+    .reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -69,7 +61,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold">
-              Welcome, {user?.name || 'User'} 👋
+              Welcome, {user.name || 'User'} 👋
             </h1>
             <p className="text-gray-500 text-sm">
               Manage your invoices easily
@@ -77,7 +69,7 @@ export default function Dashboard() {
           </div>
 
           <Link
-            to="/create"
+            to="/create-invoice"  // ✅ FIXED
             className="bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800"
           >
             + Create Invoice
@@ -87,26 +79,26 @@ export default function Dashboard() {
         {/* STATS */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
 
-          <div className="bg-white p-5 rounded-xl shadow hover:shadow-md transition">
+          <div className="bg-white p-5 rounded-xl shadow">
             <p className="text-gray-500 text-sm">Total Invoices</p>
             <h2 className="text-xl font-bold">{invoices.length}</h2>
           </div>
 
-          <div className="bg-white p-5 rounded-xl shadow hover:shadow-md transition">
+          <div className="bg-white p-5 rounded-xl shadow">
             <p className="text-gray-500 text-sm">Revenue</p>
             <h2 className="text-xl font-bold">
               ₹{totalRevenue.toLocaleString('en-IN')}
             </h2>
           </div>
 
-          <div className="bg-white p-5 rounded-xl shadow hover:shadow-md transition">
+          <div className="bg-white p-5 rounded-xl shadow">
             <p className="text-gray-500 text-sm">Status</p>
             <h2 className="text-green-600 font-bold">Active</h2>
           </div>
 
         </div>
 
-        {/* INVOICE LIST */}
+        {/* LIST */}
         <div className="bg-white rounded-xl shadow overflow-hidden">
 
           <div className="px-6 py-3 border-b font-semibold">
@@ -125,7 +117,7 @@ export default function Dashboard() {
             invoices.map((inv) => (
               <div
                 key={inv._id}
-                className="flex justify-between items-center px-6 py-4 border-b hover:bg-gray-50 transition"
+                className="flex justify-between items-center px-6 py-4 border-b hover:bg-gray-50"
               >
                 <div>
                   <p className="font-medium">{inv.clientName}</p>
@@ -138,9 +130,7 @@ export default function Dashboard() {
                   <p className="font-bold">
                     {formatCurrency(inv.amount, inv.currency)}
                   </p>
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${STATUS_COLORS[inv.status]}`}
-                  >
+                  <span className={`text-xs px-2 py-1 rounded ${STATUS_COLORS[inv.status]}`}>
                     {inv.status}
                   </span>
                 </div>
