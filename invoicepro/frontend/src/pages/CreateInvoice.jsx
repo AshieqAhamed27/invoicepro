@@ -87,6 +87,18 @@ export default function CreateInvoice() {
           </button>
 
         </form>
+        {limitReached && (
+          <div className="bg-red-100 text-red-700 p-4 rounded mt-4">
+            <p>Free limit reached (2 invoices)</p>
+
+            <button
+              onClick={() => navigate('/payment')}
+              className="mt-2 bg-black text-white px-4 py-2 rounded"
+            >
+              Upgrade to Pro 🚀
+            </button>
+          </div>
+        )}
 
       </main>
     </div>
