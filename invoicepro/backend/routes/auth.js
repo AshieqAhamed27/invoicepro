@@ -5,30 +5,42 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ✅ FIXED TOKEN FUNCTION
 const generateToken = (id) => {
-    return jwt.sign({ id, email: user.email }, process.env.JWT_SECRET || 'fallback_secret', {
-        expiresIn: '30d'
-    });
+    return jwt.sign({ id }, // ✅ only id (no user.email here)
+        process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '30d' }
+    );
 };
 
-// POST /api/auth/signup
+// ==========================
+// 🔐 SIGNUP
+// ==========================
 router.post('/signup', async(req, res) => {
     try {
-        console.log("🔥 SIGNUP DATA:", req.body); // ✅ ADD THIS
+        console.log("🔥 SIGNUP DATA:", req.body);
 
         const { name, email, password, companyName } = req.body;
 
         if (!name || !email || !password) {
-            return res.status(400).json({ message: 'Please provide name, email, and password.' });
+            return res.status(400).json({
+                message: 'Please provide name, email, and password.'
+            });
         }
 
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
-            return res.status(400).json({ message: 'Email already registered.' });
+            return res.status(400).json({
+                message: 'Email already registered.'
+            });
         }
 
-        const user = await User.create({ name, email, password, companyName });
+        const user = await User.create({
+            name,
+            email,
+            password,
+            companyName
+        });
 
         res.status(201).json({
             message: 'Account created successfully!',
@@ -43,22 +55,40 @@ router.post('/signup', async(req, res) => {
         });
 
     } catch (err) {
-        console.error("🔥 SIGNUP ERROR:", err); // ✅ ADD THIS
-        res.status(500).json({ message: 'Server error. Please try again.' });
+        console.error("🔥 SIGNUP ERROR:", err);
+        res.status(500).json({
+            message: 'Server error. Please try again.'
+        });
     }
 });
-// POST /api/auth/login
+
+// ==========================
+// 🔐 LOGIN
+// ==========================
 router.post('/login', async(req, res) => {
     try {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ message: 'Please provide email and password.' });
+            return res.status(400).json({
+                message: 'Please provide email and password.'
+            });
         }
 
         const user = await User.findOne({ email });
-        if (!user || !(await user.comparePassword(password))) {
-            return res.status(401).json({ message: 'Invalid email or password.' });
+
+        if (!user) {
+            return res.status(401).json({
+                message: 'User not found'
+            });
+        }
+
+        const isMatch = await user.comparePassword(password);
+
+        if (!isMatch) {
+            return res.status(401).json({
+                message: 'Invalid password'
+            });
         }
 
         res.json({
@@ -72,12 +102,18 @@ router.post('/login', async(req, res) => {
                 companyName: user.companyName
             }
         });
+
     } catch (err) {
-        res.status(500).json({ message: 'Server error. Please try again.' });
+        console.error("🔥 LOGIN ERROR:", err);
+        res.status(500).json({
+            message: 'Server error. Please try again.'
+        });
     }
 });
 
-// GET /api/auth/me
+// ==========================
+// 👤 GET CURRENT USER
+// ==========================
 router.get('/me', protect, (req, res) => {
     res.json({
         user: {
@@ -90,14 +126,24 @@ router.get('/me', protect, (req, res) => {
     });
 });
 
-// PUT /api/auth/upgrade
+// ==========================
+// 💰 UPGRADE TO PRO
+// ==========================
 router.put('/upgrade', protect, async(req, res) => {
     try {
         req.user.plan = 'pro';
         await req.user.save();
-        res.json({ message: 'Upgraded to Pro!', plan: 'pro' });
+
+        res.json({
+            message: 'Upgraded to Pro!',
+            plan: 'pro'
+        });
+
     } catch (err) {
-        res.status(500).json({ message: 'Server error.' });
+        console.error("🔥 UPGRADE ERROR:", err);
+        res.status(500).json({
+            message: 'Server error.'
+        });
     }
 });
 
