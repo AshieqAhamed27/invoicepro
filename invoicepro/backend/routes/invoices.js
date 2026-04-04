@@ -38,6 +38,11 @@ router.post('/', protect, async(req, res) => {
     try {
         const user = req.user;
 
+        // ✅ SAFETY CHECK
+        if (!user || !user._id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
         // 🔥 COUNT USER INVOICES
         const count = await Invoice.countDocuments({ user: user._id });
 
@@ -49,14 +54,45 @@ router.post('/', protect, async(req, res) => {
             });
         }
 
+        // ✅ DEBUG INPUT
+        console.log("🔥 INVOICE DATA:", req.body);
+
+        const {
+            clientName,
+            clientEmail,
+            serviceDescription,
+            amount,
+            currency,
+            date,
+            dueDate,
+            notes,
+            logo
+        } = req.body;
+
+        // ✅ BASIC VALIDATION
+        if (!clientName || !clientEmail || !amount) {
+            return res.status(400).json({
+                message: 'Missing required fields'
+            });
+        }
+
         const invoice = await Invoice.create({
-            ...req.body,
+            clientName,
+            clientEmail,
+            serviceDescription,
+            amount,
+            currency,
+            date,
+            dueDate,
+            notes,
+            logo,
             user: user._id
         });
 
         res.status(201).json({ invoice });
 
     } catch (err) {
+        console.error("🔥 CREATE INVOICE ERROR:", err); // 🔥 IMPORTANT
         res.status(500).json({ message: 'Server error' });
     }
 });
