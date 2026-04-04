@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
@@ -22,6 +22,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
 
+  const navigate = useNavigate();
   const user = getUser() || {};
 
   useEffect(() => {
@@ -31,12 +32,9 @@ export default function Dashboard() {
   const fetchInvoices = async () => {
     try {
       const res = await api.get('/invoices');
-
-      // ✅ SAFE CHECK
       const validInvoices = (res.data.invoices || []).filter(
         (inv) => inv && inv._id
       );
-
       setInvoices(validInvoices);
     } catch (err) {
       console.error(err);
@@ -60,6 +58,8 @@ export default function Dashboard() {
     .filter((i) => i.status === 'paid')
     .reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
+  const isPro = user.plan === 'pro';
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -77,12 +77,34 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <Link
-            to="/create-invoice"
-            className="bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800"
-          >
-            + Create Invoice
-          </Link>
+          <div className="flex gap-3">
+
+            {!isPro && (
+              <button
+                onClick={() => navigate('/payment')}
+                className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-400"
+              >
+                Upgrade ₹99 🚀
+              </button>
+            )}
+
+            <Link
+              to="/create-invoice"
+              className="bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800"
+            >
+              + Create Invoice
+            </Link>
+
+          </div>
+        </div>
+
+        {/* PLAN STATUS */}
+        <div className="mb-6">
+          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            isPro ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'
+          }`}>
+            {isPro ? 'PRO PLAN 🚀' : 'FREE PLAN'}
+          </span>
         </div>
 
         {/* STATS */}
