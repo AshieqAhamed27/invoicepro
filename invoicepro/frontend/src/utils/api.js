@@ -25,12 +25,15 @@ api.interceptors.response.use(
 
         // 🔥 ONLY logout for 401
         if (error.response && error.response.status === 401) {
+            alert("Session expired. Please login again.");
+
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+
             window.location.href = '/login';
         }
 
-        // ❌ DO NOT logout for 403
+        // ❌ DO NOTHING for 403
         return Promise.reject(error);
     }
 );
