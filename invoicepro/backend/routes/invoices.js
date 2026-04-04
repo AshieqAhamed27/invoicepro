@@ -6,13 +6,15 @@ const router = express.Router();
 
 const FREE_PLAN_LIMIT = 2;
 
-// Generate invoice number
+// ✅ Generate invoice number
 const generateInvoiceNumber = (count) => {
     const num = String(count + 1).padStart(4, '0');
     return `INV-${num}`;
 };
 
-// GET /api/invoices — get all invoices for logged-in user
+// ==========================
+// 📄 GET ALL INVOICES
+// ==========================
 router.get('/', protect, async(req, res) => {
     try {
         const invoices = await Invoice.find({ user: req.user._id }).sort({ createdAt: -1 });
@@ -22,18 +24,29 @@ router.get('/', protect, async(req, res) => {
     }
 });
 
-// GET /api/invoices/:id — get single invoice
+// ==========================
+// 📄 GET SINGLE INVOICE
+// ==========================
 router.get('/:id', protect, async(req, res) => {
     try {
-        const invoice = await Invoice.findOne({ _id: req.params.id, user: req.user._id });
-        if (!invoice) return res.status(404).json({ message: 'Invoice not found.' });
+        const invoice = await Invoice.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!invoice) {
+            return res.status(404).json({ message: 'Invoice not found.' });
+        }
+
         res.json({ invoice });
     } catch (err) {
         res.status(500).json({ message: 'Server error.' });
     }
 });
 
-// POST /api/invoices — create invoice
+// ==========================
+// ➕ CREATE INVOICE
+// ==========================
 router.post('/', protect, async(req, res) => {
     try {
         const user = req.user;
@@ -47,14 +60,16 @@ router.post('/', protect, async(req, res) => {
         const count = await Invoice.countDocuments({ user: user._id });
 
         // 🔥 LIMIT FREE USERS
-        if (user.plan === 'free' && count >= 2) {
+        if (user.plan === 'free' && count >= FREE_PLAN_LIMIT) {
             return res.status(403).json({
                 message: 'Free plan limit reached',
                 limitReached: true
             });
         }
 
-        // ✅ DEBUG INPUT
+        // 🔥 GENERATE INVOICE NUMBER
+        const invoiceNumber = generateInvoiceNumber(count);
+
         console.log("🔥 INVOICE DATA:", req.body);
 
         const {
@@ -69,7 +84,7 @@ router.post('/', protect, async(req, res) => {
             logo
         } = req.body;
 
-        // ✅ BASIC VALIDATION
+        // ✅ VALIDATION
         if (!clientName || !clientEmail || !amount) {
             return res.status(400).json({
                 message: 'Missing required fields'
@@ -86,32 +101,49 @@ router.post('/', protect, async(req, res) => {
             dueDate,
             notes,
             logo,
+            invoiceNumber, // ✅ REQUIRED FIELD FIXED
             user: user._id
         });
 
         res.status(201).json({ invoice });
 
     } catch (err) {
-        console.error("🔥 CREATE INVOICE ERROR:", err); // 🔥 IMPORTANT
+        console.error("🔥 CREATE INVOICE ERROR:", err);
         res.status(500).json({ message: 'Server error' });
     }
 });
-// PUT /api/invoices/:id/status — update invoice status
+
+// ==========================
+// 🔄 UPDATE STATUS
+// ==========================
 router.put('/:id/status', protect, async(req, res) => {
     try {
         const invoice = await Invoice.findOneAndUpdate({ _id: req.params.id, user: req.user._id }, { status: req.body.status }, { new: true });
-        if (!invoice) return res.status(404).json({ message: 'Invoice not found.' });
+
+        if (!invoice) {
+            return res.status(404).json({ message: 'Invoice not found.' });
+        }
+
         res.json({ message: 'Status updated!', invoice });
     } catch (err) {
         res.status(500).json({ message: 'Server error.' });
     }
 });
 
-// DELETE /api/invoices/:id
+// ==========================
+// ❌ DELETE INVOICE
+// ==========================
 router.delete('/:id', protect, async(req, res) => {
     try {
-        const invoice = await Invoice.findOneAndDelete({ _id: req.params.id, user: req.user._id });
-        if (!invoice) return res.status(404).json({ message: 'Invoice not found.' });
+        const invoice = await Invoice.findOneAndDelete({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!invoice) {
+            return res.status(404).json({ message: 'Invoice not found.' });
+        }
+
         res.json({ message: 'Invoice deleted.' });
     } catch (err) {
         res.status(500).json({ message: 'Server error.' });
