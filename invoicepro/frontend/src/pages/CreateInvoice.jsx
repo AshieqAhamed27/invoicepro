@@ -56,7 +56,7 @@ export default function CreateInvoice() {
       navigate(`/invoice/${newInvoice._id}`);
     } catch (err) {
 
-      console.log("ERROR:", err.response); // debug
+      console.log("FULL ERROR:", err);
 
       // ✅ LIMIT REACHED (403)
       if (
@@ -68,14 +68,14 @@ export default function CreateInvoice() {
         return;
       }
 
-      // ✅ ONLY SESSION EXPIRE (401)
+      // ✅ SESSION EXPIRE (401 ONLY)
       if (err.response && err.response.status === 401) {
         alert("Session expired. Please login again.");
         return;
       }
 
-      // ❌ ALL OTHER ERRORS
-      setError("Something went wrong");
+      // ❌ ANY OTHER ERROR
+      setError("Failed to create invoice");
     }
   };
 
