@@ -14,6 +14,8 @@ const generateToken = (id) => {
 // POST /api/auth/signup
 router.post('/signup', async(req, res) => {
     try {
+        console.log("🔥 SIGNUP DATA:", req.body); // ✅ ADD THIS
+
         const { name, email, password, companyName } = req.body;
 
         if (!name || !email || !password) {
@@ -21,6 +23,7 @@ router.post('/signup', async(req, res) => {
         }
 
         const existingUser = await User.findOne({ email });
+
         if (existingUser) {
             return res.status(400).json({ message: 'Email already registered.' });
         }
@@ -38,11 +41,12 @@ router.post('/signup', async(req, res) => {
                 companyName: user.companyName
             }
         });
+
     } catch (err) {
+        console.error("🔥 SIGNUP ERROR:", err); // ✅ ADD THIS
         res.status(500).json({ message: 'Server error. Please try again.' });
     }
 });
-
 // POST /api/auth/login
 router.post('/login', async(req, res) => {
     try {
