@@ -82,7 +82,7 @@ export default function Dashboard() {
             {!isPro && (
               <button
                 onClick={() => navigate('/payment')}
-                className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-400"
+                className="bg-yellow-500 px-4 py-2 rounded-lg font-semibold"
               >
                 Upgrade ₹99 🚀
               </button>
@@ -100,9 +100,8 @@ export default function Dashboard() {
 
         {/* PLAN STATUS */}
         <div className="mb-6">
-          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-            isPro ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'
-          }`}>
+          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${isPro ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'
+            }`}>
             {isPro ? 'PRO PLAN 🚀' : 'FREE PLAN'}
           </span>
         </div>
