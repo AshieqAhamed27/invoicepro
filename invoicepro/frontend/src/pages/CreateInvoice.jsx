@@ -54,12 +54,17 @@ export default function CreateInvoice() {
       }
 
       navigate(`/invoice/${newInvoice._id}`);
-    } catch (err) {
-      console.error(err);
-      alert('Failed to create invoice');
-    } finally {
-      setLoading(false);
-    }
+    }catch (err) {
+  if (
+    err.response &&
+    err.response.data &&
+    err.response.data.limitReached
+  ) {
+    setLimitReached(true);
+  } else {
+    setError('Failed to create invoice');
+  }
+}
   };
 
   return (
