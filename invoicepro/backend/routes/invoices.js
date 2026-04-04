@@ -51,12 +51,10 @@ router.post('/', protect, async(req, res) => {
     try {
         const user = req.user;
 
-        // ✅ SAFETY CHECK
         if (!user || !user._id) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
 
-        // 🔥 COUNT USER INVOICES
         const count = await Invoice.countDocuments({ user: user._id });
 
         // 🔥 LIMIT FREE USERS
@@ -67,10 +65,8 @@ router.post('/', protect, async(req, res) => {
             });
         }
 
-        // 🔥 GENERATE INVOICE NUMBER
+        // 🔥 GENERATE NUMBER
         const invoiceNumber = generateInvoiceNumber(count);
-
-        console.log("🔥 INVOICE DATA:", req.body);
 
         const {
             clientName,
@@ -100,8 +96,8 @@ router.post('/', protect, async(req, res) => {
             date,
             dueDate,
             notes,
-            logo,
-            invoiceNumber, // ✅ REQUIRED FIELD FIXED
+            logo: logo || null,
+            invoiceNumber: invoiceNumber || `INV-${Date.now()}`, // ✅ SAFE FIX
             user: user._id
         });
 
@@ -131,7 +127,7 @@ router.put('/:id/status', protect, async(req, res) => {
 });
 
 // ==========================
-// ❌ DELETE INVOICE
+// ❌ DELETE
 // ==========================
 router.delete('/:id', protect, async(req, res) => {
     try {

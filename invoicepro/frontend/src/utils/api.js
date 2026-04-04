@@ -18,17 +18,19 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// ✅ Handle auth error (FIXED)
+// ✅ FIXED RESPONSE HANDLING
 api.interceptors.response.use(
     (response) => response,
     (error) => {
 
+        // 🔥 ONLY logout for 401
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login';
         }
 
+        // ❌ DO NOT logout for 403
         return Promise.reject(error);
     }
 );
