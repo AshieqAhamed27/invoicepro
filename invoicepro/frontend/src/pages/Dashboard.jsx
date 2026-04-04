@@ -79,10 +79,11 @@ export default function Dashboard() {
 
           <div className="flex gap-3">
 
+            {/* ✅ SHOW ONLY FOR FREE USERS */}
             {!isPro && (
               <button
                 onClick={() => navigate('/payment')}
-                className="bg-yellow-500 px-4 py-2 rounded-lg font-semibold"
+                className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-400"
               >
                 Upgrade ₹99 🚀
               </button>
@@ -100,8 +101,13 @@ export default function Dashboard() {
 
         {/* PLAN STATUS */}
         <div className="mb-6">
-          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${isPro ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'
-            }`}>
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-semibold ${
+              isPro
+                ? 'bg-green-100 text-green-700'
+                : 'bg-gray-200 text-gray-700'
+            }`}
+          >
             {isPro ? 'PRO PLAN 🚀' : 'FREE PLAN'}
           </span>
         </div>
@@ -128,7 +134,7 @@ export default function Dashboard() {
 
         </div>
 
-        {/* LIST */}
+        {/* INVOICE LIST */}
         <div className="bg-white rounded-xl shadow overflow-hidden">
 
           <div className="px-6 py-3 border-b font-semibold">
@@ -160,7 +166,11 @@ export default function Dashboard() {
                   <p className="font-bold">
                     {formatCurrency(inv.amount, inv.currency)}
                   </p>
-                  <span className={`text-xs px-2 py-1 rounded ${STATUS_COLORS[inv.status]}`}>
+                  <span
+                    className={`text-xs px-2 py-1 rounded ${
+                      STATUS_COLORS[inv.status]
+                    }`}
+                  >
                     {inv.status}
                   </span>
                 </div>
