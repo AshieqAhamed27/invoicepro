@@ -7,7 +7,7 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import CreateInvoice from './pages/CreateInvoice';
 import InvoiceView from './pages/InvoiceView';
-import Payment from 'scr/pages/Payment'; // ✅ FIXED
+import Payment from './pages/Payment'; // ✅ FIXED
 
 const PrivateRoute = ({ children }) => {
   return isLoggedIn() ? children : <Navigate to="/login" replace />;
