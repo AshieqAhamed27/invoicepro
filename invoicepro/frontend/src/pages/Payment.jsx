@@ -41,7 +41,7 @@ export default function Payment() {
         {/* QR */}
         <div className="flex justify-center mb-6">
           <img
-            src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi://pay?pa=yourupi@upi&pn=InvoicePro&am=99"
+            src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi://pay?pa=ashieqahamed4@okicic&pn=InvoicePro&am=99"
             alt="UPI QR"
           />
         </div>
