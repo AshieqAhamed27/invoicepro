@@ -5,16 +5,13 @@ import qr from '../assets/qr.png';
 export default function Payment() {
 
   const handleConfirm = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const confirmPayment = window.confirm(
+      "Have you completed the payment of ₹99?"
+    );
 
-    const updatedUser = {
-      ...user,
-      plan: 'pro'
-    };
+    if (!confirmPayment) return;
 
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-
-    alert("🎉 Payment successful! You are now PRO");
+    alert("⏳ Payment received! We will verify and upgrade you soon.");
 
     window.location.href = '/dashboard';
   };
@@ -39,10 +36,10 @@ export default function Payment() {
           <p className="text-sm text-gray-400">One-time payment</p>
         </div>
 
-        {/* QR */}
+        {/* QR with ₹99 embedded */}
         <div className="flex justify-center mb-6">
           <img
-            src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi://pay?pa=ashieqahamed4@okicic&pn=InvoicePro&am=99"
+            src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi://pay?pa=ashieqahamed4@okicici&pn=InvoicePro&am=99&cu=INR"
             alt="UPI QR"
           />
         </div>
