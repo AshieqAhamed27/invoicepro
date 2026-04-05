@@ -1,21 +1,29 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import qr from '../assets/qr.png';
+import api from '../utils/api';
 
 export default function Payment() {
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+
     const confirmPayment = window.confirm(
-      "Have you completed the payment of ₹99?"
+      "Only click this AFTER completing payment of ₹99.\n\nDid you pay?"
     );
 
     if (!confirmPayment) return;
 
-    alert("⏳ Payment received! We will verify and upgrade you soon.");
+    try {
+      await api.post('/payment/request');
 
-    window.location.href = '/dashboard';
+      alert("✅ Request sent! We will verify and upgrade you soon.");
+
+      window.location.href = '/dashboard';
+
+    } catch {
+      alert("Error sending request");
+    }
   };
-
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
