@@ -52,6 +52,14 @@ export default function Payment() {
           />
         </div>
 
+        {/* PAY BUTTON */}
+        <a
+          href="upi://pay?pa=ashieqahamed4@okicici&pn=InvoicePro&am=99&cu=INR"
+          className="block text-center bg-green-600 text-white py-3 rounded-lg mb-4"
+        >
+          Pay ₹99 via UPI
+        </a>
+
         {/* UPI ID */}
         <div className="text-center mb-4">
           <p className="text-gray-500 text-sm">Pay using UPI</p>
