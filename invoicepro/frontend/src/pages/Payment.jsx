@@ -1,5 +1,6 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
+import qr from '../assets/qr.png';
 
 export default function Payment() {
 
