@@ -4,15 +4,16 @@ import api from '../utils/api';
 
 export default function Payment() {
 
+  // ✅ CORRECT PLACE (TOP LEVEL)
+  useEffect(() => {
+    const isMobile = /iPhone|Android/i.test(navigator.userAgent);
+
+    if (!isMobile) {
+      alert("⚠️ Please use mobile to scan QR or complete UPI payment.");
+    }
+  }, []);
+
   const handleConfirm = async () => {
-
-    useEffect(() => {
-      const isMobile = /iPhone|Android/i.test(navigator.userAgent);
-
-      if (!isMobile) {
-        alert("⚠️ Please use mobile to scan QR or complete UPI payment.");
-      }
-    }, []);
 
     const confirmPayment = window.confirm(
       "Only click this AFTER completing payment of ₹99.\n\nDid you pay?"
@@ -53,21 +54,21 @@ export default function Payment() {
           <p className="text-sm text-gray-400">One-time payment</p>
         </div>
 
-        {/* ✅ QR WITH CORRECT ₹99 AUTO FILL */}
+        {/* QR */}
         <div className="flex justify-center mb-6">
           <img
             src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi://pay?pa=ashieqahamed4@okicici&pn=InvoicePro&am=99.00&cu=INR"
             alt="UPI QR"
           />
-         
         </div>
 
-         <p className="text-center text-sm text-orange-600 bg-orange-100 p-3 rounded mb-4">
-            ⚠️ QR scan works only on mobile devices.
-            Please open this page on your phone or scan using another device.
-          </p>
+        {/* ✅ MESSAGE (VISIBLE EVERYWHERE) */}
+        <p className="text-center text-sm text-orange-600 bg-orange-100 p-3 rounded mb-4">
+          ⚠️ QR scan works only on mobile devices.
+          Please open this page on your phone or scan using another device.
+        </p>
 
-        {/* ✅ UPI BUTTON (MOBILE ONLY) */}
+        {/* UPI BUTTON */}
         <a
           href="upi://pay?pa=ashieqahamed4@okicici&pn=InvoicePro&am=99.00&cu=INR"
           className="block text-center bg-green-600 text-white py-3 rounded-lg mb-4 hover:bg-green-700"
@@ -86,7 +87,7 @@ export default function Payment() {
           If amount is not auto-filled, please enter ₹99 manually
         </p>
 
-        {/* CONFIRM BUTTON */}
+        {/* BUTTON */}
         <button
           onClick={handleConfirm}
           className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800"
