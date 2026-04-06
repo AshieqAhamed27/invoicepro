@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 
-
 export default function CreateInvoice() {
   const navigate = useNavigate();
 
@@ -20,6 +19,10 @@ export default function CreateInvoice() {
 
   const [logo, setLogo] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // ✅ FIX ADDED
+  const [limitReached, setLimitReached] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -39,6 +42,8 @@ export default function CreateInvoice() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
+    setLimitReached(false);
 
     try {
       const res = await api.post('/invoices', {
@@ -58,24 +63,27 @@ export default function CreateInvoice() {
 
       console.log("FULL ERROR:", err);
 
-      // ✅ LIMIT REACHED (403)
+      // ✅ LIMIT REACHED
       if (
         err.response &&
         err.response.data &&
         err.response.data.limitReached
       ) {
         setLimitReached(true);
+        setLoading(false);
         return;
       }
 
-      // ✅ SESSION EXPIRE (401 ONLY)
+      // ✅ SESSION EXPIRED
       if (err.response && err.response.status === 401) {
         alert("Session expired. Please login again.");
+        setLoading(false);
         return;
       }
 
-      // ❌ ANY OTHER ERROR
+      // ❌ OTHER ERROR
       setError("Failed to create invoice");
+      setLoading(false);
     }
   };
 
@@ -89,21 +97,53 @@ export default function CreateInvoice() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          <input name="clientName" placeholder="Client Name" onChange={handleChange} required className="w-full border p-2 rounded" />
+          <input
+            name="clientName"
+            placeholder="Client Name"
+            onChange={handleChange}
+            required
+            className="w-full border p-2 rounded"
+          />
 
-          <input name="clientEmail" placeholder="Client Email" onChange={handleChange} required className="w-full border p-2 rounded" />
+          <input
+            name="clientEmail"
+            placeholder="Client Email"
+            onChange={handleChange}
+            required
+            className="w-full border p-2 rounded"
+          />
 
-          <textarea name="serviceDescription" placeholder="Service Description" onChange={handleChange} required className="w-full border p-2 rounded" />
+          <textarea
+            name="serviceDescription"
+            placeholder="Service Description"
+            onChange={handleChange}
+            required
+            className="w-full border p-2 rounded"
+          />
 
-          <input name="amount" type="number" placeholder="Amount" onChange={handleChange} required className="w-full border p-2 rounded" />
+          <input
+            name="amount"
+            type="number"
+            placeholder="Amount"
+            onChange={handleChange}
+            required
+            className="w-full border p-2 rounded"
+          />
 
           <input type="file" accept="image/*" onChange={handleLogoUpload} />
 
-          <button className="bg-black text-white px-4 py-2 rounded">
+          <button className="bg-black text-white px-4 py-2 rounded w-full">
             {loading ? "Creating..." : "Create Invoice"}
           </button>
 
         </form>
+
+        {/* ❌ ERROR MESSAGE */}
+        {error && (
+          <p className="text-red-500 mt-4">{error}</p>
+        )}
+
+        {/* 🚀 LIMIT REACHED UI */}
         {limitReached && (
           <div className="bg-red-100 text-red-700 p-4 rounded mt-4">
             <p>Free limit reached (2 invoices)</p>
