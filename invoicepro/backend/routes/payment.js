@@ -5,6 +5,14 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
+// 🔐 YOUR ADMIN EMAIL
+const ADMIN_EMAIL = "ashieqahamed27@gmail.com";
+
+// 🔐 ADMIN CHECK
+const isAdmin = (req) => {
+    return req.user && req.user.email === ADMIN_EMAIL;
+};
+
 
 // ==========================
 // ➕ CREATE PAYMENT REQUEST
@@ -41,7 +49,13 @@ router.post('/request', protect, async(req, res) => {
 // ==========================
 // 📄 GET ALL REQUESTS (ADMIN)
 // ==========================
-router.get('/', async(req, res) => {
+router.get('/', protect, async(req, res) => {
+
+    // 🔐 ADMIN CHECK
+    if (!isAdmin(req)) {
+        return res.status(403).json({ message: 'Access denied ❌' });
+    }
+
     try {
         const requests = await PaymentRequest.find()
             .populate('user', 'name email plan')
@@ -57,9 +71,15 @@ router.get('/', async(req, res) => {
 
 
 // ==========================
-// ✅ APPROVE PAYMENT
+// ✅ APPROVE PAYMENT (ADMIN)
 // ==========================
-router.put('/approve/:id', async(req, res) => {
+router.put('/approve/:id', protect, async(req, res) => {
+
+    // 🔐 ADMIN CHECK
+    if (!isAdmin(req)) {
+        return res.status(403).json({ message: 'Access denied ❌' });
+    }
+
     try {
         const request = await PaymentRequest.findById(req.params.id).populate('user');
 
@@ -86,6 +106,5 @@ router.put('/approve/:id', async(req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-
 
 module.exports = router;

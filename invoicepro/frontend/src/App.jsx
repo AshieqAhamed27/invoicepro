@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import CreateInvoice from './pages/CreateInvoice';
 import InvoiceView from './pages/InvoiceView';
 import Payment from './pages/Payment'; // ✅ FIXED
+import Admin from './pages/Admin';
 
 const PrivateRoute = ({ children }) => {
   return isLoggedIn() ? children : <Navigate to="/login" replace />;
@@ -61,7 +62,10 @@ export default function App() {
           </PrivateRoute>
         } />
 
+          <Route path="/admin" element={<Admin />} />
+
       </Routes>
+    
     </BrowserRouter>
   );
 }
