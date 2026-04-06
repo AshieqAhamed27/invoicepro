@@ -59,11 +59,13 @@ export default function Payment() {
             src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi://pay?pa=ashieqahamed4@okicici&pn=InvoicePro&am=99.00&cu=INR"
             alt="UPI QR"
           />
-          <p className="text-center text-sm text-orange-600 bg-orange-100 p-3 rounded mb-4">
+         
+        </div>
+
+         <p className="text-center text-sm text-orange-600 bg-orange-100 p-3 rounded mb-4">
             ⚠️ QR scan works only on mobile devices.
             Please open this page on your phone or scan using another device.
           </p>
-        </div>
 
         {/* ✅ UPI BUTTON (MOBILE ONLY) */}
         <a
