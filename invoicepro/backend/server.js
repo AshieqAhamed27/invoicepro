@@ -5,15 +5,9 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const invoiceRoutes = require('./routes/invoices');
+const paymentRoutes = require('./routes/payment'); // ✅ ADD THIS
 
 const app = express();
-
-// ✅ Allowed frontend origins
-const allowedOrigins = [
-    'http://localhost:5173',
-    'https://invoicepro-lime.vercel.app',
-    'https://invoicepro-eootqlxp8-ashieqahamed4-5660s-projects.vercel.app'
-];
 
 // ✅ CORS setup
 app.use(cors({
@@ -38,6 +32,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
+app.use('/api/payment', paymentRoutes); // ✅ ADD THIS
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -50,11 +45,9 @@ const PORT = process.env.PORT || 5000;
 // MongoDB URI
 const MONGO_URI = process.env.MONGO_URI;
 
-// ✅ FIXED MongoDB connection
+// DB connect
 mongoose.connect(MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        family: 4 // 🔥 fixes ECONNREFUSED error
+        family: 4
     })
     .then(() => {
         console.log('✅ Connected to MongoDB');

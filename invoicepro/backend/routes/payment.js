@@ -1,55 +1,91 @@
 const express = require('express');
-const Payment = require('../models/Payment');
+const PaymentRequest = require('../models/PaymentRequest');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
-// ✅ USER CLICK "I PAID"
+
+// ==========================
+// ➕ CREATE PAYMENT REQUEST
+// ==========================
 router.post('/request', protect, async(req, res) => {
     try {
-        const payment = await Payment.create({
+        const existing = await PaymentRequest.findOne({
+            user: req.user._id,
+            status: 'pending'
+        });
+
+        if (existing) {
+            return res.status(400).json({
+                message: 'Already requested'
+            });
+        }
+
+        const request = await PaymentRequest.create({
             user: req.user._id
         });
 
         res.json({
-            message: 'Payment request submitted',
-            payment
+            message: 'Request sent successfully',
+            request
         });
 
     } catch (err) {
+        console.error("🔥 PAYMENT REQUEST ERROR:", err);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
-// ✅ ADMIN APPROVE
+
+// ==========================
+// 📄 GET ALL REQUESTS (ADMIN)
+// ==========================
+router.get('/', async(req, res) => {
+    try {
+        const requests = await PaymentRequest.find()
+            .populate('user', 'name email plan')
+            .sort({ createdAt: -1 });
+
+        res.json({ requests });
+
+    } catch (err) {
+        console.error("🔥 FETCH REQUEST ERROR:", err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+// ==========================
+// ✅ APPROVE PAYMENT
+// ==========================
 router.put('/approve/:id', async(req, res) => {
     try {
-        const payment = await Payment.findById(req.params.id);
+        const request = await PaymentRequest.findById(req.params.id).populate('user');
 
-        if (!payment) {
-            return res.status(404).json({ message: 'Not found' });
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found' });
         }
 
-        payment.status = 'approved';
-        await payment.save();
+        if (request.status === 'approved') {
+            return res.status(400).json({ message: 'Already approved' });
+        }
 
         // 🔥 UPGRADE USER
-        await User.findByIdAndUpdate(payment.user, {
-            plan: 'pro'
-        });
+        request.user.plan = 'pro';
+        await request.user.save();
 
-        res.json({ message: 'User upgraded to PRO' });
+        // 🔥 UPDATE REQUEST
+        request.status = 'approved';
+        await request.save();
+
+        res.json({ message: 'User upgraded to PRO successfully' });
 
     } catch (err) {
+        console.error("🔥 APPROVE ERROR:", err);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
-// ✅ GET ALL REQUESTS
-router.get('/', async(req, res) => {
-    const payments = await Payment.find().populate('user');
-    res.json({ payments });
-});
 
 module.exports = router;
