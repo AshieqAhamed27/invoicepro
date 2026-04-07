@@ -111,6 +111,36 @@ router.post('/login', async(req, res) => {
     }
 });
 
+router.post('/google', async(req, res) => {
+    try {
+        const { name, email } = req.body;
+
+        let user = await User.findOne({ email });
+
+        // ✅ If not exists → create
+        if (!user) {
+            user = await User.create({
+                name,
+                email,
+                password: Math.random().toString(36), // dummy password
+            });
+        }
+
+        res.json({
+            token: generateToken(user._id),
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                plan: user.plan
+            }
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: 'Google login failed' });
+    }
+});
+
 // ==========================
 // 👤 GET CURRENT USER
 // ==========================

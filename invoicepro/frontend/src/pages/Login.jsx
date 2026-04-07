@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { setAuth } from '../utils/auth';
+import { GoogleLogin } from '@react-oauth/google';
+import jwt_decode from 'jwt-decode';
+import api from '../utils/api';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -40,6 +43,9 @@ export default function Login() {
   };
 
   return (
+
+
+
     <div className="min-h-screen bg-ink-50 flex">
 
       {/* LEFT PANEL */}
@@ -90,6 +96,32 @@ export default function Login() {
             </div>
           )}
 
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              const decoded = jwt_decode(credentialResponse.credential);
+
+              try {
+                const res = await api.post('/auth/google', {
+                  name: decoded.name,
+                  email: decoded.email,
+                  googleId: decoded.sub
+                });
+
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('user', JSON.stringify(res.data.user));
+
+                window.location.href = '/dashboard';
+
+              } catch (err) {
+                console.log(err);
+                alert("Google login failed");
+              }
+            }}
+            onError={() => {
+              alert("Login Failed");
+            }}
+          />
+
           <form onSubmit={handleSubmit} className="space-y-4">
 
             <input
@@ -132,8 +164,8 @@ export default function Login() {
           </p>
 
         </div>
-
       </div>
+
     </div>
   );
 }
