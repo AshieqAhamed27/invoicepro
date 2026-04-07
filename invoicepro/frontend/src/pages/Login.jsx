@@ -4,7 +4,6 @@ import api from '../utils/api';
 import { setAuth } from '../utils/auth';
 import { GoogleLogin } from '@react-oauth/google';
 import jwt_decode from 'jwt-decode';
-import api from '../utils/api';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -25,10 +24,7 @@ export default function Login() {
     try {
       const res = await api.post('/auth/login', form);
 
-      // ✅ CLEAR OLD DATA (VERY IMPORTANT FIX)
-      localStorage.clear();
-
-      // ✅ SAVE NEW TOKEN
+      localStorage.clear(); // clear old
       setAuth(res.data.token, res.data.user);
 
       navigate('/dashboard');
@@ -43,14 +39,10 @@ export default function Login() {
   };
 
   return (
-
-
-
     <div className="min-h-screen bg-ink-50 flex">
 
       {/* LEFT PANEL */}
       <div className="hidden lg:flex w-1/2 bg-ink-900 flex-col justify-between p-12">
-
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-amber-500 rounded-sm flex items-center justify-center font-bold text-ink-900">
             IP
@@ -79,7 +71,6 @@ export default function Login() {
 
       {/* RIGHT PANEL */}
       <div className="flex-1 flex items-center justify-center px-6">
-
         <div className="w-full max-w-md">
 
           <h1 className="text-2xl font-bold mb-2">
@@ -96,32 +87,37 @@ export default function Login() {
             </div>
           )}
 
-          <GoogleLogin
-            onSuccess={async (credentialResponse) => {
-              const decoded = jwt_decode(credentialResponse.credential);
+          {/* 🔥 GOOGLE BUTTON */}
+          <div className="mb-4 flex justify-center">
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                const decoded = jwt_decode(credentialResponse.credential);
 
-              try {
-                const res = await api.post('/auth/google', {
-                  name: decoded.name,
-                  email: decoded.email,
-                  googleId: decoded.sub
-                });
+                try {
+                  const res = await api.post('/auth/google', {
+                    name: decoded.name,
+                    email: decoded.email,
+                  });
 
-                localStorage.setItem('token', res.data.token);
-                localStorage.setItem('user', JSON.stringify(res.data.user));
+                  localStorage.setItem('token', res.data.token);
+                  localStorage.setItem('user', JSON.stringify(res.data.user));
 
-                window.location.href = '/dashboard';
+                  window.location.href = '/dashboard';
 
-              } catch (err) {
-                console.log(err);
-                alert("Google login failed");
-              }
-            }}
-            onError={() => {
-              alert("Login Failed");
-            }}
-          />
+                } catch (err) {
+                  console.log(err);
+                  alert("Google login failed");
+                }
+              }}
+              onError={() => {
+                alert("Google Login Failed");
+              }}
+            />
+          </div>
 
+          <div className="text-center text-gray-400 mb-4">OR</div>
+
+          {/* FORM */}
           <form onSubmit={handleSubmit} className="space-y-4">
 
             <input
