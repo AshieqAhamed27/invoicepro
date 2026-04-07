@@ -10,6 +10,9 @@ const paymentRequestSchema = new mongoose.Schema({
         type: String,
         enum: ['pending', 'approved'],
         default: 'pending'
+    },
+    screenshot: {
+        type: String
     }
 }, { timestamps: true });
 

@@ -26,6 +26,7 @@ app.use(cors({
     credentials: true
 }));
 
+app.use('/uploads', express.static('uploads'));
 // Middleware
 app.use(express.json());
 

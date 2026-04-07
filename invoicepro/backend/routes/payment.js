@@ -3,6 +3,30 @@ const PaymentRequest = require('../models/PaymentRequest');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
 
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'yourgmail@gmail.com',
+        pass: 'your-app-password'
+    }
+});
+
+const multer = require('multer');
+
+// storage config
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function(req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ storage });
+
 const router = express.Router();
 
 // 🔐 YOUR ADMIN EMAIL
@@ -17,21 +41,21 @@ const isAdmin = (req) => {
 // ==========================
 // ➕ CREATE PAYMENT REQUEST
 // ==========================
-router.post('/request', protect, async(req, res) => {
+router.post('/request', protect, upload.single('screenshot'), async(req, res) => {
     try {
+
         const existing = await PaymentRequest.findOne({
             user: req.user._id,
             status: 'pending'
         });
 
         if (existing) {
-            return res.status(400).json({
-                message: 'Already requested'
-            });
+            return res.status(400).json({ message: 'Already requested' });
         }
 
         const request = await PaymentRequest.create({
-            user: req.user._id
+            user: req.user._id,
+            screenshot: req.file ? req.file.filename : null
         });
 
         res.json({
@@ -39,8 +63,15 @@ router.post('/request', protect, async(req, res) => {
             request
         });
 
+        await transporter.sendMail({
+            from: 'yourgmail@gmail.com',
+            to: 'yourgmail@gmail.com',
+            subject: 'New Payment Request',
+            text: `User ${req.user.email} submitted payment proof`
+        });
+
     } catch (err) {
-        console.error("🔥 PAYMENT REQUEST ERROR:", err);
+        console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
 });
