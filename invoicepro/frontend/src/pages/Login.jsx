@@ -38,12 +38,33 @@ export default function Login() {
 
   // 🔥 LOAD GOOGLE BUTTON
   useEffect(() => {
-  const interval = setInterval(() => {
-    if (window.google && window.google.accounts) {
+  const loadGoogleScript = () => {
+    return new Promise((resolve) => {
+      const existingScript = document.querySelector(
+        'script[src="https://accounts.google.com/gsi/client"]'
+      );
 
+      if (existingScript) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+
+      script.onload = resolve;
+
+      document.body.appendChild(script);
+    });
+  };
+
+  loadGoogleScript().then(() => {
+    if (window.google) {
       window.google.accounts.id.initialize({
         client_id: "251597134759-nfkq6fmlnvsgn8lniia3colbfer62gum.apps.googleusercontent.com",
-        callback: handleGoogleLogin
+        callback: handleGoogleLogin,
       });
 
       window.google.accounts.id.renderButton(
@@ -51,13 +72,13 @@ export default function Login() {
         {
           theme: "outline",
           size: "large",
-          width: 300
+          width: 300,
         }
       );
-
-      clearInterval(interval); // stop loop
+    } else {
+      console.log("❌ Google not loaded");
     }
-  }, 500); // check every 0.5s
+  });
 }, []);
 
   // 🔥 NORMAL LOGIN
