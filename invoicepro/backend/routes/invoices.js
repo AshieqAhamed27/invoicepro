@@ -2,8 +2,6 @@ const express = require('express');
 const Invoice = require('../models/Invoice');
 const { protect } = require('../middleware/auth');
 
-const sendEmail = require('../utils/sendEmail');
-
 const router = express.Router();
 
 const FREE_PLAN_LIMIT = 2;
@@ -22,6 +20,7 @@ router.get('/', protect, async(req, res) => {
         const invoices = await Invoice.find({ user: req.user._id }).sort({ createdAt: -1 });
         res.json({ invoices, count: invoices.length });
     } catch (err) {
+        console.error("🔥 GET INVOICES ERROR:", err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
@@ -42,6 +41,7 @@ router.get('/:id', protect, async(req, res) => {
 
         res.json({ invoice });
     } catch (err) {
+        console.error("🔥 GET SINGLE ERROR:", err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
@@ -53,10 +53,12 @@ router.post('/', protect, async(req, res) => {
     try {
         const user = req.user;
 
+        // ✅ AUTH CHECK
         if (!user || !user._id) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
 
+        // 🔥 COUNT USER INVOICES
         const count = await Invoice.countDocuments({ user: user._id });
 
         // 🔥 FREE PLAN LIMIT
@@ -67,6 +69,7 @@ router.post('/', protect, async(req, res) => {
             });
         }
 
+        // 🔥 GENERATE NUMBER
         const invoiceNumber = generateInvoiceNumber(count);
 
         const {
@@ -81,6 +84,8 @@ router.post('/', protect, async(req, res) => {
             logo
         } = req.body;
 
+        console.log("📥 INCOMING DATA:", req.body);
+
         // ✅ VALIDATION
         if (!clientName || !clientEmail || !amount) {
             return res.status(400).json({
@@ -88,7 +93,7 @@ router.post('/', protect, async(req, res) => {
             });
         }
 
-        // ✅ CREATE INVOICE FIRST (IMPORTANT)
+        // ✅ CREATE INVOICE
         const invoice = await Invoice.create({
             clientName,
             clientEmail,
@@ -99,27 +104,11 @@ router.post('/', protect, async(req, res) => {
             dueDate,
             notes,
             logo: logo || null,
-            invoiceNumber: invoiceNumber,
+            invoiceNumber,
             user: user._id
         });
 
-        // 🔥 SEND EMAIL (SAFE — WILL NOT BREAK API)
-        try {
-            if (clientEmail) {
-                await sendEmail(
-                    clientEmail,
-                    "New Invoice",
-                    `
-            <h2>You received an invoice</h2>
-            <p><strong>From:</strong> ${user.companyName || 'InvoicePro'}</p>
-            <p><strong>Amount:</strong> ₹${amount}</p>
-            <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
-          `
-                );
-            }
-        } catch (emailErr) {
-            console.error("❌ Email failed:", emailErr.message);
-        }
+        console.log("✅ Invoice created:", invoice._id);
 
         res.status(201).json({ invoice });
 
@@ -142,6 +131,7 @@ router.put('/:id/status', protect, async(req, res) => {
 
         res.json({ message: 'Status updated!', invoice });
     } catch (err) {
+        console.error("🔥 UPDATE STATUS ERROR:", err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
@@ -162,6 +152,7 @@ router.delete('/:id', protect, async(req, res) => {
 
         res.json({ message: 'Invoice deleted.' });
     } catch (err) {
+        console.error("🔥 DELETE ERROR:", err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
