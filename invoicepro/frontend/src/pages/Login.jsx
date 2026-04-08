@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { setAuth } from '../utils/auth';
-import { GoogleLogin } from '@react-oauth/google';
 import jwt_decode from 'jwt-decode';
 
 export default function Login() {
@@ -16,6 +15,48 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // 🔥 GOOGLE LOGIN HANDLER
+  const handleGoogleLogin = async (response) => {
+    const decoded = jwt_decode(response.credential);
+
+    try {
+      const res = await api.post('/auth/google', {
+        name: decoded.name,
+        email: decoded.email
+      });
+
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+
+      window.location.href = '/dashboard';
+
+    } catch (err) {
+      console.log(err);
+      alert("Google login failed");
+    }
+  };
+
+  // 🔥 LOAD GOOGLE BUTTON
+  useEffect(() => {
+    /* global google */
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: "251597134759-nfkq6fmlnvsgn8lniia3colbfer62gum.apps.googleusercontent.com",
+        callback: handleGoogleLogin
+      });
+
+      window.google.accounts.id.renderButton(
+        document.getElementById("googleBtn"),
+        {
+          theme: "outline",
+          size: "large",
+          width: 300
+        }
+      );
+    }
+  }, []);
+
+  // 🔥 NORMAL LOGIN
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -24,10 +65,11 @@ export default function Login() {
     try {
       const res = await api.post('/auth/login', form);
 
-      localStorage.clear(); // clear old
+      localStorage.clear();
       setAuth(res.data.token, res.data.user);
 
       navigate('/dashboard');
+
     } catch (err) {
       setError(
         (err.response && err.response.data && err.response.data.message) ||
@@ -87,33 +129,8 @@ export default function Login() {
             </div>
           )}
 
-          {/* 🔥 GOOGLE BUTTON */}
-          <div className="mb-4 flex justify-center">
-            <GoogleLogin
-              onSuccess={async (credentialResponse) => {
-                const decoded = jwt_decode(credentialResponse.credential);
-
-                try {
-                  const res = await api.post('/auth/google', {
-                    name: decoded.name,
-                    email: decoded.email,
-                  });
-
-                  localStorage.setItem('token', res.data.token);
-                  localStorage.setItem('user', JSON.stringify(res.data.user));
-
-                  window.location.href = '/dashboard';
-
-                } catch (err) {
-                  console.log(err);
-                  alert("Google login failed");
-                }
-              }}
-              onError={() => {
-                alert("Google Login Failed");
-              }}
-            />
-          </div>
+          {/* 🔥 GOOGLE BUTTON (WORKING) */}
+          <div id="googleBtn" className="mb-4 flex justify-center"></div>
 
           <div className="text-center text-gray-400 mb-4">OR</div>
 
