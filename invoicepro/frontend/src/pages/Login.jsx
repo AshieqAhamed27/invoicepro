@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { setAuth } from '../utils/auth';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export default function Login() {
 
   // 🔥 GOOGLE LOGIN HANDLER
   const handleGoogleLogin = async (response) => {
-    const decoded = jwt_decode(response.credential);
+    const decoded = jwtDecode(response.credential);
 
     try {
       const res = await api.post('/auth/google', {
