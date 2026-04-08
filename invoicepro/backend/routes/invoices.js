@@ -2,6 +2,8 @@ const express = require('express');
 const Invoice = require('../models/Invoice');
 const { protect } = require('../middleware/auth');
 
+const sendEmail = require('../utils/sendEmail');
+
 const router = express.Router();
 
 const FREE_PLAN_LIMIT = 2;
@@ -100,6 +102,13 @@ router.post('/', protect, async(req, res) => {
             invoiceNumber: invoiceNumber || `INV-${Date.now()}`, // ✅ SAFE FIX
             user: user._id
         });
+
+        await sendEmail(
+            clientEmail,
+            "New Invoice",
+            `<h2>You received an invoice</h2>
+   <p>Amount: ₹${amount}</p>`
+        );
 
         res.status(201).json({ invoice });
 
