@@ -10,13 +10,6 @@ const STATUS_COLORS = {
   paid: 'bg-green-100 text-green-700',
 };
 
-const formatCurrency = (amount, currency) => {
-  const symbol = currency === 'INR' ? '₹' : '$';
-  return `${symbol}${Number(amount).toLocaleString('en-IN', {
-    minimumFractionDigits: 2
-  })}`;
-};
-
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,12 +25,8 @@ export default function Dashboard() {
   const fetchInvoices = async () => {
     try {
       const res = await api.get('/invoices');
-      const validInvoices = (res.data.invoices || []).filter(
-        (inv) => inv && inv._id
-      );
-      setInvoices(validInvoices);
-    } catch (err) {
-      console.error(err);
+      setInvoices(res.data.invoices || []);
+    } catch {
       alert('Failed to load invoices');
     } finally {
       setLoading(false);
@@ -45,18 +34,10 @@ export default function Dashboard() {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await api.delete(`/invoices/${id}`);
-      setInvoices((prev) => prev.filter((inv) => inv._id !== id));
-      setDeleteId(null);
-    } catch {
-      alert('Delete failed');
-    }
+    await api.delete(`/invoices/${id}`);
+    setInvoices((prev) => prev.filter((i) => i._id !== id));
+    setDeleteId(null);
   };
-
-  const totalRevenue = invoices
-    .filter((i) => i.status === 'paid')
-    .reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
   const isPro = user.plan === 'pro';
 
@@ -64,12 +45,13 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-100">
       <Navbar />
 
-      <main className="max-w-6xl mx-auto p-6">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+
           <div>
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-xl sm:text-2xl font-bold">
               Welcome, {user.name || 'User'} 👋
             </h1>
             <p className="text-gray-500 text-sm">
@@ -77,13 +59,12 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
 
-            {/* ✅ SHOW ONLY FOR FREE USERS */}
             {!isPro && (
               <button
                 onClick={() => navigate('/payment')}
-                className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-400"
+                className="w-full sm:w-auto bg-yellow-500 py-2 px-4 rounded-lg font-semibold"
               >
                 Upgrade ₹99 🚀
               </button>
@@ -91,7 +72,7 @@ export default function Dashboard() {
 
             <Link
               to="/create-invoice"
-              className="bg-black text-white px-5 py-2 rounded-lg hover:bg-gray-800"
+              className="w-full sm:w-auto bg-black text-white py-2 px-4 rounded-lg text-center"
             >
               + Create Invoice
             </Link>
@@ -99,32 +80,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* PLAN STATUS */}
-        <div className="mb-6">
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-              isPro
-                ? 'bg-green-100 text-green-700'
-                : 'bg-gray-200 text-gray-700'
-            }`}
-          >
-            {isPro ? 'PRO PLAN 🚀' : 'FREE PLAN'}
-          </span>
-        </div>
-
         {/* STATS */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <div className="bg-white p-5 rounded-xl shadow">
-            <p className="text-gray-500 text-sm">Total Invoices</p>
+            <p className="text-gray-500 text-sm">Invoices</p>
             <h2 className="text-xl font-bold">{invoices.length}</h2>
-          </div>
-
-          <div className="bg-white p-5 rounded-xl shadow">
-            <p className="text-gray-500 text-sm">Revenue</p>
-            <h2 className="text-xl font-bold">
-              ₹{totalRevenue.toLocaleString('en-IN')}
-            </h2>
           </div>
 
           <div className="bg-white p-5 rounded-xl shadow">
@@ -132,95 +92,43 @@ export default function Dashboard() {
             <h2 className="text-green-600 font-bold">Active</h2>
           </div>
 
+          <div className="bg-white p-5 rounded-xl shadow">
+            <p className="text-gray-500 text-sm">Plan</p>
+            <h2 className="font-bold">{isPro ? 'PRO 🚀' : 'FREE'}</h2>
+          </div>
         </div>
 
-        {/* INVOICE LIST */}
-        <div className="bg-white rounded-xl shadow overflow-hidden">
-
-          <div className="px-6 py-3 border-b font-semibold">
-            Invoices
-          </div>
-
+        {/* LIST */}
+        <div className="bg-white rounded-xl shadow">
           {loading ? (
-            <div className="p-6 text-center text-gray-400">
-              Loading...
-            </div>
+            <p className="p-6 text-center">Loading...</p>
           ) : invoices.length === 0 ? (
-            <div className="p-10 text-center text-gray-500">
-              No invoices yet
-            </div>
+            <p className="p-6 text-center">No invoices</p>
           ) : (
             invoices.map((inv) => (
-              <div
-                key={inv._id}
-                className="flex justify-between items-center px-6 py-4 border-b hover:bg-gray-50"
-              >
+              <div key={inv._id} className="p-4 border-b flex flex-col sm:flex-row justify-between gap-2">
+
                 <div>
                   <p className="font-medium">{inv.clientName}</p>
-                  <p className="text-sm text-gray-500">
-                    {inv.clientEmail}
-                  </p>
+                  <p className="text-sm text-gray-500">{inv.clientEmail}</p>
                 </div>
 
-                <div className="text-right">
-                  <p className="font-bold">
-                    {formatCurrency(inv.amount, inv.currency)}
-                  </p>
-                  <span
-                    className={`text-xs px-2 py-1 rounded ${
-                      STATUS_COLORS[inv.status]
-                    }`}
-                  >
-                    {inv.status}
-                  </span>
-                </div>
-
-                <div className="flex gap-4">
-                  <Link
-                    to={`/invoice/${inv._id}`}
-                    className="text-blue-600 text-sm hover:underline"
-                  >
+                <div className="flex gap-3">
+                  <Link to={`/invoice/${inv._id}`} className="text-blue-600 text-sm">
                     View
                   </Link>
 
-                  <button
-                    onClick={() => setDeleteId(inv._id)}
-                    className="text-red-500 text-sm"
-                  >
+                  <button onClick={() => setDeleteId(inv._id)} className="text-red-500 text-sm">
                     Delete
                   </button>
                 </div>
+
               </div>
             ))
           )}
         </div>
 
       </main>
-
-      {/* DELETE MODAL */}
-      {deleteId && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="mb-4">Delete this invoice?</p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteId(null)}
-                className="px-4 py-2 border rounded"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={() => handleDelete(deleteId)}
-                className="px-4 py-2 bg-red-500 text-white rounded"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
