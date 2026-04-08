@@ -38,8 +38,8 @@ export default function Login() {
 
   // 🔥 LOAD GOOGLE BUTTON
   useEffect(() => {
-  const loadGoogle = () => {
-    if (window.google && document.getElementById("googleBtn")) {
+  const interval = setInterval(() => {
+    if (window.google && window.google.accounts) {
 
       window.google.accounts.id.initialize({
         client_id: "251597134759-nfkq6fmlnvsgn8lniia3colbfer62gum.apps.googleusercontent.com",
@@ -55,12 +55,9 @@ export default function Login() {
         }
       );
 
-    } else {
-      setTimeout(loadGoogle, 500); // 🔁 retry
+      clearInterval(interval); // stop loop
     }
-  };
-
-  loadGoogle();
+  }, 500); // check every 0.5s
 }, []);
 
   // 🔥 NORMAL LOGIN
