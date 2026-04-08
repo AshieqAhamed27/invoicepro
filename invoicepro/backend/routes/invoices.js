@@ -59,7 +59,7 @@ router.post('/', protect, async(req, res) => {
 
         const count = await Invoice.countDocuments({ user: user._id });
 
-        // 🔥 LIMIT FREE USERS
+        // 🔥 FREE PLAN LIMIT
         if (user.plan === 'free' && count >= FREE_PLAN_LIMIT) {
             return res.status(403).json({
                 message: 'Free plan limit reached',
@@ -67,7 +67,6 @@ router.post('/', protect, async(req, res) => {
             });
         }
 
-        // 🔥 GENERATE NUMBER
         const invoiceNumber = generateInvoiceNumber(count);
 
         const {
@@ -89,6 +88,7 @@ router.post('/', protect, async(req, res) => {
             });
         }
 
+        // ✅ CREATE INVOICE FIRST (IMPORTANT)
         const invoice = await Invoice.create({
             clientName,
             clientEmail,
@@ -99,16 +99,27 @@ router.post('/', protect, async(req, res) => {
             dueDate,
             notes,
             logo: logo || null,
-            invoiceNumber: invoiceNumber || `INV-${Date.now()}`, // ✅ SAFE FIX
+            invoiceNumber: invoiceNumber,
             user: user._id
         });
 
-        await sendEmail(
-            clientEmail,
-            "New Invoice",
-            `<h2>You received an invoice</h2>
-   <p>Amount: ₹${amount}</p>`
-        );
+        // 🔥 SEND EMAIL (SAFE — WILL NOT BREAK API)
+        try {
+            if (clientEmail) {
+                await sendEmail(
+                    clientEmail,
+                    "New Invoice",
+                    `
+            <h2>You received an invoice</h2>
+            <p><strong>From:</strong> ${user.companyName || 'InvoicePro'}</p>
+            <p><strong>Amount:</strong> ₹${amount}</p>
+            <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+          `
+                );
+            }
+        } catch (emailErr) {
+            console.error("❌ Email failed:", emailErr.message);
+        }
 
         res.status(201).json({ invoice });
 
@@ -136,7 +147,7 @@ router.put('/:id/status', protect, async(req, res) => {
 });
 
 // ==========================
-// ❌ DELETE
+// ❌ DELETE INVOICE
 // ==========================
 router.delete('/:id', protect, async(req, res) => {
     try {
