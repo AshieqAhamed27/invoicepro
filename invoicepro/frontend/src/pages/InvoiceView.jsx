@@ -31,17 +31,10 @@ export default function InvoiceView() {
   const printRef = useRef();
 
   useEffect(() => {
-    if (id) {
-      fetchInvoice();
-    }
+    if (id) fetchInvoice();
   }, [id]);
 
   const fetchInvoice = async () => {
-    if (!id) {
-      alert("Invalid invoice ID");
-      return;
-    }
-
     try {
       const res = await api.get(`/invoices/${id}`);
       setInvoice(res.data.invoice);
@@ -53,13 +46,9 @@ export default function InvoiceView() {
     }
   };
 
+  // ✅ PROFESSIONAL PDF DOWNLOAD
   const handleDownloadPDF = () => {
     const element = printRef.current;
-
-    if (!element) {
-      alert("PDF error");
-      return;
-    }
 
     const opt = {
       margin: 10,
@@ -71,14 +60,6 @@ export default function InvoiceView() {
 
     html2pdf().set(opt).from(element).save();
   };
-
-  if (!id) {
-    return (
-      <div className="min-h-screen flex justify-center items-center">
-        Invalid Invoice ID ❌
-      </div>
-    );
-  }
 
   if (loading) {
     return (
@@ -98,15 +79,17 @@ export default function InvoiceView() {
 
       <main className="max-w-3xl mx-auto p-4">
 
-        {/* BUTTON */}
-        <button
-          onClick={handleDownloadPDF}
-          className="mb-4 bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg"
-        >
-          Download PDF
-        </button>
+        {/* DOWNLOAD BUTTON */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={handleDownloadPDF}
+            className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg"
+          >
+            Download PDF
+          </button>
+        </div>
 
-        {/* INVOICE */}
+        {/* INVOICE DESIGN */}
         <div
           ref={printRef}
           className="bg-white text-black p-8 rounded-xl shadow-lg border"
@@ -116,10 +99,9 @@ export default function InvoiceView() {
           <div className="flex justify-between items-center border-b pb-4 mb-6">
 
             <div>
-              {/* ✅ LOGO (fallback added) */}
               <img
                 src={
-                  invoice?.logo ||
+                  invoice.logo ||
                   "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
                 }
                 alt="logo"

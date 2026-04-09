@@ -3,6 +3,7 @@ const Invoice = require('../models/Invoice');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
+const sendEmail = require('../utils/sendEmail');
 
 const FREE_PLAN_LIMIT = 2;
 
@@ -115,6 +116,20 @@ router.post('/', protect, async(req, res) => {
     } catch (err) {
         console.error("🔥 CREATE INVOICE ERROR:", err);
         res.status(500).json({ message: 'Server error' });
+    }
+
+    try {
+        await sendEmail(
+            clientEmail,
+            "Invoice from InvoicePro",
+            `
+      <h2>You received a new invoice</h2>
+      <p><strong>Amount:</strong> ₹${amount}</p>
+      <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+    `
+        );
+    } catch (e) {
+        console.log("Email failed but invoice saved");
     }
 });
 
