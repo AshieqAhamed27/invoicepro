@@ -11,6 +11,9 @@ export default function CreateInvoice() {
     clientEmail: '',
     serviceDescription: '',
     amount: '',
+    gst: '',
+    cgst: '',
+    sgst: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -63,6 +66,13 @@ export default function CreateInvoice() {
     setLoading(false);
   };
 
+  const amount = Number(form.amount) || 0;
+  const cgst = Number(form.cgst) || 0;
+  const sgst = Number(form.sgst) || 0;
+
+  const tax = (amount * (cgst + sgst)) / 100;
+  const total = amount + tax;
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -112,6 +122,35 @@ export default function CreateInvoice() {
             required
             className="w-full border p-3 rounded-lg"
           />
+
+          <input
+            name="gst"
+            placeholder="GST Number"
+            onChange={handleChange}
+            className="w-full border p-3 rounded-lg"
+          />
+
+          <input
+            name="cgst"
+            type="number"
+            placeholder="CGST %"
+            onChange={handleChange}
+            className="w-full border p-3 rounded-lg"
+          />
+
+          <input
+            name="sgst"
+            type="number"
+            placeholder="SGST %"
+            onChange={handleChange}
+            className="w-full border p-3 rounded-lg"
+          />
+
+          <div className="bg-gray-100 p-3 rounded-lg">
+            <p>Subtotal: ₹{amount}</p>
+            <p>Tax: ₹{tax}</p>
+            <h3 className="font-bold">Total: ₹{total}</h3>
+          </div>
 
           {/* BUTTON */}
           <button className="w-full bg-black text-white py-3 rounded-lg">
