@@ -35,6 +35,11 @@ export default function Dashboard() {
 
   const isPro = user.plan === 'pro';
 
+  const totalEarned = invoices.reduce(
+    (sum, inv) => sum + Number(inv.amount || 0),
+    0
+  );
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -91,6 +96,12 @@ export default function Dashboard() {
             <p className="text-gray-500 text-sm">Plan</p>
             <h2 className="font-bold">
               {isPro ? 'PRO 🚀' : 'FREE'}
+            </h2>
+          </div>
+          <div className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
+            <p className="text-gray-500 text-sm">Total Earned</p>
+            <h2 className="text-2xl font-bold text-green-600">
+              ₹{totalEarned}
             </h2>
           </div>
 
