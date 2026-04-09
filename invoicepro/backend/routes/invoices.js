@@ -100,7 +100,7 @@ router.post('/', protect, async(req, res) => {
             serviceDescription,
             amount: Number(amount),
             currency,
-            date,
+            date: date || new Date().toISOString().split('T')[0],
             dueDate,
             notes,
             logo: logo || null,
