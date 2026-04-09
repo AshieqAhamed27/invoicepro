@@ -26,51 +26,6 @@ export default function App() {
     <BrowserRouter>
       <Routes>
 
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-        <Route path="/login" element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        } />
-
-        <Route path="/signup" element={
-          <PublicRoute>
-            <Signup />
-          </PublicRoute>
-        } />
-
-        <Route path="/dashboard" element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        } />
-
-        <Route path="/create-invoice" element={
-          <PrivateRoute>
-            <CreateInvoice />
-          </PrivateRoute>
-        } />
-
-        <Route path="/invoice/:id" element={
-          <PrivateRoute>
-            <InvoiceView />
-          </PrivateRoute>
-        } />
-
-        {/* ✅ ADD PAYMENT ROUTE */}
-        <Route path="/payment" element={
-          <PrivateRoute>
-            <Payment />
-          </PrivateRoute>
-        } />
-
-        <Route path="/admin" element={<Admin />} />
-
-        <Route path="/" element={<Home />} />
-
-      </Routes><Routes>
-
         {/* HOMEPAGE */}
         <Route path="/" element={<Home />} />
 
