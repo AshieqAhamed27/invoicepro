@@ -98,7 +98,7 @@ router.post('/', protect, async(req, res) => {
             clientName,
             clientEmail,
             serviceDescription,
-            amount,
+            amount: Number(amount),
             currency,
             date,
             dueDate,
