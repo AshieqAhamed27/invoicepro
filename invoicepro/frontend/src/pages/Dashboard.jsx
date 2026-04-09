@@ -4,12 +4,6 @@ import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
 
-const STATUS_COLORS = {
-  draft: 'bg-gray-100 text-gray-600',
-  sent: 'bg-blue-100 text-blue-700',
-  paid: 'bg-green-100 text-green-700',
-};
-
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,23 +42,23 @@ export default function Dashboard() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
         {/* HEADER */}
-        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
 
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold">
+            <h1 className="text-2xl md:text-3xl font-bold">
               Welcome, {user.name || 'User'} 👋
             </h1>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500">
               Manage your invoices easily
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <div className="flex gap-3 w-full md:w-auto">
 
             {!isPro && (
               <button
                 onClick={() => navigate('/payment')}
-                className="w-full sm:w-auto bg-yellow-500 py-2 px-4 rounded-lg font-semibold"
+                className="bg-yellow-400 hover:bg-yellow-500 px-5 py-2 rounded-lg font-semibold shadow"
               >
                 Upgrade ₹99 🚀
               </button>
@@ -72,7 +66,7 @@ export default function Dashboard() {
 
             <Link
               to="/create-invoice"
-              className="w-full sm:w-auto bg-black text-white py-2 px-4 rounded-lg text-center"
+              className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg shadow"
             >
               + Create Invoice
             </Link>
@@ -81,51 +75,84 @@ export default function Dashboard() {
         </div>
 
         {/* STATS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-5 rounded-xl shadow">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+
+          <div className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
             <p className="text-gray-500 text-sm">Invoices</p>
-            <h2 className="text-xl font-bold">{invoices.length}</h2>
+            <h2 className="text-2xl font-bold">{invoices.length}</h2>
           </div>
 
-          <div className="bg-white p-5 rounded-xl shadow">
+          <div className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
             <p className="text-gray-500 text-sm">Status</p>
             <h2 className="text-green-600 font-bold">Active</h2>
           </div>
 
-          <div className="bg-white p-5 rounded-xl shadow">
+          <div className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
             <p className="text-gray-500 text-sm">Plan</p>
-            <h2 className="font-bold">{isPro ? 'PRO 🚀' : 'FREE'}</h2>
+            <h2 className="font-bold">
+              {isPro ? 'PRO 🚀' : 'FREE'}
+            </h2>
           </div>
+
         </div>
 
-        {/* LIST */}
-        <div className="bg-white rounded-xl shadow">
+        {/* INVOICE LIST */}
+        <div className="bg-white rounded-xl shadow p-4">
+
+          <h2 className="text-lg font-semibold mb-4">
+            Recent Invoices
+          </h2>
+
           {loading ? (
-            <p className="p-6 text-center">Loading...</p>
+            <p className="text-center py-6">Loading...</p>
           ) : invoices.length === 0 ? (
-            <p className="p-6 text-center">No invoices</p>
+            <p className="text-center py-6 text-gray-500">
+              No invoices yet
+            </p>
           ) : (
-            invoices.map((inv) => (
-              <div key={inv._id} className="p-4 border-b flex flex-col sm:flex-row justify-between gap-2">
+            <div className="flex flex-col gap-3">
 
-                <div>
-                  <p className="font-medium">{inv.clientName}</p>
-                  <p className="text-sm text-gray-500">{inv.clientEmail}</p>
+              {invoices.map((inv) => (
+                <div
+                  key={inv._id}
+                  className="flex flex-col sm:flex-row justify-between items-center border p-4 rounded-lg hover:bg-gray-50 transition"
+                >
+
+                  {/* LEFT */}
+                  <div>
+                    <p className="font-semibold">
+                      {inv.clientName}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {inv.clientEmail}
+                    </p>
+                  </div>
+
+                  {/* RIGHT */}
+                  <div className="flex gap-4 mt-2 sm:mt-0">
+
+                    <Link
+                      to={`/invoice/${inv._id}`}
+                      className="text-blue-600 hover:underline text-sm"
+                    >
+                      View
+                    </Link>
+
+                    <button
+                      onClick={() => handleDelete(inv._id)}
+                      className="text-red-500 hover:underline text-sm"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+
                 </div>
+              ))}
 
-                <div className="flex gap-3">
-                  <Link to={`/invoice/${inv._id}`} className="text-blue-600 text-sm">
-                    View
-                  </Link>
-
-                  <button onClick={() => setDeleteId(inv._id)} className="text-red-500 text-sm">
-                    Delete
-                  </button>
-                </div>
-
-              </div>
-            ))
+            </div>
           )}
+
         </div>
 
       </main>
