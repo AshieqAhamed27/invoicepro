@@ -91,7 +91,7 @@ export default function Home() {
       <div className="text-center text-gray-400 text-sm pb-6">
         © {new Date().getFullYear()} InvoicePro. All rights reserved.
       </div>
-
+      
     </div>
   );
 }
