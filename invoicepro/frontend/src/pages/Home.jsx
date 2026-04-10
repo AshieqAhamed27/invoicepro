@@ -58,7 +58,7 @@ export default function Home() {
       </nav>
 
       {/* HERO SECTION */}
-      <div className="flex flex-col items-center justify-center text-center px-6 py-20">
+      <div className="flex flex-col items-center justify-center text-center px-6 py-24">
 
         <img
           src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
@@ -70,30 +70,20 @@ export default function Home() {
           Create Professional Invoices <br /> in Seconds
         </h1>
 
-        <p className="text-gray-300 max-w-xl mb-8">
+        <p className="text-gray-300 max-w-xl mb-6">
           Free, fast and powerful invoice generator for freelancers
           and small businesses. Get paid faster with clean invoices.
         </p>
 
-        <div className="flex gap-4 flex-wrap justify-center">
-
+        {/* OPTIONAL CTA (ONLY IF LOGGED IN) */}
+        {loggedIn && (
           <button
-            onClick={() => navigate('/create-invoice')}
+            onClick={() => navigate('/dashboard')}
             className="bg-yellow-500 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition"
           >
-            Create Invoice 🚀
+            Go to Dashboard →
           </button>
-
-          {!loggedIn && (
-            <button
-              onClick={() => navigate('/login')}
-              className="border border-gray-500 px-6 py-3 rounded-lg hover:bg-gray-700 transition"
-            >
-              Login
-            </button>
-          )}
-
-        </div>
+        )}
 
       </div>
 
