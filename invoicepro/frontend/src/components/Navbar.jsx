@@ -28,17 +28,27 @@ export default function Navbar() {
             alt="logo"
             className="w-8 h-8"
           />
-          <span className="text-xl font-bold">
-            InvoicePro
-          </span>
+          <span className="text-xl font-bold">InvoicePro</span>
         </Link>
 
-        {/* LINKS */}
+        {/* NAV LINKS */}
         <div className="flex gap-4 items-center text-sm flex-wrap">
 
           <Link to="/" className={linkClass('/')}>
             Home
           </Link>
+
+          {loggedIn && (
+            <>
+              <Link to="/dashboard" className={linkClass('/dashboard')}>
+                Dashboard
+              </Link>
+
+              <Link to="/create-invoice" className={linkClass('/create-invoice')}>
+                Create
+              </Link>
+            </>
+          )}
 
           <Link to="/payment" className={linkClass('/payment')}>
             Payment
@@ -48,24 +58,7 @@ export default function Navbar() {
             Admin
           </Link>
 
-          {loggedIn ? (
-            <>
-              <Link to="/dashboard" className={linkClass('/dashboard')}>
-                Dashboard
-              </Link>
-
-              <Link to="/create-invoice" className={linkClass('/create-invoice')}>
-                Create
-              </Link>
-
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-400 px-4 py-2 rounded-lg text-white transition"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
+          {!loggedIn ? (
             <>
               <Link to="/login" className={linkClass('/login')}>
                 Login
@@ -78,6 +71,13 @@ export default function Navbar() {
                 Signup
               </Link>
             </>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-400 px-4 py-2 rounded-lg text-white transition"
+            >
+              Logout
+            </button>
           )}
 
         </div>
