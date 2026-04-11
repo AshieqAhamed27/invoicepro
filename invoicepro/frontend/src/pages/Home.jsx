@@ -1,13 +1,18 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
+import Navbar from '../components/Navbar';
 
 export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
 
   return (
+
+    
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+
+      <Navbar />
 
       {/* NAVBAR */}
       <nav className="flex justify-between items-center px-6 py-4 border-b border-gray-700">
@@ -92,6 +97,9 @@ export default function Home() {
         © {new Date().getFullYear()} InvoicePro. All rights reserved.
       </div>
       
+      
     </div>
+
+    
   );
 }
