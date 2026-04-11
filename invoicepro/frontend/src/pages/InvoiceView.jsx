@@ -68,6 +68,20 @@ export default function InvoiceView() {
     html2pdf().set(opt).from(element).save();
   };
 
+  const handleWhatsAppReminder = () => {
+    const dueDate = invoice.dueDate
+      ? formatDate(invoice.dueDate)
+      : 'soon';
+
+    const totalAmount = formatCurrency(total, invoice.currency);
+
+    const message = `Hi ${invoice.clientName}, this is a friendly reminder for invoice ${invoice.invoiceNumber} of ${totalAmount}, due on ${dueDate}. Kindly complete the payment. Thank you.`;
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+    window.open(whatsappUrl, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex justify-center items-center">
@@ -99,10 +113,8 @@ export default function InvoiceView() {
 
   const cgst = Number(invoice.cgst || 0);
   const sgst = Number(invoice.sgst || 0);
-  const taxAmount =
-    (subtotal * (cgst + sgst)) / 100;
 
-  const total = subtotal + taxAmount;
+  const total = subtotal + (subtotal * (cgst + sgst)) / 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
@@ -110,14 +122,23 @@ export default function InvoiceView() {
 
       <main className="max-w-5xl mx-auto px-4 py-8">
 
-        {/* TOP ACTION */}
-        <div className="flex justify-end mb-6">
+        {/* ACTION BUTTONS */}
+        <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
+
+          <button
+            onClick={handleWhatsAppReminder}
+            className="bg-green-500 hover:bg-green-400 text-black px-6 py-3 rounded-xl font-semibold shadow-lg transition"
+          >
+            WhatsApp Reminder
+          </button>
+
           <button
             onClick={handleDownloadPDF}
             className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-semibold shadow-lg transition"
           >
             Download PDF
           </button>
+
         </div>
 
         {/* INVOICE PAPER */}
@@ -199,7 +220,7 @@ export default function InvoiceView() {
             )}
           </div>
 
-          {/* ITEMS TABLE */}
+          {/* ITEMS */}
           <div className="overflow-hidden border border-gray-200 rounded-2xl mb-10">
 
             <div className="grid grid-cols-2 bg-gray-100 px-6 py-4 font-semibold text-gray-700">
@@ -212,11 +233,9 @@ export default function InvoiceView() {
                 key={index}
                 className="grid grid-cols-2 px-6 py-4 border-t border-gray-100"
               >
-                <div>
-                  <p className="font-medium text-gray-800">
-                    {item.name}
-                  </p>
-                </div>
+                <p className="font-medium text-gray-800">
+                  {item.name}
+                </p>
 
                 <p className="text-right font-semibold">
                   {formatCurrency(
@@ -229,51 +248,33 @@ export default function InvoiceView() {
 
           </div>
 
-          {/* TOTALS */}
+          {/* TOTAL */}
           <div className="flex justify-end mb-10">
             <div className="w-full max-w-sm space-y-3">
 
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>
-                  {formatCurrency(
-                    subtotal,
-                    invoice.currency
-                  )}
-                </span>
+                <span>{formatCurrency(subtotal, invoice.currency)}</span>
               </div>
 
               {cgst > 0 && (
                 <div className="flex justify-between text-gray-600">
                   <span>CGST ({cgst}%)</span>
-                  <span>
-                    {formatCurrency(
-                      (subtotal * cgst) / 100,
-                      invoice.currency
-                    )}
-                  </span>
+                  <span>{formatCurrency((subtotal * cgst) / 100, invoice.currency)}</span>
                 </div>
               )}
 
               {sgst > 0 && (
                 <div className="flex justify-between text-gray-600">
                   <span>SGST ({sgst}%)</span>
-                  <span>
-                    {formatCurrency(
-                      (subtotal * sgst) / 100,
-                      invoice.currency
-                    )}
-                  </span>
+                  <span>{formatCurrency((subtotal * sgst) / 100, invoice.currency)}</span>
                 </div>
               )}
 
               <div className="border-t pt-4 flex justify-between text-2xl font-bold">
                 <span>Total</span>
                 <span className="text-green-600">
-                  {formatCurrency(
-                    total,
-                    invoice.currency
-                  )}
+                  {formatCurrency(total, invoice.currency)}
                 </span>
               </div>
 
