@@ -42,6 +42,46 @@ export default function Dashboard() {
     0
   );
 
+  const pendingCount = invoices.filter(
+    (inv) => inv.status !== 'paid'
+  ).length;
+
+  const overdueCount = invoices.filter((inv) => {
+    if (!inv.dueDate) return false;
+    return (
+      new Date(inv.dueDate) < new Date() &&
+      inv.status !== 'paid'
+    );
+  }).length;
+
+  const getStatusBadge = (inv) => {
+    if (
+      inv.dueDate &&
+      new Date(inv.dueDate) < new Date() &&
+      inv.status !== 'paid'
+    ) {
+      return (
+        <span className="text-red-400 text-xs font-semibold">
+          Overdue 🔴
+        </span>
+      );
+    }
+
+    if (inv.status === 'paid') {
+      return (
+        <span className="text-green-400 text-xs font-semibold">
+          Paid 🟢
+        </span>
+      );
+    }
+
+    return (
+      <span className="text-yellow-400 text-xs font-semibold">
+        Pending 🟡
+      </span>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       <Navbar />
@@ -55,8 +95,9 @@ export default function Dashboard() {
             <h1 className="text-2xl md:text-3xl font-bold">
               Welcome, {user.name || 'User'} 👋
             </h1>
+
             <p className="text-gray-400">
-              Manage your invoices easily
+              Track invoices, earnings, and overdue payments.
             </p>
           </div>
 
@@ -84,30 +125,40 @@ export default function Dashboard() {
         {/* STATS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
-          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow hover:shadow-lg transition">
+          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
             <p className="text-gray-400 text-sm">Invoices</p>
             <h2 className="text-2xl font-bold">{invoices.length}</h2>
           </div>
 
-          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow hover:shadow-lg transition">
-            <p className="text-gray-400 text-sm">Status</p>
-            <h2 className="text-green-400 font-bold">Active</h2>
-          </div>
-
-          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow hover:shadow-lg transition">
-            <p className="text-gray-400 text-sm">Plan</p>
-            <h2 className="font-bold">
-              {isPro ? 'PRO 🚀' : 'FREE'}
+          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
+            <p className="text-gray-400 text-sm">Pending</p>
+            <h2 className="text-2xl font-bold text-yellow-400">
+              {pendingCount}
             </h2>
           </div>
 
-          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow hover:shadow-lg transition">
+          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
+            <p className="text-gray-400 text-sm">Overdue</p>
+            <h2 className="text-2xl font-bold text-red-400">
+              {overdueCount}
+            </h2>
+          </div>
+
+          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
             <p className="text-gray-400 text-sm">Total Earned</p>
             <h2 className="text-2xl font-bold text-green-400">
-              ₹{totalEarned}
+              ₹{Number(totalEarned).toLocaleString('en-IN')}
             </h2>
           </div>
 
+        </div>
+
+        {/* PLAN CARD */}
+        <div className="mb-8 bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
+          <p className="text-gray-400 text-sm">Current Plan</p>
+          <h2 className="text-xl font-bold mt-1">
+            {isPro ? 'PRO 🚀' : 'FREE'}
+          </h2>
         </div>
 
         {/* INVOICE LIST */}
@@ -118,7 +169,9 @@ export default function Dashboard() {
           </h2>
 
           {loading ? (
-            <p className="text-center py-6 text-gray-400">Loading...</p>
+            <p className="text-center py-6 text-gray-400">
+              Loading...
+            </p>
           ) : invoices.length === 0 ? (
             <p className="text-center py-6 text-gray-400">
               No invoices yet
@@ -137,13 +190,22 @@ export default function Dashboard() {
                     <p className="font-semibold text-white">
                       {inv.clientName}
                     </p>
+
                     <p className="text-sm text-gray-400">
                       {inv.clientEmail}
                     </p>
+
+                    <div className="mt-1">
+                      {getStatusBadge(inv)}
+                    </div>
                   </div>
 
                   {/* RIGHT */}
-                  <div className="flex gap-4 mt-2 sm:mt-0">
+                  <div className="flex gap-4 mt-3 sm:mt-0 items-center">
+
+                    <span className="text-green-400 font-semibold">
+                      ₹{Number(inv.amount || 0).toLocaleString('en-IN')}
+                    </span>
 
                     <Link
                       to={`/invoice/${inv._id}`}
