@@ -7,7 +7,7 @@ import html2pdf from 'html2pdf.js/dist/html2pdf.min.js';
 
 const formatCurrency = (amount, currency) => {
   const symbol = currency === 'INR' ? '₹' : '$';
-  return `${symbol}${Number(amount).toLocaleString('en-IN', {
+  return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2
   })}`;
 };
@@ -46,16 +46,23 @@ export default function InvoiceView() {
     }
   };
 
-  // ✅ PROFESSIONAL PDF DOWNLOAD
   const handleDownloadPDF = () => {
     const element = printRef.current;
 
     const opt = {
-      margin: 10,
+      margin: 8,
       filename: `invoice-${invoice.invoiceNumber}.pdf`,
       image: { type: 'jpeg', quality: 1 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      }
     };
 
     html2pdf().set(opt).from(element).save();
@@ -63,127 +70,238 @@ export default function InvoiceView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center">
-        Loading...
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex justify-center items-center">
+        Loading invoice...
       </div>
     );
   }
 
   if (!invoice) return null;
 
-  const companyName = user?.companyName || user?.name || 'InvoicePro';
+  const companyName =
+    user?.companyName || user?.name || 'InvoicePro';
+
+  const items =
+    invoice.items?.length > 0
+      ? invoice.items
+      : [
+          {
+            name:
+              invoice.serviceDescription || 'Service',
+            price: invoice.amount
+          }
+        ];
+
+  const subtotal = items.reduce(
+    (sum, item) => sum + Number(item.price || 0),
+    0
+  );
+
+  const cgst = Number(invoice.cgst || 0);
+  const sgst = Number(invoice.sgst || 0);
+  const taxAmount =
+    (subtotal * (cgst + sgst)) / 100;
+
+  const total = subtotal + taxAmount;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto p-4">
+      <main className="max-w-5xl mx-auto px-4 py-8">
 
-        {/* DOWNLOAD BUTTON */}
-        <div className="flex justify-end mb-4">
+        {/* TOP ACTION */}
+        <div className="flex justify-end mb-6">
           <button
             onClick={handleDownloadPDF}
-            className="bg-black hover:bg-gray-800 text-white px-5 py-2 rounded-lg"
+            className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-semibold shadow-lg transition"
           >
             Download PDF
           </button>
         </div>
 
-        {/* INVOICE DESIGN */}
+        {/* INVOICE PAPER */}
         <div
           ref={printRef}
-          className="bg-white text-black p-8 rounded-xl shadow-lg border"
+          className="bg-white text-black rounded-2xl shadow-2xl p-8 md:p-12"
         >
 
           {/* HEADER */}
-          <div className="flex justify-between items-center border-b pb-4 mb-6">
+          <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-200 pb-8 mb-8">
 
             <div>
-              <img
-                src={
-                  invoice.logo ||
-                  "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                }
-                alt="logo"
-                className="h-12 mb-2 object-contain"
-              />
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src={
+                    invoice.logo ||
+                    'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+                  }
+                  alt="logo"
+                  className="w-14 h-14 object-contain"
+                />
 
-              <h1 className="text-2xl font-bold text-gray-800">
-                {companyName}
-              </h1>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {companyName}
+                  </h1>
+
+                  <p className="text-sm text-gray-500">
+                    Professional Invoice
+                  </p>
+                </div>
+              </div>
 
               <p className="text-sm text-gray-500">
-                https://www.invoicepro.com
+                Generated with InvoicePro
               </p>
             </div>
 
-            <div className="text-right">
-              <p className="text-xs text-gray-400">INVOICE</p>
-              <p className="font-bold text-lg">{invoice.invoiceNumber}</p>
+            <div className="text-left md:text-right">
+              <p className="text-sm text-gray-500 mb-1">
+                Invoice Number
+              </p>
+
+              <p className="text-2xl font-bold text-gray-900 mb-4">
+                {invoice.invoiceNumber}
+              </p>
+
+              <p className="text-sm text-gray-500">
+                Date: {formatDate(invoice.date)}
+              </p>
+
+              {invoice.dueDate && (
+                <p className="text-sm text-gray-500">
+                  Due: {formatDate(invoice.dueDate)}
+                </p>
+              )}
             </div>
 
           </div>
 
-          {/* CLIENT */}
-          <div className="mb-6">
-            <p className="text-sm text-gray-500">Bill To</p>
-            <p className="font-semibold">{invoice.clientName}</p>
-            <p>{invoice.clientEmail}</p>
-          </div>
+          {/* BILL TO */}
+          <div className="mb-10">
+            <p className="text-sm uppercase tracking-wide text-gray-400 mb-2">
+              Bill To
+            </p>
 
-          {/* DATE */}
-          <div className="mb-6">
-            <p><strong>Date:</strong> {formatDate(invoice.date)}</p>
-            {invoice.dueDate && (
-              <p><strong>Due:</strong> {formatDate(invoice.dueDate)}</p>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {invoice.clientName}
+            </h2>
+
+            <p className="text-gray-600">
+              {invoice.clientEmail}
+            </p>
+
+            {invoice.gst && (
+              <p className="text-sm text-gray-500 mt-2">
+                GST: {invoice.gst}
+              </p>
             )}
           </div>
 
-          {/* TABLE */}
-          <div className="border rounded-lg overflow-hidden mb-6">
+          {/* ITEMS TABLE */}
+          <div className="overflow-hidden border border-gray-200 rounded-2xl mb-10">
 
-            <div className="bg-gray-100 px-4 py-2 flex justify-between font-semibold">
+            <div className="grid grid-cols-2 bg-gray-100 px-6 py-4 font-semibold text-gray-700">
               <span>Description</span>
-              <span>Amount</span>
+              <span className="text-right">Amount</span>
             </div>
 
-            <div className="px-4 py-3 flex justify-between">
-              <div>
-                <p className="font-medium">{invoice.serviceDescription}</p>
-                <p className="text-xs text-gray-400">
-                  This invoice includes service delivery and support.
+            {items.map((item, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-2 px-6 py-4 border-t border-gray-100"
+              >
+                <div>
+                  <p className="font-medium text-gray-800">
+                    {item.name}
+                  </p>
+                </div>
+
+                <p className="text-right font-semibold">
+                  {formatCurrency(
+                    item.price,
+                    invoice.currency
+                  )}
                 </p>
               </div>
-
-              <span className="font-bold">
-                {formatCurrency(invoice.amount, invoice.currency)}
-              </span>
-            </div>
+            ))}
 
           </div>
 
-          {/* TOTAL */}
-          <div className="text-right mb-6">
-            <p className="text-gray-500">Total</p>
-            <h2 className="text-2xl font-bold text-green-600">
-              {formatCurrency(invoice.amount, invoice.currency)}
-            </h2>
+          {/* TOTALS */}
+          <div className="flex justify-end mb-10">
+            <div className="w-full max-w-sm space-y-3">
+
+              <div className="flex justify-between text-gray-600">
+                <span>Subtotal</span>
+                <span>
+                  {formatCurrency(
+                    subtotal,
+                    invoice.currency
+                  )}
+                </span>
+              </div>
+
+              {cgst > 0 && (
+                <div className="flex justify-between text-gray-600">
+                  <span>CGST ({cgst}%)</span>
+                  <span>
+                    {formatCurrency(
+                      (subtotal * cgst) / 100,
+                      invoice.currency
+                    )}
+                  </span>
+                </div>
+              )}
+
+              {sgst > 0 && (
+                <div className="flex justify-between text-gray-600">
+                  <span>SGST ({sgst}%)</span>
+                  <span>
+                    {formatCurrency(
+                      (subtotal * sgst) / 100,
+                      invoice.currency
+                    )}
+                  </span>
+                </div>
+              )}
+
+              <div className="border-t pt-4 flex justify-between text-2xl font-bold">
+                <span>Total</span>
+                <span className="text-green-600">
+                  {formatCurrency(
+                    total,
+                    invoice.currency
+                  )}
+                </span>
+              </div>
+
+            </div>
           </div>
 
           {/* NOTES */}
           {invoice.notes && (
-            <div className="border-t pt-4">
-              <p className="text-sm text-gray-500">Notes</p>
-              <p>{invoice.notes}</p>
+            <div className="border-t border-gray-200 pt-6">
+              <p className="text-sm uppercase text-gray-400 mb-2">
+                Notes
+              </p>
+
+              <p className="text-gray-700 leading-relaxed">
+                {invoice.notes}
+              </p>
             </div>
           )}
 
           {/* FOOTER */}
-          <div className="mt-6 text-center text-xs text-gray-400">
-            Thank you for your business 🙏
+          <div className="mt-12 pt-6 border-t border-gray-200 text-center">
+            <p className="text-gray-400 text-sm">
+              Thank you for your business 🙏
+            </p>
           </div>
 
         </div>
+
       </main>
     </div>
   );
