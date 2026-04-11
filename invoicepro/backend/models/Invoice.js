@@ -35,6 +35,7 @@ const invoiceSchema = new mongoose.Schema({
             type: String,
             default: ''
         },
+
         price: {
             type: Number,
             default: 0
@@ -75,11 +76,12 @@ const invoiceSchema = new mongoose.Schema({
 
     date: {
         type: Date,
-        required: [true, 'Date is required']
+        default: Date.now
     },
 
     dueDate: {
-        type: Date
+        type: Date,
+        default: null
     },
 
     notes: {
@@ -96,4 +98,7 @@ const invoiceSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('Invoice', invoiceSchema);
+module.exports = mongoose.model(
+    'Invoice',
+    invoiceSchema
+);

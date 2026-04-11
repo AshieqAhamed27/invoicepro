@@ -87,6 +87,12 @@ export default function CreateInvoice() {
     setLoading(true);
 
     try {
+      console.log('📤 Sending invoice:', {
+        ...form,
+        items,
+        amount: total
+      });
+
       const res = await api.post(
         '/invoices',
         {
@@ -94,6 +100,11 @@ export default function CreateInvoice() {
           items,
           amount: total
         }
+      );
+
+      console.log(
+        '✅ Invoice created:',
+        res.data
       );
 
       if (
@@ -107,7 +118,13 @@ export default function CreateInvoice() {
           'Invoice creation failed'
         );
       }
+
     } catch (err) {
+      console.error(
+        'CREATE INVOICE ERROR:',
+        err.response?.data || err
+      );
+
       if (
         err.response?.data
           ?.limitReached
@@ -294,7 +311,9 @@ export default function CreateInvoice() {
             </div>
 
             <button
-              className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-semibold"
+              type="submit"
+              disabled={loading}
+              className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-semibold disabled:opacity-50"
             >
               {loading
                 ? 'Creating...'
