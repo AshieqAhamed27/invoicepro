@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
 import Navbar from '../components/Navbar';
 
@@ -8,59 +8,9 @@ export default function Home() {
   const loggedIn = isLoggedIn();
 
   return (
-
-    
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
 
       <Navbar />
-
-      {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-6 py-4 border-b border-gray-700">
-
-        {/* LOGO */}
-        <div className="flex items-center gap-2">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-            alt="logo"
-            className="w-8 h-8"
-          />
-          <span className="text-xl font-bold">InvoicePro</span>
-        </div>
-
-        {/* NAV LINKS */}
-        <div className="flex gap-4 text-sm">
-
-          {loggedIn && (
-            <Link to="/dashboard" className="hover:text-yellow-400">
-              Dashboard
-            </Link>
-          )}
-
-          <Link to="/payment" className="hover:text-yellow-400">
-            Payment
-          </Link>
-
-          <Link to="/admin" className="hover:text-yellow-400">
-            Admin
-          </Link>
-
-          {!loggedIn && (
-            <>
-              <Link to="/login" className="hover:text-yellow-400">
-                Login
-              </Link>
-
-              <Link
-                to="/signup"
-                className="bg-yellow-500 text-black px-4 py-1 rounded-lg font-semibold"
-              >
-                Signup
-              </Link>
-            </>
-          )}
-
-        </div>
-      </nav>
 
       {/* HERO SECTION */}
       <div className="flex flex-col items-center justify-center text-center px-6 py-24">
@@ -80,7 +30,6 @@ export default function Home() {
           and small businesses. Get paid faster with clean invoices.
         </p>
 
-        {/* OPTIONAL CTA (ONLY IF LOGGED IN) */}
         {loggedIn && (
           <button
             onClick={() => navigate('/dashboard')}
@@ -96,10 +45,7 @@ export default function Home() {
       <div className="text-center text-gray-400 text-sm pb-6">
         © {new Date().getFullYear()} InvoicePro. All rights reserved.
       </div>
-      
-      
-    </div>
 
-    
+    </div>
   );
 }
