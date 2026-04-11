@@ -123,7 +123,8 @@ router.post('/', protect, async(req, res) => {
             items,
             gst,
             cgst,
-            sgst
+            sgst,
+            upiId
         } = req.body;
 
         console.log('📥 INCOMING DATA:', req.body);
@@ -149,6 +150,7 @@ router.post('/', protect, async(req, res) => {
             gst: gst || '',
             cgst: Number(cgst) || 0,
             sgst: Number(sgst) || 0,
+            upiId: upiId || '',
             invoiceNumber,
             user: user._id
         });
@@ -173,6 +175,7 @@ router.post('/', protect, async(req, res) => {
         }
 
         res.status(201).json({ invoice });
+
     } catch (err) {
         console.error(
             '🔥 CREATE INVOICE ERROR:',
@@ -210,6 +213,7 @@ router.put('/:id/status', protect, async(req, res) => {
             message: 'Status updated!',
             invoice
         });
+
     } catch (err) {
         console.error(
             '🔥 UPDATE STATUS ERROR:',
@@ -242,6 +246,7 @@ router.delete('/:id', protect, async(req, res) => {
         res.json({
             message: 'Invoice deleted.'
         });
+
     } catch (err) {
         console.error('🔥 DELETE ERROR:', err);
 
