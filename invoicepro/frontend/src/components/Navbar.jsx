@@ -28,10 +28,19 @@ export default function Navbar() {
         </Link>
 
         {/* LINKS */}
-        <div className="flex gap-4 items-center text-sm">
+        <div className="flex gap-4 items-center text-sm flex-wrap">
 
           <Link to="/" className="hover:text-yellow-400">
             Home
+          </Link>
+
+          {/* always visible */}
+          <Link to="/payment" className="hover:text-yellow-400">
+            Payment
+          </Link>
+
+          <Link to="/admin" className="hover:text-yellow-400">
+            Admin
           </Link>
 
           {loggedIn ? (
@@ -42,10 +51,6 @@ export default function Navbar() {
 
               <Link to="/create-invoice" className="hover:text-yellow-400">
                 Create
-              </Link>
-
-              <Link to="/payment" className="hover:text-yellow-400">
-                Payment
               </Link>
 
               <button
