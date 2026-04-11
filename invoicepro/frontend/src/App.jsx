@@ -10,6 +10,7 @@ import InvoiceView from './pages/InvoiceView';
 import Payment from './pages/Payment'; // ✅ FIXED
 import Admin from './pages/Admin';
 import Home from './pages/Home';
+import PublicInvoice from './pages/PublicInvoice';
 
 
 
@@ -28,6 +29,8 @@ export default function App() {
 
         {/* HOMEPAGE */}
         <Route path="/" element={<Home />} />
+
+         <Route path="/public/invoice/:id" element={<PublicInvoice />} />
 
         <Route path="/login" element={
           <PublicRoute>
@@ -66,6 +69,8 @@ export default function App() {
         } />
 
         <Route path="/admin" element={<Admin />} />
+
+       
 
       </Routes>
 

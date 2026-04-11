@@ -18,11 +18,41 @@ const generateInvoiceNumber = (count) => {
 // ==========================
 router.get('/', protect, async(req, res) => {
     try {
-        const invoices = await Invoice.find({ user: req.user._id }).sort({ createdAt: -1 });
-        res.json({ invoices, count: invoices.length });
+        const invoices = await Invoice.find({
+            user: req.user._id
+        }).sort({ createdAt: -1 });
+
+        res.json({
+            invoices,
+            count: invoices.length
+        });
     } catch (err) {
-        console.error("🔥 GET INVOICES ERROR:", err);
-        res.status(500).json({ message: 'Server error.' });
+        console.error('🔥 GET INVOICES ERROR:', err);
+        res.status(500).json({
+            message: 'Server error.'
+        });
+    }
+});
+
+// ==========================
+// 🌐 PUBLIC INVOICE VIEW
+// ==========================
+router.get('/public/:id', async(req, res) => {
+    try {
+        const invoice = await Invoice.findById(req.params.id);
+
+        if (!invoice) {
+            return res.status(404).json({
+                message: 'Invoice not found.'
+            });
+        }
+
+        res.json({ invoice });
+    } catch (err) {
+        console.error('🔥 PUBLIC INVOICE ERROR:', err);
+        res.status(500).json({
+            message: 'Server error.'
+        });
     }
 });
 
@@ -37,13 +67,17 @@ router.get('/:id', protect, async(req, res) => {
         });
 
         if (!invoice) {
-            return res.status(404).json({ message: 'Invoice not found.' });
+            return res.status(404).json({
+                message: 'Invoice not found.'
+            });
         }
 
         res.json({ invoice });
     } catch (err) {
-        console.error("🔥 GET SINGLE ERROR:", err);
-        res.status(500).json({ message: 'Server error.' });
+        console.error('🔥 GET SINGLE ERROR:', err);
+        res.status(500).json({
+            message: 'Server error.'
+        });
     }
 });
 
@@ -54,23 +88,26 @@ router.post('/', protect, async(req, res) => {
     try {
         const user = req.user;
 
-        // ✅ AUTH CHECK
         if (!user || !user._id) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
         }
 
-        // 🔥 COUNT USER INVOICES
-        const count = await Invoice.countDocuments({ user: user._id });
+        const count = await Invoice.countDocuments({
+            user: user._id
+        });
 
-        // 🔥 FREE PLAN LIMIT
-        if (user.plan === 'free' && count >= FREE_PLAN_LIMIT) {
+        if (
+            user.plan === 'free' &&
+            count >= FREE_PLAN_LIMIT
+        ) {
             return res.status(403).json({
                 message: 'Free plan limit reached',
                 limitReached: true
             });
         }
 
-        // 🔥 GENERATE NUMBER
         const invoiceNumber = generateInvoiceNumber(count);
 
         const {
@@ -82,54 +119,69 @@ router.post('/', protect, async(req, res) => {
             date,
             dueDate,
             notes,
-            logo
+            logo,
+            items,
+            gst,
+            cgst,
+            sgst
         } = req.body;
 
-        console.log("📥 INCOMING DATA:", req.body);
+        console.log('📥 INCOMING DATA:', req.body);
 
-        // ✅ VALIDATION
         if (!clientName || !clientEmail || !amount) {
             return res.status(400).json({
                 message: 'Missing required fields'
             });
         }
 
-        // ✅ CREATE INVOICE
         const invoice = await Invoice.create({
             clientName,
             clientEmail,
             serviceDescription,
             amount: Number(amount),
             currency: currency || 'INR',
-            date: date || new Date().toISOString().split('T')[0],
+            date: date ||
+                new Date().toISOString().split('T')[0],
             dueDate: dueDate || '',
             notes,
             logo: logo || null,
+            items: items || [],
+            gst: gst || '',
+            cgst: Number(cgst) || 0,
+            sgst: Number(sgst) || 0,
             invoiceNumber,
             user: user._id
         });
 
-        console.log("✅ Invoice created:", invoice._id);
+        console.log('✅ Invoice created:', invoice._id);
+
+        // SAFE EMAIL
+        try {
+            await sendEmail(
+                clientEmail,
+                'Invoice from InvoicePro',
+                `
+          <h2>You received a new invoice</h2>
+          <p><strong>Amount:</strong> ₹${amount}</p>
+          <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+        `
+            );
+        } catch (e) {
+            console.log(
+                '📧 Email failed but invoice saved'
+            );
+        }
 
         res.status(201).json({ invoice });
-
     } catch (err) {
-        console.error("🔥 CREATE INVOICE ERROR:", err);
-        res.status(500).json({ message: 'Server error' });
-    }
-
-    try {
-        await sendEmail(
-            clientEmail,
-            "Invoice from InvoicePro",
-            `
-      <h2>You received a new invoice</h2>
-      <p><strong>Amount:</strong> ₹${amount}</p>
-      <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
-    `
+        console.error(
+            '🔥 CREATE INVOICE ERROR:',
+            err
         );
-    } catch (e) {
-        console.log("Email failed but invoice saved");
+
+        res.status(500).json({
+            message: 'Server error'
+        });
     }
 });
 
@@ -138,16 +190,35 @@ router.post('/', protect, async(req, res) => {
 // ==========================
 router.put('/:id/status', protect, async(req, res) => {
     try {
-        const invoice = await Invoice.findOneAndUpdate({ _id: req.params.id, user: req.user._id }, { status: req.body.status }, { new: true });
+        const invoice =
+            await Invoice.findOneAndUpdate({
+                _id: req.params.id,
+                user: req.user._id
+            }, {
+                status: req.body.status
+            }, {
+                new: true
+            });
 
         if (!invoice) {
-            return res.status(404).json({ message: 'Invoice not found.' });
+            return res.status(404).json({
+                message: 'Invoice not found.'
+            });
         }
 
-        res.json({ message: 'Status updated!', invoice });
+        res.json({
+            message: 'Status updated!',
+            invoice
+        });
     } catch (err) {
-        console.error("🔥 UPDATE STATUS ERROR:", err);
-        res.status(500).json({ message: 'Server error.' });
+        console.error(
+            '🔥 UPDATE STATUS ERROR:',
+            err
+        );
+
+        res.status(500).json({
+            message: 'Server error.'
+        });
     }
 });
 
@@ -156,19 +227,27 @@ router.put('/:id/status', protect, async(req, res) => {
 // ==========================
 router.delete('/:id', protect, async(req, res) => {
     try {
-        const invoice = await Invoice.findOneAndDelete({
-            _id: req.params.id,
-            user: req.user._id
-        });
+        const invoice =
+            await Invoice.findOneAndDelete({
+                _id: req.params.id,
+                user: req.user._id
+            });
 
         if (!invoice) {
-            return res.status(404).json({ message: 'Invoice not found.' });
+            return res.status(404).json({
+                message: 'Invoice not found.'
+            });
         }
 
-        res.json({ message: 'Invoice deleted.' });
+        res.json({
+            message: 'Invoice deleted.'
+        });
     } catch (err) {
-        console.error("🔥 DELETE ERROR:", err);
-        res.status(500).json({ message: 'Server error.' });
+        console.error('🔥 DELETE ERROR:', err);
+
+        res.status(500).json({
+            message: 'Server error.'
+        });
     }
 });
 

@@ -82,6 +82,17 @@ export default function InvoiceView() {
     window.open(whatsappUrl, '_blank');
   };
 
+  const handleCopyShareLink = async () => {
+    const link = `${window.location.origin}/public/invoice/${invoice._id}`;
+
+    try {
+      await navigator.clipboard.writeText(link);
+      alert('Invoice link copied!');
+    } catch {
+      alert('Failed to copy link');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex justify-center items-center">
@@ -124,6 +135,13 @@ export default function InvoiceView() {
 
         {/* ACTION BUTTONS */}
         <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
+
+          <button
+            onClick={handleCopyShareLink}
+            className="bg-blue-500 hover:bg-blue-400 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transition"
+          >
+            Copy Share Link
+          </button>
 
           <button
             onClick={handleWhatsAppReminder}
@@ -238,10 +256,7 @@ export default function InvoiceView() {
                 </p>
 
                 <p className="text-right font-semibold">
-                  {formatCurrency(
-                    item.price,
-                    invoice.currency
-                  )}
+                  {formatCurrency(item.price, invoice.currency)}
                 </p>
               </div>
             ))}
