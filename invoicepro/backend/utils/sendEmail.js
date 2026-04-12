@@ -11,7 +11,7 @@ const sendEmail = async(to, subject, html) => {
         });
 
         await transporter.sendMail({
-            from: `"InvoicePro" <${process.env.EMAIL_USER}>`,
+            from: `"invoicepro-1" <${process.env.EMAIL_USER}>`,
             to,
             subject,
             html,
