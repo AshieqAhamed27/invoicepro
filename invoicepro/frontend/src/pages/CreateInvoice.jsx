@@ -66,8 +66,10 @@ export default function CreateInvoice() {
 
   const cgst = Number(form.cgst) || 0;
   const sgst = Number(form.sgst) || 0;
+
   const tax =
     (subtotal * (cgst + sgst)) / 100;
+
   const total = subtotal + tax;
 
   const handleSubmit = async (e) => {
@@ -87,11 +89,14 @@ export default function CreateInvoice() {
     setLoading(true);
 
     try {
-      console.log('📤 Sending invoice:', {
-        ...form,
-        items,
-        amount: total
-      });
+      console.log(
+        '📤 Sending invoice:',
+        {
+          ...form,
+          items,
+          amount: total
+        }
+      );
 
       const res = await api.post(
         '/invoices',
@@ -110,6 +115,11 @@ export default function CreateInvoice() {
       if (
         res.data?.invoice?._id
       ) {
+        console.log(
+          'Redirecting to:',
+          `/invoice/${res.data.invoice._id}`
+        );
+
         navigate(
           `/invoice/${res.data.invoice._id}`
         );
@@ -330,9 +340,7 @@ export default function CreateInvoice() {
 
               <button
                 onClick={() =>
-                  navigate(
-                    '/payment'
-                  )
+                  navigate('/payment')
                 }
                 className="w-full bg-yellow-500 text-black py-3 rounded-lg font-semibold"
               >
