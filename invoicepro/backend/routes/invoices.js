@@ -28,7 +28,10 @@ router.get('/', protect, async(req, res) => {
         });
 
     } catch (err) {
-        console.error('GET INVOICES ERROR:', err);
+        console.error(
+            'GET INVOICES ERROR:',
+            err
+        );
 
         res.status(500).json({
             message: 'Server error.'
@@ -41,9 +44,10 @@ router.get('/', protect, async(req, res) => {
 // ==========================
 router.get('/public/:id', async(req, res) => {
     try {
-        const invoice = await Invoice.findById(
-            req.params.id
-        );
+        const invoice =
+            await Invoice.findById(
+                req.params.id
+            );
 
         if (!invoice) {
             return res.status(404).json({
@@ -188,19 +192,23 @@ router.post('/', protect, async(req, res) => {
             invoice
         });
 
-        // Send email in background (faster UX)
-        sendEmail(
-            clientEmail,
-            'Invoice from InvoicePro',
-            `
-    <h2>You received a new invoice</h2>
-    <p><strong>Amount:</strong> ₹${amount}</p>
-    <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
-  `
-        ).catch(() => {
-            console.log(
-                'Email failed in background'
-            );
+        // Send email safely in background
+        setImmediate(async() => {
+            try {
+                await sendEmail(
+                    clientEmail,
+                    'Invoice from InvoicePro',
+                    `
+            <h2>You received a new invoice</h2>
+            <p><strong>Amount:</strong> ₹${amount}</p>
+            <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+          `
+                );
+            } catch (e) {
+                console.log(
+                    'Email failed in background'
+                );
+            }
         });
 
     } catch (err) {
