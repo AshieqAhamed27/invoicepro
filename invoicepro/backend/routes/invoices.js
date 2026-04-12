@@ -183,25 +183,24 @@ router.post('/', protect, async(req, res) => {
             invoice._id
         );
 
-        // Optional email
-        try {
-            await sendEmail(
-                clientEmail,
-                'Invoice from InvoicePro',
-                `
-          <h2>You received a new invoice</h2>
-          <p><strong>Amount:</strong> ₹${amount}</p>
-          <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
-        `
-            );
-        } catch (e) {
-            console.log(
-                'Email failed but invoice saved'
-            );
-        }
-
+        // Send response immediately
         res.status(201).json({
             invoice
+        });
+
+        // Send email in background (faster UX)
+        sendEmail(
+            clientEmail,
+            'Invoice from InvoicePro',
+            `
+    <h2>You received a new invoice</h2>
+    <p><strong>Amount:</strong> ₹${amount}</p>
+    <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+  `
+        ).catch(() => {
+            console.log(
+                'Email failed in background'
+            );
         });
 
     } catch (err) {
