@@ -39,8 +39,8 @@ export default function CreateInvoice() {
   };
 
   const addItem = () => {
-    setItems([
-      ...items,
+    setItems((prev) => [
+      ...prev,
       {
         name: '',
         price: ''
@@ -49,13 +49,14 @@ export default function CreateInvoice() {
   };
 
   const removeItem = (index) => {
-    if (items.length === 1) return;
+    if (items.length === 1) {
+      alert('At least one item is required');
+      return;
+    }
 
-    const updated = items.filter(
-      (_, i) => i !== index
+    setItems((prev) =>
+      prev.filter((_, i) => i !== index)
     );
-
-    setItems(updated);
   };
 
   const subtotal = items.reduce(
@@ -237,12 +238,11 @@ export default function CreateInvoice() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          removeItem(
-                            index
-                          )
-                        }
-                        className="px-3 bg-red-500 rounded-lg"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          removeItem(index);
+                        }}
+                        className="px-3 bg-red-500 hover:bg-red-600 text-white rounded-lg"
                       >
                         ✕
                       </button>
