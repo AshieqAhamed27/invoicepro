@@ -29,7 +29,10 @@ export default function Dashboard() {
   const handleDelete = async (id) => {
     try {
       await api.delete(`/invoices/${id}`);
-      setInvoices((prev) => prev.filter((i) => i._id !== id));
+
+      setInvoices((prev) =>
+        prev.filter((i) => i._id !== id)
+      );
     } catch {
       alert('Failed to delete invoice');
     }
@@ -37,10 +40,14 @@ export default function Dashboard() {
 
   const isPro = user.plan === 'pro';
 
-  const totalEarned = invoices.reduce(
-    (sum, inv) => sum + Number(inv.amount || 0),
-    0
-  );
+  // ✅ Correct earnings logic
+  const totalEarned = invoices
+    .filter((inv) => inv.status === 'paid')
+    .reduce(
+      (sum, inv) =>
+        sum + Number(inv.amount || 0),
+      0
+    );
 
   const pendingCount = invoices.filter(
     (inv) => inv.status !== 'paid'
@@ -48,6 +55,7 @@ export default function Dashboard() {
 
   const overdueCount = invoices.filter((inv) => {
     if (!inv.dueDate) return false;
+
     return (
       new Date(inv.dueDate) < new Date() &&
       inv.status !== 'paid'
@@ -105,7 +113,9 @@ export default function Dashboard() {
 
             {!isPro && (
               <button
-                onClick={() => navigate('/payment')}
+                onClick={() =>
+                  navigate('/payment')
+                }
                 className="bg-yellow-500 hover:bg-yellow-400 text-black px-5 py-2 rounded-lg font-semibold shadow"
               >
                 Upgrade ₹99 🚀
@@ -126,28 +136,45 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
           <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
-            <p className="text-gray-400 text-sm">Invoices</p>
-            <h2 className="text-2xl font-bold">{invoices.length}</h2>
+            <p className="text-gray-400 text-sm">
+              Invoices
+            </p>
+
+            <h2 className="text-2xl font-bold">
+              {invoices.length}
+            </h2>
           </div>
 
           <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
-            <p className="text-gray-400 text-sm">Pending</p>
+            <p className="text-gray-400 text-sm">
+              Pending
+            </p>
+
             <h2 className="text-2xl font-bold text-yellow-400">
               {pendingCount}
             </h2>
           </div>
 
           <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
-            <p className="text-gray-400 text-sm">Overdue</p>
+            <p className="text-gray-400 text-sm">
+              Overdue
+            </p>
+
             <h2 className="text-2xl font-bold text-red-400">
               {overdueCount}
             </h2>
           </div>
 
           <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
-            <p className="text-gray-400 text-sm">Total Earned</p>
+            <p className="text-gray-400 text-sm">
+              Total Revenue
+            </p>
+
             <h2 className="text-2xl font-bold text-green-400">
-              ₹{Number(totalEarned).toLocaleString('en-IN')}
+              ₹
+              {Number(
+                totalEarned
+              ).toLocaleString('en-IN')}
             </h2>
           </div>
 
@@ -155,9 +182,14 @@ export default function Dashboard() {
 
         {/* PLAN CARD */}
         <div className="mb-8 bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
-          <p className="text-gray-400 text-sm">Current Plan</p>
+          <p className="text-gray-400 text-sm">
+            Current Plan
+          </p>
+
           <h2 className="text-xl font-bold mt-1">
-            {isPro ? 'PRO 🚀' : 'FREE'}
+            {isPro
+              ? 'PRO 🚀'
+              : 'FREE'}
           </h2>
         </div>
 
@@ -185,7 +217,6 @@ export default function Dashboard() {
                   className="flex flex-col sm:flex-row justify-between items-center border border-gray-700 bg-gray-800/50 p-4 rounded-lg hover:bg-gray-800 transition"
                 >
 
-                  {/* LEFT */}
                   <div>
                     <p className="font-semibold text-white">
                       {inv.clientName}
@@ -200,11 +231,15 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* RIGHT */}
                   <div className="flex gap-4 mt-3 sm:mt-0 items-center">
 
                     <span className="text-green-400 font-semibold">
-                      ₹{Number(inv.amount || 0).toLocaleString('en-IN')}
+                      ₹
+                      {Number(
+                        inv.amount || 0
+                      ).toLocaleString(
+                        'en-IN'
+                      )}
                     </span>
 
                     <Link
@@ -215,7 +250,11 @@ export default function Dashboard() {
                     </Link>
 
                     <button
-                      onClick={() => handleDelete(inv._id)}
+                      onClick={() =>
+                        handleDelete(
+                          inv._id
+                        )
+                      }
                       className="text-red-400 hover:underline text-sm"
                     >
                       Delete
