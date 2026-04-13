@@ -7,44 +7,171 @@ export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
 
+  const features = [
+    {
+      title: 'Create Invoices Fast',
+      desc: 'Generate clean, professional invoices in seconds.'
+    },
+    {
+      title: 'UPI QR Payments',
+      desc: 'Let clients pay instantly using UPI QR.'
+    },
+    {
+      title: 'Track Paid & Pending',
+      desc: 'Monitor revenue, overdue invoices and reminders.'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
 
       <Navbar />
 
-      {/* HERO SECTION */}
-      <div className="flex flex-col items-center justify-center text-center px-6 py-24">
+      {/* HERO */}
+      <section className="px-6 py-20 text-center max-w-6xl mx-auto">
 
         <img
           src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-          alt="logo"
-          className="w-16 h-16 mb-6"
+          alt="InvoicePro Logo"
+          className="w-20 h-20 mx-auto mb-6"
         />
 
-        <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
-          Create Professional Invoices <br /> in Seconds
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
+          Create Invoices. <br />
+          Get Paid Faster.
         </h1>
 
-        <p className="text-gray-300 max-w-xl mb-6">
-          Free, fast and powerful invoice generator for freelancers
-          and small businesses. Get paid faster with clean invoices.
+        <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
+          InvoicePro helps freelancers and small businesses
+          create beautiful invoices, track payments,
+          send reminders, and grow revenue.
         </p>
 
-        {loggedIn && (
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
           <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-yellow-500 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition"
+            onClick={() =>
+              navigate(
+                loggedIn
+                  ? '/dashboard'
+                  : '/signup'
+              )
+            }
+            className="bg-yellow-500 hover:bg-yellow-400 text-black px-8 py-4 rounded-xl font-semibold shadow-lg"
           >
-            Go to Dashboard →
+            {loggedIn
+              ? 'Go to Dashboard'
+              : 'Start Free'}
           </button>
-        )}
 
-      </div>
+          <button
+            onClick={() =>
+              navigate('/login')
+            }
+            className="border border-gray-500 hover:border-gray-300 px-8 py-4 rounded-xl font-semibold"
+          >
+            Login
+          </button>
+        </div>
+
+      </section>
+
+      {/* FEATURES */}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Why Choose InvoicePro?
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl shadow-lg hover:scale-105 transition"
+            >
+              <h3 className="text-xl font-semibold mb-3">
+                {feature.title}
+              </h3>
+
+              <p className="text-gray-400">
+                {feature.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section className="max-w-5xl mx-auto px-6 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Simple Pricing
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-8">
+
+          <div className="bg-gray-900/80 border border-gray-700 p-8 rounded-2xl shadow">
+            <h3 className="text-2xl font-bold mb-4">
+              Free
+            </h3>
+
+            <p className="text-gray-400 mb-6">
+              Best for getting started.
+            </p>
+
+            <ul className="space-y-3 text-gray-300">
+              <li>✔ 2 invoices free</li>
+              <li>✔ PDF download</li>
+              <li>✔ UPI QR support</li>
+            </ul>
+          </div>
+
+          <div className="bg-yellow-500 text-black p-8 rounded-2xl shadow-xl">
+            <h3 className="text-2xl font-bold mb-4">
+              Pro ₹99
+            </h3>
+
+            <p className="mb-6">
+              Best for freelancers.
+            </p>
+
+            <ul className="space-y-3">
+              <li>✔ Unlimited invoices</li>
+              <li>✔ Email reminders</li>
+              <li>✔ Payment tracking</li>
+              <li>✔ Priority support</li>
+            </ul>
+          </div>
+
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="text-center px-6 py-16">
+        <h2 className="text-3xl font-bold mb-4">
+          Ready to simplify invoicing?
+        </h2>
+
+        <p className="text-gray-400 mb-8">
+          Start sending invoices in less than 2 minutes.
+        </p>
+
+        <button
+          onClick={() =>
+            navigate(
+              loggedIn
+                ? '/dashboard'
+                : '/signup'
+            )
+          }
+          className="bg-white text-black px-8 py-4 rounded-xl font-semibold hover:bg-gray-200"
+        >
+          Get Started →
+        </button>
+      </section>
 
       {/* FOOTER */}
-      <div className="text-center text-gray-400 text-sm pb-6">
-        © {new Date().getFullYear()} InvoicePro. All rights reserved.
-      </div>
+      <footer className="text-center text-gray-400 text-sm py-8 border-t border-gray-800">
+        © {new Date().getFullYear()} InvoicePro.
+        All rights reserved.
+      </footer>
 
     </div>
   );

@@ -7,6 +7,8 @@ import Navbar from '../components/Navbar';
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
 
   const navigate = useNavigate();
   const user = getUser() || {};
@@ -40,7 +42,6 @@ export default function Dashboard() {
 
   const isPro = user.plan === 'pro';
 
-  // ✅ Correct earnings logic
   const totalEarned = invoices
     .filter((inv) => inv.status === 'paid')
     .reduce(
@@ -63,11 +64,12 @@ export default function Dashboard() {
   }).length;
 
   const getStatusBadge = (inv) => {
-    if (
+    const isOverdue =
       inv.dueDate &&
       new Date(inv.dueDate) < new Date() &&
-      inv.status !== 'paid'
-    ) {
+      inv.status !== 'paid';
+
+    if (isOverdue) {
       return (
         <span className="text-red-400 text-xs font-semibold">
           Overdue 🔴
@@ -90,6 +92,40 @@ export default function Dashboard() {
     );
   };
 
+  const filteredInvoices = invoices.filter((inv) => {
+    const term = search.toLowerCase();
+
+    const matchesSearch =
+      inv.clientName
+        ?.toLowerCase()
+        .includes(term) ||
+      inv.clientEmail
+        ?.toLowerCase()
+        .includes(term);
+
+    const isOverdue =
+      inv.dueDate &&
+      new Date(inv.dueDate) < new Date() &&
+      inv.status !== 'paid';
+
+    let matchesFilter = true;
+
+    if (filter === 'paid') {
+      matchesFilter =
+        inv.status === 'paid';
+    } else if (filter === 'pending') {
+      matchesFilter =
+        inv.status !== 'paid';
+    } else if (filter === 'overdue') {
+      matchesFilter = isOverdue;
+    }
+
+    return (
+      matchesSearch &&
+      matchesFilter
+    );
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       <Navbar />
@@ -98,7 +134,6 @@ export default function Dashboard() {
 
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-
           <div>
             <h1 className="text-2xl md:text-3xl font-bold">
               Welcome, {user.name || 'User'} 👋
@@ -110,7 +145,6 @@ export default function Dashboard() {
           </div>
 
           <div className="flex gap-3 flex-wrap justify-center w-full md:w-auto">
-
             {!isPro && (
               <button
                 onClick={() =>
@@ -128,48 +162,42 @@ export default function Dashboard() {
             >
               + Create Invoice
             </Link>
-
           </div>
         </div>
 
         {/* STATS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-
-          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
+          <div className="bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
             <p className="text-gray-400 text-sm">
               Invoices
             </p>
-
             <h2 className="text-2xl font-bold">
               {invoices.length}
             </h2>
           </div>
 
-          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
+          <div className="bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
             <p className="text-gray-400 text-sm">
               Pending
             </p>
-
             <h2 className="text-2xl font-bold text-yellow-400">
               {pendingCount}
             </h2>
           </div>
 
-          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
+          <div className="bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
             <p className="text-gray-400 text-sm">
               Overdue
             </p>
-
             <h2 className="text-2xl font-bold text-red-400">
               {overdueCount}
             </h2>
           </div>
 
-          <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
+          <div className="bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
             <p className="text-gray-400 text-sm">
               Total Revenue
             </p>
-
             <h2 className="text-2xl font-bold text-green-400">
               ₹
               {Number(
@@ -177,25 +205,54 @@ export default function Dashboard() {
               ).toLocaleString('en-IN')}
             </h2>
           </div>
-
         </div>
 
-        {/* PLAN CARD */}
-        <div className="mb-8 bg-gray-900/80 backdrop-blur-md border border-gray-700 p-5 rounded-xl shadow">
+        {/* PLAN */}
+        <div className="mb-8 bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
           <p className="text-gray-400 text-sm">
             Current Plan
           </p>
-
           <h2 className="text-xl font-bold mt-1">
-            {isPro
-              ? 'PRO 🚀'
-              : 'FREE'}
+            {isPro ? 'PRO 🚀' : 'FREE'}
           </h2>
         </div>
 
-        {/* INVOICE LIST */}
-        <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-xl shadow p-4">
+        {/* SEARCH + FILTER */}
+        <div className="mb-6 flex flex-col md:flex-row gap-4">
+          <input
+            type="text"
+            placeholder="Search client name or email..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            className="flex-1 bg-gray-900 border border-gray-700 p-3 rounded-xl outline-none"
+          />
 
+          <select
+            value={filter}
+            onChange={(e) =>
+              setFilter(e.target.value)
+            }
+            className="bg-gray-900 border border-gray-700 p-3 rounded-xl outline-none"
+          >
+            <option value="all">
+              All
+            </option>
+            <option value="paid">
+              Paid
+            </option>
+            <option value="pending">
+              Pending
+            </option>
+            <option value="overdue">
+              Overdue
+            </option>
+          </select>
+        </div>
+
+        {/* INVOICE LIST */}
+        <div className="bg-gray-900/80 border border-gray-700 rounded-xl shadow p-4">
           <h2 className="text-lg font-semibold mb-4">
             Recent Invoices
           </h2>
@@ -204,19 +261,17 @@ export default function Dashboard() {
             <p className="text-center py-6 text-gray-400">
               Loading...
             </p>
-          ) : invoices.length === 0 ? (
+          ) : filteredInvoices.length === 0 ? (
             <p className="text-center py-6 text-gray-400">
-              No invoices yet
+              No invoices found
             </p>
           ) : (
             <div className="flex flex-col gap-3">
-
-              {invoices.map((inv) => (
+              {filteredInvoices.map((inv) => (
                 <div
                   key={inv._id}
                   className="flex flex-col sm:flex-row justify-between items-center border border-gray-700 bg-gray-800/50 p-4 rounded-lg hover:bg-gray-800 transition"
                 >
-
                   <div>
                     <p className="font-semibold text-white">
                       {inv.clientName}
@@ -232,7 +287,6 @@ export default function Dashboard() {
                   </div>
 
                   <div className="flex gap-4 mt-3 sm:mt-0 items-center">
-
                     <span className="text-green-400 font-semibold">
                       ₹
                       {Number(
@@ -259,15 +313,11 @@ export default function Dashboard() {
                     >
                       Delete
                     </button>
-
                   </div>
-
                 </div>
               ))}
-
             </div>
           )}
-
         </div>
 
       </main>

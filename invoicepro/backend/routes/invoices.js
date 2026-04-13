@@ -148,11 +148,6 @@ router.post('/', protect, async(req, res) => {
             upiId
         } = req.body;
 
-        console.log(
-            'INCOMING INVOICE:',
-            req.body
-        );
-
         if (!clientName ||
             !clientEmail ||
             !amount
@@ -195,15 +190,54 @@ router.post('/', protect, async(req, res) => {
         // Send email safely in background
         setImmediate(async() => {
             try {
+                const publicInvoiceLink =
+                    `${process.env.FRONTEND_URL}/public/invoice/${invoice._id}`;
+
+                const dueText = dueDate ?
+                    new Date(
+                        dueDate
+                    ).toLocaleDateString(
+                        'en-IN'
+                    ) :
+                    'Not specified';
+
                 await sendEmail(
                     clientEmail,
-                    'Invoice from InvoicePro',
+                    `Invoice ${invoiceNumber} from InvoicePro`,
                     `
-            <h2>You received a new invoice</h2>
-            <p><strong>Amount:</strong> ₹${amount}</p>
-            <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;">
+
+              <h2 style="margin-bottom:8px;color:#111827;">
+                New Invoice from InvoicePro
+              </h2>
+
+              <p style="color:#6b7280;margin-bottom:24px;">
+                Hi ${clientName},
+                <br />
+                You have received a new invoice.
+              </p>
+
+              <div style="background:#f9fafb;padding:20px;border-radius:12px;margin-bottom:24px;">
+                <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+                <p><strong>Total Amount:</strong> ₹${Number(amount).toLocaleString('en-IN')}</p>
+                <p><strong>Due Date:</strong> ${dueText}</p>
+              </div>
+
+              <a
+                href="${publicInvoiceLink}"
+                style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:bold;"
+              >
+                View Invoice
+              </a>
+
+              <p style="margin-top:32px;color:#9ca3af;font-size:14px;">
+                Thank you for using InvoicePro.
+              </p>
+
+            </div>
           `
                 );
+
             } catch (e) {
                 console.log(
                     'Email failed in background'

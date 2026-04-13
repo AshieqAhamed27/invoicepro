@@ -13,7 +13,8 @@ export default function CreateInvoice() {
     gst: '',
     cgst: '',
     sgst: '',
-    upiId: ''
+    upiId: '',
+    dueDate: ''
   });
 
   const [items, setItems] = useState([
@@ -90,15 +91,6 @@ export default function CreateInvoice() {
     setLoading(true);
 
     try {
-      console.log(
-        '📤 Sending invoice:',
-        {
-          ...form,
-          items,
-          amount: total
-        }
-      );
-
       const res = await api.post(
         '/invoices',
         {
@@ -108,19 +100,9 @@ export default function CreateInvoice() {
         }
       );
 
-      console.log(
-        '✅ Invoice created:',
-        res.data
-      );
-
       if (
         res.data?.invoice?._id
       ) {
-        console.log(
-          'Redirecting to:',
-          `/invoice/${res.data.invoice._id}`
-        );
-
         navigate(
           `/invoice/${res.data.invoice._id}`
         );
@@ -259,6 +241,15 @@ export default function CreateInvoice() {
                 + Add Item
               </button>
             </div>
+
+            {/* DUE DATE */}
+            <input
+              type="date"
+              name="dueDate"
+              value={form.dueDate}
+              onChange={handleChange}
+              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
+            />
 
             <input
               name="gst"
