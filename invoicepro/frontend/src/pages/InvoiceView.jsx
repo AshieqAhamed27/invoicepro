@@ -157,8 +157,8 @@ export default function InvoiceView() {
       const dueDate =
         invoice.dueDate
           ? formatDate(
-              invoice.dueDate
-            )
+            invoice.dueDate
+          )
           : 'soon';
 
       const totalAmount =
@@ -176,6 +176,41 @@ export default function InvoiceView() {
         '_blank'
       );
     };
+
+
+  const sendSmartReminder = (
+    type
+  ) => {
+    const dueDate =
+      invoice.dueDate
+        ? formatDate(
+          invoice.dueDate
+        )
+        : 'soon';
+
+    const totalAmount =
+      formatCurrency(
+        total,
+        invoice.currency
+      );
+
+    let message = '';
+
+    if (type === 'polite') {
+      message = `Hi ${invoice.clientName}, hope you're doing well. Just a gentle reminder regarding invoice ${invoice.invoiceNumber} for ${totalAmount}, due on ${dueDate}. Kindly let me know once the payment is done. Thank you!`;
+    }
+
+    if (type === 'urgent') {
+      message = `Hi ${invoice.clientName}, invoice ${invoice.invoiceNumber} for ${totalAmount} was due on ${dueDate}. Please make the payment at the earliest. Let me know if there are any issues.`;
+    }
+
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(
+        message
+      )}`,
+      '_blank'
+    );
+  };
 
   const handleCopyShareLink =
     async () => {
@@ -226,14 +261,14 @@ export default function InvoiceView() {
       ?.length > 0
       ? invoice.items
       : [
-          {
-            name:
-              invoice.serviceDescription ||
-              'Service',
-            price:
-              invoice.amount
-          }
-        ];
+        {
+          name:
+            invoice.serviceDescription ||
+            'Service',
+          price:
+            invoice.amount
+        }
+      ];
 
   const subtotal =
     items.reduce(
@@ -241,7 +276,7 @@ export default function InvoiceView() {
         sum +
         Number(
           item.price ||
-            0
+          0
         ),
       0
     );
@@ -261,7 +296,7 @@ export default function InvoiceView() {
     (subtotal *
       (cgst +
         sgst)) /
-      100;
+    100;
 
   const upiLink =
     invoice.upiId &&
@@ -282,15 +317,15 @@ export default function InvoiceView() {
 
           {invoice.status !==
             'paid' && (
-            <button
-              onClick={
-                markAsPaid
-              }
-              className="bg-green-500 hover:bg-green-400 text-black px-6 py-3 rounded-xl font-semibold"
-            >
-              Mark as Paid
-            </button>
-          )}
+              <button
+                onClick={
+                  markAsPaid
+                }
+                className="bg-green-500 hover:bg-green-400 text-black px-6 py-3 rounded-xl font-semibold"
+              >
+                Mark as Paid
+              </button>
+            )}
 
           <button
             onClick={
@@ -308,6 +343,28 @@ export default function InvoiceView() {
             className="bg-green-700 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
           >
             WhatsApp Reminder
+          </button>
+
+          <button
+            onClick={() =>
+              sendSmartReminder(
+                'polite'
+              )
+            }
+            className="bg-purple-500 hover:bg-purple-400 text-white px-6 py-3 rounded-xl font-semibold"
+          >
+            Polite Reminder
+          </button>
+
+          <button
+            onClick={() =>
+              sendSmartReminder(
+                'urgent'
+              )
+            }
+            className="bg-red-500 hover:bg-red-400 text-white px-6 py-3 rounded-xl font-semibold"
+          >
+            Urgent Reminder
           </button>
 
           <button
@@ -502,7 +559,7 @@ export default function InvoiceView() {
                     {formatCurrency(
                       (subtotal *
                         cgst) /
-                        100,
+                      100,
                       invoice.currency
                     )}
                   </span>
@@ -521,7 +578,7 @@ export default function InvoiceView() {
                     {formatCurrency(
                       (subtotal *
                         sgst) /
-                        100,
+                      100,
                       invoice.currency
                     )}
                   </span>
