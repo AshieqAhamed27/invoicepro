@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, {
+  useState,
+  useEffect
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
@@ -6,26 +9,54 @@ import Navbar from '../components/Navbar';
 export default function CreateInvoice() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    clientName: '',
-    clientEmail: '',
-    serviceDescription: '',
-    gst: '',
-    cgst: '',
-    sgst: '',
-    upiId: '',
-    dueDate: ''
-  });
+  const [form, setForm] =
+    useState({
+      clientName: '',
+      clientEmail: '',
+      serviceDescription: '',
+      gst: '',
+      cgst: '',
+      sgst: '',
+      upiId: '',
+      dueDate: ''
+    });
 
-  const [items, setItems] = useState([
-    { name: '', price: '' }
-  ]);
+  const [items, setItems] =
+    useState([
+      {
+        name: '',
+        price: ''
+      }
+    ]);
 
-  const [loading, setLoading] = useState(false);
-  const [limitReached, setLimitReached] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
+
+  const [limitReached, setLimitReached] =
+    useState(false);
+
+  // Autofill company settings
+  useEffect(() => {
+    const user = JSON.parse(
+      localStorage.getItem('user')
+    );
+
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        gst:
+          user.gstNumber || '',
+        upiId:
+          user.upiId || ''
+      }));
+    }
+  }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value
+    } = e.target;
 
     setForm((prev) => ({
       ...prev,
@@ -33,9 +64,18 @@ export default function CreateInvoice() {
     }));
   };
 
-  const handleItemChange = (index, field, value) => {
-    const updated = [...items];
-    updated[index][field] = value;
+  const handleItemChange = (
+    index,
+    field,
+    value
+  ) => {
+    const updated = [
+      ...items
+    ];
+
+    updated[index][field] =
+      value;
+
     setItems(updated);
   };
 
@@ -51,89 +91,112 @@ export default function CreateInvoice() {
 
   const removeItem = (index) => {
     if (items.length === 1) {
-      alert('At least one item is required');
+      alert(
+        'At least one item is required'
+      );
       return;
     }
 
     setItems((prev) =>
-      prev.filter((_, i) => i !== index)
+      prev.filter(
+        (_, i) =>
+          i !== index
+      )
     );
   };
 
   const subtotal = items.reduce(
     (sum, item) =>
-      sum + Number(item.price || 0),
+      sum +
+      Number(
+        item.price || 0
+      ),
     0
   );
 
-  const cgst = Number(form.cgst) || 0;
-  const sgst = Number(form.sgst) || 0;
+  const cgst =
+    Number(form.cgst) || 0;
+
+  const sgst =
+    Number(form.sgst) || 0;
 
   const tax =
-    (subtotal * (cgst + sgst)) / 100;
+    (subtotal *
+      (cgst + sgst)) /
+    100;
 
-  const total = subtotal + tax;
+  const total =
+    subtotal + tax;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit =
+    async (e) => {
+      e.preventDefault();
 
-    if (
-      !form.clientName ||
-      !form.clientEmail ||
-      subtotal <= 0
-    ) {
-      alert(
-        'Please fill all required fields'
-      );
-      return;
-    }
+      if (
+        !form.clientName ||
+        !form.clientEmail ||
+        subtotal <= 0
+      ) {
+        alert(
+          'Please fill all required fields'
+        );
+        return;
+      }
 
-    setLoading(true);
+      setLoading(true);
 
-    try {
-      const res = await api.post(
-        '/invoices',
-        {
-          ...form,
-          items,
-          amount: total
+      try {
+        const res =
+          await api.post(
+            '/invoices',
+            {
+              ...form,
+              items,
+              amount:
+                total
+            }
+          );
+
+        if (
+          res.data
+            ?.invoice?._id
+        ) {
+          navigate(
+            `/invoice/${res.data.invoice._id}`
+          );
+        } else {
+          alert(
+            'Invoice creation failed'
+          );
         }
-      );
 
-      if (
-        res.data?.invoice?._id
-      ) {
-        navigate(
-          `/invoice/${res.data.invoice._id}`
+      } catch (err) {
+        console.error(
+          'CREATE INVOICE ERROR:',
+          err.response
+            ?.data || err
         );
-      } else {
-        alert(
-          'Invoice creation failed'
-        );
+
+        if (
+          err.response
+            ?.data
+            ?.limitReached
+        ) {
+          setLimitReached(
+            true
+          );
+        } else {
+          alert(
+            err.response
+              ?.data
+              ?.message ||
+              'Error creating invoice'
+          );
+        }
       }
 
-    } catch (err) {
-      console.error(
-        'CREATE INVOICE ERROR:',
-        err.response?.data || err
-      );
-
-      if (
-        err.response?.data
-          ?.limitReached
-      ) {
-        setLimitReached(true);
-      } else {
-        alert(
-          err.response?.data
-            ?.message ||
-            'Error creating invoice'
-        );
-      }
-    }
-
-    setLoading(false);
-  };
+      setLoading(false);
+    };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
@@ -148,24 +211,34 @@ export default function CreateInvoice() {
           </h1>
 
           <form
-            onSubmit={handleSubmit}
+            onSubmit={
+              handleSubmit
+            }
             className="space-y-5"
           >
 
             <input
               name="clientName"
-              value={form.clientName}
-              onChange={handleChange}
+              value={
+                form.clientName
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Client Name"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg outline-none"
+              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
             />
 
             <input
               name="clientEmail"
-              value={form.clientEmail}
-              onChange={handleChange}
+              value={
+                form.clientEmail
+              }
+              onChange={
+                handleChange
+              }
               placeholder="Client Email"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg outline-none"
+              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
             />
 
             <textarea
@@ -173,9 +246,11 @@ export default function CreateInvoice() {
               value={
                 form.serviceDescription
               }
-              onChange={handleChange}
+              onChange={
+                handleChange
+              }
               placeholder="Description"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg outline-none"
+              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
             />
 
             {/* ITEMS */}
@@ -186,19 +261,29 @@ export default function CreateInvoice() {
 
               <div className="space-y-3">
                 {items.map(
-                  (item, index) => (
+                  (
+                    item,
+                    index
+                  ) => (
                     <div
-                      key={index}
+                      key={
+                        index
+                      }
                       className="flex gap-2"
                     >
                       <input
                         placeholder="Item Name"
-                        value={item.name}
-                        onChange={(e) =>
+                        value={
+                          item.name
+                        }
+                        onChange={(
+                          e
+                        ) =>
                           handleItemChange(
                             index,
                             'name',
-                            e.target.value
+                            e.target
+                              .value
                           )
                         }
                         className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
@@ -207,12 +292,17 @@ export default function CreateInvoice() {
                       <input
                         type="number"
                         placeholder="Price"
-                        value={item.price}
-                        onChange={(e) =>
+                        value={
+                          item.price
+                        }
+                        onChange={(
+                          e
+                        ) =>
                           handleItemChange(
                             index,
                             'price',
-                            e.target.value
+                            e.target
+                              .value
                           )
                         }
                         className="w-32 bg-gray-800 border border-gray-700 p-3 rounded-lg"
@@ -220,10 +310,11 @@ export default function CreateInvoice() {
 
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          removeItem(index);
-                        }}
+                        onClick={() =>
+                          removeItem(
+                            index
+                          )
+                        }
                         className="px-3 bg-red-500 hover:bg-red-600 text-white rounded-lg"
                       >
                         ✕
@@ -235,27 +326,36 @@ export default function CreateInvoice() {
 
               <button
                 type="button"
-                onClick={addItem}
+                onClick={
+                  addItem
+                }
                 className="mt-3 text-blue-400 hover:underline"
               >
                 + Add Item
               </button>
             </div>
 
-            {/* DUE DATE */}
             <input
               type="date"
               name="dueDate"
-              value={form.dueDate}
-              onChange={handleChange}
+              value={
+                form.dueDate
+              }
+              onChange={
+                handleChange
+              }
               className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
             />
 
             <input
               name="gst"
-              value={form.gst}
-              onChange={handleChange}
-              placeholder="GST Number (optional)"
+              value={
+                form.gst
+              }
+              onChange={
+                handleChange
+              }
+              placeholder="GST Number"
               className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
             />
 
@@ -263,8 +363,12 @@ export default function CreateInvoice() {
               <input
                 name="cgst"
                 type="number"
-                value={form.cgst}
-                onChange={handleChange}
+                value={
+                  form.cgst
+                }
+                onChange={
+                  handleChange
+                }
                 placeholder="CGST %"
                 className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
               />
@@ -272,8 +376,12 @@ export default function CreateInvoice() {
               <input
                 name="sgst"
                 type="number"
-                value={form.sgst}
-                onChange={handleChange}
+                value={
+                  form.sgst
+                }
+                onChange={
+                  handleChange
+                }
                 placeholder="SGST %"
                 className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
               />
@@ -281,9 +389,13 @@ export default function CreateInvoice() {
 
             <input
               name="upiId"
-              value={form.upiId}
-              onChange={handleChange}
-              placeholder="Your UPI ID (for QR payment)"
+              value={
+                form.upiId
+              }
+              onChange={
+                handleChange
+              }
+              placeholder="UPI ID"
               className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
             />
 
@@ -313,8 +425,10 @@ export default function CreateInvoice() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-semibold disabled:opacity-50"
+              disabled={
+                loading
+              }
+              className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-semibold"
             >
               {loading
                 ? 'Creating...'
@@ -331,7 +445,9 @@ export default function CreateInvoice() {
 
               <button
                 onClick={() =>
-                  navigate('/payment')
+                  navigate(
+                    '/payment'
+                  )
                 }
                 className="w-full bg-yellow-500 text-black py-3 rounded-lg font-semibold"
               >

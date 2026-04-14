@@ -2,44 +2,102 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Name is required'],
-    trim: true
-  },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: 6
-  },
-  plan: {
-    type: String,
-    enum: ['free', 'pro'],
-    default: 'free'
-  },
-  companyName: {
-    type: String,
-    default: ''
-  }
-}, { timestamps: true });
+    name: {
+        type: String,
+        required: [
+            true,
+            'Name is required'
+        ],
+        trim: true
+    },
 
-// Hash password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
+    email: {
+        type: String,
+        required: [
+            true,
+            'Email is required'
+        ],
+        unique: true,
+        lowercase: true,
+        trim: true
+    },
+
+    password: {
+        type: String,
+        required: [
+            true,
+            'Password is required'
+        ],
+        minlength: 6
+    },
+
+    plan: {
+        type: String,
+        enum: ['free', 'pro'],
+        default: 'free'
+    },
+
+    companyName: {
+        type: String,
+        default: ''
+    },
+
+    gstNumber: {
+        type: String,
+        default: ''
+    },
+
+    upiId: {
+        type: String,
+        default: ''
+    },
+
+    address: {
+        type: String,
+        default: ''
+    },
+
+    logo: {
+        type: String,
+        default: ''
+    }
+}, {
+    timestamps: true
 });
 
-// Compare password
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
+// Hash password before saving
+userSchema.pre(
+    'save',
+    async function(next) {
+        if (!this.isModified(
+                'password'
+            )) {
+            return next();
+        }
 
-module.exports = mongoose.model('User', userSchema);
+        this.password =
+            await bcrypt.hash(
+                this.password,
+                12
+            );
+
+        next();
+    }
+);
+
+// Compare password
+userSchema.methods.comparePassword =
+    async function(
+        candidatePassword
+    ) {
+        return await bcrypt.compare(
+            candidatePassword,
+            this.password
+        );
+    };
+
+module.exports =
+    mongoose.model(
+        'User',
+        userSchema
+    );
