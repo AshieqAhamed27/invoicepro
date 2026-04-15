@@ -603,6 +603,7 @@ export default function InvoiceView() {
           </div>
 
           {/* UPI QR */}
+          {/* UPI QR */}
           {invoice.upiId && (
             <div className="mb-10 text-center">
 
@@ -612,9 +613,7 @@ export default function InvoiceView() {
 
               <div className="flex justify-center">
                 <QRCode
-                  value={
-                    upiLink
-                  }
+                  value={upiLink}
                   size={180}
                 />
               </div>
@@ -623,9 +622,21 @@ export default function InvoiceView() {
                 Scan to pay instantly
               </p>
 
+              <button
+                onClick={() => {
+                  window.location.href = upiLink;
+                }}
+                className="mt-5 bg-green-500 hover:bg-green-400 text-white px-8 py-3 rounded-xl font-semibold shadow-md"
+              >
+                Pay Now
+              </button>
+
+              <p className="text-xs text-gray-400 mt-3">
+                Opens your installed UPI app
+              </p>
+
             </div>
           )}
-
           {/* NOTES */}
           {invoice.notes && (
             <div className="border-t border-gray-200 pt-6">
