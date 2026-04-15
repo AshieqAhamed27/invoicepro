@@ -99,6 +99,34 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">
+          See InvoicePro in Action
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <img
+            src="YOUR_DASHBOARD_SCREENSHOT_URL"
+            alt="Dashboard"
+            className="rounded-2xl shadow-xl border border-gray-700"
+          />
+
+          <img
+            src="YOUR_INVOICE_SCREENSHOT_URL"
+            alt="Invoice"
+            className="rounded-2xl shadow-xl border border-gray-700"
+          />
+
+          <img
+            src="YOUR_PAYMENT_SCREENSHOT_URL"
+            alt="Payment"
+            className="rounded-2xl shadow-xl border border-gray-700"
+          />
+        </div>
+      </section>
+
+
+
       {/* PRICING */}
       <section className="max-w-5xl mx-auto px-6 py-16">
         <h2 className="text-3xl font-bold text-center mb-12">
@@ -138,6 +166,37 @@ export default function Home() {
               <li>✔ Payment tracking</li>
               <li>✔ Priority support</li>
             </ul>
+          </div>
+
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section className="max-w-5xl mx-auto px-6 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Loved by Freelancers
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-6">
+
+          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl shadow-lg">
+            <p className="text-gray-300 leading-relaxed">
+              “InvoicePro helped me create invoices quickly and made my freelance work feel professional.”
+            </p>
+
+            <p className="mt-5 font-semibold text-yellow-400">
+              — Graphic Designer
+            </p>
+          </div>
+
+          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl shadow-lg">
+            <p className="text-gray-300 leading-relaxed">
+              “The UPI QR payment and WhatsApp reminders made getting paid much easier.”
+            </p>
+
+            <p className="mt-5 font-semibold text-yellow-400">
+              — Freelancer
+            </p>
           </div>
 
         </div>
