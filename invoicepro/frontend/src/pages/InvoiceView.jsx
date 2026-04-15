@@ -603,7 +603,6 @@ export default function InvoiceView() {
           </div>
 
           {/* UPI QR */}
-          {/* UPI QR */}
           {invoice.upiId && (
             <div className="mb-10 text-center">
 
