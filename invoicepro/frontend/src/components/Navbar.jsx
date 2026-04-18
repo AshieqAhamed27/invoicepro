@@ -31,11 +31,8 @@ export default function Navbar() {
 
         {/* LOGO */}
         <NavLink to="/" className="flex items-center gap-2">
-          <img
-            src={logo}
-            alt="InvoicePro Logo"
-            className="h-8 w-auto"
-          />
+          <img src={logo} alt="logo" className="h-8 w-auto" />
+          <span className="font-semibold text-white">InvoicePro</span>
         </NavLink>
 
         {/* DESKTOP */}
