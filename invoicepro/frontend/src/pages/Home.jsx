@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 export default function Home() {
   const navigate = useNavigate();

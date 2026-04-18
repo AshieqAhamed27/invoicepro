@@ -35,6 +35,9 @@ export default function Navbar() {
             alt="logo"
             className="h-10 w-auto"
           />
+          <span className="text-white font-semibold text-lg tracking-tight">
+            InvoicePro
+          </span>
         </NavLink>
 
         {/* DESKTOP */}
