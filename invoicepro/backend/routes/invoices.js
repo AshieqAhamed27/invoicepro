@@ -261,46 +261,39 @@ router.post('/', protect, async(req, res) => {
 // ==========================
 // UPDATE STATUS
 // ==========================
-router.put(
-    '/:id/status',
-    protect,
-    async(req, res) => {
-        try {
-            const invoice =
-                await Invoice.findOneAndUpdate({
-                    _id: req.params.id,
-                    user: req.user._id
-                }, {
-                    status: req.body.status
-                }, {
-                    new: true
-                });
+router.put('/:id/status', protect, async(req, res) => {
+    try {
+        const invoice = await Invoice.findById(req.params.id);
 
-            if (!invoice) {
-                return res
-                    .status(404)
-                    .json({
-                        message: 'Invoice not found.'
-                    });
-            }
-
-            res.json({
-                message: 'Status updated!',
-                invoice
-            });
-
-        } catch (err) {
-            console.error(
-                'UPDATE STATUS ERROR:',
-                err
-            );
-
-            res.status(500).json({
-                message: 'Server error.'
+        if (!invoice) {
+            return res.status(404).json({
+                message: 'Invoice not found.'
             });
         }
+
+        // 🔒 SECURITY CHECK
+        if (invoice.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                message: 'Unauthorized action'
+            });
+        }
+
+        invoice.status = req.body.status;
+        await invoice.save();
+
+        res.json({
+            message: 'Status updated!',
+            invoice
+        });
+
+    } catch (err) {
+        console.error('UPDATE STATUS ERROR:', err);
+
+        res.status(500).json({
+            message: 'Server error.'
+        });
     }
-);
+});
 
 // ==========================
 // DELETE INVOICE

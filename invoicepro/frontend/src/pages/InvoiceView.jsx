@@ -367,6 +367,7 @@ export default function InvoiceView() {
         >
 
           {/* ALL YOUR ORIGINAL CONTENT SAME */}
+          // ONLY SHOWING CHANGED PART CLEARLY
 
           {/* UPI QR */}
           {invoice.upiId && (
@@ -393,13 +394,15 @@ export default function InvoiceView() {
                 Pay Now
               </button>
 
-              {/* ✅ NEW ADDITION */}
-              <button
-                onClick={markAsPaid}
-                className="mt-3 bg-blue-500 hover:bg-blue-400 text-white px-8 py-3 rounded-xl font-semibold shadow-md"
-              >
-                I Have Paid
-              </button>
+              {/* ✅ UPDATED (SECURE VERSION) */}
+              {user && invoice.user === user._id && (
+                <button
+                  onClick={markAsPaid}
+                  className="mt-3 bg-blue-500 hover:bg-blue-400 text-white px-8 py-3 rounded-xl font-semibold shadow-md"
+                >
+                  Mark as Paid
+                </button>
+              )}
 
               <p className="text-xs text-gray-400 mt-3">
                 Opens your installed UPI app
