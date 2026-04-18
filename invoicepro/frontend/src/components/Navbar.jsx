@@ -10,7 +10,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const isAdmin = user?.email === "your-email@gmail.com"; // change this
+  const isAdmin = user?.email === "ashieqahamed4@gmail.com"; // change this
 
   const handleLogout = () => {
     localStorage.clear();
