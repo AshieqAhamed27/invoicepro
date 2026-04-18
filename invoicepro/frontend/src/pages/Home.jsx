@@ -99,33 +99,51 @@ export default function Home() {
         </div>
       </section>
 
+      {/* UPDATED SECTION (REPLACED IMAGE SECTION) */}
       <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">
-          See InvoicePro in Action
+        <h2 className="text-3xl font-bold text-center mb-4">
+          How InvoicePro Works
         </h2>
 
+        <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
+          A simple 3-step process to create invoices, send them to clients,
+          and get paid instantly using UPI.
+        </p>
+
         <div className="grid md:grid-cols-3 gap-6">
-          <img
-            src="YOUR_DASHBOARD_SCREENSHOT_URL"
-            alt="Dashboard"
-            className="rounded-2xl shadow-xl border border-gray-700"
-          />
 
-          <img
-            src="YOUR_INVOICE_SCREENSHOT_URL"
-            alt="Invoice"
-            className="rounded-2xl shadow-xl border border-gray-700"
-          />
+          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
+            <div className="text-5xl mb-4">🧾</div>
+            <h3 className="text-xl font-semibold mb-2">
+              Create Invoice
+            </h3>
+            <p className="text-gray-400 text-sm">
+              Generate clean, professional invoices in seconds with all details included.
+            </p>
+          </div>
 
-          <img
-            src="YOUR_PAYMENT_SCREENSHOT_URL"
-            alt="Payment"
-            className="rounded-2xl shadow-xl border border-gray-700"
-          />
+          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
+            <div className="text-5xl mb-4">📤</div>
+            <h3 className="text-xl font-semibold mb-2">
+              Send to Client
+            </h3>
+            <p className="text-gray-400 text-sm">
+              Share invoices easily via WhatsApp or email directly from the platform.
+            </p>
+          </div>
+
+          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
+            <div className="text-5xl mb-4">💸</div>
+            <h3 className="text-xl font-semibold mb-2">
+              Get Paid Instantly
+            </h3>
+            <p className="text-gray-400 text-sm">
+              Accept payments using UPI QR and track paid & pending invoices easily.
+            </p>
+          </div>
+
         </div>
       </section>
-
-
 
       {/* PRICING */}
       <section className="max-w-5xl mx-auto px-6 py-16">
