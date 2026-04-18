@@ -157,17 +157,38 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="bg-yellow-500 text-black p-6 rounded-xl">
-            <p className="text-xs mb-1">Best Value</p>
-            <h3 className="mb-2">Yearly</h3>
-            <p className="mb-4">₹999 / year</p>
+          {/* YEARLY */}
+          <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-yellow-400 to-yellow-600">
 
-            <button
-              onClick={() => handleSubscribe('yearly')}
-              className="w-full bg-black text-white py-3 rounded-lg"
-            >
-              Choose Plan
-            </button>
+            <div className="bg-black rounded-2xl p-6">
+
+              <p className="text-xs text-yellow-400 mb-2 font-semibold">
+                BEST VALUE
+              </p>
+
+              <h3 className="text-lg font-semibold mb-2">
+                Yearly Plan
+              </h3>
+
+              <p className="text-3xl font-bold text-white mb-4">
+                ₹999
+              </p>
+
+              <ul className="text-sm text-gray-400 space-y-2 mb-6">
+                <li>✔ Everything in monthly</li>
+                <li>✔ Advanced analytics</li>
+                <li>✔ Custom branding</li>
+                <li>✔ Priority support</li>
+              </ul>
+
+              <button
+                onClick={() => handleSubscribe('yearly')}
+                className="btn btn-primary w-full"
+              >
+                Choose Yearly
+              </button>
+
+            </div>
           </div>
 
         </div>

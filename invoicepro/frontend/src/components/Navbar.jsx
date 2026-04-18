@@ -8,6 +8,10 @@ export default function Navbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const isAdmin = user?.email === "your-email@gmail.com"; // change this
+
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');
@@ -15,51 +19,41 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur-lg border-b border-gray-800">
+    <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800">
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div className="container-custom flex justify-between items-center py-4">
 
         {/* LOGO */}
-        <Link to="/" className="flex items-center gap-2">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-            alt="logo"
-            className="w-8 h-8"
-          />
-          <span className="text-lg font-semibold">
-            InvoicePro
-          </span>
+        <Link to="/" className="text-lg font-semibold">
+          InvoicePro
         </Link>
 
-        {/* DESKTOP MENU */}
+        {/* DESKTOP */}
         <div className="hidden md:flex items-center gap-6 text-sm text-gray-300">
+
+          <Link to="/" className="hover:text-white">Home</Link>
 
           {loggedIn && (
             <>
-              <Link to="/dashboard" className="hover:text-white">
-                Dashboard
-              </Link>
-
-              <Link to="/create-invoice" className="hover:text-white">
-                Create
-              </Link>
+              <Link to="/dashboard" className="hover:text-white">Dashboard</Link>
+              <Link to="/create-invoice" className="hover:text-white">Create</Link>
+              <Link to="/settings" className="hover:text-white">Settings</Link>
             </>
           )}
 
-          <Link to="/" className="hover:text-white">
-            Home
-          </Link>
+          {isAdmin && (
+            <Link to="/admin" className="text-yellow-400">
+              Admin
+            </Link>
+          )}
 
-          {/* CTA */}
           {!loggedIn ? (
             <>
-              <Link to="/login" className="hover:text-white">
-                Login
-              </Link>
+              <Link to="/login" className="hover:text-white">Login</Link>
 
               <button
                 onClick={() => navigate('/signup')}
-                className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
+                className="btn btn-primary"
               >
                 Start Free
               </button>
@@ -67,7 +61,7 @@ export default function Navbar() {
           ) : (
             <button
               onClick={handleLogout}
-              className="bg-gray-800 px-4 py-2 rounded-lg hover:bg-gray-700"
+              className="btn btn-dark"
             >
               Logout
             </button>
@@ -75,52 +69,40 @@ export default function Navbar() {
 
         </div>
 
-        {/* MOBILE BUTTON */}
+        {/* MOBILE MENU BUTTON */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden"
         >
-          <div className="w-6 h-5 flex flex-col justify-between">
-            <span className="block h-0.5 bg-white"></span>
-            <span className="block h-0.5 bg-white"></span>
-            <span className="block h-0.5 bg-white"></span>
-          </div>
+          ☰
         </button>
 
       </div>
 
       {/* MOBILE MENU */}
       {menuOpen && (
-        <div className="md:hidden bg-black border-t border-gray-800 px-4 py-6 space-y-4 text-gray-300">
+        <div className="md:hidden border-t border-gray-800 px-4 py-4 space-y-3 text-gray-300">
 
-          <Link to="/" onClick={() => setMenuOpen(false)}>
-            Home
-          </Link>
+          <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
 
           {loggedIn && (
             <>
-              <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
-                Dashboard
-              </Link>
-
-              <Link to="/create-invoice" onClick={() => setMenuOpen(false)}>
-                Create Invoice
-              </Link>
+              <Link to="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+              <Link to="/create-invoice" onClick={() => setMenuOpen(false)}>Create</Link>
+              <Link to="/settings" onClick={() => setMenuOpen(false)}>Settings</Link>
             </>
+          )}
+
+          {isAdmin && (
+            <Link to="/admin" onClick={() => setMenuOpen(false)}>Admin</Link>
           )}
 
           {!loggedIn ? (
             <>
-              <Link to="/login" onClick={() => setMenuOpen(false)}>
-                Login
-              </Link>
-
+              <Link to="/login" onClick={() => setMenuOpen(false)}>Login</Link>
               <button
-                onClick={() => {
-                  navigate('/signup');
-                  setMenuOpen(false);
-                }}
-                className="w-full bg-yellow-500 text-black py-2 rounded-lg"
+                onClick={() => navigate('/signup')}
+                className="btn btn-primary w-full"
               >
                 Start Free
               </button>
@@ -128,7 +110,7 @@ export default function Navbar() {
           ) : (
             <button
               onClick={handleLogout}
-              className="w-full bg-gray-800 py-2 rounded-lg"
+              className="btn btn-dark w-full"
             >
               Logout
             </button>
