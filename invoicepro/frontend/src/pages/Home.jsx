@@ -221,6 +221,7 @@ export default function Home() {
         © {new Date().getFullYear()} InvoicePro
       </footer>
 
+      <Footer />
     </div>
   );
 }
