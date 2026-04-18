@@ -2,9 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =========================
-   RESET + BASE
-========================= */
+/* RESET */
 
 * {
     box-sizing: border-box;
@@ -22,16 +20,14 @@ body {
 }
 
 
-/* =========================
-   TYPOGRAPHY (STRIPE STYLE)
-========================= */
+/* TYPOGRAPHY */
 
 h1 {
-    @apply text-4xl sm: text-5xl font-semibold tracking-tight;
+    @apply text-4xl font-semibold tracking-tight;
 }
 
 h2 {
-    @apply text-2xl sm: text-3xl font-semibold tracking-tight;
+    @apply text-2xl font-semibold tracking-tight;
 }
 
 h3 {
@@ -43,70 +39,55 @@ p {
 }
 
 
-/* =========================
-   LAYOUT SYSTEM
-========================= */
+/* LAYOUT */
 
 .container-custom {
-    @apply max-w-6xl mx-auto px-4 sm: px-6;
+    @apply max-w-6xl mx-auto px-4;
 }
 
 .section {
-    @apply py-16 sm: py-20;
+    @apply py-16;
 }
 
 
-/* =========================
-   BUTTON SYSTEM
-========================= */
+/* BUTTONS */
 
 .btn {
     @apply px-5 py-2.5 rounded-lg text-sm font-medium transition;
 }
 
 .btn-primary {
-    @apply bg-yellow-500 text-black hover: bg-yellow-400;
+    @apply bg-yellow-500 text-black;
 }
 
 .btn-secondary {
-    @apply border border-gray-700 text-gray-300 hover: text-white hover: border-gray-500;
+    @apply border border-gray-700 text-gray-300;
 }
 
 .btn-dark {
-    @apply bg-gray-800 text-white hover: bg-gray-700;
+    @apply bg-gray-800 text-white;
 }
 
 
-/* =========================
-   INPUT SYSTEM
-========================= */
+/* INPUT */
 
 .input {
     @apply w-full bg-gray-900 border border-gray-800 p-3 rounded-lg text-sm;
 }
 
-.input:focus {
-    border-color: #facc15;
-    box-shadow: 0 0 0 1px #facc15;
-}
 
-
-/* =========================
-   CARD SYSTEM
-========================= */
+/* CARD */
 
 .card {
     @apply bg-gray-900 border border-gray-800 rounded-xl p-5;
 }
 
 .card-hover {
-    @apply hover: border-gray-700 transition;
+    @apply transition;
 }
 
 
-/* =========================
-   BADGE SYSTEM
-========================= */
+/* BADGES */
 
 .badge {
     @apply text-xs px-2 py-1 rounded-full;
@@ -125,9 +106,7 @@ p {
 }
 
 
-/* =========================
-   SCROLLBAR
-========================= */
+/* SCROLLBAR */
 
 ::-webkit-scrollbar {
     width: 6px;
@@ -142,14 +121,8 @@ p {
     border-radius: 999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #4b5563;
-}
 
-
-/* =========================
-   ANIMATIONS
-========================= */
+/* ANIMATION */
 
 @keyframes fadeIn {
     from {
@@ -167,9 +140,7 @@ p {
 }
 
 
-/* =========================
-   MOBILE TOUCH
-========================= */
+/* MOBILE */
 
 button,
 a {
@@ -177,9 +148,7 @@ a {
 }
 
 
-/* =========================
-   PRINT
-========================= */
+/* PRINT */
 
 @media print {
     .no-print {
