@@ -2,67 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
-/* RESET */
+/* =========================
+   RESET + BASE
+========================= */
 
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
-    background: linear-gradient(to bottom right, #000000, #111827, #1f2937);
-    color: white;
+    @apply bg-black text-white font-sans;
     font-family: 'Inter', system-ui, sans-serif;
     line-height: 1.5;
 }
 
 
-/* SMOOTH SCROLL */
+/* =========================
+   TYPOGRAPHY (STRIPE STYLE)
+========================= */
 
-html {
-    scroll-behavior: smooth;
+h1 {
+    @apply text-4xl sm: text-5xl font-semibold tracking-tight;
+}
+
+h2 {
+    @apply text-2xl sm: text-3xl font-semibold tracking-tight;
+}
+
+h3 {
+    @apply text-lg font-medium;
+}
+
+p {
+    @apply text-gray-400;
 }
 
 
-/* TEXT IMPROVEMENT */
+/* =========================
+   LAYOUT SYSTEM
+========================= */
 
-h1,
-h2,
-h3,
-h4 {
-    letter-spacing: -0.02em;
+.container-custom {
+    @apply max-w-6xl mx-auto px-4 sm: px-6;
+}
+
+.section {
+    @apply py-16 sm: py-20;
 }
 
 
-/* INPUT + BUTTON BASE STYLE */
+/* =========================
+   BUTTON SYSTEM
+========================= */
 
-input,
-textarea,
-select {
-    outline: none;
-    transition: all 0.2s ease;
+.btn {
+    @apply px-5 py-2.5 rounded-lg text-sm font-medium transition;
 }
 
-input:focus,
-textarea:focus,
-select:focus {
+.btn-primary {
+    @apply bg-yellow-500 text-black hover: bg-yellow-400;
+}
+
+.btn-secondary {
+    @apply border border-gray-700 text-gray-300 hover: text-white hover: border-gray-500;
+}
+
+.btn-dark {
+    @apply bg-gray-800 text-white hover: bg-gray-700;
+}
+
+
+/* =========================
+   INPUT SYSTEM
+========================= */
+
+.input {
+    @apply w-full bg-gray-900 border border-gray-800 p-3 rounded-lg text-sm;
+}
+
+.input:focus {
     border-color: #facc15;
     box-shadow: 0 0 0 1px #facc15;
 }
 
 
-/* BUTTON FEEL */
+/* =========================
+   CARD SYSTEM
+========================= */
 
-button {
-    transition: all 0.2s ease;
+.card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-5;
 }
 
-button:active {
-    transform: scale(0.97);
+.card-hover {
+    @apply hover: border-gray-700 transition;
 }
 
 
-/* SCROLLBAR (MODERN DARK) */
+/* =========================
+   BADGE SYSTEM
+========================= */
+
+.badge {
+    @apply text-xs px-2 py-1 rounded-full;
+}
+
+.badge-green {
+    @apply text-green-400;
+}
+
+.badge-yellow {
+    @apply text-yellow-400;
+}
+
+.badge-red {
+    @apply text-red-400;
+}
+
+
+/* =========================
+   SCROLLBAR
+========================= */
 
 ::-webkit-scrollbar {
     width: 6px;
@@ -82,7 +147,9 @@ button:active {
 }
 
 
-/* ANIMATIONS */
+/* =========================
+   ANIMATIONS
+========================= */
 
 @keyframes fadeIn {
     from {
@@ -99,23 +166,10 @@ button:active {
     animation: fadeIn 0.4s ease forwards;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
 
-.slide-in {
-    animation: slideIn 0.3s ease forwards;
-}
-
-
-/* MOBILE TOUCH IMPROVEMENTS */
+/* =========================
+   MOBILE TOUCH
+========================= */
 
 button,
 a {
@@ -123,24 +177,13 @@ a {
 }
 
 
-/* CARD FEEL */
-
-.card {
-    background: rgba(17, 24, 39, 0.8);
-    border: 1px solid #374151;
-    border-radius: 16px;
-    backdrop-filter: blur(10px);
-}
-
-
-/* INVOICE PRINT */
+/* =========================
+   PRINT
+========================= */
 
 @media print {
     .no-print {
         display: none !important;
-    }
-    .print-only {
-        display: block !important;
     }
     body {
         background: white;

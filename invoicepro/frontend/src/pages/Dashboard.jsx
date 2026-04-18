@@ -13,7 +13,6 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const user = getUser() || {};
 
-  // ✅ NEW PLAN LOGIC
   const plan = localStorage.getItem("userPlan");
   const isPro = plan === "monthly" || plan === "yearly";
 
@@ -35,9 +34,7 @@ export default function Dashboard() {
   const handleDelete = async (id) => {
     try {
       await api.delete(`/invoices/${id}`);
-      setInvoices((prev) =>
-        prev.filter((i) => i._id !== id)
-      );
+      setInvoices((prev) => prev.filter((i) => i._id !== id));
     } catch {
       alert('Failed to delete invoice');
     }
@@ -63,12 +60,12 @@ export default function Dashboard() {
       inv.status !== 'paid';
 
     if (isOverdue)
-      return <span className="text-red-400 text-xs">Overdue 🔴</span>;
+      return <span className="text-red-400 text-xs">Overdue</span>;
 
     if (inv.status === 'paid')
-      return <span className="text-green-400 text-xs">Paid 🟢</span>;
+      return <span className="text-green-400 text-xs">Paid</span>;
 
-    return <span className="text-yellow-400 text-xs">Pending 🟡</span>;
+    return <span className="text-yellow-400 text-xs">Pending</span>;
   };
 
   const filteredInvoices = invoices.filter((inv) => {
@@ -93,115 +90,113 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
 
         {/* HEADER */}
-        <div className="flex flex-col gap-4 mb-6">
-          <h1 className="text-xl sm:text-3xl font-bold">
-            Welcome, {user.name || 'User'} 👋
-          </h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-semibold">
+              Welcome, {user.name || 'User'}
+            </h1>
+            <p className="text-gray-400 text-sm">
+              Manage your invoices and track payments
+            </p>
+          </div>
+
+          <div className="flex gap-3 w-full sm:w-auto">
 
             {!isPro && (
               <button
                 onClick={() => navigate('/payment')}
-                className="w-full sm:w-auto bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
+                className="bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium"
               >
-                Upgrade to Pro 🚀
+                Upgrade
               </button>
             )}
 
             <Link
               to="/create-invoice"
-              className="w-full sm:w-auto bg-white text-black px-4 py-2 rounded-lg text-center"
+              className="bg-white text-black px-4 py-2 rounded-lg text-sm font-medium"
             >
-              + Create Invoice
+              + New Invoice
             </Link>
 
           </div>
+
         </div>
 
-        {/* FREE LIMIT WARNING */}
-        {!isPro && invoices.length >= 2 && (
-          <div className="bg-red-500/20 border border-red-500 p-4 rounded-xl mb-6 text-sm">
-            <p className="text-red-300 mb-2">
-              Free plan limit reached (2 invoices)
-            </p>
-            <button
-              onClick={() => navigate('/payment')}
-              className="bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
-            >
-              Upgrade Now
-            </button>
-          </div>
-        )}
-
         {/* STATS */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div className="bg-gray-900 p-4 rounded-xl">
-            <p className="text-xs text-gray-400">Invoices</p>
-            <h2 className="text-xl font-bold">{invoices.length}</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+
+          <div className="bg-gray-900 border border-gray-800 p-5 rounded-xl">
+            <p className="text-gray-400 text-xs mb-1">Invoices</p>
+            <h2 className="text-xl font-semibold">{invoices.length}</h2>
           </div>
 
-          <div className="bg-gray-900 p-4 rounded-xl">
-            <p className="text-xs text-gray-400">Pending</p>
-            <h2 className="text-xl text-yellow-400">{pendingCount}</h2>
+          <div className="bg-gray-900 border border-gray-800 p-5 rounded-xl">
+            <p className="text-gray-400 text-xs mb-1">Pending</p>
+            <h2 className="text-xl text-yellow-400 font-semibold">{pendingCount}</h2>
           </div>
 
-          <div className="bg-gray-900 p-4 rounded-xl">
-            <p className="text-xs text-gray-400">Overdue</p>
-            <h2 className="text-xl text-red-400">{overdueCount}</h2>
+          <div className="bg-gray-900 border border-gray-800 p-5 rounded-xl">
+            <p className="text-gray-400 text-xs mb-1">Overdue</p>
+            <h2 className="text-xl text-red-400 font-semibold">{overdueCount}</h2>
           </div>
 
-          <div className="bg-gray-900 p-4 rounded-xl">
-            <p className="text-xs text-gray-400">Revenue</p>
-            <h2 className="text-xl text-green-400">
+          <div className="bg-gray-900 border border-gray-800 p-5 rounded-xl">
+            <p className="text-gray-400 text-xs mb-1">Revenue</p>
+            <h2 className="text-xl text-green-400 font-semibold">
               ₹{Number(totalEarned).toLocaleString('en-IN')}
             </h2>
           </div>
+
         </div>
 
         {/* SEARCH */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-5">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search invoices..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-gray-900 p-3 rounded-xl"
+            className="flex-1 bg-gray-900 border border-gray-800 p-3 rounded-lg text-sm"
           />
 
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="bg-gray-900 p-3 rounded-xl"
+            className="bg-gray-900 border border-gray-800 p-3 rounded-lg text-sm"
           >
             <option value="all">All</option>
             <option value="paid">Paid</option>
             <option value="pending">Pending</option>
             <option value="overdue">Overdue</option>
           </select>
+
         </div>
 
         {/* INVOICES */}
         <div className="space-y-3">
+
           {loading ? (
             <p className="text-center text-gray-400">Loading...</p>
           ) : filteredInvoices.length === 0 ? (
-            <p className="text-center text-gray-400">No invoices</p>
+            <p className="text-center text-gray-400">No invoices found</p>
           ) : (
             filteredInvoices.map((inv) => (
               <div
                 key={inv._id}
-                className="bg-gray-900 p-4 rounded-xl border border-gray-700"
+                className="bg-gray-900 border border-gray-800 p-4 rounded-xl hover:border-gray-700 transition"
               >
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-center">
+
                   <div>
-                    <p className="font-semibold">{inv.clientName}</p>
+                    <p className="font-medium">{inv.clientName}</p>
                     <p className="text-xs text-gray-400">{inv.clientEmail}</p>
                     {getStatusBadge(inv)}
                   </div>
@@ -209,23 +204,26 @@ export default function Dashboard() {
                   <p className="text-green-400 font-semibold">
                     ₹{Number(inv.amount || 0).toLocaleString('en-IN')}
                   </p>
+
                 </div>
 
                 <div className="flex gap-4 mt-3 text-sm">
-                  <Link to={`/invoice/${inv._id}`} className="text-blue-400">
+                  <Link to={`/invoice/${inv._id}`} className="text-blue-400 hover:underline">
                     View
                   </Link>
 
                   <button
                     onClick={() => handleDelete(inv._id)}
-                    className="text-red-400"
+                    className="text-red-400 hover:underline"
                   >
                     Delete
                   </button>
                 </div>
+
               </div>
             ))
           )}
+
         </div>
 
       </main>
