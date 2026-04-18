@@ -75,6 +75,72 @@ export default function Home() {
 
       </section>
 
+      {/* HOW IT WORKS */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+
+        <h2 className="text-3xl font-bold text-center mb-4">
+          How InvoicePro Works
+        </h2>
+
+        <p className="text-gray-400 text-center max-w-2xl mx-auto mb-12">
+          A simple 3-step process to create invoices, send them to clients,
+          and get paid instantly using UPI.
+        </p>
+
+        <div className="grid md:grid-cols-3 gap-6">
+
+          {/* STEP 1 */}
+          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl text-center shadow-lg">
+
+            <div className="text-4xl mb-4">🧾</div>
+
+            <h3 className="text-xl font-semibold mb-2">
+              Create Invoice
+            </h3>
+
+            <p className="text-gray-400 text-sm">
+              Generate clean, professional invoices in seconds
+              with all details included.
+            </p>
+
+          </div>
+
+          {/* STEP 2 */}
+          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl text-center shadow-lg">
+
+            <div className="text-4xl mb-4">📤</div>
+
+            <h3 className="text-xl font-semibold mb-2">
+              Send to Client
+            </h3>
+
+            <p className="text-gray-400 text-sm">
+              Share invoices easily via WhatsApp or email
+              directly from the platform.
+            </p>
+
+          </div>
+
+          {/* STEP 3 */}
+          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl text-center shadow-lg">
+
+            <div className="text-4xl mb-4">💸</div>
+
+            <h3 className="text-xl font-semibold mb-2">
+              Get Paid Instantly
+            </h3>
+
+            <p className="text-gray-400 text-sm">
+              Accept payments using UPI QR and track paid
+              & pending invoices easily.
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
       {/* FEATURES */}
       <section className="max-w-6xl mx-auto px-6 py-16">
         <h2 className="text-3xl font-bold text-center mb-12">
