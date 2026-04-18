@@ -18,7 +18,7 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
-  // 🎯 ACTIVE CLASS FUNCTION
+  // Active link styling
   const navClass = ({ isActive }) =>
     isActive
       ? "text-white font-semibold border-b-2 border-yellow-400 pb-1"
@@ -31,11 +31,17 @@ export default function Navbar() {
 
         {/* LOGO */}
         <NavLink to="/" className="flex items-center gap-2">
-          <img src={logo} alt="logo" className="h-8 w-auto" />
-          <span className="font-semibold text-white">InvoicePro</span>
+          <img
+            src={logo}
+            alt="InvoicePro Logo"
+            className="h-10 sm:h-12 w-auto transition-transform duration-200 hover:scale-105"
+          />
+          <span className="hidden sm:block font-semibold text-white text-lg">
+            InvoicePro
+          </span>
         </NavLink>
 
-        {/* DESKTOP */}
+        {/* DESKTOP MENU */}
         <div className="hidden md:flex items-center gap-6 text-sm">
 
           <NavLink to="/" className={navClass}>Home</NavLink>
@@ -79,7 +85,7 @@ export default function Navbar() {
         {/* MOBILE MENU BUTTON */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden"
+          className="md:hidden text-xl"
         >
           ☰
         </button>
