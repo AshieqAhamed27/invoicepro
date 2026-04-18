@@ -1,38 +1,93 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* RESET */
+
 * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     background: linear-gradient(to bottom right, #000000, #111827, #1f2937);
     color: white;
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
 }
 
 
-/* Custom scrollbar */
+/* SMOOTH SCROLL */
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+/* TEXT IMPROVEMENT */
+
+h1,
+h2,
+h3,
+h4 {
+    letter-spacing: -0.02em;
+}
+
+
+/* INPUT + BUTTON BASE STYLE */
+
+input,
+textarea,
+select {
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #facc15;
+    box-shadow: 0 0 0 1px #facc15;
+}
+
+
+/* BUTTON FEEL */
+
+button {
+    transition: all 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+
+/* SCROLLBAR (MODERN DARK) */
 
 ::-webkit-scrollbar {
     width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #e8e8e0;
+    background: #111827;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #b0b0a0;
-    border-radius: 3px;
+    background: #374151;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
 }
 
 
-/* Animations */
+/* ANIMATIONS */
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(8px);
     }
     to {
         opacity: 1;
@@ -47,7 +102,7 @@ body {
 @keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateX(-12px);
+        transform: translateX(-10px);
     }
     to {
         opacity: 1;
@@ -60,7 +115,25 @@ body {
 }
 
 
-/* Invoice print styles */
+/* MOBILE TOUCH IMPROVEMENTS */
+
+button,
+a {
+    min-height: 40px;
+}
+
+
+/* CARD FEEL */
+
+.card {
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid #374151;
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+}
+
+
+/* INVOICE PRINT */
 
 @media print {
     .no-print {
@@ -71,5 +144,6 @@ body {
     }
     body {
         background: white;
+        color: black;
     }
 }

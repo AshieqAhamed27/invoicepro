@@ -31,7 +31,6 @@ export default function Dashboard() {
   const handleDelete = async (id) => {
     try {
       await api.delete(`/invoices/${id}`);
-
       setInvoices((prev) =>
         prev.filter((i) => i._id !== id)
       );
@@ -44,11 +43,7 @@ export default function Dashboard() {
 
   const totalEarned = invoices
     .filter((inv) => inv.status === 'paid')
-    .reduce(
-      (sum, inv) =>
-        sum + Number(inv.amount || 0),
-      0
-    );
+    .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
 
   const pendingCount = invoices.filter(
     (inv) => inv.status !== 'paid'
@@ -56,11 +51,7 @@ export default function Dashboard() {
 
   const overdueCount = invoices.filter((inv) => {
     if (!inv.dueDate) return false;
-
-    return (
-      new Date(inv.dueDate) < new Date() &&
-      inv.status !== 'paid'
-    );
+    return new Date(inv.dueDate) < new Date() && inv.status !== 'paid';
   }).length;
 
   const getStatusBadge = (inv) => {
@@ -69,39 +60,21 @@ export default function Dashboard() {
       new Date(inv.dueDate) < new Date() &&
       inv.status !== 'paid';
 
-    if (isOverdue) {
-      return (
-        <span className="text-red-400 text-xs font-semibold">
-          Overdue 🔴
-        </span>
-      );
-    }
+    if (isOverdue)
+      return <span className="text-red-400 text-xs">Overdue 🔴</span>;
 
-    if (inv.status === 'paid') {
-      return (
-        <span className="text-green-400 text-xs font-semibold">
-          Paid 🟢
-        </span>
-      );
-    }
+    if (inv.status === 'paid')
+      return <span className="text-green-400 text-xs">Paid 🟢</span>;
 
-    return (
-      <span className="text-yellow-400 text-xs font-semibold">
-        Pending 🟡
-      </span>
-    );
+    return <span className="text-yellow-400 text-xs">Pending 🟡</span>;
   };
 
   const filteredInvoices = invoices.filter((inv) => {
     const term = search.toLowerCase();
 
     const matchesSearch =
-      inv.clientName
-        ?.toLowerCase()
-        .includes(term) ||
-      inv.clientEmail
-        ?.toLowerCase()
-        .includes(term);
+      inv.clientName?.toLowerCase().includes(term) ||
+      inv.clientEmail?.toLowerCase().includes(term);
 
     const isOverdue =
       inv.dueDate &&
@@ -110,20 +83,11 @@ export default function Dashboard() {
 
     let matchesFilter = true;
 
-    if (filter === 'paid') {
-      matchesFilter =
-        inv.status === 'paid';
-    } else if (filter === 'pending') {
-      matchesFilter =
-        inv.status !== 'paid';
-    } else if (filter === 'overdue') {
-      matchesFilter = isOverdue;
-    }
+    if (filter === 'paid') matchesFilter = inv.status === 'paid';
+    else if (filter === 'pending') matchesFilter = inv.status !== 'paid';
+    else if (filter === 'overdue') matchesFilter = isOverdue;
 
-    return (
-      matchesSearch &&
-      matchesFilter
-    );
+    return matchesSearch && matchesFilter;
   });
 
   return (
@@ -133,24 +97,16 @@ export default function Dashboard() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold">
-              Welcome, {user.name || 'User'} 👋
-            </h1>
+        <div className="flex flex-col gap-4 mb-6">
+          <h1 className="text-xl sm:text-3xl font-bold">
+            Welcome, {user.name || 'User'} 👋
+          </h1>
 
-            <p className="text-gray-400">
-              Track invoices, earnings, and overdue payments.
-            </p>
-          </div>
-
-          <div className="flex gap-3 flex-wrap justify-center w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3">
             {!isPro && (
               <button
-                onClick={() =>
-                  navigate('/payment')
-                }
-                className="bg-yellow-500 hover:bg-yellow-400 text-black px-5 py-2 rounded-lg font-semibold shadow"
+                onClick={() => navigate('/payment')}
+                className="w-full sm:w-auto bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold"
               >
                 Upgrade ₹99 🚀
               </button>
@@ -158,7 +114,7 @@ export default function Dashboard() {
 
             <Link
               to="/create-invoice"
-              className="bg-white text-black hover:bg-gray-200 px-5 py-2 rounded-lg shadow font-medium"
+              className="w-full sm:w-auto bg-white text-black px-4 py-2 rounded-lg text-center"
             >
               + Create Invoice
             </Link>
@@ -166,157 +122,93 @@ export default function Dashboard() {
         </div>
 
         {/* STATS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
-            <p className="text-gray-400 text-sm">
-              Invoices
-            </p>
-            <h2 className="text-2xl font-bold">
-              {invoices.length}
-            </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div className="bg-gray-900 p-4 rounded-xl">
+            <p className="text-xs text-gray-400">Invoices</p>
+            <h2 className="text-xl font-bold">{invoices.length}</h2>
           </div>
 
-          <div className="bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
-            <p className="text-gray-400 text-sm">
-              Pending
-            </p>
-            <h2 className="text-2xl font-bold text-yellow-400">
-              {pendingCount}
-            </h2>
+          <div className="bg-gray-900 p-4 rounded-xl">
+            <p className="text-xs text-gray-400">Pending</p>
+            <h2 className="text-xl text-yellow-400">{pendingCount}</h2>
           </div>
 
-          <div className="bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
-            <p className="text-gray-400 text-sm">
-              Overdue
-            </p>
-            <h2 className="text-2xl font-bold text-red-400">
-              {overdueCount}
-            </h2>
+          <div className="bg-gray-900 p-4 rounded-xl">
+            <p className="text-xs text-gray-400">Overdue</p>
+            <h2 className="text-xl text-red-400">{overdueCount}</h2>
           </div>
 
-          <div className="bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
-            <p className="text-gray-400 text-sm">
-              Total Revenue
-            </p>
-            <h2 className="text-2xl font-bold text-green-400">
-              ₹
-              {Number(
-                totalEarned
-              ).toLocaleString('en-IN')}
+          <div className="bg-gray-900 p-4 rounded-xl">
+            <p className="text-xs text-gray-400">Revenue</p>
+            <h2 className="text-xl text-green-400">
+              ₹{Number(totalEarned).toLocaleString('en-IN')}
             </h2>
           </div>
         </div>
 
-        {/* PLAN */}
-        <div className="mb-8 bg-gray-900/80 border border-gray-700 p-5 rounded-xl shadow">
-          <p className="text-gray-400 text-sm">
-            Current Plan
-          </p>
-          <h2 className="text-xl font-bold mt-1">
-            {isPro ? 'PRO 🚀' : 'FREE'}
-          </h2>
-        </div>
-
-        {/* SEARCH + FILTER */}
-        <div className="mb-6 flex flex-col md:flex-row gap-4">
+        {/* SEARCH */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-5">
           <input
             type="text"
-            placeholder="Search client name or email..."
+            placeholder="Search..."
             value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
-            className="flex-1 bg-gray-900 border border-gray-700 p-3 rounded-xl outline-none"
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-gray-900 p-3 rounded-xl"
           />
 
           <select
             value={filter}
-            onChange={(e) =>
-              setFilter(e.target.value)
-            }
-            className="bg-gray-900 border border-gray-700 p-3 rounded-xl outline-none"
+            onChange={(e) => setFilter(e.target.value)}
+            className="bg-gray-900 p-3 rounded-xl"
           >
-            <option value="all">
-              All
-            </option>
-            <option value="paid">
-              Paid
-            </option>
-            <option value="pending">
-              Pending
-            </option>
-            <option value="overdue">
-              Overdue
-            </option>
+            <option value="all">All</option>
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+            <option value="overdue">Overdue</option>
           </select>
         </div>
 
-        {/* INVOICE LIST */}
-        <div className="bg-gray-900/80 border border-gray-700 rounded-xl shadow p-4">
-          <h2 className="text-lg font-semibold mb-4">
-            Recent Invoices
-          </h2>
-
+        {/* INVOICES */}
+        <div className="space-y-3">
           {loading ? (
-            <p className="text-center py-6 text-gray-400">
-              Loading...
-            </p>
+            <p className="text-center text-gray-400">Loading...</p>
           ) : filteredInvoices.length === 0 ? (
-            <p className="text-center py-6 text-gray-400">
-              No invoices found
-            </p>
+            <p className="text-center text-gray-400">No invoices</p>
           ) : (
-            <div className="flex flex-col gap-3">
-              {filteredInvoices.map((inv) => (
-                <div
-                  key={inv._id}
-                  className="flex flex-col sm:flex-row justify-between items-center border border-gray-700 bg-gray-800/50 p-4 rounded-lg hover:bg-gray-800 transition"
-                >
+            filteredInvoices.map((inv) => (
+              <div
+                key={inv._id}
+                className="bg-gray-900 p-4 rounded-xl border border-gray-700"
+              >
+                <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-semibold text-white">
-                      {inv.clientName}
-                    </p>
-
-                    <p className="text-sm text-gray-400">
-                      {inv.clientEmail}
-                    </p>
-
-                    <div className="mt-1">
-                      {getStatusBadge(inv)}
-                    </div>
+                    <p className="font-semibold">{inv.clientName}</p>
+                    <p className="text-xs text-gray-400">{inv.clientEmail}</p>
+                    {getStatusBadge(inv)}
                   </div>
 
-                  <div className="flex gap-4 mt-3 sm:mt-0 items-center">
-                    <span className="text-green-400 font-semibold">
-                      ₹
-                      {Number(
-                        inv.amount || 0
-                      ).toLocaleString(
-                        'en-IN'
-                      )}
-                    </span>
-
-                    <Link
-                      to={`/invoice/${inv._id}`}
-                      className="text-blue-400 hover:underline text-sm"
-                    >
-                      View
-                    </Link>
-
-                    <button
-                      onClick={() =>
-                        handleDelete(
-                          inv._id
-                        )
-                      }
-                      className="text-red-400 hover:underline text-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  <p className="text-green-400 font-semibold">
+                    ₹{Number(inv.amount || 0).toLocaleString('en-IN')}
+                  </p>
                 </div>
-              ))}
-            </div>
+
+                <div className="flex gap-4 mt-3 text-sm">
+                  <Link
+                    to={`/invoice/${inv._id}`}
+                    className="text-blue-400"
+                  >
+                    View
+                  </Link>
+
+                  <button
+                    onClick={() => handleDelete(inv._id)}
+                    className="text-red-400"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))
           )}
         </div>
 

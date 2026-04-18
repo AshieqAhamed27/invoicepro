@@ -190,7 +190,7 @@ export default function CreateInvoice() {
             err.response
               ?.data
               ?.message ||
-              'Error creating invoice'
+            'Error creating invoice'
           );
         }
       }
@@ -198,59 +198,45 @@ export default function CreateInvoice() {
       setLoading(false);
     };
 
+  // 🔥 UI UPGRADE ONLY — LOGIC SAME
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       <Navbar />
 
-      <main className="w-full max-w-2xl mx-auto px-4 py-8">
+      <main className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-6">
 
-        <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-2xl shadow-xl p-6 md:p-8">
+        <div className="bg-gray-900/80 border border-gray-700 rounded-2xl shadow-xl p-5 sm:p-8">
 
-          <h1 className="text-2xl font-bold mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">
             Create Invoice
           </h1>
 
-          <form
-            onSubmit={
-              handleSubmit
-            }
-            className="space-y-5"
-          >
+          <form onSubmit={handleSubmit} className="space-y-5">
 
+            {/* INPUTS */}
             <input
               name="clientName"
-              value={
-                form.clientName
-              }
-              onChange={
-                handleChange
-              }
+              value={form.clientName}
+              onChange={handleChange}
               placeholder="Client Name"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
+              className="w-full bg-gray-800 p-3 rounded-xl text-sm sm:text-base"
             />
 
             <input
               name="clientEmail"
-              value={
-                form.clientEmail
-              }
-              onChange={
-                handleChange
-              }
+              value={form.clientEmail}
+              onChange={handleChange}
               placeholder="Client Email"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
+              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
             />
 
             <textarea
               name="serviceDescription"
-              value={
-                form.serviceDescription
-              }
-              onChange={
-                handleChange
-              }
+              value={form.serviceDescription}
+              onChange={handleChange}
               placeholder="Description"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
+              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
             />
 
             {/* ITEMS */}
@@ -260,195 +246,127 @@ export default function CreateInvoice() {
               </h2>
 
               <div className="space-y-3">
-                {items.map(
-                  (
-                    item,
-                    index
-                  ) => (
-                    <div
-                      key={
-                        index
+                {items.map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-800 p-3 rounded-xl flex flex-col sm:flex-row gap-2"
+                  >
+                    <input
+                      placeholder="Item Name"
+                      value={item.name}
+                      onChange={(e) =>
+                        handleItemChange(index, 'name', e.target.value)
                       }
-                      className="flex gap-2"
+                      className="flex-1 bg-gray-700 p-2 rounded-lg text-sm"
+                    />
+
+                    <input
+                      type="number"
+                      placeholder="Price"
+                      value={item.price}
+                      onChange={(e) =>
+                        handleItemChange(index, 'price', e.target.value)
+                      }
+                      className="w-full sm:w-32 bg-gray-700 p-2 rounded-lg text-sm"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => removeItem(index)}
+                      className="w-full sm:w-auto bg-red-500 text-white px-3 py-2 rounded-lg text-sm"
                     >
-                      <input
-                        placeholder="Item Name"
-                        value={
-                          item.name
-                        }
-                        onChange={(
-                          e
-                        ) =>
-                          handleItemChange(
-                            index,
-                            'name',
-                            e.target
-                              .value
-                          )
-                        }
-                        className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
-                      />
-
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={
-                          item.price
-                        }
-                        onChange={(
-                          e
-                        ) =>
-                          handleItemChange(
-                            index,
-                            'price',
-                            e.target
-                              .value
-                          )
-                        }
-                        className="w-32 bg-gray-800 border border-gray-700 p-3 rounded-lg"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeItem(
-                            index
-                          )
-                        }
-                        className="px-3 bg-red-500 hover:bg-red-600 text-white rounded-lg"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  )
-                )}
+                      Remove
+                    </button>
+                  </div>
+                ))}
               </div>
 
               <button
                 type="button"
-                onClick={
-                  addItem
-                }
-                className="mt-3 text-blue-400 hover:underline"
+                onClick={addItem}
+                className="mt-3 text-blue-400 text-sm"
               >
                 + Add Item
               </button>
             </div>
 
+            {/* DATE */}
             <input
               type="date"
               name="dueDate"
-              value={
-                form.dueDate
-              }
-              onChange={
-                handleChange
-              }
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
+              value={form.dueDate}
+              onChange={handleChange}
+              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
             />
 
+            {/* GST */}
             <input
               name="gst"
-              value={
-                form.gst
-              }
-              onChange={
-                handleChange
-              }
+              value={form.gst}
+              onChange={handleChange}
               placeholder="GST Number"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
+              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
             />
 
-            <div className="grid grid-cols-2 gap-3">
+            {/* TAX */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input
                 name="cgst"
                 type="number"
-                value={
-                  form.cgst
-                }
-                onChange={
-                  handleChange
-                }
+                value={form.cgst}
+                onChange={handleChange}
                 placeholder="CGST %"
-                className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
+                className="w-full bg-gray-800 p-3 rounded-xl text-sm"
               />
 
               <input
                 name="sgst"
                 type="number"
-                value={
-                  form.sgst
-                }
-                onChange={
-                  handleChange
-                }
+                value={form.sgst}
+                onChange={handleChange}
                 placeholder="SGST %"
-                className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
+                className="w-full bg-gray-800 p-3 rounded-xl text-sm"
               />
             </div>
 
+            {/* UPI */}
             <input
               name="upiId"
-              value={
-                form.upiId
-              }
-              onChange={
-                handleChange
-              }
+              value={form.upiId}
+              onChange={handleChange}
               placeholder="UPI ID"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
+              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
             />
 
             {/* TOTAL */}
-            <div className="bg-gray-800 border border-gray-700 p-4 rounded-xl">
-              <p>
-                Subtotal: ₹
-                {subtotal.toLocaleString(
-                  'en-IN'
-                )}
-              </p>
-
-              <p>
-                Tax: ₹
-                {tax.toLocaleString(
-                  'en-IN'
-                )}
-              </p>
-
-              <h3 className="font-bold text-lg text-green-400 mt-2">
-                Total: ₹
-                {total.toLocaleString(
-                  'en-IN'
-                )}
+            <div className="bg-gray-800 p-4 rounded-xl text-sm">
+              <p>Subtotal: ₹{subtotal.toLocaleString('en-IN')}</p>
+              <p>Tax: ₹{tax.toLocaleString('en-IN')}</p>
+              <h3 className="text-green-400 font-bold mt-2">
+                Total: ₹{total.toLocaleString('en-IN')}
               </h3>
             </div>
 
+            {/* BUTTON */}
             <button
               type="submit"
-              disabled={
-                loading
-              }
-              className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-semibold"
+              disabled={loading}
+              className="w-full bg-yellow-500 text-black py-3 rounded-xl font-semibold"
             >
-              {loading
-                ? 'Creating...'
-                : 'Create Invoice'}
+              {loading ? 'Creating...' : 'Create Invoice'}
             </button>
 
           </form>
 
+          {/* LIMIT */}
           {limitReached && (
-            <div className="mt-5 bg-red-500/20 border border-red-500 p-4 rounded-xl">
+            <div className="mt-5 bg-red-500/20 border border-red-500 p-4 rounded-xl text-sm">
               <p className="mb-3 text-red-300">
                 Free plan limit reached
               </p>
 
               <button
-                onClick={() =>
-                  navigate(
-                    '/payment'
-                  )
-                }
+                onClick={() => navigate('/payment')}
                 className="w-full bg-yellow-500 text-black py-3 rounded-lg font-semibold"
               >
                 Upgrade 🚀

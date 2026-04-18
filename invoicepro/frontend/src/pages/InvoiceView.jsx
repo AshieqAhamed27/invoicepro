@@ -305,19 +305,21 @@ export default function InvoiceView() {
       invoice.invoiceNumber
     )}`;
 
+  // 🔥 ONLY UI IMPROVED — LOGIC SAME
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
 
         {/* ACTIONS */}
-        <div className="flex flex-wrap justify-end gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
 
           {invoice.status !== 'paid' && (
             <button
               onClick={markAsPaid}
-              className="bg-green-500 hover:bg-green-400 text-black px-6 py-3 rounded-xl font-semibold"
+              className="w-full sm:w-auto bg-green-500 text-black px-4 py-2 rounded-xl text-sm sm:text-base"
             >
               Mark as Paid
             </button>
@@ -325,37 +327,37 @@ export default function InvoiceView() {
 
           <button
             onClick={handleCopyShareLink}
-            className="bg-blue-500 hover:bg-blue-400 text-white px-6 py-3 rounded-xl font-semibold"
+            className="w-full sm:w-auto bg-blue-500 px-4 py-2 rounded-xl text-sm"
           >
-            Copy Share Link
+            Copy Link
           </button>
 
           <button
             onClick={handleWhatsAppReminder}
-            className="bg-green-700 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold"
+            className="w-full sm:w-auto bg-green-700 px-4 py-2 rounded-xl text-sm"
           >
-            WhatsApp Reminder
+            WhatsApp
           </button>
 
           <button
             onClick={() => sendSmartReminder('polite')}
-            className="bg-purple-500 hover:bg-purple-400 text-white px-6 py-3 rounded-xl font-semibold"
+            className="w-full sm:w-auto bg-purple-500 px-4 py-2 rounded-xl text-sm"
           >
-            Polite Reminder
+            Polite
           </button>
 
           <button
             onClick={() => sendSmartReminder('urgent')}
-            className="bg-red-500 hover:bg-red-400 text-white px-6 py-3 rounded-xl font-semibold"
+            className="w-full sm:w-auto bg-red-500 px-4 py-2 rounded-xl text-sm"
           >
-            Urgent Reminder
+            Urgent
           </button>
 
           <button
             onClick={handleDownloadPDF}
-            className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-xl font-semibold"
+            className="w-full sm:w-auto bg-yellow-500 text-black px-4 py-2 rounded-xl text-sm"
           >
-            Download PDF
+            PDF
           </button>
 
         </div>
@@ -363,50 +365,89 @@ export default function InvoiceView() {
         {/* INVOICE */}
         <div
           ref={printRef}
-          className="bg-white text-black rounded-2xl shadow-2xl p-8 md:p-12"
+          className="bg-white text-black rounded-2xl shadow-xl p-5 sm:p-10"
         >
 
-          {/* ALL YOUR ORIGINAL CONTENT SAME */}
-          // ONLY SHOWING CHANGED PART CLEARLY
+          {/* COMPANY HEADER */}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold">
+                {companyName}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {companyAddress}
+              </p>
+            </div>
 
-          {/* UPI QR */}
+            <img
+              src={companyLogo}
+              alt="logo"
+              className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
+            />
+          </div>
+
+          {/* CLIENT */}
+          <div className="mb-6">
+            <p className="text-gray-500 text-sm">Bill To</p>
+            <h3 className="font-semibold text-lg">
+              {invoice.clientName}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {invoice.clientEmail}
+            </p>
+          </div>
+
+          {/* ITEMS (MOBILE CARD STYLE) */}
+          <div className="space-y-3 mb-6">
+            {items.map((item, index) => (
+              <div
+                key={index}
+                className="bg-gray-100 p-4 rounded-xl flex justify-between"
+              >
+                <span>{item.name}</span>
+                <span className="font-semibold">
+                  {formatCurrency(item.price, invoice.currency)}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* TOTAL */}
+          <div className="flex justify-between font-semibold text-lg mb-6">
+            <span>Total</span>
+            <span>
+              {formatCurrency(total, invoice.currency)}
+            </span>
+          </div>
+
+          {/* UPI SECTION */}
           {invoice.upiId && (
-            <div className="mb-10 text-center">
+            <div className="text-center border-t pt-6">
 
-              <h3 className="text-lg font-semibold mb-4">
+              <h3 className="text-lg font-semibold mb-3">
                 Pay via UPI
               </h3>
 
               <div className="flex justify-center">
-                <QRCode value={upiLink} size={180} />
+                <QRCode value={upiLink} size={150} />
               </div>
 
-              <p className="text-sm text-gray-500 mt-3">
-                Scan to pay instantly
-              </p>
-
               <button
-                onClick={() => {
-                  window.location.href = upiLink;
-                }}
-                className="mt-5 bg-green-500 hover:bg-green-400 text-white px-8 py-3 rounded-xl font-semibold shadow-md"
+                onClick={() => (window.location.href = upiLink)}
+                className="mt-4 w-full sm:w-auto bg-green-500 text-white px-6 py-3 rounded-xl"
               >
                 Pay Now
               </button>
 
-              {/* ✅ UPDATED (SECURE VERSION) */}
+              {/* SECURE BUTTON */}
               {user && invoice.user === user._id && (
                 <button
                   onClick={markAsPaid}
-                  className="mt-3 bg-blue-500 hover:bg-blue-400 text-white px-8 py-3 rounded-xl font-semibold shadow-md"
+                  className="mt-3 w-full sm:w-auto bg-blue-500 text-white px-6 py-3 rounded-xl"
                 >
                   Mark as Paid
                 </button>
               )}
-
-              <p className="text-xs text-gray-400 mt-3">
-                Opens your installed UPI app
-              </p>
 
             </div>
           )}
