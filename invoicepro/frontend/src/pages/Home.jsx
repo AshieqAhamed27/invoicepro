@@ -216,10 +216,10 @@ export default function Home() {
 
       </section>
 
-      {/* FOOTER */}
+      {/* FOOTER
       <footer className="text-center text-gray-500 text-sm py-8">
         © {new Date().getFullYear()} InvoicePro
-      </footer>
+      </footer> */}
 
       <Footer />
     </div>
