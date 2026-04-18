@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
 
 export default function Navbar() {
@@ -9,7 +9,6 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
-
   const isAdmin = user?.email === "your-email@gmail.com"; // change this
 
   const handleLogout = () => {
@@ -18,38 +17,44 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
+  // 🎯 ACTIVE CLASS FUNCTION
+  const navClass = ({ isActive }) =>
+    isActive
+      ? "text-white font-semibold border-b-2 border-yellow-400 pb-1"
+      : "text-gray-400 hover:text-white";
+
   return (
     <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800">
 
       <div className="container-custom flex justify-between items-center py-4">
 
         {/* LOGO */}
-        <Link to="/" className="text-lg font-semibold">
+        <NavLink to="/" className="text-lg font-semibold">
           InvoicePro
-        </Link>
+        </NavLink>
 
         {/* DESKTOP */}
-        <div className="hidden md:flex items-center gap-6 text-sm text-gray-300">
+        <div className="hidden md:flex items-center gap-6 text-sm">
 
-          <Link to="/" className="hover:text-white">Home</Link>
+          <NavLink to="/" className={navClass}>Home</NavLink>
 
           {loggedIn && (
             <>
-              <Link to="/dashboard" className="hover:text-white">Dashboard</Link>
-              <Link to="/create-invoice" className="hover:text-white">Create</Link>
-              <Link to="/settings" className="hover:text-white">Settings</Link>
+              <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
+              <NavLink to="/create-invoice" className={navClass}>Create</NavLink>
+              <NavLink to="/settings" className={navClass}>Settings</NavLink>
             </>
           )}
 
           {isAdmin && (
-            <Link to="/admin" className="text-yellow-400">
+            <NavLink to="/admin" className={navClass}>
               Admin
-            </Link>
+            </NavLink>
           )}
 
           {!loggedIn ? (
             <>
-              <Link to="/login" className="hover:text-white">Login</Link>
+              <NavLink to="/login" className={navClass}>Login</NavLink>
 
               <button
                 onClick={() => navigate('/signup')}
@@ -81,27 +86,45 @@ export default function Navbar() {
 
       {/* MOBILE MENU */}
       {menuOpen && (
-        <div className="md:hidden border-t border-gray-800 px-4 py-4 space-y-3 text-gray-300">
+        <div className="md:hidden border-t border-gray-800 px-4 py-4 space-y-3 text-sm">
 
-          <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+          <NavLink to="/" onClick={() => setMenuOpen(false)} className={navClass}>
+            Home
+          </NavLink>
 
           {loggedIn && (
             <>
-              <Link to="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-              <Link to="/create-invoice" onClick={() => setMenuOpen(false)}>Create</Link>
-              <Link to="/settings" onClick={() => setMenuOpen(false)}>Settings</Link>
+              <NavLink to="/dashboard" onClick={() => setMenuOpen(false)} className={navClass}>
+                Dashboard
+              </NavLink>
+
+              <NavLink to="/create-invoice" onClick={() => setMenuOpen(false)} className={navClass}>
+                Create
+              </NavLink>
+
+              <NavLink to="/settings" onClick={() => setMenuOpen(false)} className={navClass}>
+                Settings
+              </NavLink>
             </>
           )}
 
           {isAdmin && (
-            <Link to="/admin" onClick={() => setMenuOpen(false)}>Admin</Link>
+            <NavLink to="/admin" onClick={() => setMenuOpen(false)} className={navClass}>
+              Admin
+            </NavLink>
           )}
 
           {!loggedIn ? (
             <>
-              <Link to="/login" onClick={() => setMenuOpen(false)}>Login</Link>
+              <NavLink to="/login" onClick={() => setMenuOpen(false)} className={navClass}>
+                Login
+              </NavLink>
+
               <button
-                onClick={() => navigate('/signup')}
+                onClick={() => {
+                  navigate('/signup');
+                  setMenuOpen(false);
+                }}
                 className="btn btn-primary w-full"
               >
                 Start Free
