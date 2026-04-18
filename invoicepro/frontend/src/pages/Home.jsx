@@ -22,6 +22,12 @@ export default function Home() {
     }
   ];
 
+  // ✅ NEW FUNCTION
+  const handleSubscribe = (plan) => {
+    localStorage.setItem("plan", plan);
+    navigate("/payment");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
 
@@ -51,22 +57,16 @@ export default function Home() {
           <button
             onClick={() =>
               navigate(
-                loggedIn
-                  ? '/dashboard'
-                  : '/signup'
+                loggedIn ? '/dashboard' : '/signup'
               )
             }
             className="bg-yellow-500 hover:bg-yellow-400 text-black px-8 py-4 rounded-xl font-semibold shadow-lg"
           >
-            {loggedIn
-              ? 'Go to Dashboard'
-              : 'Start Free'}
+            {loggedIn ? 'Go to Dashboard' : 'Start Free'}
           </button>
 
           <button
-            onClick={() =>
-              navigate('/login')
-            }
+            onClick={() => navigate('/login')}
             className="border border-gray-500 hover:border-gray-300 px-8 py-4 rounded-xl font-semibold"
           >
             Login
@@ -83,14 +83,10 @@ export default function Home() {
 
         <div className="grid md:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl shadow-lg hover:scale-105 transition"
-            >
+            <div key={index} className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl shadow-lg">
               <h3 className="text-xl font-semibold mb-3">
                 {feature.title}
               </h3>
-
               <p className="text-gray-400">
                 {feature.desc}
               </p>
@@ -99,155 +95,80 @@ export default function Home() {
         </div>
       </section>
 
-      {/* UPDATED SECTION (REPLACED IMAGE SECTION) */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-center mb-4">
-          How InvoicePro Works
-        </h2>
-
-        <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
-          A simple 3-step process to create invoices, send them to clients,
-          and get paid instantly using UPI.
-        </p>
-
-        <div className="grid md:grid-cols-3 gap-6">
-
-          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
-            <div className="text-5xl mb-4">🧾</div>
-            <h3 className="text-xl font-semibold mb-2">
-              Create Invoice
-            </h3>
-            <p className="text-gray-400 text-sm">
-              Generate clean, professional invoices in seconds with all details included.
-            </p>
-          </div>
-
-          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
-            <div className="text-5xl mb-4">📤</div>
-            <h3 className="text-xl font-semibold mb-2">
-              Send to Client
-            </h3>
-            <p className="text-gray-400 text-sm">
-              Share invoices easily via WhatsApp or email directly from the platform.
-            </p>
-          </div>
-
-          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
-            <div className="text-5xl mb-4">💸</div>
-            <h3 className="text-xl font-semibold mb-2">
-              Get Paid Instantly
-            </h3>
-            <p className="text-gray-400 text-sm">
-              Accept payments using UPI QR and track paid & pending invoices easily.
-            </p>
-          </div>
-
-        </div>
-      </section>
-
-      {/* PRICING */}
+      {/* 🚀 NEW PRICING */}
       <section className="max-w-5xl mx-auto px-6 py-16">
         <h2 className="text-3xl font-bold text-center mb-12">
           Simple Pricing
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-8">
-
-          <div className="bg-gray-900/80 border border-gray-700 p-8 rounded-2xl shadow">
-            <h3 className="text-2xl font-bold mb-4">
-              Free
-            </h3>
-
-            <p className="text-gray-400 mb-6">
-              Best for getting started.
-            </p>
-
-            <ul className="space-y-3 text-gray-300">
-              <li>✔ 2 invoices free</li>
-              <li>✔ PDF download</li>
-              <li>✔ UPI QR support</li>
-            </ul>
-          </div>
-
-          <div className="bg-yellow-500 text-black p-8 rounded-2xl shadow-xl">
-            <h3 className="text-2xl font-bold mb-4">
-              Pro ₹99
-            </h3>
-
-            <p className="mb-6">
-              Best for freelancers.
-            </p>
-
-            <ul className="space-y-3">
-              <li>✔ Unlimited invoices</li>
-              <li>✔ Email reminders</li>
-              <li>✔ Payment tracking</li>
-              <li>✔ Priority support</li>
-            </ul>
-          </div>
-
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section className="max-w-5xl mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">
-          Loved by Freelancers
-        </h2>
-
         <div className="grid md:grid-cols-2 gap-6">
 
-          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl shadow-lg">
-            <p className="text-gray-300 leading-relaxed">
-              “InvoicePro helped me create invoices quickly and made my freelance work feel professional.”
+          {/* MONTHLY */}
+          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl text-center">
+            <h3 className="text-xl font-bold mb-2">
+              Monthly Plan
+            </h3>
+
+            <p className="text-gray-400 mb-4">
+              Flexible billing
             </p>
 
-            <p className="mt-5 font-semibold text-yellow-400">
-              — Graphic Designer
-            </p>
+            <h2 className="text-3xl font-bold mb-6">
+              ₹99 / month
+            </h2>
+
+            <ul className="text-sm text-gray-300 space-y-2 mb-6">
+              <li>✔ Unlimited invoices</li>
+              <li>✔ UPI payments</li>
+              <li>✔ Payment tracking</li>
+              <li>✔ WhatsApp reminders</li>
+            </ul>
+
+            <button
+              onClick={() => handleSubscribe('monthly')}
+              className="w-full bg-yellow-500 text-black py-3 rounded-xl font-semibold"
+            >
+              Choose Monthly
+            </button>
           </div>
 
-          <div className="bg-gray-900/80 border border-gray-700 p-6 rounded-2xl shadow-lg">
-            <p className="text-gray-300 leading-relaxed">
-              “The UPI QR payment and WhatsApp reminders made getting paid much easier.”
+          {/* YEARLY */}
+          <div className="bg-yellow-500 text-black p-6 rounded-2xl text-center shadow-xl">
+            <p className="text-xs font-semibold mb-2">
+              BEST VALUE
             </p>
 
-            <p className="mt-5 font-semibold text-yellow-400">
-              — Freelancer
+            <h3 className="text-xl font-bold mb-2">
+              Yearly Plan
+            </h3>
+
+            <p className="mb-4">
+              Save more
             </p>
+
+            <h2 className="text-3xl font-bold mb-6">
+              ₹999 / year
+            </h2>
+
+            <ul className="text-sm space-y-2 mb-6">
+              <li>✔ Everything in Monthly</li>
+              <li>✔ Save ₹189</li>
+            </ul>
+
+            <button
+              onClick={() => handleSubscribe('yearly')}
+              className="w-full bg-black text-white py-3 rounded-xl font-semibold"
+            >
+              Choose Yearly
+            </button>
           </div>
 
         </div>
-      </section>
-
-      {/* CTA */}
-      <section className="text-center px-6 py-16">
-        <h2 className="text-3xl font-bold mb-4">
-          Ready to simplify invoicing?
-        </h2>
-
-        <p className="text-gray-400 mb-8">
-          Start sending invoices in less than 2 minutes.
-        </p>
-
-        <button
-          onClick={() =>
-            navigate(
-              loggedIn
-                ? '/dashboard'
-                : '/signup'
-            )
-          }
-          className="bg-white text-black px-8 py-4 rounded-xl font-semibold hover:bg-gray-200"
-        >
-          Get Started →
-        </button>
       </section>
 
       {/* FOOTER */}
       <footer className="text-center text-gray-400 text-sm py-8 border-t border-gray-800">
         © {new Date().getFullYear()} InvoicePro.
-        All rights reserved.
       </footer>
 
     </div>

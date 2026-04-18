@@ -7,8 +7,8 @@ export default function Admin() {
 
   const fetchRequests = async () => {
     try {
-      const res = await api.get('/payment');
-      setRequests(res.data.requests || []);
+      const res = await api.get('/payment/requests'); // ✅ FIXED
+      setRequests(res.data || []);
     } catch (err) {
       console.log(err);
       alert('Failed to load requests');
@@ -18,7 +18,7 @@ export default function Admin() {
   const approve = async (id) => {
     try {
       await api.put(`/payment/approve/${id}`);
-      alert('User upgraded to PRO ✅');
+      alert('User upgraded successfully ✅');
       fetchRequests();
     } catch (err) {
       console.log(err);
@@ -34,89 +34,66 @@ export default function Admin() {
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-4 py-6">
 
-        <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-2xl shadow-xl p-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6">
+          Admin Panel
+        </h1>
 
-          <h1 className="text-3xl font-bold mb-2">
-            Admin Panel
-          </h1>
-
-          <p className="text-gray-400 mb-8">
-            Manage payment requests and upgrade users.
+        {requests.length === 0 ? (
+          <p className="text-gray-400 text-center">
+            No payment requests
           </p>
+        ) : (
+          <div className="space-y-4">
 
-          {requests.length === 0 ? (
-            <div className="text-center py-10 text-gray-400">
-              No payment requests yet
-            </div>
-          ) : (
-            <div className="space-y-6">
+            {requests.map((req) => (
+              <div
+                key={req.id} // ✅ FIXED
+                className="bg-gray-900 p-4 rounded-xl border border-gray-700"
+              >
 
-              {requests.map((req) => (
-                <div
-                  key={req._id}
-                  className="bg-gray-800/70 border border-gray-700 rounded-2xl p-5 shadow"
-                >
+                {/* PLAN */}
+                <p className="text-sm text-gray-400">
+                  Plan: <span className="text-white">{req.plan}</span>
+                </p>
 
-                  {/* USER INFO */}
-                  <div className="space-y-2">
-                    <p>
-                      <span className="text-gray-400">Name:</span>{' '}
-                      <span className="font-semibold">{req.user?.name}</span>
-                    </p>
+                {/* STATUS */}
+                <p className="text-sm">
+                  Status:{' '}
+                  <span
+                    className={
+                      req.status === 'pending'
+                        ? 'text-yellow-400'
+                        : 'text-green-400'
+                    }
+                  >
+                    {req.status}
+                  </span>
+                </p>
 
-                    <p>
-                      <span className="text-gray-400">Email:</span>{' '}
-                      <span className="font-semibold">{req.user?.email}</span>
-                    </p>
+                {/* IMAGE */}
+                <img
+                  src={`http://localhost:5000/uploads/${req.file}`} // ✅ FIXED
+                  alt="payment"
+                  className="mt-3 w-full max-w-xs rounded-lg"
+                />
 
-                    <p>
-                      <span className="text-gray-400">Status:</span>{' '}
-                      <span
-                        className={`font-semibold ${
-                          req.status === 'pending'
-                            ? 'text-yellow-400'
-                            : 'text-green-400'
-                        }`}
-                      >
-                        {req.status}
-                      </span>
-                    </p>
-                  </div>
+                {/* BUTTON */}
+                {req.status === 'pending' && (
+                  <button
+                    onClick={() => approve(req.id)}
+                    className="mt-3 w-full sm:w-auto bg-green-500 text-black px-4 py-2 rounded-lg"
+                  >
+                    Approve
+                  </button>
+                )}
 
-                  {/* SCREENSHOT */}
-                  {req.screenshot && (
-                    <div className="mt-5">
-                      <p className="text-sm text-gray-400 mb-2">
-                        Payment Proof
-                      </p>
+              </div>
+            ))}
 
-                      <img
-                        src={`https://invoicepro-527e.onrender.com/uploads/${req.screenshot}`}
-                        alt="payment proof"
-                        className="w-full max-w-sm rounded-xl border border-gray-700 shadow-lg"
-                      />
-                    </div>
-                  )}
-
-                  {/* APPROVE BUTTON */}
-                  {req.status === 'pending' && (
-                    <button
-                      onClick={() => approve(req._id)}
-                      className="mt-5 bg-green-500 hover:bg-green-400 text-black px-5 py-3 rounded-lg font-semibold transition"
-                    >
-                      Approve Payment ✅
-                    </button>
-                  )}
-
-                </div>
-              ))}
-
-            </div>
-          )}
-
-        </div>
+          </div>
+        )}
 
       </main>
     </div>

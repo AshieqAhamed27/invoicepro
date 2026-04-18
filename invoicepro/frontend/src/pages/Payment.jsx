@@ -4,10 +4,28 @@ import api from '../utils/api';
 
 export default function Payment() {
   const [file, setFile] = useState(null);
+  const [plan, setPlan] = useState('monthly');
 
   useEffect(() => {
-    alert('Use mobile for payment');
+    const selectedPlan = localStorage.getItem("plan") || "monthly";
+    setPlan(selectedPlan);
   }, []);
+
+  // ✅ PLAN CONFIG
+  const planDetails = {
+    monthly: {
+      amount: 99,
+      label: "Monthly Plan"
+    },
+    yearly: {
+      amount: 999,
+      label: "Yearly Plan"
+    }
+  };
+
+  const current = planDetails[plan];
+
+  const upiLink = `upi://pay?pa=ashieqahamed4@okicici&pn=InvoicePro&am=${current.amount}&cu=INR`;
 
   const handleConfirm = async () => {
     if (!file) {
@@ -18,11 +36,16 @@ export default function Payment() {
     try {
       const formData = new FormData();
       formData.append('screenshot', file);
+      formData.append('plan', plan);
 
       await api.post('/payment/request', formData);
 
-      alert('Request sent');
+      // Save plan locally (temporary)
+      localStorage.setItem("userPlan", plan);
+
+      alert('Payment request sent');
       window.location.href = '/dashboard';
+
     } catch (err) {
       alert('Payment request failed');
     }
@@ -34,57 +57,64 @@ export default function Payment() {
 
       <main className="w-full max-w-md mx-auto px-4 py-8">
 
-        <div className="bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-2xl shadow-xl p-6">
+        <div className="bg-gray-900/80 border border-gray-700 rounded-2xl shadow-xl p-6">
 
           <h1 className="text-2xl font-bold text-center mb-2">
             Upgrade to Pro 🚀
           </h1>
 
-          <p className="text-gray-400 text-center mb-6">
-            Scan QR and upload payment screenshot
+          <p className="text-center text-gray-400 mb-4">
+            {current.label}
           </p>
+
+          {/* PRICE */}
+          <div className="text-center mb-6">
+            <span className="text-3xl font-bold text-yellow-400">
+              ₹{current.amount}
+            </span>
+          </div>
 
           {/* QR */}
           <div className="flex justify-center mb-6">
-            <div className="bg-white p-4 rounded-2xl shadow-lg">
+            <div className="bg-white p-4 rounded-2xl">
               <img
-                className="w-52 h-52 object-contain"
                 alt="UPI QR"
-                src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi://pay?pa=ashieqahamed4@okicici&pn=InvoicePro&am=99&cu=INR"
+                className="w-52 h-52"
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`}
               />
             </div>
           </div>
 
-          {/* UPI DETAILS */}
-          <div className="bg-gray-800/70 border border-gray-700 rounded-xl p-4 mb-6 text-sm">
-            <p className="text-gray-400 mb-1">UPI ID</p>
-            <p className="font-semibold text-white">
+          {/* DETAILS */}
+          <div className="bg-gray-800 p-4 rounded-xl mb-6 text-sm">
+            <p className="text-gray-400">UPI ID</p>
+            <p className="font-semibold">
               ashieqahamed4@okicici
             </p>
 
-            <p className="text-gray-400 mt-3 mb-1">Amount</p>
-            <p className="font-semibold text-green-400">
-              ₹99
+            <p className="text-gray-400 mt-3">Amount</p>
+            <p className="text-green-400 font-semibold">
+              ₹{current.amount}
             </p>
           </div>
 
           {/* FILE */}
           <div className="mb-4">
-            <label className="block text-sm text-gray-300 mb-2">
+            <label className="text-sm text-gray-300 block mb-2">
               Upload Payment Screenshot
             </label>
 
             <input
               type="file"
               onChange={(e) => setFile(e.target.files[0])}
-              className="w-full border border-gray-700 bg-gray-800 text-white p-3 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-yellow-500 file:text-black"
+              className="w-full bg-gray-800 p-3 rounded-lg text-sm"
             />
           </div>
 
           {/* BUTTON */}
           <button
             onClick={handleConfirm}
-            className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-lg font-semibold transition"
+            className="w-full bg-yellow-500 text-black py-3 rounded-xl font-semibold"
           >
             Submit Payment
           </button>

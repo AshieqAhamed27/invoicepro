@@ -1,21 +1,10 @@
 const express = require('express');
-const PaymentRequest = require('../models/PaymentRequest');
-const User = require('../models/User');
-const { protect } = require('../middleware/auth');
-
-const nodemailer = require('nodemailer');
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'yourgmail@gmail.com',
-        pass: 'your-app-password'
-    }
-});
-
+const router = express.Router();
 const multer = require('multer');
 
-// storage config
+const { protect } = require('../middleware/auth');
+const User = require('../models/User');
+
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, 'uploads/');
@@ -27,114 +16,85 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-const router = express.Router();
-
-// 🔐 YOUR ADMIN EMAIL
-const ADMIN_EMAIL = "ashieqahamed27@gmail.com";
-
-// 🔐 ADMIN CHECK
-const isAdmin = (req) => {
-    return req.user && req.user.email === ADMIN_EMAIL;
-};
-
+let paymentRequests = [];
 
 // ==========================
-// ➕ CREATE PAYMENT REQUEST
+// SEND PAYMENT REQUEST
 // ==========================
 router.post('/request', protect, upload.single('screenshot'), async(req, res) => {
     try {
+        const { plan } = req.body;
 
-        const existing = await PaymentRequest.findOne({
-            user: req.user._id,
-            status: 'pending'
-        });
-
-        if (existing) {
-            return res.status(400).json({ message: 'Already requested' });
+        if (!req.file) {
+            return res.status(400).json({
+                message: 'Screenshot required'
+            });
         }
 
-        const request = await PaymentRequest.create({
-            user: req.user._id,
-            screenshot: req.file ? req.file.filename : null
-        });
+        const request = {
+            id: Date.now(),
+            userId: req.user._id,
+            file: req.file.filename,
+            plan,
+            status: 'pending'
+        };
+
+        paymentRequests.push(request);
 
         res.json({
-            message: 'Request sent successfully',
-            request
-        });
-
-        await transporter.sendMail({
-            from: 'yourgmail@gmail.com',
-            to: 'yourgmail@gmail.com',
-            subject: 'New Payment Request',
-            text: `User ${req.user.email} submitted payment proof`
+            message: 'Payment request submitted'
         });
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({
+            message: 'Server error'
+        });
     }
 });
 
-
 // ==========================
-// 📄 GET ALL REQUESTS (ADMIN)
+// GET ALL REQUESTS (ADMIN)
 // ==========================
-router.get('/', protect, async(req, res) => {
-
-    // 🔐 ADMIN CHECK
-    if (!isAdmin(req)) {
-        return res.status(403).json({ message: 'Access denied ❌' });
-    }
-
-    try {
-        const requests = await PaymentRequest.find()
-            .populate('user', 'name email plan')
-            .sort({ createdAt: -1 });
-
-        res.json({ requests });
-
-    } catch (err) {
-        console.error("🔥 FETCH REQUEST ERROR:", err);
-        res.status(500).json({ message: 'Server error' });
-    }
+router.get('/requests', (req, res) => {
+    res.json(paymentRequests);
 });
 
-
 // ==========================
-// ✅ APPROVE PAYMENT (ADMIN)
+// APPROVE PAYMENT
 // ==========================
-router.put('/approve/:id', protect, async(req, res) => {
-
-    // 🔐 ADMIN CHECK
-    if (!isAdmin(req)) {
-        return res.status(403).json({ message: 'Access denied ❌' });
-    }
-
+router.put('/approve/:id', async(req, res) => {
     try {
-        const request = await PaymentRequest.findById(req.params.id).populate('user');
+        const id = Number(req.params.id);
+
+        const request = paymentRequests.find(r => r.id === id);
 
         if (!request) {
-            return res.status(404).json({ message: 'Request not found' });
+            return res.status(404).json({
+                message: 'Request not found'
+            });
         }
 
-        if (request.status === 'approved') {
-            return res.status(400).json({ message: 'Already approved' });
-        }
-
-        // 🔥 UPGRADE USER
-        request.user.plan = 'pro';
-        await request.user.save();
-
-        // 🔥 UPDATE REQUEST
         request.status = 'approved';
-        await request.save();
 
-        res.json({ message: 'User upgraded to PRO successfully' });
+        // 🔥 UPDATE USER PLAN
+        const user = await User.findById(request.userId);
+
+        if (user) {
+            user.plan = request.plan; // monthly / yearly
+            await user.save();
+        }
+
+        res.json({
+            message: 'Payment approved & user upgraded',
+            request
+        });
 
     } catch (err) {
-        console.error("🔥 APPROVE ERROR:", err);
-        res.status(500).json({ message: 'Server error' });
+        console.error(err);
+        res.status(500).json({
+            message: 'Server error'
+        });
     }
 });
 
