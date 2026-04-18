@@ -7,8 +7,6 @@ import Navbar from '../components/Navbar';
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('all');
 
   const navigate = useNavigate();
   const user = getUser() || {};
@@ -31,88 +29,36 @@ export default function Dashboard() {
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await api.delete(`/invoices/${id}`);
-      setInvoices((prev) => prev.filter((i) => i._id !== id));
-    } catch {
-      alert('Failed to delete invoice');
-    }
-  };
-
   const totalEarned = invoices
-    .filter((inv) => inv.status === 'paid')
-    .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+    .filter((i) => i.status === 'paid')
+    .reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
-  const pendingCount = invoices.filter(
-    (inv) => inv.status !== 'paid'
-  ).length;
-
-  const overdueCount = invoices.filter((inv) => {
-    if (!inv.dueDate) return false;
-    return new Date(inv.dueDate) < new Date() && inv.status !== 'paid';
-  }).length;
-
-  const getStatusBadge = (inv) => {
-    const isOverdue =
-      inv.dueDate &&
-      new Date(inv.dueDate) < new Date() &&
-      inv.status !== 'paid';
-
-    if (isOverdue)
-      return <span className="text-red-400 text-xs">Overdue</span>;
-
-    if (inv.status === 'paid')
-      return <span className="text-green-400 text-xs">Paid</span>;
-
-    return <span className="text-yellow-400 text-xs">Pending</span>;
-  };
-
-  const filteredInvoices = invoices.filter((inv) => {
-    const term = search.toLowerCase();
-
-    const matchesSearch =
-      inv.clientName?.toLowerCase().includes(term) ||
-      inv.clientEmail?.toLowerCase().includes(term);
-
-    const isOverdue =
-      inv.dueDate &&
-      new Date(inv.dueDate) < new Date() &&
-      inv.status !== 'paid';
-
-    let matchesFilter = true;
-
-    if (filter === 'paid') matchesFilter = inv.status === 'paid';
-    else if (filter === 'pending') matchesFilter = inv.status !== 'paid';
-    else if (filter === 'overdue') matchesFilter = isOverdue;
-
-    return matchesSearch && matchesFilter;
-  });
+  const pending = invoices.filter(i => i.status !== 'paid').length;
 
   return (
     <div className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <main className="container-custom py-10">
 
         {/* HEADER */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-10">
 
           <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold">
-              Welcome, {user.name || 'User'}
+            <h1 className="text-3xl font-semibold">
+              Welcome, {user.name || "User"}
             </h1>
-            <p className="text-gray-400 text-sm">
-              Manage your invoices and track payments
+            <p className="text-gray-400 text-sm mt-1">
+              Here’s your business overview
             </p>
           </div>
 
-          <div className="flex gap-3 w-full sm:w-auto">
+          <div className="flex gap-3">
 
             {!isPro && (
               <button
                 onClick={() => navigate('/payment')}
-                className="bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium"
+                className="btn btn-primary"
               >
                 Upgrade
               </button>
@@ -120,7 +66,7 @@ export default function Dashboard() {
 
             <Link
               to="/create-invoice"
-              className="bg-white text-black px-4 py-2 rounded-lg text-sm font-medium"
+              className="btn bg-white text-black"
             >
               + New Invoice
             </Link>
@@ -130,98 +76,81 @@ export default function Dashboard() {
         </div>
 
         {/* STATS */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="grid sm:grid-cols-3 gap-6 mb-10">
 
-          <div className="bg-gray-900 border border-gray-800 p-5 rounded-xl">
-            <p className="text-gray-400 text-xs mb-1">Invoices</p>
-            <h2 className="text-xl font-semibold">{invoices.length}</h2>
+          <div className="card">
+            <p className="text-sm text-gray-400">Total Revenue</p>
+            <h2 className="text-2xl text-green-400 mt-2">
+              ₹{totalEarned.toLocaleString('en-IN')}
+            </h2>
           </div>
 
-          <div className="bg-gray-900 border border-gray-800 p-5 rounded-xl">
-            <p className="text-gray-400 text-xs mb-1">Pending</p>
-            <h2 className="text-xl text-yellow-400 font-semibold">{pendingCount}</h2>
+          <div className="card">
+            <p className="text-sm text-gray-400">Pending Invoices</p>
+            <h2 className="text-2xl text-yellow-400 mt-2">
+              {pending}
+            </h2>
           </div>
 
-          <div className="bg-gray-900 border border-gray-800 p-5 rounded-xl">
-            <p className="text-gray-400 text-xs mb-1">Overdue</p>
-            <h2 className="text-xl text-red-400 font-semibold">{overdueCount}</h2>
-          </div>
-
-          <div className="bg-gray-900 border border-gray-800 p-5 rounded-xl">
-            <p className="text-gray-400 text-xs mb-1">Revenue</p>
-            <h2 className="text-xl text-green-400 font-semibold">
-              ₹{Number(totalEarned).toLocaleString('en-IN')}
+          <div className="card">
+            <p className="text-sm text-gray-400">Total Invoices</p>
+            <h2 className="text-2xl mt-2">
+              {invoices.length}
             </h2>
           </div>
 
         </div>
 
-        {/* SEARCH */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        {/* LIST */}
+        <div className="card">
 
-          <input
-            type="text"
-            placeholder="Search invoices..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-gray-900 border border-gray-800 p-3 rounded-lg text-sm"
-          />
-
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="bg-gray-900 border border-gray-800 p-3 rounded-lg text-sm"
-          >
-            <option value="all">All</option>
-            <option value="paid">Paid</option>
-            <option value="pending">Pending</option>
-            <option value="overdue">Overdue</option>
-          </select>
-
-        </div>
-
-        {/* INVOICES */}
-        <div className="space-y-3">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg font-medium">
+              Recent Invoices
+            </h2>
+          </div>
 
           {loading ? (
-            <p className="text-center text-gray-400">Loading...</p>
-          ) : filteredInvoices.length === 0 ? (
-            <p className="text-center text-gray-400">No invoices found</p>
+            <p className="text-gray-400 text-center">Loading...</p>
+          ) : invoices.length === 0 ? (
+            <p className="text-gray-400 text-center">
+              No invoices yet
+            </p>
           ) : (
-            filteredInvoices.map((inv) => (
-              <div
-                key={inv._id}
-                className="bg-gray-900 border border-gray-800 p-4 rounded-xl hover:border-gray-700 transition"
-              >
-                <div className="flex justify-between items-center">
+            <div className="space-y-3">
+
+              {invoices.map((inv) => (
+                <div
+                  key={inv._id}
+                  className="flex justify-between items-center bg-gray-800/50 p-4 rounded-xl"
+                >
 
                   <div>
-                    <p className="font-medium">{inv.clientName}</p>
-                    <p className="text-xs text-gray-400">{inv.clientEmail}</p>
-                    {getStatusBadge(inv)}
+                    <p className="font-medium">
+                      {inv.clientName}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {inv.clientEmail}
+                    </p>
                   </div>
 
-                  <p className="text-green-400 font-semibold">
-                    ₹{Number(inv.amount || 0).toLocaleString('en-IN')}
-                  </p>
+                  <div className="text-right">
+                    <p className="text-green-400 font-semibold">
+                      ₹{Number(inv.amount).toLocaleString('en-IN')}
+                    </p>
+
+                    <Link
+                      to={`/invoice/${inv._id}`}
+                      className="text-blue-400 text-sm"
+                    >
+                      View
+                    </Link>
+                  </div>
 
                 </div>
+              ))}
 
-                <div className="flex gap-4 mt-3 text-sm">
-                  <Link to={`/invoice/${inv._id}`} className="text-blue-400 hover:underline">
-                    View
-                  </Link>
-
-                  <button
-                    onClick={() => handleDelete(inv._id)}
-                    className="text-red-400 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </div>
-
-              </div>
-            ))
+            </div>
           )}
 
         </div>

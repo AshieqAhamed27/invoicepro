@@ -1,7 +1,4 @@
-import React, {
-  useState,
-  useEffect
-} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
@@ -9,314 +6,215 @@ import Navbar from '../components/Navbar';
 export default function CreateInvoice() {
   const navigate = useNavigate();
 
-  const [form, setForm] =
-    useState({
-      clientName: '',
-      clientEmail: '',
-      serviceDescription: '',
-      gst: '',
-      cgst: '',
-      sgst: '',
-      upiId: '',
-      dueDate: ''
-    });
+  const [form, setForm] = useState({
+    clientName: '',
+    clientEmail: '',
+    serviceDescription: '',
+    gst: '',
+    cgst: '',
+    sgst: '',
+    upiId: '',
+    dueDate: ''
+  });
 
-  const [items, setItems] =
-    useState([
-      {
-        name: '',
-        price: ''
-      }
-    ]);
+  const [items, setItems] = useState([{ name: '', price: '' }]);
+  const [loading, setLoading] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
 
-  const [loading, setLoading] =
-    useState(false);
-
-  const [limitReached, setLimitReached] =
-    useState(false);
-
-  // Autofill company settings
   useEffect(() => {
-    const user = JSON.parse(
-      localStorage.getItem('user')
-    );
-
+    const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
-      setForm((prev) => ({
+      setForm(prev => ({
         ...prev,
-        gst:
-          user.gstNumber || '',
-        upiId:
-          user.upiId || ''
+        gst: user.gstNumber || '',
+        upiId: user.upiId || ''
       }));
     }
   }, []);
 
   const handleChange = (e) => {
-    const {
-      name,
-      value
-    } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleItemChange = (
-    index,
-    field,
-    value
-  ) => {
-    const updated = [
-      ...items
-    ];
-
-    updated[index][field] =
-      value;
-
+  const handleItemChange = (i, field, value) => {
+    const updated = [...items];
+    updated[i][field] = value;
     setItems(updated);
   };
 
-  const addItem = () => {
-    setItems((prev) => [
-      ...prev,
-      {
-        name: '',
-        price: ''
-      }
-    ]);
+  const addItem = () => setItems([...items, { name: '', price: '' }]);
+
+  const removeItem = (i) => {
+    if (items.length === 1) return alert('At least one item required');
+    setItems(items.filter((_, idx) => idx !== i));
   };
 
-  const removeItem = (index) => {
-    if (items.length === 1) {
-      alert(
-        'At least one item is required'
-      );
+  const subtotal = items.reduce((s, i) => s + Number(i.price || 0), 0);
+  const tax = (subtotal * ((+form.cgst || 0) + (+form.sgst || 0))) / 100;
+  const total = subtotal + tax;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!form.clientName || !form.clientEmail || subtotal <= 0) {
+      alert('Fill required fields');
       return;
     }
 
-    setItems((prev) =>
-      prev.filter(
-        (_, i) =>
-          i !== index
-      )
-    );
+    setLoading(true);
+
+    try {
+      const res = await api.post('/invoices', {
+        ...form,
+        items,
+        amount: total
+      });
+
+      navigate(`/invoice/${res.data.invoice._id}`);
+    } catch (err) {
+      if (err.response?.data?.limitReached) {
+        setLimitReached(true);
+      } else {
+        alert('Error creating invoice');
+      }
+    }
+
+    setLoading(false);
   };
 
-  const subtotal = items.reduce(
-    (sum, item) =>
-      sum +
-      Number(
-        item.price || 0
-      ),
-    0
-  );
-
-  const cgst =
-    Number(form.cgst) || 0;
-
-  const sgst =
-    Number(form.sgst) || 0;
-
-  const tax =
-    (subtotal *
-      (cgst + sgst)) /
-    100;
-
-  const total =
-    subtotal + tax;
-
-  const handleSubmit =
-    async (e) => {
-      e.preventDefault();
-
-      if (
-        !form.clientName ||
-        !form.clientEmail ||
-        subtotal <= 0
-      ) {
-        alert(
-          'Please fill all required fields'
-        );
-        return;
-      }
-
-      setLoading(true);
-
-      try {
-        const res =
-          await api.post(
-            '/invoices',
-            {
-              ...form,
-              items,
-              amount:
-                total
-            }
-          );
-
-        if (
-          res.data
-            ?.invoice?._id
-        ) {
-          navigate(
-            `/invoice/${res.data.invoice._id}`
-          );
-        } else {
-          alert(
-            'Invoice creation failed'
-          );
-        }
-
-      } catch (err) {
-        console.error(
-          'CREATE INVOICE ERROR:',
-          err.response
-            ?.data || err
-        );
-
-        if (
-          err.response
-            ?.data
-            ?.limitReached
-        ) {
-          setLimitReached(
-            true
-          );
-        } else {
-          alert(
-            err.response
-              ?.data
-              ?.message ||
-            'Error creating invoice'
-          );
-        }
-      }
-
-      setLoading(false);
-    };
-
-  // 🔥 UI UPGRADE ONLY — LOGIC SAME
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <main className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-6">
+      <main className="container-custom py-10 max-w-3xl">
 
-        <div className="bg-gray-900/80 border border-gray-700 rounded-2xl shadow-xl p-5 sm:p-8">
+        <h1 className="text-3xl font-semibold mb-8">
+          Create Invoice
+        </h1>
 
-          <h1 className="text-xl sm:text-2xl font-bold mb-6">
-            Create Invoice
-          </h1>
+        <form onSubmit={handleSubmit} className="space-y-8">
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* CLIENT */}
+          <div className="card">
+            <h2 className="mb-4">Client Details</h2>
 
-            {/* INPUTS */}
-            <input
-              name="clientName"
-              value={form.clientName}
-              onChange={handleChange}
-              placeholder="Client Name"
-              className="w-full bg-gray-800 p-3 rounded-xl text-sm sm:text-base"
-            />
+            <div className="space-y-3">
+              <input
+                name="clientName"
+                value={form.clientName}
+                onChange={handleChange}
+                placeholder="Client Name"
+                className="input"
+              />
 
-            <input
-              name="clientEmail"
-              value={form.clientEmail}
-              onChange={handleChange}
-              placeholder="Client Email"
-              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
-            />
+              <input
+                name="clientEmail"
+                value={form.clientEmail}
+                onChange={handleChange}
+                placeholder="Client Email"
+                className="input"
+              />
+            </div>
+          </div>
+
+          {/* DESCRIPTION */}
+          <div className="card">
+            <h2 className="mb-4">Service</h2>
 
             <textarea
               name="serviceDescription"
               value={form.serviceDescription}
               onChange={handleChange}
-              placeholder="Description"
-              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
+              placeholder="Describe service..."
+              className="input"
             />
+          </div>
 
-            {/* ITEMS */}
-            <div>
-              <h2 className="font-semibold mb-3">
-                Items
-              </h2>
+          {/* ITEMS */}
+          <div className="card">
+            <h2 className="mb-4">Items</h2>
 
-              <div className="space-y-3">
-                {items.map((item, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-800 p-3 rounded-xl flex flex-col sm:flex-row gap-2"
+            <div className="space-y-3">
+              {items.map((item, i) => (
+                <div key={i} className="flex gap-2">
+
+                  <input
+                    placeholder="Item"
+                    value={item.name}
+                    onChange={(e) =>
+                      handleItemChange(i, 'name', e.target.value)
+                    }
+                    className="input flex-1"
+                  />
+
+                  <input
+                    type="number"
+                    placeholder="₹"
+                    value={item.price}
+                    onChange={(e) =>
+                      handleItemChange(i, 'price', e.target.value)
+                    }
+                    className="input w-24"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => removeItem(i)}
+                    className="btn btn-dark"
                   >
-                    <input
-                      placeholder="Item Name"
-                      value={item.name}
-                      onChange={(e) =>
-                        handleItemChange(index, 'name', e.target.value)
-                      }
-                      className="flex-1 bg-gray-700 p-2 rounded-lg text-sm"
-                    />
+                    ✕
+                  </button>
 
-                    <input
-                      type="number"
-                      placeholder="Price"
-                      value={item.price}
-                      onChange={(e) =>
-                        handleItemChange(index, 'price', e.target.value)
-                      }
-                      className="w-full sm:w-32 bg-gray-700 p-2 rounded-lg text-sm"
-                    />
-
-                    <button
-                      type="button"
-                      onClick={() => removeItem(index)}
-                      className="w-full sm:w-auto bg-red-500 text-white px-3 py-2 rounded-lg text-sm"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={addItem}
-                className="mt-3 text-blue-400 text-sm"
-              >
-                + Add Item
-              </button>
+                </div>
+              ))}
             </div>
 
-            {/* DATE */}
-            <input
-              type="date"
-              name="dueDate"
-              value={form.dueDate}
-              onChange={handleChange}
-              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
-            />
+            <button
+              type="button"
+              onClick={addItem}
+              className="mt-4 text-blue-400 text-sm"
+            >
+              + Add Item
+            </button>
+          </div>
 
-            {/* GST */}
-            <input
-              name="gst"
-              value={form.gst}
-              onChange={handleChange}
-              placeholder="GST Number"
-              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
-            />
+          {/* PAYMENT */}
+          <div className="card">
+            <h2 className="mb-4">Payment & Tax</h2>
 
-            {/* TAX */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid sm:grid-cols-2 gap-3">
+
+              <input
+                type="date"
+                name="dueDate"
+                value={form.dueDate}
+                onChange={handleChange}
+                className="input"
+              />
+
+              <input
+                name="upiId"
+                value={form.upiId}
+                onChange={handleChange}
+                placeholder="UPI ID"
+                className="input"
+              />
+
+              <input
+                name="gst"
+                value={form.gst}
+                onChange={handleChange}
+                placeholder="GST"
+                className="input"
+              />
+
               <input
                 name="cgst"
                 type="number"
                 value={form.cgst}
                 onChange={handleChange}
                 placeholder="CGST %"
-                className="w-full bg-gray-800 p-3 rounded-xl text-sm"
+                className="input"
               />
 
               <input
@@ -325,56 +223,50 @@ export default function CreateInvoice() {
                 value={form.sgst}
                 onChange={handleChange}
                 placeholder="SGST %"
-                className="w-full bg-gray-800 p-3 rounded-xl text-sm"
+                className="input"
               />
+
             </div>
+          </div>
 
-            {/* UPI */}
-            <input
-              name="upiId"
-              value={form.upiId}
-              onChange={handleChange}
-              placeholder="UPI ID"
-              className="w-full bg-gray-800 p-3 rounded-xl text-sm"
-            />
+          {/* TOTAL */}
+          <div className="card">
+            <p className="text-sm text-gray-400">Summary</p>
 
-            {/* TOTAL */}
-            <div className="bg-gray-800 p-4 rounded-xl text-sm">
-              <p>Subtotal: ₹{subtotal.toLocaleString('en-IN')}</p>
-              <p>Tax: ₹{tax.toLocaleString('en-IN')}</p>
-              <h3 className="text-green-400 font-bold mt-2">
-                Total: ₹{total.toLocaleString('en-IN')}
-              </h3>
-            </div>
-
-            {/* BUTTON */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-yellow-500 text-black py-3 rounded-xl font-semibold"
-            >
-              {loading ? 'Creating...' : 'Create Invoice'}
-            </button>
-
-          </form>
-
-          {/* LIMIT */}
-          {limitReached && (
-            <div className="mt-5 bg-red-500/20 border border-red-500 p-4 rounded-xl text-sm">
-              <p className="mb-3 text-red-300">
-                Free plan limit reached
+            <div className="mt-2 space-y-1 text-sm">
+              <p>Subtotal: ₹{subtotal}</p>
+              <p>Tax: ₹{tax}</p>
+              <p className="text-green-400 font-semibold text-lg">
+                Total: ₹{total}
               </p>
-
-              <button
-                onClick={() => navigate('/payment')}
-                className="w-full bg-yellow-500 text-black py-3 rounded-lg font-semibold"
-              >
-                Upgrade 🚀
-              </button>
             </div>
-          )}
+          </div>
 
-        </div>
+          {/* BUTTON */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full"
+          >
+            {loading ? 'Creating...' : 'Create Invoice'}
+          </button>
+
+        </form>
+
+        {/* LIMIT */}
+        {limitReached && (
+          <div className="mt-6 card border-red-500">
+            <p className="text-red-400 mb-3">
+              Free limit reached
+            </p>
+            <button
+              onClick={() => navigate('/payment')}
+              className="btn btn-primary w-full"
+            >
+              Upgrade 🚀
+            </button>
+          </div>
+        )}
 
       </main>
     </div>

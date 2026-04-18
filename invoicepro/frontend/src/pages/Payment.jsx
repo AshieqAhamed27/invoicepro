@@ -11,7 +11,6 @@ export default function Payment() {
     setPlan(selectedPlan);
   }, []);
 
-  // ✅ PLAN CONFIG
   const planDetails = {
     monthly: {
       amount: 99,
@@ -40,43 +39,69 @@ export default function Payment() {
 
       await api.post('/payment/request', formData);
 
-      // Save plan locally (temporary)
       localStorage.setItem("userPlan", plan);
 
-      alert('Payment request sent');
+      alert('Payment submitted successfully');
       window.location.href = '/dashboard';
-
-    } catch (err) {
-      alert('Payment request failed');
+    } catch {
+      alert('Payment failed');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <main className="w-full max-w-md mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-16 grid md:grid-cols-2 gap-10">
 
-        <div className="bg-gray-900/80 border border-gray-700 rounded-2xl shadow-xl p-6">
+        {/* LEFT SIDE */}
+        <div>
 
-          <h1 className="text-2xl font-bold text-center mb-2">
-            Upgrade to Pro 🚀
+          <h1 className="text-3xl font-semibold mb-4">
+            Complete your upgrade
           </h1>
 
-          <p className="text-center text-gray-400 mb-4">
-            {current.label}
+          <p className="text-gray-400 mb-8">
+            Unlock unlimited invoices, payment tracking, and premium features.
           </p>
 
-          {/* PRICE */}
-          <div className="text-center mb-6">
-            <span className="text-3xl font-bold text-yellow-400">
+          <div className="card mb-6">
+
+            <p className="text-sm text-gray-400 mb-2">
+              Selected Plan
+            </p>
+
+            <h2 className="text-xl font-semibold">
+              {current.label}
+            </h2>
+
+            <p className="text-yellow-400 text-2xl font-bold mt-2">
               ₹{current.amount}
-            </span>
+            </p>
+
           </div>
 
+          {/* TRUST */}
+          <div className="text-sm text-gray-500 space-y-2">
+            <p>✔ Secure payment via UPI</p>
+            <p>✔ Instant activation after approval</p>
+            <p>✔ No hidden charges</p>
+          </div>
+
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="card">
+
+          <p className="text-sm text-gray-400 mb-4">
+            Scan & Pay
+          </p>
+
           {/* QR */}
-          <div className="flex justify-center mb-6">
-            <div className="bg-white p-4 rounded-2xl">
+          <div className="flex justify-center mb-6 relative">
+            <div className="absolute inset-0 bg-yellow-500 blur-2xl opacity-10"></div>
+
+            <div className="relative bg-white p-4 rounded-2xl">
               <img
                 alt="UPI QR"
                 className="w-52 h-52"
@@ -86,13 +111,13 @@ export default function Payment() {
           </div>
 
           {/* DETAILS */}
-          <div className="bg-gray-800 p-4 rounded-xl mb-6 text-sm">
+          <div className="mb-6 text-sm">
             <p className="text-gray-400">UPI ID</p>
-            <p className="font-semibold">
+            <p className="font-semibold mb-3">
               ashieqahamed4@okicici
             </p>
 
-            <p className="text-gray-400 mt-3">Amount</p>
+            <p className="text-gray-400">Amount</p>
             <p className="text-green-400 font-semibold">
               ₹{current.amount}
             </p>
@@ -100,21 +125,21 @@ export default function Payment() {
 
           {/* FILE */}
           <div className="mb-4">
-            <label className="text-sm text-gray-300 block mb-2">
-              Upload Payment Screenshot
+            <label className="text-sm text-gray-400 mb-2 block">
+              Upload payment screenshot
             </label>
 
             <input
               type="file"
               onChange={(e) => setFile(e.target.files[0])}
-              className="w-full bg-gray-800 p-3 rounded-lg text-sm"
+              className="input"
             />
           </div>
 
           {/* BUTTON */}
           <button
             onClick={handleConfirm}
-            className="w-full bg-yellow-500 text-black py-3 rounded-xl font-semibold"
+            className="btn btn-primary w-full"
           >
             Submit Payment
           </button>

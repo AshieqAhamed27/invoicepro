@@ -7,188 +7,175 @@ export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
 
-  const features = [
-    {
-      title: 'Create Invoices Fast',
-      desc: 'Generate clean, professional invoices in seconds.'
-    },
-    {
-      title: 'UPI QR Payments',
-      desc: 'Let clients pay instantly using UPI QR.'
-    },
-    {
-      title: 'Track Payments',
-      desc: 'Monitor paid, pending and overdue invoices easily.'
-    }
-  ];
-
   const handleSubscribe = (plan) => {
     localStorage.setItem("plan", plan);
     navigate("/payment");
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white overflow-hidden">
+
       <Navbar />
 
       {/* HERO */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20 text-center">
+      <section className="relative max-w-6xl mx-auto px-4 sm:px-6 py-24 grid md:grid-cols-2 gap-10 items-center">
 
-        <h1 className="text-4xl sm:text-6xl font-bold leading-tight mb-6">
-          Invoicing made <br />
-          <span className="text-yellow-400">simple & fast</span>
-        </h1>
+        {/* LEFT */}
+        <div>
 
-        <p className="text-gray-400 max-w-2xl mx-auto mb-8">
-          Create invoices, send them instantly, and get paid via UPI.
-          Built for freelancers and small businesses.
-        </p>
+          <h1 className="text-4xl sm:text-6xl font-semibold leading-tight mb-6">
+            Invoicing made <br />
+            <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text">
+              simple & fast
+            </span>
+          </h1>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button
-            onClick={() =>
-              navigate(loggedIn ? '/dashboard' : '/signup')
-            }
-            className="bg-yellow-500 text-black px-6 py-3 rounded-xl font-semibold"
-          >
-            {loggedIn ? 'Go to Dashboard' : 'Start Free'}
-          </button>
+          <p className="text-gray-400 mb-8 max-w-md">
+            Create invoices, send them instantly and get paid faster
+            with built-in UPI payments.
+          </p>
 
-          <button
-            onClick={() => navigate('/login')}
-            className="border border-gray-600 px-6 py-3 rounded-xl"
-          >
-            Login
-          </button>
+          <div className="flex gap-4">
+            <button
+              onClick={() =>
+                navigate(loggedIn ? '/dashboard' : '/signup')
+              }
+              className="btn btn-primary"
+            >
+              {loggedIn ? 'Go to Dashboard' : 'Start Free'}
+            </button>
+
+            <button
+              onClick={() => navigate('/login')}
+              className="btn btn-secondary"
+            >
+              Login
+            </button>
+          </div>
+
+        </div>
+
+        {/* RIGHT VISUAL */}
+        <div className="relative">
+
+          <div className="absolute inset-0 bg-yellow-500 blur-3xl opacity-20"></div>
+
+          <div className="relative bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+
+            <p className="text-sm text-gray-400 mb-2">Invoice Preview</p>
+
+            <div className="space-y-2 text-sm">
+              <p className="flex justify-between">
+                <span>Client</span>
+                <span className="text-gray-300">John</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Amount</span>
+                <span className="text-green-400">₹5,000</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Status</span>
+                <span className="text-yellow-400">Pending</span>
+              </p>
+            </div>
+
+          </div>
+
         </div>
 
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="bg-gray-900/50 border-y border-gray-800 py-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <section className="section container-custom">
 
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4">
-            How it works
-          </h2>
+        <h2 className="text-center mb-12">
+          How it works
+        </h2>
 
-          <p className="text-gray-400 text-center mb-12">
-            Just 3 simple steps to get paid
-          </p>
+        <div className="grid md:grid-cols-3 gap-6">
 
-          <div className="grid md:grid-cols-3 gap-6">
-
-            <div className="bg-black border border-gray-800 p-6 rounded-2xl">
-              <p className="text-yellow-400 mb-2">Step 1</p>
-              <h3 className="text-lg font-semibold mb-2">
-                Create invoice
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Add client details and generate invoices instantly.
+          {[
+            ['Create invoice', 'Add details and generate instantly'],
+            ['Send to client', 'Share link or WhatsApp easily'],
+            ['Get paid', 'Receive UPI payments instantly']
+          ].map(([title, desc], i) => (
+            <div key={i} className="card card-hover">
+              <p className="text-yellow-400 text-sm mb-2">
+                Step {i + 1}
               </p>
+              <h3 className="mb-2">{title}</h3>
+              <p className="text-sm text-gray-400">{desc}</p>
             </div>
+          ))}
 
-            <div className="bg-black border border-gray-800 p-6 rounded-2xl">
-              <p className="text-yellow-400 mb-2">Step 2</p>
-              <h3 className="text-lg font-semibold mb-2">
-                Send to client
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Share via link, WhatsApp or email easily.
-              </p>
-            </div>
-
-            <div className="bg-black border border-gray-800 p-6 rounded-2xl">
-              <p className="text-yellow-400 mb-2">Step 3</p>
-              <h3 className="text-lg font-semibold mb-2">
-                Get paid
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Accept UPI payments and track status.
-              </p>
-            </div>
-
-          </div>
         </div>
+
       </section>
 
       {/* FEATURES */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+      <section className="section container-custom">
 
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12">
+        <h2 className="text-center mb-12">
           Everything you need
         </h2>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {features.map((f, i) => (
-            <div key={i} className="bg-gray-900 border border-gray-800 p-6 rounded-2xl">
-              <h3 className="text-lg font-semibold mb-2">
-                {f.title}
-              </h3>
-              <p className="text-gray-400 text-sm">
-                {f.desc}
-              </p>
+
+          {[
+            ['Fast invoices', 'Create invoices in seconds'],
+            ['UPI payments', 'Accept instant payments'],
+            ['Track status', 'Monitor paid & pending']
+          ].map(([title, desc], i) => (
+            <div key={i} className="card card-hover">
+              <h3 className="mb-2">{title}</h3>
+              <p className="text-sm text-gray-400">{desc}</p>
             </div>
           ))}
+
         </div>
 
       </section>
 
       {/* PRICING */}
-      <section className="bg-gray-900/50 border-t border-gray-800 py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      <section className="section container-custom">
 
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-12">
-            Pricing
-          </h2>
+        <h2 className="text-center mb-12">
+          Pricing
+        </h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
 
-            {/* MONTHLY */}
-            <div className="bg-black border border-gray-800 p-6 rounded-2xl">
-              <h3 className="text-lg font-semibold mb-2">Monthly</h3>
-              <p className="text-gray-400 mb-4">₹99 / month</p>
+          <div className="card">
+            <h3 className="mb-2">Monthly</h3>
+            <p className="text-gray-400 mb-4">₹99 / month</p>
 
-              <ul className="text-sm text-gray-400 space-y-2 mb-6">
-                <li>✔ Unlimited invoices</li>
-                <li>✔ Payment tracking</li>
-                <li>✔ WhatsApp reminders</li>
-              </ul>
+            <button
+              onClick={() => handleSubscribe('monthly')}
+              className="btn btn-primary w-full"
+            >
+              Choose Plan
+            </button>
+          </div>
 
-              <button
-                onClick={() => handleSubscribe('monthly')}
-                className="w-full bg-yellow-500 text-black py-3 rounded-xl"
-              >
-                Choose Monthly
-              </button>
-            </div>
+          <div className="bg-yellow-500 text-black p-6 rounded-xl">
+            <p className="text-xs mb-1">Best Value</p>
+            <h3 className="mb-2">Yearly</h3>
+            <p className="mb-4">₹999 / year</p>
 
-            {/* YEARLY */}
-            <div className="bg-yellow-500 text-black p-6 rounded-2xl">
-              <p className="text-xs font-semibold mb-2">BEST VALUE</p>
-              <h3 className="text-lg font-semibold mb-2">Yearly</h3>
-              <p className="mb-4">₹999 / year</p>
-
-              <ul className="text-sm space-y-2 mb-6">
-                <li>✔ Everything included</li>
-                <li>✔ Save ₹189</li>
-              </ul>
-
-              <button
-                onClick={() => handleSubscribe('yearly')}
-                className="w-full bg-black text-white py-3 rounded-xl"
-              >
-                Choose Yearly
-              </button>
-            </div>
-
+            <button
+              onClick={() => handleSubscribe('yearly')}
+              className="w-full bg-black text-white py-3 rounded-lg"
+            >
+              Choose Plan
+            </button>
           </div>
 
         </div>
+
       </section>
 
       {/* FOOTER */}
-      <footer className="text-center text-gray-500 text-sm py-8">
+      <footer className="text-center text-gray-500 text-sm py-10">
         © {new Date().getFullYear()} InvoicePro
       </footer>
 

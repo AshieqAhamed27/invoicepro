@@ -307,71 +307,59 @@ export default function InvoiceView() {
 
   // 🔥 ONLY UI IMPROVED — LOGIC SAME
 
+  // 🔥 ONLY UI IMPROVED VERSION
+
+  // keep all imports same
+
+  // inside return replace JSX with below
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+      <main className="container-custom py-10">
 
-        {/* ACTIONS */}
-        <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
+        {/* ACTION BAR */}
+        <div className="flex flex-wrap gap-3 mb-6">
 
           {invoice.status !== 'paid' && (
-            <button
-              onClick={markAsPaid}
-              className="w-full sm:w-auto bg-green-500 text-black px-4 py-2 rounded-xl text-sm sm:text-base"
-            >
+            <button onClick={markAsPaid} className="btn btn-primary">
               Mark as Paid
             </button>
           )}
 
-          <button
-            onClick={handleCopyShareLink}
-            className="w-full sm:w-auto bg-blue-500 px-4 py-2 rounded-xl text-sm"
-          >
+          <button onClick={handleCopyShareLink} className="btn btn-dark">
             Copy Link
           </button>
 
-          <button
-            onClick={handleWhatsAppReminder}
-            className="w-full sm:w-auto bg-green-700 px-4 py-2 rounded-xl text-sm"
-          >
+          <button onClick={handleWhatsAppReminder} className="btn btn-dark">
             WhatsApp
           </button>
 
-          <button
-            onClick={() => sendSmartReminder('polite')}
-            className="w-full sm:w-auto bg-purple-500 px-4 py-2 rounded-xl text-sm"
-          >
+          <button onClick={() => sendSmartReminder('polite')} className="btn btn-dark">
             Polite
           </button>
 
-          <button
-            onClick={() => sendSmartReminder('urgent')}
-            className="w-full sm:w-auto bg-red-500 px-4 py-2 rounded-xl text-sm"
-          >
+          <button onClick={() => sendSmartReminder('urgent')} className="btn btn-dark">
             Urgent
           </button>
 
-          <button
-            onClick={handleDownloadPDF}
-            className="w-full sm:w-auto bg-yellow-500 text-black px-4 py-2 rounded-xl text-sm"
-          >
-            PDF
+          <button onClick={handleDownloadPDF} className="btn btn-primary">
+            Download PDF
           </button>
 
         </div>
 
-        {/* INVOICE */}
+        {/* INVOICE CARD */}
         <div
           ref={printRef}
-          className="bg-white text-black rounded-2xl shadow-xl p-5 sm:p-10"
+          className="bg-white text-black rounded-2xl p-8 max-w-3xl mx-auto"
         >
 
-          {/* COMPANY HEADER */}
-          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+          {/* HEADER */}
+          <div className="flex justify-between items-start mb-8">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold">
+              <h2 className="text-2xl font-bold">
                 {companyName}
               </h2>
               <p className="text-sm text-gray-500">
@@ -382,14 +370,16 @@ export default function InvoiceView() {
             <img
               src={companyLogo}
               alt="logo"
-              className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
+              className="w-14 h-14 object-contain"
             />
           </div>
 
           {/* CLIENT */}
-          <div className="mb-6">
-            <p className="text-gray-500 text-sm">Bill To</p>
-            <h3 className="font-semibold text-lg">
+          <div className="mb-8">
+            <p className="text-gray-500 text-sm mb-1">
+              Bill To
+            </p>
+            <h3 className="text-lg font-semibold">
               {invoice.clientName}
             </h3>
             <p className="text-sm text-gray-600">
@@ -397,57 +387,49 @@ export default function InvoiceView() {
             </p>
           </div>
 
-          {/* ITEMS (MOBILE CARD STYLE) */}
-          <div className="space-y-3 mb-6">
-            {items.map((item, index) => (
+          {/* ITEMS TABLE STYLE */}
+          <div className="mb-8 border border-gray-200 rounded-xl overflow-hidden">
+
+            {items.map((item, i) => (
               <div
-                key={index}
-                className="bg-gray-100 p-4 rounded-xl flex justify-between"
+                key={i}
+                className="flex justify-between p-4 border-b last:border-none"
               >
                 <span>{item.name}</span>
-                <span className="font-semibold">
+                <span className="font-medium">
                   {formatCurrency(item.price, invoice.currency)}
                 </span>
               </div>
             ))}
+
           </div>
 
           {/* TOTAL */}
-          <div className="flex justify-between font-semibold text-lg mb-6">
+          <div className="flex justify-between items-center text-xl font-semibold mb-8">
             <span>Total</span>
-            <span>
+            <span className="text-green-600">
               {formatCurrency(total, invoice.currency)}
             </span>
           </div>
 
-          {/* UPI SECTION */}
+          {/* PAYMENT */}
           {invoice.upiId && (
             <div className="text-center border-t pt-6">
 
-              <h3 className="text-lg font-semibold mb-3">
+              <h3 className="text-lg font-semibold mb-4">
                 Pay via UPI
               </h3>
 
-              <div className="flex justify-center">
+              <div className="flex justify-center mb-4">
                 <QRCode value={upiLink} size={150} />
               </div>
 
               <button
                 onClick={() => (window.location.href = upiLink)}
-                className="mt-4 w-full sm:w-auto bg-green-500 text-white px-6 py-3 rounded-xl"
+                className="btn btn-primary"
               >
                 Pay Now
               </button>
-
-              {/* SECURE BUTTON */}
-              {user && invoice.user === user._id && (
-                <button
-                  onClick={markAsPaid}
-                  className="mt-3 w-full sm:w-auto bg-blue-500 text-white px-6 py-3 rounded-xl"
-                >
-                  Mark as Paid
-                </button>
-              )}
 
             </div>
           )}
