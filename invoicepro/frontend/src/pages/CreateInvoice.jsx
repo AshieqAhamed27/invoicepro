@@ -86,13 +86,13 @@ export default function CreateInvoice() {
     <div className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <main className="container-custom py-10 max-w-3xl">
+      <main className="container-custom py-6 sm:py-10 max-w-3xl">
 
-        <h1 className="text-3xl font-semibold mb-8">
+        <h1 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8">
           Create Invoice
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
 
           {/* CLIENT */}
           <div className="card">
@@ -136,7 +136,10 @@ export default function CreateInvoice() {
 
             <div className="space-y-3">
               {items.map((item, i) => (
-                <div key={i} className="flex gap-2">
+                <div
+                  key={i}
+                  className="flex flex-col sm:flex-row gap-2"
+                >
 
                   <input
                     placeholder="Item"
@@ -147,23 +150,27 @@ export default function CreateInvoice() {
                     className="input flex-1"
                   />
 
-                  <input
-                    type="number"
-                    placeholder="₹"
-                    value={item.price}
-                    onChange={(e) =>
-                      handleItemChange(i, 'price', e.target.value)
-                    }
-                    className="input w-24"
-                  />
+                  <div className="flex gap-2">
 
-                  <button
-                    type="button"
-                    onClick={() => removeItem(i)}
-                    className="btn btn-dark"
-                  >
-                    ✕
-                  </button>
+                    <input
+                      type="number"
+                      placeholder="₹"
+                      value={item.price}
+                      onChange={(e) =>
+                        handleItemChange(i, 'price', e.target.value)
+                      }
+                      className="input w-full sm:w-28"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => removeItem(i)}
+                      className="btn btn-dark px-3"
+                    >
+                      ✕
+                    </button>
+
+                  </div>
 
                 </div>
               ))}
@@ -182,7 +189,7 @@ export default function CreateInvoice() {
           <div className="card">
             <h2 className="mb-4">Payment & Tax</h2>
 
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
               <input
                 type="date"

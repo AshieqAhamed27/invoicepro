@@ -18,24 +18,25 @@ export default function Home() {
       <Navbar />
 
       {/* HERO */}
-      <section className="relative max-w-6xl mx-auto px-4 sm:px-6 py-24 grid md:grid-cols-2 gap-10 items-center">
+      <section className="container-custom py-12 sm:py-16 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 
         {/* LEFT */}
         <div>
 
-          <h1 className="text-4xl sm:text-6xl font-semibold leading-tight mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight mb-5">
             Invoicing made <br />
             <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text">
               simple & fast
             </span>
           </h1>
 
-          <p className="text-gray-400 mb-8 max-w-md">
+          <p className="text-gray-400 mb-6 max-w-md">
             Create invoices, send them instantly and get paid faster
             with built-in UPI payments.
           </p>
 
-          <div className="flex gap-4">
+          {/* BUTTONS */}
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() =>
                 navigate(loggedIn ? '/dashboard' : '/signup')
@@ -56,11 +57,11 @@ export default function Home() {
         </div>
 
         {/* RIGHT VISUAL */}
-        <div className="relative">
+        <div className="relative flex justify-center">
 
           <div className="absolute inset-0 bg-yellow-500 blur-3xl opacity-20"></div>
 
-          <div className="relative bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
+          <div className="relative bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-6 shadow-xl w-full max-w-sm">
 
             <p className="text-sm text-gray-400 mb-2">Invoice Preview</p>
 
@@ -88,11 +89,11 @@ export default function Home() {
       {/* HOW IT WORKS */}
       <section className="section container-custom">
 
-        <h2 className="text-center mb-12">
+        <h2 className="text-center mb-8 sm:mb-12">
           How it works
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
 
           {[
             ['Create invoice', 'Add details and generate instantly'],
@@ -115,11 +116,11 @@ export default function Home() {
       {/* FEATURES */}
       <section className="section container-custom">
 
-        <h2 className="text-center mb-12">
+        <h2 className="text-center mb-8 sm:mb-12">
           Everything you need
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
 
           {[
             ['Fast invoices', 'Create invoices in seconds'],
@@ -139,29 +140,31 @@ export default function Home() {
       {/* PRICING */}
       <section className="section container-custom">
 
-        <h2 className="text-center mb-12">
+        <h2 className="text-center mb-8 sm:mb-12">
           Pricing
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* MONTHLY */}
-          <div className="card">
+          <div className="card h-full flex flex-col justify-between">
 
-            <h3 className="text-lg font-semibold mb-2">
-              Monthly
-            </h3>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                Monthly
+              </h3>
 
-            <p className="text-gray-400 mb-4">
-              ₹99 / month
-            </p>
+              <p className="text-gray-400 mb-4">
+                ₹99 / month
+              </p>
 
-            <ul className="text-sm text-gray-400 space-y-2 mb-6">
-              <li>✔ Unlimited invoices</li>
-              <li>✔ UPI payments</li>
-              <li>✔ Basic tracking</li>
-              <li>✔ WhatsApp reminders</li>
-            </ul>
+              <ul className="text-sm text-gray-400 space-y-2 mb-6">
+                <li>✔ Unlimited invoices</li>
+                <li>✔ UPI payments</li>
+                <li>✔ Basic tracking</li>
+                <li>✔ WhatsApp reminders</li>
+              </ul>
+            </div>
 
             <button
               onClick={() => handleSubscribe('monthly')}
@@ -175,26 +178,28 @@ export default function Home() {
           {/* YEARLY */}
           <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-yellow-400 to-yellow-600">
 
-            <div className="bg-black rounded-2xl p-6">
+            <div className="bg-black rounded-2xl p-5 sm:p-6 h-full flex flex-col justify-between">
 
-              <p className="text-xs text-yellow-400 mb-2 font-semibold">
-                BEST VALUE
-              </p>
+              <div>
+                <p className="text-xs text-yellow-400 mb-2 font-semibold">
+                  BEST VALUE
+                </p>
 
-              <h3 className="text-lg font-semibold mb-2">
-                Yearly Plan
-              </h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  Yearly Plan
+                </h3>
 
-              <p className="text-3xl font-bold text-white mb-4">
-                ₹999
-              </p>
+                <p className="text-3xl font-bold text-white mb-4">
+                  ₹999
+                </p>
 
-              <ul className="text-sm text-gray-400 space-y-2 mb-6">
-                <li>✔ Everything in monthly</li>
-                <li>✔ Advanced analytics</li>
-                <li>✔ Custom branding</li>
-                <li>✔ Priority support</li>
-              </ul>
+                <ul className="text-sm text-gray-400 space-y-2 mb-6">
+                  <li>✔ Everything in monthly</li>
+                  <li>✔ Advanced analytics</li>
+                  <li>✔ Custom branding</li>
+                  <li>✔ Priority support</li>
+                </ul>
+              </div>
 
               <button
                 onClick={() => handleSubscribe('yearly')}
@@ -211,7 +216,7 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="text-center text-gray-500 text-sm py-10">
+      <footer className="text-center text-gray-500 text-sm py-8">
         © {new Date().getFullYear()} InvoicePro
       </footer>
 

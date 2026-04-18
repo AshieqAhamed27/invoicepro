@@ -314,129 +314,131 @@ export default function InvoiceView() {
   // inside return replace JSX with below
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <Navbar />
+  <div className="min-h-screen bg-black text-white">
+    <Navbar />
 
-      <main className="container-custom py-10">
+    <main className="container-custom py-6 sm:py-10">
 
-        {/* ACTION BAR */}
-        <div className="flex flex-wrap gap-3 mb-6">
+      {/* ACTION BAR */}
+      <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 mb-6">
 
-          {invoice.status !== 'paid' && (
-            <button onClick={markAsPaid} className="btn btn-primary">
-              Mark as Paid
-            </button>
-          )}
-
-          <button onClick={handleCopyShareLink} className="btn btn-dark">
-            Copy Link
+        {invoice.status !== 'paid' && (
+          <button onClick={markAsPaid} className="btn btn-primary w-full sm:w-auto">
+            Mark as Paid
           </button>
+        )}
 
-          <button onClick={handleWhatsAppReminder} className="btn btn-dark">
-            WhatsApp
-          </button>
+        <button onClick={handleCopyShareLink} className="btn btn-dark w-full sm:w-auto">
+          Copy Link
+        </button>
 
-          <button onClick={() => sendSmartReminder('polite')} className="btn btn-dark">
-            Polite
-          </button>
+        <button onClick={handleWhatsAppReminder} className="btn btn-dark w-full sm:w-auto">
+          WhatsApp
+        </button>
 
-          <button onClick={() => sendSmartReminder('urgent')} className="btn btn-dark">
-            Urgent
-          </button>
+        <button onClick={() => sendSmartReminder('polite')} className="btn btn-dark w-full sm:w-auto">
+          Polite
+        </button>
 
-          <button onClick={handleDownloadPDF} className="btn btn-primary">
-            Download PDF
-          </button>
+        <button onClick={() => sendSmartReminder('urgent')} className="btn btn-dark w-full sm:w-auto">
+          Urgent
+        </button>
+
+        <button onClick={handleDownloadPDF} className="btn btn-primary w-full sm:w-auto">
+          Download PDF
+        </button>
+
+      </div>
+
+      {/* INVOICE CARD */}
+      <div
+        ref={printRef}
+        className="bg-white text-black rounded-2xl p-4 sm:p-6 md:p-8 max-w-3xl mx-auto"
+      >
+
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6 sm:mb-8">
+
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold">
+              {companyName}
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-500">
+              {companyAddress}
+            </p>
+          </div>
+
+          <img
+            src={companyLogo}
+            alt="logo"
+            className="w-12 h-12 sm:w-14 sm:h-14 object-contain"
+          />
 
         </div>
 
-        {/* INVOICE CARD */}
-        <div
-          ref={printRef}
-          className="bg-white text-black rounded-2xl p-8 max-w-3xl mx-auto"
-        >
+        {/* CLIENT */}
+        <div className="mb-6 sm:mb-8">
+          <p className="text-gray-500 text-xs sm:text-sm mb-1">
+            Bill To
+          </p>
+          <h3 className="text-base sm:text-lg font-semibold">
+            {invoice.clientName}
+          </h3>
+          <p className="text-xs sm:text-sm text-gray-600">
+            {invoice.clientEmail}
+          </p>
+        </div>
 
-          {/* HEADER */}
-          <div className="flex justify-between items-start mb-8">
-            <div>
-              <h2 className="text-2xl font-bold">
-                {companyName}
-              </h2>
-              <p className="text-sm text-gray-500">
-                {companyAddress}
-              </p>
+        {/* ITEMS */}
+        <div className="mb-6 sm:mb-8 border border-gray-200 rounded-xl overflow-hidden">
+
+          {items.map((item, i) => (
+            <div
+              key={i}
+              className="flex justify-between p-3 sm:p-4 border-b last:border-none text-sm sm:text-base"
+            >
+              <span>{item.name}</span>
+              <span className="font-medium">
+                {formatCurrency(item.price, invoice.currency)}
+              </span>
             </div>
+          ))}
 
-            <img
-              src={companyLogo}
-              alt="logo"
-              className="w-14 h-14 object-contain"
-            />
-          </div>
+        </div>
 
-          {/* CLIENT */}
-          <div className="mb-8">
-            <p className="text-gray-500 text-sm mb-1">
-              Bill To
-            </p>
-            <h3 className="text-lg font-semibold">
-              {invoice.clientName}
+        {/* TOTAL */}
+        <div className="flex justify-between items-center text-lg sm:text-xl font-semibold mb-6 sm:mb-8">
+          <span>Total</span>
+          <span className="text-green-600">
+            {formatCurrency(total, invoice.currency)}
+          </span>
+        </div>
+
+        {/* PAYMENT */}
+        {invoice.upiId && (
+          <div className="text-center border-t pt-5 sm:pt-6">
+
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
+              Pay via UPI
             </h3>
-            <p className="text-sm text-gray-600">
-              {invoice.clientEmail}
-            </p>
-          </div>
 
-          {/* ITEMS TABLE STYLE */}
-          <div className="mb-8 border border-gray-200 rounded-xl overflow-hidden">
-
-            {items.map((item, i) => (
-              <div
-                key={i}
-                className="flex justify-between p-4 border-b last:border-none"
-              >
-                <span>{item.name}</span>
-                <span className="font-medium">
-                  {formatCurrency(item.price, invoice.currency)}
-                </span>
-              </div>
-            ))}
-
-          </div>
-
-          {/* TOTAL */}
-          <div className="flex justify-between items-center text-xl font-semibold mb-8">
-            <span>Total</span>
-            <span className="text-green-600">
-              {formatCurrency(total, invoice.currency)}
-            </span>
-          </div>
-
-          {/* PAYMENT */}
-          {invoice.upiId && (
-            <div className="text-center border-t pt-6">
-
-              <h3 className="text-lg font-semibold mb-4">
-                Pay via UPI
-              </h3>
-
-              <div className="flex justify-center mb-4">
-                <QRCode value={upiLink} size={150} />
-              </div>
-
-              <button
-                onClick={() => (window.location.href = upiLink)}
-                className="btn btn-primary"
-              >
-                Pay Now
-              </button>
-
+            <div className="flex justify-center mb-4">
+              <QRCode value={upiLink} size={130} />
             </div>
-          )}
 
-        </div>
+            <button
+              onClick={() => (window.location.href = upiLink)}
+              className="btn btn-primary w-full sm:w-auto"
+            >
+              Pay Now
+            </button>
 
-      </main>
-    </div>
-  );
+          </div>
+        )}
+
+      </div>
+
+    </main>
+  </div>
+);
 }

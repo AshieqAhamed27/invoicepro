@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* RESET */
+/* =========================
+   RESET
+========================= */
 
 * {
     box-sizing: border-box;
@@ -20,74 +22,91 @@ body {
 }
 
 
-/* TYPOGRAPHY */
+/* =========================
+   TYPOGRAPHY (RESPONSIVE)
+========================= */
 
 h1 {
-    @apply text-4xl font-semibold tracking-tight;
+    @apply text-3xl sm: text-4xl md: text-5xl font-semibold tracking-tight;
 }
 
 h2 {
-    @apply text-2xl font-semibold tracking-tight;
+    @apply text-xl sm: text-2xl md: text-3xl font-semibold tracking-tight;
 }
 
 h3 {
-    @apply text-lg font-medium;
+    @apply text-base sm: text-lg font-medium;
 }
 
 p {
-    @apply text-gray-400;
+    @apply text-gray-400 text-sm sm: text-base;
 }
 
 
-/* LAYOUT */
+/* =========================
+   LAYOUT SYSTEM
+========================= */
 
 .container-custom {
-    @apply max-w-6xl mx-auto px-4;
+    @apply max-w-6xl mx-auto px-4 sm: px-6 lg: px-8;
 }
 
 .section {
-    @apply py-16;
+    @apply py-12 sm: py-16 lg: py-20;
 }
 
 
-/* BUTTONS */
+/* =========================
+   BUTTON SYSTEM
+========================= */
 
 .btn {
-    @apply px-5 py-2.5 rounded-lg text-sm font-medium transition;
+    @apply px-4 sm: px-5 py-2.5 rounded-lg text-sm sm: text-base font-medium transition w-full sm: w-auto;
 }
 
 .btn-primary {
-    @apply bg-yellow-500 text-black;
+    @apply bg-yellow-500 text-black hover: bg-yellow-400;
 }
 
 .btn-secondary {
-    @apply border border-gray-700 text-gray-300;
+    @apply border border-gray-700 text-gray-300 hover: text-white hover: border-gray-500;
 }
 
 .btn-dark {
-    @apply bg-gray-800 text-white;
+    @apply bg-gray-800 text-white hover: bg-gray-700;
 }
 
 
-/* INPUT */
+/* =========================
+   INPUT SYSTEM
+========================= */
 
 .input {
     @apply w-full bg-gray-900 border border-gray-800 p-3 rounded-lg text-sm;
 }
 
+.input:focus {
+    border-color: #facc15;
+    box-shadow: 0 0 0 1px #facc15;
+}
 
-/* CARD */
+
+/* =========================
+   CARD SYSTEM
+========================= */
 
 .card {
-    @apply bg-gray-900 border border-gray-800 rounded-xl p-5;
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-4 sm: p-5;
 }
 
 .card-hover {
-    @apply transition;
+    @apply transition hover: border-gray-700;
 }
 
 
-/* BADGES */
+/* =========================
+   BADGES
+========================= */
 
 .badge {
     @apply text-xs px-2 py-1 rounded-full;
@@ -106,7 +125,9 @@ p {
 }
 
 
-/* SCROLLBAR */
+/* =========================
+   SCROLLBAR
+========================= */
 
 ::-webkit-scrollbar {
     width: 6px;
@@ -122,7 +143,9 @@ p {
 }
 
 
-/* ANIMATION */
+/* =========================
+   ANIMATION
+========================= */
 
 @keyframes fadeIn {
     from {
@@ -140,15 +163,19 @@ p {
 }
 
 
-/* MOBILE */
+/* =========================
+   MOBILE TOUCH IMPROVEMENT
+========================= */
 
 button,
 a {
-    min-height: 40px;
+    min-height: 44px;
 }
 
 
-/* PRINT */
+/* =========================
+   PRINT
+========================= */
 
 @media print {
     .no-print {
