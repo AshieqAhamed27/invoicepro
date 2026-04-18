@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
+import logo from '../assets/logo.png';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -29,8 +30,12 @@ export default function Navbar() {
       <div className="container-custom flex justify-between items-center py-4">
 
         {/* LOGO */}
-        <NavLink to="/" className="text-lg font-semibold">
-          InvoicePro
+        <NavLink to="/" className="flex items-center gap-2">
+          <img
+            src={logo}
+            alt="InvoicePro Logo"
+            className="h-8 w-auto"
+          />
         </NavLink>
 
         {/* DESKTOP */}
