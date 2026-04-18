@@ -145,9 +145,23 @@ export default function Home() {
 
         <div className="grid md:grid-cols-2 gap-6">
 
+          {/* MONTHLY */}
           <div className="card">
-            <h3 className="mb-2">Monthly</h3>
-            <p className="text-gray-400 mb-4">₹99 / month</p>
+
+            <h3 className="text-lg font-semibold mb-2">
+              Monthly
+            </h3>
+
+            <p className="text-gray-400 mb-4">
+              ₹99 / month
+            </p>
+
+            <ul className="text-sm text-gray-400 space-y-2 mb-6">
+              <li>✔ Unlimited invoices</li>
+              <li>✔ UPI payments</li>
+              <li>✔ Basic tracking</li>
+              <li>✔ WhatsApp reminders</li>
+            </ul>
 
             <button
               onClick={() => handleSubscribe('monthly')}
@@ -155,6 +169,7 @@ export default function Home() {
             >
               Choose Plan
             </button>
+
           </div>
 
           {/* YEARLY */}
