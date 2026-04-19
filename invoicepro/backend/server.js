@@ -18,7 +18,13 @@ app.use(
         origin: function(origin, callback) {
             if (!origin) return callback(null, true);
 
+            const frontendUrl = process.env.FRONTEND_URL ?
+                process.env.FRONTEND_URL.replace(/\/$/, '') :
+                '';
+            const requestOrigin = origin.replace(/\/$/, '');
+
             if (
+                requestOrigin === frontendUrl ||
                 origin.includes('vercel.app') ||
                 origin.includes('localhost')
             ) {
