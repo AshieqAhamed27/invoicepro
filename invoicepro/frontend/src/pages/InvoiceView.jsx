@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import QRCode from 'react-qr-code';
 
 const formatCurrency = (amount, currency) => {
-  const symbol = currency && currency !== 'INR' ? '$' : 'Rs. ';
+  const symbol = currency && currency !== 'INR' ? '$' : '₹';
   return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2
   })}`;
@@ -19,7 +19,6 @@ export default function InvoiceView() {
 
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
 
   const printRef = useRef();
 
@@ -64,29 +63,9 @@ export default function InvoiceView() {
     }
   };
 
-  const handleDownloadPDF = async () => {
-    try {
-      setDownloading(true);
-      const module = await import('html2pdf.js/dist/html2pdf.min.js');
-      const html2pdf = module.default || module;
-
-      await html2pdf()
-        .set({
-          margin: 8,
-          filename: `invoice-${invoice.invoiceNumber}.pdf`,
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'mm', format: 'a4' }
-        })
-        .from(printRef.current)
-        .save();
-    } finally {
-      setDownloading(false);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
         Loading invoice...
       </div>
     );
@@ -110,48 +89,47 @@ export default function InvoiceView() {
     `upi://pay?pa=${finalUpi}&pn=${encodeURIComponent(companyName)}&am=${total}&cu=INR`;
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-black text-white">
       <Navbar />
 
       <main className="container-custom py-8">
 
-        <div className="reveal mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        {/* HEADER */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="mb-2 text-sm font-semibold text-yellow-300">Invoice</p>
+            <p className="text-sm text-yellow-400">Invoice</p>
             <h1 className="text-3xl font-semibold">
               {invoice.invoiceNumber}
             </h1>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2 flex-wrap">
             {invoice.status !== 'paid' && (
               <button onClick={markAsPaid} className="btn btn-primary">
                 Mark as Paid
               </button>
             )}
 
-            <button onClick={handleDownloadPDF} disabled={downloading} className="btn btn-secondary">
-              {downloading ? 'Preparing PDF...' : 'Download PDF'}
-            </button>
-
-            <button onClick={deleteInvoice} className="btn btn-danger">
+            <button onClick={deleteInvoice} className="btn btn-dark">
               Delete
             </button>
           </div>
-
         </div>
 
-        {/* STATUS BADGE */}
+        {/* STATUS */}
         <div className="mb-4">
-          <span className={`badge ${invoice.status === 'paid' ? 'badge-green' : 'badge-yellow'}`}>
+          <span className={`badge ${invoice.status === 'paid'
+              ? 'badge-green'
+              : 'badge-yellow'
+            }`}>
             {invoice.status === 'paid' ? 'Paid' : 'Pending'}
           </span>
         </div>
 
-        {/* INVOICE */}
+        {/* INVOICE CARD */}
         <div
           ref={printRef}
-          className="reveal reveal-delay-1 mx-auto max-w-3xl rounded-lg bg-white p-6 text-black shadow-2xl"
+          className="mx-auto max-w-3xl bg-white text-black p-6 rounded-xl"
         >
 
           <h2 className="text-xl font-bold mb-4">
@@ -164,7 +142,7 @@ export default function InvoiceView() {
           </div>
 
           {/* ITEMS */}
-          <div className="mb-4 overflow-hidden rounded-lg border">
+          <div className="mb-4 border rounded">
             {items.map((item, i) => (
               <div key={i} className="flex justify-between p-3 border-b">
                 <span>{item.name}</span>
@@ -188,10 +166,10 @@ export default function InvoiceView() {
               <QRCode value={upiLink} size={140} />
 
               <button
-                onClick={() => (window.location.href = upiLink)}
+                onClick={() => window.location.href = upiLink}
                 className="btn btn-primary mt-4"
               >
-                Pay Now
+                Pay via UPI
               </button>
 
             </div>
