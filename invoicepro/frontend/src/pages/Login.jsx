@@ -4,6 +4,7 @@ import api from '../utils/api';
 import { setAuth } from '../utils/auth';
 import { jwtDecode } from 'jwt-decode';
 import Navbar from '../components/Navbar';
+import logo from '../assets/logo.png';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -75,7 +76,7 @@ export default function Login() {
           });
         }
       } else {
-        console.log('❌ Google not loaded');
+        console.log('Google not loaded');
       }
     });
   }, []);
@@ -102,82 +103,67 @@ export default function Login() {
     }
   };
 
-  const inputStyle =
-    'w-full border border-gray-700 bg-gray-800 text-white p-3 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500';
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <div className="flex min-h-[calc(100vh-72px)]">
-
-        {/* LEFT PANEL */}
-        <div className="hidden lg:flex w-1/2 flex-col justify-between p-12 border-r border-gray-800">
-          <div>
-            <div className="flex items-center gap-3 mb-10">
+      <main className="container-custom grid min-h-[calc(100vh-76px)] items-center gap-10 py-10 lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="hidden lg:block">
+          <div className="max-w-lg">
+            <div className="mb-8 flex items-center gap-3">
               <img
-                src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                alt="logo"
-                className="w-10 h-10"
+                src={logo}
+                alt="InvoicePro logo"
+                className="h-12 w-12 rounded-lg object-contain"
               />
               <span className="text-2xl font-bold">InvoicePro</span>
             </div>
 
-            <h1 className="text-4xl font-bold leading-tight mb-6">
-              Welcome back.
-              <br />
-              Get paid faster.
+            <h1 className="mb-5 text-4xl font-semibold leading-tight">
+              Welcome back. Keep the cash flow moving.
             </h1>
 
-            <p className="text-gray-400 text-lg mb-8 max-w-md">
-              Create professional invoices, track payments,
-              and grow your business effortlessly.
+            <p className="mb-8 text-lg text-zinc-400">
+              Sign in to create invoices, track payments, and download polished records for your clients.
             </p>
 
-            <ul className="space-y-3 text-gray-300">
-              <li>✔ Create invoices in seconds</li>
-              <li>✔ Track payments easily</li>
-              <li>✔ Download PDF instantly</li>
-              <li>✔ Manage clients professionally</li>
-            </ul>
+            <div className="grid gap-3 text-sm text-zinc-300">
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">Create invoices in seconds</div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">Track paid and pending work</div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">Download invoice PDFs instantly</div>
+            </div>
           </div>
+        </section>
 
-          <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} InvoicePro
-          </p>
-        </div>
-
-        {/* RIGHT PANEL */}
-        <div className="flex-1 flex items-center justify-center px-6 py-10">
-          <div className="w-full max-w-md bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-2xl shadow-xl p-8">
-
-            <h2 className="text-3xl font-bold mb-2">
-              Sign in
+        <section className="mx-auto w-full max-w-md">
+          <div className="surface p-6 sm:p-8">
+            <p className="mb-2 text-sm font-semibold text-yellow-300">Sign in</p>
+            <h2 className="mb-2 text-3xl font-semibold">
+              Access your account
             </h2>
 
-            <p className="text-gray-400 mb-6">
-              Login to your InvoicePro account
+            <p className="mb-6 text-zinc-400">
+              Continue where your invoices left off.
             </p>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-5 text-sm">
+              <div className="mb-5 rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                 {error}
               </div>
             )}
 
-            {/* GOOGLE */}
             <div
               id="googleBtn"
               className="mb-5 flex justify-center"
             ></div>
 
-            <div className="text-center text-gray-500 mb-5">
-              OR
+            <div className="mb-5 flex items-center gap-3 text-xs uppercase text-zinc-500">
+              <span className="h-px flex-1 bg-white/10"></span>
+              or
+              <span className="h-px flex-1 bg-white/10"></span>
             </div>
 
-            {/* FORM */}
             <form onSubmit={handleSubmit} className="space-y-4">
-
               <input
                 type="email"
                 required
@@ -189,7 +175,7 @@ export default function Login() {
                     email: e.target.value
                   })
                 }
-                className={inputStyle}
+                className="input"
               />
 
               <input
@@ -203,33 +189,30 @@ export default function Login() {
                     password: e.target.value
                   })
                 }
-                className={inputStyle}
+                className="input"
               />
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-lg font-semibold transition"
+                className="btn btn-primary w-full"
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
-
             </form>
 
-            <p className="text-center text-sm mt-6 text-gray-400">
-              Don’t have an account?{' '}
+            <p className="mt-6 text-center text-sm text-zinc-400">
+              Do not have an account?{' '}
               <Link
                 to="/signup"
-                className="text-yellow-400 hover:text-yellow-300 font-medium"
+                className="font-semibold text-yellow-300 hover:text-yellow-200"
               >
-                Signup
+                Create one
               </Link>
             </p>
-
           </div>
-        </div>
-
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

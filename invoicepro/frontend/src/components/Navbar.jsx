@@ -9,7 +9,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const isAdmin = true; // keep true for now
+  const isAdmin = user?.email === "ashieqahamed27@gmail.com";
 
   const handleLogout = () => {
     localStorage.clear();
@@ -19,49 +19,58 @@ export default function Navbar() {
 
   const navClass = ({ isActive }) =>
     isActive
-      ? "text-white font-semibold"
-      : "text-gray-400";
+      ? "text-white bg-white/10 border-white/10"
+      : "text-zinc-400 border-transparent hover:text-white hover:bg-white/5";
+
+  const mobileNavClass = ({ isActive }) =>
+    isActive
+      ? "text-white bg-white/10"
+      : "text-zinc-400 hover:text-white hover:bg-white/5";
 
   return (
-    <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur border-b border-gray-800">
-
-      {/* TOP BAR */}
-      <div className="container-custom flex justify-between items-center py-4">
-
-        {/* LOGO */}
-        <NavLink to="/" className="flex items-center gap-2">
+    <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
+      <div className="container-custom flex items-center justify-between py-3">
+        <NavLink to="/" className="flex items-center gap-3">
           <img
             src={logo}
-            alt="logo"
-            className="h-10 w-auto"
+            alt="InvoicePro logo"
+            className="h-10 w-10 rounded-lg object-contain"
           />
-          <span className="text-white font-semibold text-lg tracking-tight">
+          <span className="text-lg font-semibold text-white">
             InvoicePro
           </span>
         </NavLink>
 
-        {/* DESKTOP */}
-        <div className="hidden md:flex items-center gap-6 text-sm">
-
-          <NavLink to="/" className={navClass}>Home</NavLink>
+        <div className="hidden items-center gap-2 text-sm md:flex">
+          <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+            Home
+          </NavLink>
 
           {loggedIn && (
             <>
-              <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
-              <NavLink to="/create-invoice" className={navClass}>Create</NavLink>
-              <NavLink to="/settings" className={navClass}>Settings</NavLink>
+              <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+                Dashboard
+              </NavLink>
+              <NavLink to="/create-invoice" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+                Create
+              </NavLink>
+              <NavLink to="/settings" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+                Settings
+              </NavLink>
             </>
           )}
 
           {isAdmin && (
-            <NavLink to="/admin" className="text-yellow-400">
+            <NavLink to="/admin" className="rounded-lg px-3 py-2 text-yellow-300 hover:bg-yellow-400/10">
               Admin
             </NavLink>
           )}
 
           {!loggedIn ? (
             <>
-              <NavLink to="/login" className={navClass}>Login</NavLink>
+              <NavLink to="/login" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+                Login
+              </NavLink>
               <button onClick={() => navigate('/signup')} className="btn btn-primary">
                 Start Free
               </button>
@@ -71,57 +80,50 @@ export default function Navbar() {
               Logout
             </button>
           )}
-
         </div>
 
-        {/* MOBILE BUTTON */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden text-2xl p-2"
+          className="btn btn-secondary px-3 py-2 md:hidden"
+          aria-expanded={menuOpen}
+          aria-label="Toggle navigation menu"
         >
-          {menuOpen ? "✕" : "☰"}
+          {menuOpen ? "Close" : "Menu"}
         </button>
-
       </div>
 
-      {/* MOBILE MENU */}
       {menuOpen && (
-        <div className="md:hidden bg-black border-t border-gray-800">
-
-          <div className="flex flex-col px-6 py-6 space-y-4 text-base">
-
-            <NavLink to="/" onClick={() => setMenuOpen(false)} className={navClass}>
+        <div className="border-t border-white/10 bg-black/95 md:hidden">
+          <div className="flex flex-col space-y-3 px-6 py-6 text-base">
+            <NavLink to="/" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
               Home
             </NavLink>
 
             {loggedIn && (
               <>
-                <NavLink to="/dashboard" onClick={() => setMenuOpen(false)} className={navClass}>
+                <NavLink to="/dashboard" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Dashboard
                 </NavLink>
-
-                <NavLink to="/create-invoice" onClick={() => setMenuOpen(false)} className={navClass}>
+                <NavLink to="/create-invoice" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Create Invoice
                 </NavLink>
-
-                <NavLink to="/settings" onClick={() => setMenuOpen(false)} className={navClass}>
+                <NavLink to="/settings" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Settings
                 </NavLink>
               </>
             )}
 
             {isAdmin && (
-              <NavLink to="/admin" onClick={() => setMenuOpen(false)} className="text-yellow-400">
+              <NavLink to="/admin" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-yellow-300 hover:bg-yellow-400/10">
                 Admin
               </NavLink>
             )}
 
             {!loggedIn ? (
               <>
-                <NavLink to="/login" onClick={() => setMenuOpen(false)} className={navClass}>
+                <NavLink to="/login" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Login
                 </NavLink>
-
                 <button
                   onClick={() => {
                     navigate('/signup');
@@ -140,12 +142,9 @@ export default function Navbar() {
                 Logout
               </button>
             )}
-
           </div>
-
         </div>
       )}
-
     </nav>
   );
 }

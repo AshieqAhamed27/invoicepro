@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 
+const formatCurrency = (amount) =>
+  `Rs. ${Number(amount || 0).toLocaleString('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}`;
+
 export default function CreateInvoice() {
   const navigate = useNavigate();
 
@@ -56,7 +62,8 @@ export default function CreateInvoice() {
   };
 
   const subtotal = items.reduce((s, i) => s + Number(i.price || 0), 0);
-  const tax = (subtotal * ((+form.cgst || 0) + (+form.sgst || 0))) / 100;
+  const taxRate = (+form.cgst || 0) + (+form.sgst || 0);
+  const tax = (subtotal * taxRate) / 100;
   const total = subtotal + tax;
 
   const handleSubmit = async (e) => {
@@ -67,11 +74,10 @@ export default function CreateInvoice() {
       return;
     }
 
-    // ✅ IMPORTANT FIX: ensure UPI exists
     const finalUpi = form.upiId || user?.upiId;
 
     if (!finalUpi) {
-      alert("Please add UPI ID (in Settings or here)");
+      alert("Please add UPI ID in Settings or here");
       return;
     }
 
@@ -80,7 +86,7 @@ export default function CreateInvoice() {
     try {
       const res = await api.post('/invoices', {
         ...form,
-        upiId: finalUpi, // ✅ FIXED
+        upiId: finalUpi,
         items,
         amount: total
       });
@@ -98,79 +104,107 @@ export default function CreateInvoice() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <main className="container-custom py-6 sm:py-10 max-w-3xl">
+      <main className="container-custom py-8 sm:py-10">
+        <div className="mb-8">
+          <p className="mb-2 text-sm font-semibold text-yellow-300">New invoice</p>
+          <h1 className="text-3xl font-semibold sm:text-4xl">
+            Create Invoice
+          </h1>
+          <p className="mt-2 max-w-2xl text-zinc-400">
+            Add client details, itemize the work, and collect payment through your UPI ID.
+          </p>
+        </div>
 
-        <h1 className="text-2xl sm:text-3xl font-semibold mb-6">
-          Create Invoice
-        </h1>
+        <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1fr_360px]">
+          <div className="surface overflow-hidden">
+            <section className="border-b border-white/10 p-5">
+              <div className="mb-4">
+                <h2 className="text-lg">Client Details</h2>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Who should receive this invoice?
+                </p>
+              </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  name="clientName"
+                  value={form.clientName}
+                  onChange={handleChange}
+                  placeholder="Client name"
+                  className="input"
+                />
 
-          {/* CLIENT */}
-          <div className="card">
-            <h2 className="mb-4">Client Details</h2>
+                <input
+                  name="clientEmail"
+                  type="email"
+                  value={form.clientEmail}
+                  onChange={handleChange}
+                  placeholder="Client email"
+                  className="input"
+                />
+              </div>
+            </section>
 
-            <div className="space-y-3">
-              <input
-                name="clientName"
-                value={form.clientName}
+            <section className="border-b border-white/10 p-5">
+              <div className="mb-4">
+                <h2 className="text-lg">Service</h2>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Keep it short and clear for the client.
+                </p>
+              </div>
+
+              <textarea
+                name="serviceDescription"
+                value={form.serviceDescription}
                 onChange={handleChange}
-                placeholder="Client Name"
-                className="input"
+                placeholder="Describe the work delivered..."
+                rows="4"
+                className="input resize-y"
               />
+            </section>
 
-              <input
-                name="clientEmail"
-                value={form.clientEmail}
-                onChange={handleChange}
-                placeholder="Client Email"
-                className="input"
-              />
-            </div>
-          </div>
+            <section className="border-b border-white/10 p-5">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-lg">Items</h2>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Add each billable line with its price.
+                  </p>
+                </div>
 
-          {/* SERVICE */}
-          <div className="card">
-            <h2 className="mb-4">Service</h2>
+                <button
+                  type="button"
+                  onClick={addItem}
+                  className="btn btn-secondary w-full sm:w-auto"
+                >
+                  Add Item
+                </button>
+              </div>
 
-            <textarea
-              name="serviceDescription"
-              value={form.serviceDescription}
-              onChange={handleChange}
-              placeholder="Describe service..."
-              className="input"
-            />
-          </div>
+              <div className="space-y-3">
+                {items.map((item, i) => (
+                  <div key={i} className="grid gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-3 sm:grid-cols-[1fr_140px_auto]">
+                    <input
+                      placeholder="Item or service"
+                      value={item.name}
+                      onChange={(e) =>
+                        handleItemChange(i, 'name', e.target.value)
+                      }
+                      className="input"
+                    />
 
-          {/* ITEMS */}
-          <div className="card">
-            <h2 className="mb-4">Items</h2>
-
-            <div className="space-y-3">
-              {items.map((item, i) => (
-                <div key={i} className="flex flex-col sm:flex-row gap-2">
-
-                  <input
-                    placeholder="Item"
-                    value={item.name}
-                    onChange={(e) =>
-                      handleItemChange(i, 'name', e.target.value)
-                    }
-                    className="input flex-1"
-                  />
-
-                  <div className="flex gap-2">
                     <input
                       type="number"
-                      placeholder="₹"
+                      min="0"
+                      placeholder="Amount"
                       value={item.price}
                       onChange={(e) =>
                         handleItemChange(i, 'price', e.target.value)
                       }
-                      className="input w-full sm:w-28"
+                      className="input"
                     />
 
                     <button
@@ -178,113 +212,113 @@ export default function CreateInvoice() {
                       onClick={() => removeItem(i)}
                       className="btn btn-dark px-3"
                     >
-                      ✕
+                      Remove
                     </button>
                   </div>
+                ))}
+              </div>
+            </section>
 
+            <section className="p-5">
+              <div className="mb-4">
+                <h2 className="text-lg">Payment and Tax</h2>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Use saved business details or update them for this invoice.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input
+                  type="date"
+                  name="dueDate"
+                  value={form.dueDate}
+                  onChange={handleChange}
+                  className="input"
+                />
+
+                <input
+                  name="upiId"
+                  value={form.upiId}
+                  onChange={handleChange}
+                  placeholder="UPI ID"
+                  className="input"
+                />
+
+                <input
+                  name="gst"
+                  value={form.gst}
+                  onChange={handleChange}
+                  placeholder="GST number"
+                  className="input"
+                />
+
+                <input
+                  name="cgst"
+                  type="number"
+                  min="0"
+                  value={form.cgst}
+                  onChange={handleChange}
+                  placeholder="CGST %"
+                  className="input"
+                />
+
+                <input
+                  name="sgst"
+                  type="number"
+                  min="0"
+                  value={form.sgst}
+                  onChange={handleChange}
+                  placeholder="SGST %"
+                  className="input"
+                />
+              </div>
+            </section>
+          </div>
+
+          <aside className="h-fit rounded-lg border border-white/10 bg-zinc-950/85 p-5 shadow-xl shadow-black/20 lg:sticky lg:top-24">
+            <p className="text-sm font-semibold text-zinc-400">Summary</p>
+
+            <div className="mt-5 space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Subtotal</span>
+                <span className="font-semibold text-white">{formatCurrency(subtotal)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Tax ({taxRate}%)</span>
+                <span className="font-semibold text-white">{formatCurrency(tax)}</span>
+              </div>
+              <div className="border-t border-white/10 pt-4">
+                <div className="flex items-end justify-between">
+                  <span className="text-zinc-400">Total</span>
+                  <span className="text-2xl font-bold text-emerald-300">{formatCurrency(total)}</span>
                 </div>
-              ))}
+              </div>
             </div>
 
             <button
-              type="button"
-              onClick={addItem}
-              className="mt-4 text-blue-400 text-sm"
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary mt-6 w-full"
             >
-              + Add Item
+              {loading ? 'Creating...' : 'Create Invoice'}
             </button>
-          </div>
 
-          {/* PAYMENT */}
-          <div className="card">
-            <h2 className="mb-4">Payment & Tax</h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-              <input
-                type="date"
-                name="dueDate"
-                value={form.dueDate}
-                onChange={handleChange}
-                className="input"
-              />
-
-              <input
-                name="upiId"
-                value={form.upiId}
-                onChange={handleChange}
-                placeholder="UPI ID (required)"
-                className="input"
-              />
-
-              <input
-                name="gst"
-                value={form.gst}
-                onChange={handleChange}
-                placeholder="GST"
-                className="input"
-              />
-
-              <input
-                name="cgst"
-                type="number"
-                value={form.cgst}
-                onChange={handleChange}
-                placeholder="CGST %"
-                className="input"
-              />
-
-              <input
-                name="sgst"
-                type="number"
-                value={form.sgst}
-                onChange={handleChange}
-                placeholder="SGST %"
-                className="input"
-              />
-
-            </div>
-          </div>
-
-          {/* TOTAL */}
-          <div className="card">
-            <p className="text-sm text-gray-400">Summary</p>
-
-            <div className="mt-2 space-y-1 text-sm">
-              <p>Subtotal: ₹{subtotal}</p>
-              <p>Tax: ₹{tax}</p>
-              <p className="text-green-400 font-semibold text-lg">
-                Total: ₹{total}
-              </p>
-            </div>
-          </div>
-
-          {/* BUTTON */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary w-full"
-          >
-            {loading ? 'Creating...' : 'Create Invoice'}
-          </button>
-
+            {limitReached && (
+              <div className="mt-4 rounded-lg border border-red-400/30 bg-red-500/10 p-4">
+                <p className="mb-3 text-sm text-red-200">
+                  Free invoice limit reached.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/payment')}
+                  className="btn btn-primary w-full"
+                >
+                  Upgrade
+                </button>
+              </div>
+            )}
+          </aside>
         </form>
-
-        {/* LIMIT */}
-        {limitReached && (
-          <div className="mt-6 card border-red-500">
-            <p className="text-red-400 mb-3">
-              Free limit reached
-            </p>
-            <button
-              onClick={() => navigate('/payment')}
-              className="btn btn-primary w-full"
-            >
-              Upgrade 🚀
-            </button>
-          </div>
-        )}
-
       </main>
     </div>
   );

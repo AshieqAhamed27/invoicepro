@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import logo from '../assets/logo.png';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -13,195 +14,186 @@ export default function Home() {
     navigate("/payment");
   };
 
-  return (
-    <div className="min-h-screen bg-black text-white">
+  const workflow = [
+    ['01', 'Create invoice', 'Add client details, line items, tax, and due dates without wrestling a spreadsheet.'],
+    ['02', 'Share payment link', 'Send a clean invoice link over email, WhatsApp, or your usual client channel.'],
+    ['03', 'Track the money', 'See pending and paid invoices from one dashboard, then download the invoice when needed.']
+  ];
 
+  const features = [
+    ['Fast invoices', 'Reusable business details, itemized billing, and instant totals.'],
+    ['UPI-ready payments', 'Clients can scan, pay, and send proof in a familiar flow.'],
+    ['Simple records', 'Know what is paid, what is pending, and what needs attention.']
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      {/* HERO */}
-      <section className="container-custom py-16 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
-
-        {/* LEFT */}
-        <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
-
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-tight mb-6">
-            Invoicing made <br />
-            <span className="bg-gradient-to-r from-yellow-400 to-yellow-200 text-transparent bg-clip-text">
-              simple & fast
-            </span>
-          </h1>
-
-          <p className="text-gray-400 mb-8 text-base sm:text-lg">
-            Create invoices, send them instantly and get paid faster
-            with built-in UPI payments.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-
-            <button
-              onClick={() =>
-                navigate(loggedIn ? '/dashboard' : '/signup')
-              }
-              className="btn btn-primary"
-            >
-              {loggedIn ? 'Go to Dashboard' : 'Start Free'}
-            </button>
-
-            <button
-              onClick={() => navigate('/login')}
-              className="btn btn-secondary"
-            >
-              Login
-            </button>
-
-          </div>
-
-        </div>
-
-        {/* RIGHT */}
-        <div className="flex justify-center">
-
-          <div className="relative w-full max-w-sm">
-
-            <div className="absolute inset-0 bg-yellow-500 blur-3xl opacity-20"></div>
-
-            <div className="relative card p-6 shadow-xl">
-
-              <p className="text-sm text-gray-400 mb-3">Invoice Preview</p>
-
-              <div className="space-y-2 text-sm">
-                <p className="flex justify-between">
-                  <span>Client</span>
-                  <span className="text-gray-300">John</span>
-                </p>
-                <p className="flex justify-between">
-                  <span>Amount</span>
-                  <span className="text-green-400">₹5,000</span>
-                </p>
-                <p className="flex justify-between">
-                  <span>Status</span>
-                  <span className="text-yellow-400">Pending</span>
-                </p>
+      <main>
+        <section className="border-b border-white/10">
+          <div className="container-custom grid min-h-[calc(100vh-76px)] items-center gap-12 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:py-18">
+            <div className="max-w-2xl text-center lg:text-left">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-lg border border-yellow-300/20 bg-yellow-300/10 px-3 py-2 text-sm font-semibold text-yellow-200">
+                Built for freelancers and small businesses
               </div>
 
-            </div>
+              <h1 className="mb-6 text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
+                Professional invoices, paid faster.
+              </h1>
 
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="container-custom py-16">
-
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2>How it works</h2>
-          <p className="text-gray-400 mt-2">
-            Simple 3-step workflow to get paid faster
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-          {[
-            ['Create invoice', 'Add details and generate instantly'],
-            ['Send to client', 'Share link or WhatsApp easily'],
-            ['Get paid', 'Receive UPI payments instantly']
-          ].map(([title, desc], i) => (
-            <div key={i} className="card text-center">
-              <p className="text-yellow-400 text-sm mb-2">
-                Step {i + 1}
+              <p className="mx-auto mb-8 max-w-xl text-base text-zinc-400 sm:text-lg lg:mx-0">
+                Create polished invoices, share them instantly, and collect UPI payments without adding more admin to your day.
               </p>
-              <h3 className="mb-2">{title}</h3>
-              <p>{desc}</p>
-            </div>
-          ))}
 
-        </div>
+              <div className="flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+                <button
+                  onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
+                  className="btn btn-primary"
+                >
+                  {loggedIn ? 'Go to Dashboard' : 'Start Free'}
+                </button>
 
-      </section>
-
-      {/* FEATURES */}
-      <section className="container-custom py-16">
-
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2>Everything you need</h2>
-          <p className="text-gray-400 mt-2">
-            Built for freelancers & small businesses
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-          {[
-            ['Fast invoices', 'Create invoices in seconds'],
-            ['UPI payments', 'Accept instant payments'],
-            ['Track status', 'Monitor paid & pending']
-          ].map(([title, desc], i) => (
-            <div key={i} className="card text-center">
-              <h3 className="mb-2">{title}</h3>
-              <p>{desc}</p>
-            </div>
-          ))}
-
-        </div>
-
-      </section>
-
-      {/* PRICING */}
-      <section className="container-custom py-16">
-
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2>Pricing</h2>
-          <p className="text-gray-400 mt-2">
-            Simple and transparent pricing
-          </p>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-
-          {/* MONTHLY */}
-          <div className="card flex flex-col justify-between">
-
-            <div>
-              <h3 className="mb-2">Monthly</h3>
-              <p className="text-gray-400 mb-6">₹99 / month</p>
-
-              <ul className="space-y-2 text-sm text-gray-400 mb-6">
-                <li>✔ Unlimited invoices</li>
-                <li>✔ UPI payments</li>
-                <li>✔ Basic tracking</li>
-              </ul>
+                <button
+                  onClick={() => navigate(loggedIn ? '/create-invoice' : '/login')}
+                  className="btn btn-secondary"
+                >
+                  {loggedIn ? 'Create Invoice' : 'Login'}
+                </button>
+              </div>
             </div>
 
-            <button
-              onClick={() => handleSubscribe('monthly')}
-              className="btn btn-primary w-full"
-            >
-              Choose Monthly
-            </button>
+            <div className="mx-auto w-full max-w-md lg:max-w-lg">
+              <div className="surface overflow-hidden">
+                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <img src={logo} alt="InvoicePro logo" className="h-10 w-10 rounded-lg object-contain" />
+                    <div>
+                      <p className="text-xs uppercase text-zinc-500">Invoice Preview</p>
+                      <h2 className="text-base font-semibold">Apex Design Studio</h2>
+                    </div>
+                  </div>
+                  <span className="badge badge-yellow">Pending</span>
+                </div>
 
+                <div className="space-y-5 p-5">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-xs text-zinc-500">Client</p>
+                      <p className="mt-1 font-semibold text-white">John Mathew</p>
+                    </div>
+                    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                      <p className="text-xs text-zinc-500">Due</p>
+                      <p className="mt-1 font-semibold text-white">24 Apr 2026</p>
+                    </div>
+                  </div>
+
+                  <div className="overflow-hidden rounded-lg border border-white/10">
+                    <div className="grid grid-cols-[1fr_auto] bg-white/[0.04] px-4 py-3 text-sm font-semibold text-zinc-300">
+                      <span>Item</span>
+                      <span>Amount</span>
+                    </div>
+                    <div className="grid grid-cols-[1fr_auto] border-t border-white/10 px-4 py-3 text-sm">
+                      <span className="text-zinc-300">Brand package</span>
+                      <span className="font-semibold text-white">Rs. 5,000</span>
+                    </div>
+                    <div className="grid grid-cols-[1fr_auto] border-t border-white/10 px-4 py-3 text-sm">
+                      <span className="text-zinc-300">GST</span>
+                      <span className="font-semibold text-white">Rs. 900</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-lg bg-emerald-400/10 px-4 py-4">
+                    <span className="text-sm font-semibold text-emerald-200">Total due</span>
+                    <span className="text-2xl font-bold text-emerald-200">Rs. 5,900</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="container-custom py-16">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <h2>How it works</h2>
+            <p className="mt-2 text-zinc-400">
+              A short path from billable work to payment.
+            </p>
           </div>
 
-          {/* YEARLY */}
-          <div className="relative rounded-2xl p-[1px] bg-gradient-to-br from-yellow-400 to-yellow-600">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {workflow.map(([step, title, desc]) => (
+              <div key={title} className="card">
+                <p className="mb-4 text-sm font-semibold text-yellow-300">{step}</p>
+                <h3 className="mb-2 text-lg">{title}</h3>
+                <p>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-            <div className="bg-black rounded-2xl p-6 flex flex-col justify-between h-full">
+        <section className="border-y border-white/10 bg-white/[0.02]">
+          <div className="container-custom py-16">
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <h2>Everything you need</h2>
+              <p className="mt-2 text-zinc-400">
+                Built around the billing tasks small teams repeat every week.
+              </p>
+            </div>
 
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {features.map(([title, desc]) => (
+                <div key={title} className="card">
+                  <h3 className="mb-2 text-lg">{title}</h3>
+                  <p>{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="container-custom py-16">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <h2>Pricing</h2>
+            <p className="mt-2 text-zinc-400">
+              Start small, upgrade when invoicing becomes a habit.
+            </p>
+          </div>
+
+          <div className="mx-auto grid max-w-4xl gap-5 lg:grid-cols-2">
+            <div className="card flex flex-col justify-between">
               <div>
-                <p className="text-yellow-400 text-xs mb-2 font-semibold">
-                  BEST VALUE
+                <h3 className="mb-2 text-xl">Monthly</h3>
+                <p className="mb-6 text-3xl font-bold text-white">Rs. 99 <span className="text-sm font-medium text-zinc-500">/ month</span></p>
+
+                <ul className="mb-6 space-y-3 text-sm text-zinc-400">
+                  <li>Unlimited invoices</li>
+                  <li>UPI payments</li>
+                  <li>Basic payment tracking</li>
+                </ul>
+              </div>
+
+              <button
+                onClick={() => handleSubscribe('monthly')}
+                className="btn btn-secondary w-full"
+              >
+                Choose Monthly
+              </button>
+            </div>
+
+            <div className="card flex flex-col justify-between border-yellow-300/35 bg-yellow-300/10">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase text-yellow-200">
+                  Best value
                 </p>
 
-                <h3 className="mb-2">Yearly</h3>
+                <h3 className="mb-2 text-xl">Yearly</h3>
+                <p className="mb-6 text-3xl font-bold text-white">Rs. 999 <span className="text-sm font-medium text-zinc-500">/ year</span></p>
 
-                <p className="text-3xl font-bold mb-6">₹999</p>
-
-                <ul className="space-y-2 text-sm text-gray-400 mb-6">
-                  <li>✔ Everything in monthly</li>
-                  <li>✔ Advanced analytics</li>
-                  <li>✔ Priority support</li>
+                <ul className="mb-6 space-y-3 text-sm text-zinc-300">
+                  <li>Everything in Monthly</li>
+                  <li>Advanced analytics</li>
+                  <li>Priority support</li>
                 </ul>
               </div>
 
@@ -211,17 +203,12 @@ export default function Home() {
               >
                 Choose Yearly
               </button>
-
             </div>
-
           </div>
-
-        </div>
-
-      </section>
+        </section>
+      </main>
 
       <Footer />
-
     </div>
   );
 }

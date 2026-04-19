@@ -1,75 +1,46 @@
-import React, {
-  useState,
-  useEffect
-} from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 
 export default function Settings() {
-  const [form, setForm] =
-    useState({
-      companyName: '',
-      gstNumber: '',
-      upiId: '',
-      address: '',
-      logo: ''
-    });
+  const [form, setForm] = useState({
+    companyName: '',
+    gstNumber: '',
+    upiId: '',
+    address: '',
+    logo: ''
+  });
 
-  const [loading, setLoading] =
-    useState(false);
-
-  const [saving, setSaving] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchProfile();
   }, []);
 
-  const fetchProfile =
-    async () => {
-      try {
-        setLoading(true);
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
 
-        const res =
-          await api.get(
-            '/auth/me'
-          );
+      const res = await api.get('/auth/me');
+      const user = res.data.user;
 
-        const user =
-          res.data.user;
-
-        setForm({
-          companyName:
-            user.companyName ||
-            '',
-          gstNumber:
-            user.gstNumber ||
-            '',
-          upiId:
-            user.upiId ||
-            '',
-          address:
-            user.address ||
-            '',
-          logo:
-            user.logo ||
-            ''
-        });
-
-      } catch {
-        alert(
-          'Failed to load profile'
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+      setForm({
+        companyName: user.companyName || '',
+        gstNumber: user.gstNumber || '',
+        upiId: user.upiId || '',
+        address: user.address || '',
+        logo: user.logo || ''
+      });
+    } catch {
+      alert('Failed to load profile');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
-    const {
-      name,
-      value
-    } = e.target;
+    const { name, value } = e.target;
 
     setForm((prev) => ({
       ...prev,
@@ -77,151 +48,144 @@ export default function Settings() {
     }));
   };
 
-  const handleSubmit =
-    async (e) => {
-      e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      try {
-        setSaving(true);
+    try {
+      setSaving(true);
 
-        const res =
-          await api.put(
-            '/auth/profile',
-            form
-          );
+      const res = await api.put('/auth/profile', form);
 
-        localStorage.setItem(
-          'user',
-          JSON.stringify(
-            res.data.user
-          )
-        );
+      localStorage.setItem('user', JSON.stringify(res.data.user));
 
-        alert(
-          'Profile updated successfully!'
-        );
-
-      } catch {
-        alert(
-          'Failed to save settings'
-        );
-      } finally {
-        setSaving(false);
-      }
-    };
+      alert('Profile updated successfully!');
+    } catch {
+      alert('Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex justify-center items-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
         Loading settings...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <main className="max-w-3xl mx-auto px-4 py-8">
-
-        <div className="bg-gray-900/80 border border-gray-700 rounded-2xl shadow-xl p-6 md:p-8">
-
-          <h1 className="text-2xl font-bold mb-6">
+      <main className="container-custom py-8 sm:py-10">
+        <div className="mb-8">
+          <p className="mb-2 text-sm font-semibold text-yellow-300">Business profile</p>
+          <h1 className="text-3xl font-semibold sm:text-4xl">
             Company Settings
           </h1>
+          <p className="mt-2 max-w-2xl text-zinc-400">
+            Save the business details that should appear on your invoices.
+          </p>
+        </div>
 
-          <form
-            onSubmit={
-              handleSubmit
-            }
-            className="space-y-5"
-          >
+        <form
+          onSubmit={handleSubmit}
+          className="grid gap-6 lg:grid-cols-[1fr_280px]"
+        >
+          <div className="surface overflow-hidden">
+            <section className="border-b border-white/10 p-5">
+              <h2 className="mb-4 text-lg">Identity</h2>
 
-            <input
-              name="companyName"
-              value={
-                form.companyName
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Company Name"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
-            />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <input
+                  name="companyName"
+                  value={form.companyName}
+                  onChange={handleChange}
+                  placeholder="Company name"
+                  className="input"
+                />
 
-            <input
-              name="gstNumber"
-              value={
-                form.gstNumber
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="GST Number"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
-            />
-
-            <input
-              name="upiId"
-              value={
-                form.upiId
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="UPI ID"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
-            />
-
-            <textarea
-              name="address"
-              value={
-                form.address
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Company Address"
-              rows="4"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
-            />
-
-            <input
-              name="logo"
-              value={
-                form.logo
-              }
-              onChange={
-                handleChange
-              }
-              placeholder="Logo URL"
-              className="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg"
-            />
-
-            {form.logo && (
-              <div className="flex justify-center">
-                <img
-                  src={form.logo}
-                  alt="Logo Preview"
-                  className="w-24 h-24 object-contain rounded-lg border border-gray-700"
+                <input
+                  name="gstNumber"
+                  value={form.gstNumber}
+                  onChange={handleChange}
+                  placeholder="GST number"
+                  className="input"
                 />
               </div>
-            )}
+            </section>
+
+            <section className="border-b border-white/10 p-5">
+              <h2 className="mb-4 text-lg">Payment</h2>
+
+              <input
+                name="upiId"
+                value={form.upiId}
+                onChange={handleChange}
+                placeholder="UPI ID"
+                className="input"
+              />
+            </section>
+
+            <section className="border-b border-white/10 p-5">
+              <h2 className="mb-4 text-lg">Address</h2>
+
+              <textarea
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                placeholder="Company address"
+                rows="4"
+                className="input resize-y"
+              />
+            </section>
+
+            <section className="p-5">
+              <h2 className="mb-4 text-lg">Logo</h2>
+
+              <input
+                name="logo"
+                value={form.logo}
+                onChange={handleChange}
+                placeholder="Logo URL"
+                className="input"
+              />
+            </section>
+          </div>
+
+          <aside className="h-fit rounded-lg border border-white/10 bg-zinc-950/85 p-5 shadow-xl shadow-black/20 lg:sticky lg:top-24">
+            <p className="mb-4 text-sm font-semibold text-zinc-400">Preview</p>
+
+            <div className="mb-5 flex h-28 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03]">
+              {form.logo ? (
+                <img
+                  src={form.logo}
+                  alt="Logo preview"
+                  className="h-20 w-20 rounded-lg object-contain"
+                />
+              ) : (
+                <span className="text-sm text-zinc-500">No logo URL</span>
+              )}
+            </div>
+
+            <div className="mb-6 space-y-2 text-sm">
+              <p className="font-semibold text-white">
+                {form.companyName || 'Company name'}
+              </p>
+              <p>{form.gstNumber || 'GST number'}</p>
+              <p>{form.upiId || 'UPI ID'}</p>
+            </div>
 
             <button
               type="submit"
               disabled={saving}
-              className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-xl font-semibold disabled:opacity-50"
+              className="btn btn-primary w-full"
             >
-              {saving
-                ? 'Saving...'
-                : 'Save Settings'}
+              {saving ? 'Saving...' : 'Save Settings'}
             </button>
-
-          </form>
-
-        </div>
-
+          </aside>
+        </form>
       </main>
     </div>
   );

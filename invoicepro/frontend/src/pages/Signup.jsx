@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { setAuth } from '../utils/auth';
 import Navbar from '../components/Navbar';
+import logo from '../assets/logo.png';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -44,88 +45,68 @@ export default function Signup() {
     }
   };
 
-  const inputStyle =
-    'w-full border border-gray-700 bg-gray-800 text-white p-3 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500';
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <div className="flex min-h-[calc(100vh-72px)]">
-
-        {/* LEFT PANEL */}
-        <div className="hidden lg:flex w-1/2 flex-col justify-between p-12 border-r border-gray-800">
-
-          <div>
-            <div className="flex items-center gap-3 mb-10">
+      <main className="container-custom grid min-h-[calc(100vh-76px)] items-center gap-10 py-10 lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="hidden lg:block">
+          <div className="max-w-lg">
+            <div className="mb-8 flex items-center gap-3">
               <img
-                src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-                alt="logo"
-                className="w-10 h-10"
+                src={logo}
+                alt="InvoicePro logo"
+                className="h-12 w-12 rounded-lg object-contain"
               />
-              <span className="text-2xl font-bold">
-                InvoicePro
-              </span>
+              <span className="text-2xl font-bold">InvoicePro</span>
             </div>
 
-            <h1 className="text-4xl font-bold leading-tight mb-6">
-              Start invoicing
-              <br />
-              like a pro.
+            <h1 className="mb-5 text-4xl font-semibold leading-tight">
+              Start billing clients with less back-office noise.
             </h1>
 
-            <p className="text-gray-400 text-lg mb-8 max-w-md">
-              Join freelancers and small businesses who use
-              InvoicePro to send professional invoices,
-              track payments, and grow faster.
+            <p className="mb-8 text-lg text-zinc-400">
+              Create an account, save your business details, and send your first invoice in minutes.
             </p>
 
-            <div className="bg-gray-800/70 border border-gray-700 rounded-2xl p-6">
-              <p className="text-yellow-400 font-semibold mb-3">
-                Free Plan Includes:
+            <div className="surface p-5">
+              <p className="mb-4 text-sm font-semibold text-yellow-300">
+                Free plan includes
               </p>
 
-              <ul className="space-y-2 text-gray-300">
-                <li>✔ Up to 2 invoices</li>
-                <li>✔ PDF downloads</li>
-                <li>✔ Client management</li>
-                <li>✔ Basic payment tracking</li>
+              <ul className="space-y-3 text-sm text-zinc-300">
+                <li>Up to 2 invoices</li>
+                <li>PDF downloads</li>
+                <li>Client details and tax fields</li>
+                <li>Basic payment tracking</li>
               </ul>
             </div>
           </div>
+        </section>
 
-          <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} InvoicePro
-          </p>
-        </div>
-
-        {/* RIGHT PANEL */}
-        <div className="flex-1 flex items-center justify-center px-6 py-10">
-          <div className="w-full max-w-md bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-2xl shadow-xl p-8">
-
-            <h2 className="text-3xl font-bold mb-2">
+        <section className="mx-auto w-full max-w-md">
+          <div className="surface p-6 sm:p-8">
+            <p className="mb-2 text-sm font-semibold text-yellow-300">Get started</p>
+            <h2 className="mb-2 text-3xl font-semibold">
               Create your account
             </h2>
 
-            <p className="text-gray-400 mb-6">
+            <p className="mb-6 text-zinc-400">
               Free forever. No credit card required.
             </p>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-5 text-sm">
+              <div className="mb-5 rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
                 {error}
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-
-              {/* NAME + COMPANY */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <input
                   type="text"
                   required
-                  placeholder="Full Name"
+                  placeholder="Full name"
                   value={form.name}
                   onChange={(e) =>
                     setForm({
@@ -133,12 +114,12 @@ export default function Signup() {
                       name: e.target.value
                     })
                   }
-                  className={inputStyle}
+                  className="input"
                 />
 
                 <input
                   type="text"
-                  placeholder="Company Name"
+                  placeholder="Company name"
                   value={form.companyName}
                   onChange={(e) =>
                     setForm({
@@ -146,12 +127,10 @@ export default function Signup() {
                       companyName: e.target.value
                     })
                   }
-                  className={inputStyle}
+                  className="input"
                 />
-
               </div>
 
-              {/* EMAIL */}
               <input
                 type="email"
                 required
@@ -163,10 +142,9 @@ export default function Signup() {
                     email: e.target.value
                   })
                 }
-                className={inputStyle}
+                className="input"
               />
 
-              {/* PASSWORD */}
               <input
                 type="password"
                 required
@@ -178,36 +156,30 @@ export default function Signup() {
                     password: e.target.value
                   })
                 }
-                className={inputStyle}
+                className="input"
               />
 
-              {/* BUTTON */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-3 rounded-lg font-semibold transition"
+                className="btn btn-primary w-full"
               >
-                {loading
-                  ? 'Creating account...'
-                  : 'Create Free Account'}
+                {loading ? 'Creating account...' : 'Create Free Account'}
               </button>
-
             </form>
 
-            <p className="text-center text-sm mt-6 text-gray-400">
+            <p className="mt-6 text-center text-sm text-zinc-400">
               Already have an account?{' '}
               <Link
                 to="/login"
-                className="text-yellow-400 hover:text-yellow-300 font-medium"
+                className="font-semibold text-yellow-300 hover:text-yellow-200"
               >
                 Sign in
               </Link>
             </p>
-
           </div>
-        </div>
-
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

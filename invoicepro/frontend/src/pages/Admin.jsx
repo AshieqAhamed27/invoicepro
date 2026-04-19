@@ -7,7 +7,7 @@ export default function Admin() {
 
   const fetchRequests = async () => {
     try {
-      const res = await api.get('/payment/requests'); // ✅ FIXED
+      const res = await api.get('/payment/requests');
       setRequests(res.data || []);
     } catch (err) {
       console.log(err);
@@ -18,7 +18,7 @@ export default function Admin() {
   const approve = async (id) => {
     try {
       await api.put(`/payment/approve/${id}`);
-      alert('User upgraded successfully ✅');
+      alert('User upgraded successfully');
       fetchRequests();
     } catch (err) {
       console.log(err);
@@ -31,70 +31,67 @@ export default function Admin() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+    <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
-
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6">
-          Admin Panel
-        </h1>
+      <main className="container-custom py-8 sm:py-10">
+        <div className="mb-8">
+          <p className="mb-2 text-sm font-semibold text-yellow-300">Admin</p>
+          <h1 className="text-3xl font-semibold sm:text-4xl">
+            Payment Requests
+          </h1>
+          <p className="mt-2 text-zinc-400">
+            Review submitted screenshots and approve plan upgrades.
+          </p>
+        </div>
 
         {requests.length === 0 ? (
-          <p className="text-gray-400 text-center">
-            No payment requests
-          </p>
+          <div className="surface px-5 py-12 text-center">
+            <h2 className="mb-2 text-lg">No payment requests</h2>
+            <p>New upgrade requests will appear here.</p>
+          </div>
         ) : (
-          <div className="space-y-4">
-
+          <div className="grid gap-4 md:grid-cols-2">
             {requests.map((req) => (
               <div
-                key={req.id} // ✅ FIXED
-                className="bg-gray-900 p-4 rounded-xl border border-gray-700"
+                key={req.id}
+                className="surface overflow-hidden"
               >
+                <div className="border-b border-white/10 p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm text-zinc-500">Plan</p>
+                      <h2 className="text-xl font-semibold capitalize">
+                        {req.plan}
+                      </h2>
+                    </div>
 
-                {/* PLAN */}
-                <p className="text-sm text-gray-400">
-                  Plan: <span className="text-white">{req.plan}</span>
-                </p>
+                    <span className={`badge ${req.status === 'pending' ? 'badge-yellow' : 'badge-green'}`}>
+                      {req.status}
+                    </span>
+                  </div>
+                </div>
 
-                {/* STATUS */}
-                <p className="text-sm">
-                  Status:{' '}
-                  <span
-                    className={
-                      req.status === 'pending'
-                        ? 'text-yellow-400'
-                        : 'text-green-400'
-                    }
-                  >
-                    {req.status}
-                  </span>
-                </p>
+                <div className="p-5">
+                  <img
+                    src={`http://localhost:5000/uploads/${req.file}`}
+                    alt="Payment screenshot"
+                    className="mb-4 w-full rounded-lg border border-white/10 object-cover"
+                  />
 
-                {/* IMAGE */}
-                <img
-                  src={`http://localhost:5000/uploads/${req.file}`} // ✅ FIXED
-                  alt="payment"
-                  className="mt-3 w-full max-w-xs rounded-lg"
-                />
-
-                {/* BUTTON */}
-                {req.status === 'pending' && (
-                  <button
-                    onClick={() => approve(req.id)}
-                    className="mt-3 w-full sm:w-auto bg-green-500 text-black px-4 py-2 rounded-lg"
-                  >
-                    Approve
-                  </button>
-                )}
-
+                  {req.status === 'pending' && (
+                    <button
+                      onClick={() => approve(req.id)}
+                      className="btn btn-primary w-full"
+                    >
+                      Approve
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
-
           </div>
         )}
-
       </main>
     </div>
   );

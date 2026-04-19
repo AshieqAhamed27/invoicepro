@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 
 const formatCurrency = (amount, currency) => {
-  const symbol = currency === 'INR' ? '₹' : '$';
+  const symbol = currency && currency !== 'INR' ? '$' : 'Rs. ';
   return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2
   })}`;
@@ -42,7 +42,7 @@ export default function PublicInvoice() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex justify-center items-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
         Loading invoice...
       </div>
     );
@@ -70,8 +70,8 @@ export default function PublicInvoice() {
   const total = subtotal + (subtotal * (cgst + sgst)) / 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 px-4 py-10">
-      <div className="max-w-4xl mx-auto bg-white text-black rounded-2xl shadow-2xl p-8 md:p-12">
+    <div className="min-h-screen bg-[#050505] px-4 py-10">
+      <div className="mx-auto max-w-4xl rounded-lg bg-white p-8 text-black shadow-2xl md:p-12">
 
         <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-200 pb-8 mb-8">
 
@@ -118,7 +118,7 @@ export default function PublicInvoice() {
           </p>
         </div>
 
-        <div className="overflow-hidden border border-gray-200 rounded-2xl mb-10">
+        <div className="mb-10 overflow-hidden rounded-lg border border-gray-200">
 
           <div className="grid grid-cols-2 bg-gray-100 px-6 py-4 font-semibold text-gray-700">
             <span>Description</span>

@@ -14,16 +14,17 @@ export default function Payment() {
   const planDetails = {
     monthly: {
       amount: 99,
-      label: "Monthly Plan"
+      label: "Monthly Plan",
+      note: "Flexible billing for steady client work."
     },
     yearly: {
       amount: 999,
-      label: "Yearly Plan"
+      label: "Yearly Plan",
+      note: "Best value for year-round invoicing."
     }
   };
 
   const current = planDetails[plan];
-
   const upiLink = `upi://pay?pa=ashieqahamed4@okicici&pn=InvoicePro&am=${current.amount}&cu=INR`;
 
   const handleConfirm = async () => {
@@ -49,83 +50,77 @@ export default function Payment() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-16 grid md:grid-cols-2 gap-10">
-
-        {/* LEFT SIDE */}
-        <div>
-
-          <h1 className="text-3xl font-semibold mb-4">
+      <main className="container-custom grid gap-8 py-10 lg:grid-cols-[1fr_420px] lg:py-14">
+        <section>
+          <p className="mb-2 text-sm font-semibold text-yellow-300">Upgrade</p>
+          <h1 className="mb-4 text-3xl font-semibold sm:text-4xl">
             Complete your upgrade
           </h1>
 
-          <p className="text-gray-400 mb-8">
-            Unlock unlimited invoices, payment tracking, and premium features.
+          <p className="mb-8 max-w-2xl text-zinc-400">
+            Unlock unlimited invoices, payment tracking, and premium features after your UPI payment is approved.
           </p>
 
-          <div className="card mb-6">
+          <div className="surface mb-6 overflow-hidden">
+            <div className="border-b border-white/10 p-5">
+              <p className="text-sm text-zinc-500">Selected plan</p>
+              <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h2 className="text-2xl font-semibold">
+                    {current.label}
+                  </h2>
+                  <p className="mt-1 text-zinc-400">{current.note}</p>
+                </div>
+                <p className="text-3xl font-bold text-yellow-200">
+                  Rs. {current.amount}
+                </p>
+              </div>
+            </div>
 
-            <p className="text-sm text-gray-400 mb-2">
-              Selected Plan
-            </p>
-
-            <h2 className="text-xl font-semibold">
-              {current.label}
-            </h2>
-
-            <p className="text-yellow-400 text-2xl font-bold mt-2">
-              ₹{current.amount}
-            </p>
-
+            <div className="grid gap-0 divide-y divide-white/10 text-sm text-zinc-300 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              <p className="p-5">Secure payment via UPI</p>
+              <p className="p-5">Activation after approval</p>
+              <p className="p-5">No hidden charges</p>
+            </div>
           </div>
+        </section>
 
-          {/* TRUST */}
-          <div className="text-sm text-gray-500 space-y-2">
-            <p>✔ Secure payment via UPI</p>
-            <p>✔ Instant activation after approval</p>
-            <p>✔ No hidden charges</p>
-          </div>
-
-        </div>
-
-        {/* RIGHT SIDE */}
-        <div className="card">
-
-          <p className="text-sm text-gray-400 mb-4">
-            Scan & Pay
+        <section className="surface h-fit p-5">
+          <p className="mb-4 text-sm font-semibold text-zinc-400">
+            Scan and Pay
           </p>
 
-          {/* QR */}
-          <div className="flex justify-center mb-6 relative">
-            <div className="absolute inset-0 bg-yellow-500 blur-2xl opacity-10"></div>
-
-            <div className="relative bg-white p-4 rounded-2xl">
+          <div className="mb-6 flex justify-center">
+            <div className="rounded-lg bg-white p-4">
               <img
                 alt="UPI QR"
-                className="w-52 h-52"
+                className="h-52 w-52"
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiLink)}`}
               />
             </div>
           </div>
 
-          {/* DETAILS */}
-          <div className="mb-6 text-sm">
-            <p className="text-gray-400">UPI ID</p>
-            <p className="font-semibold mb-3">
-              ashieqahamed4@okicici
-            </p>
+          <div className="mb-6 grid gap-4 rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm">
+            <div>
+              <p className="text-zinc-500">UPI ID</p>
+              <p className="mt-1 font-semibold text-white">
+                ashieqahamed4@okicici
+              </p>
+            </div>
 
-            <p className="text-gray-400">Amount</p>
-            <p className="text-green-400 font-semibold">
-              ₹{current.amount}
-            </p>
+            <div>
+              <p className="text-zinc-500">Amount</p>
+              <p className="mt-1 font-semibold text-emerald-300">
+                Rs. {current.amount}
+              </p>
+            </div>
           </div>
 
-          {/* FILE */}
           <div className="mb-4">
-            <label className="text-sm text-gray-400 mb-2 block">
+            <label className="mb-2 block text-sm text-zinc-400">
               Upload payment screenshot
             </label>
 
@@ -136,16 +131,13 @@ export default function Payment() {
             />
           </div>
 
-          {/* BUTTON */}
           <button
             onClick={handleConfirm}
             className="btn btn-primary w-full"
           >
             Submit Payment
           </button>
-
-        </div>
-
+        </section>
       </main>
     </div>
   );

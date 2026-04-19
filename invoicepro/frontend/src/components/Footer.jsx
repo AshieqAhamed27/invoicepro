@@ -3,62 +3,53 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-gray-800 mt-16">
-
-      <div className="container-custom py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-sm text-gray-400">
-
-        {/* BRAND */}
+    <footer className="border-t border-white/10 bg-white/[0.02]">
+      <div className="container-custom grid grid-cols-1 gap-8 py-10 text-sm text-zinc-400 sm:grid-cols-2 md:grid-cols-4">
         <div>
-          <h3 className="text-white font-semibold mb-3">
+          <h3 className="mb-3 text-white">
             InvoicePro
           </h3>
           <p>
-            Simple invoicing for freelancers & small businesses.
+            Simple invoicing for freelancers and small businesses.
           </p>
         </div>
 
-        {/* PRODUCT */}
         <div>
-          <h3 className="text-white font-semibold mb-3">
+          <h3 className="mb-3 text-white">
             Product
           </h3>
-          <div className="space-y-2">
-            <Link to="/dashboard">Dashboard</Link><br />
-            <Link to="/create-invoice">Create Invoice</Link><br />
-            <Link to="/payment">Pricing</Link>
+          <div className="grid gap-2">
+            <Link className="hover:text-white" to="/dashboard">Dashboard</Link>
+            <Link className="hover:text-white" to="/create-invoice">Create Invoice</Link>
+            <Link className="hover:text-white" to="/payment">Pricing</Link>
           </div>
         </div>
 
-        {/* COMPANY */}
         <div>
-          <h3 className="text-white font-semibold mb-3">
+          <h3 className="mb-3 text-white">
             Company
           </h3>
-          <div className="space-y-2">
+          <div className="grid gap-2">
             <p>About</p>
             <p>Contact</p>
             <p>Privacy</p>
           </div>
         </div>
 
-        {/* LEGAL */}
         <div>
-          <h3 className="text-white font-semibold mb-3">
+          <h3 className="mb-3 text-white">
             Legal
           </h3>
-          <div className="space-y-2">
+          <div className="grid gap-2">
             <p>Terms</p>
             <p>Privacy Policy</p>
           </div>
         </div>
-
       </div>
 
-      {/* BOTTOM */}
-      <div className="text-center text-gray-500 text-xs py-6 border-t border-gray-800">
-        © {new Date().getFullYear()} InvoicePro. All rights reserved.
+      <div className="border-t border-white/10 py-6 text-center text-xs text-zinc-500">
+        Copyright {new Date().getFullYear()} InvoicePro. All rights reserved.
       </div>
-
     </footer>
   );
 }

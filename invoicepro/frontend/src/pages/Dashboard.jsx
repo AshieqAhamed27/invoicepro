@@ -4,6 +4,9 @@ import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
 
+const formatCurrency = (amount) =>
+  `Rs. ${Number(amount || 0).toLocaleString('en-IN')}`;
+
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,14 +32,13 @@ export default function Dashboard() {
     }
   };
 
-  // ✅ REAL REVENUE (ONLY PAID)
   const totalEarned = invoices
     .filter((i) => i.status === 'paid')
     .reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
   const pending = invoices.filter(i => i.status === 'pending').length;
+  const paid = invoices.filter(i => i.status === 'paid').length;
 
-  // ✅ DELETE FUNCTION
   const deleteInvoice = async (id) => {
     if (!window.confirm("Delete this invoice?")) return;
 
@@ -49,29 +51,28 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <main className="container-custom py-6 sm:py-10">
-
-        {/* HEADER */}
-        <div className="flex flex-col gap-4 mb-8">
-
+      <main className="container-custom py-8 sm:py-10">
+        <section className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold">
+            <p className="mb-2 text-sm font-semibold text-yellow-300">
+              {isPro ? 'Pro workspace' : 'Free workspace'}
+            </p>
+            <h1 className="text-3xl font-semibold sm:text-4xl">
               Welcome, {user.name || "User"}
             </h1>
-            <p className="text-gray-400 text-sm mt-1">
-              Here’s your business overview
+            <p className="mt-2 text-zinc-400">
+              Track payments, review recent invoices, and keep cash flow moving.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-
+          <div className="flex flex-col gap-3 sm:flex-row">
             {!isPro && (
               <button
                 onClick={() => navigate('/payment')}
-                className="btn btn-primary w-full sm:w-auto"
+                className="btn btn-secondary w-full sm:w-auto"
               >
                 Upgrade
               </button>
@@ -79,117 +80,114 @@ export default function Dashboard() {
 
             <Link
               to="/create-invoice"
-              className="btn bg-white text-black w-full sm:w-auto text-center"
+              className="btn btn-primary w-full text-center sm:w-auto"
             >
-              + New Invoice
+              New Invoice
             </Link>
-
           </div>
+        </section>
 
-        </div>
-
-        {/* STATS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-
+        <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="card">
-            <p className="text-sm text-gray-400">Total Revenue</p>
-            <h2 className="text-xl sm:text-2xl text-green-400 mt-2">
-              ₹{totalEarned.toLocaleString('en-IN')}
+            <p>Total Revenue</p>
+            <h2 className="mt-3 text-2xl text-emerald-300">
+              {formatCurrency(totalEarned)}
             </h2>
           </div>
 
           <div className="card">
-            <p className="text-sm text-gray-400">Pending</p>
-            <h2 className="text-xl sm:text-2xl text-yellow-400 mt-2">
+            <p>Pending</p>
+            <h2 className="mt-3 text-2xl text-yellow-300">
               {pending}
             </h2>
           </div>
 
           <div className="card">
-            <p className="text-sm text-gray-400">Total</p>
-            <h2 className="text-xl sm:text-2xl mt-2">
-              {invoices.length}
+            <p>Paid</p>
+            <h2 className="mt-3 text-2xl text-white">
+              {paid}
             </h2>
           </div>
 
-        </div>
+          <div className="card">
+            <p>Total Invoices</p>
+            <h2 className="mt-3 text-2xl text-white">
+              {invoices.length}
+            </h2>
+          </div>
+        </section>
 
-        {/* LIST */}
-        <div className="card">
-
-          <h2 className="text-lg font-medium mb-4">
-            Recent Invoices
-          </h2>
+        <section className="surface overflow-hidden">
+          <div className="flex flex-col gap-2 border-b border-white/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Recent Invoices</h2>
+              <p className="text-sm text-zinc-500">
+                Your latest client bills and payment status.
+              </p>
+            </div>
+          </div>
 
           {loading ? (
-            <p className="text-gray-400 text-center">Loading...</p>
+            <div className="p-8 text-center">
+              <p>Loading invoices...</p>
+            </div>
           ) : invoices.length === 0 ? (
-            <p className="text-gray-400 text-center">
-              No invoices yet
-            </p>
+            <div className="px-5 py-12 text-center">
+              <h3 className="mb-2 text-lg text-white">No invoices yet</h3>
+              <p className="mx-auto mb-5 max-w-sm">
+                Create your first invoice and it will appear here for quick tracking.
+              </p>
+              <Link to="/create-invoice" className="btn btn-primary">
+                Create Invoice
+              </Link>
+            </div>
           ) : (
-            <div className="space-y-3">
-
+            <div className="divide-y divide-white/10">
               {invoices.map((inv) => (
                 <div
                   key={inv._id}
-                  className="flex flex-col sm:flex-row justify-between gap-3 sm:items-center bg-gray-800/60 p-4 rounded-xl"
+                  className="grid gap-4 px-5 py-4 sm:grid-cols-[1fr_auto] sm:items-center"
                 >
-
-                  {/* LEFT */}
                   <div>
-                    <p className="font-medium">
-                      {inv.clientName}
-                    </p>
-                    <p className="text-xs text-gray-400">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="font-semibold text-white">
+                        {inv.clientName}
+                      </p>
+                      <span className={`badge ${inv.status === 'paid' ? 'badge-green' : 'badge-yellow'}`}>
+                        {inv.status === 'paid' ? 'Paid' : 'Pending'}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-zinc-500">
                       {inv.clientEmail}
                     </p>
-
-                    {/* ✅ STATUS BADGE */}
-                    <span className={`text-xs mt-1 inline-block px-2 py-1 rounded-full
-                      ${inv.status === 'paid'
-                        ? 'bg-green-500/20 text-green-400'
-                        : 'bg-yellow-500/20 text-yellow-400'}`}>
-                      {inv.status === 'paid' ? 'Paid' : 'Pending'}
-                    </span>
                   </div>
 
-                  {/* RIGHT */}
-                  <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-
-                    <p className="text-green-400 font-semibold">
-                      ₹{Number(inv.amount).toLocaleString('en-IN')}
+                  <div className="flex flex-col gap-3 sm:items-end">
+                    <p className="text-lg font-semibold text-emerald-300">
+                      {formatCurrency(inv.amount)}
                     </p>
 
                     <div className="flex gap-3">
-
                       <Link
                         to={`/invoice/${inv._id}`}
-                        className="text-blue-400 text-sm"
+                        className="text-sm font-semibold text-yellow-300 hover:text-yellow-200"
                       >
                         View
                       </Link>
 
-                      {/* ✅ DELETE */}
                       <button
                         onClick={() => deleteInvoice(inv._id)}
-                        className="text-red-400 text-sm"
+                        className="text-sm font-semibold text-red-300 hover:text-red-200"
                       >
                         Delete
                       </button>
-
                     </div>
-
                   </div>
-
                 </div>
               ))}
-
             </div>
           )}
-
-        </div>
-
+        </section>
       </main>
     </div>
   );
