@@ -171,7 +171,7 @@ export default function Home() {
               onClick={() => handleSubscribe('monthly')}
               className="btn btn-primary w-full"
             >
-              Choose Plan
+              Choose Monthly
             </button>
 
           </div>
