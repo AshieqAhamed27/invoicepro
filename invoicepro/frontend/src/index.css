@@ -17,150 +17,59 @@ body {
     @apply bg-black text-white font-sans;
     font-family: 'Inter', system-ui, sans-serif;
     line-height: 1.5;
+    overflow-x: hidden;
 }
 
 
-/* TYPOGRAPHY */
+/* 👇 IMPORTANT FIX STARTS HERE */
 
-h1 {
-    @apply text-3xl font-semibold tracking-tight;
-}
-
-h2 {
-    @apply text-xl font-semibold tracking-tight;
-}
-
-h3 {
-    @apply text-base font-medium;
-}
-
-p {
-    @apply text-gray-400 text-sm;
-}
-
-
-/* LAYOUT */
-
-.container-custom {
-    @apply max-w-6xl mx-auto px-4;
-}
-
-.section {
-    @apply py-12;
-}
-
-
-/* BUTTONS */
-
-.btn {
-    @apply px-4 py-2.5 rounded-lg text-sm font-medium transition;
-}
-
-.btn-primary {
-    @apply bg-yellow-500 text-black;
-}
-
-.btn-secondary {
-    @apply border border-gray-700 text-gray-300;
-}
-
-.btn-dark {
-    @apply bg-gray-800 text-white;
-}
-
-
-/* INPUT */
-
-.input {
-    @apply w-full bg-gray-900 border border-gray-800 p-3 rounded-lg text-sm;
-}
-
-.input:focus {
-    border-color: #facc15;
-    box-shadow: 0 0 0 1px #facc15;
-}
-
-
-/* CARD */
-
-.card {
-    @apply bg-gray-900 border border-gray-800 rounded-xl p-4;
-}
-
-.card-hover {
-    @apply transition;
-}
-
-
-/* BADGES */
-
-.badge {
-    @apply text-xs px-2 py-1 rounded-full;
-}
-
-.badge-green {
-    @apply text-green-400;
-}
-
-.badge-yellow {
-    @apply text-yellow-400;
-}
-
-.badge-red {
-    @apply text-red-400;
-}
-
-
-/* SCROLLBAR */
-
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: #111827;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #374151;
-    border-radius: 999px;
-}
-
-
-/* ANIMATION */
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
+@layer components {
+    /* TYPOGRAPHY */
+    h1 {
+        @apply text-3xl font-semibold tracking-tight;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    h2 {
+        @apply text-xl font-semibold tracking-tight;
     }
-}
-
-.fade-in {
-    animation: fadeIn 0.4s ease forwards;
-}
-
-
-/* MOBILE */
-
-button,
-a {
-    min-height: 44px;
-}
-
-
-/* PRINT */
-
-@media print {
-    .no-print {
-        display: none !important;
+    h3 {
+        @apply text-base font-medium;
     }
-    body {
-        background: white;
-        color: black;
+    p {
+        @apply text-gray-400 text-sm;
+    }
+    /* LAYOUT */
+    .container-custom {
+        @apply max-w-7xl mx-auto px-4;
+    }
+    /* BUTTONS */
+    .btn {
+        @apply px-5 py-2.5 rounded-lg text-sm font-medium transition whitespace-nowrap;
+    }
+    .btn-primary {
+        @apply bg-yellow-500 text-black;
+    }
+    .btn-dark {
+        @apply bg-gray-800 text-white;
+    }
+    /* INPUT */
+    .input {
+        @apply w-full bg-gray-900 border border-gray-800 p-3 rounded-lg text-sm;
+    }
+    /* CARD */
+    .card {
+        @apply bg-gray-900 border border-gray-800 rounded-xl p-5 text-white;
+    }
+    /* BADGES */
+    .badge {
+        @apply text-xs px-2 py-1 rounded-full font-medium;
+    }
+    .badge-green {
+        @apply bg-green-500/20 text-green-400;
+    }
+    .badge-yellow {
+        @apply bg-yellow-500/20 text-yellow-400;
+    }
+    .badge-red {
+        @apply bg-red-500/20 text-red-400;
     }
 }
