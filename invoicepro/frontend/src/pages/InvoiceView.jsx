@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
@@ -13,17 +13,9 @@ const formatCurrency = (amount, currency) => {
   })}`;
 };
 
-const formatDate = (d) => {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-};
-
 export default function InvoiceView() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const user = getUser();
 
   const [invoice, setInvoice] = useState(null);
@@ -32,8 +24,8 @@ export default function InvoiceView() {
   const printRef = useRef();
 
   useEffect(() => {
-    if (id) fetchInvoice();
-  }, [id]);
+    fetchInvoice();
+  }, []);
 
   const fetchInvoice = async () => {
     try {
@@ -46,6 +38,7 @@ export default function InvoiceView() {
     }
   };
 
+  // ✅ MARK AS PAID
   const markAsPaid = async () => {
     try {
       await api.put(`/invoices/${invoice._id}/status`, {
@@ -53,9 +46,21 @@ export default function InvoiceView() {
       });
 
       setInvoice(prev => ({ ...prev, status: 'paid' }));
-      alert('Invoice marked as paid');
     } catch {
       alert('Failed to update');
+    }
+  };
+
+  // ✅ DELETE
+  const deleteInvoice = async () => {
+    if (!window.confirm("Delete this invoice?")) return;
+
+    try {
+      await api.delete(`/invoices/${invoice._id}`);
+      alert("Deleted successfully");
+      navigate('/dashboard');
+    } catch {
+      alert("Delete failed");
     }
   };
 
@@ -64,7 +69,7 @@ export default function InvoiceView() {
       .set({
         margin: 8,
         filename: `invoice-${invoice.invoiceNumber}.pdf`,
-        html2canvas: { scale: 2, backgroundColor: '#ffffff' },
+        html2canvas: { scale: 2 },
         jsPDF: { unit: 'mm', format: 'a4' }
       })
       .from(printRef.current)
@@ -82,20 +87,14 @@ export default function InvoiceView() {
   if (!invoice) return null;
 
   const companyName = user?.companyName || user?.name || 'InvoicePro';
-  const companyLogo =
-    user?.logo ||
-    invoice.logo ||
-    'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
 
   const items =
     invoice.items?.length > 0
       ? invoice.items
       : [{ name: invoice.serviceDescription || 'Service', price: invoice.amount }];
 
-  const subtotal = items.reduce((s, i) => s + Number(i.price || 0), 0);
-  const total = subtotal;
+  const total = items.reduce((s, i) => s + Number(i.price || 0), 0);
 
-  // ✅ FIXED: fallback UPI logic
   const finalUpi = invoice.upiId || user?.upiId || '';
 
   const upiLink =
@@ -106,45 +105,54 @@ export default function InvoiceView() {
     <div className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <main className="container-custom py-6 sm:py-10">
+      <main className="container-custom py-6">
 
         {/* ACTION BAR */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
 
           {invoice.status !== 'paid' && (
-            <button onClick={markAsPaid} className="btn btn-primary w-full sm:w-auto">
+            <button onClick={markAsPaid} className="btn btn-primary">
               Mark as Paid
             </button>
           )}
 
-          <button onClick={handleDownloadPDF} className="btn btn-dark w-full sm:w-auto">
+          <button onClick={handleDownloadPDF} className="btn btn-dark">
             Download PDF
           </button>
 
+          <button onClick={deleteInvoice} className="btn bg-red-500 text-white">
+            Delete
+          </button>
+
+        </div>
+
+        {/* STATUS BADGE */}
+        <div className="mb-4">
+          <span className={`px-3 py-1 rounded-full text-sm
+            ${invoice.status === 'paid'
+              ? 'bg-green-500/20 text-green-400'
+              : 'bg-yellow-500/20 text-yellow-400'}`}>
+            {invoice.status === 'paid' ? 'Paid' : 'Pending'}
+          </span>
         </div>
 
         {/* INVOICE */}
         <div
           ref={printRef}
-          className="bg-white text-black rounded-2xl p-4 sm:p-6 md:p-8 max-w-3xl mx-auto"
+          className="bg-white text-black rounded-2xl p-6 max-w-3xl mx-auto"
         >
 
-          {/* HEADER */}
-          <div className="flex justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-bold">{companyName}</h2>
-            </div>
-            <img src={companyLogo} className="w-12 h-12" />
-          </div>
+          <h2 className="text-xl font-bold mb-4">
+            {companyName}
+          </h2>
 
-          {/* CLIENT */}
-          <div className="mb-6">
-            <p className="text-gray-500 text-sm">Bill To</p>
-            <h3 className="font-semibold">{invoice.clientName}</h3>
+          <div className="mb-4">
+            <p className="text-gray-500">Client</p>
+            <p>{invoice.clientName}</p>
           </div>
 
           {/* ITEMS */}
-          <div className="mb-6 border rounded">
+          <div className="mb-4 border rounded">
             {items.map((item, i) => (
               <div key={i} className="flex justify-between p-3 border-b">
                 <span>{item.name}</span>
@@ -154,35 +162,27 @@ export default function InvoiceView() {
           </div>
 
           {/* TOTAL */}
-          <div className="flex justify-between text-lg font-bold mb-6">
+          <div className="flex justify-between font-bold text-lg mb-6">
             <span>Total</span>
-            <span className="text-green-600">
-              {formatCurrency(total)}
-            </span>
+            <span>{formatCurrency(total)}</span>
           </div>
 
           {/* PAYMENT */}
-          {finalUpi ? (
+          {invoice.status !== 'paid' && finalUpi && (
             <div className="text-center border-t pt-6">
 
-              <h3 className="font-semibold mb-3">Pay via UPI</h3>
+              <h3 className="mb-3">Pay via UPI</h3>
 
-              <div className="flex justify-center mb-4">
-                <QRCode value={upiLink} size={140} />
-              </div>
+              <QRCode value={upiLink} size={140} />
 
               <button
                 onClick={() => (window.location.href = upiLink)}
-                className="btn btn-primary w-full sm:w-auto"
+                className="btn btn-primary mt-4"
               >
                 Pay Now
               </button>
 
             </div>
-          ) : (
-            <p className="text-red-500 text-center mt-4 text-sm">
-              No UPI ID found. Add in Settings.
-            </p>
           )}
 
         </div>

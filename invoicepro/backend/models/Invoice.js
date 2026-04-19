@@ -35,7 +35,6 @@ const invoiceSchema = new mongoose.Schema({
             type: String,
             default: ''
         },
-
         price: {
             type: Number,
             default: 0
@@ -89,16 +88,21 @@ const invoiceSchema = new mongoose.Schema({
         default: ''
     },
 
+    // ✅ FIXED STATUS SYSTEM
     status: {
         type: String,
-        enum: ['draft', 'sent', 'paid'],
-        default: 'draft'
+        enum: ['pending', 'paid'],
+        default: 'pending'
+    },
+
+    // ✅ NEW: PAYMENT TRACKING
+    paidAt: {
+        type: Date,
+        default: null
     }
+
 }, {
     timestamps: true
 });
 
-module.exports = mongoose.model(
-    'Invoice',
-    invoiceSchema
-);
+module.exports = mongoose.model('Invoice', invoiceSchema);
