@@ -21,8 +21,9 @@ export default function CreateInvoice() {
   const [loading, setLoading] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
 
+  const user = JSON.parse(localStorage.getItem('user')) || {};
+
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
       setForm(prev => ({
         ...prev,
@@ -42,10 +43,15 @@ export default function CreateInvoice() {
     setItems(updated);
   };
 
-  const addItem = () => setItems([...items, { name: '', price: '' }]);
+  const addItem = () => {
+    setItems([...items, { name: '', price: '' }]);
+  };
 
   const removeItem = (i) => {
-    if (items.length === 1) return alert('At least one item required');
+    if (items.length === 1) {
+      alert('At least one item required');
+      return;
+    }
     setItems(items.filter((_, idx) => idx !== i));
   };
 
@@ -61,11 +67,20 @@ export default function CreateInvoice() {
       return;
     }
 
+    // ✅ IMPORTANT FIX: ensure UPI exists
+    const finalUpi = form.upiId || user?.upiId;
+
+    if (!finalUpi) {
+      alert("Please add UPI ID (in Settings or here)");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await api.post('/invoices', {
         ...form,
+        upiId: finalUpi, // ✅ FIXED
         items,
         amount: total
       });
@@ -88,11 +103,11 @@ export default function CreateInvoice() {
 
       <main className="container-custom py-6 sm:py-10 max-w-3xl">
 
-        <h1 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-semibold mb-6">
           Create Invoice
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* CLIENT */}
           <div className="card">
@@ -117,7 +132,7 @@ export default function CreateInvoice() {
             </div>
           </div>
 
-          {/* DESCRIPTION */}
+          {/* SERVICE */}
           <div className="card">
             <h2 className="mb-4">Service</h2>
 
@@ -136,10 +151,7 @@ export default function CreateInvoice() {
 
             <div className="space-y-3">
               {items.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex flex-col sm:flex-row gap-2"
-                >
+                <div key={i} className="flex flex-col sm:flex-row gap-2">
 
                   <input
                     placeholder="Item"
@@ -151,7 +163,6 @@ export default function CreateInvoice() {
                   />
 
                   <div className="flex gap-2">
-
                     <input
                       type="number"
                       placeholder="₹"
@@ -169,7 +180,6 @@ export default function CreateInvoice() {
                     >
                       ✕
                     </button>
-
                   </div>
 
                 </div>
@@ -203,7 +213,7 @@ export default function CreateInvoice() {
                 name="upiId"
                 value={form.upiId}
                 onChange={handleChange}
-                placeholder="UPI ID"
+                placeholder="UPI ID (required)"
                 className="input"
               />
 
