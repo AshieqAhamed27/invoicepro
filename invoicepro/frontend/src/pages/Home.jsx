@@ -26,6 +26,12 @@ export default function Home() {
     ['Simple records', 'Know what is paid, what is pending, and what needs attention.']
   ];
 
+  const aiFeatures = [
+    ['Cashflow Copilot', 'Finds overdue invoices, scores payment risk, and tells you what to follow up on first.'],
+    ['Reminder Drafts', 'Writes polite payment reminders using invoice amount, due date, and client details.'],
+    ['Invoice Coach', 'Checks weak descriptions, missing due dates, missing UPI IDs, and unusual tax values before sending.']
+  ];
+
   return (
     <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
@@ -149,6 +155,26 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="container-custom py-16">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <p className="mb-2 text-sm font-semibold text-yellow-300">AI features</p>
+            <h2>Smarter than a basic invoice maker</h2>
+            <p className="mt-2 text-zinc-400">
+              InvoicePro helps you notice payment problems early and send better invoices before they slow you down.
+            </p>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            {aiFeatures.map(([title, desc], index) => (
+              <div key={title} className={`card hover-lift reveal reveal-delay-${index > 1 ? 2 : index}`}>
+                <p className="mb-4 text-sm font-semibold text-yellow-300">AI 0{index + 1}</p>
+                <h3 className="mb-2 text-lg">{title}</h3>
+                <p>{desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 

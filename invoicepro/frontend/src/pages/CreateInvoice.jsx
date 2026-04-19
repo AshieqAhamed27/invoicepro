@@ -66,6 +66,48 @@ export default function CreateInvoice() {
   const tax = (subtotal * taxRate) / 100;
   const total = subtotal + tax;
 
+  const filledItems = items.filter((item) => item.name.trim() || Number(item.price || 0) > 0);
+  const itemSummary = filledItems
+    .map((item) => item.name.trim())
+    .filter(Boolean)
+    .join(', ');
+
+  const smartDescription = itemSummary
+    ? `Professional services delivered for ${form.clientName || 'the client'}: ${itemSummary}. Includes preparation, execution, review, and final handover.`
+    : `Professional services delivered for ${form.clientName || 'the client'}, including planning, execution, review, and final handover.`;
+
+  const suggestedDueDate = (() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    return date.toISOString().slice(0, 10);
+  })();
+
+  const aiSuggestions = [
+    !form.clientName && 'Add the client name so the invoice feels personal and complete.',
+    !form.clientEmail && 'Add the client email before creating the invoice.',
+    !form.serviceDescription && 'Use a clearer service description to reduce payment questions.',
+    !form.dueDate && 'Add a due date so AI reminders can track payment risk.',
+    !form.upiId && 'Add a UPI ID to make payment frictionless.',
+    subtotal <= 0 && 'Add at least one priced item before sending.',
+    taxRate > 28 && 'Tax rate looks unusually high. Double-check CGST and SGST.',
+    total > 0 && total < 500 && 'Small invoice detected. Consider adding details so the value is clear.',
+    total >= 5000 && 'High-value invoice detected. A short note about deliverables can help clients approve faster.'
+  ].filter(Boolean);
+
+  const applySmartDescription = () => {
+    setForm((prev) => ({
+      ...prev,
+      serviceDescription: smartDescription
+    }));
+  };
+
+  const applySmartDueDate = () => {
+    setForm((prev) => ({
+      ...prev,
+      dueDate: suggestedDueDate
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -292,6 +334,43 @@ export default function CreateInvoice() {
                   <span className="text-zinc-400">Total</span>
                   <span className="text-2xl font-bold text-emerald-300">{formatCurrency(total)}</span>
                 </div>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-lg border border-yellow-300/20 bg-yellow-300/10 p-4">
+              <p className="mb-2 text-sm font-semibold text-yellow-100">
+                AI Invoice Coach
+              </p>
+              <p className="mb-4 text-sm text-yellow-100/75">
+                Smart checks before you send.
+              </p>
+
+              <div className="mb-4 grid gap-2">
+                {(aiSuggestions.length ? aiSuggestions : ['Looks ready. Clear details, payment info, and amount are in place.']).slice(0, 4).map((suggestion) => (
+                  <p key={suggestion} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-xs text-zinc-200">
+                    {suggestion}
+                  </p>
+                ))}
+              </div>
+
+              <div className="grid gap-2">
+                <button
+                  type="button"
+                  onClick={applySmartDescription}
+                  className="btn btn-secondary w-full"
+                >
+                  Write Description
+                </button>
+
+                {!form.dueDate && (
+                  <button
+                    type="button"
+                    onClick={applySmartDueDate}
+                    className="btn btn-secondary w-full"
+                  >
+                    Set 7-Day Due Date
+                  </button>
+                )}
               </div>
             </div>
 

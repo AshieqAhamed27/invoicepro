@@ -6,6 +6,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const invoiceRoutes = require('./routes/invoices');
 const paymentRoutes = require('./routes/payment');
+const aiRoutes = require('./routes/ai');
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/ai', aiRoutes);
 
 // ==========================
 // HEALTH CHECK

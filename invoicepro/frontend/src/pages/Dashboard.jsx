@@ -15,6 +15,7 @@ export default function Dashboard() {
     paid: 0,
     total: 0
   });
+  const [aiInsights, setAiInsights] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -29,7 +30,16 @@ export default function Dashboard() {
 
   const fetchDashboard = async () => {
     try {
-      const res = await api.get('/invoices/dashboard');
+      const [dashboardResult, aiResult] = await Promise.allSettled([
+        api.get('/invoices/dashboard'),
+        api.get('/ai/insights')
+      ]);
+
+      if (dashboardResult.status !== 'fulfilled') {
+        throw dashboardResult.reason;
+      }
+
+      const res = dashboardResult.value;
       setInvoices(res.data.invoices || []);
       setStats({
         totalRevenue: res.data.stats?.totalRevenue || 0,
@@ -37,6 +47,10 @@ export default function Dashboard() {
         paid: res.data.stats?.paid || 0,
         total: res.data.stats?.total || 0
       });
+
+      if (aiResult.status === 'fulfilled') {
+        setAiInsights(aiResult.value.data);
+      }
     } catch {
       alert('Failed to load invoices');
     } finally {
@@ -53,6 +67,23 @@ export default function Dashboard() {
     } catch {
       alert("Delete failed");
     }
+  };
+
+  const copyReminder = async () => {
+    if (!aiInsights?.topRisk?.reminder) return;
+
+    try {
+      await navigator.clipboard.writeText(aiInsights.topRisk.reminder);
+      alert('Reminder copied');
+    } catch {
+      alert(aiInsights.topRisk.reminder);
+    }
+  };
+
+  const toneClass = (tone) => {
+    if (tone === 'green') return 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200';
+    if (tone === 'red') return 'border-red-400/20 bg-red-500/10 text-red-200';
+    return 'border-yellow-300/20 bg-yellow-300/10 text-yellow-200';
   };
 
   return (
@@ -119,6 +150,76 @@ export default function Dashboard() {
             <h2 className="mt-3 text-2xl text-white">
               {stats.total}
             </h2>
+          </div>
+        </section>
+
+        <section className="reveal reveal-delay-1 mb-8 grid gap-4 lg:grid-cols-[1fr_360px]">
+          <div className="surface p-5">
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="mb-2 text-sm font-semibold text-yellow-300">AI Cashflow Copilot</p>
+                <h2 className="text-xl font-semibold">
+                  {aiInsights ? aiInsights.summary : 'Analyzing your invoice patterns...'}
+                </h2>
+              </div>
+
+              <div className="rounded-lg border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 text-center">
+                <p className="text-xs uppercase text-yellow-200/80">Score</p>
+                <p className="text-2xl font-bold text-yellow-100">
+                  {aiInsights?.cashFlowScore || '--'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {(aiInsights?.cards || [
+                { title: 'Payment risk', value: 'Checking', tone: 'yellow' },
+                { title: 'Pending amount', value: 'Checking', tone: 'yellow' },
+                { title: 'Paid rate', value: 'Checking', tone: 'yellow' }
+              ]).map((card) => (
+                <div key={card.title} className={`rounded-lg border p-4 ${toneClass(card.tone)}`}>
+                  <p className="text-xs uppercase opacity-80">{card.title}</p>
+                  <p className="mt-2 text-lg font-semibold">{card.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5">
+              <p className="mb-3 text-sm font-semibold text-zinc-300">Recommended next moves</p>
+              <div className="grid gap-2">
+                {(aiInsights?.recommendations || ['AI recommendations will appear once your invoices load.']).map((item) => (
+                  <p key={item} className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-zinc-300">
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="surface p-5">
+            <p className="mb-2 text-sm font-semibold text-yellow-300">AI Reminder Draft</p>
+            {aiInsights?.topRisk ? (
+              <>
+                <h3 className="mb-2 text-lg text-white">
+                  {aiInsights.topRisk.clientName}
+                </h3>
+                <p className="mb-4">
+                  {aiInsights.topRisk.invoiceNumber} needs attention.
+                </p>
+                <div className="mb-4 rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                  <p className="text-sm text-zinc-300">
+                    {aiInsights.topRisk.reminder}
+                  </p>
+                </div>
+                <button onClick={copyReminder} className="btn btn-primary w-full">
+                  Copy Reminder
+                </button>
+              </>
+            ) : (
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                <p>No risky invoices right now. AI will draft reminders when payment follow-up is needed.</p>
+              </div>
+            )}
           </div>
         </section>
 
