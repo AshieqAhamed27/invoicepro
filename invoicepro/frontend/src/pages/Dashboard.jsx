@@ -9,6 +9,12 @@ const formatCurrency = (amount) =>
 
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    pending: 0,
+    paid: 0,
+    total: 0
+  });
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -18,13 +24,19 @@ export default function Dashboard() {
   const isPro = plan === "monthly" || plan === "yearly";
 
   useEffect(() => {
-    fetchInvoices();
+    fetchDashboard();
   }, []);
 
-  const fetchInvoices = async () => {
+  const fetchDashboard = async () => {
     try {
-      const res = await api.get('/invoices');
+      const res = await api.get('/invoices/dashboard');
       setInvoices(res.data.invoices || []);
+      setStats({
+        totalRevenue: res.data.stats?.totalRevenue || 0,
+        pending: res.data.stats?.pending || 0,
+        paid: res.data.stats?.paid || 0,
+        total: res.data.stats?.total || 0
+      });
     } catch {
       alert('Failed to load invoices');
     } finally {
@@ -32,19 +44,12 @@ export default function Dashboard() {
     }
   };
 
-  const totalEarned = invoices
-    .filter((i) => i.status === 'paid')
-    .reduce((sum, i) => sum + Number(i.amount || 0), 0);
-
-  const pending = invoices.filter(i => i.status === 'pending').length;
-  const paid = invoices.filter(i => i.status === 'paid').length;
-
   const deleteInvoice = async (id) => {
     if (!window.confirm("Delete this invoice?")) return;
 
     try {
       await api.delete(`/invoices/${id}`);
-      setInvoices(prev => prev.filter(i => i._id !== id));
+      fetchDashboard();
     } catch {
       alert("Delete failed");
     }
@@ -91,28 +96,28 @@ export default function Dashboard() {
           <div className="card">
             <p>Total Revenue</p>
             <h2 className="mt-3 text-2xl text-emerald-300">
-              {formatCurrency(totalEarned)}
+              {formatCurrency(stats.totalRevenue)}
             </h2>
           </div>
 
           <div className="card">
             <p>Pending</p>
             <h2 className="mt-3 text-2xl text-yellow-300">
-              {pending}
+              {stats.pending}
             </h2>
           </div>
 
           <div className="card">
             <p>Paid</p>
             <h2 className="mt-3 text-2xl text-white">
-              {paid}
+              {stats.paid}
             </h2>
           </div>
 
           <div className="card">
             <p>Total Invoices</p>
             <h2 className="mt-3 text-2xl text-white">
-              {invoices.length}
+              {stats.total}
             </h2>
           </div>
         </section>
@@ -128,8 +133,16 @@ export default function Dashboard() {
           </div>
 
           {loading ? (
-            <div className="p-8 text-center">
-              <p>Loading invoices...</p>
+            <div className="divide-y divide-white/10">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="grid gap-4 px-5 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
+                  <div>
+                    <div className="mb-3 h-4 w-40 animate-pulse rounded bg-white/10"></div>
+                    <div className="h-3 w-56 animate-pulse rounded bg-white/5"></div>
+                  </div>
+                  <div className="h-5 w-24 animate-pulse rounded bg-white/10"></div>
+                </div>
+              ))}
             </div>
           ) : invoices.length === 0 ? (
             <div className="px-5 py-12 text-center">

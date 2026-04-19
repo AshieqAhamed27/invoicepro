@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
-import html2pdf from 'html2pdf.js/dist/html2pdf.min.js';
 import QRCode from 'react-qr-code';
 
 const formatCurrency = (amount, currency) => {
@@ -20,6 +19,7 @@ export default function InvoiceView() {
 
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   const printRef = useRef();
 
@@ -64,16 +64,24 @@ export default function InvoiceView() {
     }
   };
 
-  const handleDownloadPDF = () => {
-    html2pdf()
-      .set({
-        margin: 8,
-        filename: `invoice-${invoice.invoiceNumber}.pdf`,
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4' }
-      })
-      .from(printRef.current)
-      .save();
+  const handleDownloadPDF = async () => {
+    try {
+      setDownloading(true);
+      const module = await import('html2pdf.js/dist/html2pdf.min.js');
+      const html2pdf = module.default || module;
+
+      await html2pdf()
+        .set({
+          margin: 8,
+          filename: `invoice-${invoice.invoiceNumber}.pdf`,
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'mm', format: 'a4' }
+        })
+        .from(printRef.current)
+        .save();
+    } finally {
+      setDownloading(false);
+    }
   };
 
   if (loading) {
@@ -122,8 +130,8 @@ export default function InvoiceView() {
               </button>
             )}
 
-            <button onClick={handleDownloadPDF} className="btn btn-secondary">
-              Download PDF
+            <button onClick={handleDownloadPDF} disabled={downloading} className="btn btn-secondary">
+              {downloading ? 'Preparing PDF...' : 'Download PDF'}
             </button>
 
             <button onClick={deleteInvoice} className="btn btn-danger">

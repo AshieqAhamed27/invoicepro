@@ -37,6 +37,84 @@ router.get('/', protect, async(req, res) => {
 });
 
 // ==========================
+// DASHBOARD SUMMARY
+// ==========================
+router.get('/dashboard', protect, async(req, res) => {
+    try {
+        const [statsResult, invoices] = await Promise.all([
+            Invoice.aggregate([{
+                    $match: {
+                        user: req.user._id
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalRevenue: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: ['$status', 'paid']
+                                }, '$amount', 0]
+                            }
+                        },
+                        pending: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: ['$status', 'pending']
+                                }, 1, 0]
+                            }
+                        },
+                        paid: {
+                            $sum: {
+                                $cond: [{
+                                    $eq: ['$status', 'paid']
+                                }, 1, 0]
+                            }
+                        },
+                        total: {
+                            $sum: 1
+                        }
+                    }
+                }
+            ]),
+            Invoice.find({
+                    user: req.user._id
+                })
+                .sort({
+                    createdAt: -1
+                })
+                .limit(10)
+                .select('clientName clientEmail amount status invoiceNumber createdAt dueDate')
+                .lean()
+        ]);
+
+        const stats = statsResult[0] || {
+            totalRevenue: 0,
+            pending: 0,
+            paid: 0,
+            total: 0
+        };
+
+        res.json({
+            invoices,
+            stats: {
+                totalRevenue: stats.totalRevenue || 0,
+                pending: stats.pending || 0,
+                paid: stats.paid || 0,
+                total: stats.total || 0
+            }
+        });
+
+    } catch (err) {
+        console.error('DASHBOARD INVOICES ERROR:', err);
+
+        res.status(500).json({
+            message: 'Server error.'
+        });
+    }
+});
+
+// ==========================
 // PUBLIC INVOICE VIEW
 // ==========================
 router.get('/public/:id', async(req, res) => {
