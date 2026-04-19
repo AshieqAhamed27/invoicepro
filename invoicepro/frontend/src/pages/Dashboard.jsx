@@ -60,7 +60,7 @@ export default function Dashboard() {
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10">
-        <section className="mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <section className="reveal mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="mb-2 text-sm font-semibold text-yellow-300">
               {isPro ? 'Pro workspace' : 'Free workspace'}
@@ -93,28 +93,28 @@ export default function Dashboard() {
         </section>
 
         <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="card">
+          <div className="card hover-lift">
             <p>Total Revenue</p>
             <h2 className="mt-3 text-2xl text-emerald-300">
               {formatCurrency(stats.totalRevenue)}
             </h2>
           </div>
 
-          <div className="card">
+          <div className="card hover-lift">
             <p>Pending</p>
             <h2 className="mt-3 text-2xl text-yellow-300">
               {stats.pending}
             </h2>
           </div>
 
-          <div className="card">
+          <div className="card hover-lift">
             <p>Paid</p>
             <h2 className="mt-3 text-2xl text-white">
               {stats.paid}
             </h2>
           </div>
 
-          <div className="card">
+          <div className="card hover-lift">
             <p>Total Invoices</p>
             <h2 className="mt-3 text-2xl text-white">
               {stats.total}
@@ -122,7 +122,7 @@ export default function Dashboard() {
           </div>
         </section>
 
-        <section className="surface overflow-hidden">
+        <section className="reveal reveal-delay-1 surface overflow-hidden">
           <div className="flex flex-col gap-2 border-b border-white/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold">Recent Invoices</h2>

@@ -79,7 +79,7 @@ export default function Settings() {
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10">
-        <div className="mb-8">
+        <div className="reveal mb-8">
           <p className="mb-2 text-sm font-semibold text-yellow-300">Business profile</p>
           <h1 className="text-3xl font-semibold sm:text-4xl">
             Company Settings
@@ -93,7 +93,7 @@ export default function Settings() {
           onSubmit={handleSubmit}
           className="grid gap-6 lg:grid-cols-[1fr_280px]"
         >
-          <div className="surface overflow-hidden">
+          <div className="reveal reveal-delay-1 surface overflow-hidden">
             <section className="border-b border-white/10 p-5">
               <h2 className="mb-4 text-lg">Identity</h2>
 
@@ -154,7 +154,7 @@ export default function Settings() {
             </section>
           </div>
 
-          <aside className="h-fit rounded-lg border border-white/10 bg-zinc-950/85 p-5 shadow-xl shadow-black/20 lg:sticky lg:top-24">
+          <aside className="reveal reveal-delay-2 h-fit rounded-lg border border-white/10 bg-zinc-950/85 p-5 shadow-xl shadow-black/20 lg:sticky lg:top-24">
             <p className="mb-4 text-sm font-semibold text-zinc-400">Preview</p>
 
             <div className="mb-5 flex h-28 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03]">

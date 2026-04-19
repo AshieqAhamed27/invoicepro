@@ -71,7 +71,7 @@ export default function PublicInvoice() {
 
   return (
     <div className="min-h-screen bg-[#050505] px-4 py-10">
-      <div className="mx-auto max-w-4xl rounded-lg bg-white p-8 text-black shadow-2xl md:p-12">
+      <div className="reveal mx-auto max-w-4xl rounded-lg bg-white p-8 text-black shadow-2xl md:p-12">
 
         <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-200 pb-8 mb-8">
 

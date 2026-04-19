@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import logo from '../assets/logo.png';
+import BrandLogo from '../components/BrandLogo';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function Home() {
       <main>
         <section className="border-b border-white/10">
           <div className="container-custom grid min-h-[calc(100vh-76px)] items-center gap-12 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:py-18">
-            <div className="max-w-2xl text-center lg:text-left">
+            <div className="reveal max-w-2xl text-center lg:text-left">
               <div className="mb-5 inline-flex items-center gap-2 rounded-lg border border-yellow-300/20 bg-yellow-300/10 px-3 py-2 text-sm font-semibold text-yellow-200">
                 Built for freelancers and small businesses
               </div>
@@ -63,11 +63,11 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mx-auto w-full max-w-md lg:max-w-lg">
+            <div className="reveal reveal-delay-1 mx-auto w-full max-w-md lg:max-w-lg">
               <div className="surface overflow-hidden">
                 <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <img src={logo} alt="InvoicePro logo" className="h-10 w-10 rounded-lg object-contain" />
+                    <BrandLogo showText={false} markClassName="h-10 w-10" />
                     <div>
                       <p className="text-xs uppercase text-zinc-500">Invoice Preview</p>
                       <h2 className="text-base font-semibold">Apex Design Studio</h2>
@@ -123,7 +123,7 @@ export default function Home() {
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {workflow.map(([step, title, desc]) => (
-              <div key={title} className="card">
+              <div key={title} className="card hover-lift">
                 <p className="mb-4 text-sm font-semibold text-yellow-300">{step}</p>
                 <h3 className="mb-2 text-lg">{title}</h3>
                 <p>{desc}</p>
@@ -143,7 +143,7 @@ export default function Home() {
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {features.map(([title, desc]) => (
-                <div key={title} className="card">
+                <div key={title} className="card hover-lift">
                   <h3 className="mb-2 text-lg">{title}</h3>
                   <p>{desc}</p>
                 </div>
@@ -161,7 +161,7 @@ export default function Home() {
           </div>
 
           <div className="mx-auto grid max-w-4xl gap-5 lg:grid-cols-2">
-            <div className="card flex flex-col justify-between">
+            <div className="card hover-lift flex flex-col justify-between">
               <div>
                 <h3 className="mb-2 text-xl">Monthly</h3>
                 <p className="mb-6 text-3xl font-bold text-white">Rs. 99 <span className="text-sm font-medium text-zinc-500">/ month</span></p>
@@ -181,7 +181,7 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="card flex flex-col justify-between border-yellow-300/35 bg-yellow-300/10">
+            <div className="card hover-lift flex flex-col justify-between border-yellow-300/35 bg-yellow-300/10">
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase text-yellow-200">
                   Best value

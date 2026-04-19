@@ -81,7 +81,7 @@ select {
     }
 
     .card {
-        @apply bg-zinc-950/85 border border-white/10 rounded-lg p-5 text-white shadow-xl shadow-black/20;
+        @apply bg-zinc-950/85 border border-white/10 rounded-lg p-5 text-white shadow-xl shadow-black/20 transition duration-300;
     }
 
     .surface {
@@ -106,5 +106,92 @@ select {
 
     .badge-red {
         @apply bg-red-500/15 text-red-300 border border-red-400/20;
+    }
+
+    .brand-logo-mark {
+        @apply shrink-0 rounded-lg shadow-lg shadow-yellow-500/15;
+        animation: logo-settle 700ms ease-out both;
+    }
+
+    .brand-logo-line {
+        stroke-dasharray: 14;
+        stroke-dashoffset: 14;
+        animation: logo-line 900ms ease-out 260ms forwards;
+    }
+
+    .brand-logo-line-delay {
+        animation-delay: 420ms;
+    }
+
+    .reveal {
+        animation: reveal-up 650ms ease-out both;
+    }
+
+    .reveal-delay-1 {
+        animation-delay: 120ms;
+    }
+
+    .reveal-delay-2 {
+        animation-delay: 220ms;
+    }
+
+    .hover-lift {
+        @apply transition duration-300;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        border-color: rgb(250 204 21 / 0.28);
+        box-shadow: 0 22px 45px rgb(0 0 0 / 0.32);
+    }
+}
+
+@keyframes reveal-up {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes logo-settle {
+    0% {
+        opacity: 0;
+        transform: translateY(6px) scale(0.92);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translateY(0) scale(1.04);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes logo-line {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .hover-lift:hover {
+        transform: none;
     }
 }

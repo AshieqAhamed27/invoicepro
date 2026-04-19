@@ -115,7 +115,7 @@ export default function InvoiceView() {
 
       <main className="container-custom py-8">
 
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="reveal mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2 text-sm font-semibold text-yellow-300">Invoice</p>
             <h1 className="text-3xl font-semibold">
@@ -151,7 +151,7 @@ export default function InvoiceView() {
         {/* INVOICE */}
         <div
           ref={printRef}
-          className="mx-auto max-w-3xl rounded-lg bg-white p-6 text-black shadow-2xl"
+          className="reveal reveal-delay-1 mx-auto max-w-3xl rounded-lg bg-white p-6 text-black shadow-2xl"
         >
 
           <h2 className="text-xl font-bold mb-4">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
-import logo from '../assets/logo.png';
+import BrandLogo from './BrandLogo';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -30,15 +30,8 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
       <div className="container-custom flex items-center justify-between py-3">
-        <NavLink to="/" className="flex items-center gap-3">
-          <img
-            src={logo}
-            alt="InvoicePro logo"
-            className="h-10 w-10 rounded-lg object-contain"
-          />
-          <span className="text-lg font-semibold text-white">
-            InvoicePro
-          </span>
+        <NavLink to="/" className="group flex items-center gap-3">
+          <BrandLogo markClassName="transition-transform duration-300 group-hover:-translate-y-0.5" />
         </NavLink>
 
         <div className="hidden items-center gap-2 text-sm md:flex">

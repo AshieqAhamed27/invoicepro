@@ -35,7 +35,7 @@ export default function Admin() {
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10">
-        <div className="mb-8">
+        <div className="reveal mb-8">
           <p className="mb-2 text-sm font-semibold text-yellow-300">Admin</p>
           <h1 className="text-3xl font-semibold sm:text-4xl">
             Payment Requests
@@ -51,11 +51,11 @@ export default function Admin() {
             <p>New upgrade requests will appear here.</p>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="reveal reveal-delay-1 grid gap-4 md:grid-cols-2">
             {requests.map((req) => (
               <div
                 key={req.id}
-                className="surface overflow-hidden"
+                className="surface hover-lift overflow-hidden"
               >
                 <div className="border-b border-white/10 p-5">
                   <div className="flex items-center justify-between gap-4">

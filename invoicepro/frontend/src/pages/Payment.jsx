@@ -54,7 +54,7 @@ export default function Payment() {
       <Navbar />
 
       <main className="container-custom grid gap-8 py-10 lg:grid-cols-[1fr_420px] lg:py-14">
-        <section>
+        <section className="reveal">
           <p className="mb-2 text-sm font-semibold text-yellow-300">Upgrade</p>
           <h1 className="mb-4 text-3xl font-semibold sm:text-4xl">
             Complete your upgrade
@@ -88,7 +88,7 @@ export default function Payment() {
           </div>
         </section>
 
-        <section className="surface h-fit p-5">
+        <section className="reveal reveal-delay-1 surface h-fit p-5">
           <p className="mb-4 text-sm font-semibold text-zinc-400">
             Scan and Pay
           </p>

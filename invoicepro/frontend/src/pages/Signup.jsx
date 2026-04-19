@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { setAuth } from '../utils/auth';
 import Navbar from '../components/Navbar';
-import logo from '../assets/logo.png';
+import BrandLogo from '../components/BrandLogo';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -52,13 +52,8 @@ export default function Signup() {
       <main className="container-custom grid min-h-[calc(100vh-76px)] items-center gap-10 py-10 lg:grid-cols-[0.95fr_1.05fr]">
         <section className="hidden lg:block">
           <div className="max-w-lg">
-            <div className="mb-8 flex items-center gap-3">
-              <img
-                src={logo}
-                alt="InvoicePro logo"
-                className="h-12 w-12 rounded-lg object-contain"
-              />
-              <span className="text-2xl font-bold">InvoicePro</span>
+            <div className="mb-8">
+              <BrandLogo markClassName="h-12 w-12" />
             </div>
 
             <h1 className="mb-5 text-4xl font-semibold leading-tight">
@@ -84,7 +79,7 @@ export default function Signup() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-md">
+        <section className="reveal mx-auto w-full max-w-md">
           <div className="surface p-6 sm:p-8">
             <p className="mb-2 text-sm font-semibold text-yellow-300">Get started</p>
             <h2 className="mb-2 text-3xl font-semibold">
