@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
+import { getUser } from '../utils/auth';
 
 const formatCurrency = (amount) =>
-  `Rs. ${Number(amount || 0).toLocaleString('en-IN', {
+  `₹ ${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })}`;

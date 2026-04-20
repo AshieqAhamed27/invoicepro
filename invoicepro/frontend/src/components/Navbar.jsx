@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { isLoggedIn } from '../utils/auth';
+import { isLoggedIn, getUser } from '../utils/auth';
 import BrandLogo from './BrandLogo';
 
 export default function Navbar() {
@@ -8,7 +8,7 @@ export default function Navbar() {
   const loggedIn = isLoggedIn();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getUser();
   const isAdmin = user?.email === "ashieqahamed27@gmail.com";
 
   const handleLogout = () => {

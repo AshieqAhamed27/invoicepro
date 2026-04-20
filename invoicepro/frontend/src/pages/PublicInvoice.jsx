@@ -18,7 +18,7 @@ const loadRazorpayScript = () => {
 };
 
 const formatCurrency = (amount, currency) => {
-  const symbol = currency && currency !== 'INR' ? '$' : 'Rs. ';
+  const symbol = currency && currency !== 'INR' ? '$' : '₹ ';
   return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2
   })}`;
@@ -38,6 +38,7 @@ export default function PublicInvoice() {
 
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState(false);
 
   useEffect(() => {
     fetchInvoice();
@@ -58,26 +59,6 @@ export default function PublicInvoice() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
-        Loading invoice...
-      </div>
-    );
-  }
-
-  if (!invoice) return null;
-
-  const items =
-    invoice.items?.length > 0
-      ? invoice.items
-      : [
-          {
-            name: invoice.serviceDescription || 'Service',
-            price: invoice.amount
-          }
-        ];
-
-  const subtotal = items.reduce(
-    (sum, item) => sum + Number(item.price || 0),
-    0
         Loading invoice...
       </div>
     );
@@ -174,9 +155,7 @@ export default function PublicInvoice() {
     }
   };
 
-  const [paying, setPaying] = useState(false);
-
-  const upiUri = invoice.status === 'pending' ? `upi://pay?pa=${invoice.user?.upiId || invoice.upiId}&pn=${encodeURIComponent(invoice.user?.companyName || 'Service Provider')}&am=${total.toFixed(2)}&tn=${encodeURIComponent('Invoice ' + invoice.invoiceNumber)}` : null;
+  const upiUri = invoice.status === 'pending' ? `upi://pay?pa=${invoice.user?.upiId || invoice.upiId}&pn=${encodeURIComponent(invoice.user?.companyName || 'Service Provider')}&am=${total.toFixed(2)}&tn=${encodeURIComponent('Invoice ' + invoice.invoiceNumber)}` : '';
 
   return (
     <div className="min-h-screen bg-[#050505] px-4 py-10">
@@ -333,7 +312,7 @@ export default function PublicInvoice() {
               <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Amount</span>
               <div className="text-right">
                 <span className="block text-4xl font-black text-gray-900">
-                  {formatCurrency(total, invoice.currency).replace('Rs. ', '₹')}
+                  {formatCurrency(total, invoice.currency)}
                 </span>
                 <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter mt-1">Inclusive of all taxes</p>
               </div>

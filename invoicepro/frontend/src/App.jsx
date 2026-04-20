@@ -6,7 +6,7 @@ import {
   Navigate
 } from 'react-router-dom';
 
-import { isLoggedIn } from './utils/auth';
+import { isLoggedIn, getUser } from './utils/auth';
 
 // Normal pages
 import Home from './pages/Home';
@@ -44,7 +44,7 @@ const PublicRoute = ({ children }) => {
 // ADMIN CHECK (BASIC)
 // ==========================
 const isAdmin = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getUser();
   return user?.email === "ashieqahamed27@gmail.com"; // 🔥 change this
 };
 

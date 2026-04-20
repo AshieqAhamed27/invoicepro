@@ -5,7 +5,7 @@ import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
 
 const formatCurrency = (amount) =>
-  `Rs. ${Number(amount || 0).toLocaleString('en-IN')}`;
+  `₹ ${Number(amount || 0).toLocaleString('en-IN')}`;
 
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
