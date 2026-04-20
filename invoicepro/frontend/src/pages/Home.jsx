@@ -74,28 +74,76 @@ export default function Home() {
 
             {/* PRODUCT MOCKUP */}
             <div className="reveal reveal-delay-3 mt-20 relative px-4">
-              <div className="mx-auto max-w-5xl rounded-[2.5rem] border border-white/10 bg-zinc-950 p-2 shadow-2xl shadow-black">
-                 <div className="rounded-[2rem] border border-white/5 bg-zinc-900/50 overflow-hidden aspect-[16/9] relative group">
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 to-transparent z-10" />
+              <div className="mx-auto max-w-5xl rounded-[2.5rem] border border-white/10 bg-zinc-950 p-2 shadow-2xl shadow-black relative group">
+                 {/* Floating Glows for the mockup */}
+                 <div className="absolute -top-20 -left-20 w-64 h-64 bg-yellow-400/10 blur-[100px] pointer-events-none group-hover:bg-yellow-400/20 transition-all duration-700" />
+                 <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-emerald-400/10 blur-[100px] pointer-events-none group-hover:bg-emerald-400/20 transition-all duration-700" />
+
+                 <div className="rounded-[2rem] border border-white/5 bg-[#0a0a0a] overflow-hidden aspect-[16/10] sm:aspect-[16/8] relative">
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/40 to-transparent z-10" />
+                    
                     {/* Mock dashboard content */}
-                    <div className="p-8 grid grid-cols-3 gap-6">
-                      <div className="h-40 rounded-3xl bg-white/5 border border-white/5 p-6">
-                        <div className="h-2 w-12 bg-emerald-400/20 rounded mb-4" />
-                        <div className="h-8 w-32 bg-white/10 rounded" />
+                    <div className="p-4 sm:p-10">
+                      {/* Top Row: Mini Stats */}
+                      <div className="grid grid-cols-3 gap-3 sm:gap-6 mb-8">
+                        <div className="h-24 sm:h-32 rounded-2xl bg-white/[0.03] border border-white/5 p-4 sm:p-6 flex flex-col justify-between">
+                          <div className="h-1.5 w-8 bg-emerald-400/40 rounded shadow-[0_0_8px_rgba(52,211,153,0.3)]" />
+                          <div className="space-y-2">
+                             <div className="h-1.5 w-16 bg-zinc-800 rounded" />
+                             <div className="h-4 sm:h-6 w-24 bg-white/10 rounded" />
+                          </div>
+                        </div>
+                        <div className="h-24 sm:h-32 rounded-2xl bg-white/[0.03] border border-white/5 p-4 sm:p-6 flex flex-col justify-between">
+                          <div className="h-1.5 w-8 bg-yellow-400/40 rounded" />
+                          <div className="space-y-2">
+                             <div className="h-1.5 w-16 bg-zinc-800 rounded" />
+                             <div className="h-4 sm:h-6 w-20 bg-white/10 rounded" />
+                          </div>
+                        </div>
+                        <div className="h-24 sm:h-32 rounded-2xl bg-white/[0.03] border border-white/5 p-4 sm:p-6 flex flex-col justify-between">
+                          <div className="h-1.5 w-8 bg-white/10 rounded" />
+                          <div className="space-y-2">
+                             <div className="h-1.5 w-16 bg-zinc-800 rounded" />
+                             <div className="h-4 sm:h-6 w-12 bg-white/10 rounded" />
+                          </div>
+                        </div>
                       </div>
-                      <div className="h-40 rounded-3xl bg-white/5 border border-white/5 p-6">
-                        <div className="h-2 w-12 bg-yellow-400/20 rounded mb-4" />
-                        <div className="h-8 w-32 bg-white/10 rounded" />
-                      </div>
-                      <div className="h-40 rounded-3xl bg-white/5 border border-white/5 p-6">
-                        <div className="h-2 w-12 bg-white/10 rounded mb-4" />
-                        <div className="h-8 w-32 bg-white/10 rounded" />
+
+                      {/* Main UI: Table Mockup */}
+                      <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-6 lg:block hidden">
+                         <div className="flex items-center justify-between mb-6 pb-6 border-b border-white/5">
+                            <div className="h-4 w-32 bg-white/10 rounded" />
+                            <div className="h-8 w-24 bg-yellow-400/10 border border-yellow-400/20 rounded-lg" />
+                         </div>
+                         <div className="space-y-6">
+                            {[1,2,3].map(i => (
+                              <div key={i} className="flex items-center justify-between">
+                                 <div className="flex items-center gap-4">
+                                    <div className="h-10 w-10 rounded-xl bg-white/5" />
+                                    <div className="space-y-2">
+                                       <div className="h-3 w-32 bg-white/10 rounded" />
+                                       <div className="h-2 w-48 bg-zinc-900 rounded" />
+                                    </div>
+                                 </div>
+                                 <div className="h-4 w-20 bg-emerald-400/10 rounded" />
+                              </div>
+                            ))}
+                         </div>
                       </div>
                     </div>
+
                     {/* Floating elements */}
-                    <div className="absolute bottom-10 left-10 p-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 backdrop-blur-xl z-20 animate-bounce transition-all hover:scale-110">
-                       <p className="text-[10px] uppercase font-black text-emerald-400 tracking-widest mb-1">Incoming Payment</p>
-                       <p className="text-xl font-black text-white">₹ 12,500.00</p>
+                    <div className="absolute bottom-6 left-6 sm:bottom-12 sm:left-12 p-4 sm:p-6 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 backdrop-blur-2xl z-20 shadow-2xl shadow-emerald-400/20 animate-[bounce_3s_ease-in-out_infinite]">
+                       <p className="text-[8px] sm:text-[10px] uppercase font-black text-emerald-400 tracking-widest mb-1">Incoming Payment</p>
+                       <p className="text-lg sm:text-2xl font-black text-white">₹ 12,500.00</p>
+                    </div>
+
+                    <div className="absolute top-1/2 right-12 p-6 rounded-2xl border border-yellow-400/30 bg-yellow-400/10 backdrop-blur-2xl z-20 shadow-2xl shadow-yellow-400/20 animate-[bounce_4s_ease-in-out_infinite] hidden lg:block">
+                       <p className="text-[10px] uppercase font-black text-yellow-400 tracking-widest mb-1">AI Insight</p>
+                       <p className="text-sm font-bold text-white max-w-[150px]">Payment risk detected for Client Apex.</p>
+                       <div className="mt-4 h-1 w-full bg-yellow-400/20 rounded-full overflow-hidden">
+                          <div className="h-full w-2/3 bg-yellow-400" />
+                       </div>
                     </div>
                  </div>
               </div>

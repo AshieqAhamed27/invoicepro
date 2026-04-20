@@ -1,6 +1,8 @@
 import React from 'react';
 
-export default function BrandLogo({ showText = true, className = '', markClassName = '' }) {
+export default function BrandLogo({ showText = true, className = '', markClassName = '', textColor = 'white' }) {
+  const textClass = textColor === 'black' ? 'text-black' : 'text-white';
+
   return (
     <div className={`inline-flex items-center gap-3 ${className}`}>
       <svg
@@ -52,7 +54,7 @@ export default function BrandLogo({ showText = true, className = '', markClassNa
       </svg>
 
       {showText && (
-        <span className="text-lg font-semibold text-white">
+        <span className={`text-xl font-black tracking-tighter ${textClass}`}>
           InvoicePro
         </span>
       )}

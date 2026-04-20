@@ -31,14 +31,14 @@ export default function Payment() {
   const planDetails = {
     monthly: {
       amount: 99,
-      label: "Monthly Plan",
-      note: "Flexible billing for steady client work.",
+      label: "Growth Monthly",
+      note: "Scale your reach with unlimited invoices.",
       duration: "30 days"
     },
     yearly: {
       amount: 999,
-      label: "Yearly Plan",
-      note: "Best value for year-round invoicing.",
+      label: "Professional Yearly",
+      note: "Maximum value for serious consulting.",
       duration: "365 days"
     }
   };
@@ -48,24 +48,19 @@ export default function Payment() {
   const handleRazorpayPayment = async () => {
     try {
       setLoading(true);
-
       const isLoaded = await loadRazorpayScript();
 
       if (!isLoaded) {
-        alert('Razorpay checkout failed to load. Please check your internet connection.');
+        alert('Payment gateway failed to initialize.');
         return;
       }
 
-      const orderRes = await api.post('/payment/razorpay/order', {
-        plan
-      });
-
+      const orderRes = await api.post('/payment/razorpay/order', { plan });
       const { keyId, order, simulation } = orderRes.data;
 
-      // 🔥 SIMULATION BYPASS
       if (simulation) {
         setLoading(false);
-        const confirmSim = window.confirm("SIMULATION MODE: Proceed with a test payment?");
+        const confirmSim = window.confirm("TEST MODE: Auth sequence simulation?");
         if (!confirmSim) return;
 
         setLoading(true);
@@ -77,14 +72,11 @@ export default function Payment() {
         });
 
         if (verifyRes.data.user) {
-          const existingUser = getUser() || {};
-          localStorage.setItem('user', JSON.stringify({
-            ...existingUser,
-            ...verifyRes.data.user
-          }));
+          const u = getUser() || {};
+          localStorage.setItem('user', JSON.stringify({ ...u, ...verifyRes.data.user }));
         }
 
-        alert('Simulation successful. Your plan is active.');
+        alert('Simulation complete. Premium logic provisioned.');
         window.location.href = '/dashboard';
         return;
       }
@@ -100,15 +92,8 @@ export default function Payment() {
           name: user.name || '',
           email: user.email || ''
         },
-        notes: {
-          plan
-        },
         theme: {
-          color: '#FACC15',
-          backdrop_color: '#050505'
-        },
-        modal: {
-          confirm_close: true
+          color: '#FACC15'
         },
         handler: async (response) => {
           try {
@@ -119,20 +104,15 @@ export default function Payment() {
               razorpay_signature: response.razorpay_signature
             });
 
-            localStorage.setItem("userPlan", plan);
-
             if (verifyRes.data.user) {
-              const existingUser = getUser() || {};
-              localStorage.setItem('user', JSON.stringify({
-                ...existingUser,
-                ...verifyRes.data.user
-              }));
+              const u = getUser() || {};
+              localStorage.setItem('user', JSON.stringify({ ...u, ...verifyRes.data.user }));
             }
 
-            alert('Payment successful. Your plan is active.');
+            alert('Identity upgraded. Premium features active.');
             window.location.href = '/dashboard';
           } catch (err) {
-            alert(err.response?.data?.message || 'Payment verification failed');
+            alert('Verification failed. Contact support.');
           }
         }
       };
@@ -140,7 +120,7 @@ export default function Payment() {
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (err) {
-      alert(err.response?.data?.message || 'Payment could not be started');
+      alert('Gateway error.');
     } finally {
       setLoading(false);
     }
@@ -150,83 +130,100 @@ export default function Payment() {
     <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <main className="container-custom grid gap-8 py-10 lg:grid-cols-[1fr_420px] lg:py-14">
-        <section className="reveal">
-          <p className="mb-2 text-sm font-semibold text-yellow-300">Upgrade</p>
-          <h1 className="mb-4 text-3xl font-semibold sm:text-4xl">
-            Pay securely with Razorpay
-          </h1>
+      <main className="container-custom py-10 md:py-20">
+        <div className="grid gap-12 lg:grid-cols-[1fr_400px]">
+          <section className="reveal">
+            <div className="flex items-center gap-2 mb-4">
+               <span className="h-px w-8 bg-yellow-400" />
+               <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Identity Provisioning</p>
+            </div>
+            <h1 className="text-4xl font-black sm:text-5xl lg:text-7xl tracking-tight text-white mb-6 leading-none">
+              Checkout & <br /> <span className="text-zinc-600">Upgrade.</span>
+            </h1>
 
-          <p className="mb-8 max-w-2xl text-zinc-400">
-            Upgrade instantly with cards, UPI, netbanking, wallets, and other Razorpay-supported payment methods.
-          </p>
+            <p className="max-w-xl text-lg text-zinc-500 font-medium leading-relaxed mb-10">
+              Complete your settlement via Razorpay to activate premium features instantly.
+            </p>
 
-          <div className="surface mb-6 overflow-hidden">
-            <div className="border-b border-white/10 p-5">
-              <p className="text-sm text-zinc-500">Selected plan</p>
-              <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <h2 className="text-2xl font-semibold">
-                    {current.label}
-                  </h2>
-                  <p className="mt-1 text-zinc-400">{current.note}</p>
-                </div>
-                <p className="text-3xl font-bold text-yellow-200">
-                  Rs. {current.amount}
-                </p>
-              </div>
+            <div className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] relative overflow-hidden group">
+               <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
+                  <svg className="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" /></svg>
+               </div>
+
+               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 pb-10 border-b border-white/5">
+                  <div>
+                    <h2 className="text-2xl font-black text-white italic mb-1">{current.label}</h2>
+                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">{current.note}</p>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <p className="text-4xl font-black text-white tracking-tighter italic">₹ {current.amount}</p>
+                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">Total Due Now</p>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                  <div className="flex items-center gap-4 group/item">
+                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                     <p className="group-hover:text-white transition-colors">Instant Deployment</p>
+                  </div>
+                  <div className="flex items-center gap-4 group/item">
+                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                     <p className="group-hover:text-white transition-colors">Bank-grade Encryption</p>
+                  </div>
+                  <div className="flex items-center gap-4 group/item">
+                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                     <p className="group-hover:text-white transition-colors">Razorpay Standard</p>
+                  </div>
+                  <div className="flex items-center gap-4 group/item">
+                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                     <p className="group-hover:text-white transition-colors">{current.duration} Logic Access</p>
+                  </div>
+               </div>
+            </div>
+          </section>
+
+          <aside className="reveal reveal-delay-1 h-fit">
+            <div className="surface p-10 border-white/10 bg-zinc-950 shadow-2xl rounded-[3rem]">
+               <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-8">
+                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Checkout Terminal</p>
+               </div>
+
+               <div className="space-y-6 mb-10">
+                  <div className="flex justify-between items-center text-sm font-bold">
+                    <span className="text-zinc-600 uppercase tracking-widest">Base Rate</span>
+                    <span className="text-white">₹ {current.amount}.00</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm font-bold">
+                    <span className="text-zinc-600 uppercase tracking-widest">Platform Fee</span>
+                    <span className="text-emerald-400 italic">Waived</span>
+                  </div>
+                  <div className="pt-6 border-t border-white/5 flex flex-col items-end">
+                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em] mb-2">Final Settlement</p>
+                    <p className="text-5xl font-black text-white italic tracking-tighter">₹ {current.amount}</p>
+                    <p className="text-xs font-bold text-zinc-500 mt-2">inclusive of all taxes</p>
+                  </div>
+               </div>
+
+               <button
+                 onClick={handleRazorpayPayment}
+                 disabled={loading}
+                 className="w-full py-5 rounded-2xl bg-yellow-400 text-black font-black text-lg shadow-xl shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+               >
+                 {loading ? 'Initializing...' : `Authorize Provisioning`}
+               </button>
+
+               <div className="mt-8 flex items-center justify-center gap-4 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                  <img src="https://cdn.razorpay.com/static/assets/badgetext.png" alt="Razorpay Secure" className="h-6" />
+               </div>
             </div>
 
-            <div className="grid gap-0 divide-y divide-white/10 text-sm text-zinc-300 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-              <p className="p-5">Razorpay secure checkout</p>
-              <p className="p-5">Instant activation after payment</p>
-              <p className="p-5">{current.duration} access</p>
+            <div className="mt-8 p-8 rounded-[2rem] border border-white/5 bg-white/[0.01]">
+               <p className="text-[10px] font-bold text-zinc-600 leading-relaxed uppercase tracking-widest text-center">
+                 Identity changes will be synchronized across all edge nodes instantly after verification.
+               </p>
             </div>
-          </div>
-        </section>
-
-        <section className="reveal reveal-delay-1 surface h-fit p-5">
-          <p className="mb-2 text-sm font-semibold text-yellow-300">
-            Checkout
-          </p>
-
-          <h2 className="mb-2 text-2xl font-semibold">
-            {current.label}
-          </h2>
-
-          <p className="mb-6 text-zinc-400">
-            Complete payment in Razorpay Checkout. Your plan activates only after the server verifies Razorpay’s signature.
-          </p>
-
-          <div className="mb-6 grid gap-4 rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm">
-            <div className="flex justify-between gap-4">
-              <span className="text-zinc-500">Amount</span>
-              <span className="font-semibold text-emerald-300">Rs. {current.amount}</span>
-            </div>
-
-            <div className="flex justify-between gap-4">
-              <span className="text-zinc-500">Gateway</span>
-              <span className="font-semibold text-white">Razorpay</span>
-            </div>
-
-            <div className="flex justify-between gap-4">
-              <span className="text-zinc-500">Plan</span>
-              <span className="font-semibold text-white">{current.duration}</span>
-            </div>
-          </div>
-
-          <button
-            onClick={handleRazorpayPayment}
-            disabled={loading}
-            className="btn btn-primary w-full"
-          >
-            {loading ? 'Starting Checkout...' : `Pay Rs. ${current.amount}`}
-          </button>
-
-          <p className="mt-4 text-center text-xs text-zinc-500">
-            Powered by Razorpay Standard Checkout.
-          </p>
-        </section>
+          </aside>
+        </div>
       </main>
     </div>
   );

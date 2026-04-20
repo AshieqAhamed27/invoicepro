@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- PRINT STYLES --- */
+@media print {
+  nav, aside, button, .no-print {
+    display: none !important;
+  }
+  
+  body, .min-h-screen {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .container-custom {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  main {
+    padding: 0 !important;
+  }
+  
+  .surface {
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .reveal {
+     opacity: 1 !important;
+     transform: none !important;
+  }
+}
+
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
