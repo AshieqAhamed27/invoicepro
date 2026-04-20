@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import api, { API_BASE_URL } from '../utils/api';
+import api from '../utils/api';
 import { getUser } from '../utils/auth';
 
 const loadRazorpayScript = () => {
