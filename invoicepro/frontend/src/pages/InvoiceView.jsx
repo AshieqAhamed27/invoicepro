@@ -4,7 +4,8 @@ import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
 import QRCode from 'react-qr-code';
-import html2pdf from 'html2pdf.js';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const formatCurrency = (amount) => {
   return `₹ ${Number(amount || 0).toLocaleString('en-IN', {
@@ -12,13 +13,22 @@ const formatCurrency = (amount) => {
   })}`;
 };
 
-const escapeHtml = (value) =>
-  String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+const loadImageForPdf = (url) =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || img.width;
+      canvas.height = img.naturalHeight || img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const dataUrl = canvas.toDataURL('image/png');
+      resolve({ dataUrl, format: 'PNG' });
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
 
 export default function InvoiceView() {
   const { id } = useParams();
@@ -70,126 +80,139 @@ export default function InvoiceView() {
   const publicInvoiceUrl = invoice ? `${window.location.origin}/public/invoice/${invoice._id}` : '';
 
   const downloadPdf = async () => {
-    if (!invoiceContentRef.current) {
-      return;
-    }
-
-    const invoiceDate = new Date(invoice.date || invoice.createdAt || Date.now()).toLocaleDateString('en-IN');
-    const dueDate = invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('en-IN') : 'Not specified';
-    const taxAmount = Math.max(0, tax);
-    const isPaid = invoice.status === 'paid';
-    const paidText = isPaid && invoice.paidAt ? new Date(invoice.paidAt).toLocaleDateString('en-IN') : '';
-
-    const itemRows = items
-      .map((item, idx) => `
-        <tr>
-          <td style="padding:12px 14px;border-bottom:1px solid #eef2f7;color:#0f172a;font-size:13px;">
-            ${idx + 1}. ${escapeHtml(item.name || 'Service')}
-          </td>
-          <td style="padding:12px 14px;border-bottom:1px solid #eef2f7;color:#0f172a;font-size:13px;text-align:right;font-weight:700;">
-            ${escapeHtml(formatCurrency(item.price))}
-          </td>
-        </tr>
-      `)
-      .join('');
-
-    const pdfNode = document.createElement('div');
-    pdfNode.style.position = 'fixed';
-    pdfNode.style.left = '0';
-    pdfNode.style.top = '0';
-    pdfNode.style.zIndex = '-1';
-    pdfNode.style.width = '794px';
-    pdfNode.style.background = '#ffffff';
-    pdfNode.style.color = '#0f172a';
-    pdfNode.style.fontFamily = "'Inter', 'Segoe UI', Roboto, Arial, sans-serif";
-    pdfNode.style.padding = '28px';
-    pdfNode.innerHTML = `
-      <div style="border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;">
-        <div style="background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:24px 28px;display:flex;justify-content:space-between;gap:18px;">
-          <div>
-            <div style="font-size:24px;font-weight:800;letter-spacing:0.3px;">${escapeHtml(companyName)}</div>
-            <div style="font-size:12px;opacity:0.85;margin-top:6px;">${escapeHtml(user?.address || 'Mumbai, India')}</div>
-            <div style="font-size:12px;opacity:0.85;margin-top:2px;">${escapeHtml(user?.email || '')}</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;opacity:0.8;">Invoice</div>
-            <div style="font-size:22px;font-weight:800;margin-top:6px;">#${escapeHtml(invoice.invoiceNumber)}</div>
-            <div style="font-size:12px;opacity:0.85;margin-top:8px;">Issued: ${escapeHtml(invoiceDate)}</div>
-            <div style="font-size:12px;opacity:0.85;margin-top:2px;">Due: ${escapeHtml(dueDate)}</div>
-          </div>
-        </div>
-
-        <div style="padding:24px 28px 8px;display:flex;justify-content:space-between;gap:20px;">
-          <div>
-            <div style="font-size:11px;color:#64748b;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;">Billed To</div>
-            <div style="font-size:19px;font-weight:700;margin-top:6px;color:#0f172a;">${escapeHtml(invoice.clientName)}</div>
-            <div style="font-size:13px;color:#475569;margin-top:3px;">${escapeHtml(invoice.clientEmail)}</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="display:inline-block;padding:7px 14px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:${isPaid ? '#dcfce7' : '#fef9c3'};color:${isPaid ? '#166534' : '#854d0e'};">
-              ${escapeHtml(invoice.status)}
-            </div>
-            ${isPaid ? `<div style="font-size:12px;color:#475569;margin-top:8px;">Paid on ${escapeHtml(paidText)}</div>` : ''}
-          </div>
-        </div>
-
-        <div style="padding:0 28px 0;">
-          <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
-            <thead>
-              <tr style="background:#f8fafc;">
-                <th style="padding:12px 14px;text-align:left;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#64748b;">Description</th>
-                <th style="padding:12px 14px;text-align:right;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#64748b;">Amount</th>
-              </tr>
-            </thead>
-            <tbody>${itemRows}</tbody>
-          </table>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding:20px 28px 24px;">
-          <div style="max-width:58%;">
-            <div style="font-size:11px;color:#64748b;letter-spacing:1px;text-transform:uppercase;font-weight:700;">Internal Memo</div>
-            <div style="font-size:13px;color:#334155;margin-top:7px;line-height:1.6;">${escapeHtml(invoice.serviceDescription || 'No description provided.')}</div>
-            <div style="font-size:11px;color:#64748b;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-top:14px;">Payment Route</div>
-            <div style="font-size:13px;color:#0f172a;margin-top:6px;font-weight:600;">${escapeHtml(finalUpi || 'Not provided')}</div>
-          </div>
-          <div style="min-width:220px;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;background:#f8fafc;">
-            <div style="display:flex;justify-content:space-between;font-size:13px;color:#475569;margin-bottom:9px;">
-              <span>Subtotal</span><span>${escapeHtml(formatCurrency(subtotal))}</span>
-            </div>
-            ${taxAmount > 0 ? `
-              <div style="display:flex;justify-content:space-between;font-size:13px;color:#475569;margin-bottom:9px;">
-                <span>Tax</span><span>${escapeHtml(formatCurrency(taxAmount))}</span>
-              </div>
-            ` : ''}
-            <div style="border-top:1px solid #cbd5e1;padding-top:10px;display:flex;justify-content:space-between;align-items:flex-end;">
-              <span style="font-size:11px;color:#64748b;letter-spacing:1px;text-transform:uppercase;font-weight:700;">Total</span>
-              <span style="font-size:24px;font-weight:800;color:#0f172a;">${escapeHtml(formatCurrency(invoice.amount))}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(pdfNode);
-
     try {
       setDownloadingPdf(true);
-      await html2pdf()
-        .set({
-          margin: [0.25, 0.25, 0.25, 0.25],
-          filename: `${invoice.invoiceNumber || 'invoice'}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-          jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-        })
-        .from(pdfNode)
-        .save();
-    } catch (err) {
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 40;
+      const contentWidth = pageWidth - margin * 2;
+      const invoiceDate = new Date(invoice.date || invoice.createdAt || Date.now()).toLocaleDateString('en-IN');
+      const dueDate = invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('en-IN') : 'Not specified';
+      const safeTax = Math.max(0, tax);
+      const logoUrl = user?.logo?.trim();
+      let logoImage = null;
+
+      if (logoUrl) {
+        try {
+          logoImage = await loadImageForPdf(logoUrl);
+        } catch {
+          logoImage = null;
+        }
+      }
+
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, pageWidth, 120, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      let companyNameX = margin;
+      if (logoImage) {
+        doc.addImage(logoImage.dataUrl, logoImage.format, margin, 26, 28, 28);
+        companyNameX = margin + 38;
+      }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.text(companyName, companyNameX, 42);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(user?.address || 'Mumbai, India', companyNameX, 60);
+      doc.text(user?.email || '', companyNameX, 74);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('INVOICE', pageWidth - margin, 30, { align: 'right' });
+      doc.setFontSize(18);
+      doc.text(`#${invoice.invoiceNumber}`, pageWidth - margin, 52, { align: 'right' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Issued: ${invoiceDate}`, pageWidth - margin, 70, { align: 'right' });
+      doc.text(`Due: ${dueDate}`, pageWidth - margin, 84, { align: 'right' });
+
+      doc.setTextColor(100, 116, 139);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('BILLED TO', margin, 150);
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(16);
+      doc.text(invoice.clientName || '-', margin, 170);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.text(invoice.clientEmail || '-', margin, 188);
+
+      const badgeX = pageWidth - margin - 90;
+      const badgeY = 145;
+      const paid = invoice.status === 'paid';
+      doc.setFillColor(paid ? 220 : 254, paid ? 252 : 249, paid ? 231 : 195);
+      doc.roundedRect(badgeX, badgeY, 90, 24, 10, 10, 'F');
+      doc.setTextColor(paid ? 22 : 133, paid ? 101 : 77, paid ? 52 : 14);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text((invoice.status || 'pending').toUpperCase(), badgeX + 45, badgeY + 16, { align: 'center' });
+
+      autoTable(doc, {
+        startY: 212,
+        margin: { left: margin, right: margin },
+        head: [['Description', 'Amount']],
+        body: items.map((item, idx) => [
+          `${idx + 1}. ${item.name || 'Service'}`,
+          formatCurrency(item.price)
+        ]),
+        theme: 'grid',
+        styles: { font: 'helvetica', fontSize: 10, textColor: [15, 23, 42], cellPadding: 9 },
+        headStyles: { fillColor: [248, 250, 252], textColor: [100, 116, 139], fontStyle: 'bold' },
+        columnStyles: { 1: { halign: 'right' } }
+      });
+
+      const finalY = doc.lastAutoTable.finalY + 18;
+
+      doc.setTextColor(100, 116, 139);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('INTERNAL MEMO', margin, finalY);
+      doc.setTextColor(51, 65, 85);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      const memoLines = doc.splitTextToSize(invoice.serviceDescription || 'No description provided.', contentWidth * 0.56);
+      doc.text(memoLines, margin, finalY + 16);
+
+      const summaryX = pageWidth - margin - 190;
+      const summaryY = finalY;
+      doc.setDrawColor(226, 232, 240);
+      doc.setFillColor(248, 250, 252);
+      doc.roundedRect(summaryX, summaryY - 12, 190, 95, 8, 8, 'FD');
+      doc.setTextColor(71, 85, 105);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text('Subtotal', summaryX + 12, summaryY + 10);
+      doc.text(formatCurrency(subtotal), summaryX + 178, summaryY + 10, { align: 'right' });
+      if (safeTax > 0) {
+        doc.text('Tax', summaryX + 12, summaryY + 28);
+        doc.text(formatCurrency(safeTax), summaryX + 178, summaryY + 28, { align: 'right' });
+      }
+      doc.setDrawColor(203, 213, 225);
+      doc.line(summaryX + 10, summaryY + 42, summaryX + 180, summaryY + 42);
+      doc.setTextColor(100, 116, 139);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.text('TOTAL', summaryX + 12, summaryY + 58);
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(17);
+      doc.text(formatCurrency(invoice.amount), summaryX + 178, summaryY + 62, { align: 'right' });
+
+      doc.setTextColor(100, 116, 139);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.text('PAYMENT ROUTE', margin, Math.min(pageHeight - 54, finalY + 74));
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(finalUpi || 'Not provided', margin, Math.min(pageHeight - 38, finalY + 90));
+
+      doc.save(`${invoice.invoiceNumber || 'invoice'}.pdf`);
+    } catch {
       alert('Failed to download PDF');
     } finally {
-      if (pdfNode.parentNode) {
-        pdfNode.parentNode.removeChild(pdfNode);
-      }
       setDownloadingPdf(false);
     }
   };
@@ -235,6 +258,7 @@ export default function InvoiceView() {
   if (!invoice) return null;
 
   const companyName = user?.companyName || user?.name || 'InvoicePro';
+  const logoUrl = user?.logo?.trim();
   const items = invoice.items?.length > 0 ? invoice.items : [{ name: 'Service', price: invoice.amount }];
   const subtotal = items.reduce((s, i) => s + Number(i.price || 0), 0);
   const tax = invoice.amount - subtotal;
@@ -296,7 +320,14 @@ export default function InvoiceView() {
 
              <div className="flex flex-col md:flex-row justify-between gap-10 mb-20">
                 <div>
-                  <h2 className="text-3xl font-black tracking-tighter mb-4">{companyName}</h2>
+                  <div className="mb-4 flex items-center gap-4">
+                    {logoUrl && (
+                      <div className="h-14 w-14 rounded-xl border border-gray-200 bg-white p-2">
+                        <img src={logoUrl} alt={`${companyName} logo`} className="h-full w-full object-contain" />
+                      </div>
+                    )}
+                    <h2 className="text-3xl font-black tracking-tighter">{companyName}</h2>
+                  </div>
                   <div className="space-y-1 text-sm text-gray-500 font-medium">
                     <p>{user?.address || 'Mumbai, India'}</p>
                     <p>{user?.email}</p>
