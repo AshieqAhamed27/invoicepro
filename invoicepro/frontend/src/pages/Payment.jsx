@@ -60,7 +60,34 @@ export default function Payment() {
         plan
       });
 
-      const { keyId, order } = orderRes.data;
+      const { keyId, order, simulation } = orderRes.data;
+
+      // 🔥 SIMULATION BYPASS
+      if (simulation) {
+        setLoading(false);
+        const confirmSim = window.confirm("SIMULATION MODE: Proceed with a test payment?");
+        if (!confirmSim) return;
+
+        setLoading(true);
+        const verifyRes = await api.post('/payment/razorpay/verify', {
+          plan,
+          razorpay_order_id: order.id,
+          razorpay_payment_id: 'pay_sim_' + Date.now(),
+          razorpay_signature: 'sim_signature'
+        });
+
+        if (verifyRes.data.user) {
+          const existingUser = getUser() || {};
+          localStorage.setItem('user', JSON.stringify({
+            ...existingUser,
+            ...verifyRes.data.user
+          }));
+        }
+
+        alert('Simulation successful. Your plan is active.');
+        window.location.href = '/dashboard';
+        return;
+      }
 
       const options = {
         key: keyId,
@@ -95,7 +122,7 @@ export default function Payment() {
             localStorage.setItem("userPlan", plan);
 
             if (verifyRes.data.user) {
-              const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
+              const existingUser = getUser() || {};
               localStorage.setItem('user', JSON.stringify({
                 ...existingUser,
                 ...verifyRes.data.user

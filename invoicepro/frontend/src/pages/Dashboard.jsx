@@ -20,9 +20,7 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
   const user = getUser() || {};
-
-  const plan = localStorage.getItem("userPlan");
-  const isPro = plan === "monthly" || plan === "yearly";
+  const isPro = user.plan && user.plan !== 'free';
 
   useEffect(() => {
     fetchDashboard();

@@ -46,7 +46,7 @@ app.use(express.json({ limit: '5mb' })); // 🔥 increase limit
 // STATIC FILES (IMPORTANT)
 // ==========================
 const path = require('path');
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/upload', express.static(path.join(__dirname, 'upload')));
 
 // ==========================
 // ROUTES

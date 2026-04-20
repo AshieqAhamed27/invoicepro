@@ -54,7 +54,7 @@ export default function Admin() {
           <div className="reveal reveal-delay-1 grid gap-4 md:grid-cols-2">
             {requests.map((req) => (
               <div
-                key={req.id}
+                key={req._id}
                 className="surface hover-lift overflow-hidden"
               >
                 <div className="border-b border-white/10 p-5">
@@ -74,14 +74,14 @@ export default function Admin() {
 
                 <div className="p-5">
                   <img
-                    src={`http://localhost:5000/uploads/${req.file}`}
+                    src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/upload/${req.screenshot}`}
                     alt="Payment screenshot"
                     className="mb-4 w-full rounded-lg border border-white/10 object-cover"
                   />
 
                   {req.status === 'pending' && (
                     <button
-                      onClick={() => approve(req.id)}
+                      onClick={() => approve(req._id)}
                       className="btn btn-primary w-full"
                     >
                       Approve

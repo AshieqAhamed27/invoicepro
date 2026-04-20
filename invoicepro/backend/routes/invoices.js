@@ -8,9 +8,14 @@ const sendEmail = require('../utils/sendEmail');
 const FREE_PLAN_LIMIT = 2;
 
 // Generate invoice number
-const generateInvoiceNumber = (count) => {
-    const num = String(count + 1).padStart(4, '0');
-    return `INV-${num}`;
+const generateInvoiceNumber = async (userId) => {
+    const lastInvoice = await Invoice.findOne({ user: userId }).sort({ createdAt: -1 });
+    if (!lastInvoice) return 'INV-0001';
+
+    const lastNumMatch = lastInvoice.invoiceNumber.match(/(\d+)$/);
+    const lastNum = lastNumMatch ? parseInt(lastNumMatch[1]) : 0;
+    const nextNum = String(lastNum + 1).padStart(4, '0');
+    return `INV-${nextNum}`;
 };
 
 // ==========================
@@ -189,7 +194,7 @@ router.post('/', protect, async(req, res) => {
             });
         }
 
-        const invoiceNumber = generateInvoiceNumber(count);
+        const invoiceNumber = await generateInvoiceNumber(user._id);
 
         const {
             clientName,

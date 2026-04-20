@@ -27,7 +27,7 @@ export default function CreateInvoice() {
   const [loading, setLoading] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem('user')) || {};
+  const user = getUser() || {};
 
   useEffect(() => {
     if (user) {

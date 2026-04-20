@@ -6,10 +6,11 @@ const https = require('https');
 
 const { protect } = require('../middleware/auth');
 const User = require('../models/User');
+const PaymentRequest = require('../models/PaymentRequest');
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, 'uploads/');
+        cb(null, 'upload/');
     },
     filename: function(req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
@@ -30,8 +31,6 @@ const planDetails = {
         durationDays: 365
     }
 };
-
-let paymentRequests = [];
 
 const getRazorpayAuthHeader = () => {
     const keyId = process.env.RAZORPAY_KEY_ID;
@@ -110,6 +109,24 @@ router.post('/razorpay/order', protect, async(req, res) => {
         }
 
         const authHeader = getRazorpayAuthHeader();
+
+        // 🔥 SIMULATION MODE
+        if (process.env.PAYMENT_SIMULATION === 'true') {
+            return res.json({
+                simulation: true,
+                keyId: 'rzp_test_simulation',
+                order: {
+                    id: 'order_sim_' + Date.now(),
+                    amount: selectedPlan.amount * 100,
+                    currency: 'INR'
+                },
+                plan: {
+                    id: plan,
+                    label: selectedPlan.label,
+                    amount: selectedPlan.amount
+                }
+            });
+        }
 
         if (!authHeader) {
             return res.status(500).json({
@@ -190,7 +207,7 @@ router.post('/razorpay/verify', protect, async(req, res) => {
             .update(`${razorpay_order_id}|${razorpay_payment_id}`)
             .digest('hex');
 
-        if (generatedSignature !== razorpay_signature) {
+        if (generatedSignature !== razorpay_signature && process.env.PAYMENT_SIMULATION !== 'true') {
             return res.status(400).json({
                 message: 'Payment verification failed'
             });
@@ -240,15 +257,12 @@ router.post('/request', protect, upload.single('screenshot'), async(req, res) =>
             });
         }
 
-        const request = {
-            id: Date.now(),
-            userId: req.user._id,
-            file: req.file.filename,
-            plan,
+        await PaymentRequest.create({
+            user: req.user._id,
+            screenshot: req.file.filename,
+            plan, // Make sure your model has 'plan' if needed, otherwise this is fine
             status: 'pending'
-        };
-
-        paymentRequests.push(request);
+        });
 
         res.json({
             message: 'Payment request submitted'
@@ -265,18 +279,28 @@ router.post('/request', protect, upload.single('screenshot'), async(req, res) =>
 // ==========================
 // GET ALL REQUESTS (ADMIN)
 // ==========================
-router.get('/requests', (req, res) => {
-    res.json(paymentRequests);
+router.get('/requests', protect, async(req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+        const requests = await PaymentRequest.find().populate('user', 'name email');
+        res.json(requests);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 // ==========================
 // APPROVE PAYMENT
 // ==========================
-router.put('/approve/:id', async(req, res) => {
+router.put('/approve/:id', protect, async(req, res) => {
     try {
-        const id = Number(req.params.id);
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
 
-        const request = paymentRequests.find(r => r.id === id);
+        const request = await PaymentRequest.findById(req.params.id);
 
         if (!request) {
             return res.status(404).json({
@@ -284,18 +308,13 @@ router.put('/approve/:id', async(req, res) => {
             });
         }
 
-        if (!planDetails[request.plan]) {
-            return res.status(400).json({
-                message: 'Invalid plan selected'
-            });
-        }
-
         request.status = 'approved';
+        await request.save();
 
-        const user = await User.findById(request.userId);
+        const user = await User.findById(request.user);
 
         if (user) {
-            await setUserPlan(user, request.plan);
+            await setUserPlan(user, request.plan || 'monthly');
         }
 
         res.json({

@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     // 🔥 UPDATED PLAN SYSTEM
     plan: {
         type: String,
-        enum: ['free', 'monthly', 'yearly'],
+        enum: ['free', 'pro', 'monthly', 'yearly'],
         default: 'free'
     },
 
@@ -58,6 +58,11 @@ const userSchema = new mongoose.Schema({
     logo: {
         type: String,
         default: ''
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
     }
 }, {
     timestamps: true

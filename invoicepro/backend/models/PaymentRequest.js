@@ -13,6 +13,10 @@ const paymentRequestSchema = new mongoose.Schema({
     },
     screenshot: {
         type: String
+    },
+    plan: {
+        type: String,
+        default: 'monthly'
     }
 }, { timestamps: true });
 
