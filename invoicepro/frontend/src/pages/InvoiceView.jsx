@@ -66,6 +66,39 @@ export default function InvoiceView() {
       return;
     }
 
+    const sourceNode = invoiceContentRef.current;
+    const pdfNode = sourceNode.cloneNode(true);
+
+    // Build a clean static copy to avoid animation/reveal classes
+    // causing empty canvas captures in html2canvas/html2pdf.
+    pdfNode.classList.remove('reveal', 'reveal-delay-1');
+    pdfNode.style.transform = 'none';
+    pdfNode.style.opacity = '1';
+    pdfNode.style.visibility = 'visible';
+    pdfNode.style.position = 'fixed';
+    pdfNode.style.left = '0';
+    pdfNode.style.top = '0';
+    pdfNode.style.zIndex = '-1';
+    pdfNode.style.pointerEvents = 'none';
+    pdfNode.style.width = '794px';
+    pdfNode.style.maxWidth = '794px';
+    pdfNode.style.background = '#ffffff';
+    pdfNode.style.color = '#000000';
+
+    const nestedNodes = pdfNode.querySelectorAll('*');
+    nestedNodes.forEach((node) => {
+      if (node.classList) {
+        node.classList.remove('reveal', 'reveal-delay-1', 'reveal-delay-2');
+      }
+      node.style.animation = 'none';
+      node.style.transition = 'none';
+      node.style.transform = 'none';
+      node.style.opacity = '1';
+      node.style.visibility = 'visible';
+    });
+
+    document.body.appendChild(pdfNode);
+
     try {
       setDownloadingPdf(true);
       await html2pdf()
@@ -73,14 +106,17 @@ export default function InvoiceView() {
           margin: 0.5,
           filename: `${invoice.invoiceNumber || 'invoice'}.pdf`,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
           jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
         })
-        .from(invoiceContentRef.current)
+        .from(pdfNode)
         .save();
     } catch (err) {
       alert('Failed to download PDF');
     } finally {
+      if (pdfNode.parentNode) {
+        pdfNode.parentNode.removeChild(pdfNode);
+      }
       setDownloadingPdf(false);
     }
   };
