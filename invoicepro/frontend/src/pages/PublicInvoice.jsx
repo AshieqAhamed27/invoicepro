@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 import QRCode from 'react-qr-code';
+import BrandLogo from '../components/BrandLogo';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -168,11 +169,11 @@ export default function PublicInvoice() {
 
         <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-200 pb-8 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 leading-none">
-              InvoicePro
-            </h1>
-            <p className="text-gray-500 mt-2 font-medium">
-              Professional Invoice
+            <div className="mb-2">
+               <BrandLogo showText={true} textColor="black" />
+            </div>
+            <p className="text-gray-400 mt-2 font-bold uppercase text-[10px] tracking-widest">
+              Secured Checkout Portal
             </p>
           </div>
 

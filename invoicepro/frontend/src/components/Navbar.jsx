@@ -28,10 +28,10 @@ export default function Navbar() {
       : "text-zinc-400 hover:text-white hover:bg-white/5";
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-      <div className="container-custom flex items-center justify-between py-3">
+    <nav className="sticky top-0 z-50 px-4 pt-4 pb-0">
+      <div className="container-custom h-16 flex items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-6 backdrop-blur-xl shadow-2xl shadow-black/40">
         <NavLink to="/" className="group flex items-center gap-3">
-          <BrandLogo markClassName="transition-transform duration-300 group-hover:-translate-y-0.5" />
+          <BrandLogo markClassName="transition-transform duration-300 group-hover:scale-110" />
         </NavLink>
 
         <div className="hidden items-center gap-2 text-sm md:flex">

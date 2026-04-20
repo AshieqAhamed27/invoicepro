@@ -95,8 +95,8 @@ export default function CreateInvoice() {
     .join(', ');
 
   const smartDescription = itemSummary
-    ? `Professional services delivered for ${form.clientName || 'the client'}: ${itemSummary}. Includes preparation, execution, review, and final handover.`
-    : `Professional services delivered for ${form.clientName || 'the client'}, including planning, execution, review, and final handover.`;
+    ? `Professional services delivered: ${itemSummary}. Includes preparation, execution, and final review.`
+    : `Professional services including planning and final review.`;
 
   const suggestedDueDate = (() => {
     const date = new Date();
@@ -105,15 +105,11 @@ export default function CreateInvoice() {
   })();
 
   const aiSuggestions = [
-    !form.clientName && 'Add the client name so the invoice feels personal and complete.',
-    !form.clientEmail && 'Add the client email before creating the invoice.',
-    !form.serviceDescription && 'Use a clearer service description to reduce payment questions.',
-    !form.dueDate && 'Add a due date so AI reminders can track payment risk.',
-    !form.upiId && 'Add a UPI ID to make payment frictionless.',
-    subtotal <= 0 && 'Add at least one priced item before sending.',
-    taxRate > 28 && 'Tax rate looks unusually high. Double-check CGST and SGST.',
-    total > 0 && total < 500 && 'Small invoice detected. Consider adding details so the value is clear.',
-    total >= 5000 && 'High-value invoice detected. A short note about deliverables can help clients approve faster.'
+    !form.clientName && 'Enter client name',
+    !form.clientEmail && 'Enter client email',
+    !form.dueDate && 'Due date missing',
+    !form.upiId && 'UPI ID missing',
+    subtotal <= 0 && 'Add billable work'
   ].filter(Boolean);
 
   const applySmartDescription = () => {
@@ -171,38 +167,46 @@ export default function CreateInvoice() {
     <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <main className="container-custom py-8 sm:py-10">
-        <div className="reveal mb-8">
-          <p className="mb-2 text-sm font-semibold text-yellow-300">New invoice</p>
-          <h1 className="text-3xl font-semibold sm:text-4xl">
-            Create Invoice
+      <main className="container-custom py-10 md:py-16">
+        <div className="reveal mb-12">
+          <div className="flex items-center gap-2 mb-4">
+             <span className="h-px w-8 bg-yellow-400" />
+             <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Creation Suite</p>
+          </div>
+          <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-4">
+            New Invoice
           </h1>
-          <p className="mt-2 max-w-2xl text-zinc-400">
-            Add client details, itemize the work, and collect payment through your UPI ID.
+          <p className="max-w-2xl text-lg text-zinc-500 font-medium">
+            Draft, itemize, and collect. Build professional bills in seconds.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="reveal reveal-delay-1 surface overflow-hidden">
-            <section className="border-b border-white/10 p-5">
-              <div className="mb-4 flex items-center justify-between">
+        <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-[1fr_380px]">
+          <div className="reveal reveal-delay-1 space-y-8">
+            {/* Section: Client */}
+            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
+                 <svg className="h-24 w-24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
+              </div>
+
+              <div className="mb-8 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg">Client Details</h2>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    Who should receive this invoice?
+                  <h2 className="text-2xl font-black text-white leading-none mb-1">Receipt Recipient</h2>
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                    Who are you billing?
                   </p>
                 </div>
 
                 {clients.length > 0 && (
                   <select
-                    className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-yellow-300 outline-none focus:border-yellow-300/50"
+                    className="rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-[10px] font-black tracking-widest uppercase text-yellow-300 outline-none focus:border-yellow-300/50 cursor-pointer"
                     onChange={(e) => {
                       const c = clients.find(client => client._id === e.target.value);
                       if (c) selectClient(c);
                     }}
                     defaultValue=""
                   >
-                    <option value="" disabled>Pick saved client</option>
+                    <option value="" disabled>Saved Clients</option>
                     {clients.map(c => (
                       <option key={c._id} value={c._id}>{c.name}</option>
                     ))}
@@ -210,31 +214,38 @@ export default function CreateInvoice() {
                 )}
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <input
-                  name="clientName"
-                  value={form.clientName}
-                  onChange={handleChange}
-                  placeholder="Client name"
-                  className="input"
-                />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Client Name</p>
+                    <input
+                      name="clientName"
+                      value={form.clientName}
+                      onChange={handleChange}
+                      placeholder="e.g. John Doe"
+                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
+                    />
+                </div>
 
-                <input
-                  name="clientEmail"
-                  type="email"
-                  value={form.clientEmail}
-                  onChange={handleChange}
-                  placeholder="Client email"
-                  className="input"
-                />
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Client Email</p>
+                    <input
+                      name="clientEmail"
+                      type="email"
+                      value={form.clientEmail}
+                      onChange={handleChange}
+                      placeholder="e.g. john@example.com"
+                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
+                    />
+                </div>
               </div>
             </section>
 
-            <section className="border-b border-white/10 p-5">
-              <div className="mb-4">
-                <h2 className="text-lg">Service</h2>
-                <p className="mt-1 text-sm text-zinc-500">
-                  Keep it short and clear for the client.
+            {/* Section: Service */}
+            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-white leading-none mb-1">Narrative</h2>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                  High-level project summary
                 </p>
               </div>
 
@@ -242,200 +253,226 @@ export default function CreateInvoice() {
                 name="serviceDescription"
                 value={form.serviceDescription}
                 onChange={handleChange}
-                placeholder="Describe the work delivered..."
-                rows="4"
-                className="input resize-y"
+                placeholder="Briefly describe the value delivered..."
+                rows="3"
+                className="input resize-none py-4 bg-black/20 border-white/5 focus:bg-black/60 min-h-[120px]"
               />
             </section>
 
-            <section className="border-b border-white/10 p-5">
-              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {/* Section: Items */}
+            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
+              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-lg">Items</h2>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    Add each billable line with its price.
+                  <h2 className="text-2xl font-black text-white leading-none mb-1">Line Items</h2>
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                    Break down your billables
                   </p>
                 </div>
 
                 <button
                   type="button"
                   onClick={addItem}
-                  className="btn btn-secondary w-full sm:w-auto"
+                  className="btn btn-secondary px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest"
                 >
-                  Add Item
+                  Add Row
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {items.map((item, i) => (
-                  <div key={i} className="grid gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-3 sm:grid-cols-[1fr_140px_auto]">
-                    <input
-                      placeholder="Item or service"
-                      value={item.name}
-                      onChange={(e) =>
-                        handleItemChange(i, 'name', e.target.value)
-                      }
-                      className="input"
-                    />
+                  <div key={i} className="group/item grid gap-3 p-4 rounded-2xl border border-white/5 bg-black/10 transition-all hover:bg-black/20 md:grid-cols-[1fr_200px_50px]">
+                    <div className="space-y-1.5">
+                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 md:hidden">Service Description</p>
+                       <input
+                         placeholder="Consulting, Design, etc."
+                         value={item.name}
+                         onChange={(e) => handleItemChange(i, 'name', e.target.value)}
+                         className="input bg-transparent border-transparent px-0 focus:ring-0 text-white font-medium placeholder:text-zinc-700"
+                       />
+                    </div>
 
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Amount"
-                      value={item.price}
-                      onChange={(e) =>
-                        handleItemChange(i, 'price', e.target.value)
-                      }
-                      className="input"
-                    />
+                    <div className="space-y-1.5 relative">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 md:hidden">Amount</p>
+                        <div className="flex items-center">
+                            <span className="text-zinc-600 font-bold mr-2">₹</span>
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder="0.00"
+                              value={item.price}
+                              onChange={(e) => handleItemChange(i, 'price', e.target.value)}
+                              className="input bg-transparent border-transparent px-0 focus:ring-0 text-white font-black text-lg placeholder:text-zinc-700"
+                            />
+                        </div>
+                    </div>
 
                     <button
                       type="button"
                       onClick={() => removeItem(i)}
-                      className="btn btn-dark px-3"
+                      className="h-10 w-10 flex items-center justify-center rounded-xl bg-red-400/5 text-red-500/20 hover:text-red-400 hover:bg-red-400/10 transition-all self-center ml-auto"
                     >
-                      Remove
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                   </div>
                 ))}
               </div>
             </section>
 
-            <section className="p-5">
-              <div className="mb-4">
-                <h2 className="text-lg">Payment and Tax</h2>
-                <p className="mt-1 text-sm text-zinc-500">
-                  Use saved business details or update them for this invoice.
+            {/* Section: Tax & Date */}
+            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-white leading-none mb-1">Logistics</h2>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                  Dates, Tax & Payments
                 </p>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <input
-                  type="date"
-                  name="dueDate"
-                  value={form.dueDate}
-                  onChange={handleChange}
-                  className="input"
-                />
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Due Date</p>
+                    <input
+                      type="date"
+                      name="dueDate"
+                      value={form.dueDate}
+                      onChange={handleChange}
+                      className="input py-4 bg-black/20 border-white/5"
+                    />
+                </div>
 
-                <input
-                  name="upiId"
-                  value={form.upiId}
-                  onChange={handleChange}
-                  placeholder="UPI ID"
-                  className="input"
-                />
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">UPI ID for Collection</p>
+                    <input
+                      name="upiId"
+                      value={form.upiId}
+                      onChange={handleChange}
+                      placeholder="e.g. success@upi"
+                      className="input py-4 bg-black/20 border-white/5"
+                    />
+                </div>
 
-                <input
-                  name="gst"
-                  value={form.gst}
-                  onChange={handleChange}
-                  placeholder="GST number"
-                  className="input"
-                />
+                <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">GST Identification</p>
+                    <input
+                      name="gst"
+                      value={form.gst}
+                      onChange={handleChange}
+                      placeholder="Optional GSTIN"
+                      className="input py-4 bg-black/20 border-white/5"
+                    />
+                </div>
 
-                <input
-                  name="cgst"
-                  type="number"
-                  min="0"
-                  value={form.cgst}
-                  onChange={handleChange}
-                  placeholder="CGST %"
-                  className="input"
-                />
-
-                <input
-                  name="sgst"
-                  type="number"
-                  min="0"
-                  value={form.sgst}
-                  onChange={handleChange}
-                  placeholder="SGST %"
-                  className="input"
-                />
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">CGST %</p>
+                        <input
+                          name="cgst"
+                          type="number"
+                          value={form.cgst}
+                          onChange={handleChange}
+                          placeholder="0"
+                          className="input py-4 bg-black/20 border-white/5"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">SGST %</p>
+                        <input
+                          name="sgst"
+                          type="number"
+                          value={form.sgst}
+                          onChange={handleChange}
+                          placeholder="0"
+                          className="input py-4 bg-black/20 border-white/5"
+                        />
+                    </div>
+                </div>
               </div>
             </section>
           </div>
 
-          <aside className="reveal reveal-delay-2 h-fit rounded-lg border border-white/10 bg-zinc-950/85 p-5 shadow-xl shadow-black/20 lg:sticky lg:top-24">
-            <p className="text-sm font-semibold text-zinc-400">Summary</p>
+          {/* SIDEBAR */}
+          <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
+            <div className="surface p-8 border-white/10 bg-zinc-950 shadow-2xl rounded-[2.5rem]">
+               <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-6">
+                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Live Breakdown</p>
+               </div>
 
-            <div className="mt-5 space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-zinc-500">Subtotal</span>
-                <span className="font-semibold text-white">{formatCurrency(subtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-zinc-500">Tax ({taxRate}%)</span>
-                <span className="font-semibold text-white">{formatCurrency(tax)}</span>
-              </div>
-              <div className="border-t border-white/10 pt-4">
-                <div className="flex items-end justify-between">
-                  <span className="text-zinc-400">Total</span>
-                  <span className="text-2xl font-bold text-emerald-300">{formatCurrency(total)}</span>
-                </div>
-              </div>
+               <div className="space-y-4 mb-8">
+                  <div className="flex justify-between items-center">
+                    <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">Gross</span>
+                    <span className="font-bold text-white text-lg">{formatCurrency(subtotal)}</span>
+                  </div>
+                  {tax > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">Tax ({taxRate}%)</span>
+                      <span className="font-bold text-white text-lg">{formatCurrency(tax)}</span>
+                    </div>
+                  )}
+                  <div className="pt-6 border-t border-white/5 flex flex-col items-end">
+                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2 text-right w-full">Final Total</span>
+                    <span className="text-5xl font-black text-emerald-400 tracking-tighter">{formatCurrency(total)}</span>
+                  </div>
+               </div>
+
+               <div className="rounded-[2rem] border border-yellow-400/20 bg-yellow-400/5 p-6 mb-8 group/coach">
+                  <div className="flex items-center gap-2 mb-4">
+                     <div className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
+                     <p className="text-[10px] font-black text-yellow-300 uppercase tracking-widest">AI Audit</p>
+                  </div>
+
+                  <div className="space-y-2 mb-6">
+                    {aiSuggestions.length > 0 ? aiSuggestions.slice(0, 3).map((s, i) => (
+                      <p key={i} className="text-xs font-bold text-zinc-400 flex items-center gap-2">
+                        <span className="h-1 w-1 bg-yellow-400/40 rounded-full" /> {s}
+                      </p>
+                    )) : (
+                      <p className="text-xs font-bold text-emerald-400 flex items-center gap-2">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        Optimized for success.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid gap-2">
+                    <button
+                      type="button"
+                      onClick={applySmartDescription}
+                      className="w-full py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 transition-all"
+                    >
+                      AI Narration
+                    </button>
+                    {!form.dueDate && (
+                      <button
+                        type="button"
+                        onClick={applySmartDueDate}
+                        className="w-full py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 transition-all"
+                      >
+                        Auto Due Date
+                      </button>
+                    )}
+                  </div>
+               </div>
+
+               <button
+                 type="submit"
+                 disabled={loading}
+                 className="w-full py-5 rounded-2xl bg-yellow-400 text-black font-black text-lg shadow-xl shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+               >
+                 {loading ? 'Processing...' : 'Issue Invoice'}
+               </button>
+
+               {limitReached && (
+                 <div className="mt-6 p-6 rounded-2xl bg-red-400/10 border border-red-400/20">
+                    <p className="text-sm font-bold text-red-400 mb-4 text-center">Quota Exceeded.</p>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/payment')}
+                      className="w-full py-3 rounded-xl bg-red-400 text-white font-black text-xs uppercase"
+                    >
+                      Upgrade Plan
+                    </button>
+                 </div>
+               )}
             </div>
-
-            <div className="mt-6 rounded-lg border border-yellow-300/20 bg-yellow-300/10 p-4">
-              <p className="mb-2 text-sm font-semibold text-yellow-100">
-                AI Invoice Coach
-              </p>
-              <p className="mb-4 text-sm text-yellow-100/75">
-                Smart checks before you send.
-              </p>
-
-              <div className="mb-4 grid gap-2">
-                {(aiSuggestions.length ? aiSuggestions : ['Looks ready. Clear details, payment info, and amount are in place.']).slice(0, 4).map((suggestion) => (
-                  <p key={suggestion} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-xs text-zinc-200">
-                    {suggestion}
-                  </p>
-                ))}
-              </div>
-
-              <div className="grid gap-2">
-                <button
-                  type="button"
-                  onClick={applySmartDescription}
-                  className="btn btn-secondary w-full"
-                >
-                  Write Description
-                </button>
-
-                {!form.dueDate && (
-                  <button
-                    type="button"
-                    onClick={applySmartDueDate}
-                    className="btn btn-secondary w-full"
-                  >
-                    Set 7-Day Due Date
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary mt-6 w-full"
-            >
-              {loading ? 'Creating...' : 'Create Invoice'}
-            </button>
-
-            {limitReached && (
-              <div className="mt-4 rounded-lg border border-red-400/30 bg-red-500/10 p-4">
-                <p className="mb-3 text-sm text-red-200">
-                  Free invoice limit reached.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => navigate('/payment')}
-                  className="btn btn-primary w-full"
-                >
-                  Upgrade
-                </button>
-              </div>
-            )}
           </aside>
         </form>
       </main>

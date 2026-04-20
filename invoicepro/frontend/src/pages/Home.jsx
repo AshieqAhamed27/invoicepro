@@ -15,222 +15,231 @@ export default function Home() {
   };
 
   const workflow = [
-    ['01', 'Create invoice', 'Add client details, line items, tax, and due dates without wrestling a spreadsheet.'],
-    ['02', 'Share payment link', 'Send a clean invoice link over email, WhatsApp, or your usual client channel.'],
-    ['03', 'Track the money', 'See pending and paid invoices from one dashboard, then download the invoice when needed.']
+    ['01', 'Smart Invoicing', 'Itemize work, add taxes, and set due dates in seconds with AI-assisted drafting.'],
+    ['02', 'Instant Sharing', 'Send a branded payment portal link via mail or WhatsApp. No PDF wrestling needed.'],
+    ['03', 'Auto Reconciliation', 'Know the second a client pays. UPI and Razorpay automation mark invoices as paid for you.']
   ];
 
   const features = [
-    ['Fast invoices', 'Reusable business details, itemized billing, and instant totals.'],
-    ['UPI-ready payments', 'Clients can scan, pay, and send proof in a familiar flow.'],
-    ['Simple records', 'Know what is paid, what is pending, and what needs attention.']
-  ];
-
-  const aiFeatures = [
-    ['Cashflow Copilot', 'Finds overdue invoices, scores payment risk, and tells you what to follow up on first.'],
-    ['Reminder Drafts', 'Writes polite payment reminders using invoice amount, due date, and client details.'],
-    ['Invoice Coach', 'Checks weak descriptions, missing due dates, missing UPI IDs, and unusual tax values before sending.']
+    ['One-Click Payments', 'UPI QR codes and Credit Card support built directly into every invoice.'],
+    ['Client Management', 'Save client profiles for instant retrieval. No more re-typing emails.'],
+    ['Financial Insights', 'AI Cashflow analysis helps you identify payment risks before they become problems.']
   ];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="min-h-screen bg-[#050505] text-white selection:bg-yellow-400 selection:text-black">
       <Navbar />
 
       <main>
-        <section className="border-b border-white/10">
-          <div className="container-custom grid min-h-[calc(100vh-76px)] items-center gap-12 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:py-18">
-            <div className="reveal max-w-2xl text-center lg:text-left">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-lg border border-yellow-300/20 bg-yellow-300/10 px-3 py-2 text-sm font-semibold text-yellow-200">
-                Built for freelancers and small businesses
+        {/* HERO SECTION */}
+        <section className="relative pt-20 pb-20 md:pt-32 md:pb-40 overflow-hidden">
+          {/* Background Ambient Glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-full opacity-20 pointer-events-none">
+             <div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500 rounded-full blur-[160px] animate-pulse" />
+             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500 rounded-full blur-[160px] opacity-40" />
+          </div>
+
+          <div className="container-custom relative z-10">
+            <div className="mx-auto max-w-4xl text-center">
+              <div className="reveal inline-flex items-center gap-2 px-4 py-2 rounded-full border border-yellow-400/20 bg-yellow-400/5 backdrop-blur-sm mb-8 transition-all hover:bg-yellow-400/10">
+                <span className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-300">The Future of Freelancing</p>
               </div>
 
-              <h1 className="mb-6 text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
-                Professional invoices, paid faster.
+              <h1 className="reveal reveal-delay-1 text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.9] mb-8 text-white">
+                Collect payments <br className="hidden md:block" /> 
+                <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 italic">effortlessly.</span>
               </h1>
 
-              <p className="mx-auto mb-8 max-w-xl text-base text-zinc-400 sm:text-lg lg:mx-0">
-                Create polished invoices, share them instantly, and collect UPI payments without adding more admin to your day.
+              <p className="reveal reveal-delay-2 mx-auto max-w-2xl text-lg md:text-xl text-zinc-400 font-medium leading-relaxed mb-10">
+                The all-in-one invoicing engine for modern startups & freelancers. 
+                Move from "Unpaid" to "Paid" in half the time.
               </p>
 
-              <div className="flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+              <div className="reveal reveal-delay-2 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button
                   onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
-                  className="btn btn-primary"
+                  className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white text-black font-black text-lg shadow-2xl shadow-white/10 hover:scale-105 active:scale-95 transition-all"
                 >
-                  {loggedIn ? 'Go to Dashboard' : 'Start Free'}
+                  {loggedIn ? 'Open Dashboard' : 'Get Started for Free'}
                 </button>
-
                 <button
                   onClick={() => navigate(loggedIn ? '/create-invoice' : '/login')}
-                  className="btn btn-secondary"
+                  className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-zinc-900 text-white font-black text-lg border border-white/10 hover:bg-zinc-800 transition-all"
                 >
-                  {loggedIn ? 'Create Invoice' : 'Login'}
+                  {loggedIn ? 'Create Invoice' : 'Sign in'}
                 </button>
               </div>
             </div>
 
-            <div className="reveal reveal-delay-1 mx-auto w-full max-w-md lg:max-w-lg">
-              <div className="surface overflow-hidden">
-                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <BrandLogo showText={false} markClassName="h-10 w-10" />
-                    <div>
-                      <p className="text-xs uppercase text-zinc-500">Invoice Preview</p>
-                      <h2 className="text-base font-semibold">Apex Design Studio</h2>
+            {/* PRODUCT MOCKUP */}
+            <div className="reveal reveal-delay-3 mt-20 relative px-4">
+              <div className="mx-auto max-w-5xl rounded-[2.5rem] border border-white/10 bg-zinc-950 p-2 shadow-2xl shadow-black">
+                 <div className="rounded-[2rem] border border-white/5 bg-zinc-900/50 overflow-hidden aspect-[16/9] relative group">
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 to-transparent z-10" />
+                    {/* Mock dashboard content */}
+                    <div className="p-8 grid grid-cols-3 gap-6">
+                      <div className="h-40 rounded-3xl bg-white/5 border border-white/5 p-6">
+                        <div className="h-2 w-12 bg-emerald-400/20 rounded mb-4" />
+                        <div className="h-8 w-32 bg-white/10 rounded" />
+                      </div>
+                      <div className="h-40 rounded-3xl bg-white/5 border border-white/5 p-6">
+                        <div className="h-2 w-12 bg-yellow-400/20 rounded mb-4" />
+                        <div className="h-8 w-32 bg-white/10 rounded" />
+                      </div>
+                      <div className="h-40 rounded-3xl bg-white/5 border border-white/5 p-6">
+                        <div className="h-2 w-12 bg-white/10 rounded mb-4" />
+                        <div className="h-8 w-32 bg-white/10 rounded" />
+                      </div>
                     </div>
-                  </div>
-                  <span className="badge badge-yellow">Pending</span>
-                </div>
-
-                <div className="space-y-5 p-5">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-xs text-zinc-500">Client</p>
-                      <p className="mt-1 font-semibold text-white">John Mathew</p>
+                    {/* Floating elements */}
+                    <div className="absolute bottom-10 left-10 p-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 backdrop-blur-xl z-20 animate-bounce transition-all hover:scale-110">
+                       <p className="text-[10px] uppercase font-black text-emerald-400 tracking-widest mb-1">Incoming Payment</p>
+                       <p className="text-xl font-black text-white">₹ 12,500.00</p>
                     </div>
-                    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-                      <p className="text-xs text-zinc-500">Due</p>
-                      <p className="mt-1 font-semibold text-white">24 Apr 2026</p>
-                    </div>
-                  </div>
-
-                  <div className="overflow-hidden rounded-lg border border-white/10">
-                    <div className="grid grid-cols-[1fr_auto] bg-white/[0.04] px-4 py-3 text-sm font-semibold text-zinc-300">
-                      <span>Item</span>
-                      <span>Amount</span>
-                    </div>
-                    <div className="grid grid-cols-[1fr_auto] border-t border-white/10 px-4 py-3 text-sm">
-                      <span className="text-zinc-300">Brand package</span>
-                      <span className="font-semibold text-white">Rs. 5,000</span>
-                    </div>
-                    <div className="grid grid-cols-[1fr_auto] border-t border-white/10 px-4 py-3 text-sm">
-                      <span className="text-zinc-300">GST</span>
-                      <span className="font-semibold text-white">Rs. 900</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-lg bg-emerald-400/10 px-4 py-4">
-                    <span className="text-sm font-semibold text-emerald-200">Total due</span>
-                    <span className="text-2xl font-bold text-emerald-200">Rs. 5,900</span>
-                  </div>
-                </div>
+                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="container-custom py-16">
-          <div className="mx-auto mb-10 max-w-2xl text-center">
-            <h2>How it works</h2>
-            <p className="mt-2 text-zinc-400">
-              A short path from billable work to payment.
-            </p>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {workflow.map(([step, title, desc]) => (
-              <div key={title} className="card hover-lift">
-                <p className="mb-4 text-sm font-semibold text-yellow-300">{step}</p>
-                <h3 className="mb-2 text-lg">{title}</h3>
-                <p>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="border-y border-white/10 bg-white/[0.02]">
-          <div className="container-custom py-16">
-            <div className="mx-auto mb-10 max-w-2xl text-center">
-              <h2>Everything you need</h2>
-              <p className="mt-2 text-zinc-400">
-                Built around the billing tasks small teams repeat every week.
-              </p>
+        {/* WORKFLOW */}
+        <section className="py-24 border-t border-white/5 bg-zinc-950/50 relative overflow-hidden">
+          <div className="container-custom">
+            <div className="mx-auto mb-20 max-w-2xl text-center">
+              <h2 className="text-4xl font-black text-white mb-4 tracking-tight">The Fastest Way to Get Paid</h2>
+              <p className="text-zinc-500 font-medium">Simple, automated, and built for high-growth creators.</p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {features.map(([title, desc]) => (
-                <div key={title} className="card hover-lift">
-                  <h3 className="mb-2 text-lg">{title}</h3>
-                  <p>{desc}</p>
+            <div className="grid gap-6 md:grid-cols-3">
+              {workflow.map(([step, title, desc]) => (
+                <div key={title} className="group relative p-8 rounded-3xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-500">
+                  <span className="inline-block mb-6 text-3xl font-black text-white/10 group-hover:text-yellow-400/40 transition-colors">{step}</span>
+                  <h3 className="mb-4 text-2xl font-bold text-white">{title}</h3>
+                  <p className="text-zinc-500 leading-relaxed font-medium">{desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="container-custom py-16">
-          <div className="mx-auto mb-10 max-w-2xl text-center">
-            <p className="mb-2 text-sm font-semibold text-yellow-300">AI features</p>
-            <h2>Smarter than a basic invoice maker</h2>
-            <p className="mt-2 text-zinc-400">
-              InvoicePro helps you notice payment problems early and send better invoices before they slow you down.
-            </p>
-          </div>
+        {/* FEATURES BENTO */}
+        <section className="py-24 bg-[#050505]">
+          <div className="container-custom">
+             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto md:h-[600px]">
+                <div className="md:col-span-8 group relative p-12 rounded-[2.5rem] border border-white/5 bg-zinc-950 overflow-hidden hover:border-yellow-400/20 transition-all duration-500">
+                    <div className="absolute bottom-0 right-0 p-12 opacity-10 group-hover:opacity-20 transition-opacity duration-700">
+                       <svg className="h-60 w-60 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>
+                    </div>
+                    <h3 className="text-4xl font-black text-white mb-6 max-w-md tracking-tight leading-none">Intelligence built into every invoice.</h3>
+                    <p className="text-lg text-zinc-500 max-w-sm mb-12">Our AI Cashflow engine analyzes payment risk, drafts follow-ups, and optimizes your collection rate.</p>
+                    <div className="flex gap-4">
+                       <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] uppercase font-black text-zinc-500">Risk Scoring</div>
+                       <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] uppercase font-black text-zinc-500">Auto Drafts</div>
+                       <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] uppercase font-black text-zinc-500">Insights</div>
+                    </div>
+                </div>
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            {aiFeatures.map(([title, desc], index) => (
-              <div key={title} className={`card hover-lift reveal reveal-delay-${index > 1 ? 2 : index}`}>
-                <p className="mb-4 text-sm font-semibold text-yellow-300">AI 0{index + 1}</p>
-                <h3 className="mb-2 text-lg">{title}</h3>
-                <p>{desc}</p>
-              </div>
-            ))}
+                <div className="md:col-span-4 p-12 rounded-[2.5rem] border border-white/5 bg-gradient-to-br from-emerald-500/10 to-transparent hover:border-emerald-400/20 transition-all duration-500">
+                    <div className="h-16 w-16 mb-8 rounded-2xl bg-emerald-400 flex items-center justify-center shadow-xl shadow-emerald-400/20">
+                       <svg className="h-8 w-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <h3 className="text-3xl font-black text-white mb-4 leading-tight">Verified <br /> Payments.</h3>
+                    <p className="text-zinc-500 font-medium">Automatic verification for UPI & Razorpay transactions.</p>
+                </div>
+
+                <div className="md:col-span-4 p-12 rounded-[2.5rem] border border-white/5 bg-zinc-950 hover:border-white/10 transition-all">
+                    <h3 className="text-2xl font-bold text-white mb-4">Saved Clients.</h3>
+                    <p className="text-zinc-500 font-medium text-sm">One-click data entry for your recurring partners.</p>
+                </div>
+
+                <div className="md:col-span-8 p-12 rounded-[2.5rem] border border-white/5 bg-zinc-950 flex items-center justify-between group hover:border-white/10 transition-all">
+                    <div>
+                      <h3 className="text-2xl font-bold text-white mb-2">Public Invoices.</h3>
+                      <p className="text-zinc-500 font-medium text-sm">Interactive payment portals that look stunning on all devices.</p>
+                    </div>
+                    <div className="hidden sm:flex h-20 w-32 bg-white/5 rounded-2xl border border-white/5 items-center justify-center group-hover:scale-110 transition-transform">
+                       <div className="h-2 w-16 bg-white/10 rounded animate-pulse" />
+                    </div>
+                </div>
+             </div>
           </div>
         </section>
 
-        <section className="container-custom py-16">
-          <div className="mx-auto mb-10 max-w-2xl text-center">
-            <h2>Pricing</h2>
-            <p className="mt-2 text-zinc-400">
-              Start small, upgrade when invoicing becomes a habit.
-            </p>
-          </div>
-
-          <div className="mx-auto grid max-w-4xl gap-5 lg:grid-cols-2">
-            <div className="card hover-lift flex flex-col justify-between">
-              <div>
-                <h3 className="mb-2 text-xl">Monthly</h3>
-                <p className="mb-6 text-3xl font-bold text-white">Rs. 99 <span className="text-sm font-medium text-zinc-500">/ month</span></p>
-
-                <ul className="mb-6 space-y-3 text-sm text-zinc-400">
-                  <li>Unlimited invoices</li>
-                  <li>UPI payments</li>
-                  <li>Basic payment tracking</li>
-                </ul>
-              </div>
-
-              <button
-                onClick={() => handleSubscribe('monthly')}
-                className="btn btn-secondary w-full"
-              >
-                Choose Monthly
-              </button>
+        {/* PRICING */}
+        <section id="pricing" className="py-24 relative">
+          <div className="container-custom relative z-10">
+            <div className="mx-auto mb-20 max-w-3xl text-center">
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">Transparent Pricing.</h2>
+              <p className="text-zinc-500 font-medium text-lg">Start for free, scale when you grow. No hidden platform fees.</p>
             </div>
 
-            <div className="card hover-lift flex flex-col justify-between border-yellow-300/35 bg-yellow-300/10">
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase text-yellow-200">
-                  Best value
-                </p>
+            <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
+              <div className="p-10 rounded-[3rem] border border-white/5 bg-zinc-950 flex flex-col justify-between hover:bg-zinc-900/50 transition-all">
+                <div>
+                  <h3 className="mb-2 text-2xl font-bold text-white">Monthly Growth</h3>
+                  <p className="text-zinc-500 mb-8 font-medium">Great for starting freelancers.</p>
+                  <p className="mb-10 text-5xl font-black text-white italic">₹ 99 <span className="text-sm font-black text-zinc-600 uppercase tracking-widest">/ month</span></p>
 
-                <h3 className="mb-2 text-xl">Yearly</h3>
-                <p className="mb-6 text-3xl font-bold text-white">Rs. 999 <span className="text-sm font-medium text-zinc-500">/ year</span></p>
+                  <ul className="mb-10 space-y-4 text-zinc-400 font-medium">
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Unlimited Invoices</li>
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> UPI & Card Payments</li>
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Public Payment Portal</li>
+                  </ul>
+                </div>
 
-                <ul className="mb-6 space-y-3 text-sm text-zinc-300">
-                  <li>Everything in Monthly</li>
-                  <li>Advanced analytics</li>
-                  <li>Priority support</li>
-                </ul>
+                <button
+                  onClick={() => handleSubscribe('monthly')}
+                  className="w-full py-5 rounded-2xl bg-zinc-900 text-white font-black hover:bg-zinc-800 transition-all border border-white/5 active:scale-95"
+                >
+                  Start Monthly
+                </button>
               </div>
 
-              <button
-                onClick={() => handleSubscribe('yearly')}
-                className="btn btn-primary w-full"
-              >
-                Choose Yearly
-              </button>
+              <div className="p-10 rounded-[3rem] border-2 border-yellow-400/50 bg-yellow-400/5 relative flex flex-col justify-between shadow-2xl shadow-yellow-400/10">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-yellow-400 text-black text-[10px] font-black uppercase tracking-widest shadow-xl">
+                    Most Popular
+                </div>
+                <div>
+                  <h3 className="mb-2 text-2xl font-bold text-white">Annual Professional</h3>
+                  <p className="text-zinc-400 mb-8 font-medium">For established startups & agencies.</p>
+                  <p className="mb-10 text-5xl font-black text-white italic">₹ 999 <span className="text-sm font-black text-zinc-500 uppercase tracking-widest">/ year</span></p>
+
+                  <ul className="mb-10 space-y-4 text-zinc-300 font-medium">
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Everything in Monthly</li>
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Full AI Cashflow Insights</li>
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Priority Startup Support</li>
+                  </ul>
+                </div>
+
+                <button
+                  onClick={() => handleSubscribe('yearly')}
+                  className="w-full py-5 rounded-2xl bg-yellow-400 text-black font-black hover:bg-yellow-300 transition-all shadow-xl shadow-yellow-400/20 active:scale-95"
+                >
+                  Lock in Yearly
+                </button>
+              </div>
             </div>
           </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-24 border-t border-white/5">
+           <div className="container-custom">
+              <div className="p-12 md:p-24 rounded-[3rem] bg-gradient-to-br from-zinc-900 to-black border border-white/5 text-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 blur-[100px]" />
+                  <h2 className="relative z-10 text-4xl md:text-6xl font-black text-white mb-8 tracking-tight">Ready to streamline your <br className="hidden md:block" /> revenue collection?</h2>
+                  <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                     <button 
+                        onClick={() => navigate('/signup')}
+                        className="px-10 py-5 rounded-2xl bg-white text-black font-black hover:scale-105 active:scale-95 transition-all text-lg shadow-2xl"
+                     >
+                        Claim your free workspace
+                     </button>
+                     <p className="text-zinc-500 font-medium ml-4">Join 2,000+ freelancers already growing.</p>
+                  </div>
+              </div>
+           </div>
         </section>
       </main>
 
