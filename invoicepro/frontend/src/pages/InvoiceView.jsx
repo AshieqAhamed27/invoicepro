@@ -12,6 +12,14 @@ const formatCurrency = (amount) => {
   })}`;
 };
 
+const escapeHtml = (value) =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
 export default function InvoiceView() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -66,36 +74,101 @@ export default function InvoiceView() {
       return;
     }
 
-    const sourceNode = invoiceContentRef.current;
-    const pdfNode = sourceNode.cloneNode(true);
+    const invoiceDate = new Date(invoice.date || invoice.createdAt || Date.now()).toLocaleDateString('en-IN');
+    const dueDate = invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('en-IN') : 'Not specified';
+    const taxAmount = Math.max(0, tax);
+    const isPaid = invoice.status === 'paid';
+    const paidText = isPaid && invoice.paidAt ? new Date(invoice.paidAt).toLocaleDateString('en-IN') : '';
 
-    // Build a clean static copy to avoid animation/reveal classes
-    // causing empty canvas captures in html2canvas/html2pdf.
-    pdfNode.classList.remove('reveal', 'reveal-delay-1');
-    pdfNode.style.transform = 'none';
-    pdfNode.style.opacity = '1';
-    pdfNode.style.visibility = 'visible';
+    const itemRows = items
+      .map((item, idx) => `
+        <tr>
+          <td style="padding:12px 14px;border-bottom:1px solid #eef2f7;color:#0f172a;font-size:13px;">
+            ${idx + 1}. ${escapeHtml(item.name || 'Service')}
+          </td>
+          <td style="padding:12px 14px;border-bottom:1px solid #eef2f7;color:#0f172a;font-size:13px;text-align:right;font-weight:700;">
+            ${escapeHtml(formatCurrency(item.price))}
+          </td>
+        </tr>
+      `)
+      .join('');
+
+    const pdfNode = document.createElement('div');
     pdfNode.style.position = 'fixed';
     pdfNode.style.left = '0';
     pdfNode.style.top = '0';
     pdfNode.style.zIndex = '-1';
-    pdfNode.style.pointerEvents = 'none';
     pdfNode.style.width = '794px';
-    pdfNode.style.maxWidth = '794px';
     pdfNode.style.background = '#ffffff';
-    pdfNode.style.color = '#000000';
+    pdfNode.style.color = '#0f172a';
+    pdfNode.style.fontFamily = "'Inter', 'Segoe UI', Roboto, Arial, sans-serif";
+    pdfNode.style.padding = '28px';
+    pdfNode.innerHTML = `
+      <div style="border:1px solid #e2e8f0;border-radius:20px;overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;padding:24px 28px;display:flex;justify-content:space-between;gap:18px;">
+          <div>
+            <div style="font-size:24px;font-weight:800;letter-spacing:0.3px;">${escapeHtml(companyName)}</div>
+            <div style="font-size:12px;opacity:0.85;margin-top:6px;">${escapeHtml(user?.address || 'Mumbai, India')}</div>
+            <div style="font-size:12px;opacity:0.85;margin-top:2px;">${escapeHtml(user?.email || '')}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;letter-spacing:1.4px;text-transform:uppercase;opacity:0.8;">Invoice</div>
+            <div style="font-size:22px;font-weight:800;margin-top:6px;">#${escapeHtml(invoice.invoiceNumber)}</div>
+            <div style="font-size:12px;opacity:0.85;margin-top:8px;">Issued: ${escapeHtml(invoiceDate)}</div>
+            <div style="font-size:12px;opacity:0.85;margin-top:2px;">Due: ${escapeHtml(dueDate)}</div>
+          </div>
+        </div>
 
-    const nestedNodes = pdfNode.querySelectorAll('*');
-    nestedNodes.forEach((node) => {
-      if (node.classList) {
-        node.classList.remove('reveal', 'reveal-delay-1', 'reveal-delay-2');
-      }
-      node.style.animation = 'none';
-      node.style.transition = 'none';
-      node.style.transform = 'none';
-      node.style.opacity = '1';
-      node.style.visibility = 'visible';
-    });
+        <div style="padding:24px 28px 8px;display:flex;justify-content:space-between;gap:20px;">
+          <div>
+            <div style="font-size:11px;color:#64748b;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;">Billed To</div>
+            <div style="font-size:19px;font-weight:700;margin-top:6px;color:#0f172a;">${escapeHtml(invoice.clientName)}</div>
+            <div style="font-size:13px;color:#475569;margin-top:3px;">${escapeHtml(invoice.clientEmail)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="display:inline-block;padding:7px 14px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:${isPaid ? '#dcfce7' : '#fef9c3'};color:${isPaid ? '#166534' : '#854d0e'};">
+              ${escapeHtml(invoice.status)}
+            </div>
+            ${isPaid ? `<div style="font-size:12px;color:#475569;margin-top:8px;">Paid on ${escapeHtml(paidText)}</div>` : ''}
+          </div>
+        </div>
+
+        <div style="padding:0 28px 0;">
+          <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+            <thead>
+              <tr style="background:#f8fafc;">
+                <th style="padding:12px 14px;text-align:left;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#64748b;">Description</th>
+                <th style="padding:12px 14px;text-align:right;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#64748b;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>${itemRows}</tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding:20px 28px 24px;">
+          <div style="max-width:58%;">
+            <div style="font-size:11px;color:#64748b;letter-spacing:1px;text-transform:uppercase;font-weight:700;">Internal Memo</div>
+            <div style="font-size:13px;color:#334155;margin-top:7px;line-height:1.6;">${escapeHtml(invoice.serviceDescription || 'No description provided.')}</div>
+            <div style="font-size:11px;color:#64748b;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-top:14px;">Payment Route</div>
+            <div style="font-size:13px;color:#0f172a;margin-top:6px;font-weight:600;">${escapeHtml(finalUpi || 'Not provided')}</div>
+          </div>
+          <div style="min-width:220px;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;background:#f8fafc;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#475569;margin-bottom:9px;">
+              <span>Subtotal</span><span>${escapeHtml(formatCurrency(subtotal))}</span>
+            </div>
+            ${taxAmount > 0 ? `
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:#475569;margin-bottom:9px;">
+                <span>Tax</span><span>${escapeHtml(formatCurrency(taxAmount))}</span>
+              </div>
+            ` : ''}
+            <div style="border-top:1px solid #cbd5e1;padding-top:10px;display:flex;justify-content:space-between;align-items:flex-end;">
+              <span style="font-size:11px;color:#64748b;letter-spacing:1px;text-transform:uppercase;font-weight:700;">Total</span>
+              <span style="font-size:24px;font-weight:800;color:#0f172a;">${escapeHtml(formatCurrency(invoice.amount))}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
 
     document.body.appendChild(pdfNode);
 
@@ -103,7 +176,7 @@ export default function InvoiceView() {
       setDownloadingPdf(true);
       await html2pdf()
         .set({
-          margin: 0.5,
+          margin: [0.25, 0.25, 0.25, 0.25],
           filename: `${invoice.invoiceNumber || 'invoice'}.pdf`,
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
