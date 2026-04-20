@@ -72,6 +72,10 @@ export default function App() {
             path="/public/invoice/:id"
             element={<PublicInvoice />}
           />
+          <Route
+            path="/p/invoice/:id"
+            element={<PublicInvoice />}
+          />
 
           {/* AUTH */}
           <Route

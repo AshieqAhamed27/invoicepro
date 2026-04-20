@@ -4,6 +4,7 @@ import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
 import QRCode from 'react-qr-code';
+import html2pdf from 'html2pdf.js';
 
 const formatCurrency = (amount) => {
   return `₹ ${Number(amount || 0).toLocaleString('en-IN', {
@@ -18,6 +19,8 @@ export default function InvoiceView() {
 
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
+  const invoiceContentRef = useRef(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   useEffect(() => {
     fetchInvoice();
@@ -53,6 +56,59 @@ export default function InvoiceView() {
       navigate('/dashboard');
     } catch {
       alert("Delete failed");
+    }
+  };
+
+  const publicInvoiceUrl = invoice ? `${window.location.origin}/public/invoice/${invoice._id}` : '';
+
+  const downloadPdf = async () => {
+    if (!invoiceContentRef.current) {
+      return;
+    }
+
+    try {
+      setDownloadingPdf(true);
+      await html2pdf()
+        .set({
+          margin: 0.5,
+          filename: `${invoice.invoiceNumber || 'invoice'}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        })
+        .from(invoiceContentRef.current)
+        .save();
+    } catch (err) {
+      alert('Failed to download PDF');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
+  const sharePublicLink = async () => {
+    if (!publicInvoiceUrl) {
+      return;
+    }
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `Invoice ${invoice?.invoiceNumber || ''}`,
+          text: `View invoice ${invoice?.invoiceNumber || ''}`,
+          url: publicInvoiceUrl
+        });
+        return;
+      }
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(publicInvoiceUrl);
+        alert('Public link copied');
+        return;
+      }
+
+      window.prompt('Copy this public link:', publicInvoiceUrl);
+    } catch {
+      // User cancelled share or clipboard is blocked.
     }
   };
 
@@ -122,7 +178,7 @@ export default function InvoiceView() {
 
         <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
           {/* RECEIPT PREVIEW */}
-          <section className="reveal reveal-delay-1 surface p-10 md:p-16 border-white/5 bg-white text-black rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+          <section ref={invoiceContentRef} className="reveal reveal-delay-1 surface p-10 md:p-16 border-white/5 bg-white text-black rounded-[2.5rem] shadow-2xl relative overflow-hidden">
              {invoice.status === 'paid' && (
                 <div className="absolute top-10 right-10 border-4 border-emerald-500 text-emerald-500 font-black text-4xl px-6 py-2 rotate-12 opacity-80 rounded-xl">
                   PAID
@@ -206,8 +262,9 @@ export default function InvoiceView() {
 
                 <div className="space-y-4 mb-8">
                    <a 
-                     href={`${window.location.origin}/p/invoice/${invoice._id}`}
+                     href={publicInvoiceUrl}
                      target="_blank"
+                     rel="noopener noreferrer"
                      className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
                    >
                      <span className="text-xs font-bold text-zinc-400 group-hover:text-white">Public Portal Link</span>
@@ -215,11 +272,22 @@ export default function InvoiceView() {
                    </a>
                    
                    <button 
-                     onClick={() => window.print()}
+                     onClick={downloadPdf}
+                     disabled={downloadingPdf}
                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
                    >
-                     <span className="text-xs font-bold text-zinc-400 group-hover:text-white">Download PDF (Print)</span>
+                     <span className="text-xs font-bold text-zinc-400 group-hover:text-white">
+                       {downloadingPdf ? 'Preparing PDF...' : 'Download PDF'}
+                     </span>
                      <svg className="h-4 w-4 text-zinc-600 group-hover:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                   </button>
+
+                   <button
+                     onClick={sharePublicLink}
+                     className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
+                   >
+                     <span className="text-xs font-bold text-zinc-400 group-hover:text-white">Share Public Link</span>
+                     <svg className="h-4 w-4 text-zinc-600 group-hover:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C9.886 14.511 11.41 15.2 13 15.2c3.92 0 7.1-3.18 7.1-7.1S16.92 1 13 1 5.9 4.18 5.9 8.1c0 1.59.689 3.114 1.858 4.316M1 23l7-7m0 0l4-4m-4 4l4 4" /></svg>
                    </button>
                 </div>
 
