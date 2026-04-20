@@ -9,7 +9,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const user = getUser();
-  const isAdmin = user?.email === "ashieqahamed27@gmail.com";
+  const isAdmin = user?.role === 'admin';
 
   const handleLogout = () => {
     localStorage.clear();

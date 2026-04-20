@@ -92,9 +92,12 @@ export default function Payment() {
           name: user.name || '',
           email: user.email || ''
         },
-        theme: {
-          color: '#FACC15'
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+          }
         },
+        retry: { enabled: false },
         handler: async (response) => {
           try {
             const verifyRes = await api.post('/payment/razorpay/verify', {

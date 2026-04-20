@@ -46,7 +46,7 @@ const PublicRoute = ({ children }) => {
 // ==========================
 const isAdmin = () => {
   const user = getUser();
-  return user?.email === "ashieqahamed27@gmail.com"; // 🔥 change this
+  return user?.role === 'admin';
 };
 
 export default function App() {

@@ -130,7 +130,13 @@ export default function PublicInvoice() {
           name: invoice.clientName,
           email: invoice.clientEmail
         },
-        theme: { color: '#111827' },
+        theme: { color: '#FACC15' },
+        modal: {
+          ondismiss: function() {
+            setPaying(false);
+          }
+        },
+        retry: { enabled: false }, // Avoid confusing retries on mobile
         handler: async (response) => {
           try {
             await api.post('/payment/public/verify', {
@@ -262,13 +268,21 @@ export default function PublicInvoice() {
                     <p className="text-xs text-gray-500 mb-4 leading-relaxed">
                       Use any UPI app like GPay, PhonePe or Paytm to scan and pay the total amount.
                     </p>
-                    <button
-                      onClick={handlePayNow}
-                      disabled={paying}
-                      className="w-full sm:w-auto px-6 py-2.5 bg-gray-900 text-white rounded-lg font-bold text-sm shadow-lg hover:bg-black transition-all active:scale-95 disabled:opacity-50"
-                    >
-                      {paying ? 'Processing...' : 'Pay with Razorpay'}
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button
+                        onClick={handlePayNow}
+                        disabled={paying}
+                        className="w-full sm:w-auto px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
+                      >
+                        {paying ? 'Opening...' : 'Razorpay Secure'}
+                      </button>
+                      <button
+                        onClick={() => window.location.href = upiUri}
+                        className="w-full sm:w-auto px-8 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-emerald-600 transition-all active:scale-95 uppercase tracking-widest md:hidden"
+                      >
+                         Pay via UPI App
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
