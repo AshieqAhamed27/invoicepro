@@ -175,8 +175,13 @@ export default function PublicInvoice() {
 
         <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-200 pb-8 mb-8">
           <div>
-            <div className="mb-2">
-               <BrandLogo showText={true} textColor="black" />
+            <div className="mb-2 flex items-center gap-3">
+              {invoice.user?.logo && (
+                <div className="h-10 w-10 rounded-lg border border-gray-200 bg-white p-1">
+                  <img src={invoice.user.logo} alt="Company logo" className="h-full w-full object-contain" />
+                </div>
+              )}
+              <BrandLogo showText={true} textColor="black" />
             </div>
             <p className="text-gray-400 mt-2 font-bold uppercase text-[10px] tracking-widest">
               Secured Checkout Portal
@@ -227,6 +232,9 @@ export default function PublicInvoice() {
               </h2>
               <p className="text-gray-500 mt-1">
                 Professional Services
+              </p>
+              <p className="text-gray-500 mt-1 text-sm">
+                {invoice.user?.address || 'Tamil Nadu, India'}
               </p>
             </div>
           )}

@@ -100,7 +100,7 @@ router.get('/dashboard', protect, async(req, res) => {
 router.get('/public/:id', async(req, res) => {
     try {
         const invoice = await Invoice.findById(req.params.id)
-            .populate('user', 'companyName upiId');
+            .populate('user', 'companyName upiId address logo');
 
         if (!invoice) {
             return res.status(404).json({

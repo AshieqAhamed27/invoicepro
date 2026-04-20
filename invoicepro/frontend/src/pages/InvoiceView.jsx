@@ -13,6 +13,12 @@ const formatCurrency = (amount) => {
   })}`;
 };
 
+const formatCurrencyPdf = (amount) => {
+  return `INR ${Number(amount || 0).toLocaleString('en-IN', {
+    minimumFractionDigits: 2
+  })}`;
+};
+
 const loadImageForPdf = (url) =>
   new Promise((resolve, reject) => {
     const img = new Image();
@@ -116,7 +122,7 @@ export default function InvoiceView() {
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
-      doc.text(user?.address || 'Mumbai, India', companyNameX, 60);
+      doc.text(user?.address || 'Tamil Nadu, India', companyNameX, 60);
       doc.text(user?.email || '', companyNameX, 74);
 
       doc.setFont('helvetica', 'bold');
@@ -156,7 +162,7 @@ export default function InvoiceView() {
         head: [['Description', 'Amount']],
         body: items.map((item, idx) => [
           `${idx + 1}. ${item.name || 'Service'}`,
-          formatCurrency(item.price)
+          formatCurrencyPdf(item.price)
         ]),
         theme: 'grid',
         styles: { font: 'helvetica', fontSize: 10, textColor: [15, 23, 42], cellPadding: 9 },
@@ -176,29 +182,30 @@ export default function InvoiceView() {
       const memoLines = doc.splitTextToSize(invoice.serviceDescription || 'No description provided.', contentWidth * 0.56);
       doc.text(memoLines, margin, finalY + 16);
 
-      const summaryX = pageWidth - margin - 190;
+      const summaryWidth = 215;
+      const summaryX = pageWidth - margin - summaryWidth;
       const summaryY = finalY;
       doc.setDrawColor(226, 232, 240);
       doc.setFillColor(248, 250, 252);
-      doc.roundedRect(summaryX, summaryY - 12, 190, 95, 8, 8, 'FD');
+      doc.roundedRect(summaryX, summaryY - 12, summaryWidth, 95, 8, 8, 'FD');
       doc.setTextColor(71, 85, 105);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       doc.text('Subtotal', summaryX + 12, summaryY + 10);
-      doc.text(formatCurrency(subtotal), summaryX + 178, summaryY + 10, { align: 'right' });
+      doc.text(formatCurrencyPdf(subtotal), summaryX + summaryWidth - 12, summaryY + 10, { align: 'right' });
       if (safeTax > 0) {
         doc.text('Tax', summaryX + 12, summaryY + 28);
-        doc.text(formatCurrency(safeTax), summaryX + 178, summaryY + 28, { align: 'right' });
+        doc.text(formatCurrencyPdf(safeTax), summaryX + summaryWidth - 12, summaryY + 28, { align: 'right' });
       }
       doc.setDrawColor(203, 213, 225);
-      doc.line(summaryX + 10, summaryY + 42, summaryX + 180, summaryY + 42);
+      doc.line(summaryX + 10, summaryY + 42, summaryX + summaryWidth - 10, summaryY + 42);
       doc.setTextColor(100, 116, 139);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
       doc.text('TOTAL', summaryX + 12, summaryY + 58);
       doc.setTextColor(15, 23, 42);
-      doc.setFontSize(17);
-      doc.text(formatCurrency(invoice.amount), summaryX + 178, summaryY + 62, { align: 'right' });
+      doc.setFontSize(15);
+      doc.text(formatCurrencyPdf(invoice.amount), summaryX + summaryWidth - 12, summaryY + 62, { align: 'right' });
 
       doc.setTextColor(100, 116, 139);
       doc.setFont('helvetica', 'bold');
@@ -329,7 +336,7 @@ export default function InvoiceView() {
                     <h2 className="text-3xl font-black tracking-tighter">{companyName}</h2>
                   </div>
                   <div className="space-y-1 text-sm text-gray-500 font-medium">
-                    <p>{user?.address || 'Mumbai, India'}</p>
+                    <p>{user?.address || 'Tamil Nadu, India'}</p>
                     <p>{user?.email}</p>
                   </div>
                 </div>

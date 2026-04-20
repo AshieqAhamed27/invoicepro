@@ -29,7 +29,7 @@ export default function Settings() {
         companyName: user.companyName || '',
         gstNumber: user.gstNumber || '',
         upiId: user.upiId || '',
-        address: user.address || '',
+        address: user.address || 'Tamil Nadu, India',
         logo: user.logo || ''
       });
     } catch {
@@ -157,7 +157,7 @@ export default function Settings() {
                 name="address"
                 value={form.address}
                 onChange={handleChange}
-                placeholder="Enter full business address..."
+                placeholder="Tamil Nadu, India"
                 rows="4"
                 className="input resize-none py-4 bg-black/20 border-white/5 focus:bg-black/60 min-h-[120px]"
               />
