@@ -21,9 +21,9 @@ export default function Home() {
   ];
 
   const features = [
-    ['One-Click Payments', 'UPI QR codes and Credit Card support built directly into every invoice.'],
-    ['Client Management', 'Save client profiles for instant retrieval. No more re-typing emails.'],
-    ['Financial Insights', 'AI Cashflow analysis helps you identify payment risks before they become problems.']
+    ['Smart Follow-ups', 'Automated reminders draft professional messages to your late-paying clients.'],
+    ['Customer CRM', 'Save client profiles for instant retrieval. Analyze lifetime value per partner.'],
+    ['Growth Analytics', 'Visual revenue trends and AI-powered cashflow health scores at your fingertips.']
   ];
 
   return (

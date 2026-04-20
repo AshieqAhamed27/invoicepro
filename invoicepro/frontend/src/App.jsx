@@ -21,6 +21,7 @@ const Payment = lazy(() => import('./pages/Payment'));
 const Admin = lazy(() => import('./pages/Admin'));
 const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Clients = lazy(() => import('./pages/Clients'));
 
 // ==========================
 // PROTECTED ROUTE
@@ -133,6 +134,15 @@ export default function App() {
             element={
               <PrivateRoute>
                 <Settings />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/clients"
+            element={
+              <PrivateRoute>
+                <Clients />
               </PrivateRoute>
             }
           />

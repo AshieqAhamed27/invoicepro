@@ -44,6 +44,9 @@ export default function Navbar() {
               <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
                 Dashboard
               </NavLink>
+              <NavLink to="/clients" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+                Clients
+              </NavLink>
               <NavLink to="/create-invoice" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
                 Create
               </NavLink>
@@ -96,6 +99,9 @@ export default function Navbar() {
               <>
                 <NavLink to="/dashboard" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Dashboard
+                </NavLink>
+                <NavLink to="/clients" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
+                  Clients
                 </NavLink>
                 <NavLink to="/create-invoice" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Create Invoice

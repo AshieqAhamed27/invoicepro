@@ -46,59 +46,30 @@ router.get('/', protect, async(req, res) => {
 // ==========================
 router.get('/dashboard', protect, async(req, res) => {
     try {
-        const [statsResult, invoices] = await Promise.all([
-            Invoice.aggregate([{
-                    $match: {
-                        user: req.user._id
-                    }
-                },
-                {
-                    $group: {
-                        _id: null,
-                        totalRevenue: {
-                            $sum: {
-                                $cond: [{
-                                    $eq: ['$status', 'paid']
-                                }, '$amount', 0]
-                            }
-                        },
-                        pending: {
-                            $sum: {
-                                $cond: [{
-                                    $eq: ['$status', 'pending']
-                                }, 1, 0]
-                            }
-                        },
-                        paid: {
-                            $sum: {
-                                $cond: [{
-                                    $eq: ['$status', 'paid']
-                                }, 1, 0]
-                            }
-                        },
-                        total: {
-                            $sum: 1
-                        }
-                    }
-                }
+        const [statsResult, invoices, trends] = await Promise.all([
+            Invoice.aggregate([
+                { $match: { user: req.user._id } },
+                { $group: {
+                    _id: null,
+                    totalRevenue: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, '$amount', 0] } },
+                    pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+                    paid: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] } },
+                    total: { $sum: 1 }
+                }}
             ]),
-            Invoice.find({
-                    user: req.user._id
-                })
-                .sort({
-                    createdAt: -1
-                })
-                .limit(10)
-                .select('clientName clientEmail amount status invoiceNumber createdAt dueDate')
-                .lean()
+            Invoice.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(10).lean(),
+            Invoice.aggregate([
+                { $match: { user: req.user._id, status: 'paid' } },
+                { $group: {
+                    _id: { month: { $month: '$createdAt' }, year: { $year: '$createdAt' } },
+                    amount: { $sum: '$amount' }
+                }},
+                { $sort: { '_id.year': -1, '_id.month': -1 } },
+                { $limit: 6 }
+            ])
         ]);
 
-        const stats = statsResult[0] || {
-            totalRevenue: 0,
-            pending: 0,
-            paid: 0,
-            total: 0
-        };
+        const stats = statsResult[0] || { totalRevenue: 0, pending: 0, paid: 0, total: 0 };
 
         res.json({
             invoices,
@@ -106,7 +77,11 @@ router.get('/dashboard', protect, async(req, res) => {
                 totalRevenue: stats.totalRevenue || 0,
                 pending: stats.pending || 0,
                 paid: stats.paid || 0,
-                total: stats.total || 0
+                total: stats.total || 0,
+                trends: trends.map(t => ({
+                    label: new Date(t._id.year, t._id.month - 1).toLocaleString('default', { month: 'short' }),
+                    value: t.amount
+                })).reverse()
             }
         });
 
@@ -378,6 +353,63 @@ router.delete('/:id', protect, async(req, res) => {
         res.status(500).json({
             message: 'Server error.'
         });
+    }
+});
+
+// ==========================
+// GET UNIQUE CLIENTS (CRM)
+// ==========================
+router.get('/clients', protect, async (req, res) => {
+    try {
+        const clients = await Invoice.aggregate([
+            { $match: { user: req.user._id } },
+            { $group: { 
+                _id: '$clientEmail', 
+                name: { $first: '$clientName' },
+                email: { $first: '$clientEmail' },
+                totalInvoiced: { $sum: '$amount' },
+                invoiceCount: { $sum: 1 },
+                lastInvoiced: { $max: '$createdAt' }
+            }},
+            { $sort: { lastInvoiced: -1 } }
+        ]);
+
+        res.json(clients);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// ==========================
+// SEND REMINDER
+// ==========================
+router.post('/:id/reminder', protect, async (req, res) => {
+    try {
+        const invoice = await Invoice.findOne({ _id: req.params.id, user: req.user._id });
+        if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+        if (invoice.status === 'paid') return res.status(400).json({ message: 'Already paid' });
+
+        const publicLink = `${process.env.FRONTEND_URL}/public/invoice/${invoice._id}`;
+        
+        await sendEmail(
+            invoice.clientEmail,
+            `Friendly Reminder: Invoice ${invoice.invoiceNumber} is Pending`,
+            `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:16px;">
+                <h2 style="color:#111827;">Payment Reminder</h2>
+                <p>Hi ${invoice.clientName}, this is a friendly reminder that invoice <strong>${invoice.invoiceNumber}</strong> is still pending.</p>
+                <div style="background:#f9fafb;padding:20px;border-radius:12px;margin:16px 0;">
+                    <p><strong>Total Amount:</strong> ₹${Number(invoice.amount).toLocaleString('en-IN')}</p>
+                    <p><strong>Due Date:</strong> ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : 'Immediate'}</p>
+                </div>
+                <a href="${publicLink}" style="display:inline-block;background:#FACC15;color:#000;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:bold;">Pay Invoice Now</a>
+            </div>
+            `
+        );
+
+        res.json({ message: 'Reminder sent successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
