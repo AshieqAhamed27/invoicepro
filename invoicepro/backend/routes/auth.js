@@ -316,35 +316,7 @@ router.put(
     }
 );
 
-// ==========================
-// UPGRADE TO PRO
-// ==========================
-router.put(
-    '/upgrade',
-    protect,
-    async(req, res) => {
-        try {
-            req.user.plan =
-                'pro';
-
-            await req.user.save();
-
-            res.json({
-                message: 'Upgraded to Pro!',
-                plan: 'pro'
-            });
-
-        } catch (err) {
-            console.error(
-                'UPGRADE ERROR:',
-                err
-            );
-
-            res.status(500).json({
-                message: 'Server error.'
-            });
-        }
-    }
-);
+// Insecure direct upgrade route removed. 
+// Use /payment/razorpay or /payment/request for verified upgrades.
 
 module.exports = router;

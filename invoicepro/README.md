@@ -156,6 +156,8 @@ Visit **http://localhost:5173** in your browser.
 
 ## 📝 Notes
 
-- The "Upgrade to Pro" button in this demo simulates payment (no real payment gateway). Wire up Razorpay or Stripe to collect real payments.
+- The "Upgrade to Pro" button is configured for real payments via Razorpay. To use it for your startup, you must set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` in `backend/.env`.
+- For testing purposes, you can enable `PAYMENT_SIMULATION=true` in `.env` to bypass the payment gateway.
+- All invoices and payment statuses are securely tracked in the database to prevent free-tier abuse.
 - JWT tokens are stored in `localStorage`. For production, consider httpOnly cookies.
 - All invoice PDFs are generated client-side using jsPDF — no server PDF generation needed.
