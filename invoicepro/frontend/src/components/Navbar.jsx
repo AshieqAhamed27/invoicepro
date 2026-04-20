@@ -30,7 +30,7 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 px-4 pt-4 pb-0">
       <div className="container-custom h-16 flex items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-6 backdrop-blur-xl shadow-2xl shadow-black/40">
-        <NavLink to="/" className="group flex items-center gap-3">
+        <NavLink to="/" className="group flex items-center gap-3 scale-90 sm:scale-100 origin-left">
           <BrandLogo markClassName="transition-transform duration-300 group-hover:scale-110" />
         </NavLink>
 

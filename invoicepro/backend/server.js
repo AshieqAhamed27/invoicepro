@@ -27,7 +27,10 @@ app.use(
             if (
                 requestOrigin === frontendUrl ||
                 origin.includes('vercel.app') ||
-                origin.includes('localhost')
+                origin.includes('localhost') ||
+                /^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
+                /^http:\/\/172\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
+                /^http:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin)
             ) {
                 return callback(null, true);
             }

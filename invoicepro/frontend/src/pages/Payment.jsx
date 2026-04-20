@@ -123,7 +123,9 @@ export default function Payment() {
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (err) {
-      alert('Gateway error.');
+      console.error('Payment Error:', err);
+      const msg = err.response?.data?.message || 'Network Error: Backend may be unreachable on mobile. Ensure your VITE_API_URL is set to your computer\'s IP address.';
+      alert(`Payment Provisioning Failed: ${msg}`);
     } finally {
       setLoading(false);
     }
