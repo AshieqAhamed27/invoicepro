@@ -1,7 +1,24 @@
 import axios from 'axios';
 
+const cleanUrl = (url) => (url ? url.replace(/\/+$/, '') : '');
+const withApiPath = (url) => {
+    const cleanedUrl = cleanUrl(url);
+    return cleanedUrl && !cleanedUrl.endsWith('/api') ? `${cleanedUrl}/api` : cleanedUrl;
+};
+
+const envApiUrl = withApiPath(import.meta.env.VITE_API_URL);
+const isBrowser = typeof window !== 'undefined';
+const host = isBrowser ? window.location.hostname : '';
+const isLocalHost = host === 'localhost' || host === '127.0.0.1';
+const fallbackApiUrl = isLocalHost
+    ? 'http://localhost:5000/api'
+    : (isBrowser ? `${window.location.origin}/api` : 'http://localhost:5000/api');
+
+export const API_BASE_URL = envApiUrl || fallbackApiUrl;
+export const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json'
     }

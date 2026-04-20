@@ -3,6 +3,13 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+const {
+    getAllowedOrigins,
+    getRequiredEnv,
+    isDevOrigin,
+    normalizeUrl
+} = require('./utils/env');
+
 const authRoutes = require('./routes/auth');
 const invoiceRoutes = require('./routes/invoices');
 const paymentRoutes = require('./routes/payment');
@@ -10,28 +17,37 @@ const aiRoutes = require('./routes/ai');
 const clientRoutes = require('./routes/clients');
 
 const app = express();
+let mongoConnectionPromise = null;
 
-// ==========================
-// CORS
-// ==========================
+const connectDatabase = async() => {
+    if (mongoose.connection.readyState === 1) {
+        return mongoose.connection;
+    }
+
+    if (!mongoConnectionPromise) {
+        mongoConnectionPromise = mongoose
+            .connect(getRequiredEnv('MONGO_URI'), {
+                family: 4
+            })
+            .catch((err) => {
+                mongoConnectionPromise = null;
+                throw err;
+            });
+    }
+
+    await mongoConnectionPromise;
+    return mongoose.connection;
+};
+
 app.use(
     cors({
         origin: function(origin, callback) {
             if (!origin) return callback(null, true);
 
-            const frontendUrl = process.env.FRONTEND_URL ?
-                process.env.FRONTEND_URL.replace(/\/$/, '') :
-                '';
-            const requestOrigin = origin.replace(/\/$/, '');
+            const requestOrigin = normalizeUrl(origin);
+            const allowedOrigins = getAllowedOrigins();
 
-            if (
-                requestOrigin === frontendUrl ||
-                origin.includes('vercel.app') ||
-                origin.includes('localhost') ||
-                /^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
-                /^http:\/\/172\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
-                /^http:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin)
-            ) {
+            if (allowedOrigins.has(requestOrigin) || isDevOrigin(requestOrigin)) {
                 return callback(null, true);
             }
 
@@ -41,29 +57,23 @@ app.use(
     })
 );
 
-// ==========================
-// MIDDLEWARE
-// ==========================
-app.use(express.json({ limit: '5mb' })); // 🔥 increase limit
+app.use(express.json({ limit: '5mb' }));
 
-// ==========================
-// STATIC FILES (IMPORTANT)
-// ==========================
-const path = require('path');
-app.use('/upload', express.static(path.join(__dirname, 'upload')));
+app.use(async(req, res, next) => {
+    try {
+        await connectDatabase();
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
 
-// ==========================
-// ROUTES
-// ==========================
 app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/clients', clientRoutes);
 
-// ==========================
-// HEALTH CHECK
-// ==========================
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
@@ -71,38 +81,13 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// ==========================
-// GLOBAL ERROR HANDLER 🔥
-// ==========================
 app.use((err, req, res, next) => {
-    console.error('❌ Error:', err.message);
+    console.error('Error:', err.message);
 
     res.status(500).json({
         message: err.message || 'Server error'
     });
 });
 
-// ==========================
-// PORT + DB
-// ==========================
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
-
-// ==========================
-// DB CONNECT
-// ==========================
-mongoose
-    .connect(MONGO_URI, {
-        family: 4
-    })
-    .then(() => {
-        console.log('✅ Connected to MongoDB');
-
-        app.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
-        });
-    })
-    .catch((err) => {
-        console.error('❌ MongoDB connection error:', err.message);
-        process.exit(1);
-    });
+module.exports = app;
+module.exports.connectDatabase = connectDatabase;

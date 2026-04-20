@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { getJwtSecret } = require('../utils/env');
 const {
     protect
 } = require('../middleware/auth');
@@ -12,8 +13,7 @@ const router = express.Router();
 // ==========================
 const generateToken = (id) => {
     return jwt.sign({ id },
-        process.env.JWT_SECRET ||
-        'fallback_secret', {
+        getJwtSecret(), {
             expiresIn: '30d'
         }
     );

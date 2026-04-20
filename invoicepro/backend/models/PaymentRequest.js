@@ -14,6 +14,22 @@ const paymentRequestSchema = new mongoose.Schema({
     screenshot: {
         type: String
     },
+    screenshotName: {
+        type: String,
+        default: ''
+    },
+    screenshotContentType: {
+        type: String,
+        default: ''
+    },
+    screenshotSize: {
+        type: Number,
+        default: 0
+    },
+    screenshotData: {
+        type: Buffer,
+        select: false
+    },
     plan: {
         type: String,
         default: 'monthly'

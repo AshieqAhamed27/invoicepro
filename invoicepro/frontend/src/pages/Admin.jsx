@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import api from '../utils/api';
+import api, { API_BASE_URL } from '../utils/api';
 import Navbar from '../components/Navbar';
 
 export default function Admin() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const getScreenshotUrl = (request) => {
+    return request.screenshotUrl
+      ? `${API_BASE_URL}${request.screenshotUrl.replace(/^\/api/, '')}`
+      : `${API_BASE_URL}/payment/requests/${request._id}/screenshot`;
+  };
 
   const fetchRequests = async () => {
     try {
@@ -91,13 +97,13 @@ export default function Admin() {
                 <div className="p-8">
                   <div className="relative mb-8 aspect-video rounded-2xl border border-white/5 overflow-hidden group/img">
                     <img
-                      src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/upload/${req.screenshot}`}
+                      src={getScreenshotUrl(req)}
                       alt="Payment screenshot"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center p-4">
                        <a 
-                         href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}/upload/${req.screenshot}`}
+                         href={getScreenshotUrl(req)}
                          target="_blank"
                          rel="noopener noreferrer"
                          className="px-6 py-2 bg-white text-black rounded-xl text-xs font-black uppercase tracking-widest"

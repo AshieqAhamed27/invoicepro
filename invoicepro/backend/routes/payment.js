@@ -9,16 +9,26 @@ const User = require('../models/User');
 const PaymentRequest = require('../models/PaymentRequest');
 const Invoice = require('../models/Invoice');
 
-const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, 'upload/');
+const allowedScreenshotTypes = new Set([
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif'
+]);
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024
     },
-    filename: function(req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
+    fileFilter: function(req, file, cb) {
+        if (!allowedScreenshotTypes.has(file.mimetype)) {
+            return cb(new Error('Screenshot must be an image file'));
+        }
+
+        cb(null, true);
     }
 });
-
-const upload = multer({ storage });
 
 const planDetails = {
     monthly: {
@@ -182,7 +192,19 @@ router.post('/request', protect, upload.single('screenshot'), async(req, res) =>
     try {
         const { plan } = req.body;
         if (!req.file) return res.status(400).json({ message: 'File required' });
-        await PaymentRequest.create({ user: req.user._id, screenshot: req.file.filename, plan, status: 'pending' });
+        if (!planDetails[plan]) return res.status(400).json({ message: 'Invalid plan' });
+
+        await PaymentRequest.create({
+            user: req.user._id,
+            screenshot: req.file.originalname,
+            screenshotName: req.file.originalname,
+            screenshotContentType: req.file.mimetype,
+            screenshotSize: req.file.size,
+            screenshotData: req.file.buffer,
+            plan,
+            status: 'pending'
+        });
+
         res.json({ message: 'Submitted' });
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
@@ -190,8 +212,29 @@ router.post('/request', protect, upload.single('screenshot'), async(req, res) =>
 router.get('/requests', protect, async(req, res) => {
     try {
         if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
-        const requests = await PaymentRequest.find().populate('user', 'name email');
-        res.json(requests);
+        const requests = await PaymentRequest.find()
+            .select('-screenshotData')
+            .populate('user', 'name email')
+            .sort({ createdAt: -1 });
+
+        res.json(requests.map((request) => ({
+            ...request.toObject(),
+            screenshotUrl: `/api/payment/requests/${request._id}/screenshot`
+        })));
+    } catch (err) { res.status(500).json({ message: 'Server error' }); }
+});
+
+router.get('/requests/:id/screenshot', protect, async(req, res) => {
+    try {
+        if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+
+        const request = await PaymentRequest.findById(req.params.id).select('+screenshotData');
+        if (!request) return res.status(404).json({ message: 'Not found' });
+        if (!request.screenshotData) return res.status(410).json({ message: 'Screenshot is not available' });
+
+        res.set('Content-Type', request.screenshotContentType || 'application/octet-stream');
+        res.set('Content-Length', String(request.screenshotData.length));
+        res.send(request.screenshotData);
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
 

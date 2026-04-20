@@ -4,8 +4,8 @@
   "description": "InvoicePro Backend API",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node local.js",
+    "dev": "nodemon local.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
