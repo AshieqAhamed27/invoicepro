@@ -173,6 +173,108 @@ router.post('/razorpay/order', protect, async(req, res) => {
 });
 
 // ==========================
+// CREATE PUBLIC RAZORPAY ORDER (FOR CLIENTS)
+// ==========================
+router.post('/public/order', async(req, res) => {
+    try {
+        const { invoiceId } = req.body;
+        const invoice = await Invoice.findById(invoiceId);
+
+        if (!invoice) {
+            return res.status(404).json({ message: 'Invoice not found' });
+        }
+
+        if (invoice.status === 'paid') {
+            return res.status(400).json({ message: 'Invoice already paid' });
+        }
+
+        const authHeader = getRazorpayAuthHeader();
+
+        // SIMULATION MODE
+        if (process.env.PAYMENT_SIMULATION === 'true') {
+            return res.json({
+                simulation: true,
+                keyId: 'rzp_test_simulation',
+                order: {
+                    id: 'order_sim_' + Date.now(),
+                    amount: invoice.amount * 100,
+                    currency: 'INR'
+                }
+            });
+        }
+
+        if (!authHeader) {
+            return res.status(500).json({ message: 'Razorpay keys are not configured' });
+        }
+
+        const amountInPaise = Math.round(invoice.amount * 100);
+        const receipt = `inv_${invoice._id}_${Date.now()}`;
+
+        const razorpayRes = await createRazorpayOrder({
+            amount: amountInPaise,
+            currency: 'INR',
+            receipt,
+            notes: {
+                invoiceId: String(invoice._id)
+            }
+        }, authHeader);
+
+        if (!razorpayRes.ok) {
+            return res.status(razorpayRes.status).json({
+                message: razorpayRes.body.error?.description || 'Failed to create Razorpay order'
+            });
+        }
+
+        res.json({
+            keyId: process.env.RAZORPAY_KEY_ID,
+            order: razorpayRes.body
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// ==========================
+// VERIFY PUBLIC PAYMENT
+// ==========================
+router.post('/public/verify', async(req, res) => {
+    try {
+        const {
+            invoiceId,
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature
+        } = req.body;
+
+        const invoice = await Invoice.findById(invoiceId);
+        if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+
+        if (process.env.PAYMENT_SIMULATION !== 'true') {
+            const generatedSignature = crypto
+                .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+                .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+                .digest('hex');
+
+            if (generatedSignature !== razorpay_signature) {
+                return res.status(400).json({ message: 'Payment verification failed' });
+            }
+        }
+
+        invoice.status = 'paid';
+        invoice.paidAt = new Date();
+        await invoice.save();
+
+        res.json({ message: 'Payment successful', status: 'paid' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// ==========================
 // VERIFY RAZORPAY PAYMENT
 // ==========================
 router.post('/razorpay/verify', protect, async(req, res) => {

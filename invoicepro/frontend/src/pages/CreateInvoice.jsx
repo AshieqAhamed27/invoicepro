@@ -29,7 +29,10 @@ export default function CreateInvoice() {
 
   const user = getUser() || {};
 
+  const [clients, setClients] = useState([]);
+
   useEffect(() => {
+    fetchClients();
     if (user) {
       setForm(prev => ({
         ...prev,
@@ -38,6 +41,24 @@ export default function CreateInvoice() {
       }));
     }
   }, []);
+
+  const fetchClients = async () => {
+    try {
+      const res = await api.get('/clients');
+      setClients(res.data);
+    } catch (err) {
+      console.log('Failed to load clients');
+    }
+  };
+
+  const selectClient = (client) => {
+    setForm(prev => ({
+      ...prev,
+      clientName: client.name,
+      clientEmail: client.email,
+      gst: client.gst || prev.gst
+    }));
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -163,11 +184,29 @@ export default function CreateInvoice() {
         <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <div className="reveal reveal-delay-1 surface overflow-hidden">
             <section className="border-b border-white/10 p-5">
-              <div className="mb-4">
-                <h2 className="text-lg">Client Details</h2>
-                <p className="mt-1 text-sm text-zinc-500">
-                  Who should receive this invoice?
-                </p>
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg">Client Details</h2>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Who should receive this invoice?
+                  </p>
+                </div>
+
+                {clients.length > 0 && (
+                  <select
+                    className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-semibold text-yellow-300 outline-none focus:border-yellow-300/50"
+                    onChange={(e) => {
+                      const c = clients.find(client => client._id === e.target.value);
+                      if (c) selectClient(c);
+                    }}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Pick saved client</option>
+                    {clients.map(c => (
+                      <option key={c._id} value={c._id}>{c.name}</option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">

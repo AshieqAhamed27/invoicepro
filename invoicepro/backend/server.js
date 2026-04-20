@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const invoiceRoutes = require('./routes/invoices');
 const paymentRoutes = require('./routes/payment');
 const aiRoutes = require('./routes/ai');
+const clientRoutes = require('./routes/clients');
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/clients', clientRoutes);
 
 // ==========================
 // HEALTH CHECK
