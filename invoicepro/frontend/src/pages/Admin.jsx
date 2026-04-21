@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api, { API_BASE_URL, API_ORIGIN } from '../utils/api';
+import api from '../utils/api';
 import Navbar from '../components/Navbar';
 
 export default function Admin() {
