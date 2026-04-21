@@ -46,90 +46,69 @@ export default function Payment() {
   const current = planDetails[plan];
 
   const handleRazorpayPayment = async () => {
-    try {
-      setLoading(true);
-      const isLoaded = await loadRazorpayScript();
+  console.log("STEP 1: BUTTON CLICKED");
 
-      if (!isLoaded) {
-        alert('Payment gateway failed to initialize.');
-        return;
-      }
+  try {
+    setLoading(true);
 
-      const orderRes = await api.post('/payment/razorpay/order', { plan });
-      const { keyId, order, simulation } = orderRes.data;
+    // ✅ TEST API FIRST
+    console.log("STEP 2: CALLING API");
 
-      if (simulation) {
-        setLoading(false);
-        const confirmSim = window.confirm("TEST MODE: Auth sequence simulation?");
-        if (!confirmSim) return;
+    const orderRes = await api.post('/payment/razorpay/order', {
+      plan: plan
+    });
 
-        setLoading(true);
-        const verifyRes = await api.post('/payment/razorpay/verify', {
-          plan,
-          razorpay_order_id: order.id,
-          razorpay_payment_id: 'pay_sim_' + Date.now(),
-          razorpay_signature: 'sim_signature'
+    console.log("STEP 3: API RESPONSE", orderRes.data);
+
+    // ✅ LOAD RAZORPAY SCRIPT
+    const isLoaded = await loadRazorpayScript();
+
+    if (!isLoaded) {
+      alert("Razorpay failed to load");
+      return;
+    }
+
+    const keyId = orderRes.data.keyId;
+    const order = orderRes.data.order;
+
+    const options = {
+      key: keyId,
+      amount: order.amount,
+      currency: order.currency,
+      name: "InvoicePro",
+      description: "Subscription Payment",
+      order_id: order.id,
+
+      handler: async function (response) {
+        await api.post('/payment/razorpay/verify', {
+          plan: plan,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature
         });
 
-        if (verifyRes.data.user) {
-          const u = getUser() || {};
-          localStorage.setItem('user', JSON.stringify({ ...u, ...verifyRes.data.user }));
-        }
-
-        alert('Simulation complete. Premium logic provisioned.');
-        window.location.href = '/dashboard';
-        return;
+        alert("Payment successful");
+        window.location.href = "/dashboard";
       }
+    };
 
-      const options = {
-        key: keyId,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'InvoicePro',
-        description: current.label,
-        order_id: order.id,
-        prefill: {
-          name: user.name || '',
-          email: user.email || ''
-        },
-        modal: {
-          ondismiss: function() {
-            setLoading(false);
-          }
-        },
-        retry: { enabled: false },
-        handler: async (response) => {
-          try {
-            const verifyRes = await api.post('/payment/razorpay/verify', {
-              plan,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
-            });
+    const rzp = new window.Razorpay(options);
+    rzp.open();
 
-            if (verifyRes.data.user) {
-              const u = getUser() || {};
-              localStorage.setItem('user', JSON.stringify({ ...u, ...verifyRes.data.user }));
-            }
+  } catch (err) {
+    console.log("ERROR:", err);
 
-            alert('Identity upgraded. Premium features active.');
-            window.location.href = '/dashboard';
-          } catch (err) {
-            alert('Verification failed. Contact support.');
-          }
-        }
-      };
+    let msg = "Payment failed";
 
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
-    } catch (err) {
-      console.error('Payment Error:', err);
-      const msg = err.response?.data?.message || `Network Error: Cannot reach backend (${API_BASE_URL}). Configure VITE_API_URL to your deployed backend API URL.`;
-      alert(`Payment Provisioning Failed: ${msg}`);
-    } finally {
-      setLoading(false);
+    if (err && err.response && err.response.data && err.response.data.message) {
+      msg = err.response.data.message;
     }
-  };
+
+    alert(msg);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
