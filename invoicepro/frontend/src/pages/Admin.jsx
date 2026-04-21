@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 
+// ✅ FIX ADDED (no code removed)
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_ORIGIN = API_BASE_URL;
+
 export default function Admin() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);

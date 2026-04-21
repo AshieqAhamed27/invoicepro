@@ -88,6 +88,7 @@ export default function InvoiceView() {
   const downloadPdf = async () => {
     try {
       setDownloadingPdf(true);
+      const companyName = user?.companyName || user?.name || 'InvoicePro';
       const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
@@ -264,7 +265,7 @@ export default function InvoiceView() {
 
   if (!invoice) return null;
 
-  const companyName = user?.companyName || user?.name || 'InvoicePro';
+  
   const rawLogo = user?.logo?.trim();
 
   let logoUrl = null;
