@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { isLoggedIn, getUser } from '../utils/auth';
+import { clearAuth, isLoggedIn, getUser } from '../utils/auth';
 import BrandLogo from './BrandLogo';
 
 export default function Navbar() {
@@ -12,7 +12,7 @@ export default function Navbar() {
   const isAdmin = user?.role === 'admin';
 
   const handleLogout = () => {
-    localStorage.clear();
+    clearAuth();
     navigate('/login');
     setMenuOpen(false);
   };

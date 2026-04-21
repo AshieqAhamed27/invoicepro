@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '../utils/api';
+import api, { API_BASE_URL, API_ORIGIN } from '../utils/api';
 import Navbar from '../components/Navbar';
 
 export default function Admin() {
@@ -8,7 +8,7 @@ export default function Admin() {
 
   const getScreenshotUrl = (request) => {
     return request.screenshotUrl
-      ? `${API_BASE_URL}${request.screenshotUrl.replace(/^\/api/, '')}`
+      ? `${API_ORIGIN}${request.screenshotUrl}`
       : `${API_BASE_URL}/payment/requests/${request._id}/screenshot`;
   };
 

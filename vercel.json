@@ -1,0 +1,11 @@
+{
+    "installCommand": "npm --prefix invoicepro/frontend ci",
+    "buildCommand": "npm --prefix invoicepro/frontend run build",
+    "outputDirectory": "invoicepro/frontend/dist",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}

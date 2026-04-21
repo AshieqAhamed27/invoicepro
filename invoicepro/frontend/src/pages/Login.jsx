@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { setAuth } from '../utils/auth';
+import { resolvePostLoginRedirect, setAuth } from '../utils/auth';
 import { jwtDecode } from 'jwt-decode';
 import Navbar from '../components/Navbar';
 import BrandLogo from '../components/BrandLogo';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [form, setForm] = useState({
     email: '',
@@ -27,7 +28,7 @@ export default function Login() {
       });
 
       setAuth(res.data.token, res.data.user);
-      window.location.href = '/dashboard';
+      navigate(resolvePostLoginRedirect(location.state), { replace: true });
     } catch (err) {
       console.log(err);
       alert('Google login failed');
@@ -87,7 +88,7 @@ export default function Login() {
     try {
       const res = await api.post('/auth/login', form);
       setAuth(res.data.token, res.data.user);
-      navigate('/dashboard');
+      navigate(resolvePostLoginRedirect(location.state), { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -180,7 +181,7 @@ export default function Login() {
                   <input
                     type="password"
                     required
-                    placeholder="••••••••"
+                    placeholder="********"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"

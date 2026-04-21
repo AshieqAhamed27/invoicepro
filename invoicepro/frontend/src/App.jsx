@@ -1,19 +1,19 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import {
   BrowserRouter,
   Routes,
   Route,
-  Navigate
+  Navigate,
+  useLocation
 } from 'react-router-dom';
 
 import { isLoggedIn, getUser } from './utils/auth';
+import api from './utils/api';
 
-// Normal pages
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 
-// Lazy pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
@@ -23,27 +23,64 @@ const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Clients = lazy(() => import('./pages/Clients'));
 
-// ==========================
-// PROTECTED ROUTE
-// ==========================
+const RouteLoader = () => (
+  <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex flex-col justify-center items-center">
+    <div className="w-10 h-10 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+    <p className="text-gray-400">Verifying session...</p>
+  </div>
+);
+
 const PrivateRoute = ({ children }) => {
-  return isLoggedIn()
-    ? children
-    : <Navigate to="/login" replace />;
+  const location = useLocation();
+  const loggedIn = isLoggedIn();
+  const [status, setStatus] = useState(() => (loggedIn ? 'checking' : 'unauthenticated'));
+
+  useEffect(() => {
+    let active = true;
+
+    if (!loggedIn) {
+      setStatus('unauthenticated');
+      return undefined;
+    }
+
+    setStatus('checking');
+
+    api.get('/auth/me')
+      .then((res) => {
+        if (!active) return;
+
+        const currentUser = getUser() || {};
+        localStorage.setItem('user', JSON.stringify({ ...currentUser, ...(res.data.user || {}) }));
+        setStatus('authenticated');
+      })
+      .catch(() => {
+        if (active) {
+          setStatus('unauthenticated');
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [loggedIn, location.pathname]);
+
+  if (!loggedIn || status === 'unauthenticated') {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (status === 'checking') {
+    return <RouteLoader />;
+  }
+
+  return children;
 };
 
-// ==========================
-// PUBLIC ROUTE
-// ==========================
 const PublicRoute = ({ children }) => {
   return !isLoggedIn()
     ? children
     : <Navigate to="/dashboard" replace />;
 };
 
-// ==========================
-// ADMIN CHECK (BASIC)
-// ==========================
 const isAdmin = () => {
   const user = getUser();
   return user?.role === 'admin';
@@ -52,22 +89,10 @@ const isAdmin = () => {
 export default function App() {
   return (
     <BrowserRouter>
-
-      <Suspense
-        fallback={
-          <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex flex-col justify-center items-center">
-            <div className="w-10 h-10 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-            <p className="text-gray-400">Loading...</p>
-          </div>
-        }
-      >
-
+      <Suspense fallback={<RouteLoader />}>
         <Routes>
-
-          {/* HOME */}
           <Route path="/" element={<Home />} />
 
-          {/* PUBLIC INVOICE */}
           <Route
             path="/public/invoice/:id"
             element={<PublicInvoice />}
@@ -77,7 +102,6 @@ export default function App() {
             element={<PublicInvoice />}
           />
 
-          {/* AUTH */}
           <Route
             path="/login"
             element={
@@ -96,7 +120,6 @@ export default function App() {
             }
           />
 
-          {/* PRIVATE ROUTES */}
           <Route
             path="/dashboard"
             element={
@@ -151,7 +174,6 @@ export default function App() {
             }
           />
 
-          {/* 🔒 ADMIN ROUTE (SECURED) */}
           <Route
             path="/admin"
             element={
@@ -162,11 +184,8 @@ export default function App() {
               )
             }
           />
-
         </Routes>
-
       </Suspense>
-
     </BrowserRouter>
   );
 }

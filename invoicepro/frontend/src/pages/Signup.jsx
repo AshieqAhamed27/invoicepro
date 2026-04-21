@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { setAuth } from '../utils/auth';
+import { resolvePostLoginRedirect, setAuth } from '../utils/auth';
 import Navbar from '../components/Navbar';
 import BrandLogo from '../components/BrandLogo';
 
 export default function Signup() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [form, setForm] = useState({
     name: '',
@@ -32,7 +33,7 @@ export default function Signup() {
     try {
       const res = await api.post('/auth/signup', form);
       setAuth(res.data.token, res.data.user);
-      navigate('/dashboard');
+      navigate(resolvePostLoginRedirect(location.state), { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.message ||
