@@ -8,7 +8,7 @@ const sendEmail = require('../utils/sendEmail');
 const FREE_PLAN_LIMIT = 2;
 
 // Generate invoice number
-const generateInvoiceNumber = async (userId) => {
+const generateInvoiceNumber = async(userId) => {
     const lastInvoice = await Invoice.findOne({ user: userId }).sort({ createdAt: -1 });
     if (!lastInvoice) return 'INV-0001';
 
@@ -49,21 +49,25 @@ router.get('/dashboard', protect, async(req, res) => {
         const [statsResult, invoices, trends] = await Promise.all([
             Invoice.aggregate([
                 { $match: { user: req.user._id } },
-                { $group: {
-                    _id: null,
-                    totalRevenue: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, '$amount', 0] } },
-                    pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
-                    paid: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] } },
-                    total: { $sum: 1 }
-                }}
+                {
+                    $group: {
+                        _id: null,
+                        totalRevenue: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, '$amount', 0] } },
+                        pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+                        paid: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] } },
+                        total: { $sum: 1 }
+                    }
+                }
             ]),
             Invoice.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(10).lean(),
             Invoice.aggregate([
                 { $match: { user: req.user._id, status: 'paid' } },
-                { $group: {
-                    _id: { month: { $month: '$createdAt' }, year: { $year: '$createdAt' } },
-                    amount: { $sum: '$amount' }
-                }},
+                {
+                    $group: {
+                        _id: { month: { $month: '$createdAt' }, year: { $year: '$createdAt' } },
+                        amount: { $sum: '$amount' }
+                    }
+                },
                 { $sort: { '_id.year': -1, '_id.month': -1 } },
                 { $limit: 6 }
             ])
@@ -119,32 +123,7 @@ router.get('/public/:id', async(req, res) => {
     }
 });
 
-// ==========================
-// GET SINGLE INVOICE
-// ==========================
-router.get('/:id', protect, async(req, res) => {
-    try {
-        const invoice = await Invoice.findOne({
-            _id: req.params.id,
-            user: req.user._id
-        });
 
-        if (!invoice) {
-            return res.status(404).json({
-                message: 'Invoice not found.'
-            });
-        }
-
-        res.json({ invoice });
-
-    } catch (err) {
-        console.error('GET SINGLE ERROR:', err);
-
-        res.status(500).json({
-            message: 'Server error.'
-        });
-    }
-});
 
 // ==========================
 // CREATE INVOICE
@@ -359,18 +338,20 @@ router.delete('/:id', protect, async(req, res) => {
 // ==========================
 // GET UNIQUE CLIENTS (CRM)
 // ==========================
-router.get('/clients', protect, async (req, res) => {
+router.get('/clients', protect, async(req, res) => {
     try {
         const clients = await Invoice.aggregate([
             { $match: { user: req.user._id } },
-            { $group: { 
-                _id: '$clientEmail', 
-                name: { $first: '$clientName' },
-                email: { $first: '$clientEmail' },
-                totalInvoiced: { $sum: '$amount' },
-                invoiceCount: { $sum: 1 },
-                lastInvoiced: { $max: '$createdAt' }
-            }},
+            {
+                $group: {
+                    _id: '$clientEmail',
+                    name: { $first: '$clientName' },
+                    email: { $first: '$clientEmail' },
+                    totalInvoiced: { $sum: '$amount' },
+                    invoiceCount: { $sum: 1 },
+                    lastInvoiced: { $max: '$createdAt' }
+                }
+            },
             { $sort: { lastInvoiced: -1 } }
         ]);
 
@@ -381,16 +362,43 @@ router.get('/clients', protect, async (req, res) => {
 });
 
 // ==========================
+// GET SINGLE INVOICE
+// ==========================
+router.get('/:id', protect, async(req, res) => {
+    try {
+        const invoice = await Invoice.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!invoice) {
+            return res.status(404).json({
+                message: 'Invoice not found.'
+            });
+        }
+
+        res.json({ invoice });
+
+    } catch (err) {
+        console.error('GET SINGLE ERROR:', err);
+
+        res.status(500).json({
+            message: 'Server error.'
+        });
+    }
+});
+
+// ==========================
 // SEND REMINDER
 // ==========================
-router.post('/:id/reminder', protect, async (req, res) => {
+router.post('/:id/reminder', protect, async(req, res) => {
     try {
         const invoice = await Invoice.findOne({ _id: req.params.id, user: req.user._id });
         if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
         if (invoice.status === 'paid') return res.status(400).json({ message: 'Already paid' });
 
         const publicLink = `${process.env.FRONTEND_URL}/public/invoice/${invoice._id}`;
-        
+
         await sendEmail(
             invoice.clientEmail,
             `Friendly Reminder: Invoice ${invoice.invoiceNumber} is Pending`,
