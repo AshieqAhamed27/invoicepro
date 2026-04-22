@@ -46,10 +46,19 @@ const planDetails = {
     }
 };
 
+const PRICING_VERSION = '2026-04-22';
+
 const normalizePlan = (plan) => {
     const safePlan = String(plan || '').toLowerCase();
     return planDetails[safePlan] ? safePlan : null;
 };
+
+const serializePlans = () => Object.entries(planDetails).map(([id, details]) => ({
+    id,
+    amount: details.amount,
+    label: details.label,
+    durationDays: details.durationDays
+}));
 
 const getRazorpayAuthHeader = () => {
     const keyId = process.env.RAZORPAY_KEY_ID;
@@ -105,6 +114,13 @@ const createRazorpayOrder = (payload, authHeader) => {
     });
 };
 
+router.get('/plans', async(req, res) => {
+    res.json({
+        pricingVersion: PRICING_VERSION,
+        plans: serializePlans()
+    });
+});
+
 router.post('/razorpay/order', protect, async(req, res) => {
     try {
         const { plan } = req.body;
@@ -136,7 +152,8 @@ router.post('/razorpay/order', protect, async(req, res) => {
         res.json({
             keyId: process.env.RAZORPAY_KEY_ID,
             order: razorpayRes.body,
-            plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount }
+            plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount },
+            pricingVersion: PRICING_VERSION
         });
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });

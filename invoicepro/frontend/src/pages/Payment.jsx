@@ -34,9 +34,24 @@ const planDetails = {
 
 const getSafePlan = (value) => (planDetails[value] ? value : 'monthly');
 
+const mapPlansById = (plans = []) =>
+  plans.reduce((acc, plan) => {
+    if (plan?.id) {
+      acc[plan.id] = {
+        ...planDetails[plan.id],
+        amount: Number(plan.amount || 0),
+        label: plan.label || plan.id,
+        duration: Number(plan.durationDays || 0) === 365 ? "Billed every 365 days" : "Billed every 30 days"
+      };
+    }
+    return acc;
+  }, {});
+
 export default function Payment() {
   const [plan, setPlan] = useState('monthly');
   const [loading, setLoading] = useState(false);
+  const [serverPlanDetails, setServerPlanDetails] = useState(planDetails);
+  const [pricingWarning, setPricingWarning] = useState('');
 
   useEffect(() => {
     const selectedPlan = getSafePlan(localStorage.getItem("plan") || "monthly");
@@ -44,7 +59,39 @@ export default function Payment() {
     setPlan(selectedPlan);
   }, []);
 
-  const current = planDetails[getSafePlan(plan)];
+  useEffect(() => {
+    const loadPricing = async () => {
+      try {
+        const res = await api.get('/payment/plans');
+        const nextPlans = mapPlansById(res.data?.plans || []);
+
+        if (nextPlans.monthly?.amount && nextPlans.yearly?.amount) {
+          if (
+            nextPlans.monthly.amount !== planDetails.monthly.amount ||
+            nextPlans.yearly.amount !== planDetails.yearly.amount
+          ) {
+            setPricingWarning(
+              `Backend checkout is still serving old pricing: monthly Rs ${nextPlans.monthly.amount}, yearly Rs ${nextPlans.yearly.amount}. Redeploy the backend before accepting payments.`
+            );
+            return;
+          }
+
+          setServerPlanDetails((prev) => ({
+            ...prev,
+            ...nextPlans
+          }));
+        }
+
+        setPricingWarning('');
+      } catch {
+        setPricingWarning('Could not verify live checkout pricing from the backend. Please retry before taking payments.');
+      }
+    };
+
+    loadPricing();
+  }, []);
+
+  const current = serverPlanDetails[getSafePlan(plan)] || planDetails[getSafePlan(plan)];
 
   const handleRazorpayPayment = async () => {
     let checkoutOpened = false;
@@ -62,9 +109,19 @@ export default function Payment() {
       const keyId = orderRes.data?.keyId;
       const order = orderRes.data?.order;
       const simulation = Boolean(orderRes.data?.simulation);
+      const serverPlan = orderRes.data?.plan;
 
       if (!order?.id) {
         throw new Error("Invalid order response");
+      }
+
+      if (
+        serverPlan?.id === selectedPlan &&
+        Number(serverPlan.amount || 0) !== Number(planDetails[selectedPlan].amount)
+      ) {
+        throw new Error(
+          `Checkout amount mismatch detected. Server returned Rs ${serverPlan.amount} for the ${selectedPlan} plan. Redeploy the backend first.`
+        );
       }
 
       if (simulation) {
@@ -220,11 +277,17 @@ export default function Payment() {
 
                <button
                  onClick={handleRazorpayPayment}
-                 disabled={loading}
+                 disabled={loading || Boolean(pricingWarning)}
                  className="w-full py-5 rounded-2xl bg-yellow-400 text-black font-black text-lg shadow-xl shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                >
                  {loading ? 'Starting Payment...' : 'Pay Securely'}
                </button>
+
+               {pricingWarning && (
+                 <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                   {pricingWarning}
+                 </div>
+               )}
 
                <div className="mt-8 flex items-center justify-center gap-4 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
                   <img src="https://cdn.razorpay.com/static/assets/badgetext.png" alt="Razorpay Secure" className="h-6" />

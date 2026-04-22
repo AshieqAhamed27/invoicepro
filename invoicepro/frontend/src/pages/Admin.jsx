@@ -2,18 +2,24 @@ import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 
-// ✅ FIX ADDED (no code removed)
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const API_ORIGIN = API_BASE_URL;
+const API_BASE_URL = api.defaults.baseURL || '';
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
+const EXPECTED_PRICING = {
+  monthly: 499,
+  yearly: 4999
+};
 
 export default function Admin() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pricing, setPricing] = useState(null);
+  const [pricingLoading, setPricingLoading] = useState(true);
+  const [pricingError, setPricingError] = useState('');
 
   const getScreenshotUrl = (request) => {
     return request.screenshotUrl
       ? `${API_ORIGIN}${request.screenshotUrl}`
-      : `${API_BASE_URL}/payment/requests/${request._id}/screenshot`;
+      : `${API_ORIGIN}/api/payment/requests/${request._id}/screenshot`;
   };
 
   const fetchRequests = async () => {
@@ -25,6 +31,31 @@ export default function Admin() {
       console.log(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPricing = async () => {
+    try {
+      setPricingLoading(true);
+      setPricingError('');
+      const res = await api.get('/payment/plans');
+
+      const plans = (res.data?.plans || []).reduce((acc, plan) => {
+        if (plan?.id) {
+          acc[plan.id] = Number(plan.amount || 0);
+        }
+        return acc;
+      }, {});
+
+      setPricing({
+        pricingVersion: res.data?.pricingVersion || 'unknown',
+        plans
+      });
+    } catch (err) {
+      console.log(err);
+      setPricingError('Could not load live backend pricing.');
+    } finally {
+      setPricingLoading(false);
     }
   };
 
@@ -41,7 +72,12 @@ export default function Admin() {
 
   useEffect(() => {
     fetchRequests();
+    fetchPricing();
   }, []);
+
+  const monthlyAmount = pricing?.plans?.monthly ?? null;
+  const yearlyAmount = pricing?.plans?.yearly ?? null;
+  const pricingMatches = monthlyAmount === EXPECTED_PRICING.monthly && yearlyAmount === EXPECTED_PRICING.yearly;
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -50,33 +86,97 @@ export default function Admin() {
       <main className="container-custom py-10 md:py-16">
         <div className="reveal mb-12">
           <div className="flex items-center gap-2 mb-4">
-             <span className="h-px w-8 bg-red-500" />
-             <p className="text-[10px] font-black uppercase tracking-widest text-red-500">Security & Permissions</p>
+            <span className="h-px w-8 bg-red-500" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-red-500">Security & Permissions</p>
           </div>
           <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-4">
             Payment Audit
           </h1>
           <p className="max-w-2xl text-lg text-zinc-500 font-medium leading-relaxed">
-            Verify manual payment evidence and provision premium access.
+            Verify manual payment evidence and confirm live checkout pricing.
           </p>
         </div>
 
+        <section className="reveal reveal-delay-1 mb-12 surface border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
+          <div className="border-b border-white/5 p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Live Checkout Pricing</p>
+              <h2 className="text-2xl font-black text-white tracking-tight">Backend payment diagnostics</h2>
+            </div>
+
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${pricingError
+              ? 'bg-red-400/5 text-red-400 border-red-400/10'
+              : pricingMatches
+                ? 'bg-emerald-400/5 text-emerald-400 border-emerald-400/10'
+                : 'bg-yellow-400/5 text-yellow-500 border-yellow-400/10'
+              }`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${pricingError
+                ? 'bg-red-400'
+                : pricingMatches
+                  ? 'bg-emerald-400'
+                  : 'bg-yellow-500 animate-pulse'
+                }`} />
+              {pricingError ? 'Unavailable' : pricingMatches ? 'Pricing Correct' : 'Mismatch'}
+            </span>
+          </div>
+
+          <div className="grid gap-6 p-8 md:grid-cols-3">
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Monthly Plan</p>
+              <p className="text-4xl font-black text-white tracking-tighter">
+                {pricingLoading ? '--' : `Rs ${monthlyAmount ?? 'N/A'}`}
+              </p>
+              <p className="mt-2 text-xs font-bold text-zinc-500">
+                Expected: Rs {EXPECTED_PRICING.monthly}
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Annual Plan</p>
+              <p className="text-4xl font-black text-white tracking-tighter">
+                {pricingLoading ? '--' : `Rs ${yearlyAmount ?? 'N/A'}`}
+              </p>
+              <p className="mt-2 text-xs font-bold text-zinc-500">
+                Expected: Rs {EXPECTED_PRICING.yearly}
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Backend Target</p>
+              <p className="text-sm font-black text-white break-all leading-relaxed">
+                {API_BASE_URL || 'Not configured'}
+              </p>
+              <p className="mt-3 text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                Version: {pricing?.pricingVersion || 'unknown'}
+              </p>
+            </div>
+          </div>
+
+          {pricingError && (
+            <div className="px-8 pb-8">
+              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                {pricingError}
+              </div>
+            </div>
+          )}
+        </section>
+
         {loading ? (
-           <div className="grid gap-6 md:grid-cols-2">
-              {[1,2].map(i => (
-                <div key={i} className="h-96 rounded-[2.5rem] bg-white/5 border border-white/5 animate-pulse" />
-              ))}
-           </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {[1, 2].map((i) => (
+              <div key={i} className="h-96 rounded-[2.5rem] bg-white/5 border border-white/5 animate-pulse" />
+            ))}
+          </div>
         ) : requests.length === 0 ? (
           <div className="surface p-20 text-center border-white/5 bg-zinc-950/40 rounded-[2.5rem]">
             <div className="h-20 w-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/5 text-zinc-700">
-               <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             <h2 className="text-2xl font-black text-white mb-2">No Pending Actions</h2>
             <p className="text-zinc-500 font-medium">All upgrade requests have been processed.</p>
           </div>
         ) : (
-          <div className="reveal reveal-delay-1 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="reveal reveal-delay-2 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {requests.map((req) => (
               <div
                 key={req._id}
@@ -106,14 +206,14 @@ export default function Admin() {
                       className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center p-4">
-                       <a 
-                         href={getScreenshotUrl(req)}
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         className="px-6 py-2 bg-white text-black rounded-xl text-xs font-black uppercase tracking-widest"
-                       >
-                         View Full Resolution
-                       </a>
+                      <a
+                        href={getScreenshotUrl(req)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-2 bg-white text-black rounded-xl text-xs font-black uppercase tracking-widest"
+                      >
+                        View Full Resolution
+                      </a>
                     </div>
                   </div>
 
