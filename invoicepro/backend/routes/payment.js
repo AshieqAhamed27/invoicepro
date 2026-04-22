@@ -131,6 +131,7 @@ router.post('/public/order', async(req, res) => {
         const { invoiceId } = req.body;
         const invoice = await Invoice.findById(invoiceId);
         if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+        if (invoice.documentType === 'proposal') return res.status(400).json({ message: 'Proposals cannot be paid' });
         if (invoice.status === 'paid') return res.status(400).json({ message: 'Paid already' });
 
         const authHeader = getRazorpayAuthHeader();
@@ -160,6 +161,7 @@ router.post('/public/verify', async(req, res) => {
         const { invoiceId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
         const invoice = await Invoice.findById(invoiceId).populate('user', 'companyName name email');
         if (!invoice) return res.status(404).json({ message: 'Not found' });
+        if (invoice.documentType === 'proposal') return res.status(400).json({ message: 'Proposals cannot be paid' });
 
         if (invoice.status === 'paid') {
             return res.json({ message: 'Already paid', status: 'paid' });
@@ -292,7 +294,7 @@ router.post('/webhook', async (req, res) => {
             const notes = (payload.payment?.entity?.notes) || (payload.order?.entity?.notes);
             if (notes?.invoiceId) {
                 const inv = await Invoice.findById(notes.invoiceId).populate('user', 'companyName name email');
-                if (inv && inv.status !== 'paid') {
+                if (inv && inv.documentType !== 'proposal' && inv.status !== 'paid') {
                     inv.status = 'paid';
                     inv.paidAt = new Date();
                     await inv.save();

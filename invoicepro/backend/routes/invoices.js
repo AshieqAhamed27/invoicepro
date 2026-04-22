@@ -21,15 +21,38 @@ const {
 
 const FREE_PLAN_LIMIT = 2;
 
-// Generate invoice number
-const generateInvoiceNumber = async(userId) => {
-    const lastInvoice = await Invoice.findOne({ user: userId }).sort({ createdAt: -1 });
-    if (!lastInvoice) return 'INV-0001';
+const isProposalDocument = (value) => String(value || 'invoice').toLowerCase() === 'proposal';
+
+const getInvoiceDocumentMatch = (documentType) => (
+    isProposalDocument(documentType)
+        ? { documentType: 'proposal' }
+        : { documentType: { $ne: 'proposal' } }
+);
+
+// Generate billing document number
+const generateDocumentNumber = async(userId, documentType = 'invoice') => {
+    const lastInvoice = await Invoice.findOne({
+        user: userId,
+        ...getInvoiceDocumentMatch(documentType)
+    }).sort({ createdAt: -1 });
+
+    const prefix = isProposalDocument(documentType) ? 'PRO' : 'INV';
+    if (!lastInvoice) return `${prefix}-0001`;
 
     const lastNumMatch = lastInvoice.invoiceNumber.match(/(\d+)$/);
     const lastNum = lastNumMatch ? parseInt(lastNumMatch[1]) : 0;
     const nextNum = String(lastNum + 1).padStart(4, '0');
-    return `INV-${nextNum}`;
+    return `${prefix}-${nextNum}`;
+};
+
+const isDatePastEndOfDay = (value) => {
+    if (!value) return false;
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return false;
+
+    date.setHours(23, 59, 59, 999);
+    return date < new Date();
 };
 
 // ==========================
@@ -62,7 +85,7 @@ router.get('/dashboard', protect, async(req, res) => {
     try {
         const [statsResult, invoices, trends] = await Promise.all([
             Invoice.aggregate([
-                { $match: { user: req.user._id } },
+                { $match: { user: req.user._id, documentType: { $ne: 'proposal' } } },
                 {
                     $group: {
                         _id: null,
@@ -75,7 +98,7 @@ router.get('/dashboard', protect, async(req, res) => {
             ]),
             Invoice.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(10).lean(),
             Invoice.aggregate([
-                { $match: { user: req.user._id, status: 'paid' } },
+                { $match: { user: req.user._id, documentType: { $ne: 'proposal' }, status: 'paid' } },
                 {
                     $group: {
                         _id: { month: { $month: '$createdAt' }, year: { $year: '$createdAt' } },
@@ -137,6 +160,51 @@ router.get('/public/:id', async(req, res) => {
     }
 });
 
+router.post('/public/:id/accept', async(req, res) => {
+    try {
+        const proposal = await Invoice.findById(req.params.id)
+            .populate('user', 'companyName name');
+
+        if (!proposal || !isProposalDocument(proposal.documentType)) {
+            return res.status(404).json({
+                message: 'Proposal not found.'
+            });
+        }
+
+        if (proposal.proposalStatus === 'accepted') {
+            return res.json({
+                message: 'Proposal already accepted.',
+                proposal
+            });
+        }
+
+        if (isDatePastEndOfDay(proposal.validUntil)) {
+            proposal.proposalStatus = 'expired';
+            await proposal.save();
+            return res.status(400).json({
+                message: 'This proposal has expired.',
+                proposal
+            });
+        }
+
+        proposal.proposalStatus = 'accepted';
+        proposal.proposalAcceptedAt = new Date();
+        proposal.proposalRejectedAt = null;
+        await proposal.save();
+
+        res.json({
+            message: 'Proposal accepted successfully.',
+            proposal
+        });
+    } catch (err) {
+        console.error('PUBLIC PROPOSAL ACCEPT ERROR:', err);
+
+        res.status(500).json({
+            message: 'Server error.'
+        });
+    }
+});
+
 
 
 // ==========================
@@ -163,9 +231,8 @@ router.post('/', protect, async(req, res) => {
             });
         }
 
-        const invoiceNumber = await generateInvoiceNumber(user._id);
-
         const {
+            documentType,
             clientName,
             clientEmail,
             serviceDescription,
@@ -173,6 +240,7 @@ router.post('/', protect, async(req, res) => {
             currency,
             date,
             dueDate,
+            validUntil,
             notes,
             logo,
             items,
@@ -189,23 +257,29 @@ router.post('/', protect, async(req, res) => {
             });
         }
 
+        const normalizedDocumentType = isProposalDocument(documentType) ? 'proposal' : 'invoice';
+        const invoiceNumber = await generateDocumentNumber(user._id, normalizedDocumentType);
+
         const invoice = await Invoice.create({
+            documentType: normalizedDocumentType,
             clientName,
             clientEmail,
             serviceDescription: serviceDescription || '',
             amount: Number(amount),
             currency: currency || 'INR',
             date: date || new Date(),
-            dueDate: dueDate || null,
+            dueDate: normalizedDocumentType === 'invoice' ? (dueDate || null) : null,
+            validUntil: normalizedDocumentType === 'proposal' ? (validUntil || null) : null,
             notes: notes || '',
             logo: logo || null,
             items: items || [],
             gst: gst || '',
             cgst: Number(cgst) || 0,
             sgst: Number(sgst) || 0,
-            upiId: upiId || '',
+            upiId: normalizedDocumentType === 'invoice' ? (upiId || '') : '',
             invoiceNumber,
             user: user._id,
+            proposalStatus: normalizedDocumentType === 'proposal' ? 'sent' : null,
 
             // ✅ FIXED STATUS SYSTEM
             status: 'pending',
@@ -215,7 +289,7 @@ router.post('/', protect, async(req, res) => {
         let recurringInvoice = null;
         let recurringError = null;
 
-        if (recurring && recurring.enabled) {
+        if (normalizedDocumentType === 'invoice' && recurring && recurring.enabled) {
             const frequency = String(recurring.frequency || 'monthly').toLowerCase();
             const interval = Math.max(1, Number(recurring.interval || 1));
 
@@ -274,7 +348,7 @@ router.post('/', protect, async(req, res) => {
             }
         }
 
-        console.log('Invoice created:', invoice._id);
+        console.log('Billing document created:', invoice._id);
 
         res.status(201).json({ invoice, recurringInvoice, recurringError });
 
@@ -302,6 +376,87 @@ router.post('/', protect, async(req, res) => {
     }
 });
 
+router.post('/:id/convert', protect, async(req, res) => {
+    try {
+        const proposal = await Invoice.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!proposal) {
+            return res.status(404).json({
+                message: 'Proposal not found.'
+            });
+        }
+
+        if (!isProposalDocument(proposal.documentType)) {
+            return res.status(400).json({
+                message: 'Only proposals can be converted.'
+            });
+        }
+
+        if (proposal.proposalStatus !== 'accepted') {
+            return res.status(400).json({
+                message: 'Only accepted proposals can be converted.'
+            });
+        }
+
+        if (proposal.convertedToInvoiceId) {
+            const existingInvoice = await Invoice.findOne({
+                _id: proposal.convertedToInvoiceId,
+                user: req.user._id
+            });
+
+            if (existingInvoice) {
+                return res.json({
+                    message: 'Proposal already converted.',
+                    invoice: existingInvoice,
+                    proposal
+                });
+            }
+        }
+
+        const invoiceNumber = await generateDocumentNumber(req.user._id, 'invoice');
+        const invoice = await Invoice.create({
+            documentType: 'invoice',
+            clientName: proposal.clientName,
+            clientEmail: proposal.clientEmail,
+            serviceDescription: proposal.serviceDescription || '',
+            amount: Number(proposal.amount || 0),
+            currency: proposal.currency || 'INR',
+            date: new Date(),
+            dueDate: addDays(new Date(), 7),
+            notes: proposal.notes || '',
+            items: proposal.items || [],
+            gst: proposal.gst || '',
+            cgst: Number(proposal.cgst) || 0,
+            sgst: Number(proposal.sgst) || 0,
+            upiId: proposal.upiId || req.user.upiId || '',
+            invoiceNumber,
+            user: req.user._id,
+            status: 'pending',
+            paidAt: null,
+            sourceProposalId: proposal._id
+        });
+
+        proposal.convertedToInvoiceId = invoice._id;
+        proposal.convertedAt = new Date();
+        await proposal.save();
+
+        res.status(201).json({
+            message: 'Proposal converted to invoice.',
+            invoice,
+            proposal
+        });
+    } catch (err) {
+        console.error('CONVERT PROPOSAL ERROR:', err);
+
+        res.status(500).json({
+            message: 'Server error.'
+        });
+    }
+});
+
 // ==========================
 // UPDATE STATUS (FIXED)
 // ==========================
@@ -318,6 +473,12 @@ router.put('/:id/status', protect, async(req, res) => {
         if (invoice.user.toString() !== req.user._id.toString()) {
             return res.status(403).json({
                 message: 'Unauthorized action'
+            });
+        }
+
+        if (isProposalDocument(invoice.documentType)) {
+            return res.status(400).json({
+                message: 'Proposals cannot be marked as paid.'
             });
         }
 
@@ -399,7 +560,7 @@ router.delete('/:id', protect, async(req, res) => {
 router.get('/clients', protect, async(req, res) => {
     try {
         const clients = await Invoice.aggregate([
-            { $match: { user: req.user._id } },
+            { $match: { user: req.user._id, documentType: { $ne: 'proposal' } } },
             {
                 $group: {
                     _id: '$clientEmail',
@@ -497,6 +658,7 @@ router.post('/recurring/:id/run-now', protect, async(req, res) => {
             : null;
 
         const invoice = await Invoice.create({
+            documentType: 'invoice',
             clientName: schedule.template.clientName,
             clientEmail: schedule.template.clientEmail,
             serviceDescription: schedule.template.serviceDescription || '',
@@ -608,7 +770,8 @@ router.post('/recurring/run', async(req, res) => {
                 ? addDays(runAt, schedule.template.dueDays)
                 : null;
 
-            const invoice = await Invoice.create({
+        const invoice = await Invoice.create({
+                documentType: 'invoice',
                 clientName: schedule.template.clientName,
                 clientEmail: schedule.template.clientEmail,
                 serviceDescription: schedule.template.serviceDescription || '',
@@ -708,6 +871,7 @@ router.post('/:id/reminder', protect, async(req, res) => {
     try {
         const invoice = await Invoice.findOne({ _id: req.params.id, user: req.user._id });
         if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+        if (isProposalDocument(invoice.documentType)) return res.status(400).json({ message: 'Use the public proposal link to request approval' });
         if (invoice.status === 'paid') return res.status(400).json({ message: 'Already paid' });
 
         const publicLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);

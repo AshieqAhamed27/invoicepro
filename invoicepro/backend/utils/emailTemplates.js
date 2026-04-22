@@ -34,6 +34,21 @@ const formatDate = (date) => {
     return parsed.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
+const getDocumentLabels = (invoice) => {
+    const isProposal = invoice?.documentType === 'proposal';
+
+    return {
+        isProposal,
+        noun: isProposal ? 'proposal' : 'invoice',
+        title: isProposal ? 'New proposal ready' : 'New invoice ready',
+        summaryLabel: isProposal ? 'Proposal Summary' : 'Invoice Summary',
+        numberLabel: isProposal ? 'Proposal No' : 'Invoice No',
+        totalLabel: isProposal ? 'Proposal Total' : 'Total',
+        dateLabel: isProposal ? 'Valid Until' : 'Due Date',
+        ctaLabel: isProposal ? 'View Proposal' : 'View Invoice'
+    };
+};
+
 const startOfDayUTC = (date) => new Date(Date.UTC(
     date.getUTCFullYear(),
     date.getUTCMonth(),
@@ -99,34 +114,37 @@ const invoiceCreated = ({ invoice, publicUrl, senderName }) => {
     const clientName = escapeHtml(invoice.clientName);
     const invoiceNumber = escapeHtml(invoice.invoiceNumber);
     const amount = formatCurrency(invoice.amount, invoice.currency);
-    const due = formatDate(invoice.dueDate);
+    const labels = getDocumentLabels(invoice);
+    const due = formatDate(labels.isProposal ? invoice.validUntil : invoice.dueDate);
 
-    const subject = `Invoice ${invoice.invoiceNumber} from ${fromName}`;
-    const preheader = `Invoice ${invoice.invoiceNumber} for ${amount}.`;
+    const subject = `${labels.isProposal ? 'Proposal' : 'Invoice'} ${invoice.invoiceNumber} from ${fromName}`;
+    const preheader = `${labels.isProposal ? 'Proposal' : 'Invoice'} ${invoice.invoiceNumber} for ${amount}.`;
 
     const bodyHtml = `
       <p style="margin:0 0 14px;color:#374151;font-size:14px;line-height:1.6;">
         Hi ${clientName},
       </p>
       <p style="margin:0 0 18px;color:#374151;font-size:14px;line-height:1.6;">
-        You have received an invoice from <strong>${escapeHtml(fromName)}</strong>. You can view the invoice and pay securely using the link below.
+        ${labels.isProposal
+        ? `You have received a proposal from <strong>${escapeHtml(fromName)}</strong>. Review the scope and approve it using the link below.`
+        : `You have received an invoice from <strong>${escapeHtml(fromName)}</strong>. You can view the invoice and pay securely using the link below.`}
       </p>
 
       <div style="border:1px solid #e5e7eb;border-radius:14px;padding:14px 16px;background:#ffffff;">
         <p style="margin:0 0 8px;color:#6b7280;font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;">
-          Invoice Summary
+          ${labels.summaryLabel}
         </p>
         <table style="width:100%;border-collapse:collapse;">
           <tr>
-            <td style="padding:6px 0;color:#6b7280;font-size:13px;">Invoice No</td>
+            <td style="padding:6px 0;color:#6b7280;font-size:13px;">${labels.numberLabel}</td>
             <td style="padding:6px 0;color:#111827;font-size:13px;font-weight:800;text-align:right;">${invoiceNumber}</td>
           </tr>
           <tr>
-            <td style="padding:6px 0;color:#6b7280;font-size:13px;">Total</td>
+            <td style="padding:6px 0;color:#6b7280;font-size:13px;">${labels.totalLabel}</td>
             <td style="padding:6px 0;color:#111827;font-size:13px;font-weight:800;text-align:right;">${escapeHtml(amount)}</td>
           </tr>
           <tr>
-            <td style="padding:6px 0;color:#6b7280;font-size:13px;">Due Date</td>
+            <td style="padding:6px 0;color:#6b7280;font-size:13px;">${labels.dateLabel}</td>
             <td style="padding:6px 0;color:#111827;font-size:13px;font-weight:800;text-align:right;">${escapeHtml(due)}</td>
           </tr>
         </table>
@@ -141,14 +159,16 @@ const invoiceCreated = ({ invoice, publicUrl, senderName }) => {
 
     const html = baseLayout({
         preheader,
-        title: 'New invoice ready',
+        title: labels.title,
         bodyHtml,
         ctaHref: publicUrl,
-        ctaLabel: 'View Invoice',
+        ctaLabel: labels.ctaLabel,
         footerHtml
     });
 
-    const text = `Hi ${invoice.clientName},\n\nYou have received invoice ${invoice.invoiceNumber} from ${fromName} for ${amount}. Due: ${due}.\n\nView & pay: ${publicUrl}\n`;
+    const text = labels.isProposal
+        ? `Hi ${invoice.clientName},\n\nYou have received proposal ${invoice.invoiceNumber} from ${fromName} for ${amount}. Valid until: ${due}.\n\nReview & approve: ${publicUrl}\n`
+        : `Hi ${invoice.clientName},\n\nYou have received invoice ${invoice.invoiceNumber} from ${fromName} for ${amount}. Due: ${due}.\n\nView & pay: ${publicUrl}\n`;
 
     return { subject, html, text };
 };
@@ -276,4 +296,3 @@ module.exports = {
     invoiceReminder,
     paymentConfirmed
 };
-

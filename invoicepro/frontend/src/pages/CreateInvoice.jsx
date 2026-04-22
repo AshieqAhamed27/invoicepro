@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import { getUser } from '../utils/auth';
@@ -12,8 +12,11 @@ const formatCurrency = (amount) =>
 
 export default function CreateInvoice() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const today = new Date();
+  const requestedType = searchParams.get('type') === 'proposal' ? 'proposal' : 'invoice';
+  const [documentType, setDocumentType] = useState(requestedType);
 
   const [form, setForm] = useState({
     clientName: '',
@@ -23,7 +26,8 @@ export default function CreateInvoice() {
     cgst: '',
     sgst: '',
     upiId: '',
-    dueDate: ''
+    dueDate: '',
+    validUntil: ''
   });
 
   const [items, setItems] = useState([{ name: '', price: '' }]);
@@ -40,6 +44,9 @@ export default function CreateInvoice() {
   const user = getUser() || {};
 
   const [clients, setClients] = useState([]);
+  const isProposal = documentType === 'proposal';
+  const dateFieldName = isProposal ? 'validUntil' : 'dueDate';
+  const dateFieldValue = isProposal ? form.validUntil : form.dueDate;
 
   useEffect(() => {
     fetchClients();
@@ -51,6 +58,19 @@ export default function CreateInvoice() {
       }));
     }
   }, []);
+
+  useEffect(() => {
+    setDocumentType(requestedType);
+  }, [requestedType]);
+
+  useEffect(() => {
+    if (documentType === 'proposal') {
+      setRecurring(prev => ({
+        ...prev,
+        enabled: false
+      }));
+    }
+  }, [documentType]);
 
   const fetchClients = async () => {
     try {
@@ -104,8 +124,12 @@ export default function CreateInvoice() {
     .join(', ');
 
   const smartDescription = itemSummary
-    ? `Professional services delivered: ${itemSummary}. Includes preparation, execution, and final review.`
-    : `Professional services including planning and final review.`;
+    ? isProposal
+      ? `Proposed scope of work: ${itemSummary}. Includes delivery, review, and approval checkpoints.`
+      : `Professional services delivered: ${itemSummary}. Includes preparation, execution, and final review.`
+    : isProposal
+      ? `Proposed professional services including delivery plan and approval checkpoints.`
+      : `Professional services including planning and final review.`;
 
   const suggestedDueDate = (() => {
     const date = new Date();
@@ -116,8 +140,8 @@ export default function CreateInvoice() {
   const aiSuggestions = [
     !form.clientName && 'Enter client name',
     !form.clientEmail && 'Enter client email',
-    !form.dueDate && 'Due date missing',
-    !form.upiId && 'UPI ID missing',
+    !dateFieldValue && (isProposal ? 'Proposal validity missing' : 'Due date missing'),
+    !isProposal && !form.upiId && 'UPI ID missing',
     subtotal <= 0 && 'Add billable work'
   ].filter(Boolean);
 
@@ -131,7 +155,7 @@ export default function CreateInvoice() {
   const applySmartDueDate = () => {
     setForm((prev) => ({
       ...prev,
-      dueDate: suggestedDueDate
+      [dateFieldName]: suggestedDueDate
     }));
   };
 
@@ -143,9 +167,9 @@ export default function CreateInvoice() {
       return;
     }
 
-    const finalUpi = form.upiId || user?.upiId;
+    const finalUpi = isProposal ? '' : (form.upiId || user?.upiId);
 
-    if (!finalUpi) {
+    if (!isProposal && !finalUpi) {
       alert("Please add UPI ID in Settings or here");
       return;
     }
@@ -155,10 +179,11 @@ export default function CreateInvoice() {
     try {
       const res = await api.post('/invoices', {
         ...form,
+        documentType,
         upiId: finalUpi,
         items,
         amount: total,
-        recurring
+        recurring: isProposal ? { enabled: false } : recurring
       });
 
       navigate(`/invoice/${res.data.invoice._id}`);
@@ -181,14 +206,36 @@ export default function CreateInvoice() {
         <div className="reveal mb-12">
           <div className="flex items-center gap-2 mb-4">
              <span className="h-px w-8 bg-yellow-400" />
-             <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Invoice Builder</p>
+             <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Billing Builder</p>
           </div>
           <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-4">
-            New Invoice
+            {isProposal ? 'New Proposal' : 'New Invoice'}
           </h1>
           <p className="max-w-2xl text-lg text-zinc-500 font-medium">
-            Create a professional invoice, add payment details, and send it in minutes.
+            {isProposal
+              ? 'Create a client-ready proposal, collect approval online, and convert it into an invoice later.'
+              : 'Create a professional invoice, add payment details, and send it in minutes.'}
           </p>
+
+          <div className="mt-8 inline-flex rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-1">
+            {[
+              { id: 'invoice', label: 'Invoice', note: 'Collect payment now' },
+              { id: 'proposal', label: 'Proposal', note: 'Get approval first' }
+            ].map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setDocumentType(option.id)}
+                className={`rounded-[1.2rem] px-5 py-3 text-left transition-all ${documentType === option.id
+                  ? 'bg-yellow-400 text-black'
+                  : 'text-zinc-400 hover:bg-white/5 hover:text-white'
+                  }`}
+              >
+                <p className="text-[10px] font-black uppercase tracking-widest">{option.label}</p>
+                <p className="mt-1 text-xs font-bold">{option.note}</p>
+              </button>
+            ))}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-[1fr_380px]">
@@ -203,7 +250,7 @@ export default function CreateInvoice() {
                 <div>
                   <h2 className="text-2xl font-black text-white leading-none mb-1">Client Details</h2>
                   <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                    Who are you billing?
+                    {isProposal ? 'Who is reviewing this proposal?' : 'Who are you billing?'}
                   </p>
                 </div>
 
@@ -253,9 +300,11 @@ export default function CreateInvoice() {
             {/* Section: Service */}
             <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Invoice Summary</h2>
+                <h2 className="text-2xl font-black text-white leading-none mb-1">
+                  {isProposal ? 'Proposal Summary' : 'Invoice Summary'}
+                </h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                  Add a short description of the work delivered
+                  {isProposal ? 'Explain the work you are proposing' : 'Add a short description of the work delivered'}
                 </p>
               </div>
 
@@ -263,7 +312,7 @@ export default function CreateInvoice() {
                 name="serviceDescription"
                 value={form.serviceDescription}
                 onChange={handleChange}
-                placeholder="Briefly describe the value delivered..."
+                placeholder={isProposal ? 'Briefly describe the scope you are proposing...' : 'Briefly describe the value delivered...'}
                 rows="3"
                 className="input resize-none py-4 bg-black/20 border-white/5 focus:bg-black/60 min-h-[120px]"
               />
@@ -331,34 +380,40 @@ export default function CreateInvoice() {
             {/* Section: Tax & Date */}
             <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Payment Details</h2>
+                <h2 className="text-2xl font-black text-white leading-none mb-1">
+                  {isProposal ? 'Proposal Details' : 'Payment Details'}
+                </h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                  Dates, Tax & Payments
+                  {isProposal ? 'Validity and commercial terms' : 'Dates, tax, and payments'}
                 </p>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Due Date</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">
+                      {isProposal ? 'Valid Until' : 'Due Date'}
+                    </p>
                     <input
                       type="date"
-                      name="dueDate"
-                      value={form.dueDate}
+                      name={dateFieldName}
+                      value={dateFieldValue}
                       onChange={handleChange}
                       className="input py-4 bg-black/20 border-white/5"
                     />
                 </div>
 
-                <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">UPI ID for Collection</p>
-                    <input
-                      name="upiId"
-                      value={form.upiId}
-                      onChange={handleChange}
-                      placeholder="e.g. success@upi"
-                      className="input py-4 bg-black/20 border-white/5"
-                    />
-                </div>
+                {!isProposal && (
+                  <div className="space-y-1.5">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">UPI ID for Collection</p>
+                      <input
+                        name="upiId"
+                        value={form.upiId}
+                        onChange={handleChange}
+                        placeholder="e.g. success@upi"
+                        className="input py-4 bg-black/20 border-white/5"
+                      />
+                  </div>
+                )}
 
                 <div className="space-y-1.5">
                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">GST Identification</p>
@@ -403,7 +458,9 @@ export default function CreateInvoice() {
           <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
             <div className="surface p-8 border-white/10 bg-zinc-950 shadow-2xl rounded-[2.5rem]">
                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-6">
-                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Invoice Total</p>
+                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">
+                   {isProposal ? 'Proposal Total' : 'Invoice Total'}
+                 </p>
                </div>
 
                <div className="space-y-4 mb-8">
@@ -450,22 +507,23 @@ export default function CreateInvoice() {
                     >
                       Generate Summary
                     </button>
-                    {!form.dueDate && (
+                    {!dateFieldValue && (
                       <button
                         type="button"
                         onClick={applySmartDueDate}
                         className="w-full py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 transition-all"
                       >
-                        Set 7-Day Due Date
+                        {isProposal ? 'Set 7-Day Validity' : 'Set 7-Day Due Date'}
                       </button>
                     )}
                   </div>
                </div>
 
+               {!isProposal && (
                <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] p-6 mb-8">
                  <div className="flex items-start justify-between gap-4">
                    <div>
-                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Recurring Invoice</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Recurring Invoice</p>
                      <p className="text-xs font-bold text-zinc-600 leading-relaxed">
                        Auto-generate this invoice on a schedule for retainers and subscriptions.
                      </p>
@@ -554,14 +612,15 @@ export default function CreateInvoice() {
                    </div>
                  )}
                </div>
+               )}
 
                <button
                  type="submit"
                  disabled={loading}
                  className="w-full py-5 rounded-2xl bg-yellow-400 text-black font-black text-lg shadow-xl shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                >
-                 {loading ? 'Creating...' : 'Create Invoice'}
-               </button>
+                 {loading ? 'Creating...' : isProposal ? 'Create Proposal' : 'Create Invoice'}
+                </button>
 
                {limitReached && (
                  <div className="mt-6 p-6 rounded-2xl bg-red-400/10 border border-red-400/20">

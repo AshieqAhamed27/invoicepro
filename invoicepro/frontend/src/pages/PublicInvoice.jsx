@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 import QRCode from 'react-qr-code';
@@ -10,6 +10,7 @@ const loadRazorpayScript = () => {
       resolve(true);
       return;
     }
+
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.onload = () => resolve(true);
@@ -19,19 +20,30 @@ const loadRazorpayScript = () => {
 };
 
 const formatCurrency = (amount, currency) => {
-  const symbol = currency && currency !== 'INR' ? '$' : '₹ ';
+  const symbol = currency && currency !== 'INR' ? '$' : 'Rs ';
   return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2
   })}`;
 };
 
-const formatDate = (d) => {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-IN', {
+const formatDate = (value) => {
+  if (!value) return '--';
+
+  return new Date(value).toLocaleDateString('en-IN', {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
   });
+};
+
+const isDatePastEndOfDay = (value) => {
+  if (!value) return false;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+
+  date.setHours(23, 59, 59, 999);
+  return date < new Date();
 };
 
 export default function PublicInvoice() {
@@ -40,6 +52,7 @@ export default function PublicInvoice() {
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const [accepting, setAccepting] = useState(false);
 
   useEffect(() => {
     fetchInvoice();
@@ -51,40 +64,59 @@ export default function PublicInvoice() {
       setInvoice(res.data.invoice);
     } catch (err) {
       console.error(err);
-      alert('Invoice not found');
+      alert('Document not found');
     } finally {
       setLoading(false);
     }
   };
 
+  const invoiceMeta = useMemo(() => {
+    if (!invoice) return null;
+
+    const isProposal = invoice.documentType === 'proposal';
+    const proposalExpired = isProposal
+      && invoice.proposalStatus !== 'accepted'
+      && invoice.proposalStatus !== 'expired'
+      && invoice.validUntil
+      && isDatePastEndOfDay(invoice.validUntil);
+
+    return {
+      isProposal,
+      status: isProposal
+        ? (proposalExpired ? 'expired' : (invoice.proposalStatus || 'draft'))
+        : invoice.status,
+      title: isProposal ? 'Proposal' : 'Invoice',
+      idLabel: isProposal ? 'Proposal Number' : 'Invoice Number',
+      dateLabel: isProposal ? 'Valid Until' : 'Due',
+      headerNote: isProposal ? 'Review and approval portal' : 'Secured checkout portal'
+    };
+  }, [invoice]);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
-        Loading invoice...
+        Loading document...
       </div>
     );
   }
 
-  if (!invoice) return null;
+  if (!invoice || !invoiceMeta) return null;
 
   const items =
     invoice.items?.length > 0
       ? invoice.items
       : [
-          {
-            name: invoice.serviceDescription || 'Service',
-            price: invoice.amount
-          }
-        ];
+        {
+          name: invoice.serviceDescription || 'Service',
+          price: invoice.amount
+        }
+      ];
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + Number(item.price || 0),
-    0
-  );
-
+  const subtotal = items.reduce((sum, item) => sum + Number(item.price || 0), 0);
   const cgst = Number(invoice.cgst || 0);
   const sgst = Number(invoice.sgst || 0);
   const total = subtotal + (subtotal * (cgst + sgst)) / 100;
+  const documentDate = invoiceMeta.isProposal ? invoice.validUntil : invoice.dueDate;
 
   const handlePayNow = async () => {
     try {
@@ -104,13 +136,13 @@ export default function PublicInvoice() {
 
       if (simulation) {
         setPaying(false);
-        if (!window.confirm("SIMULATION: Pay this invoice?")) return;
+        if (!window.confirm('SIMULATION: Pay this invoice?')) return;
         setPaying(true);
 
         await api.post('/payment/public/verify', {
           invoiceId: id,
           razorpay_order_id: order.id,
-          razorpay_payment_id: 'pay_sim_' + Date.now(),
+          razorpay_payment_id: `pay_sim_${Date.now()}`,
           razorpay_signature: 'sim_signature'
         });
 
@@ -136,7 +168,7 @@ export default function PublicInvoice() {
             setPaying(false);
           }
         },
-        retry: { enabled: false }, // Avoid confusing retries on mobile
+        retry: { enabled: false },
         handler: async (response) => {
           try {
             await api.post('/payment/public/verify', {
@@ -147,7 +179,7 @@ export default function PublicInvoice() {
             });
             alert('Payment successful!');
             fetchInvoice();
-          } catch (err) {
+          } catch {
             alert('Verification failed');
           }
         }
@@ -162,14 +194,39 @@ export default function PublicInvoice() {
     }
   };
 
-  const upiUri = invoice.status === 'pending' ? `upi://pay?pa=${invoice.user?.upiId || invoice.upiId}&pn=${encodeURIComponent(invoice.user?.companyName || 'Service Provider')}&am=${total.toFixed(2)}&tn=${encodeURIComponent('Invoice ' + invoice.invoiceNumber)}` : '';
+  const handleAcceptProposal = async () => {
+    try {
+      setAccepting(true);
+      await api.post(`/invoices/public/${id}/accept`);
+      await fetchInvoice();
+      alert('Proposal accepted successfully.');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to accept proposal.');
+    } finally {
+      setAccepting(false);
+    }
+  };
+
+  const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending'
+    ? `upi://pay?pa=${invoice.user?.upiId || invoice.upiId}&pn=${encodeURIComponent(invoice.user?.companyName || 'Service Provider')}&am=${total.toFixed(2)}&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}`
+    : '';
+
+  const badgeContent = invoiceMeta.isProposal
+    ? invoiceMeta.status === 'accepted'
+      ? { label: 'Accepted', className: 'bg-emerald-500' }
+      : invoiceMeta.status === 'expired'
+        ? { label: 'Expired', className: 'bg-red-500' }
+        : { label: 'Proposal', className: 'bg-sky-500' }
+    : invoice.status === 'paid'
+      ? { label: 'Paid', className: 'bg-green-500' }
+      : null;
 
   return (
     <div className="min-h-screen bg-[#050505] px-4 py-10">
       <div className="reveal mx-auto max-w-4xl rounded-lg bg-white p-8 text-black shadow-2xl md:p-12 relative overflow-hidden">
-        {invoice.status === 'paid' && (
-          <div className="absolute top-12 right-[-40px] rotate-45 bg-green-500 text-white px-16 py-1 font-bold text-lg shadow-md uppercase tracking-widest z-10">
-            Paid
+        {badgeContent && (
+          <div className={`absolute top-12 right-[-40px] rotate-45 ${badgeContent.className} text-white px-16 py-1 font-bold text-lg shadow-md uppercase tracking-widest z-10`}>
+            {badgeContent.label}
           </div>
         )}
 
@@ -184,12 +241,12 @@ export default function PublicInvoice() {
               <BrandLogo showText={true} textColor="black" />
             </div>
             <p className="text-gray-400 mt-2 font-bold uppercase text-[10px] tracking-widest">
-              Secured Checkout Portal
+              {invoiceMeta.headerNote}
             </p>
           </div>
 
           <div className="text-left md:text-right">
-            <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold">Invoice Number</p>
+            <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold">{invoiceMeta.idLabel}</p>
             <p className="text-2xl font-bold text-gray-900">
               {invoice.invoiceNumber}
             </p>
@@ -199,10 +256,10 @@ export default function PublicInvoice() {
                 <span className="font-semibold text-gray-400 uppercase text-[10px] mr-2">Issued:</span>
                 {formatDate(invoice.date)}
               </p>
-              {invoice.dueDate && (
+              {documentDate && (
                 <p className="text-sm text-gray-500">
-                  <span className="font-semibold text-gray-400 uppercase text-[10px] mr-2">Due:</span>
-                  {formatDate(invoice.dueDate)}
+                  <span className="font-semibold text-gray-400 uppercase text-[10px] mr-2">{invoiceMeta.dateLabel}:</span>
+                  {formatDate(documentDate)}
                 </p>
               )}
             </div>
@@ -212,7 +269,7 @@ export default function PublicInvoice() {
         <div className="grid md:grid-cols-2 gap-10 mb-10">
           <div>
             <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-3">
-              Bill To
+              {invoiceMeta.isProposal ? 'Prepared For' : 'Bill To'}
             </p>
             <h2 className="text-xl font-bold text-gray-900 leading-tight">
               {invoice.clientName}
@@ -231,7 +288,7 @@ export default function PublicInvoice() {
                 {invoice.user.companyName}
               </h2>
               <p className="text-gray-500 mt-1">
-                Professional Services
+                {invoiceMeta.isProposal ? 'Service Proposal' : 'Professional Services'}
               </p>
               <p className="text-gray-500 mt-1 text-sm">
                 {invoice.user?.address || 'Tamil Nadu, India'}
@@ -265,7 +322,7 @@ export default function PublicInvoice() {
 
         <div className="flex flex-col md:flex-row justify-between gap-10">
           <div className="flex-1">
-            {invoice.status === 'pending' && (
+            {!invoiceMeta.isProposal && invoice.status === 'pending' && (
               <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-6">
                 <div className="flex flex-col sm:flex-row gap-6 items-center">
                   <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
@@ -274,7 +331,7 @@ export default function PublicInvoice() {
                   <div className="text-center sm:text-left">
                     <p className="text-sm font-bold text-gray-900 mb-1">Scan to pay instantly</p>
                     <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-                      Use any UPI app like GPay, PhonePe or Paytm to scan and pay the total amount.
+                      Use any UPI app like GPay, PhonePe, or Paytm to scan and pay the total amount.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <button
@@ -285,10 +342,10 @@ export default function PublicInvoice() {
                         {paying ? 'Opening...' : 'Razorpay Secure'}
                       </button>
                       <button
-                        onClick={() => window.location.href = upiUri}
+                        onClick={() => { window.location.href = upiUri; }}
                         className="w-full sm:w-auto px-8 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-emerald-600 transition-all active:scale-95 uppercase tracking-widest md:hidden"
                       >
-                         Pay via UPI App
+                        Pay via UPI App
                       </button>
                     </div>
                   </div>
@@ -296,7 +353,7 @@ export default function PublicInvoice() {
               </div>
             )}
 
-            {invoice.status === 'paid' && (
+            {!invoiceMeta.isProposal && invoice.status === 'paid' && (
               <div className="rounded-xl bg-green-50 border border-green-100 p-6 flex items-center gap-4">
                 <div className="h-10 w-10 bg-green-500 rounded-full flex items-center justify-center text-white">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -307,6 +364,49 @@ export default function PublicInvoice() {
                   <p className="font-bold text-green-800">Verified Payment</p>
                   <p className="text-sm text-green-600">This invoice was marked as paid on {formatDate(invoice.paidAt)}.</p>
                 </div>
+              </div>
+            )}
+
+            {invoiceMeta.isProposal && invoiceMeta.status !== 'accepted' && invoiceMeta.status !== 'expired' && (
+              <div className="rounded-xl border border-sky-100 bg-sky-50/70 p-6">
+                <p className="text-sm font-bold text-sky-900 mb-1">Ready for approval</p>
+                <p className="text-xs text-sky-700 leading-relaxed mb-4">
+                  Review the scope and total, then accept this proposal to move forward.
+                </p>
+                <button
+                  onClick={handleAcceptProposal}
+                  disabled={accepting}
+                  className="px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
+                >
+                  {accepting ? 'Accepting...' : 'Accept Proposal'}
+                </button>
+              </div>
+            )}
+
+            {invoiceMeta.isProposal && invoiceMeta.status === 'accepted' && (
+              <div className="rounded-xl bg-green-50 border border-green-100 p-6">
+                <p className="font-bold text-green-800">Proposal accepted</p>
+                <p className="text-sm text-green-600 mt-1">
+                  This proposal was approved on {formatDate(invoice.proposalAcceptedAt)}.
+                </p>
+
+                {invoice.convertedToInvoiceId && (
+                  <a
+                    href={`/public/invoice/${invoice.convertedToInvoiceId}`}
+                    className="mt-4 inline-flex px-6 py-3 rounded-2xl bg-gray-900 text-white text-xs font-black uppercase tracking-widest"
+                  >
+                    Open Invoice
+                  </a>
+                )}
+              </div>
+            )}
+
+            {invoiceMeta.isProposal && invoiceMeta.status === 'expired' && (
+              <div className="rounded-xl bg-red-50 border border-red-100 p-6">
+                <p className="font-bold text-red-800">Proposal expired</p>
+                <p className="text-sm text-red-600 mt-1">
+                  This proposal is no longer valid. Please contact {invoice.user?.companyName || 'the provider'} for an updated version.
+                </p>
               </div>
             )}
           </div>
@@ -332,7 +432,9 @@ export default function PublicInvoice() {
             )}
 
             <div className="border-t border-gray-200 pt-5 mt-5 flex justify-between items-baseline">
-              <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Amount</span>
+              <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+                {invoiceMeta.isProposal ? 'Proposal Total' : 'Total Amount'}
+              </span>
               <div className="text-right">
                 <span className="block text-4xl font-black text-gray-900">
                   {formatCurrency(total, invoice.currency)}

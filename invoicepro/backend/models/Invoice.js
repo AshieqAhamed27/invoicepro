@@ -12,6 +12,12 @@ const invoiceSchema = new mongoose.Schema({
         required: true
     },
 
+    documentType: {
+        type: String,
+        enum: ['invoice', 'proposal'],
+        default: 'invoice'
+    },
+
     clientName: {
         type: String,
         required: [true, 'Client name is required'],
@@ -83,9 +89,47 @@ const invoiceSchema = new mongoose.Schema({
         default: null
     },
 
+    validUntil: {
+        type: Date,
+        default: null
+    },
+
     notes: {
         type: String,
         default: ''
+    },
+
+    proposalStatus: {
+        type: String,
+        enum: ['draft', 'sent', 'accepted', 'rejected', 'expired'],
+        default: null
+    },
+
+    proposalAcceptedAt: {
+        type: Date,
+        default: null
+    },
+
+    proposalRejectedAt: {
+        type: Date,
+        default: null
+    },
+
+    convertedAt: {
+        type: Date,
+        default: null
+    },
+
+    convertedToInvoiceId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Invoice',
+        default: null
+    },
+
+    sourceProposalId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Invoice',
+        default: null
     },
 
     // ✅ FIXED STATUS SYSTEM
@@ -107,5 +151,6 @@ const invoiceSchema = new mongoose.Schema({
 
 invoiceSchema.index({ user: 1, createdAt: -1 });
 invoiceSchema.index({ user: 1, status: 1 });
+invoiceSchema.index({ user: 1, documentType: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Invoice', invoiceSchema);
