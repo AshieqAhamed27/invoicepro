@@ -33,18 +33,18 @@ export default function Clients() {
           <div>
             <div className="flex items-center gap-2 mb-4">
                <span className="h-px w-8 bg-emerald-400" />
-               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Relationship Index</p>
+               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Client Directory</p>
             </div>
             <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-2">
               Clients
             </h1>
             <p className="text-lg text-zinc-500 font-medium leading-relaxed">
-              Your intelligent client database extracted from real invoice activity.
+              A running view of the businesses and people you have billed.
             </p>
           </div>
           
           <Link to="/create-invoice" className="btn btn-primary px-8 py-4 rounded-2xl shadow-xl shadow-yellow-500/10 font-black uppercase tracking-widest text-xs">
-             Bill New Client
+             Create Invoice
           </Link>
         </div>
 
@@ -84,7 +84,7 @@ export default function Clients() {
                 <div className="space-y-4">
                    <div className="flex justify-between items-center bg-white/[0.02] p-3 rounded-xl border border-white/5">
                       <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">
-                        Total Lifetime
+                        Lifetime Billed
                       </span>
                       <span className="text-sm font-black text-white">
                         ₹ {Number(client.totalInvoiced || 0).toLocaleString()}
@@ -102,7 +102,7 @@ export default function Clients() {
 
                    <div className="pt-4 border-t border-white/5">
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700">
-                        Last Encounter
+                        Last Billed
                       </p>
                       <p className="text-xs font-bold text-zinc-500 mt-1">
                         {client.lastInvoiced

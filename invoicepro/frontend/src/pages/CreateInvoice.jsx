@@ -181,13 +181,13 @@ export default function CreateInvoice() {
         <div className="reveal mb-12">
           <div className="flex items-center gap-2 mb-4">
              <span className="h-px w-8 bg-yellow-400" />
-             <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Creation Suite</p>
+             <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Invoice Builder</p>
           </div>
           <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-4">
             New Invoice
           </h1>
           <p className="max-w-2xl text-lg text-zinc-500 font-medium">
-            Draft, itemize, and collect. Build professional bills in seconds.
+            Create a professional invoice, add payment details, and send it in minutes.
           </p>
         </div>
 
@@ -201,7 +201,7 @@ export default function CreateInvoice() {
 
               <div className="mb-8 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-black text-white leading-none mb-1">Receipt Recipient</h2>
+                  <h2 className="text-2xl font-black text-white leading-none mb-1">Client Details</h2>
                   <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
                     Who are you billing?
                   </p>
@@ -253,9 +253,9 @@ export default function CreateInvoice() {
             {/* Section: Service */}
             <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Narrative</h2>
+                <h2 className="text-2xl font-black text-white leading-none mb-1">Invoice Summary</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                  High-level project summary
+                  Add a short description of the work delivered
                 </p>
               </div>
 
@@ -331,7 +331,7 @@ export default function CreateInvoice() {
             {/* Section: Tax & Date */}
             <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Logistics</h2>
+                <h2 className="text-2xl font-black text-white leading-none mb-1">Payment Details</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
                   Dates, Tax & Payments
                 </p>
@@ -403,7 +403,7 @@ export default function CreateInvoice() {
           <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
             <div className="surface p-8 border-white/10 bg-zinc-950 shadow-2xl rounded-[2.5rem]">
                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-6">
-                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Live Breakdown</p>
+                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Invoice Total</p>
                </div>
 
                <div className="space-y-4 mb-8">
@@ -426,7 +426,7 @@ export default function CreateInvoice() {
                <div className="rounded-[2rem] border border-yellow-400/20 bg-yellow-400/5 p-6 mb-8 group/coach">
                   <div className="flex items-center gap-2 mb-4">
                      <div className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
-                     <p className="text-[10px] font-black text-yellow-300 uppercase tracking-widest">AI Audit</p>
+                     <p className="text-[10px] font-black text-yellow-300 uppercase tracking-widest">Quick Checks</p>
                   </div>
 
                   <div className="space-y-2 mb-6">
@@ -448,7 +448,7 @@ export default function CreateInvoice() {
                       onClick={applySmartDescription}
                       className="w-full py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 transition-all"
                     >
-                      AI Narration
+                      Generate Summary
                     </button>
                     {!form.dueDate && (
                       <button
@@ -456,7 +456,7 @@ export default function CreateInvoice() {
                         onClick={applySmartDueDate}
                         className="w-full py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 transition-all"
                       >
-                        Auto Due Date
+                        Set 7-Day Due Date
                       </button>
                     )}
                   </div>
@@ -560,12 +560,12 @@ export default function CreateInvoice() {
                  disabled={loading}
                  className="w-full py-5 rounded-2xl bg-yellow-400 text-black font-black text-lg shadow-xl shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                >
-                 {loading ? 'Processing...' : 'Issue Invoice'}
+                 {loading ? 'Creating...' : 'Create Invoice'}
                </button>
 
                {limitReached && (
                  <div className="mt-6 p-6 rounded-2xl bg-red-400/10 border border-red-400/20">
-                    <p className="text-sm font-bold text-red-400 mb-4 text-center">Quota Exceeded.</p>
+                    <p className="text-sm font-bold text-red-400 mb-4 text-center">Free plan limit reached.</p>
                     <button
                       type="button"
                       onClick={() => navigate('/payment')}

@@ -134,11 +134,37 @@ export default function Dashboard() {
         </td>
 
         <td className="px-10 py-6 text-right">
-          {/* actions */}
+          <div className="flex justify-end gap-2">
+            <Link
+              to={`/invoice/${inv._id}`}
+              className="btn btn-secondary px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest"
+            >
+              View
+            </Link>
+
+            {inv.status !== 'paid' && (
+              <button
+                type="button"
+                disabled={sendingReminderId === inv._id}
+                onClick={() => sendReminder(inv._id)}
+                className="btn btn-dark px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest"
+              >
+                {sendingReminderId === inv._id ? 'Sending...' : 'Remind'}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => deleteInvoice(inv._id)}
+              className="px-4 py-2 rounded-xl border border-red-400/10 bg-red-400/5 text-[10px] font-black uppercase tracking-widest text-red-400 hover:bg-red-400/10 transition-all"
+            >
+              Delete
+            </button>
+          </div>
         </td>
       </tr>
     ));
-  }, [invoices]);
+  }, [invoices, sendingReminderId]);
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -148,13 +174,13 @@ export default function Dashboard() {
         <section className="reveal mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-5">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">{isPro ? 'Platinum Workspace' : 'Trial Environment'}</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">{isPro ? 'Pro Plan' : 'Free Plan'}</span>
             </div>
             <h1 className="text-4xl font-black sm:text-6xl tracking-tighter text-white leading-none">
-              Morning, {user.name?.split(' ')[0] || "Partner"}.
+              Good morning, {user.name?.split(' ')[0] || "there"}.
             </h1>
             <p className="mt-4 text-xl text-zinc-500 font-medium">
-              You are currently managing <span className="text-white font-black italic">{stats.pending} pending</span> settlements.
+              You currently have <span className="text-white font-black italic">{stats.pending} unpaid</span> invoices in play.
             </p>
           </div>
 
@@ -163,7 +189,7 @@ export default function Dashboard() {
               to="/create-invoice"
               className="btn btn-primary px-10 py-5 rounded-[2rem] shadow-2xl shadow-yellow-400/20 hover:scale-[1.05] active:scale-[0.95] transition-all font-black uppercase text-xs tracking-widest bg-yellow-400 text-black"
             >
-              Deploy Invoice
+              New Invoice
             </Link>
           </div>
         </section>
@@ -235,10 +261,10 @@ export default function Dashboard() {
 
         <section className="mb-12 grid grid-cols-2 gap-6 lg:grid-cols-4">
           {[
-            { label: 'Net Liquidity', val: formatCurrency(stats.totalRevenue), color: 'text-white' },
-            { label: 'Pending Liquidity', val: stats.pending, color: 'text-yellow-400' },
-            { label: 'Settled Items', val: stats.paid, color: 'text-white' },
-            { label: 'Active Ledger', val: stats.total, color: 'text-white' }
+            { label: 'Collected Revenue', val: formatCurrency(stats.totalRevenue), color: 'text-white' },
+            { label: 'Pending Invoices', val: stats.pending, color: 'text-yellow-400' },
+            { label: 'Paid Invoices', val: stats.paid, color: 'text-white' },
+            { label: 'Total Invoices', val: stats.total, color: 'text-white' }
           ].map((item, i) => (
             <div key={i} className="card p-8 hover:scale-[1.02] transition-transform relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-10 transition-opacity">
@@ -256,8 +282,8 @@ export default function Dashboard() {
           <div className="surface p-10 border-white/5 bg-zinc-950 shadow-2xl rounded-[3rem] relative overflow-hidden">
             <div className="mb-12 flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-black text-white italic mb-1">Growth Forecast</h2>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Performance Over Last 6 Periods</p>
+                <h2 className="text-2xl font-black text-white italic mb-1">Revenue Trend</h2>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Performance Over Recent Billing Periods</p>
               </div>
               <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
                 <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
@@ -293,13 +319,13 @@ export default function Dashboard() {
           <div className="surface p-10 border-yellow-400/20 bg-gradient-to-br from-zinc-950 to-yellow-400/5 shadow-2xl rounded-[3rem] relative overflow-hidden group">
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-400/10 border border-yellow-400/20 mb-8">
-                <p className="text-[10px] uppercase tracking-widest font-black text-yellow-300 uppercase">Copilot Engine</p>
+                <p className="text-[10px] uppercase tracking-widest font-black text-yellow-300 uppercase">Collections Summary</p>
               </div>
 
               {aiInsights ? (
                 <div className="space-y-8">
                   <div>
-                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-2">Workspace Health</p>
+                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-2">Cash Flow Score</p>
                     <p className="text-5xl font-black text-white italic tracking-tighter">{aiInsights.cashFlowScore}%</p>
                   </div>
                   <p className="text-sm font-bold text-zinc-500 leading-relaxed italic">
@@ -310,7 +336,7 @@ export default function Dashboard() {
                       onClick={() => navigate('/create-invoice')}
                       className="w-full py-4 rounded-xl border border-yellow-400/30 text-yellow-400 text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all"
                     >
-                      Optimize Cashflow
+                      Create Invoice
                     </button>
                   </div>
                 </div>
@@ -328,14 +354,14 @@ export default function Dashboard() {
         <section className="reveal reveal-delay-2 surface overflow-hidden border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[3rem] shadow-2xl">
           <div className="px-10 py-8 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-black text-white italic">Active Ledger</h2>
-              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mt-1">Real-time settlement tracking</p>
+              <h2 className="text-2xl font-black text-white italic">Recent Invoices</h2>
+              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mt-1">Track status and follow up with clients</p>
             </div>
             <div className="flex gap-2">
               <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                 <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               </div>
-              <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest flex items-center">Live Updates Active</p>
+              <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest flex items-center">Status Tracking Active</p>
             </div>
           </div>
 
@@ -359,10 +385,10 @@ export default function Dashboard() {
               <table className="w-full text-left min-w-[800px]">
                 <thead>
                   <tr className="text-[10px] font-black uppercase tracking-widest text-zinc-700 bg-white/[0.005]">
-                    <th className="px-10 py-5">Profile</th>
-                    <th className="px-10 py-5">Protocol Status</th>
-                    <th className="px-10 py-5 text-right">Settlement</th>
-                    <th className="px-10 py-5 text-right">Command</th>
+                    <th className="px-10 py-5">Client</th>
+                    <th className="px-10 py-5">Status</th>
+                    <th className="px-10 py-5 text-right">Amount</th>
+                    <th className="px-10 py-5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">

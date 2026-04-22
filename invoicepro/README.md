@@ -106,7 +106,7 @@ Visit **http://localhost:5173** in your browser.
 | INR & USD currency | ✅ | ✅ |
 | Invoice status tracking | ✅ | ✅ |
 | Dashboard analytics | ✅ | ✅ |
-| Price | Free | ₹99/month |
+| Price | Free | Starts at ₹499/month |
 
 ---
 

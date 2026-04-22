@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import BrandLogo from '../components/BrandLogo';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -14,16 +13,15 @@ export default function Home() {
     navigate("/payment");
   };
 
-  const workflow = [
-    ['01', 'Smart Invoicing', 'Itemize work, add taxes, and set due dates in seconds with AI-assisted drafting.'],
-    ['02', 'Instant Sharing', 'Send a branded payment portal link via mail or WhatsApp. No PDF wrestling needed.'],
-    ['03', 'Auto Reconciliation', 'Know the second a client pays. UPI and Razorpay automation mark invoices as paid for you.']
-  ];
+  const jumpToPricing = () => {
+    const pricing = document.getElementById('pricing');
+    pricing?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
-  const features = [
-    ['Smart Follow-ups', 'Automated reminders draft professional messages to your late-paying clients.'],
-    ['Customer CRM', 'Save client profiles for instant retrieval. Analyze lifetime value per partner.'],
-    ['Growth Analytics', 'Visual revenue trends and AI-powered cashflow health scores at your fingertips.']
+  const workflow = [
+    ['01', 'Create', 'Build a GST-ready invoice with line items, due dates, and payment details in minutes.'],
+    ['02', 'Share', 'Send a branded payment link by email or WhatsApp without chasing PDFs and screenshots.'],
+    ['03', 'Track', 'See when a client pays, follow up faster, and manage recurring billing from one dashboard.']
   ];
 
   return (
@@ -43,17 +41,17 @@ export default function Home() {
             <div className="mx-auto max-w-4xl text-center">
               <div className="reveal inline-flex items-center gap-2 px-4 py-2 rounded-full border border-yellow-400/20 bg-yellow-400/5 backdrop-blur-sm mb-8 transition-all hover:bg-yellow-400/10">
                 <span className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-300">The Future of Freelancing</p>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-300">Built For Indian Service Businesses</p>
               </div>
 
               <h1 className="reveal reveal-delay-1 text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.9] mb-8 text-white">
-                Collect payments <br className="hidden md:block" /> 
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 italic">effortlessly.</span>
+                Turn repeat work <br className="hidden md:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/40 italic">into on-time payments.</span>
               </h1>
 
               <p className="reveal reveal-delay-2 mx-auto max-w-2xl text-lg md:text-xl text-zinc-400 font-medium leading-relaxed mb-10">
-                The all-in-one invoicing engine for modern startups & freelancers. 
-                Move from "Unpaid" to "Paid" in half the time.
+                InvoicePro helps freelancers, agencies, and consultants send invoices,
+                share payment links, and collect from recurring clients without chasing every month.
               </p>
 
               <div className="reveal reveal-delay-2 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -64,10 +62,10 @@ export default function Home() {
                   {loggedIn ? 'Open Dashboard' : 'Get Started for Free'}
                 </button>
                 <button
-                  onClick={() => navigate(loggedIn ? '/create-invoice' : '/login')}
+                  onClick={() => loggedIn ? navigate('/create-invoice') : jumpToPricing()}
                   className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-zinc-900 text-white font-black text-lg border border-white/10 hover:bg-zinc-800 transition-all"
                 >
-                  {loggedIn ? 'Create Invoice' : 'Sign in'}
+                  {loggedIn ? 'Create Invoice' : 'See Pricing'}
                 </button>
               </div>
             </div>
@@ -134,13 +132,13 @@ export default function Home() {
 
                     {/* Floating elements */}
                     <div className="absolute bottom-6 left-6 sm:bottom-12 sm:left-12 p-4 sm:p-6 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 backdrop-blur-2xl z-20 shadow-2xl shadow-emerald-400/20 animate-[bounce_3s_ease-in-out_infinite]">
-                       <p className="text-[8px] sm:text-[10px] uppercase font-black text-emerald-400 tracking-widest mb-1">Incoming Payment</p>
+                       <p className="text-[8px] sm:text-[10px] uppercase font-black text-emerald-400 tracking-widest mb-1">Paid Today</p>
                        <p className="text-lg sm:text-2xl font-black text-white">₹ 12,500.00</p>
                     </div>
 
                     <div className="absolute top-1/2 right-12 p-6 rounded-2xl border border-yellow-400/30 bg-yellow-400/10 backdrop-blur-2xl z-20 shadow-2xl shadow-yellow-400/20 animate-[bounce_4s_ease-in-out_infinite] hidden lg:block">
-                       <p className="text-[10px] uppercase font-black text-yellow-400 tracking-widest mb-1">AI Insight</p>
-                       <p className="text-sm font-bold text-white max-w-[150px]">Payment risk detected for Client Apex.</p>
+                       <p className="text-[10px] uppercase font-black text-yellow-400 tracking-widest mb-1">Recurring Ready</p>
+                       <p className="text-sm font-bold text-white max-w-[150px]">Set one invoice to repeat every month for retainers.</p>
                        <div className="mt-4 h-1 w-full bg-yellow-400/20 rounded-full overflow-hidden">
                           <div className="h-full w-2/3 bg-yellow-400" />
                        </div>
@@ -155,8 +153,8 @@ export default function Home() {
         <section className="py-24 border-t border-white/5 bg-zinc-950/50 relative overflow-hidden">
           <div className="container-custom">
             <div className="mx-auto mb-20 max-w-2xl text-center">
-              <h2 className="text-4xl font-black text-white mb-4 tracking-tight">The Fastest Way to Get Paid</h2>
-              <p className="text-zinc-500 font-medium">Simple, automated, and built for high-growth creators.</p>
+              <h2 className="text-4xl font-black text-white mb-4 tracking-tight">From invoice to payment, in one flow</h2>
+              <p className="text-zinc-500 font-medium">Simple enough for solo operators, strong enough for repeat billing.</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
@@ -179,12 +177,12 @@ export default function Home() {
                     <div className="absolute bottom-0 right-0 p-12 opacity-10 group-hover:opacity-20 transition-opacity duration-700">
                        <svg className="h-60 w-60 text-yellow-300" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>
                     </div>
-                    <h3 className="text-4xl font-black text-white mb-6 max-w-md tracking-tight leading-none">Intelligence built into every invoice.</h3>
-                    <p className="text-lg text-zinc-500 max-w-sm mb-12">Our AI Cashflow engine analyzes payment risk, drafts follow-ups, and optimizes your collection rate.</p>
+                    <h3 className="text-4xl font-black text-white mb-6 max-w-md tracking-tight leading-none">Built for retainers and repeat clients.</h3>
+                    <p className="text-lg text-zinc-500 max-w-sm mb-12">Save client details, reuse billing structure, and keep monthly collections organized without spreadsheet chaos.</p>
                     <div className="flex gap-4">
-                       <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] uppercase font-black text-zinc-500">Risk Scoring</div>
-                       <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] uppercase font-black text-zinc-500">Auto Drafts</div>
-                       <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] uppercase font-black text-zinc-500">Insights</div>
+                       <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] uppercase font-black text-zinc-500">Recurring Invoices</div>
+                       <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] uppercase font-black text-zinc-500">GST Fields</div>
+                       <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] uppercase font-black text-zinc-500">Payment Links</div>
                     </div>
                 </div>
 
@@ -192,19 +190,19 @@ export default function Home() {
                     <div className="h-16 w-16 mb-8 rounded-2xl bg-emerald-400 flex items-center justify-center shadow-xl shadow-emerald-400/20">
                        <svg className="h-8 w-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
                     </div>
-                    <h3 className="text-3xl font-black text-white mb-4 leading-tight">Verified <br /> Payments.</h3>
-                    <p className="text-zinc-500 font-medium">Automatic verification for UPI & Razorpay transactions.</p>
+                    <h3 className="text-3xl font-black text-white mb-4 leading-tight">Verified <br /> payments.</h3>
+                    <p className="text-zinc-500 font-medium">Track when a client pays through your public invoice and payment flow.</p>
                 </div>
 
                 <div className="md:col-span-4 p-12 rounded-[2.5rem] border border-white/5 bg-zinc-950 hover:border-white/10 transition-all">
-                    <h3 className="text-2xl font-bold text-white mb-4">Saved Clients.</h3>
-                    <p className="text-zinc-500 font-medium text-sm">One-click data entry for your recurring partners.</p>
+                    <h3 className="text-2xl font-bold text-white mb-4">Client history.</h3>
+                    <p className="text-zinc-500 font-medium text-sm">Keep each repeat client’s invoices and totals in one place.</p>
                 </div>
 
                 <div className="md:col-span-8 p-12 rounded-[2.5rem] border border-white/5 bg-zinc-950 flex items-center justify-between group hover:border-white/10 transition-all">
                     <div>
-                      <h3 className="text-2xl font-bold text-white mb-2">Public Invoices.</h3>
-                      <p className="text-zinc-500 font-medium text-sm">Interactive payment portals that look stunning on all devices.</p>
+                      <h3 className="text-2xl font-bold text-white mb-2">Shareable payment pages.</h3>
+                      <p className="text-zinc-500 font-medium text-sm">Send one link by email or WhatsApp so clients can view and pay from any device.</p>
                     </div>
                     <div className="hidden sm:flex h-20 w-32 bg-white/5 rounded-2xl border border-white/5 items-center justify-center group-hover:scale-110 transition-transform">
                        <div className="h-2 w-16 bg-white/10 rounded animate-pulse" />
@@ -218,21 +216,42 @@ export default function Home() {
         <section id="pricing" className="py-24 relative">
           <div className="container-custom relative z-10">
             <div className="mx-auto mb-20 max-w-3xl text-center">
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">Transparent Pricing.</h2>
-              <p className="text-zinc-500 font-medium text-lg">Start for free, scale when you grow. No hidden platform fees.</p>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">Pricing that grows with your collections.</h2>
+              <p className="text-zinc-500 font-medium text-lg">Start free. Upgrade when monthly billing becomes part of your business.</p>
             </div>
 
-            <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
+            <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
               <div className="p-10 rounded-[3rem] border border-white/5 bg-zinc-950 flex flex-col justify-between hover:bg-zinc-900/50 transition-all">
                 <div>
-                  <h3 className="mb-2 text-2xl font-bold text-white">Monthly Growth</h3>
-                  <p className="text-zinc-500 mb-8 font-medium">Great for starting freelancers.</p>
-                  <p className="mb-10 text-5xl font-black text-white italic">₹ 99 <span className="text-sm font-black text-zinc-600 uppercase tracking-widest">/ month</span></p>
+                  <h3 className="mb-2 text-2xl font-bold text-white">Free</h3>
+                  <p className="text-zinc-500 mb-8 font-medium">For testing the workflow with your first clients.</p>
+                  <p className="mb-10 text-5xl font-black text-white italic">₹ 0 <span className="text-sm font-black text-zinc-600 uppercase tracking-widest">/ forever</span></p>
+
+                  <ul className="mb-10 space-y-4 text-zinc-400 font-medium">
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> 2 invoices included</li>
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Public payment page</li>
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Saved client basics</li>
+                  </ul>
+                </div>
+
+                <button
+                  onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
+                  className="w-full py-5 rounded-2xl bg-zinc-900 text-white font-black hover:bg-zinc-800 transition-all border border-white/5 active:scale-95"
+                >
+                  Start Free
+                </button>
+              </div>
+
+              <div className="p-10 rounded-[3rem] border border-white/5 bg-zinc-950 flex flex-col justify-between hover:bg-zinc-900/50 transition-all">
+                <div>
+                  <h3 className="mb-2 text-2xl font-bold text-white">Pro Monthly</h3>
+                  <p className="text-zinc-500 mb-8 font-medium">For solo operators billing clients every month.</p>
+                  <p className="mb-10 text-5xl font-black text-white italic">₹ 499 <span className="text-sm font-black text-zinc-600 uppercase tracking-widest">/ month</span></p>
 
                   <ul className="mb-10 space-y-4 text-zinc-400 font-medium">
                     <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Unlimited Invoices</li>
                     <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> UPI & Card Payments</li>
-                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Public Payment Portal</li>
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Recurring Invoices</li>
                   </ul>
                 </div>
 
@@ -240,23 +259,23 @@ export default function Home() {
                   onClick={() => handleSubscribe('monthly')}
                   className="w-full py-5 rounded-2xl bg-zinc-900 text-white font-black hover:bg-zinc-800 transition-all border border-white/5 active:scale-95"
                 >
-                  Start Monthly
+                  Upgrade Monthly
                 </button>
               </div>
 
               <div className="p-10 rounded-[3rem] border-2 border-yellow-400/50 bg-yellow-400/5 relative flex flex-col justify-between shadow-2xl shadow-yellow-400/10">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-yellow-400 text-black text-[10px] font-black uppercase tracking-widest shadow-xl">
-                    Most Popular
+                    Best Value
                 </div>
                 <div>
-                  <h3 className="mb-2 text-2xl font-bold text-white">Annual Professional</h3>
-                  <p className="text-zinc-400 mb-8 font-medium">For established startups & agencies.</p>
-                  <p className="mb-10 text-5xl font-black text-white italic">₹ 999 <span className="text-sm font-black text-zinc-500 uppercase tracking-widest">/ year</span></p>
+                  <h3 className="mb-2 text-2xl font-bold text-white">Pro Annual</h3>
+                  <p className="text-zinc-400 mb-8 font-medium">For agencies and consultants who bill all year.</p>
+                  <p className="mb-10 text-5xl font-black text-white italic">₹ 4,999 <span className="text-sm font-black text-zinc-500 uppercase tracking-widest">/ year</span></p>
 
                   <ul className="mb-10 space-y-4 text-zinc-300 font-medium">
                     <li className="flex items-center gap-3"><svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Everything in Monthly</li>
-                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Full AI Cashflow Insights</li>
-                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Priority Startup Support</li>
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Lower effective monthly cost</li>
+                    <li className="flex items-center gap-3"><svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg> Priority support</li>
                   </ul>
                 </div>
 
@@ -264,7 +283,7 @@ export default function Home() {
                   onClick={() => handleSubscribe('yearly')}
                   className="w-full py-5 rounded-2xl bg-yellow-400 text-black font-black hover:bg-yellow-300 transition-all shadow-xl shadow-yellow-400/20 active:scale-95"
                 >
-                  Lock in Yearly
+                  Save With Annual
                 </button>
               </div>
             </div>
@@ -276,7 +295,7 @@ export default function Home() {
            <div className="container-custom">
               <div className="p-12 md:p-24 rounded-[3rem] bg-gradient-to-br from-zinc-900 to-black border border-white/5 text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500/10 blur-[100px]" />
-                  <h2 className="relative z-10 text-4xl md:text-6xl font-black text-white mb-8 tracking-tight">Ready to streamline your <br className="hidden md:block" /> revenue collection?</h2>
+                  <h2 className="relative z-10 text-4xl md:text-6xl font-black text-white mb-8 tracking-tight">Stop chasing payments <br className="hidden md:block" /> every month.</h2>
                   <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                      <button 
                         onClick={() => navigate('/signup')}
@@ -284,7 +303,7 @@ export default function Home() {
                      >
                         Claim your free workspace
                      </button>
-                     <p className="text-zinc-500 font-medium ml-4">Join 2,000+ freelancers already growing.</p>
+                     <p className="text-zinc-500 font-medium ml-4">Built for agencies, consultants, and freelancers who bill on repeat.</p>
                   </div>
               </div>
            </div>

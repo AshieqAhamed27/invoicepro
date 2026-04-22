@@ -35,13 +35,13 @@ const upload = multer({
 
 const planDetails = {
     monthly: {
-        amount: 99,
-        label: 'Monthly Plan',
+        amount: 499,
+        label: 'Pro Monthly',
         durationDays: 30
     },
     yearly: {
-        amount: 999,
-        label: 'Yearly Plan',
+        amount: 4999,
+        label: 'Pro Annual',
         durationDays: 365
     }
 };
