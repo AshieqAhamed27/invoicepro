@@ -1,6 +1,7 @@
 const express = require('express');
 const Client = require('../models/Client');
 const { protect } = require('../middleware/auth');
+const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 
 const router = express.Router();
 
@@ -43,6 +44,10 @@ router.post('/', protect, async(req, res) => {
 // Delete client
 router.delete('/:id', protect, async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'client');
+        }
+
         const client = await Client.findOneAndDelete({
             _id: req.params.id,
             user: req.user._id

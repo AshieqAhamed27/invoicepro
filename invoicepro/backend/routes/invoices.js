@@ -10,6 +10,7 @@ const {
     getPublicInvoiceUrl,
     parseDateInput
 } = require('../utils/recurrence');
+const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 
 const router = express.Router();
 const sendEmail = require('../utils/sendEmail');
@@ -44,6 +45,8 @@ const generateDocumentNumber = async(userId, documentType = 'invoice') => {
     const nextNum = String(lastNum + 1).padStart(4, '0');
     return `${prefix}-${nextNum}`;
 };
+
+const generateInvoiceNumber = (userId) => generateDocumentNumber(userId, 'invoice');
 
 const isDatePastEndOfDay = (value) => {
     if (!value) return false;
@@ -140,6 +143,10 @@ router.get('/dashboard', protect, async(req, res) => {
 // ==========================
 router.get('/public/:id', async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'invoice');
+        }
+
         const invoice = await Invoice.findById(req.params.id)
             .populate('user', 'companyName upiId address logo');
 
@@ -162,6 +169,10 @@ router.get('/public/:id', async(req, res) => {
 
 router.post('/public/:id/accept', async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'proposal');
+        }
+
         const proposal = await Invoice.findById(req.params.id)
             .populate('user', 'companyName name');
 
@@ -378,6 +389,10 @@ router.post('/', protect, async(req, res) => {
 
 router.post('/:id/convert', protect, async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'proposal');
+        }
+
         const proposal = await Invoice.findOne({
             _id: req.params.id,
             user: req.user._id
@@ -462,6 +477,10 @@ router.post('/:id/convert', protect, async(req, res) => {
 // ==========================
 router.put('/:id/status', protect, async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'invoice');
+        }
+
         const invoice = await Invoice.findById(req.params.id);
 
         if (!invoice) {
@@ -530,6 +549,10 @@ router.put('/:id/status', protect, async(req, res) => {
 // ==========================
 router.delete('/:id', protect, async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'invoice');
+        }
+
         const invoice = await Invoice.findOneAndDelete({
             _id: req.params.id,
             user: req.user._id
@@ -597,6 +620,10 @@ router.get('/recurring', protect, async(req, res) => {
 
 router.patch('/recurring/:id', protect, async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'recurring invoice');
+        }
+
         const schedule = await RecurringInvoice.findOne({
             _id: req.params.id,
             user: req.user._id
@@ -633,6 +660,10 @@ router.patch('/recurring/:id', protect, async(req, res) => {
 
 router.post('/recurring/:id/run-now', protect, async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'recurring invoice');
+        }
+
         const schedule = await RecurringInvoice.findOne({
             _id: req.params.id,
             user: req.user._id
@@ -842,6 +873,10 @@ router.post('/recurring/run', async(req, res) => {
 // ==========================
 router.get('/:id', protect, async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'invoice');
+        }
+
         const invoice = await Invoice.findOne({
             _id: req.params.id,
             user: req.user._id
@@ -869,6 +904,10 @@ router.get('/:id', protect, async(req, res) => {
 // ==========================
 router.post('/:id/reminder', protect, async(req, res) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'invoice');
+        }
+
         const invoice = await Invoice.findOne({ _id: req.params.id, user: req.user._id });
         if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
         if (isProposalDocument(invoice.documentType)) return res.status(400).json({ message: 'Use the public proposal link to request approval' });

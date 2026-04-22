@@ -11,6 +11,7 @@ const Invoice = require('../models/Invoice');
 const sendEmail = require('../utils/sendEmail');
 const { paymentConfirmed } = require('../utils/emailTemplates');
 const { getPublicInvoiceUrl } = require('../utils/recurrence');
+const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 
 const allowedScreenshotTypes = new Set([
     'image/jpeg',
@@ -161,6 +162,7 @@ router.post('/razorpay/order', protect, async(req, res) => {
 router.post('/public/order', async(req, res) => {
     try {
         const { invoiceId } = req.body;
+        if (!isValidObjectId(invoiceId)) return rejectInvalidObjectId(res, 'invoice');
         const invoice = await Invoice.findById(invoiceId);
         if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
         if (invoice.documentType === 'proposal') return res.status(400).json({ message: 'Proposals cannot be paid' });
@@ -191,6 +193,7 @@ router.post('/public/order', async(req, res) => {
 router.post('/public/verify', async(req, res) => {
     try {
         const { invoiceId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+        if (!isValidObjectId(invoiceId)) return rejectInvalidObjectId(res, 'invoice');
         const invoice = await Invoice.findById(invoiceId).populate('user', 'companyName name email');
         if (!invoice) return res.status(404).json({ message: 'Not found' });
         if (invoice.documentType === 'proposal') return res.status(400).json({ message: 'Proposals cannot be paid' });
@@ -261,8 +264,9 @@ router.post('/razorpay/verify', protect, async(req, res) => {
 router.post('/request', protect, upload.single('screenshot'), async(req, res) => {
     try {
         const { plan } = req.body;
+        const normalizedPlan = normalizePlan(plan);
         if (!req.file) return res.status(400).json({ message: 'File required' });
-        if (!planDetails[plan]) return res.status(400).json({ message: 'Invalid plan' });
+        if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
 
         await PaymentRequest.create({
             user: req.user._id,
@@ -271,7 +275,7 @@ router.post('/request', protect, upload.single('screenshot'), async(req, res) =>
             screenshotContentType: req.file.mimetype,
             screenshotSize: req.file.size,
             screenshotData: req.file.buffer,
-            plan,
+            plan: normalizedPlan,
             status: 'pending'
         });
 
@@ -297,6 +301,7 @@ router.get('/requests', protect, async(req, res) => {
 router.get('/requests/:id/screenshot', protect, async(req, res) => {
     try {
         if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+        if (!isValidObjectId(req.params.id)) return rejectInvalidObjectId(res, 'payment request');
 
         const request = await PaymentRequest.findById(req.params.id).select('+screenshotData');
         if (!request) return res.status(404).json({ message: 'Not found' });
@@ -311,6 +316,7 @@ router.get('/requests/:id/screenshot', protect, async(req, res) => {
 router.put('/approve/:id', protect, async(req, res) => {
     try {
         if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+        if (!isValidObjectId(req.params.id)) return rejectInvalidObjectId(res, 'payment request');
         const request = await PaymentRequest.findById(req.params.id);
         if (!request) return res.status(404).json({ message: 'Not found' });
         request.status = 'approved';
@@ -335,7 +341,7 @@ router.post('/webhook', async (req, res) => {
         const { event, payload } = req.body;
         if (event === 'payment.captured' || event === 'order.paid') {
             const notes = (payload.payment?.entity?.notes) || (payload.order?.entity?.notes);
-            if (notes?.invoiceId) {
+            if (notes?.invoiceId && isValidObjectId(notes.invoiceId)) {
                 const inv = await Invoice.findById(notes.invoiceId).populate('user', 'companyName name email');
                 if (inv && inv.documentType !== 'proposal' && inv.status !== 'paid') {
                     inv.status = 'paid';
@@ -358,7 +364,7 @@ router.post('/webhook', async (req, res) => {
                     });
                 }
             }
-            if (notes?.plan && notes?.userId) {
+            if (notes?.plan && notes?.userId && isValidObjectId(notes.userId)) {
                 const normalizedPlan = normalizePlan(notes.plan);
                 if (normalizedPlan) {
                     const u = await User.findById(notes.userId);

@@ -30,6 +30,20 @@ const connectDatabase = async() => {
     }
 };
 
+const startServer = async(port = process.env.PORT || 5000) => {
+    getRequiredEnv('JWT_SECRET');
+    await connectDatabase();
+
+    return new Promise((resolve, reject) => {
+        const server = app.listen(port, () => {
+            console.log(`Server running on port ${port}`);
+            resolve(server);
+        });
+
+        server.on('error', reject);
+    });
+};
+
 // ✅ MIDDLEWARE
 app.use(
     cors({
@@ -82,5 +96,13 @@ app.use((err, req, res, next) => {
 
 // Export app for local entrypoint / serverless environments.
 app.connectDatabase = connectDatabase;
+app.startServer = startServer;
 
 module.exports = app;
+
+if (require.main === module) {
+    startServer().catch((err) => {
+        console.error('Server startup error:', err.message);
+        process.exit(1);
+    });
+}
