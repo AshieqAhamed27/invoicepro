@@ -10,10 +10,10 @@ import {
 import { isLoggedIn, getUser } from './utils/auth';
 import api from './utils/api';
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-
+// ✅ Lazy load ALL pages (important)
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
@@ -23,53 +23,38 @@ const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Clients = lazy(() => import('./pages/Clients'));
 
+// Loader
 const RouteLoader = () => (
   <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex flex-col justify-center items-center">
     <div className="w-10 h-10 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-    <p className="text-gray-400">Verifying session...</p>
+    <p className="text-gray-400">Loading...</p>
   </div>
 );
 
+// ✅ Optimized PrivateRoute (NO blocking)
 const PrivateRoute = ({ children }) => {
   const location = useLocation();
   const loggedIn = isLoggedIn();
-  const [status, setStatus] = useState(() => (loggedIn ? 'checking' : 'unauthenticated'));
 
   useEffect(() => {
-    let active = true;
-
-    if (!loggedIn) {
-      setStatus('unauthenticated');
-      return undefined;
+    // background check (non-blocking)
+    if (loggedIn) {
+      api.get('/auth/me')
+        .then((res) => {
+          const currentUser = getUser() || {};
+          localStorage.setItem(
+            'user',
+            JSON.stringify({ ...currentUser, ...(res.data.user || {}) })
+          );
+        })
+        .catch(() => {
+          // silently fail
+        });
     }
+  }, [loggedIn]);
 
-    setStatus('checking');
-
-    api.get('/auth/me')
-      .then((res) => {
-        if (!active) return;
-
-        const currentUser = getUser() || {};
-        localStorage.setItem('user', JSON.stringify({ ...currentUser, ...(res.data.user || {}) }));
-        setStatus('authenticated');
-      })
-      .catch(() => {
-        if (active) {
-          setStatus('unauthenticated');
-        }
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [loggedIn, location.pathname]);
-
-  if (!loggedIn || status === 'unauthenticated') {
+  if (!loggedIn) {
     return <Navigate to="/login" replace state={{ from: location }} />;
-  }
-
-  if (status === 'checking') {
-    return <RouteLoader />;
   }
 
   return children;
@@ -89,103 +74,140 @@ const isAdmin = () => {
 export default function App() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<RouteLoader />}>
-        <Routes>
-          <Route path="/" element={<Home />} />
+      <Routes>
 
-          <Route
-            path="/public/invoice/:id"
-            element={<PublicInvoice />}
-          />
-          <Route
-            path="/p/invoice/:id"
-            element={<PublicInvoice />}
-          />
+        {/* Public */}
+        <Route
+          path="/"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <Home />
+            </Suspense>
+          }
+        />
 
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
+        <Route
+          path="/public/invoice/:id"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <PublicInvoice />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/p/invoice/:id"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <PublicInvoice />
+            </Suspense>
+          }
+        />
+
+        {/* Auth */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Suspense fallback={<RouteLoader />}>
                 <Login />
-              </PublicRoute>
-            }
-          />
+              </Suspense>
+            </PublicRoute>
+          }
+        />
 
-          <Route
-            path="/signup"
-            element={
-              <PublicRoute>
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute>
+              <Suspense fallback={<RouteLoader />}>
                 <Signup />
-              </PublicRoute>
-            }
-          />
+              </Suspense>
+            </PublicRoute>
+          }
+        />
 
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
+        {/* Protected */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
                 <Dashboard />
-              </PrivateRoute>
-            }
-          />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/create-invoice"
-            element={
-              <PrivateRoute>
+        <Route
+          path="/create-invoice"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
                 <CreateInvoice />
-              </PrivateRoute>
-            }
-          />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/invoice/:id"
-            element={
-              <PrivateRoute>
+        <Route
+          path="/invoice/:id"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
                 <InvoiceView />
-              </PrivateRoute>
-            }
-          />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/payment"
-            element={
-              <PrivateRoute>
+        <Route
+          path="/payment"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
                 <Payment />
-              </PrivateRoute>
-            }
-          />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/settings"
-            element={
-              <PrivateRoute>
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
                 <Settings />
-              </PrivateRoute>
-            }
-          />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/clients"
-            element={
-              <PrivateRoute>
+        <Route
+          path="/clients"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
                 <Clients />
-              </PrivateRoute>
-            }
-          />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
 
-          <Route
-            path="/admin"
-            element={
-              isAdmin() ? (
+        <Route
+          path="/admin"
+          element={
+            isAdmin() ? (
+              <Suspense fallback={<RouteLoader />}>
                 <Admin />
-              ) : (
-                <Navigate to="/dashboard" />
-              )
-            }
-          />
-        </Routes>
-      </Suspense>
+              </Suspense>
+            ) : (
+              <Navigate to="/dashboard" />
+            )
+          }
+        />
+
+      </Routes>
     </BrowserRouter>
   );
 }
