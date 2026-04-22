@@ -17,88 +17,127 @@ const loadRazorpayScript = () => {
   });
 };
 
+const planDetails = {
+  monthly: {
+    amount: 499,
+    label: "Pro Monthly",
+    note: "Unlimited invoices, payment links, and recurring billing.",
+    duration: "Billed every 30 days"
+  },
+  yearly: {
+    amount: 4999,
+    label: "Pro Annual",
+    note: "Best value for agencies and repeat-billing businesses.",
+    duration: "Billed every 365 days"
+  }
+};
+
+const getSafePlan = (value) => (planDetails[value] ? value : 'monthly');
+
 export default function Payment() {
   const [plan, setPlan] = useState('monthly');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const selectedPlan = localStorage.getItem("plan") || "monthly";
+    const selectedPlan = getSafePlan(localStorage.getItem("plan") || "monthly");
+    localStorage.setItem("plan", selectedPlan);
     setPlan(selectedPlan);
   }, []);
 
-  const planDetails = {
-    monthly: {
-      amount: 499,
-      label: "Pro Monthly",
-      note: "Unlimited invoices, payment links, and recurring billing.",
-      duration: "Billed every 30 days"
-    },
-    yearly: {
-      amount: 4999,
-      label: "Pro Annual",
-      note: "Best value for agencies and repeat-billing businesses.",
-      duration: "Billed every 365 days"
-    }
-  };
-
-  const current = planDetails[plan];
+  const current = planDetails[getSafePlan(plan)];
 
   const handleRazorpayPayment = async () => {
-  try {
-    setLoading(true);
+    let checkoutOpened = false;
+    const selectedPlan = getSafePlan(plan);
+    setPlan(selectedPlan);
+    localStorage.setItem("plan", selectedPlan);
 
-    const orderRes = await api.post('/payment/razorpay/order', {
-      plan: plan
-    });
+    try {
+      setLoading(true);
 
-    const isLoaded = await loadRazorpayScript();
+      const orderRes = await api.post('/payment/razorpay/order', {
+        plan: selectedPlan
+      });
 
-    if (!isLoaded) {
-      alert("Razorpay failed to load");
-      return;
-    }
+      const keyId = orderRes.data?.keyId;
+      const order = orderRes.data?.order;
+      const simulation = Boolean(orderRes.data?.simulation);
 
-    const keyId = orderRes.data.keyId;
-    const order = orderRes.data.order;
+      if (!order?.id) {
+        throw new Error("Invalid order response");
+      }
 
-    const options = {
-      key: keyId,
-      amount: order.amount,
-      currency: order.currency,
-      name: "InvoicePro",
-      description: "Subscription Payment",
-      order_id: order.id,
-
-      handler: async function (response) {
-        await api.post('/payment/razorpay/verify', {
-          plan: plan,
-          razorpay_order_id: response.razorpay_order_id,
-          razorpay_payment_id: response.razorpay_payment_id,
-          razorpay_signature: response.razorpay_signature
+      if (simulation) {
+        const verifyRes = await api.post('/payment/razorpay/verify', {
+          plan: selectedPlan,
+          razorpay_order_id: order.id,
+          razorpay_payment_id: `pay_sim_${Date.now()}`,
+          razorpay_signature: 'sim_signature'
         });
+
+        if (verifyRes.data?.user) {
+          localStorage.setItem('user', JSON.stringify(verifyRes.data.user));
+        }
 
         alert("Payment successful");
         window.location.href = "/dashboard";
+        return;
       }
-    };
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+      const isLoaded = await loadRazorpayScript();
 
-  } catch (err) {
-    console.log("ERROR:", err);
+      if (!isLoaded) {
+        alert("Razorpay failed to load");
+        return;
+      }
 
-    let msg = "Payment failed";
+      const options = {
+        key: keyId,
+        amount: order.amount,
+        currency: order.currency,
+        name: "InvoicePro",
+        description: "Subscription Payment",
+        order_id: order.id,
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+          }
+        },
+        handler: async function(response) {
+          try {
+            const verifyRes = await api.post('/payment/razorpay/verify', {
+              plan: selectedPlan,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
 
-    if (err && err.response && err.response.data && err.response.data.message) {
-      msg = err.response.data.message;
+            if (verifyRes.data?.user) {
+              localStorage.setItem('user', JSON.stringify(verifyRes.data.user));
+            }
+
+            alert("Payment successful");
+            window.location.href = "/dashboard";
+          } catch (verifyErr) {
+            const verifyMessage = verifyErr?.response?.data?.message || "Payment verification failed";
+            alert(verifyMessage);
+            setLoading(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      checkoutOpened = true;
+      rzp.open();
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || "Payment failed";
+      alert(msg);
+    } finally {
+      if (!checkoutOpened) {
+        setLoading(false);
+      }
     }
-
-    alert(msg);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">

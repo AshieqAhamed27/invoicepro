@@ -46,6 +46,11 @@ const planDetails = {
     }
 };
 
+const normalizePlan = (plan) => {
+    const safePlan = String(plan || '').toLowerCase();
+    return planDetails[safePlan] ? safePlan : null;
+};
+
 const getRazorpayAuthHeader = () => {
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -54,11 +59,16 @@ const getRazorpayAuthHeader = () => {
 };
 
 const setUserPlan = async(user, plan) => {
-    const selectedPlan = planDetails[plan];
+    const normalizedPlan = normalizePlan(plan);
+    if (!normalizedPlan) {
+        throw new Error('Invalid plan');
+    }
+
+    const selectedPlan = planDetails[normalizedPlan];
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + (selectedPlan?.durationDays || 30));
 
-    user.plan = plan;
+    user.plan = normalizedPlan;
     user.planExpiresAt = expiresAt;
     await user.save();
     return user;
@@ -98,8 +108,9 @@ const createRazorpayOrder = (payload, authHeader) => {
 router.post('/razorpay/order', protect, async(req, res) => {
     try {
         const { plan } = req.body;
-        const selectedPlan = planDetails[plan];
-        if (!selectedPlan) return res.status(400).json({ message: 'Invalid plan' });
+        const normalizedPlan = normalizePlan(plan);
+        if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
+        const selectedPlan = planDetails[normalizedPlan];
 
         const authHeader = getRazorpayAuthHeader();
         if (process.env.PAYMENT_SIMULATION === 'true') {
@@ -107,7 +118,7 @@ router.post('/razorpay/order', protect, async(req, res) => {
                 simulation: true,
                 keyId: 'rzp_test_simulation',
                 order: { id: 'order_sim_' + Date.now(), amount: selectedPlan.amount * 100, currency: 'INR' },
-                plan: { id: plan, label: selectedPlan.label, amount: selectedPlan.amount }
+                plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount }
             });
         }
 
@@ -116,13 +127,17 @@ router.post('/razorpay/order', protect, async(req, res) => {
         const razorpayRes = await createRazorpayOrder({
             amount: selectedPlan.amount * 100,
             currency: 'INR',
-            receipt: `plan_${plan}_${Date.now()}`,
-            notes: { userId: String(req.user._id), plan }
+            receipt: `plan_${normalizedPlan}_${Date.now()}`,
+            notes: { userId: String(req.user._id), plan: normalizedPlan }
         }, authHeader);
 
         if (!razorpayRes.ok) return res.status(razorpayRes.status).json({ message: 'Failed to create order' });
 
-        res.json({ keyId: process.env.RAZORPAY_KEY_ID, order: razorpayRes.body, plan: { id: plan, label: selectedPlan.label, amount: selectedPlan.amount } });
+        res.json({
+            keyId: process.env.RAZORPAY_KEY_ID,
+            order: razorpayRes.body,
+            plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount }
+        });
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
 
@@ -168,6 +183,10 @@ router.post('/public/verify', async(req, res) => {
         }
 
         if (process.env.PAYMENT_SIMULATION !== 'true') {
+            if (!process.env.RAZORPAY_KEY_SECRET) {
+                return res.status(500).json({ message: 'Razorpay keys missing' });
+            }
+
             const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
             shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
             if (shasum.digest('hex') !== razorpay_signature) return res.status(400).json({ message: 'Verification failed' });
@@ -201,7 +220,14 @@ router.post('/public/verify', async(req, res) => {
 router.post('/razorpay/verify', protect, async(req, res) => {
     try {
         const { plan, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+        const normalizedPlan = normalizePlan(plan);
+        if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
+
         if (process.env.PAYMENT_SIMULATION !== 'true') {
+            if (!process.env.RAZORPAY_KEY_SECRET) {
+                return res.status(500).json({ message: 'Razorpay keys missing' });
+            }
+
             const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
             shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
             if (shasum.digest('hex') !== razorpay_signature) return res.status(400).json({ message: 'Verification failed' });
@@ -210,8 +236,8 @@ router.post('/razorpay/verify', protect, async(req, res) => {
         const user = await User.findById(req.user._id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        await setUserPlan(user, plan);
-        res.json({ message: 'Success', user });
+        await setUserPlan(user, normalizedPlan);
+        res.json({ message: 'Success', user, plan: normalizedPlan });
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
 
@@ -316,8 +342,11 @@ router.post('/webhook', async (req, res) => {
                 }
             }
             if (notes?.plan && notes?.userId) {
-                const u = await User.findById(notes.userId);
-                if (u) await setUserPlan(u, notes.plan);
+                const normalizedPlan = normalizePlan(notes.plan);
+                if (normalizedPlan) {
+                    const u = await User.findById(notes.userId);
+                    if (u) await setUserPlan(u, normalizedPlan);
+                }
             }
         }
         res.json({ status: 'ok' });
