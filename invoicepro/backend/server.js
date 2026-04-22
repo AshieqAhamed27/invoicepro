@@ -6,6 +6,7 @@ require('dotenv').config();
 const {
     getAllowedOrigins,
     getRequiredEnv,
+    isAllowedOrigin,
     isDevOrigin,
     normalizeUrl
 } = require('./utils/env');
@@ -38,11 +39,14 @@ app.use(
             const requestOrigin = normalizeUrl(origin);
             const allowedOrigins = getAllowedOrigins();
 
-            if (allowedOrigins.has(requestOrigin) || isDevOrigin(requestOrigin)) {
+            if (isAllowedOrigin(requestOrigin) || isDevOrigin(requestOrigin)) {
                 return callback(null, true);
             }
 
-            return callback(new Error('Not allowed by CORS'));
+            const error = new Error(`Origin ${requestOrigin} is not allowed by CORS`);
+            error.status = 403;
+            error.context = { requestOrigin, allowedOrigins };
+            return callback(error);
         },
         credentials: true
     })
@@ -68,7 +72,10 @@ app.get('/api/health', (req, res) => {
 // ✅ ERROR HANDLER
 app.use((err, req, res, next) => {
     console.error('Error:', err.message);
-    res.status(500).json({
+    if (err.context) {
+        console.error('Error context:', err.context);
+    }
+    res.status(err.status || 500).json({
         message: err.message || 'Server error'
     });
 });

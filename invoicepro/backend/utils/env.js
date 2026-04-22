@@ -1,5 +1,18 @@
 const normalizeUrl = (url) => (url || '').trim().replace(/\/+$/, '');
 
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const parseOrigins = (value) => {
+    return (value || '')
+        .split(',')
+        .map(normalizeUrl)
+        .filter(Boolean);
+};
+
+const toOriginPattern = (origin) => {
+    return new RegExp(`^${escapeRegExp(origin).replace(/\\\*/g, '.*')}$`);
+};
+
 const getRequiredEnv = (name) => {
     const value = process.env[name];
 
@@ -14,12 +27,20 @@ const getJwtSecret = () => getRequiredEnv('JWT_SECRET');
 
 const getAllowedOrigins = () => {
     const frontendUrl = normalizeUrl(process.env.FRONTEND_URL);
-    const extraOrigins = (process.env.CORS_ORIGINS || '')
-        .split(',')
-        .map(normalizeUrl)
-        .filter(Boolean);
+    return [frontendUrl, ...parseOrigins(process.env.CORS_ORIGINS)].filter(Boolean);
+};
 
-    return new Set([frontendUrl, ...extraOrigins].filter(Boolean));
+const isAllowedOrigin = (origin) => {
+    const requestOrigin = normalizeUrl(origin);
+    if (!requestOrigin) return true;
+
+    return getAllowedOrigins().some((allowedOrigin) => {
+        if (allowedOrigin.includes('*')) {
+            return toOriginPattern(allowedOrigin).test(requestOrigin);
+        }
+
+        return allowedOrigin === requestOrigin;
+    });
 };
 
 const isDevOrigin = (origin) => {
@@ -33,6 +54,7 @@ module.exports = {
     getAllowedOrigins,
     getJwtSecret,
     getRequiredEnv,
+    isAllowedOrigin,
     isDevOrigin,
     normalizeUrl
 };
