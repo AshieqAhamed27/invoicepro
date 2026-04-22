@@ -43,6 +43,7 @@
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 96px;
 }
 
 body {
@@ -194,6 +195,10 @@ select {
 
     .reveal-delay-2 {
         animation-delay: 220ms;
+    }
+
+    .reveal-delay-3 {
+        animation-delay: 340ms;
     }
 
     .hover-lift {

@@ -1,20 +1,22 @@
-import axios from "axios";
+import axios from 'axios';
 
-const api = axios.create({
-    baseURL: "https://invoicepro-527e.onrender.com/api",
-});
+const fallbackBaseUrl = import.meta.env.PROD
+  ? 'https://invoicepro-527e.onrender.com/api'
+  : '/api';
 
-// ✅ ADD TOKEN TO EVERY REQUEST
+const baseURL = (import.meta.env.VITE_API_URL || '').trim() || fallbackBaseUrl;
+
+const api = axios.create({ baseURL });
+
+// Add token to every request (when available)
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
 
-    console.log("TOKEN:", token); // 🔍 debug
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-    if (token) {
-        config.headers.Authorization = "Bearer " + token;
-    }
-
-    return config;
+  return config;
 });
 
 export default api;

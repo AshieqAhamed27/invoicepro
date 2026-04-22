@@ -22,6 +22,7 @@ const Admin = lazy(() => import('./pages/Admin'));
 const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Clients = lazy(() => import('./pages/Clients'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Loader
 const RouteLoader = () => (
@@ -30,6 +31,16 @@ const RouteLoader = () => (
     <p className="text-gray-400">Loading...</p>
   </div>
 );
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 // ✅ Optimized PrivateRoute (NO blocking)
 const PrivateRoute = ({ children }) => {
@@ -74,6 +85,7 @@ const isAdmin = () => {
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
 
         {/* Public */}
@@ -204,6 +216,15 @@ export default function App() {
             ) : (
               <Navigate to="/dashboard" />
             )
+          }
+        />
+
+        <Route
+          path="*"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <NotFound />
+            </Suspense>
           }
         />
 

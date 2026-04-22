@@ -6,6 +6,8 @@ import { jwtDecode } from 'jwt-decode';
 import Navbar from '../components/Navbar';
 import BrandLogo from '../components/BrandLogo';
 
+const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim();
+
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,6 +38,8 @@ export default function Login() {
   };
 
   useEffect(() => {
+    if (!googleClientId) return;
+
     const loadGoogleScript = () => {
       return new Promise((resolve) => {
         const existingScript = document.querySelector(
@@ -60,8 +64,7 @@ export default function Login() {
     loadGoogleScript().then(() => {
       if (window.google) {
         window.google.accounts.id.initialize({
-          client_id:
-            '251597134759-nfkq6fmlnvsgn8lniia3colbfer62gum.apps.googleusercontent.com',
+          client_id: googleClientId,
           callback: handleGoogleLogin
         });
 
@@ -155,13 +158,17 @@ export default function Login() {
               </div>
             )}
 
-            <div id="googleBtn" className="mb-8 flex justify-center scale-110" />
+            {googleClientId && (
+              <>
+                <div id="googleBtn" className="mb-8 flex justify-center scale-110" />
 
-            <div className="mb-8 flex items-center gap-4">
-              <span className="h-px flex-1 bg-white/5" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-700">or use email</span>
-              <span className="h-px flex-1 bg-white/5" />
-            </div>
+                <div className="mb-8 flex items-center gap-4">
+                  <span className="h-px flex-1 bg-white/5" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-700">or use email</span>
+                  <span className="h-px flex-1 bg-white/5" />
+                </div>
+              </>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
