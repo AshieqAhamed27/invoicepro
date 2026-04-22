@@ -10,6 +10,13 @@ const {
     isDevOrigin,
     normalizeUrl
 } = require('./utils/env');
+const {
+    PRICING_VERSION,
+    getConnectionStateLabel,
+    getEnvSanity,
+    markStartup,
+    startupState
+} = require('./utils/runtimeDiagnostics');
 
 const authRoutes = require('./routes/auth');
 const invoiceRoutes = require('./routes/invoices');
@@ -30,9 +37,13 @@ const connectDatabase = async() => {
     }
 };
 
-const startServer = async(port = process.env.PORT || 5000) => {
+const startServer = async(options = {}) => {
+    const port = options.port || process.env.PORT || 5000;
+    const entrypoint = options.entrypoint || 'app.startServer';
+
     getRequiredEnv('JWT_SECRET');
     await connectDatabase();
+    markStartup({ entrypoint, port });
 
     return new Promise((resolve, reject) => {
         const server = app.listen(port, () => {
@@ -83,6 +94,25 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+app.get('/api/health/details', (req, res) => {
+    res.json({
+        status: 'OK',
+        message: 'InvoicePro API diagnostics',
+        pricingVersion: PRICING_VERSION,
+        startup: {
+            entrypoint: startupState.entrypoint,
+            port: startupState.port,
+            startedAt: startupState.startedAt,
+            uptimeSeconds: Math.floor(process.uptime()),
+            nodeVersion: process.version
+        },
+        database: {
+            state: getConnectionStateLabel(mongoose.connection.readyState)
+        },
+        envSanity: getEnvSanity()
+    });
+});
+
 // ✅ ERROR HANDLER
 app.use((err, req, res, next) => {
     console.error('Error:', err.message);
@@ -101,7 +131,7 @@ app.startServer = startServer;
 module.exports = app;
 
 if (require.main === module) {
-    startServer().catch((err) => {
+    startServer({ entrypoint: 'server.js' }).catch((err) => {
         console.error('Server startup error:', err.message);
         process.exit(1);
     });

@@ -147,6 +147,9 @@ Visit **http://localhost:5173** in your browser.
 6. After deploy, confirm live pricing from:
    `GET /api/payment/plans`
    Expected values: `monthly = 499`, `yearly = 4999`
+7. Confirm runtime diagnostics from:
+   `GET /api/health/details`
+   Check `startup.entrypoint`, `database.state`, `pricingVersion`, and `envSanity`
 
 ### Frontend (Vercel / Netlify)
 1. Update `vite.config.js` proxy OR set `VITE_API_URL` env var pointing to deployed backend

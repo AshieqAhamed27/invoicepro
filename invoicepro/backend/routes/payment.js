@@ -12,6 +12,7 @@ const sendEmail = require('../utils/sendEmail');
 const { paymentConfirmed } = require('../utils/emailTemplates');
 const { getPublicInvoiceUrl } = require('../utils/recurrence');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
+const { PRICING_VERSION } = require('../utils/runtimeDiagnostics');
 
 const allowedScreenshotTypes = new Set([
     'image/jpeg',
@@ -46,8 +47,6 @@ const planDetails = {
         durationDays: 365
     }
 };
-
-const PRICING_VERSION = '2026-04-22';
 
 const normalizePlan = (plan) => {
     const safePlan = String(plan || '').toLowerCase();

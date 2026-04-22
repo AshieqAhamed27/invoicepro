@@ -15,6 +15,9 @@ export default function Admin() {
   const [pricing, setPricing] = useState(null);
   const [pricingLoading, setPricingLoading] = useState(true);
   const [pricingError, setPricingError] = useState('');
+  const [health, setHealth] = useState(null);
+  const [healthLoading, setHealthLoading] = useState(true);
+  const [healthError, setHealthError] = useState('');
 
   const getScreenshotUrl = (request) => {
     return request.screenshotUrl
@@ -59,6 +62,20 @@ export default function Admin() {
     }
   };
 
+  const fetchHealthDetails = async () => {
+    try {
+      setHealthLoading(true);
+      setHealthError('');
+      const res = await api.get('/health/details');
+      setHealth(res.data || null);
+    } catch (err) {
+      console.log(err);
+      setHealthError('Could not load backend runtime diagnostics.');
+    } finally {
+      setHealthLoading(false);
+    }
+  };
+
   const approve = async (id) => {
     try {
       await api.put(`/payment/approve/${id}`);
@@ -73,11 +90,18 @@ export default function Admin() {
   useEffect(() => {
     fetchRequests();
     fetchPricing();
+    fetchHealthDetails();
   }, []);
 
   const monthlyAmount = pricing?.plans?.monthly ?? null;
   const yearlyAmount = pricing?.plans?.yearly ?? null;
   const pricingMatches = monthlyAmount === EXPECTED_PRICING.monthly && yearlyAmount === EXPECTED_PRICING.yearly;
+  const requiredChecks = health?.envSanity?.required || {};
+  const paymentChecks = health?.envSanity?.payments || {};
+  const recurringChecks = health?.envSanity?.recurring || {};
+  const requiredHealthy = Object.values(requiredChecks).length > 0 && Object.values(requiredChecks).every(Boolean);
+  const paymentHealthy = paymentChecks.simulationEnabled || (paymentChecks.razorpayKeyId && paymentChecks.razorpayKeySecret);
+  const envHealthy = requiredHealthy && Boolean(paymentHealthy);
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -156,6 +180,80 @@ export default function Admin() {
             <div className="px-8 pb-8">
               <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
                 {pricingError}
+              </div>
+            </div>
+          )}
+        </section>
+
+        <section className="reveal reveal-delay-2 mb-12 surface border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
+          <div className="border-b border-white/5 p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Runtime Diagnostics</p>
+              <h2 className="text-2xl font-black text-white tracking-tight">Live backend health details</h2>
+            </div>
+
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${healthError
+              ? 'bg-red-400/5 text-red-400 border-red-400/10'
+              : envHealthy
+                ? 'bg-emerald-400/5 text-emerald-400 border-emerald-400/10'
+                : 'bg-yellow-400/5 text-yellow-500 border-yellow-400/10'
+              }`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${healthError
+                ? 'bg-red-400'
+                : envHealthy
+                  ? 'bg-emerald-400'
+                  : 'bg-yellow-500 animate-pulse'
+                }`} />
+              {healthError ? 'Unavailable' : envHealthy ? 'Env Ready' : 'Needs Review'}
+            </span>
+          </div>
+
+          <div className="grid gap-6 p-8 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Startup Entrypoint</p>
+              <p className="text-2xl font-black text-white tracking-tight break-words">
+                {healthLoading ? '--' : (health?.startup?.entrypoint || 'unknown')}
+              </p>
+              <p className="mt-2 text-xs font-bold text-zinc-500">
+                Port: {health?.startup?.port || '--'}
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Database State</p>
+              <p className="text-2xl font-black text-white tracking-tight">
+                {healthLoading ? '--' : (health?.database?.state || 'unknown')}
+              </p>
+              <p className="mt-2 text-xs font-bold text-zinc-500">
+                Uptime: {health?.startup?.uptimeSeconds ?? '--'}s
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Pricing Version</p>
+              <p className="text-2xl font-black text-white tracking-tight break-words">
+                {healthLoading ? '--' : (health?.pricingVersion || 'unknown')}
+              </p>
+              <p className="mt-2 text-xs font-bold text-zinc-500">
+                Node: {health?.startup?.nodeVersion || '--'}
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Env Sanity</p>
+              <div className="space-y-2 text-xs font-bold text-zinc-400">
+                <p>Required: {requiredHealthy ? 'OK' : 'Check'}</p>
+                <p>Payments: {paymentChecks.simulationEnabled ? 'Simulation' : paymentHealthy ? 'Keys ready' : 'Check keys'}</p>
+                <p>Recurring: {recurringChecks.cronSecret ? 'Cron ready' : 'Cron secret missing'}</p>
+                <p>CORS origins: {health?.envSanity?.cors?.allowedOriginCount ?? '--'}</p>
+              </div>
+            </div>
+          </div>
+
+          {healthError && (
+            <div className="px-8 pb-8">
+              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                {healthError}
               </div>
             </div>
           )}
