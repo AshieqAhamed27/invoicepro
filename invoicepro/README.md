@@ -135,12 +135,18 @@ Visit **http://localhost:5173** in your browser.
 
 ### Backend (Render / Railway / Fly.io)
 1. Push your code to GitHub
-2. Create a new Web Service pointing to `/backend`
+2. For Render, use the root [render.yaml](C:/Users/Ashie/Downloads/invoicepro/render.yaml) blueprint, or configure the service manually with:
+   Root Directory: `invoicepro/backend`
+   Build Command: `npm install`
+   Start Command: `npm start`
 3. Set environment variables: `MONGO_URI`, `JWT_SECRET`, `PORT`, `FRONTEND_URL`
 4. If your frontend has multiple deployed domains or preview URLs, add them to `CORS_ORIGINS`
    (comma-separated). Wildcards are supported, for example:
    `https://invoicepro-*.vercel.app`
-5. Start command: `npm start`
+5. Set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET`
+6. After deploy, confirm live pricing from:
+   `GET /api/payment/plans`
+   Expected values: `monthly = 499`, `yearly = 4999`
 
 ### Frontend (Vercel / Netlify)
 1. Update `vite.config.js` proxy OR set `VITE_API_URL` env var pointing to deployed backend
