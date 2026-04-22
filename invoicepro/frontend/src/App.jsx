@@ -22,6 +22,7 @@ const Admin = lazy(() => import('./pages/Admin'));
 const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Clients = lazy(() => import('./pages/Clients'));
+const Recurring = lazy(() => import('./pages/Recurring'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Loader
@@ -201,6 +202,17 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <Clients />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/recurring"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <Recurring />
               </Suspense>
             </PrivateRoute>
           }

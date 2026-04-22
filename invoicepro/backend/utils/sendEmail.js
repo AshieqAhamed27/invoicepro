@@ -9,17 +9,26 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const sendEmail = async(
-    to,
-    subject,
-    html
-) => {
+const getFromAddress = () => {
+    const fromEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+    const fromName = process.env.EMAIL_FROM_NAME || 'InvoicePro';
+
+    if (!fromEmail) return fromName;
+
+    return `"${fromName}" <${fromEmail}>`;
+};
+
+const sendEmail = async(to, subject, content) => {
     try {
+        const html = typeof content === 'string' ? content : content?.html;
+        const text = typeof content === 'string' ? undefined : content?.text;
+
         await transporter.sendMail({
-            from: `"InvoicePro" <${process.env.EMAIL_USER}>`,
+            from: getFromAddress(),
             to,
             subject,
-            html
+            html,
+            text
         });
 
         console.log(

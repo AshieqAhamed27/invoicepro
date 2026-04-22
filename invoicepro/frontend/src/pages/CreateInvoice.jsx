@@ -13,6 +13,8 @@ const formatCurrency = (amount) =>
 export default function CreateInvoice() {
   const navigate = useNavigate();
 
+  const today = new Date();
+
   const [form, setForm] = useState({
     clientName: '',
     clientEmail: '',
@@ -27,6 +29,13 @@ export default function CreateInvoice() {
   const [items, setItems] = useState([{ name: '', price: '' }]);
   const [loading, setLoading] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
+  const [recurring, setRecurring] = useState({
+    enabled: false,
+    frequency: 'monthly',
+    interval: 1,
+    dayOfMonth: today.getDate(),
+    sendEmail: true
+  });
 
   const user = getUser() || {};
 
@@ -148,7 +157,8 @@ export default function CreateInvoice() {
         ...form,
         upiId: finalUpi,
         items,
-        amount: total
+        amount: total,
+        recurring
       });
 
       navigate(`/invoice/${res.data.invoice._id}`);
@@ -450,6 +460,99 @@ export default function CreateInvoice() {
                       </button>
                     )}
                   </div>
+               </div>
+
+               <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] p-6 mb-8">
+                 <div className="flex items-start justify-between gap-4">
+                   <div>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Recurring Invoice</p>
+                     <p className="text-xs font-bold text-zinc-600 leading-relaxed">
+                       Auto-generate this invoice on a schedule for retainers and subscriptions.
+                     </p>
+                   </div>
+
+                   <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                     <input
+                       type="checkbox"
+                       checked={recurring.enabled}
+                       onChange={(e) => setRecurring((prev) => ({ ...prev, enabled: e.target.checked }))}
+                       className="h-5 w-5 accent-yellow-400"
+                     />
+                     <span className="text-[10px] font-black uppercase tracking-widest text-yellow-300">
+                       {recurring.enabled ? 'On' : 'Off'}
+                     </span>
+                   </label>
+                 </div>
+
+                 {recurring.enabled && (
+                   <div className="mt-6 grid gap-4">
+                     <div className="grid gap-4 sm:grid-cols-2">
+                       <div className="space-y-1.5">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Frequency</p>
+                         <select
+                           value={recurring.frequency}
+                           onChange={(e) => {
+                             const nextFrequency = e.target.value;
+                             setRecurring((prev) => ({
+                               ...prev,
+                               frequency: nextFrequency,
+                               dayOfMonth: nextFrequency === 'monthly'
+                                 ? (prev.dayOfMonth || today.getDate())
+                                 : null
+                             }));
+                           }}
+                           className="input py-4 bg-black/20 border-white/5 cursor-pointer"
+                         >
+                           <option value="monthly">Monthly</option>
+                           <option value="weekly">Weekly</option>
+                         </select>
+                       </div>
+
+                       <div className="space-y-1.5">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Interval</p>
+                         <input
+                           type="number"
+                           min="1"
+                           max="24"
+                           value={recurring.interval}
+                           onChange={(e) => setRecurring((prev) => ({ ...prev, interval: e.target.value }))}
+                           className="input py-4 bg-black/20 border-white/5"
+                         />
+                       </div>
+                     </div>
+
+                     {recurring.frequency === 'monthly' && (
+                       <div className="space-y-1.5">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Day of Month</p>
+                         <input
+                           type="number"
+                           min="1"
+                           max="31"
+                           value={recurring.dayOfMonth ?? ''}
+                           onChange={(e) =>
+                             setRecurring((prev) => ({
+                               ...prev,
+                               dayOfMonth: Number(e.target.value || today.getDate())
+                             }))
+                           }
+                           className="input py-4 bg-black/20 border-white/5"
+                         />
+                       </div>
+                     )}
+
+                     <label className="flex items-center gap-3 cursor-pointer select-none">
+                       <input
+                         type="checkbox"
+                         checked={recurring.sendEmail}
+                         onChange={(e) => setRecurring((prev) => ({ ...prev, sendEmail: e.target.checked }))}
+                         className="h-4 w-4 accent-yellow-400"
+                       />
+                       <span className="text-xs font-bold text-zinc-500">
+                         Email the client automatically each cycle
+                       </span>
+                     </label>
+                   </div>
+                 )}
                </div>
 
                <button

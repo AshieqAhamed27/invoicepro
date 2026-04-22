@@ -8,6 +8,9 @@ const { protect } = require('../middleware/auth');
 const User = require('../models/User');
 const PaymentRequest = require('../models/PaymentRequest');
 const Invoice = require('../models/Invoice');
+const sendEmail = require('../utils/sendEmail');
+const { paymentConfirmed } = require('../utils/emailTemplates');
+const { getPublicInvoiceUrl } = require('../utils/recurrence');
 
 const allowedScreenshotTypes = new Set([
     'image/jpeg',
@@ -155,8 +158,12 @@ router.post('/public/order', async(req, res) => {
 router.post('/public/verify', async(req, res) => {
     try {
         const { invoiceId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-        const invoice = await Invoice.findById(invoiceId);
+        const invoice = await Invoice.findById(invoiceId).populate('user', 'companyName name email');
         if (!invoice) return res.status(404).json({ message: 'Not found' });
+
+        if (invoice.status === 'paid') {
+            return res.json({ message: 'Already paid', status: 'paid' });
+        }
 
         if (process.env.PAYMENT_SIMULATION !== 'true') {
             const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
@@ -164,10 +171,28 @@ router.post('/public/verify', async(req, res) => {
             if (shasum.digest('hex') !== razorpay_signature) return res.status(400).json({ message: 'Verification failed' });
         }
 
+        const previousStatus = invoice.status;
         invoice.status = 'paid';
         invoice.paidAt = new Date();
         await invoice.save();
         res.json({ message: 'Success', status: 'paid' });
+
+        if (previousStatus !== 'paid') {
+            setImmediate(async() => {
+                try {
+                    const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
+                    const senderName = invoice.user?.companyName || invoice.user?.name || 'InvoicePro';
+                    const template = paymentConfirmed({ invoice, publicUrl, senderName });
+
+                    await sendEmail(invoice.clientEmail, template.subject, template);
+
+                    const ownerEmail = invoice.user?.email;
+                    if (ownerEmail && ownerEmail !== invoice.clientEmail) {
+                        await sendEmail(ownerEmail, template.subject, template);
+                    }
+                } catch (e) {}
+            });
+        }
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
 
@@ -266,11 +291,26 @@ router.post('/webhook', async (req, res) => {
         if (event === 'payment.captured' || event === 'order.paid') {
             const notes = (payload.payment?.entity?.notes) || (payload.order?.entity?.notes);
             if (notes?.invoiceId) {
-                const inv = await Invoice.findById(notes.invoiceId);
+                const inv = await Invoice.findById(notes.invoiceId).populate('user', 'companyName name email');
                 if (inv && inv.status !== 'paid') {
                     inv.status = 'paid';
                     inv.paidAt = new Date();
                     await inv.save();
+
+                    setImmediate(async() => {
+                        try {
+                            const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, inv._id);
+                            const senderName = inv.user?.companyName || inv.user?.name || 'InvoicePro';
+                            const template = paymentConfirmed({ invoice: inv, publicUrl, senderName });
+
+                            await sendEmail(inv.clientEmail, template.subject, template);
+
+                            const ownerEmail = inv.user?.email;
+                            if (ownerEmail && ownerEmail !== inv.clientEmail) {
+                                await sendEmail(ownerEmail, template.subject, template);
+                            }
+                        } catch (e) {}
+                    });
                 }
             }
             if (notes?.plan && notes?.userId) {
