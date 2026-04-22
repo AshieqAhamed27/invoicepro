@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
-import { useMemo } from 'react';
 
 const formatCurrency = (amount) =>
   `₹ ${Number(amount || 0).toLocaleString('en-IN')}`;
@@ -20,6 +19,13 @@ export default function Dashboard() {
   const [aiInsights, setAiInsights] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sendingReminderId, setSendingReminderId] = useState(null);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(() => {
+    try {
+      return localStorage.getItem('onboarding_dismissed') === '1';
+    } catch {
+      return false;
+    }
+  });
 
   const navigate = useNavigate();
   const user = getUser() || {};
@@ -40,7 +46,7 @@ export default function Dashboard() {
         pending: res.data.stats?.pending || 0,
         paid: res.data.stats?.paid || 0,
         total: res.data.stats?.total || 0,
-        trends: [] // load later
+        trends: res.data.stats?.trends || []
       });
 
       setLoading(false); // ✅ show UI immediately
@@ -58,18 +64,14 @@ export default function Dashboard() {
     try {
       const aiResult = await api.get('/ai/insights');
       setAiInsights(aiResult.data);
-
-      if (dashboardResult.status === 'fulfilled') {
-        setStats(prev => ({
-          ...prev,
-          trends: dashboardResult.value.data.stats?.trends || []
-        }));
-      }
-
-      if (aiResult.status === 'fulfilled') {
-        setAiInsights(aiResult.value.data);
-      }
     } catch { }
+  };
+
+  const dismissOnboarding = () => {
+    try {
+      localStorage.setItem('onboarding_dismissed', '1');
+    } catch { }
+    setOnboardingDismissed(true);
   };
 
   const sendReminder = async (id) => {
@@ -165,6 +167,71 @@ export default function Dashboard() {
             </Link>
           </div>
         </section>
+
+        {!loading && invoices.length === 0 && !onboardingDismissed && (
+          <section className="reveal reveal-delay-1 mb-12 surface p-10 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[3rem] shadow-2xl relative overflow-hidden">
+            <div className="absolute -top-32 right-0 h-96 w-96 rounded-full bg-yellow-400/10 blur-[160px]" />
+            <div className="absolute -bottom-40 left-0 h-96 w-96 rounded-full bg-emerald-400/10 blur-[170px]" />
+
+            <div className="relative z-10 flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600 mb-3">
+                  Quick Start
+                </p>
+                <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
+                  Create your first invoice in 60 seconds.
+                </h2>
+                <p className="mt-4 text-zinc-500 font-medium text-sm sm:text-base leading-relaxed">
+                  Add a client, enter your line items, and we will generate a public payment link you can send instantly.
+                </p>
+
+                <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/create-invoice')}
+                    className="btn btn-primary px-8 py-4 rounded-2xl text-base font-black shadow-xl shadow-yellow-500/10"
+                  >
+                    Create First Invoice
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/clients')}
+                    className="btn btn-dark px-8 py-4 rounded-2xl text-base font-black"
+                  >
+                    Add a Client
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={dismissOnboarding}
+                className="btn btn-secondary px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest self-start"
+              >
+                Dismiss
+              </button>
+            </div>
+
+            <div className="relative z-10 mt-10 grid gap-4 md:grid-cols-3">
+              {[
+                { t: '1. Recipient', d: 'Pick a saved client or enter name + email.' },
+                { t: '2. Line Items', d: 'Add services and amounts. Taxes auto-calculate.' },
+                { t: '3. Send Link', d: 'Share the public invoice portal to get paid.' }
+              ].map((step) => (
+                <div key={step.t} className="p-6 rounded-2xl border border-white/5 bg-black/10">
+                  <p className="text-xs font-black text-white mb-2">{step.t}</p>
+                  <p className="text-xs font-bold text-zinc-500 leading-relaxed">{step.d}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="relative z-10 mt-8 rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-5">
+              <p className="text-xs font-bold text-zinc-400">
+                Tip: If you bill monthly, turn on <span className="text-yellow-300 font-black">Recurring Invoice</span> on the creation page.
+              </p>
+            </div>
+          </section>
+        )}
 
         <section className="mb-12 grid grid-cols-2 gap-6 lg:grid-cols-4">
           {[
@@ -278,8 +345,15 @@ export default function Dashboard() {
                 {[1, 2, 3].map(i => <div key={i} className="h-16 w-full bg-white/5 rounded-2xl animate-pulse" />)}
               </div>
             ) : invoices.length === 0 ? (
-              <div className="p-20 text-center">
-                <p className="text-zinc-600 font-black uppercase tracking-widest text-xs">No records found in active workspace.</p>
+              <div className="p-16 text-center">
+                <p className="text-zinc-600 font-black uppercase tracking-widest text-xs mb-6">No invoices yet.</p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/create-invoice')}
+                  className="btn btn-primary px-10 py-4 rounded-2xl text-base font-black shadow-xl shadow-yellow-500/10"
+                >
+                  Create Invoice
+                </button>
               </div>
             ) : (
               <table className="w-full text-left min-w-[800px]">
