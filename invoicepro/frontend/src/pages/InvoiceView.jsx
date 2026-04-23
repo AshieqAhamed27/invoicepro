@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
+import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 import Navbar from '../components/Navbar';
 import QRCode from 'react-qr-code';
 import jsPDF from 'jspdf';
@@ -123,13 +124,7 @@ export default function InvoiceView() {
 
   const companyName = user?.companyName || user?.name || 'InvoicePro';
   const rawLogo = user?.logo?.trim();
-  const logoUrl = rawLogo && !rawLogo.includes('localhost')
-    ? rawLogo
-    : rawLogo
-      ? rawLogo
-        .replace('http://localhost:7070', 'https://invoicepro-527e.onrender.com')
-        .replace('http://localhost:37857', 'https://invoicepro-527e.onrender.com')
-      : null;
+  const logoUrl = getSafeRemoteImageUrl(rawLogo) || null;
 
   const items = invoice.items?.length > 0
     ? invoice.items

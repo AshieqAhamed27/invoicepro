@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
+import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 
 export default function Settings() {
   const [form, setForm] = useState({
@@ -53,7 +54,14 @@ export default function Settings() {
 
     try {
       setSaving(true);
-      const res = await api.put('/auth/profile', form);
+      const safeLogo = getSafeRemoteImageUrl(form.logo);
+      if (String(form.logo || '').trim() && !safeLogo) {
+        alert('Logo URL must be a public https URL (not localhost/private IP).');
+        setSaving(false);
+        return;
+      }
+
+      const res = await api.put('/auth/profile', { ...form, logo: safeLogo });
       localStorage.setItem('user', JSON.stringify(res.data.user));
       alert('Profile updated successfully!');
     } catch {
@@ -74,10 +82,12 @@ export default function Settings() {
     );
   }
 
+  const safeLogoPreviewUrl = getSafeRemoteImageUrl(form.logo);
+  const logoInvalid = Boolean(String(form.logo || '').trim()) && !safeLogoPreviewUrl;
+
   return (
     <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
-
       <main className="container-custom py-10 md:py-16">
         <div className="reveal mb-12">
           <div className="flex items-center gap-2 mb-4">
@@ -178,6 +188,11 @@ export default function Settings() {
                     placeholder="https://cloud.com/your-logo.png"
                     className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
                   />
+                  {logoInvalid && (
+                    <div className="mt-3 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-[10px] font-bold text-red-300 max-w-md">
+                      Logo URL looks unsafe for production. Use a public `https://` URL (not `localhost` or private IP).
+                    </div>
+                  )}
                   <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/5 max-w-md">
                      <svg className="h-4 w-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                      <p className="text-[10px] font-medium text-zinc-400">Pro Tip: Use a high-res PNG with a transparent background for best results.</p>
@@ -195,9 +210,9 @@ export default function Settings() {
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-8 border-b border-white/5 pb-4">Live Preview Card</p>
 
               <div className="mb-8 flex h-40 items-center justify-center rounded-[2rem] border border-white/5 bg-black/40 overflow-hidden shadow-inner group/logo">
-                {form.logo ? (
+                {safeLogoPreviewUrl ? (
                   <img
-                    src={form.logo}
+                    src={safeLogoPreviewUrl}
                     alt="Logo preview"
                     className="h-24 w-24 object-contain transition-transform group-hover/logo:scale-110 duration-500"
                   />

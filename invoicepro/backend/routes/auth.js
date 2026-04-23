@@ -8,6 +8,47 @@ const {
 
 const router = express.Router();
 
+const isLocalNetworkHostname = (hostname) => {
+    const host = String(hostname || '').toLowerCase();
+    if (!host) return false;
+
+    if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') return true;
+    if (host.endsWith('.local')) return true;
+
+    if (/^10\./.test(host)) return true;
+    if (/^192\.168\./.test(host)) return true;
+    if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(host)) return true;
+
+    return false;
+};
+
+const normalizeLogoUrl = (value) => {
+    const input = String(value ?? '').trim();
+    if (!input) return '';
+
+    if (/^data:image\//i.test(input)) return input;
+
+    let parsed;
+    try {
+        parsed = new URL(input);
+    } catch {
+        throw new Error('Logo must be a valid URL.');
+    }
+
+    const protocol = String(parsed.protocol || '').toLowerCase();
+    const isProd = process.env.NODE_ENV === 'production';
+
+    if (protocol !== 'https:' && (isProd || protocol !== 'http:')) {
+        throw new Error('Logo URL must start with https://');
+    }
+
+    if (isProd && isLocalNetworkHostname(parsed.hostname)) {
+        throw new Error('Logo URL must be publicly accessible (not localhost/private IP).');
+    }
+
+    return parsed.toString();
+};
+
 // ==========================
 // TOKEN
 // ==========================
@@ -282,9 +323,9 @@ router.put(
                 address ||
                 req.user.address;
 
-            req.user.logo =
-                logo ||
-                req.user.logo;
+            if (logo !== undefined) {
+                req.user.logo = normalizeLogoUrl(logo);
+            }
 
             await req.user.save();
 
@@ -309,9 +350,11 @@ router.put(
                 err
             );
 
-            res.status(500).json({
-                message: 'Server error.'
-            });
+            if (err?.message && String(err.message).toLowerCase().includes('logo')) {
+                return res.status(400).json({ message: err.message });
+            }
+
+            res.status(500).json({ message: 'Server error.' });
         }
     }
 );

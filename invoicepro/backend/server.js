@@ -58,6 +58,7 @@ const startServer = async(options = {}) => {
 // ✅ MIDDLEWARE
 app.use(
     cors({
+        exposedHeaders: ['request-id', 'x-request-id', 'x-rtb-fingerprint-id'],
         origin: function(origin, callback) {
             if (!origin) return callback(null, true);
 

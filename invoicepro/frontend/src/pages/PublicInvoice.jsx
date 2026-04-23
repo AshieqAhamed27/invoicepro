@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 import QRCode from 'react-qr-code';
 import BrandLogo from '../components/BrandLogo';
+import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -221,6 +222,8 @@ export default function PublicInvoice() {
       ? { label: 'Paid', className: 'bg-green-500' }
       : null;
 
+  const safeCompanyLogoUrl = getSafeRemoteImageUrl(invoice.user?.logo);
+
   return (
     <div className="min-h-screen bg-[#050505] px-4 py-10">
       <div className="reveal mx-auto max-w-4xl rounded-lg bg-white p-8 text-black shadow-2xl md:p-12 relative overflow-hidden">
@@ -233,9 +236,9 @@ export default function PublicInvoice() {
         <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-200 pb-8 mb-8">
           <div>
             <div className="mb-2 flex items-center gap-3">
-              {invoice.user?.logo && (
+              {safeCompanyLogoUrl && (
                 <div className="h-10 w-10 rounded-lg border border-gray-200 bg-white p-1">
-                  <img src={invoice.user.logo} alt="Company logo" className="h-full w-full object-contain" />
+                  <img src={safeCompanyLogoUrl} alt="Company logo" className="h-full w-full object-contain" />
                 </div>
               )}
               <BrandLogo showText={true} textColor="black" />
