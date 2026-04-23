@@ -4,13 +4,19 @@ import api from '../utils/api';
 import { resolvePostLoginRedirect, setAuth } from '../utils/auth';
 import { jwtDecode } from 'jwt-decode';
 import Navbar from '../components/Navbar';
-import BrandLogo from '../components/BrandLogo';
+import { SUPPORT_EMAIL } from '../utils/company';
+import useDocumentMeta from '../utils/useDocumentMeta';
 
 const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim();
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  useDocumentMeta(
+    'Login | InvoicePro',
+    'Sign in to manage invoices, clients, recurring billing, and payment tracking in InvoicePro.'
+  );
 
   const [form, setForm] = useState({
     email: '',
@@ -112,22 +118,22 @@ export default function Login() {
           <div className="max-w-xl relative">
             <div className="mb-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
                <span className="h-1.5 w-1.5 bg-yellow-400 rounded-full animate-pulse" />
-               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Security Suite v2.0</p>
+               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Client billing workspace</p>
             </div>
 
             <h1 className="mb-6 text-5xl font-black leading-none tracking-tight">
-              Back to the <br /> <span className="text-yellow-300">Revenue Dash.</span>
+              Sign in to manage <br /> <span className="text-yellow-300">invoices and collections.</span>
             </h1>
 
             <p className="mb-12 text-lg text-zinc-500 font-medium leading-relaxed">
-              Login to manage your freelance business, track interactive invoices, and scale your collections with AI.
+              Access your clients, invoice history, recurring schedules, and payment tracking from one secure workspace.
             </p>
 
             <div className="grid gap-4">
                {[
-                 { t: 'Unified Ledger', d: 'View all paid and pending bills in one pane.' },
-                 { t: 'AI Copilot', d: 'Let intelligence handle your collection strategy.' },
-                 { t: 'Secure Gateway', d: 'Bank-grade authentication for your records.' }
+                 { t: 'Invoice overview', d: 'See pending and paid invoices without jumping between tools.' },
+                 { t: 'Client records', d: 'Keep billing history and saved client details in one place.' },
+                 { t: 'Need help?', d: `Support is available at ${SUPPORT_EMAIL}.` }
                ].map((item, i) => (
                  <div key={i} className="flex items-start gap-4 p-5 rounded-2xl border border-white/5 bg-white/[0.02]">
                     <div className="h-2 w-2 rounded-full bg-yellow-400 mt-2" />
@@ -208,8 +214,14 @@ export default function Login() {
               <p className="text-sm font-medium text-zinc-500">
                 New to InvoicePro?{' '}
                 <Link to="/signup" className="font-black text-yellow-300 hover:text-white transition-colors">
-                  Join the waitlist
+                  Create an account
                 </Link>
+              </p>
+              <p className="mt-4 text-xs font-medium text-zinc-600">
+                By continuing, you agree to our{' '}
+                <Link to="/terms" className="text-zinc-400 hover:text-white transition-colors">Terms</Link>
+                {' '}and{' '}
+                <Link to="/privacy" className="text-zinc-400 hover:text-white transition-colors">Privacy Policy</Link>.
               </p>
             </div>
           </div>

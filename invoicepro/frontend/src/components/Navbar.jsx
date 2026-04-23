@@ -39,6 +39,20 @@ export default function Navbar() {
             Home
           </NavLink>
 
+          {!loggedIn && (
+            <>
+              <a href="/#pricing" className="rounded-lg border border-transparent px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5">
+                Pricing
+              </a>
+              <a href="/#faq" className="rounded-lg border border-transparent px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5">
+                FAQ
+              </a>
+              <NavLink to="/contact" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+                Contact
+              </NavLink>
+            </>
+          )}
+
           {loggedIn && (
             <>
               <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
@@ -97,6 +111,20 @@ export default function Navbar() {
             <NavLink to="/" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
               Home
             </NavLink>
+
+            {!loggedIn && (
+              <>
+                <a href="/#pricing" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5">
+                  Pricing
+                </a>
+                <a href="/#faq" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5">
+                  FAQ
+                </a>
+                <NavLink to="/contact" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
+                  Contact
+                </NavLink>
+              </>
+            )}
 
             {loggedIn && (
               <>

@@ -3,11 +3,17 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { resolvePostLoginRedirect, setAuth } from '../utils/auth';
 import Navbar from '../components/Navbar';
-import BrandLogo from '../components/BrandLogo';
+import { SUPPORT_EMAIL } from '../utils/company';
+import useDocumentMeta from '../utils/useDocumentMeta';
 
 export default function Signup() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  useDocumentMeta(
+    'Create Your Account | InvoicePro',
+    'Start your InvoicePro workspace to send invoices, share payment links, and organize recurring billing.'
+  );
 
   const [form, setForm] = useState({
     name: '',
@@ -55,23 +61,23 @@ export default function Signup() {
            <div className="max-w-xl relative">
               <div className="mb-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
                  <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Free forever workspace</p>
+                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Set up your billing workspace</p>
               </div>
 
               <h1 className="mb-6 text-5xl font-black leading-none tracking-tight">
-                Scale your <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-white">Consultancy.</span>
+                Start sending invoices <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-white">with a company-grade workflow.</span>
               </h1>
 
               <p className="mb-12 text-lg text-zinc-500 font-medium leading-relaxed">
-                Join 2,000+ professionals using InvoicePro to automate their billing, 
-                track interactive payments, and impress clients.
+                Create your workspace to manage clients, send public invoice links,
+                and keep recurring billing organized from day one.
               </p>
 
               <div className="grid gap-6">
                 {[
-                  { t: 'Unlimited Invoices', d: 'Issue as many bills as your business needs.' },
-                  { t: 'UPI Automation', d: 'Scan & Pay built directly into your portals.' },
-                  { t: 'AI Analytics', d: 'Get insights into your cashflow health instantly.' }
+                  { t: 'Invoice and proposal links', d: 'Share documents clients can open in a browser without creating an account.' },
+                  { t: 'UPI and Razorpay collection', d: 'Offer a recognizable payment flow once the invoice is ready to collect.' },
+                  { t: 'Support when you need it', d: `Reach us at ${SUPPORT_EMAIL} if you need help getting set up.` }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-5 transition-transform hover:translate-x-2 duration-300">
                      <div className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
@@ -158,7 +164,7 @@ export default function Signup() {
                 disabled={loading}
                 className="btn btn-primary w-full py-5 rounded-2xl shadow-xl shadow-emerald-500/10 font-black text-lg mt-4 bg-emerald-400 hover:bg-emerald-300"
               >
-                {loading ? 'Creating workspace...' : 'Deploy Workspace'}
+                {loading ? 'Creating workspace...' : 'Create Workspace'}
               </button>
             </form>
 
@@ -168,6 +174,12 @@ export default function Signup() {
                 <Link to="/login" className="font-black text-yellow-300 hover:text-white transition-colors">
                   Sign in here
                 </Link>
+              </p>
+              <p className="mt-4 text-xs font-medium text-zinc-600">
+                By creating an account, you agree to our{' '}
+                <Link to="/terms" className="text-zinc-400 hover:text-white transition-colors">Terms</Link>
+                {' '}and{' '}
+                <Link to="/privacy" className="text-zinc-400 hover:text-white transition-colors">Privacy Policy</Link>.
               </p>
             </div>
           </div>

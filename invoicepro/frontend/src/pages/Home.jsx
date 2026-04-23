@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-
-const supportEmail = 'ashieqahamed27@gmail.com';
+import { SUPPORT_EMAIL } from '../utils/company';
+import useDocumentMeta from '../utils/useDocumentMeta';
 
 const trustSignals = [
   {
@@ -117,6 +117,11 @@ export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
 
+  useDocumentMeta(
+    'InvoicePro | Invoicing and Payment Links for Indian Service Businesses',
+    'Create invoices, share public payment links, and manage recurring billing with a client-ready workflow.'
+  );
+
   const handleSubscribe = (plan) => {
     localStorage.setItem('plan', plan);
     navigate(loggedIn ? '/payment' : '/signup');
@@ -176,8 +181,8 @@ export default function Home() {
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Support</p>
-                  <a href={`mailto:${supportEmail}`} className="mt-2 block text-sm font-semibold text-white hover:text-yellow-300">
-                    {supportEmail}
+                  <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-2 block text-sm font-semibold text-white hover:text-yellow-300">
+                    {SUPPORT_EMAIL}
                   </a>
                 </div>
               </div>
@@ -212,8 +217,8 @@ export default function Home() {
                     <h2 className="mt-2 text-3xl font-black text-white">What feels reliable to a client</h2>
                   </div>
                   <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-right">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Collection Ready</p>
-                    <p className="mt-1 text-lg font-black text-white">Rs 48,900</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Public Flow</p>
+                    <p className="mt-1 text-lg font-black text-white">Client-ready</p>
                   </div>
                 </div>
 
@@ -388,8 +393,8 @@ export default function Home() {
             <div className="mx-auto mb-8 max-w-3xl rounded-[2rem] border border-yellow-400/15 bg-yellow-400/8 px-6 py-5 text-center">
               <p className="text-sm font-semibold leading-relaxed text-yellow-100">
                 Paid subscriptions use secure Razorpay checkout. The plan amount is shown before payment starts, and support is reachable at{' '}
-                <a href={`mailto:${supportEmail}`} className="font-black text-white hover:text-yellow-200">
-                  {supportEmail}
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="font-black text-white hover:text-yellow-200">
+                  {SUPPORT_EMAIL}
                 </a>.
               </p>
             </div>
@@ -460,10 +465,10 @@ export default function Home() {
                     Reach out directly before you subscribe or if you want help setting up your billing workflow.
                   </p>
                   <a
-                    href={`mailto:${supportEmail}`}
+                    href={`mailto:${SUPPORT_EMAIL}`}
                     className="mt-5 inline-flex rounded-2xl border border-white/10 bg-zinc-900 px-5 py-3 text-sm font-black text-white transition-all hover:bg-zinc-800"
                   >
-                    Email {supportEmail}
+                    Email {SUPPORT_EMAIL}
                   </a>
                 </div>
               </div>

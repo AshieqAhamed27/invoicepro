@@ -1,5 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import BrandLogo from './BrandLogo';
+import { SUPPORT_EMAIL } from '../utils/company';
 
 export default function Footer() {
   return (
@@ -22,16 +24,16 @@ export default function Footer() {
               <a className="transition-colors hover:text-yellow-300" href="/#trust">Why Teams Trust It</a>
               <a className="transition-colors hover:text-yellow-300" href="/#pricing">Pricing</a>
               <a className="transition-colors hover:text-yellow-300" href="/#faq">FAQ</a>
-              <a className="transition-colors hover:text-yellow-300" href="mailto:ashieqahamed27@gmail.com">Contact Support</a>
+              <Link className="transition-colors hover:text-yellow-300" to="/contact">Contact Support</Link>
             </div>
           </div>
 
           <div>
-            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Highlights</h3>
+            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Company</h3>
             <div className="grid gap-4 font-medium text-zinc-500">
+              <Link className="transition-colors hover:text-yellow-300" to="/privacy">Privacy</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/terms">Terms</Link>
               <p>Public invoice links</p>
-              <p>Recurring billing</p>
-              <p>GST-ready invoice fields</p>
               <p>Razorpay checkout support</p>
             </div>
           </div>
@@ -39,8 +41,8 @@ export default function Footer() {
           <div>
             <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Contact</h3>
             <div className="grid gap-4 font-medium text-zinc-500">
-              <a href="mailto:ashieqahamed27@gmail.com" className="font-bold text-white transition-colors hover:text-yellow-300">
-                ashieqahamed27@gmail.com
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="font-bold text-white transition-colors hover:text-yellow-300">
+                {SUPPORT_EMAIL}
               </a>
               <p className="text-xs">
                 Based in India.
@@ -54,9 +56,9 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between border-t border-white/5 pt-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-700 md:flex-row">
           <p>Copyright {new Date().getFullYear()} InvoicePro</p>
           <div className="mt-4 flex gap-8 md:mt-0">
-            <span>Pricing shown before checkout</span>
-            <span>Public payment links</span>
-            <span>Support by email</span>
+            <Link className="transition-colors hover:text-zinc-500" to="/privacy">Privacy</Link>
+            <Link className="transition-colors hover:text-zinc-500" to="/terms">Terms</Link>
+            <Link className="transition-colors hover:text-zinc-500" to="/contact">Contact</Link>
           </div>
         </div>
       </div>
