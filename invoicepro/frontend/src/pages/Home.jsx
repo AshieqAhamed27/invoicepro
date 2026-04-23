@@ -146,26 +146,26 @@ export default function Home() {
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28">
+        <section className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28">
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-yellow-400/8 blur-[150px]" />
             <div className="absolute right-0 top-24 h-72 w-72 rounded-full bg-emerald-400/8 blur-[120px]" />
           </div>
 
-          <div className="container-custom relative z-10 grid gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className="container-custom relative z-10 grid gap-10 sm:gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="max-w-3xl">
-              <div className="reveal inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2">
+              <div className="reveal inline-flex w-full max-w-full flex-wrap items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 sm:w-auto">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-emerald-300">
+                <p className="max-w-[16rem] break-words text-[10px] font-black uppercase leading-relaxed tracking-[0.14em] text-emerald-300 sm:max-w-none sm:text-[11px] sm:tracking-[0.22em]">
                   Professional invoicing for Indian service businesses
                 </p>
               </div>
 
-              <h1 className="reveal reveal-delay-1 mt-8 max-w-4xl text-5xl font-black tracking-tight leading-[0.92] text-white md:text-7xl">
+              <h1 className="reveal reveal-delay-1 mt-6 max-w-4xl break-words text-[2.5rem] font-black tracking-tight leading-[0.95] text-white sm:mt-8 sm:text-5xl md:text-7xl">
                 Invoices your clients can open, trust, and pay without confusion.
               </h1>
 
-              <p className="reveal reveal-delay-2 mt-6 max-w-2xl text-lg font-medium leading-relaxed text-zinc-300 md:text-xl">
+              <p className="reveal reveal-delay-2 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
                 InvoicePro helps freelancers, agencies, and consultants send structured invoices,
                 collect through public payment links, and stay on top of repeat billing with fewer manual follow-ups.
               </p>
@@ -181,13 +181,13 @@ export default function Home() {
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Support</p>
-                  <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-2 block text-sm font-semibold text-white hover:text-yellow-300">
+                  <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-2 block break-all text-sm font-semibold text-white hover:text-yellow-300 sm:break-normal">
                     {SUPPORT_EMAIL}
                   </a>
                 </div>
               </div>
 
-              <div className="reveal reveal-delay-3 mt-10 flex flex-col gap-4 sm:flex-row">
+              <div className="reveal reveal-delay-3 mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row">
                 <button
                   onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
                   className="w-full rounded-2xl bg-white px-10 py-5 text-lg font-black text-black shadow-2xl shadow-white/10 transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
@@ -202,7 +202,7 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="reveal reveal-delay-3 mt-8 flex flex-wrap items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
+              <div className="reveal reveal-delay-3 mt-8 flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500 sm:text-xs sm:tracking-[0.2em]">
                 <span className="rounded-full border border-white/10 px-3 py-2">No client login required</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">Recurring billing support</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">GST-ready invoice fields</span>
@@ -210,13 +210,13 @@ export default function Home() {
             </div>
 
             <div className="reveal reveal-delay-3">
-              <div className="rounded-[2.25rem] border border-white/10 bg-zinc-950/85 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8">
-                <div className="flex items-center justify-between gap-4 border-b border-white/5 pb-6">
+              <div className="rounded-[2rem] border border-white/10 bg-zinc-950/85 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl sm:rounded-[2.25rem] sm:p-8">
+                <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 pb-6 sm:flex-row sm:items-center">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Trust Snapshot</p>
-                    <h2 className="mt-2 text-3xl font-black text-white">What feels reliable to a client</h2>
+                    <h2 className="mt-2 max-w-[14ch] break-words text-2xl font-black text-white sm:max-w-none sm:text-3xl">What feels reliable to a client</h2>
                   </div>
-                  <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-right">
+                  <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-left sm:text-right">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Public Flow</p>
                     <p className="mt-1 text-lg font-black text-white">Client-ready</p>
                   </div>
@@ -278,7 +278,7 @@ export default function Home() {
           <div className="container-custom">
             <div className="mb-10 max-w-2xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Why it feels safer</p>
-              <h2 className="mt-3 text-4xl font-black tracking-tight text-white">Trust signals grounded in the actual workflow</h2>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">Trust signals grounded in the actual workflow</h2>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -292,11 +292,11 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-[#050505] py-24">
+        <section className="bg-[#050505] py-20 sm:py-24">
           <div className="container-custom">
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Workflow</p>
-              <h2 className="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">
+              <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
                 From draft to paid, the flow stays easy to understand
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-relaxed text-zinc-400">
@@ -325,7 +325,7 @@ export default function Home() {
                   What your clients see should answer their questions before they ask.
                 </h2>
 
-                <div className="mt-8 rounded-[2rem] border border-white/8 bg-black/30 p-6">
+                <div className="mt-8 rounded-[2rem] border border-white/8 bg-black/30 p-5 sm:p-6">
                   <div className="flex flex-col gap-6 border-b border-white/8 pb-6 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Invoice Summary</p>
@@ -404,8 +404,8 @@ export default function Home() {
                 <div
                   key={plan.name}
                   className={plan.featured
-                    ? 'relative flex flex-col justify-between rounded-[2.75rem] border-2 border-yellow-400/40 bg-yellow-400/6 p-10 shadow-2xl shadow-yellow-400/10'
-                    : 'flex flex-col justify-between rounded-[2.75rem] border border-white/8 bg-zinc-950 p-10'
+                    ? 'relative flex flex-col justify-between rounded-[2.25rem] border-2 border-yellow-400/40 bg-yellow-400/6 p-6 shadow-2xl shadow-yellow-400/10 sm:rounded-[2.75rem] sm:p-10'
+                    : 'flex flex-col justify-between rounded-[2.25rem] border border-white/8 bg-zinc-950 p-6 sm:rounded-[2.75rem] sm:p-10'
                   }
                 >
                   {plan.featured && (
@@ -417,7 +417,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-2xl font-black text-white">{plan.name}</h3>
                     <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{plan.description}</p>
-                    <p className="mt-8 text-5xl font-black tracking-tight text-white">
+                    <p className="mt-8 text-4xl font-black tracking-tight text-white sm:text-5xl">
                       {plan.price}
                       <span className="ml-2 text-sm font-black uppercase tracking-[0.18em] text-zinc-500">{plan.suffix}</span>
                     </p>
@@ -454,7 +454,7 @@ export default function Home() {
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">FAQ</p>
-                <h2 className="mt-4 text-4xl font-black tracking-tight text-white">Questions a careful buyer will ask</h2>
+                <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">Questions a careful buyer will ask</h2>
                 <p className="mt-4 max-w-md text-base font-medium leading-relaxed text-zinc-400">
                   Adding these answers to the homepage makes the product feel more accountable and less like a generic landing page.
                 </p>
@@ -487,13 +487,13 @@ export default function Home() {
 
         <section className="border-t border-white/5 py-24">
           <div className="container-custom">
-            <div className="relative overflow-hidden rounded-[3rem] border border-white/8 bg-gradient-to-br from-zinc-900 to-black px-8 py-14 text-center sm:px-12 sm:py-20">
+            <div className="relative overflow-hidden rounded-[2.5rem] border border-white/8 bg-gradient-to-br from-zinc-900 to-black px-6 py-12 text-center sm:rounded-[3rem] sm:px-12 sm:py-20">
               <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-yellow-400/10 blur-[120px]" />
               <div className="absolute left-0 bottom-0 h-72 w-72 rounded-full bg-emerald-400/10 blur-[120px]" />
 
               <div className="relative z-10 mx-auto max-w-3xl">
                 <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Ready to collect more professionally?</p>
-                <h2 className="mt-5 text-4xl font-black tracking-tight text-white md:text-6xl">
+                <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-6xl">
                   Send a billing link that looks complete before the client even reaches checkout.
                 </h2>
                 <p className="mx-auto mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-400">

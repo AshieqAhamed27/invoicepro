@@ -21,11 +21,11 @@ export default function Contact() {
     <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <main className="container-custom py-14 md:py-20">
+      <main className="container-custom py-10 sm:py-14 md:py-20">
         <section className="grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-start">
           <div className="max-w-3xl">
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Contact</p>
-            <h1 className="mt-4 text-5xl font-black tracking-tight text-white md:text-6xl">
+            <h1 className="mt-4 max-w-[11ch] break-words text-[2.5rem] font-black tracking-tight leading-[0.97] text-white sm:max-w-none sm:text-5xl md:text-6xl">
               Reach a real person when you need help with billing.
             </h1>
             <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 md:text-lg">
@@ -34,9 +34,9 @@ export default function Contact() {
             </p>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-6">
+              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5 sm:p-6">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Support email</p>
-                <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-3 block text-xl font-black text-white hover:text-yellow-300">
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-3 block break-all text-lg font-black text-white hover:text-yellow-300 sm:text-xl sm:break-normal">
                   {SUPPORT_EMAIL}
                 </a>
                 <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
@@ -44,7 +44,7 @@ export default function Contact() {
                 </p>
               </div>
 
-              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-6">
+              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5 sm:p-6">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Location</p>
                 <p className="mt-3 text-xl font-black text-white">{COMPANY_LOCATION}</p>
                 <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
@@ -54,9 +54,9 @@ export default function Contact() {
             </div>
           </div>
 
-          <aside className="rounded-[2.5rem] border border-white/8 bg-zinc-950 p-8 sm:p-10">
+          <aside className="rounded-[2rem] border border-white/8 bg-zinc-950 p-6 sm:rounded-[2.5rem] sm:p-10">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">What to include</p>
-            <h2 className="mt-4 text-3xl font-black text-white">Make your support request easier to solve</h2>
+            <h2 className="mt-4 max-w-[12ch] break-words text-2xl font-black text-white sm:max-w-none sm:text-3xl">Make your support request easier to solve</h2>
 
             <div className="mt-8 space-y-4">
               {contactTopics.map((topic) => (

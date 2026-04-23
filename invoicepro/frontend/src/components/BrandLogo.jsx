@@ -4,9 +4,9 @@ export default function BrandLogo({ showText = true, className = '', markClassNa
   const textClass = textColor === 'black' ? 'text-black' : 'text-white';
 
   return (
-    <div className={`inline-flex items-center gap-3 ${className}`}>
+    <div className={`inline-flex items-center gap-2.5 sm:gap-3 ${className}`}>
       <svg
-        className={`brand-logo-mark ${markClassName}`}
+        className={`brand-logo-mark h-10 w-10 sm:h-11 sm:w-11 ${markClassName}`}
         width="44"
         height="44"
         viewBox="0 0 44 44"
@@ -54,7 +54,7 @@ export default function BrandLogo({ showText = true, className = '', markClassNa
       </svg>
 
       {showText && (
-        <span className={`text-xl font-black tracking-tighter ${textClass}`}>
+        <span className={`text-lg font-black tracking-tighter sm:text-xl ${textClass}`}>
           InvoicePro
         </span>
       )}

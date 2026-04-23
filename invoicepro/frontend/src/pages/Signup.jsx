@@ -54,7 +54,7 @@ export default function Signup() {
     <div className="min-h-screen bg-[#050505] text-white">
       <Navbar />
 
-      <main className="container-custom grid min-h-[calc(100vh-120px)] items-center gap-16 py-12 lg:grid-cols-[1fr_420px]">
+      <main className="container-custom grid items-start gap-8 py-8 sm:gap-10 sm:py-12 lg:min-h-[calc(100vh-120px)] lg:items-center lg:gap-16 lg:grid-cols-[1fr_420px]">
         <section className="hidden lg:block relative text-left">
            <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-emerald-500/10 blur-[140px] pointer-events-none" />
           
@@ -93,8 +93,8 @@ export default function Signup() {
            </div>
         </section>
 
-        <section className="reveal mx-auto w-full">
-          <div className="surface p-10 sm:p-12 border-white/5 bg-zinc-950/40 backdrop-blur-2xl rounded-[3rem] shadow-2xl">
+        <section className="reveal mx-auto w-full max-w-xl lg:max-w-none">
+          <div className="surface rounded-[2rem] border-white/5 bg-zinc-950/40 p-6 shadow-2xl backdrop-blur-2xl sm:rounded-[2.5rem] sm:p-10 lg:rounded-[3rem] lg:p-12">
             <div className="mb-10">
               <h2 className="text-3xl font-black text-white leading-none mb-3">
                 Create Account.
