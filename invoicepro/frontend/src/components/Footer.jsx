@@ -1,57 +1,62 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import BrandLogo from './BrandLogo';
 
 export default function Footer() {
   return (
     <footer className="border-t border-white/5 bg-black py-20">
       <div className="container-custom">
-        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 md:grid-cols-4 mb-20 text-sm">
-          <div className="col-span-1 md:col-span-1">
+        <div className="mb-20 grid grid-cols-1 gap-12 text-sm sm:grid-cols-2 md:grid-cols-4">
+          <div className="col-span-1">
             <div className="mb-6">
               <BrandLogo showText={true} />
             </div>
-            <p className="text-zinc-500 font-medium leading-relaxed max-w-xs">
-              InvoicePro helps Indian service businesses invoice clients,
-              share payment links, and manage recurring billing.
+            <p className="max-w-xs text-zinc-500 font-medium leading-relaxed">
+              InvoicePro helps Indian service businesses send clear invoices, share public payment links,
+              and manage recurring billing with more confidence.
             </p>
           </div>
 
           <div>
-            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Product</h3>
+            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Explore</h3>
             <div className="grid gap-4 font-medium text-zinc-500">
-              <Link className="hover:text-yellow-300 transition-colors" to="/dashboard">Dashboard</Link>
-              <Link className="hover:text-yellow-300 transition-colors" to="/create-invoice">Create Invoice</Link>
-              <Link className="hover:text-yellow-300 transition-colors" to="/payment">Upgrade</Link>
-              <Link className="hover:text-yellow-300 transition-colors" to="/settings">Business Profile</Link>
+              <a className="transition-colors hover:text-yellow-300" href="/#trust">Why Teams Trust It</a>
+              <a className="transition-colors hover:text-yellow-300" href="/#pricing">Pricing</a>
+              <a className="transition-colors hover:text-yellow-300" href="/#faq">FAQ</a>
+              <a className="transition-colors hover:text-yellow-300" href="mailto:ashieqahamed27@gmail.com">Contact Support</a>
             </div>
           </div>
 
           <div>
-            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Resources</h3>
+            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Highlights</h3>
             <div className="grid gap-4 font-medium text-zinc-500">
-              <p className="hover:text-white cursor-pointer transition-colors">Getting Started</p>
-              <p className="hover:text-white cursor-pointer transition-colors">Pricing</p>
-              <p className="hover:text-white cursor-pointer transition-colors">Roadmap</p>
-              <p className="hover:text-white cursor-pointer transition-colors">Support</p>
+              <p>Public invoice links</p>
+              <p>Recurring billing</p>
+              <p>GST-ready invoice fields</p>
+              <p>Razorpay checkout support</p>
             </div>
           </div>
 
           <div>
             <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Contact</h3>
             <div className="grid gap-4 font-medium text-zinc-500">
-              <p className="hover:text-white cursor-pointer transition-colors text-white font-bold">ashieqahamed27@gmail.com</p>
-              <p className="text-xs">Based in India. <br /> Built for freelancers, agencies, and consultants.</p>
+              <a href="mailto:ashieqahamed27@gmail.com" className="font-bold text-white transition-colors hover:text-yellow-300">
+                ashieqahamed27@gmail.com
+              </a>
+              <p className="text-xs">
+                Based in India.
+                <br />
+                Built for freelancers, agencies, and consultants.
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-zinc-700">
-          <p>© {new Date().getFullYear()} InvoicePro</p>
-          <div className="flex gap-8 mt-4 md:mt-0">
-            <span className="hover:text-zinc-500 cursor-pointer">Privacy</span>
-            <span className="hover:text-zinc-500 cursor-pointer">Terms</span>
-            <span className="hover:text-zinc-500 cursor-pointer">Cookies</span>
+        <div className="flex flex-col items-center justify-between border-t border-white/5 pt-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-700 md:flex-row">
+          <p>Copyright {new Date().getFullYear()} InvoicePro</p>
+          <div className="mt-4 flex gap-8 md:mt-0">
+            <span>Pricing shown before checkout</span>
+            <span>Public payment links</span>
+            <span>Support by email</span>
           </div>
         </div>
       </div>
