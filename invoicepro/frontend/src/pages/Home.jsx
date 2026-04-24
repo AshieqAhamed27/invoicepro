@@ -152,8 +152,8 @@ export default function Home() {
             <div className="absolute right-0 top-24 h-72 w-72 rounded-full bg-emerald-400/8 blur-[120px]" />
           </div>
 
-          <div className="container-custom relative z-10 grid gap-10 sm:gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="max-w-3xl">
+          <div className="container-custom relative z-10 grid gap-10 sm:gap-14 lg:grid-cols-2 lg:items-center">
+            <div className="max-w-xl">
               <div className="reveal inline-flex w-full max-w-full flex-wrap items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 sm:w-auto">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
                 <p className="max-w-[16rem] break-words text-[10px] font-black uppercase leading-relaxed tracking-[0.14em] text-emerald-300 sm:max-w-none sm:text-[11px] sm:tracking-[0.22em]">
@@ -187,16 +187,16 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="reveal reveal-delay-3 mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row">
+              <div className="reveal reveal-delay-3 mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row sm:items-center">
                 <button
                   onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
-                  className="w-full rounded-2xl bg-white px-10 py-5 text-lg font-black text-black shadow-2xl shadow-white/10 transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
+                  className="w-full sm:w-auto bg-white px-10 py-5 text-lg font-black text-black shadow-2xl shadow-white/10 transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
                 >
                   {loggedIn ? 'Open Dashboard' : 'Start Free'}
                 </button>
                 <button
                   onClick={() => (loggedIn ? navigate('/create-invoice') : jumpToSection('pricing'))}
-                  className="w-full rounded-2xl border border-white/10 bg-zinc-900 px-10 py-5 text-lg font-black text-white transition-all hover:bg-zinc-800 sm:w-auto"
+                  className="w-full sm:w-auto border border-white/10 bg-zinc-900 px-10 py-5 text-lg font-black text-white transition-all hover:bg-zinc-800 sm:w-auto"
                 >
                   {loggedIn ? 'Create Invoice' : 'See Pricing'}
                 </button>
@@ -404,8 +404,8 @@ export default function Home() {
                 <div
                   key={plan.name}
                   className={plan.featured
-                    ? 'relative flex flex-col justify-between rounded-[2.25rem] border-2 border-yellow-400/40 bg-yellow-400/6 p-6 shadow-2xl shadow-yellow-400/10 sm:rounded-[2.75rem] sm:p-10'
-                    : 'flex flex-col justify-between rounded-[2.25rem] border border-white/8 bg-zinc-950 p-6 sm:rounded-[2.75rem] sm:p-10'
+                    ? 'relative flex flex-col justify-between h-full rounded-[2.25rem] border-2 border-yellow-400/40 bg-yellow-400/6 p-6 shadow-2xl shadow-yellow-400/10 sm:rounded-[2.75rem] sm:p-10'
+                    : 'flex flex-col justify-between h-full rounded-[2.25rem] border border-white/8 bg-zinc-950 p-6 sm:rounded-[2.75rem] sm:p-10'
                   }
                 >
                   {plan.featured && (
@@ -437,8 +437,8 @@ export default function Home() {
                   <button
                     onClick={() => handlePlanAction(plan.action)}
                     className={plan.featured
-                      ? 'mt-10 w-full rounded-2xl bg-yellow-400 py-5 text-base font-black text-black shadow-xl shadow-yellow-400/20 transition-all hover:bg-yellow-300 active:scale-95'
-                      : 'mt-10 w-full rounded-2xl border border-white/10 bg-zinc-900 py-5 text-base font-black text-white transition-all hover:bg-zinc-800 active:scale-95'
+                      ? 'mt-auto w-full rounded-2xl bg-yellow-400 py-5 text-base font-black text-black shadow-xl shadow-yellow-400/20 transition-all hover:bg-yellow-300 active:scale-95'
+                      : 'mt-auto w-full rounded-2xl border border-white/10 bg-zinc-900 py-5 text-base font-black text-white transition-all hover:bg-zinc-800 active:scale-95'
                     }
                   >
                     {plan.cta}

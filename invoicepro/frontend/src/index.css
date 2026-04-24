@@ -3,37 +3,37 @@
 @tailwind utilities;
 
 /* --- PRINT STYLES --- */
-@media print {
-  nav, aside, button, .no-print {
-    display: none !important;
-  }
-  
-  body, .min-h-screen {
-    background: white !important;
-    color: black !important;
-  }
-  
-  .container-custom {
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  
-  main {
-    padding: 0 !important;
-  }
-  
-  .surface {
-    border: none !important;
-    box-shadow: none !important;
-    background: white !important;
-    padding: 0 !important;
-  }
 
-  .reveal {
-     opacity: 1 !important;
-     transform: none !important;
-  }
+@media print {
+    nav,
+    aside,
+    button,
+    .no-print {
+        display: none !important;
+    }
+    body,
+    .min-h-screen {
+        background: white !important;
+        color: black !important;
+    }
+    .container-custom {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 16px;
+    }
+    main {
+        padding: 0 !important;
+    }
+    .surface {
+        border: none !important;
+        box-shadow: none !important;
+        background: white !important;
+        padding: 0 !important;
+    }
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+    }
 }
 
 * {
@@ -61,8 +61,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: 
-        radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0);
+    background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
     background-size: 24px 24px;
     z-index: -1;
     pointer-events: none;
@@ -75,7 +74,7 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 50% 0%, rgba(250,204,21,0.03) 0%, transparent 60%);
+    background: radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.03) 0%, transparent 60%);
     z-index: -1;
     pointer-events: none;
 }
@@ -100,111 +99,85 @@ select {
         @apply text-3xl font-semibold;
         letter-spacing: 0;
     }
-
     h2 {
         @apply text-xl font-semibold;
         letter-spacing: 0;
     }
-
     h3 {
         @apply text-base font-medium;
     }
-
     p {
         @apply text-zinc-400 text-sm;
     }
-
     .container-custom {
-        @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+        @apply max-w-7xl mx-auto px-4 sm: px-6 lg: px-8;
     }
-
     .btn {
-        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-yellow-400/70 focus:ring-offset-2 focus:ring-offset-black;
+        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition whitespace-nowrap disabled: opacity-60 disabled: cursor-not-allowed focus: outline-none focus: ring-2 focus: ring-yellow-400/70 focus: ring-offset-2 focus: ring-offset-black;
     }
-
     .btn-primary {
-        @apply bg-yellow-400 text-black shadow-lg shadow-yellow-500/15 hover:bg-yellow-300;
+        @apply bg-yellow-400 text-black shadow-lg shadow-yellow-500/15 hover: bg-yellow-300;
     }
-
     .btn-dark {
-        @apply bg-zinc-900 text-white border border-white/10 hover:bg-zinc-800;
+        @apply bg-zinc-900 text-white border border-white/10 hover: bg-zinc-800;
     }
-
     .btn-secondary {
-        @apply bg-white/5 text-white border border-white/15 hover:bg-white/10;
+        @apply bg-white/5 text-white border border-white/15 hover: bg-white/10;
     }
-
     .btn-danger {
-        @apply bg-red-500 text-white hover:bg-red-400;
+        @apply bg-red-500 text-white hover: bg-red-400;
     }
-
     .input {
-        @apply w-full bg-zinc-950/80 border border-white/10 p-3 rounded-lg text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-yellow-400/70 focus:ring-2 focus:ring-yellow-400/15;
+        @apply w-full bg-zinc-950/80 border border-white/10 p-3 rounded-lg text-sm text-white placeholder: text-zinc-500 outline-none transition focus: border-yellow-400/70 focus: ring-2 focus: ring-yellow-400/15;
     }
-
     .card {
         @apply bg-zinc-950/85 border border-white/10 rounded-lg p-5 text-white shadow-xl shadow-black/20 transition duration-300;
     }
-
     .surface {
         @apply bg-zinc-950/70 border border-white/10 rounded-lg shadow-xl shadow-black/20;
     }
-
     .muted {
         @apply text-zinc-400;
     }
-
     .badge {
         @apply text-xs px-2.5 py-1 rounded-full font-semibold;
     }
-
     .badge-green {
         @apply bg-emerald-500/15 text-emerald-300 border border-emerald-400/20;
     }
-
     .badge-yellow {
         @apply bg-yellow-400/15 text-yellow-300 border border-yellow-300/20;
     }
-
     .badge-red {
         @apply bg-red-500/15 text-red-300 border border-red-400/20;
     }
-
     .brand-logo-mark {
         @apply shrink-0 rounded-lg shadow-lg shadow-yellow-500/15;
         animation: logo-settle 700ms ease-out both;
     }
-
     .brand-logo-line {
         stroke-dasharray: 14;
         stroke-dashoffset: 14;
         animation: logo-line 900ms ease-out 260ms forwards;
     }
-
     .brand-logo-line-delay {
         animation-delay: 420ms;
     }
-
     .reveal {
         animation: reveal-up 650ms ease-out both;
     }
-
     .reveal-delay-1 {
         animation-delay: 120ms;
     }
-
     .reveal-delay-2 {
         animation-delay: 220ms;
     }
-
     .reveal-delay-3 {
         animation-delay: 340ms;
     }
-
     .hover-lift {
         @apply transition duration-300;
     }
-
     .hover-lift:hover {
         transform: translateY(-4px);
         border-color: rgb(250 204 21 / 0.28);
@@ -217,7 +190,6 @@ select {
         opacity: 0;
         transform: translateY(18px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -229,12 +201,10 @@ select {
         opacity: 0;
         transform: translateY(6px) scale(0.92);
     }
-
     60% {
         opacity: 1;
         transform: translateY(0) scale(1.04);
     }
-
     100% {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -256,7 +226,6 @@ select {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
     }
-
     .hover-lift:hover {
         transform: none;
     }
