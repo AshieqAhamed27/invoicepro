@@ -36,6 +36,9 @@
     }
 }
 
+
+/* --- BASE --- */
+
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -53,6 +56,9 @@ body {
     overflow-x: hidden;
     position: relative;
 }
+
+
+/* Background effects */
 
 body::before {
     content: '';
@@ -94,14 +100,16 @@ select {
     @apply bg-yellow-400 text-black;
 }
 
+
+/* --- COMPONENTS --- */
+
 @layer components {
+    /* Typography */
     h1 {
         @apply text-3xl font-semibold;
-        letter-spacing: 0;
     }
     h2 {
         @apply text-xl font-semibold;
-        letter-spacing: 0;
     }
     h3 {
         @apply text-base font-medium;
@@ -109,33 +117,38 @@ select {
     p {
         @apply text-zinc-400 text-sm;
     }
+    /* Container */
     .container-custom {
-        @apply max-w-7xl mx-auto px-4 sm: px-6 lg: px-8;
+        @apply max-w-7xl mx-auto px-4;
     }
+    /* Buttons */
     .btn {
-        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition whitespace-nowrap disabled: opacity-60 disabled: cursor-not-allowed focus: outline-none focus: ring-2 focus: ring-yellow-400/70 focus: ring-offset-2 focus: ring-offset-black;
+        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition whitespace-nowrap;
     }
     .btn-primary {
-        @apply bg-yellow-400 text-black shadow-lg shadow-yellow-500/15 hover: bg-yellow-300;
+        @apply bg-yellow-400 text-black shadow-lg shadow-yellow-500/15;
     }
     .btn-dark {
-        @apply bg-zinc-900 text-white border border-white/10 hover: bg-zinc-800;
+        @apply bg-zinc-900 text-white border border-white/10;
     }
     .btn-secondary {
-        @apply bg-white/5 text-white border border-white/15 hover: bg-white/10;
+        @apply bg-white/5 text-white border border-white/15;
     }
     .btn-danger {
-        @apply bg-red-500 text-white hover: bg-red-400;
+        @apply bg-red-500 text-white;
     }
+    /* Inputs */
     .input {
-        @apply w-full bg-zinc-950/80 border border-white/10 p-3 rounded-lg text-sm text-white placeholder: text-zinc-500 outline-none transition focus: border-yellow-400/70 focus: ring-2 focus: ring-yellow-400/15;
+        @apply w-full bg-zinc-950/80 border border-white/10 p-3 rounded-lg text-sm text-white placeholder: text-zinc-500 outline-none;
     }
+    /* Cards */
     .card {
-        @apply bg-zinc-950/85 border border-white/10 rounded-lg p-5 text-white shadow-xl shadow-black/20 transition duration-300;
+        @apply bg-zinc-950/85 border border-white/10 rounded-lg p-5 text-white shadow-xl shadow-black/20;
     }
     .surface {
         @apply bg-zinc-950/70 border border-white/10 rounded-lg shadow-xl shadow-black/20;
     }
+    /* Utilities */
     .muted {
         @apply text-zinc-400;
     }
@@ -151,6 +164,7 @@ select {
     .badge-red {
         @apply bg-red-500/15 text-red-300 border border-red-400/20;
     }
+    /* Animations */
     .brand-logo-mark {
         @apply shrink-0 rounded-lg shadow-lg shadow-yellow-500/15;
         animation: logo-settle 700ms ease-out both;
@@ -176,7 +190,7 @@ select {
         animation-delay: 340ms;
     }
     .hover-lift {
-        @apply transition duration-300;
+        transition: all 0.3s;
     }
     .hover-lift:hover {
         transform: translateY(-4px);
@@ -184,6 +198,9 @@ select {
         box-shadow: 0 22px 45px rgb(0 0 0 / 0.32);
     }
 }
+
+
+/* --- ANIMATIONS --- */
 
 @keyframes reveal-up {
     from {
@@ -216,6 +233,9 @@ select {
         stroke-dashoffset: 0;
     }
 }
+
+
+/* --- REDUCED MOTION --- */
 
 @media (prefers-reduced-motion: reduce) {
     *,
