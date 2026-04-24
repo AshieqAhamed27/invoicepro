@@ -139,7 +139,11 @@ select {
     }
     /* Inputs */
     .input {
-        @apply w-full bg-zinc-950/80 border border-white/10 p-3 rounded-lg text-sm text-white placeholder: text-zinc-500 outline-none;
+        @apply w-full bg-zinc-950/80 border border-white/10 p-3 rounded-lg text-sm text-white outline-none;
+    }
+    .input::placeholder {
+        color: #71717a;
+        /* zinc-500 */
     }
     /* Cards */
     .card {
