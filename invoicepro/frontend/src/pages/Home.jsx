@@ -181,7 +181,7 @@ export default function Home() {
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Support</p>
-                  <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-2 block break-all text-sm font-semibold text-white hover:text-yellow-300 sm:break-normal">
+                  <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-2 block text-sm font-semibold text-white hover:text-yellow-300 break-words sm:break-normal">
                     {SUPPORT_EMAIL}
                   </a>
                 </div>
