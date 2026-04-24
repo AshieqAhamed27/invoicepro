@@ -152,8 +152,8 @@ export default function Home() {
             <div className="absolute right-0 top-24 h-72 w-72 rounded-full bg-emerald-400/8 blur-[120px]" />
           </div>
 
-          <div className="container-custom relative z-10 grid gap-10 sm:gap-14 lg:grid-cols-2 lg:items-center">
-            <div className="max-w-xl">
+          <div className="container-custom relative z-10 grid gap-12 lg:grid-cols-2 lg:items-center">
+            <div className="max-w-lg">
               <div className="reveal inline-flex w-full max-w-full flex-wrap items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 sm:w-auto">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
                 <p className="max-w-[16rem] break-words text-[10px] font-black uppercase leading-relaxed tracking-[0.14em] text-emerald-300 sm:max-w-none sm:text-[11px] sm:tracking-[0.22em]">
@@ -161,16 +161,16 @@ export default function Home() {
                 </p>
               </div>
 
-              <h1 className="reveal reveal-delay-1 mt-6 max-w-4xl break-words text-[2.5rem] font-black tracking-tight leading-[0.95] text-white sm:mt-8 sm:text-5xl md:text-7xl">
+              <h1 className="reveal reveal-delay-1 mt-6 max-w-4xl break-words text-4xl font-black tracking-tight leading-tight text-white sm:mt-8 sm:text-5xl md:text-6xl">
                 Invoices your clients can open, trust, and pay without confusion.
               </h1>
 
-              <p className="reveal reveal-delay-2 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
+              <p className="reveal reveal-delay-3 max-w-xl ml-auto mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
                 InvoicePro helps freelancers, agencies, and consultants send structured invoices,
                 collect through public payment links, and stay on top of repeat billing with fewer manual follow-ups.
               </p>
 
-              <div className="reveal reveal-delay-2 mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="reveal reveal-delay-3 max-w-xl ml-auto mt-8 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Checkout</p>
                   <p className="mt-2 text-sm font-semibold text-white">Razorpay-backed online payment flow</p>
