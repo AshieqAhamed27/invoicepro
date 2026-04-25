@@ -204,6 +204,12 @@ export default function Home() {
                   >
                     How to create invoice in India
                   </Link>
+                  <Link
+                    to="/blog/gst-invoice-format-india"
+                    className="text-yellow-400 hover:underline"
+                  >
+                    GST invoice format guide
+                  </Link>
                 </p>
                 <button
                   onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}

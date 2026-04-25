@@ -24,6 +24,9 @@ export default function Footer() {
               <a className="transition-colors hover:text-yellow-300" href="/#trust">Why Teams Trust It</a>
               <a className="transition-colors hover:text-yellow-300" href="/#pricing">Pricing</a>
               <a className="transition-colors hover:text-yellow-300" href="/#faq">FAQ</a>
+              <Link to="/blog/gst-invoice-format-india" className="transition-colors hover:text-yellow-300">
+                GST Invoice Format
+              </Link>
               <Link
                 to="/blog/how-to-create-invoice-india"
                 className="transition-colors hover:text-yellow-300"

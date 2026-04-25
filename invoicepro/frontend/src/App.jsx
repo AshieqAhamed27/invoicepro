@@ -11,6 +11,7 @@ import { isLoggedIn, getUser } from './utils/auth';
 import api from './utils/api';
 import InvoiceGenerator from './pages/InvoiceGenerator';
 import HowToCreateInvoiceIndia from './pages/blog/HowToCreateInvoiceIndia';
+import GSTInvoiceFormatIndia from './pages/blog/GSTInvoiceFormatIndia';
 
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/Home'));
@@ -273,6 +274,7 @@ export default function App() {
         />
         <Route path="/invoice-generator" element={<InvoiceGenerator />} />
         <Route path="/blog/how-to-create-invoice-india" element={<HowToCreateInvoiceIndia />} />
+        <Route path="/blog/gst-invoice-format-india" element={<GSTInvoiceFormatIndia />} />
       </Routes>
     </BrowserRouter>
   );
