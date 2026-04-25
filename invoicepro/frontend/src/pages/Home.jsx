@@ -153,7 +153,7 @@ export default function Home() {
             <div className="absolute right-0 top-24 h-72 w-72 rounded-full bg-emerald-400/8 blur-[120px]" />
           </div>
 
-          <div className="container-custom relative z-10 grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div className="container-custom relative z-10 grid gap-12 lg:grid-cols-2 lg:items-start">
             <div className="max-w-lg">
               <div className="reveal inline-flex w-full max-w-full flex-wrap items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 sm:w-auto">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -166,7 +166,7 @@ export default function Home() {
                 Invoices your clients can open, trust, and pay without confusion.
               </h1>
 
-              <p className="reveal reveal-delay-3 max-w-xl ml-auto mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
+              <p className="reveal reveal-delay-3 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
                 InvoicePro helps freelancers, agencies, and consultants send structured invoices,
                 collect through public payment links, and stay on top of repeat billing with fewer manual follow-ups.
               </p>
@@ -176,7 +176,7 @@ export default function Home() {
                 and manage recurring invoices easily.
               </p>
 
-              <div className="reveal reveal-delay-3 max-w-xl ml-auto mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="reveal reveal-delay-3 mt-8 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Checkout</p>
                   <p className="mt-2 text-sm font-semibold text-white">Razorpay-backed online payment flow</p>
@@ -196,8 +196,8 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="reveal reveal-delay-3 mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row sm:items-center">
-                <p className="mt-4 text-sm text-zinc-400">
+              <div className="reveal reveal-delay-3 mt-8 space-y-4 sm:mt-10">
+                <p className="text-sm leading-relaxed text-zinc-400">
                   Learn more in our guide:{' '}
                   <Link
                     to="/blog/how-to-create-invoice-india"
@@ -205,6 +205,7 @@ export default function Home() {
                   >
                     How to create invoice in India
                   </Link>
+                  {' '}and{' '}
                   <Link
                     to="/blog/gst-invoice-format-india"
                     className="text-yellow-400 hover:underline"
@@ -212,20 +213,23 @@ export default function Home() {
                     GST invoice format guide
                   </Link>
                 </p>
-                <button
-                  onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
-                  className="w-full sm:w-auto bg-white px-10 py-5 text-lg font-black text-black shadow-2xl shadow-white/10 transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
-                >
-                  {loggedIn ? 'Open Dashboard' : 'Start Free'}
-                </button>
-                <button
-                  onClick={() => (loggedIn ? navigate('/create-invoice') : jumpToSection('pricing'))}
-                  className="w-full sm:w-auto border border-white/10 bg-zinc-900 px-10 py-5 text-lg font-black text-white transition-all hover:bg-zinc-800 sm:w-auto"
-                >
-                  {loggedIn ? 'Create Invoice' : 'See Pricing'}
-                </button>
 
-                <p className="mt-4 text-sm text-zinc-400">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <button
+                    onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
+                    className="w-full bg-white px-10 py-5 text-lg font-black text-black shadow-2xl shadow-white/10 transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
+                  >
+                    {loggedIn ? 'Open Dashboard' : 'Start Free'}
+                  </button>
+                  <button
+                    onClick={() => (loggedIn ? navigate('/create-invoice') : jumpToSection('pricing'))}
+                    className="w-full border border-white/10 bg-zinc-900 px-10 py-5 text-lg font-black text-white transition-all hover:bg-zinc-800 sm:w-auto"
+                  >
+                    {loggedIn ? 'Create Invoice' : 'See Pricing'}
+                  </button>
+                </div>
+
+                <p className="text-sm leading-relaxed text-zinc-400">
                   Looking for a simple tool? Try our{' '}
                   <a href="/invoice-generator" className="text-yellow-400 hover:underline">
                     invoice generator
