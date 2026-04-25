@@ -196,6 +196,15 @@ export default function Home() {
               </div>
 
               <div className="reveal reveal-delay-3 mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row sm:items-center">
+                <p className="mt-4 text-sm text-zinc-400">
+                  Learn more in our guide:{' '}
+                  <Link
+                    to="/blog/how-to-create-invoice-india"
+                    className="text-yellow-400 hover:underline"
+                  >
+                    How to create invoice in India
+                  </Link>
+                </p>
                 <button
                   onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
                   className="w-full sm:w-auto bg-white px-10 py-5 text-lg font-black text-black shadow-2xl shadow-white/10 transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
