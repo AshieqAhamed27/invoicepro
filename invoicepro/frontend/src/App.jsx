@@ -9,6 +9,7 @@ import {
 
 import { isLoggedIn, getUser } from './utils/auth';
 import api from './utils/api';
+import InvoiceGenerator from './pages/InvoiceGenerator';
 
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/Home'));
@@ -269,6 +270,7 @@ export default function App() {
             </Suspense>
           }
         />
+        <Route path="/invoice-generator" element={<InvoiceGenerator />} />
 
       </Routes>
     </BrowserRouter>

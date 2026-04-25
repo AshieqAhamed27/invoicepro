@@ -118,8 +118,8 @@ export default function Home() {
   const loggedIn = isLoggedIn();
 
   useDocumentMeta(
-    'InvoicePro | Invoicing and Payment Links for Indian Service Businesses',
-    'Create invoices, share public payment links, and manage recurring billing with a client-ready workflow.'
+    'Invoice Generator India – Create GST Invoices & Get Paid Online | InvoicePro',
+    'Create GST invoices online in India. Accept UPI & Razorpay payments, send invoice links, and manage recurring billing for freelancers and agencies.'
   );
 
   const handleSubscribe = (plan) => {
@@ -169,6 +169,11 @@ export default function Home() {
                 InvoicePro helps freelancers, agencies, and consultants send structured invoices,
                 collect through public payment links, and stay on top of repeat billing with fewer manual follow-ups.
               </p>
+              <p className="hidden">
+                InvoicePro is an invoice generator for freelancers and businesses in India.
+                Create GST invoices, send payment links, accept UPI and Razorpay payments,
+                and manage recurring invoices easily.
+              </p>
 
               <div className="reveal reveal-delay-3 max-w-xl ml-auto mt-8 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
@@ -181,12 +186,12 @@ export default function Home() {
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Support</p>
-                 <a
-  href={`mailto:${SUPPORT_EMAIL}`}
-  className="mt-3 block text-sm font-semibold text-white hover:text-yellow-300 break-words leading-relaxed"
->
-  {SUPPORT_EMAIL}
-</a>
+                  <a
+                    href={`mailto:${SUPPORT_EMAIL}`}
+                    className="mt-3 block text-sm font-semibold text-white hover:text-yellow-300 break-words leading-relaxed"
+                  >
+                    {SUPPORT_EMAIL}
+                  </a>
                 </div>
               </div>
 
@@ -203,6 +208,14 @@ export default function Home() {
                 >
                   {loggedIn ? 'Create Invoice' : 'See Pricing'}
                 </button>
+
+                <p className="mt-4 text-sm text-zinc-400">
+                  Looking for a simple tool? Try our{' '}
+                  <a href="/invoice-generator" className="text-yellow-400 hover:underline">
+                    invoice generator
+                  </a>{' '}
+                  to create invoices online in India.
+                </p>
               </div>
 
               <div className="reveal reveal-delay-3 mt-8 flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500 sm:text-xs sm:tracking-[0.2em]">
@@ -274,6 +287,33 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="py-16">
+          <div className="container-custom">
+            <h2 className="text-3xl font-black text-white">
+              Invoice Generator for Indian Freelancers
+            </h2>
+            <p className="mt-4 text-zinc-400 max-w-2xl">
+              InvoicePro is an invoice generator in India that helps freelancers and agencies
+              create professional invoices, send payment links, and collect payments online.
+            </p>
+
+            <h2 className="mt-10 text-3xl font-black text-white">
+              Create GST Invoices Online
+            </h2>
+            <p className="mt-4 text-zinc-400 max-w-2xl">
+              Generate GST invoices with tax fields, client details, due dates, and payment instructions.
+              Perfect for Indian businesses and consultants.
+            </p>
+
+            <h2 className="mt-10 text-3xl font-black text-white">
+              Accept UPI and Razorpay Payments
+            </h2>
+            <p className="mt-4 text-zinc-400 max-w-2xl">
+              Share invoice links and collect payments using Razorpay checkout or UPI apps like Google Pay and Paytm.
+            </p>
           </div>
         </section>
 

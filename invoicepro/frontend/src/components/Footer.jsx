@@ -24,6 +24,9 @@ export default function Footer() {
               <a className="transition-colors hover:text-yellow-300" href="/#trust">Why Teams Trust It</a>
               <a className="transition-colors hover:text-yellow-300" href="/#pricing">Pricing</a>
               <a className="transition-colors hover:text-yellow-300" href="/#faq">FAQ</a>
+              <Link className="transition-colors hover:text-yellow-300" to="/invoice-generator">
+                Invoice Generator
+              </Link>
               <Link className="transition-colors hover:text-yellow-300" to="/contact">Contact Support</Link>
             </div>
           </div>
