@@ -1,0 +1,12 @@
+{
+    "private": true,
+    "scripts": {
+        "build": "npm --prefix invoicepro/frontend run build",
+        "frontend:dev": "npm --prefix invoicepro/frontend run dev",
+        "backend:start": "npm --prefix invoicepro/backend start",
+        "backend:dev": "npm --prefix invoicepro/backend run dev"
+    },
+    "dependencies": {
+        "mongoose": "^9.5.0"
+    }
+}
