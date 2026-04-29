@@ -95,7 +95,7 @@ export default function PublicInvoice() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
+      <div className="flex min-h-screen items-center justify-center bg-[#07090d] text-white">
         Loading document...
       </div>
     );
@@ -225,7 +225,7 @@ export default function PublicInvoice() {
   const safeCompanyLogoUrl = getSafeRemoteImageUrl(invoice.user?.logo);
 
   return (
-    <div className="min-h-screen bg-[#050505] px-4 py-10">
+    <div className="premium-page min-h-screen px-4 py-10">
       <div className="reveal mx-auto max-w-4xl rounded-lg bg-white p-8 text-black shadow-2xl md:p-12 relative overflow-hidden">
         {badgeContent && (
           <div className={`absolute top-12 right-[-40px] rotate-45 ${badgeContent.className} text-white px-16 py-1 font-bold text-lg shadow-md uppercase tracking-widest z-10`}>
@@ -243,25 +243,25 @@ export default function PublicInvoice() {
               )}
               <BrandLogo showText={true} textColor="black" />
             </div>
-            <p className="text-gray-400 mt-2 font-bold uppercase text-[10px] tracking-widest">
+            <p className="text-slate-500 mt-2 font-bold uppercase text-[10px] tracking-widest">
               {invoiceMeta.headerNote}
             </p>
           </div>
 
           <div className="text-left md:text-right">
-            <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold">{invoiceMeta.idLabel}</p>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">{invoiceMeta.idLabel}</p>
+            <p className="text-2xl font-bold text-slate-950">
               {invoice.invoiceNumber}
             </p>
 
             <div className="mt-4 space-y-1">
               <p className="text-sm text-gray-500">
-                <span className="font-semibold text-gray-400 uppercase text-[10px] mr-2">Issued:</span>
+                  <span className="font-semibold text-slate-500 uppercase text-[10px] mr-2">Issued:</span>
                 {formatDate(invoice.date)}
               </p>
               {documentDate && (
                 <p className="text-sm text-gray-500">
-                  <span className="font-semibold text-gray-400 uppercase text-[10px] mr-2">{invoiceMeta.dateLabel}:</span>
+                  <span className="font-semibold text-slate-500 uppercase text-[10px] mr-2">{invoiceMeta.dateLabel}:</span>
                   {formatDate(documentDate)}
                 </p>
               )}
@@ -271,10 +271,10 @@ export default function PublicInvoice() {
 
         <div className="grid md:grid-cols-2 gap-10 mb-10">
           <div>
-            <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-3">
+            <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-3">
               {invoiceMeta.isProposal ? 'Prepared For' : 'Bill To'}
             </p>
-            <h2 className="text-xl font-bold text-gray-900 leading-tight">
+            <h2 className="text-xl font-bold text-slate-950 leading-tight">
               {invoice.clientName}
             </h2>
             <p className="text-gray-500 mt-1 first-letter:uppercase">
@@ -284,10 +284,10 @@ export default function PublicInvoice() {
 
           {invoice.user?.companyName && (
             <div className="md:text-right">
-              <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-3">
+            <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-3">
                 From
               </p>
-              <h2 className="text-xl font-bold text-gray-900 leading-tight">
+              <h2 className="text-xl font-bold text-slate-950 leading-tight">
                 {invoice.user.companyName}
               </h2>
               <p className="text-gray-500 mt-1">
@@ -301,7 +301,7 @@ export default function PublicInvoice() {
         </div>
 
         <div className="mb-10 overflow-hidden rounded-xl border border-gray-100 shadow-sm">
-          <div className="grid grid-cols-[1fr_auto] bg-gray-50 px-6 py-4 font-bold text-gray-600 text-sm uppercase tracking-wider">
+          <div className="grid grid-cols-[1fr_auto] bg-slate-950 px-6 py-4 font-bold text-white text-sm uppercase tracking-wider">
             <span>Description</span>
             <span className="text-right">Amount</span>
           </div>
@@ -310,12 +310,12 @@ export default function PublicInvoice() {
             {items.map((item, index) => (
               <div
                 key={index}
-                className="grid grid-cols-[1fr_auto] px-6 py-5 items-center bg-white hover:bg-gray-50/50 transition-colors"
+                  className="grid grid-cols-[1fr_auto] px-6 py-5 items-center bg-white hover:bg-slate-50 transition-colors"
               >
                 <div>
-                  <p className="font-semibold text-gray-900">{item.name}</p>
+                  <p className="font-semibold text-slate-950">{item.name}</p>
                 </div>
-                <p className="text-right font-bold text-gray-900">
+                <p className="text-right font-bold text-slate-950">
                   {formatCurrency(item.price, invoice.currency)}
                 </p>
               </div>
@@ -340,7 +340,7 @@ export default function PublicInvoice() {
                       <button
                         onClick={handlePayNow}
                         disabled={paying}
-                        className="w-full sm:w-auto px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
+                        className="w-full sm:w-auto px-8 py-3 bg-slate-950 text-white rounded-lg font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
                       >
                         {paying ? 'Opening...' : 'Razorpay Secure'}
                       </button>
@@ -379,7 +379,7 @@ export default function PublicInvoice() {
                 <button
                   onClick={handleAcceptProposal}
                   disabled={accepting}
-                  className="px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
+                  className="px-8 py-3 bg-slate-950 text-white rounded-lg font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
                 >
                   {accepting ? 'Accepting...' : 'Accept Proposal'}
                 </button>
@@ -396,7 +396,7 @@ export default function PublicInvoice() {
                 {invoice.convertedToInvoiceId && (
                   <a
                     href={`/public/invoice/${invoice.convertedToInvoiceId}`}
-                    className="mt-4 inline-flex px-6 py-3 rounded-2xl bg-gray-900 text-white text-xs font-black uppercase tracking-widest"
+                    className="mt-4 inline-flex px-6 py-3 rounded-lg bg-slate-950 text-white text-xs font-black uppercase tracking-widest"
                   >
                     Open Invoice
                   </a>
@@ -417,20 +417,20 @@ export default function PublicInvoice() {
           <div className="w-full max-w-sm space-y-3">
             <div className="flex justify-between text-gray-500 text-sm font-medium">
               <span>Subtotal</span>
-              <span className="text-gray-900">{formatCurrency(subtotal, invoice.currency)}</span>
+                <span className="text-slate-950">{formatCurrency(subtotal, invoice.currency)}</span>
             </div>
 
             {cgst > 0 && (
               <div className="flex justify-between text-gray-500 text-sm font-medium">
                 <span>CGST ({cgst}%)</span>
-                <span className="text-gray-900">{formatCurrency((subtotal * cgst) / 100, invoice.currency)}</span>
+                <span className="text-slate-950">{formatCurrency((subtotal * cgst) / 100, invoice.currency)}</span>
               </div>
             )}
 
             {sgst > 0 && (
               <div className="flex justify-between text-gray-500 text-sm font-medium">
                 <span>SGST ({sgst}%)</span>
-                <span className="text-gray-900">{formatCurrency((subtotal * sgst) / 100, invoice.currency)}</span>
+                <span className="text-slate-950">{formatCurrency((subtotal * sgst) / 100, invoice.currency)}</span>
               </div>
             )}
 
@@ -439,7 +439,7 @@ export default function PublicInvoice() {
                 {invoiceMeta.isProposal ? 'Proposal Total' : 'Total Amount'}
               </span>
               <div className="text-right">
-                <span className="block text-4xl font-black text-gray-900">
+                <span className="block text-4xl font-black text-slate-950">
                   {formatCurrency(total, invoice.currency)}
                 </span>
                 <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter mt-1">Inclusive of all taxes</p>

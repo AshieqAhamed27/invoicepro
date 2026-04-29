@@ -104,7 +104,7 @@ export default function Admin() {
   const envHealthy = requiredHealthy && Boolean(paymentHealthy);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
 
       <main className="container-custom py-10 md:py-16">
@@ -121,7 +121,7 @@ export default function Admin() {
           </p>
         </div>
 
-        <section className="reveal reveal-delay-1 mb-12 surface border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
+        <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
           <div className="border-b border-white/5 p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Live Checkout Pricing</p>
@@ -185,7 +185,7 @@ export default function Admin() {
           )}
         </section>
 
-        <section className="reveal reveal-delay-2 mb-12 surface border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden">
+        <section className="reveal reveal-delay-2 mb-12 premium-panel overflow-hidden">
           <div className="border-b border-white/5 p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Runtime Diagnostics</p>
@@ -266,7 +266,7 @@ export default function Admin() {
             ))}
           </div>
         ) : requests.length === 0 ? (
-          <div className="surface p-20 text-center border-white/5 bg-zinc-950/40 rounded-[2.5rem]">
+          <div className="premium-panel p-20 text-center">
             <div className="h-20 w-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/5 text-zinc-700">
               <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
@@ -278,7 +278,7 @@ export default function Admin() {
             {requests.map((req) => (
               <div
                 key={req._id}
-                className="group surface border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden transition-all hover:scale-[1.02] hover:border-white/10 shadow-2xl"
+                className="group premium-panel overflow-hidden transition-all hover:scale-[1.02] hover:border-white/10 shadow-2xl"
               >
                 <div className="border-b border-white/5 p-8 bg-white/[0.01]">
                   <div className="flex items-center justify-between gap-4">

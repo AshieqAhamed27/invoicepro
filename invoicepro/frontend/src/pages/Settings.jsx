@@ -73,7 +73,7 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
+      <div className="flex min-h-screen items-center justify-center bg-[#07090d] text-white">
         <div className="flex flex-col items-center gap-4">
            <div className="h-10 w-10 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Decrypting Profile</p>
@@ -86,7 +86,7 @@ export default function Settings() {
   const logoInvalid = Boolean(String(form.logo || '').trim()) && !safeLogoPreviewUrl;
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
       <main className="container-custom py-10 md:py-16">
         <div className="reveal mb-12">
@@ -107,7 +107,7 @@ export default function Settings() {
           className="grid gap-10 lg:grid-cols-[1fr_340px]"
         >
           <div className="reveal reveal-delay-1 space-y-8">
-            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] relative overflow-hidden group">
+            <section className="premium-panel p-8 relative overflow-hidden group">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Business Details</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Your public invoicing identity</p>
@@ -138,7 +138,7 @@ export default function Settings() {
               </div>
             </section>
 
-            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
+            <section className="premium-panel p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Payment Details</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Where clients should send payment</p>
@@ -157,7 +157,7 @@ export default function Settings() {
               </div>
             </section>
 
-            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
+            <section className="premium-panel p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Business Address</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Displayed on your invoices</p>
@@ -173,7 +173,7 @@ export default function Settings() {
               />
             </section>
 
-            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
+            <section className="premium-panel p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Logo</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Branding shown on invoices and PDFs</p>
@@ -202,7 +202,7 @@ export default function Settings() {
           </div>
 
           <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
-            <div className="surface p-8 border-white/10 bg-zinc-950 shadow-2xl rounded-[2.5rem] relative overflow-hidden group">
+            <div className="premium-panel p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
                  <svg className="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2z" /></svg>
               </div>

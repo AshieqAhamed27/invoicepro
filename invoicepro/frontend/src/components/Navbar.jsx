@@ -19,35 +19,35 @@ export default function Navbar() {
 
   const navClass = ({ isActive }) =>
     isActive
-      ? "text-white bg-white/10 border-white/10"
-      : "text-zinc-400 border-transparent hover:text-white hover:bg-white/5";
+      ? "text-white bg-white/10 border-white/15"
+      : "text-zinc-400 border-transparent hover:text-white hover:bg-white/[0.06]";
 
   const mobileNavClass = ({ isActive }) =>
     isActive
       ? "text-white bg-white/10"
-      : "text-zinc-400 hover:text-white hover:bg-white/5";
+      : "text-zinc-400 hover:text-white hover:bg-white/[0.06]";
 
   return (
     <nav className="sticky top-0 z-50 px-3 pt-3 pb-0 sm:px-4 sm:pt-4">
-      <div className="container-custom flex h-14 items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-4 backdrop-blur-xl shadow-2xl shadow-black/40 sm:h-16 sm:px-6">
+      <div className="container-custom flex h-14 items-center justify-between rounded-lg border border-white/10 bg-[#090d14]/80 px-4 backdrop-blur-2xl shadow-2xl shadow-black/35 sm:h-16 sm:px-6">
         <NavLink to="/" className="group flex min-w-0 items-center gap-3">
           <BrandLogo markClassName="transition-transform duration-300 group-hover:scale-110" />
         </NavLink>
 
         <div className="hidden items-center gap-2 text-sm md:flex">
-          <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+          <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
             Home
           </NavLink>
 
           {!loggedIn && (
             <>
-              <a href="/#pricing" className="rounded-lg border border-transparent px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5">
+              <a href="/#pricing" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 hover:text-white hover:bg-white/[0.06]">
                 Pricing
               </a>
-              <a href="/#faq" className="rounded-lg border border-transparent px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5">
+              <a href="/#faq" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 hover:text-white hover:bg-white/[0.06]">
                 FAQ
               </a>
-              <NavLink to="/contact" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+              <NavLink to="/contact" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Contact
               </NavLink>
             </>
@@ -55,33 +55,33 @@ export default function Navbar() {
 
           {loggedIn && (
             <>
-              <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+              <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Dashboard
               </NavLink>
-              <NavLink to="/clients" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+              <NavLink to="/clients" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Clients
               </NavLink>
-              <NavLink to="/recurring" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+              <NavLink to="/recurring" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Recurring
               </NavLink>
-              <NavLink to="/create-invoice" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+              <NavLink to="/create-invoice" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Create
               </NavLink>
-              <NavLink to="/settings" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+              <NavLink to="/settings" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Settings
               </NavLink>
             </>
           )}
 
           {isAdmin && (
-            <NavLink to="/admin" className="rounded-lg px-3 py-2 text-yellow-300 hover:bg-yellow-400/10">
+            <NavLink to="/admin" className="rounded-lg px-3 py-2 font-semibold text-yellow-300 hover:bg-yellow-400/10">
               Admin
             </NavLink>
           )}
 
           {!loggedIn ? (
             <>
-              <NavLink to="/login" className={(state) => `rounded-lg border px-3 py-2 ${navClass(state)}`}>
+              <NavLink to="/login" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Login
               </NavLink>
               <button onClick={() => navigate('/signup')} className="btn btn-primary">
@@ -106,7 +106,7 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="mx-3 mt-3 rounded-2xl border border-white/10 bg-black/95 md:hidden sm:mx-4">
+        <div className="mx-3 mt-3 rounded-lg border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/35 backdrop-blur-2xl md:hidden sm:mx-4">
           <div className="flex flex-col space-y-3 px-4 py-4 text-base sm:px-6 sm:py-6">
             <NavLink to="/" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
               Home

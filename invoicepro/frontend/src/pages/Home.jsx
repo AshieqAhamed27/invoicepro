@@ -143,26 +143,21 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-yellow-400 selection:text-black">
+    <div className="premium-page min-h-screen text-white selection:bg-emerald-300 selection:text-black">
       <Navbar />
 
       <main>
         <section className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-yellow-400/8 blur-[150px]" />
-            <div className="absolute right-0 top-24 h-72 w-72 rounded-full bg-emerald-400/8 blur-[120px]" />
-          </div>
-
           <div className="container-custom relative z-10 grid gap-12 lg:grid-cols-2 lg:items-start">
             <div className="max-w-lg">
-              <div className="reveal inline-flex w-full max-w-full flex-wrap items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 sm:w-auto">
+              <div className="reveal premium-eyebrow w-full max-w-full flex-wrap sm:w-auto">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
                 <p className="max-w-[16rem] break-words text-[10px] font-black uppercase leading-relaxed tracking-[0.14em] text-emerald-300 sm:max-w-none sm:text-[11px] sm:tracking-[0.22em]">
                   Professional invoicing for Indian service businesses
                 </p>
               </div>
 
-              <h1 className="reveal reveal-delay-1 mt-6 max-w-4xl break-words text-4xl font-black tracking-tight leading-tight text-white sm:mt-8 sm:text-5xl md:text-6xl">
+              <h1 className="reveal reveal-delay-1 mt-6 max-w-4xl break-words text-4xl font-bold tracking-tight leading-tight text-white sm:mt-8 sm:text-5xl md:text-6xl">
                 Invoices your clients can open, trust, and pay without confusion.
               </h1>
 
@@ -177,15 +172,15 @@ export default function Home() {
               </p>
 
               <div className="reveal reveal-delay-3 mt-8 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
+                <div className="premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Checkout</p>
                   <p className="mt-2 text-sm font-semibold text-white">Razorpay-backed online payment flow</p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
+                <div className="premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Visibility</p>
                   <p className="mt-2 text-sm font-semibold text-white">Public invoice pages with totals and due dates</p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
+                <div className="premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Support</p>
                   <a
                     href={`mailto:${SUPPORT_EMAIL}`}
@@ -217,13 +212,13 @@ export default function Home() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <button
                     onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
-                    className="w-full bg-white px-10 py-5 text-lg font-black text-black shadow-2xl shadow-white/10 transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
+                    className="btn btn-primary w-full px-10 py-5 text-lg font-black shadow-2xl shadow-black/20 transition-all hover:-translate-y-0.5 active:scale-95 sm:w-auto"
                   >
                     {loggedIn ? 'Open Dashboard' : 'Start Free'}
                   </button>
                   <button
                     onClick={() => (loggedIn ? navigate('/create-invoice') : jumpToSection('pricing'))}
-                    className="w-full border border-white/10 bg-zinc-900 px-10 py-5 text-lg font-black text-white transition-all hover:bg-zinc-800 sm:w-auto"
+                    className="btn btn-secondary w-full px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5 sm:w-auto"
                   >
                     {loggedIn ? 'Create Invoice' : 'See Pricing'}
                   </button>
@@ -246,7 +241,7 @@ export default function Home() {
             </div>
 
             <div className="reveal reveal-delay-3">
-              <div className="rounded-[2rem] border border-white/10 bg-zinc-950/85 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl sm:rounded-[2.25rem] sm:p-8">
+              <div className="premium-panel p-5 sm:p-8">
                 <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 pb-6 sm:flex-row sm:items-center">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Trust Snapshot</p>
@@ -355,7 +350,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-[#050505] py-20 sm:py-24">
+        <section className="py-20 sm:py-24">
           <div className="container-custom">
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Workflow</p>
@@ -550,11 +545,8 @@ export default function Home() {
 
         <section className="border-t border-white/5 py-24">
           <div className="container-custom">
-            <div className="relative overflow-hidden rounded-[2.5rem] border border-white/8 bg-gradient-to-br from-zinc-900 to-black px-6 py-12 text-center sm:rounded-[3rem] sm:px-12 sm:py-20">
-              <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-yellow-400/10 blur-[120px]" />
-              <div className="absolute left-0 bottom-0 h-72 w-72 rounded-full bg-emerald-400/10 blur-[120px]" />
-
-              <div className="relative z-10 mx-auto max-w-3xl">
+            <div className="premium-panel px-6 py-12 text-center sm:px-12 sm:py-20">
+              <div className="mx-auto max-w-3xl">
                 <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Ready to collect more professionally?</p>
                 <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-6xl">
                   Send a billing link that looks complete before the client even reaches checkout.
@@ -566,13 +558,13 @@ export default function Home() {
                 <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                   <button
                     onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
-                    className="rounded-2xl bg-white px-10 py-5 text-lg font-black text-black shadow-2xl shadow-white/10 transition-all hover:scale-[1.02] active:scale-95"
+                    className="btn btn-primary px-10 py-5 text-lg font-black shadow-2xl shadow-black/20 transition-all hover:-translate-y-0.5 active:scale-95"
                   >
                     {loggedIn ? 'Open Dashboard' : 'Claim Your Free Workspace'}
                   </button>
                   <button
                     onClick={() => jumpToSection('faq')}
-                    className="rounded-2xl border border-white/10 bg-zinc-900 px-10 py-5 text-lg font-black text-white transition-all hover:bg-zinc-800"
+                    className="btn btn-secondary px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5"
                   >
                     Read FAQ
                   </button>

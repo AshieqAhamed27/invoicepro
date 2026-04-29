@@ -15,11 +15,11 @@ export default function BrandLogo({ showText = true, className = '', markClassNa
         aria-label="InvoicePro logo"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <rect width="44" height="44" rx="8" fill="#FACC15" />
+        <rect width="44" height="44" rx="8" fill="#F7F8FB" />
         <path
           d="M14 9.5H27.2L34 16.3V34.5H14V9.5Z"
-          fill="#050505"
-          stroke="#050505"
+          fill="#0D1117"
+          stroke="#0D1117"
           strokeWidth="1.5"
           strokeLinejoin="round"
         />
@@ -33,20 +33,20 @@ export default function BrandLogo({ showText = true, className = '', markClassNa
         <path
           className="brand-logo-line"
           d="M18.5 20H29.5"
-          stroke="#FACC15"
+          stroke="#D9B163"
           strokeWidth="2"
           strokeLinecap="round"
         />
         <path
           className="brand-logo-line brand-logo-line-delay"
           d="M18.5 25H27"
-          stroke="#FACC15"
+          stroke="#D9B163"
           strokeWidth="2"
           strokeLinecap="round"
         />
         <path
           d="M18.5 30L21.1 32.4L26.2 27.2"
-          stroke="#22C55E"
+          stroke="#2BC1A7"
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"

@@ -109,7 +109,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
 
       <main className="container-custom grid items-start gap-8 py-8 sm:gap-10 sm:py-12 lg:min-h-[calc(100vh-120px)] lg:items-center lg:gap-16 lg:grid-cols-[1fr_420px]">
@@ -148,7 +148,7 @@ export default function Login() {
         </section>
 
         <section className="reveal mx-auto w-full max-w-xl lg:max-w-none">
-          <div className="surface rounded-[2rem] border-white/5 bg-zinc-950/40 p-6 shadow-2xl backdrop-blur-2xl sm:rounded-[2.5rem] sm:p-10 lg:rounded-[3rem] lg:p-12">
+          <div className="premium-panel p-6 sm:p-10 lg:p-12">
             <div className="mb-10">
               <h2 className="text-3xl font-black text-white leading-none mb-3">
                 Welcome.

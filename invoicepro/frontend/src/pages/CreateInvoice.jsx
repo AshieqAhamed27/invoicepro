@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import { getUser } from '../utils/auth';
 
 const formatCurrency = (amount) =>
-  `₹ ${Number(amount || 0).toLocaleString('en-IN', {
+  `Rs ${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })}`;
@@ -199,7 +199,7 @@ export default function CreateInvoice() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
 
       <main className="container-custom py-10 md:py-16">
@@ -208,7 +208,7 @@ export default function CreateInvoice() {
              <span className="h-px w-8 bg-yellow-400" />
              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Billing Builder</p>
           </div>
-          <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-4">
+          <h1 className="text-4xl font-bold sm:text-5xl tracking-tight text-white mb-4">
             {isProposal ? 'New Proposal' : 'New Invoice'}
           </h1>
           <p className="max-w-2xl text-lg text-zinc-500 font-medium">
@@ -217,7 +217,7 @@ export default function CreateInvoice() {
               : 'Create a professional invoice, add payment details, and send it in minutes.'}
           </p>
 
-          <div className="mt-8 inline-flex rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-1">
+          <div className="mt-8 inline-flex rounded-lg border border-white/10 bg-white/[0.03] p-1">
             {[
               { id: 'invoice', label: 'Invoice', note: 'Collect payment now' },
               { id: 'proposal', label: 'Proposal', note: 'Get approval first' }
@@ -226,8 +226,8 @@ export default function CreateInvoice() {
                 key={option.id}
                 type="button"
                 onClick={() => setDocumentType(option.id)}
-                className={`rounded-[1.2rem] px-5 py-3 text-left transition-all ${documentType === option.id
-                  ? 'bg-yellow-400 text-black'
+                className={`rounded-lg px-5 py-3 text-left transition-all ${documentType === option.id
+                  ? 'bg-white text-zinc-950'
                   : 'text-zinc-400 hover:bg-white/5 hover:text-white'
                   }`}
               >
@@ -241,7 +241,7 @@ export default function CreateInvoice() {
         <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-[1fr_380px]">
           <div className="reveal reveal-delay-1 space-y-8">
             {/* Section: Client */}
-            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] relative overflow-hidden group">
+            <section className="premium-panel p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
                  <svg className="h-24 w-24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
               </div>
@@ -298,7 +298,7 @@ export default function CreateInvoice() {
             </section>
 
             {/* Section: Service */}
-            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
+            <section className="premium-panel p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">
                   {isProposal ? 'Proposal Summary' : 'Invoice Summary'}
@@ -319,7 +319,7 @@ export default function CreateInvoice() {
             </section>
 
             {/* Section: Items */}
-            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
+            <section className="premium-panel p-8">
               <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-2xl font-black text-white leading-none mb-1">Line Items</h2>
@@ -353,7 +353,7 @@ export default function CreateInvoice() {
                     <div className="space-y-1.5 relative">
                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 md:hidden">Amount</p>
                         <div className="flex items-center">
-                            <span className="text-zinc-600 font-bold mr-2">₹</span>
+                            <span className="text-zinc-500 font-bold mr-2">Rs</span>
                             <input
                               type="number"
                               min="0"
@@ -378,7 +378,7 @@ export default function CreateInvoice() {
             </section>
 
             {/* Section: Tax & Date */}
-            <section className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem]">
+            <section className="premium-panel p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">
                   {isProposal ? 'Proposal Details' : 'Payment Details'}
@@ -456,7 +456,7 @@ export default function CreateInvoice() {
 
           {/* SIDEBAR */}
           <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
-            <div className="surface p-8 border-white/10 bg-zinc-950 shadow-2xl rounded-[2.5rem]">
+            <div className="premium-panel p-8">
                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-6">
                  <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">
                    {isProposal ? 'Proposal Total' : 'Invoice Total'}
@@ -617,7 +617,7 @@ export default function CreateInvoice() {
                <button
                  type="submit"
                  disabled={loading}
-                 className="w-full py-5 rounded-2xl bg-yellow-400 text-black font-black text-lg shadow-xl shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                 className="btn btn-primary w-full py-5 text-lg shadow-xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all"
                >
                  {loading ? 'Creating...' : isProposal ? 'Create Proposal' : 'Create Invoice'}
                 </button>

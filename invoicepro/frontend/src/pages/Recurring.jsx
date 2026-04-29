@@ -5,7 +5,7 @@ import api from '../utils/api';
 const formatMoney = (amount, currency) => {
   const num = Number(amount || 0);
   if (currency === 'USD') return `$${num.toLocaleString('en-US')}`;
-  return `₹${num.toLocaleString('en-IN')}`;
+  return `Rs ${num.toLocaleString('en-IN')}`;
 };
 
 const formatDate = (value) => {
@@ -75,7 +75,7 @@ export default function Recurring() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
 
       <main className="container-custom py-10 md:py-16">
@@ -84,7 +84,7 @@ export default function Recurring() {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-5">
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Automation Layer</span>
             </div>
-            <h1 className="text-4xl font-black sm:text-6xl tracking-tighter text-white leading-none">
+            <h1 className="text-4xl font-bold sm:text-6xl tracking-tight text-white leading-none">
               Recurring Invoices
             </h1>
             <p className="mt-4 text-xl text-zinc-500 font-medium max-w-2xl">
@@ -93,10 +93,10 @@ export default function Recurring() {
           </div>
         </section>
 
-        <section className="reveal reveal-delay-1 surface overflow-hidden border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[3rem] shadow-2xl">
+        <section className="reveal reveal-delay-1 premium-panel overflow-hidden">
           <div className="px-10 py-8 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-black text-white italic">Schedules</h2>
+              <h2 className="text-2xl font-bold text-white">Schedules</h2>
               <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mt-1">
                 Create schedules from the Invoice Creation page
               </p>
@@ -118,7 +118,7 @@ export default function Recurring() {
                 </p>
               </div>
             ) : (
-              <table className="w-full text-left min-w-[900px]">
+              <table className="premium-table w-full text-left min-w-[900px]">
                 <thead>
                   <tr className="text-[10px] font-black uppercase tracking-widest text-zinc-700 bg-white/[0.005]">
                     <th className="px-10 py-5">Client</th>
@@ -140,7 +140,7 @@ export default function Recurring() {
                       </td>
 
                       <td className="px-10 py-6">
-                        <p className="text-lg font-black text-white italic tracking-tighter">
+                        <p className="text-lg font-black text-white tracking-tight">
                           {formatMoney(schedule.template?.amount, schedule.template?.currency)}
                         </p>
                       </td>

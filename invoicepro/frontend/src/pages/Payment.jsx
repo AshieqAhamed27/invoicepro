@@ -197,7 +197,7 @@ export default function Payment() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
 
       <main className="container-custom py-10 md:py-20">
@@ -207,7 +207,7 @@ export default function Payment() {
                <span className="h-px w-8 bg-yellow-400" />
                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Secure Checkout</p>
             </div>
-            <h1 className="text-4xl font-black sm:text-5xl lg:text-7xl tracking-tight text-white mb-6 leading-none">
+            <h1 className="text-4xl font-bold sm:text-5xl lg:text-7xl tracking-tight text-white mb-6 leading-none">
               Upgrade to <br /> <span className="text-zinc-600">Pro.</span>
             </h1>
 
@@ -216,7 +216,7 @@ export default function Payment() {
               and recurring billing for your business.
             </p>
 
-            <div className="surface p-8 border-white/5 bg-zinc-950/40 backdrop-blur-xl rounded-[2.5rem] relative overflow-hidden group">
+            <div className="premium-panel p-8 relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
                   <svg className="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" /></svg>
                </div>
@@ -227,7 +227,7 @@ export default function Payment() {
                     <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">{current.note}</p>
                   </div>
                   <div className="text-left sm:text-right">
-                    <p className="text-4xl font-black text-white tracking-tighter italic">₹ {current.amount}</p>
+                    <p className="text-4xl font-black text-white tracking-tight">Rs {current.amount}</p>
                     <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">Total Due Now</p>
                   </div>
                </div>
@@ -254,7 +254,7 @@ export default function Payment() {
           </section>
 
           <aside className="reveal reveal-delay-1 h-fit">
-            <div className="surface p-10 border-white/10 bg-zinc-950 shadow-2xl rounded-[3rem]">
+            <div className="premium-panel p-10">
                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-8">
                  <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Checkout Terminal</p>
                </div>
@@ -262,7 +262,7 @@ export default function Payment() {
                 <div className="space-y-6 mb-10">
                   <div className="flex justify-between items-center text-sm font-bold">
                     <span className="text-zinc-600 uppercase tracking-widest">Plan Price</span>
-                    <span className="text-white">₹ {current.amount}.00</span>
+                    <span className="text-white">Rs {current.amount}.00</span>
                   </div>
                   <div className="flex justify-between items-center text-sm font-bold">
                     <span className="text-zinc-600 uppercase tracking-widest">Payment Processing</span>
@@ -270,7 +270,7 @@ export default function Payment() {
                   </div>
                   <div className="pt-6 border-t border-white/5 flex flex-col items-end">
                     <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em] mb-2">Total Due Today</p>
-                    <p className="text-5xl font-black text-white italic tracking-tighter">₹ {current.amount}</p>
+                    <p className="text-5xl font-black text-white tracking-tight">Rs {current.amount}</p>
                     <p className="text-xs font-bold text-zinc-500 mt-2">inclusive of all taxes</p>
                   </div>
                </div>
@@ -278,7 +278,7 @@ export default function Payment() {
                <button
                  onClick={handleRazorpayPayment}
                  disabled={loading || Boolean(pricingWarning)}
-                 className="w-full py-5 rounded-2xl bg-yellow-400 text-black font-black text-lg shadow-xl shadow-yellow-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                 className="btn btn-primary w-full py-5 text-lg shadow-xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all"
                >
                  {loading ? 'Starting Payment...' : 'Pay Securely'}
                </button>

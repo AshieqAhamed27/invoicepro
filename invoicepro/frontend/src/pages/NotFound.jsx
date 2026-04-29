@@ -12,11 +12,11 @@ export default function NotFound() {
   const secondaryLabel = loggedIn ? 'Create Invoice' : 'Sign In';
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-yellow-400 selection:text-black">
+    <div className="premium-page min-h-screen text-white selection:bg-yellow-400 selection:text-black">
       <Navbar />
 
       <main className="container-custom py-20 md:py-28">
-        <section className="relative overflow-hidden rounded-[3rem] border border-white/5 bg-zinc-950/40 p-10 sm:p-14 backdrop-blur-2xl shadow-2xl shadow-black/30">
+        <section className="premium-panel relative overflow-hidden p-10 sm:p-14">
           <div className="absolute -top-24 right-0 h-80 w-80 rounded-full bg-yellow-400/10 blur-[140px]" />
           <div className="absolute -bottom-32 left-0 h-96 w-96 rounded-full bg-emerald-400/10 blur-[160px]" />
 

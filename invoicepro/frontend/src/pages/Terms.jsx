@@ -34,7 +34,7 @@ export default function Terms() {
   );
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
 
       <main className="container-custom py-14 md:py-20">

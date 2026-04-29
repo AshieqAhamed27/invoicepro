@@ -8,8 +8,6 @@ import QRCode from 'react-qr-code';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-console.log("CHANGED FILE TEST");
-console.log("CHANGED FILE TEST");
 const formatCurrency = (amount, currency = 'INR') => {
   const symbol = currency === 'USD' ? '$' : 'Rs ';
   return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
@@ -113,7 +111,7 @@ export default function InvoiceView() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050505] text-white">
+      <div className="flex min-h-screen items-center justify-center bg-[#07090d] text-white">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Retrieving Ledger</p>
@@ -248,9 +246,9 @@ export default function InvoiceView() {
         const rowY = startY + i * 25;
 
         doc.text(item.name, margin + 10, rowY);
-        doc.text(`₹${item.price}`, pageWidth - 250, rowY);
+        doc.text(`INR ${item.price}`, pageWidth - 250, rowY);
         doc.text(`${item.quantity || 1}`, pageWidth - 180, rowY);
-        doc.text(`₹${item.price * (item.quantity || 1)}`, pageWidth - 100, rowY);
+        doc.text(`INR ${item.price * (item.quantity || 1)}`, pageWidth - 100, rowY);
       });
 
       // ===== TOTAL BOX =====
@@ -265,7 +263,7 @@ export default function InvoiceView() {
 
       doc.setFontSize(16);
       doc.setFont("helvetica", "bold");
-      doc.text(`₹${invoice.amount}`, pageWidth - 60, totalY + 20, { align: "right" });
+      doc.text(`INR ${invoice.amount}`, pageWidth - 60, totalY + 20, { align: "right" });
 
       // ===== FOOTER =====
       doc.setTextColor(200, 200, 200);
@@ -304,7 +302,7 @@ export default function InvoiceView() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
 
       <main className="container-custom py-10 md:py-16">
@@ -314,7 +312,7 @@ export default function InvoiceView() {
               <span className="h-px w-8 bg-yellow-400" />
               <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">{meta.headerLabel} • #{invoice.invoiceNumber}</p>
             </div>
-            <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-2">
+            <h1 className="text-4xl font-bold sm:text-5xl tracking-tight text-white mb-2">
               {meta.title}
             </h1>
             <div className="flex items-center gap-3">
@@ -332,7 +330,7 @@ export default function InvoiceView() {
             {!meta.isProposal && invoice.status !== 'paid' && (
               <button
                 onClick={markAsPaid}
-                className="btn btn-primary px-8 py-3 rounded-xl shadow-xl shadow-yellow-500/10 hover:scale-105 transition-all"
+                className="btn btn-primary px-8 py-3 shadow-xl shadow-black/20 hover:-translate-y-0.5 transition-all"
               >
                 Mark as Paid
               </button>
@@ -342,7 +340,7 @@ export default function InvoiceView() {
               <button
                 onClick={convertProposal}
                 disabled={convertingProposal}
-                className="btn btn-primary px-8 py-3 rounded-xl shadow-xl shadow-yellow-500/10 hover:scale-105 transition-all disabled:opacity-60"
+                className="btn btn-primary px-8 py-3 shadow-xl shadow-black/20 hover:-translate-y-0.5 transition-all disabled:opacity-60"
               >
                 {convertingProposal ? 'Converting...' : 'Convert to Invoice'}
               </button>
@@ -358,8 +356,8 @@ export default function InvoiceView() {
         </div>
 
         <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
-          <section className="reveal reveal-delay-1 surface p-10 md:p-16 border-white/5 bg-white text-black rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-            <div id="invoice" className="bg-[#1f1f1f] text-white p-10 rounded-[2rem]">
+          <section className="reveal reveal-delay-1 premium-panel p-4 md:p-8 relative overflow-hidden">
+            <div id="invoice" className="bg-white text-slate-950 p-6 md:p-10 rounded-lg shadow-2xl">
 
               {/* HEADER */}
               <div className="flex justify-between mb-10">
@@ -367,11 +365,11 @@ export default function InvoiceView() {
                   {logoUrl && (
                     <img src={logoUrl} className="w-10 h-10 object-contain" />
                   )}
-                  <h1 className="text-yellow-400 text-xl font-bold">{companyName}</h1>
+                  <h1 className="text-slate-950 text-xl font-bold">{companyName}</h1>
                 </div>
 
                 <div className="text-right">
-                  <h2 className="text-yellow-400 text-2xl font-bold">INVOICE</h2>
+                  <h2 className="text-slate-950 text-2xl font-bold">{meta.typeLabel.toUpperCase()}</h2>
                   <p>#{invoice.invoiceNumber}</p>
                   <p>{formatDate(invoice.date)}</p>
                 </div>
@@ -379,13 +377,13 @@ export default function InvoiceView() {
 
               {/* CLIENT */}
               <div className="mb-6">
-                <p className="text-yellow-400 text-sm font-semibold">Invoice To</p>
+                <p className="text-slate-500 text-sm font-semibold">{meta.isProposal ? 'Prepared For' : 'Invoice To'}</p>
                 <p className="font-bold text-lg">{invoice.clientName}</p>
-                <p className="text-sm text-gray-400">{invoice.clientEmail}</p>
+                <p className="text-sm text-slate-500">{invoice.clientEmail}</p>
               </div>
 
               {/* TABLE HEADER */}
-              <div className="grid grid-cols-4 bg-yellow-400 text-black p-3 font-bold rounded">
+              <div className="grid grid-cols-4 bg-slate-950 text-white p-3 font-bold rounded-lg">
                 <span>Description</span>
                 <span>Price</span>
                 <span>Qty</span>
@@ -394,38 +392,38 @@ export default function InvoiceView() {
 
               {/* ITEMS */}
               {items.map((item, i) => (
-                <div key={i} className="grid grid-cols-4 p-3 border-b border-gray-700">
+                <div key={i} className="grid grid-cols-4 p-3 border-b border-slate-200 text-slate-700">
                   <span>{item.name}</span>
-                  <span>₹{item.price}</span>
+                  <span>Rs {item.price}</span>
                   <span>{item.quantity || 1}</span>
-                  <span className="text-right">₹{item.price * (item.quantity || 1)}</span>
+                  <span className="text-right">Rs {item.price * (item.quantity || 1)}</span>
                 </div>
               ))}
 
               {/* TOTAL */}
               <div className="flex justify-end mt-8">
-                <div className="bg-yellow-400 text-black p-4 rounded w-[220px]">
+                <div className="bg-slate-950 text-white p-4 rounded-lg w-[220px]">
                   <p className="font-bold">Total</p>
-                  <p className="text-xl font-bold">₹{invoice.amount}</p>
+                  <p className="text-xl font-bold">Rs {invoice.amount}</p>
                 </div>
               </div>
 
               {/* QR */}
               {upiLink && (
-                <div className="mt-6 flex justify-center">
+                <div className="mt-6 flex justify-center rounded-lg bg-white p-4">
                   <QRCode value={upiLink} size={120} />
                 </div>
               )}
 
               {/* FOOTER */}
-              <p className="mt-10 text-center text-gray-400 text-sm">
+              <p className="mt-10 text-center text-slate-500 text-sm">
                 Thank you for your business
               </p>
             </div>
           </section>
 
           <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
-            <div className="surface p-8 border-white/10 bg-zinc-950 shadow-2xl rounded-[2.5rem]">
+            <div className="premium-panel p-8">
               <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-8">
                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Share Assets</p>
               </div>
