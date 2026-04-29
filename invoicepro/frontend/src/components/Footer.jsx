@@ -45,6 +45,7 @@ export default function Footer() {
             <div className="grid gap-4 font-medium text-zinc-500">
               <Link className="transition-colors hover:text-yellow-300" to="/privacy">Privacy</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/terms">Terms</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/internship">Internship</Link>
               <p>Public invoice links</p>
               <p>Razorpay checkout support</p>
             </div>

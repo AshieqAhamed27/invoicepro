@@ -275,6 +275,8 @@ export default function App() {
         <Route path="/invoice-generator" element={<InvoiceGenerator />} />
         <Route path="/blog/how-to-create-invoice-india" element={<HowToCreateInvoiceIndia />} />
         <Route path="/blog/gst-invoice-format-india" element={<GSTInvoiceFormatIndia />} />
+
+        
       </Routes>
     </BrowserRouter>
   );

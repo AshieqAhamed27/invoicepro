@@ -8,6 +8,8 @@ import QRCode from 'react-qr-code';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+console.log("CHANGED FILE TEST");
+console.log("CHANGED FILE TEST");
 const formatCurrency = (amount, currency = 'INR') => {
   const symbol = currency === 'USD' ? '$' : 'Rs ';
   return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
@@ -186,139 +188,93 @@ export default function InvoiceView() {
     try {
       setDownloadingPdf(true);
 
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const doc = new jsPDF("p", "pt", "a4");
+
       const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
       const margin = 40;
-      const contentWidth = pageWidth - margin * 2;
-      const memoTitle = meta.isProposal ? 'SCOPE NOTES' : 'INTERNAL MEMO';
-      const sideTitle = meta.isProposal ? 'APPROVAL STATUS' : 'PAYMENT ROUTE';
-      const sideValue = meta.isProposal ? meta.status.toUpperCase() : (finalUpi || 'Not provided');
-      const issueDate = formatDate(invoice.date || invoice.createdAt || Date.now());
-      const secondaryDate = formatDate(displayDate);
 
-      let logoImage = null;
-      if (logoUrl) {
-        try {
-          logoImage = await loadImageForPdf(logoUrl);
-        } catch {
-          logoImage = null;
-        }
-      }
+      // ===== BACKGROUND =====
+      doc.setFillColor(30, 30, 30);
+      doc.rect(0, 0, pageWidth, 842, "F");
 
-      doc.setFillColor(15, 23, 42);
-      doc.rect(0, 0, pageWidth, 120, 'F');
+      // ===== HEADER STRIPE =====
+      doc.setFillColor(255, 193, 7);
+      doc.rect(0, 0, pageWidth, 80, "F");
+
+      // ===== COMPANY =====
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text(companyName, margin, 50);
+
+      // ===== INVOICE TITLE =====
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.text("INVOICE", pageWidth - margin, 120, { align: "right" });
+
+      doc.setFontSize(10);
+      doc.text(`Invoice No: #${invoice.invoiceNumber}`, pageWidth - margin, 140, { align: "right" });
+      doc.text(`Date: ${formatDate(invoice.date)}`, pageWidth - margin, 155, { align: "right" });
+
+      // ===== CLIENT =====
+      doc.setFontSize(10);
+      doc.setTextColor(200, 200, 200);
+      doc.text("INVOICE TO:", margin, 120);
+
+      doc.setFontSize(12);
+      doc.setTextColor(255, 255, 255);
+      doc.text(invoice.clientName, margin, 140);
+      doc.text(invoice.clientEmail || "", margin, 160);
+
+      // ===== TABLE HEADER =====
+      let startY = 200;
+
+      doc.setFillColor(255, 193, 7);
+      doc.rect(margin, startY, pageWidth - margin * 2, 25, "F");
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+      doc.text("Description", margin + 10, startY + 17);
+      doc.text("Price", pageWidth - 250, startY + 17);
+      doc.text("Qty", pageWidth - 180, startY + 17);
+      doc.text("Total", pageWidth - 100, startY + 17);
+
+      // ===== ITEMS =====
+      startY += 35;
 
       doc.setTextColor(255, 255, 255);
-      let companyNameX = margin;
-      if (logoImage) {
-        doc.addImage(logoImage.dataUrl, logoImage.format, margin, 26, 28, 28);
-        companyNameX = margin + 38;
-      }
 
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(22);
-      doc.text(companyName, companyNameX, 42);
+      items.forEach((item, i) => {
+        const rowY = startY + i * 25;
 
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text(user?.address || 'Tamil Nadu, India', companyNameX, 60);
-      doc.text(user?.email || '', companyNameX, 74);
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.text(meta.typeLabel.toUpperCase(), pageWidth - margin, 30, { align: 'right' });
-      doc.setFontSize(18);
-      doc.text(`#${invoice.invoiceNumber}`, pageWidth - margin, 52, { align: 'right' });
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text(`Issued: ${issueDate}`, pageWidth - margin, 70, { align: 'right' });
-      doc.text(`${meta.dateLabel}: ${secondaryDate}`, pageWidth - margin, 84, { align: 'right' });
-
-      doc.setTextColor(100, 116, 139);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.text(meta.isProposal ? 'PREPARED FOR' : 'BILLED TO', margin, 150);
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(16);
-      doc.text(invoice.clientName || '-', margin, 170);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(11);
-      doc.text(invoice.clientEmail || '-', margin, 188);
-
-      const badgeX = pageWidth - margin - 110;
-      const badgeY = 145;
-      doc.setFillColor(meta.status === 'paid' || meta.status === 'accepted' ? 220 : meta.status === 'expired' ? 254 : 224, meta.status === 'paid' || meta.status === 'accepted' ? 252 : meta.status === 'expired' ? 226 : 242, meta.status === 'paid' || meta.status === 'accepted' ? 231 : meta.status === 'expired' ? 226 : 254);
-      doc.roundedRect(badgeX, badgeY, 110, 24, 10, 10, 'F');
-      doc.setTextColor(meta.status === 'paid' || meta.status === 'accepted' ? 22 : meta.status === 'expired' ? 153 : 12, meta.status === 'paid' || meta.status === 'accepted' ? 101 : meta.status === 'expired' ? 27 : 74, meta.status === 'paid' || meta.status === 'accepted' ? 52 : meta.status === 'expired' ? 42 : 110);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.text(meta.status.toUpperCase(), badgeX + 55, badgeY + 16, { align: 'center' });
-
-      autoTable(doc, {
-        startY: 212,
-        margin: { left: margin, right: margin },
-        head: [['Description', 'Amount']],
-        body: items.map((item, index) => [
-          `${index + 1}. ${item.name || meta.typeLabel}`,
-          formatCurrencyPdf(item.price, invoice.currency)
-        ]),
-        theme: 'grid',
-        styles: { font: 'helvetica', fontSize: 10, textColor: [15, 23, 42], cellPadding: 9 },
-        headStyles: { fillColor: [248, 250, 252], textColor: [100, 116, 139], fontStyle: 'bold' },
-        columnStyles: { 1: { halign: 'right' } }
+        doc.text(item.name, margin + 10, rowY);
+        doc.text(`₹${item.price}`, pageWidth - 250, rowY);
+        doc.text(`${item.quantity || 1}`, pageWidth - 180, rowY);
+        doc.text(`₹${item.price * (item.quantity || 1)}`, pageWidth - 100, rowY);
       });
 
-      const tableBottom = doc.lastAutoTable?.finalY || 212;
-      const finalY = tableBottom + 18;
+      // ===== TOTAL BOX =====
+      const totalY = startY + items.length * 25 + 40;
 
-      doc.setTextColor(100, 116, 139);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.text(memoTitle, margin, finalY);
-      doc.setTextColor(51, 65, 85);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      const memoLines = doc.splitTextToSize(invoice.serviceDescription || 'No description provided.', contentWidth * 0.56);
-      doc.text(memoLines, margin, finalY + 16);
+      doc.setFillColor(255, 193, 7);
+      doc.rect(pageWidth - 220, totalY, 180, 60, "F");
 
-      const summaryWidth = 215;
-      const summaryX = pageWidth - margin - summaryWidth;
-      const summaryY = finalY;
-      doc.setDrawColor(226, 232, 240);
-      doc.setFillColor(248, 250, 252);
-      doc.roundedRect(summaryX, summaryY - 12, summaryWidth, 95, 8, 8, 'FD');
-      doc.setTextColor(71, 85, 105);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text('Subtotal', summaryX + 12, summaryY + 10);
-      doc.text(formatCurrencyPdf(subtotal, invoice.currency), summaryX + summaryWidth - 12, summaryY + 10, { align: 'right' });
-      if (tax > 0) {
-        doc.text('Tax', summaryX + 12, summaryY + 28);
-        doc.text(formatCurrencyPdf(tax, invoice.currency), summaryX + summaryWidth - 12, summaryY + 28, { align: 'right' });
-      }
-      doc.setDrawColor(203, 213, 225);
-      doc.line(summaryX + 10, summaryY + 42, summaryX + summaryWidth - 10, summaryY + 42);
-      doc.setTextColor(100, 116, 139);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text('TOTAL', summaryX + 12, summaryY + 58);
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(15);
-      doc.text(formatCurrencyPdf(invoice.amount, invoice.currency), summaryX + summaryWidth - 12, summaryY + 62, { align: 'right' });
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(12);
+      doc.text("TOTAL", pageWidth - 210, totalY + 20);
 
-      doc.setTextColor(100, 116, 139);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text(sideTitle, margin, Math.min(pageHeight - 54, finalY + 74));
-      doc.setTextColor(15, 23, 42);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      doc.text(sideValue, margin, Math.min(pageHeight - 38, finalY + 90));
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text(`₹${invoice.amount}`, pageWidth - 60, totalY + 20, { align: "right" });
 
-      doc.save(`${invoice.invoiceNumber || meta.typeLabel.toLowerCase()}.pdf`);
-    } catch {
-      alert('Failed to download PDF');
+      // ===== FOOTER =====
+      doc.setTextColor(200, 200, 200);
+      doc.setFontSize(10);
+      doc.text("Thank you for your business", margin, 780);
+
+      doc.save(`invoice-${invoice.invoiceNumber}.pdf`);
+    } catch (err) {
+      alert("PDF failed");
     } finally {
       setDownloadingPdf(false);
     }
@@ -403,120 +359,68 @@ export default function InvoiceView() {
 
         <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
           <section className="reveal reveal-delay-1 surface p-10 md:p-16 border-white/5 bg-white text-black rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-            {!meta.isProposal && invoice.status === 'paid' && (
-              <div className="absolute top-10 right-10 border-4 border-emerald-500 text-emerald-500 font-black text-4xl px-6 py-2 rotate-12 opacity-80 rounded-xl">
-                PAID
-              </div>
-            )}
+            <div id="invoice" className="bg-[#1f1f1f] text-white p-10 rounded-[2rem]">
 
-            {meta.isProposal && meta.status === 'accepted' && (
-              <div className="absolute top-10 right-10 border-4 border-emerald-500 text-emerald-500 font-black text-3xl px-6 py-2 rotate-12 opacity-80 rounded-xl">
-                ACCEPTED
-              </div>
-            )}
-
-            <div className="flex flex-col md:flex-row justify-between gap-10 mb-20">
-              <div>
-                <div className="mb-4 flex items-center gap-4">
+              {/* HEADER */}
+              <div className="flex justify-between mb-10">
+                <div className="flex items-center gap-3">
                   {logoUrl && (
-                    <div className="h-14 w-14 rounded-xl border border-gray-200 bg-white p-2">
-                      <img
-                        src={logoUrl}
-                        alt={`${companyName} logo`}
-                        className="h-full w-full object-contain"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    </div>
+                    <img src={logoUrl} className="w-10 h-10 object-contain" />
                   )}
-                  <h2 className="text-3xl font-black tracking-tighter">{companyName}</h2>
+                  <h1 className="text-yellow-400 text-xl font-bold">{companyName}</h1>
                 </div>
-                <div className="space-y-1 text-sm text-gray-500 font-medium">
-                  <p>{user?.address || 'Tamil Nadu, India'}</p>
-                  <p>{user?.email}</p>
+
+                <div className="text-right">
+                  <h2 className="text-yellow-400 text-2xl font-bold">INVOICE</h2>
+                  <p>#{invoice.invoiceNumber}</p>
+                  <p>{formatDate(invoice.date)}</p>
                 </div>
               </div>
 
-              <div className="text-left md:text-right">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
-                  {meta.isProposal ? 'Prepared For' : 'Billed To'}
-                </p>
-                <h3 className="text-xl font-bold mb-1">{invoice.clientName}</h3>
-                <p className="text-sm text-gray-500 font-medium">{invoice.clientEmail}</p>
-                {displayDate && (
-                  <p className="mt-4 text-xs uppercase tracking-widest text-gray-400 font-black">
-                    {meta.dateLabel}: <span className="text-gray-600">{formatDate(displayDate)}</span>
-                  </p>
-                )}
+              {/* CLIENT */}
+              <div className="mb-6">
+                <p className="text-yellow-400 text-sm font-semibold">Invoice To</p>
+                <p className="font-bold text-lg">{invoice.clientName}</p>
+                <p className="text-sm text-gray-400">{invoice.clientEmail}</p>
               </div>
-            </div>
 
-            <div className="overflow-x-auto mb-10">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b-2 border-gray-100">
-                    <th className="py-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Description</th>
-                    <th className="py-4 text-right text-[10px] font-black uppercase tracking-widest text-gray-400">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {items.map((item, index) => (
-                    <tr key={index}>
-                      <td className="py-6 font-bold text-gray-800">{item.name}</td>
-                      <td className="py-6 text-right font-black text-gray-900">{formatCurrency(item.price, invoice.currency)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+              {/* TABLE HEADER */}
+              <div className="grid grid-cols-4 bg-yellow-400 text-black p-3 font-bold rounded">
+                <span>Description</span>
+                <span>Price</span>
+                <span>Qty</span>
+                <span className="text-right">Total</span>
+              </div>
 
-            <div className="flex flex-col items-end">
-              <div className="w-full max-w-[260px] space-y-3">
-                <div className="flex justify-between text-sm font-medium text-gray-500">
-                  <span>Subtotal</span>
-                  <span>{formatCurrency(subtotal, invoice.currency)}</span>
+              {/* ITEMS */}
+              {items.map((item, i) => (
+                <div key={i} className="grid grid-cols-4 p-3 border-b border-gray-700">
+                  <span>{item.name}</span>
+                  <span>₹{item.price}</span>
+                  <span>{item.quantity || 1}</span>
+                  <span className="text-right">₹{item.price * (item.quantity || 1)}</span>
                 </div>
-                {tax > 0 && (
-                  <div className="flex justify-between text-sm font-medium text-gray-500">
-                    <span>Tax</span>
-                    <span>{formatCurrency(tax, invoice.currency)}</span>
-                  </div>
-                )}
-                <div className="pt-6 border-t border-gray-100 flex justify-between items-center">
-                  <span className="font-black text-gray-400 uppercase text-[10px] tracking-widest">
-                    {meta.isProposal ? 'Proposal Total' : 'Total Amount'}
-                  </span>
-                  <span className="text-3xl font-black text-gray-900 tracking-tighter">{formatCurrency(invoice.amount, invoice.currency)}</span>
+              ))}
+
+              {/* TOTAL */}
+              <div className="flex justify-end mt-8">
+                <div className="bg-yellow-400 text-black p-4 rounded w-[220px]">
+                  <p className="font-bold">Total</p>
+                  <p className="text-xl font-bold">₹{invoice.amount}</p>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-20 pt-10 border-t border-gray-100 grid md:grid-cols-2 gap-10">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">
-                  {meta.isProposal ? 'Scope Notes' : 'Internal Memo'}
-                </p>
-                <p className="text-sm text-gray-500 leading-relaxed font-medium italic">
-                  {invoice.serviceDescription || 'No description provided.'}
-                </p>
-              </div>
-              <div className="flex flex-col md:items-end">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">
-                  {meta.isProposal ? 'Approval Status' : 'Payment Route'}
-                </p>
-                <p className="text-lg font-black text-gray-900">
-                  {meta.isProposal ? meta.status.toUpperCase() : (finalUpi || 'Not provided')}
-                </p>
-                {meta.isProposal && invoice.convertedToInvoiceId && (
-                  <Link
-                    to={`/invoice/${invoice.convertedToInvoiceId}`}
-                    className="mt-4 text-xs font-black uppercase tracking-widest text-yellow-600"
-                  >
-                    Open Converted Invoice
-                  </Link>
-                )}
-              </div>
+              {/* QR */}
+              {upiLink && (
+                <div className="mt-6 flex justify-center">
+                  <QRCode value={upiLink} size={120} />
+                </div>
+              )}
+
+              {/* FOOTER */}
+              <p className="mt-10 text-center text-gray-400 text-sm">
+                Thank you for your business
+              </p>
             </div>
           </section>
 
