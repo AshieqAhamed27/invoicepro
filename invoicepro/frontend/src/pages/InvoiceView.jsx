@@ -22,6 +22,15 @@ const formatCurrencyPdf = (amount, currency = 'INR') => {
   })}`;
 };
 
+const getQuantity = (item) => Number(item.quantity || 1);
+
+const getLineTotal = (item) => Number(item.price || 0) * getQuantity(item);
+
+const toTitleCase = (value = '') =>
+  String(value)
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
 const formatDate = (value) => {
   if (!value) return 'Not specified';
 
@@ -129,7 +138,7 @@ export default function InvoiceView() {
   const items = invoice.items?.length > 0
     ? invoice.items
     : [{ name: invoice.serviceDescription || 'Service', price: invoice.amount }];
-  const subtotal = items.reduce((sum, item) => sum + Number(item.price || 0), 0);
+  const subtotal = items.reduce((sum, item) => sum + getLineTotal(item), 0);
   const total = Number(invoice.amount || 0);
   const tax = Math.max(0, total - subtotal);
   const finalUpi = invoice.upiId || user?.upiId || '';
@@ -186,93 +195,173 @@ export default function InvoiceView() {
     try {
       setDownloadingPdf(true);
 
-      const doc = new jsPDF("p", "pt", "a4");
-
+      const doc = new jsPDF('p', 'pt', 'a4');
       const pageWidth = doc.internal.pageSize.getWidth();
-      const margin = 40;
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 44;
+      const dark = [15, 23, 42];
+      const muted = [100, 116, 139];
+      const gold = [217, 177, 99];
+      const line = [226, 232, 240];
+      const title = meta.typeLabel.toUpperCase();
 
-      // ===== BACKGROUND =====
-      doc.setFillColor(30, 30, 30);
-      doc.rect(0, 0, pageWidth, 842, "F");
+      doc.setFillColor(248, 250, 252);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
-      // ===== HEADER STRIPE =====
-      doc.setFillColor(255, 193, 7);
-      doc.rect(0, 0, pageWidth, 80, "F");
+      doc.setFillColor(...dark);
+      doc.roundedRect(margin, 32, pageWidth - margin * 2, 126, 8, 8, 'F');
 
-      // ===== COMPANY =====
-      doc.setTextColor(0, 0, 0);
+      if (logoUrl) {
+        try {
+          const logo = await loadImageForPdf(logoUrl);
+          doc.addImage(logo.dataUrl, logo.format, margin + 24, 54, 36, 36);
+        } catch {
+          // Remote logos may block canvas access; the PDF still renders without it.
+        }
+      }
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
-      doc.setFont("helvetica", "bold");
-      doc.text(companyName, margin, 50);
+      doc.text(companyName, margin + (logoUrl ? 72 : 24), 72);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(203, 213, 225);
+      doc.text(meta.isProposal ? 'Service proposal prepared for review' : 'Professional invoice prepared for payment', margin + (logoUrl ? 72 : 24), 90);
 
-      // ===== INVOICE TITLE =====
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(26);
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(24);
-      doc.text("INVOICE", pageWidth - margin, 120, { align: "right" });
-
+      doc.text(title, pageWidth - margin - 24, 74, { align: 'right' });
       doc.setFontSize(10);
-      doc.text(`Invoice No: #${invoice.invoiceNumber}`, pageWidth - margin, 140, { align: "right" });
-      doc.text(`Date: ${formatDate(invoice.date)}`, pageWidth - margin, 155, { align: "right" });
+      doc.setTextColor(226, 232, 240);
+      doc.text(`#${invoice.invoiceNumber}`, pageWidth - margin - 24, 96, { align: 'right' });
 
-      // ===== CLIENT =====
+      doc.setFillColor(...gold);
+      doc.roundedRect(pageWidth - margin - 118, 112, 94, 24, 6, 6, 'F');
+      doc.setTextColor(...dark);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.text(toTitleCase(meta.status), pageWidth - margin - 71, 127, { align: 'center' });
+
+      const infoY = 192;
+      doc.setTextColor(...muted);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.text(meta.isProposal ? 'PREPARED FOR' : 'BILL TO', margin, infoY);
+      doc.text('FROM', pageWidth / 2 + 10, infoY);
+
+      doc.setTextColor(...dark);
+      doc.setFontSize(13);
+      doc.text(invoice.clientName || 'Client', margin, infoY + 22);
+      doc.text(companyName, pageWidth / 2 + 10, infoY + 22);
+
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
-      doc.setTextColor(200, 200, 200);
-      doc.text("INVOICE TO:", margin, 120);
+      doc.setTextColor(...muted);
+      doc.text(invoice.clientEmail || 'No email supplied', margin, infoY + 40);
+      doc.text(user?.email || 'InvoicePro workspace', pageWidth / 2 + 10, infoY + 40);
+      if (user?.gstNumber || invoice.gst) {
+        doc.text(`GSTIN: ${user?.gstNumber || invoice.gst}`, pageWidth / 2 + 10, infoY + 58);
+      }
 
-      doc.setFontSize(12);
-      doc.setTextColor(255, 255, 255);
-      doc.text(invoice.clientName, margin, 140);
-      doc.text(invoice.clientEmail || "", margin, 160);
+      doc.setDrawColor(...line);
+      doc.line(margin, 278, pageWidth - margin, 278);
 
-      // ===== TABLE HEADER =====
-      let startY = 200;
+      doc.setTextColor(...muted);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.text('ISSUED', margin, 308);
+      doc.text(meta.dateLabel.toUpperCase(), margin + 150, 308);
+      doc.text('PUBLIC LINK', margin + 310, 308);
 
-      doc.setFillColor(255, 193, 7);
-      doc.rect(margin, startY, pageWidth - margin * 2, 25, "F");
-
-      doc.setTextColor(0, 0, 0);
+      doc.setTextColor(...dark);
       doc.setFontSize(10);
-      doc.text("Description", margin + 10, startY + 17);
-      doc.text("Price", pageWidth - 250, startY + 17);
-      doc.text("Qty", pageWidth - 180, startY + 17);
-      doc.text("Total", pageWidth - 100, startY + 17);
+      doc.text(formatDate(invoice.date), margin, 326);
+      doc.text(formatDate(displayDate), margin + 150, 326);
+      doc.setTextColor(37, 99, 235);
+      doc.text(publicDocumentUrl, margin + 310, 326, { maxWidth: pageWidth - margin * 2 - 310 });
 
-      // ===== ITEMS =====
-      startY += 35;
+      const tableBody = items.map((item) => [
+        item.name || invoice.serviceDescription || 'Service',
+        formatCurrencyPdf(item.price, invoice.currency),
+        String(getQuantity(item)),
+        formatCurrencyPdf(getLineTotal(item), invoice.currency)
+      ]);
 
-      doc.setTextColor(255, 255, 255);
-
-      items.forEach((item, i) => {
-        const rowY = startY + i * 25;
-
-        doc.text(item.name, margin + 10, rowY);
-        doc.text(`INR ${item.price}`, pageWidth - 250, rowY);
-        doc.text(`${item.quantity || 1}`, pageWidth - 180, rowY);
-        doc.text(`INR ${item.price * (item.quantity || 1)}`, pageWidth - 100, rowY);
+      autoTable(doc, {
+        startY: 370,
+        head: [['Description', 'Rate', 'Qty', 'Line total']],
+        body: tableBody,
+        theme: 'plain',
+        margin: { left: margin, right: margin },
+        styles: {
+          font: 'helvetica',
+          fontSize: 10,
+          cellPadding: { top: 10, right: 8, bottom: 10, left: 8 },
+          textColor: dark
+        },
+        headStyles: {
+          fillColor: dark,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 9
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252]
+        },
+        columnStyles: {
+          1: { halign: 'right' },
+          2: { halign: 'center' },
+          3: { halign: 'right', fontStyle: 'bold' }
+        },
+        didDrawCell: (data) => {
+          if (data.section === 'body') {
+            doc.setDrawColor(...line);
+            doc.line(data.cell.x, data.cell.y + data.cell.height, data.cell.x + data.cell.width, data.cell.y + data.cell.height);
+          }
+        }
       });
 
-      // ===== TOTAL BOX =====
-      const totalY = startY + items.length * 25 + 40;
+      const finalY = doc.lastAutoTable?.finalY || 430;
+      const totalsX = pageWidth - margin - 210;
+      const totalsY = Math.min(finalY + 28, pageHeight - 190);
 
-      doc.setFillColor(255, 193, 7);
-      doc.rect(pageWidth - 220, totalY, 180, 60, "F");
+      doc.setFillColor(255, 255, 255);
+      doc.setDrawColor(...line);
+      doc.roundedRect(totalsX, totalsY, 210, tax > 0 ? 118 : 92, 8, 8, 'FD');
 
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12);
-      doc.text("TOTAL", pageWidth - 210, totalY + 20);
-
-      doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
-      doc.text(`INR ${invoice.amount}`, pageWidth - 60, totalY + 20, { align: "right" });
-
-      // ===== FOOTER =====
-      doc.setTextColor(200, 200, 200);
+      doc.setTextColor(...muted);
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
-      doc.text("Thank you for your business", margin, 780);
+      doc.text('Subtotal', totalsX + 18, totalsY + 28);
+      doc.text(formatCurrencyPdf(subtotal, invoice.currency), totalsX + 192, totalsY + 28, { align: 'right' });
 
-      doc.save(`invoice-${invoice.invoiceNumber}.pdf`);
+      if (tax > 0) {
+        doc.text('Tax', totalsX + 18, totalsY + 54);
+        doc.text(formatCurrencyPdf(tax, invoice.currency), totalsX + 192, totalsY + 54, { align: 'right' });
+      }
+
+      doc.setDrawColor(...line);
+      doc.line(totalsX + 18, totalsY + (tax > 0 ? 72 : 48), totalsX + 192, totalsY + (tax > 0 ? 72 : 48));
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...dark);
+      doc.setFontSize(12);
+      doc.text('Total', totalsX + 18, totalsY + (tax > 0 ? 96 : 72));
+      doc.text(formatCurrencyPdf(total, invoice.currency), totalsX + 192, totalsY + (tax > 0 ? 96 : 72), { align: 'right' });
+
+      const noteY = Math.max(totalsY + (tax > 0 ? 148 : 122), pageHeight - 86);
+      doc.setDrawColor(...line);
+      doc.line(margin, noteY - 24, pageWidth - margin, noteY - 24);
+      doc.setTextColor(...muted);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.text(meta.isProposal ? 'Thank you for reviewing this proposal.' : 'Thank you for your business.', margin, noteY);
+      doc.text(`Generated by InvoicePro on ${formatDate(new Date().toISOString())}`, pageWidth - margin, noteY, { align: 'right' });
+
+      doc.save(`${meta.typeLabel.toLowerCase()}-${invoice.invoiceNumber}.pdf`);
     } catch (err) {
-      alert("PDF failed");
+      alert('PDF failed');
     } finally {
       setDownloadingPdf(false);
     }
@@ -310,7 +399,7 @@ export default function InvoiceView() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="h-px w-8 bg-yellow-400" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">{meta.headerLabel} • #{invoice.invoiceNumber}</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">{meta.headerLabel} / #{invoice.invoiceNumber}</p>
             </div>
             <h1 className="text-4xl font-bold sm:text-5xl tracking-tight text-white mb-2">
               {meta.title}
@@ -356,69 +445,163 @@ export default function InvoiceView() {
         </div>
 
         <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
-          <section className="reveal reveal-delay-1 premium-panel p-4 md:p-8 relative overflow-hidden">
-            <div id="invoice" className="bg-white text-slate-950 p-6 md:p-10 rounded-lg shadow-2xl">
+          <section className="reveal reveal-delay-1 premium-panel p-3 md:p-6 relative overflow-hidden">
+            <div id="invoice" className="invoice-document overflow-hidden rounded-lg bg-white text-slate-950 shadow-2xl">
+              <div className="bg-slate-950 px-6 py-7 text-white md:px-10">
+                <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      {logoUrl ? (
+                        <img src={logoUrl} alt={`${companyName} logo`} className="h-11 w-11 rounded-lg bg-white object-contain p-1" />
+                      ) : (
+                        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-sm font-black text-slate-950">
+                          {companyName.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-lg font-black leading-none text-white">{companyName}</p>
+                        <p className="mt-1 text-xs font-semibold text-slate-400">
+                          {meta.isProposal ? 'Service proposal' : 'Professional invoice'}
+                        </p>
+                      </div>
+                    </div>
 
-              {/* HEADER */}
-              <div className="flex justify-between mb-10">
-                <div className="flex items-center gap-3">
-                  {logoUrl && (
-                    <img src={logoUrl} className="w-10 h-10 object-contain" />
+                    {invoice.serviceDescription && (
+                      <p className="mt-6 max-w-2xl text-sm font-medium leading-relaxed text-slate-300">
+                        {invoice.serviceDescription}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="text-left md:text-right">
+                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{meta.typeLabel}</p>
+                    <h2 className="mt-2 text-4xl font-black tracking-tight text-white">#{invoice.invoiceNumber}</h2>
+                    <span className={`mt-4 inline-flex rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${statusClass}`}>
+                      {toTitleCase(meta.status)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-0 border-b border-slate-200 md:grid-cols-3">
+                <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r md:p-8">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
+                    {meta.isProposal ? 'Prepared For' : 'Bill To'}
+                  </p>
+                  <h3 className="mt-3 text-xl font-black text-slate-950">{invoice.clientName}</h3>
+                  <p className="mt-1 break-words text-sm font-medium text-slate-500">{invoice.clientEmail}</p>
+                </div>
+
+                <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r md:p-8">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">From</p>
+                  <h3 className="mt-3 text-xl font-black text-slate-950">{companyName}</h3>
+                  <p className="mt-1 text-sm font-medium text-slate-500">{user?.email || 'InvoicePro workspace'}</p>
+                  {(user?.gstNumber || invoice.gst) && (
+                    <p className="mt-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                      GSTIN {user?.gstNumber || invoice.gst}
+                    </p>
                   )}
-                  <h1 className="text-slate-950 text-xl font-bold">{companyName}</h1>
                 </div>
 
-                <div className="text-right">
-                  <h2 className="text-slate-950 text-2xl font-bold">{meta.typeLabel.toUpperCase()}</h2>
-                  <p>#{invoice.invoiceNumber}</p>
-                  <p>{formatDate(invoice.date)}</p>
-                </div>
-              </div>
-
-              {/* CLIENT */}
-              <div className="mb-6">
-                <p className="text-slate-500 text-sm font-semibold">{meta.isProposal ? 'Prepared For' : 'Invoice To'}</p>
-                <p className="font-bold text-lg">{invoice.clientName}</p>
-                <p className="text-sm text-slate-500">{invoice.clientEmail}</p>
-              </div>
-
-              {/* TABLE HEADER */}
-              <div className="grid grid-cols-4 bg-slate-950 text-white p-3 font-bold rounded-lg">
-                <span>Description</span>
-                <span>Price</span>
-                <span>Qty</span>
-                <span className="text-right">Total</span>
-              </div>
-
-              {/* ITEMS */}
-              {items.map((item, i) => (
-                <div key={i} className="grid grid-cols-4 p-3 border-b border-slate-200 text-slate-700">
-                  <span>{item.name}</span>
-                  <span>Rs {item.price}</span>
-                  <span>{item.quantity || 1}</span>
-                  <span className="text-right">Rs {item.price * (item.quantity || 1)}</span>
-                </div>
-              ))}
-
-              {/* TOTAL */}
-              <div className="flex justify-end mt-8">
-                <div className="bg-slate-950 text-white p-4 rounded-lg w-[220px]">
-                  <p className="font-bold">Total</p>
-                  <p className="text-xl font-bold">Rs {invoice.amount}</p>
+                <div className="p-6 md:p-8">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">Timeline</p>
+                  <div className="mt-3 grid gap-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm font-semibold text-slate-500">Issued</span>
+                      <span className="text-right text-sm font-black text-slate-950">{formatDate(invoice.date)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm font-semibold text-slate-500">{meta.dateLabel}</span>
+                      <span className="text-right text-sm font-black text-slate-950">{formatDate(displayDate)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* QR */}
-              {upiLink && (
-                <div className="mt-6 flex justify-center rounded-lg bg-white p-4">
-                  <QRCode value={upiLink} size={120} />
-                </div>
-              )}
+              <div className="p-6 md:p-8">
+                <div className="overflow-hidden rounded-lg border border-slate-200">
+                  <div className="hidden grid-cols-[1fr_120px_70px_130px] bg-slate-100 px-5 py-3 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 md:grid">
+                    <span>Description</span>
+                    <span className="text-right">Rate</span>
+                    <span className="text-center">Qty</span>
+                    <span className="text-right">Total</span>
+                  </div>
 
-              {/* FOOTER */}
-              <p className="mt-10 text-center text-slate-500 text-sm">
-                Thank you for your business
-              </p>
+                  <div className="divide-y divide-slate-200">
+                    {items.map((item, i) => (
+                      <div key={`${item.name}-${i}`} className="grid gap-3 px-5 py-5 md:grid-cols-[1fr_120px_70px_130px] md:items-center">
+                        <div>
+                          <p className="font-black text-slate-950">{item.name || invoice.serviceDescription || 'Service'}</p>
+                          <p className="mt-1 text-xs font-medium text-slate-500">Line item {i + 1}</p>
+                        </div>
+                        <p className="flex justify-between text-sm font-semibold text-slate-600 md:block md:text-right">
+                          <span className="md:hidden">Rate</span>
+                          {formatCurrency(item.price, invoice.currency)}
+                        </p>
+                        <p className="flex justify-between text-sm font-semibold text-slate-600 md:block md:text-center">
+                          <span className="md:hidden">Qty</span>
+                          {getQuantity(item)}
+                        </p>
+                        <p className="flex justify-between text-base font-black text-slate-950 md:block md:text-right">
+                          <span className="md:hidden">Total</span>
+                          {formatCurrency(getLineTotal(item), invoice.currency)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                      {meta.isProposal ? 'Approval Note' : 'Payment Note'}
+                    </p>
+                    <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
+                      {meta.isProposal
+                        ? 'Please review the scope, amount, and validity before approving this proposal.'
+                        : finalUpi
+                          ? 'Use the public link or UPI QR to complete payment. Keep the invoice number for reference.'
+                          : 'Use the public link to review this invoice and complete payment through the available checkout option.'}
+                    </p>
+
+                    {upiLink && (
+                      <div className="mt-5 inline-flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-4">
+                        <QRCode value={upiLink} size={88} />
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-widest text-slate-400">UPI Ready</p>
+                          <p className="mt-1 max-w-[14rem] break-words text-sm font-bold text-slate-700">{finalUpi}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="rounded-lg bg-slate-950 p-5 text-white">
+                    <div className="space-y-3">
+                      <div className="flex justify-between gap-4 text-sm">
+                        <span className="text-slate-400">Subtotal</span>
+                        <span className="font-bold text-white">{formatCurrency(subtotal, invoice.currency)}</span>
+                      </div>
+                      {tax > 0 && (
+                        <div className="flex justify-between gap-4 text-sm">
+                          <span className="text-slate-400">Tax</span>
+                          <span className="font-bold text-white">{formatCurrency(tax, invoice.currency)}</span>
+                        </div>
+                      )}
+                      <div className="border-t border-white/10 pt-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
+                          {meta.isProposal ? 'Proposal Total' : 'Amount Due'}
+                        </p>
+                        <p className="mt-2 text-3xl font-black tracking-tight text-white">{formatCurrency(total, invoice.currency)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-5 text-xs font-semibold text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                  <span>Public link: {publicDocumentUrl}</span>
+                  <span>Generated with InvoicePro</span>
+                </div>
+              </div>
             </div>
           </section>
 
