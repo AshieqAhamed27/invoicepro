@@ -10,6 +10,7 @@ export default function Navbar() {
 
   const user = getUser();
   const isAdmin = user?.role === 'admin';
+  const isPro = user?.plan && user.plan !== 'free';
 
   const handleLogout = () => {
     clearAuth();
@@ -67,6 +68,11 @@ export default function Navbar() {
               <NavLink to="/create-invoice" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Create
               </NavLink>
+              {!isPro && (
+                <NavLink to="/payment" className="rounded-lg border border-yellow-400/20 px-3 py-2 font-semibold text-yellow-300 hover:bg-yellow-400/10">
+                  Upgrade Pro
+                </NavLink>
+              )}
               <NavLink to="/settings" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Settings
               </NavLink>
@@ -140,6 +146,11 @@ export default function Navbar() {
                 <NavLink to="/create-invoice" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Create Invoice
                 </NavLink>
+                {!isPro && (
+                  <NavLink to="/payment" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 font-semibold text-yellow-300 hover:bg-yellow-400/10">
+                    Upgrade Pro
+                  </NavLink>
+                )}
                 <NavLink to="/settings" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Settings
                 </NavLink>

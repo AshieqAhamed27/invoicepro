@@ -4,7 +4,7 @@ import api from '../utils/api';
 
 const formatMoney = (amount, currency) => {
   const num = Number(amount || 0);
-  if (currency === 'USD') return `$${num.toLocaleString('en-US')}`;
+  if (currency === 'USD') return `USD ${num.toLocaleString('en-US')}`;
   return `Rs ${num.toLocaleString('en-IN')}`;
 };
 

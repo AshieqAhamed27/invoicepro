@@ -5,7 +5,7 @@ const { protect } = require('../middleware/auth');
 const router = express.Router();
 
 const formatCurrency = (amount) =>
-    `Rs. ${Number(amount || 0).toLocaleString('en-IN')}`;
+    `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
 
 const formatDate = (date) => {
     if (!date) return 'not set';
@@ -69,6 +69,11 @@ router.get('/insights', protect, async(req, res) => {
             .filter((invoice) => invoice.daysUntilDue !== null && invoice.daysUntilDue >= 0 && invoice.daysUntilDue <= 3)
             .sort((a, b) => a.daysUntilDue - b.daysUntilDue);
 
+        const overdueAmount = overdueInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+        const dueSoonAmount = dueSoonInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+        const largestPending = pendingInvoices
+            .slice()
+            .sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0] || null;
         const missingDueDates = pendingInvoices.filter((invoice) => !invoice.dueDate).length;
         const paidRatio = total ? Math.round((paidInvoices.length / total) * 100) : 0;
         const overduePenalty = Math.min(overdueInvoices.length * 12, 36);
@@ -78,17 +83,30 @@ router.get('/insights', protect, async(req, res) => {
 
         const topRisk = overdueInvoices[0] || dueSoonInvoices[0] || pendingInvoices[0] || null;
         const recommendations = [];
+        const moneyActions = [];
 
         if (!total) {
             recommendations.push('Create your first invoice with a due date and UPI ID so InvoicePro can start predicting payment risk.');
         }
 
         if (overdueInvoices.length) {
-            recommendations.push(`Follow up on ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''} worth ${formatCurrency(overdueInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0))}.`);
+            recommendations.push(`Follow up on ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''} worth ${formatCurrency(overdueAmount)}.`);
+            moneyActions.push({
+                title: 'Recover overdue revenue',
+                description: `Send reminders for ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''}.`,
+                value: formatCurrency(overdueAmount),
+                cta: 'Send reminders'
+            });
         }
 
         if (dueSoonInvoices.length) {
             recommendations.push(`${dueSoonInvoices.length} invoice${dueSoonInvoices.length > 1 ? 's are' : ' is'} due within 3 days. Send a friendly reminder today.`);
+            moneyActions.push({
+                title: 'Protect upcoming cash',
+                description: `Nudge ${dueSoonInvoices.length} client${dueSoonInvoices.length > 1 ? 's' : ''} before the due date passes.`,
+                value: formatCurrency(dueSoonAmount),
+                cta: 'Copy reminder'
+            });
         }
 
         if (missingDueDates) {
@@ -97,6 +115,33 @@ router.get('/insights', protect, async(req, res) => {
 
         if (pendingAmount > paidAmount && pendingInvoices.length) {
             recommendations.push('Pending revenue is higher than collected revenue. Prioritize the largest pending invoice first.');
+        }
+
+        if (largestPending) {
+            moneyActions.push({
+                title: 'Prioritize largest invoice',
+                description: `${largestPending.clientName || 'A client'} has the biggest pending amount right now.`,
+                value: formatCurrency(largestPending.amount),
+                cta: 'Open dashboard'
+            });
+        }
+
+        if (req.user?.plan === 'free') {
+            moneyActions.push({
+                title: 'Turn billing into a paid workflow',
+                description: 'Upgrade Pro for unlimited invoices, recurring billing, Razorpay checkout, and AI collection prompts.',
+                value: 'Pro',
+                cta: 'Upgrade'
+            });
+        }
+
+        if (!moneyActions.length) {
+            moneyActions.push({
+                title: 'Keep the payment loop moving',
+                description: 'Create the next invoice with a due date and payment link while cashflow is healthy.',
+                value: 'Ready',
+                cta: 'Create invoice'
+            });
         }
 
         if (!recommendations.length) {
@@ -124,6 +169,18 @@ router.get('/insights', protect, async(req, res) => {
                     tone: paidRatio >= 70 ? 'green' : paidRatio >= 40 ? 'yellow' : 'red'
                 }
             ],
+            revenueOpportunity: {
+                pendingAmount,
+                overdueAmount,
+                dueSoonAmount,
+                largestPendingAmount: Number(largestPending?.amount || 0)
+            },
+            moneyActions: moneyActions.slice(0, 4),
+            proUpsell: req.user?.plan === 'free' ? {
+                title: 'Unlock InvoicePro AI Revenue Coach',
+                description: 'Use Pro to pair payment links, recurring billing, and collection prompts with unlimited invoices.',
+                path: '/payment'
+            } : null,
             recommendations: recommendations.slice(0, 4),
             topRisk: topRisk ? {
                 id: topRisk._id,

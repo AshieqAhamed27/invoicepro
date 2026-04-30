@@ -71,7 +71,7 @@ export const isLoggedIn = () => {
 };
 
 export const formatCurrency = (amount, currency) => {
-  const symbol = currency === 'INR' ? 'Rs ' : '$';
+  const symbol = currency === 'USD' ? 'USD ' : 'Rs ';
   return `${symbol}${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 

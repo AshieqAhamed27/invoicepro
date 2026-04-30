@@ -132,6 +132,18 @@ export default function Dashboard() {
     }
   };
 
+  const copyAiReminder = async () => {
+    const reminder = aiInsights?.topRisk?.reminder;
+    if (!reminder) return;
+
+    try {
+      await navigator.clipboard.writeText(reminder);
+      alert('AI reminder copied. Send it on email or WhatsApp.');
+    } catch {
+      window.prompt('Copy this reminder:', reminder);
+    }
+  };
+
   const maxTrend = useMemo(() => {
     return stats.trends.length
       ? Math.max(...stats.trends.map((t) => t.value), 1000)
@@ -361,11 +373,11 @@ export default function Dashboard() {
           <div className="premium-panel p-10 relative overflow-hidden group">
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-400/10 border border-yellow-400/20 mb-8">
-                <p className="text-[10px] uppercase tracking-widest font-black text-yellow-300 uppercase">Collections Summary</p>
+                <p className="text-[10px] uppercase tracking-widest font-black text-yellow-300">AI Revenue Coach</p>
               </div>
 
               {aiInsights ? (
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div>
                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-2">Cash Flow Score</p>
                     <p className="text-5xl font-black text-white tracking-tight">{aiInsights.cashFlowScore}%</p>
@@ -373,13 +385,66 @@ export default function Dashboard() {
                   <p className="text-sm font-semibold text-zinc-400 leading-relaxed">
                     "{aiInsights.summary}"
                   </p>
+                  {aiInsights.moneyActions?.length > 0 && (
+                    <div className="space-y-3">
+                      {aiInsights.moneyActions.map((action) => (
+                        <div key={`${action.title}-${action.value}`} className="rounded-2xl border border-white/5 bg-black/20 p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <p className="text-sm font-black text-white">{action.title}</p>
+                              <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{action.description}</p>
+                            </div>
+                            <span className="shrink-0 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                              {action.value}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {aiInsights.topRisk?.reminder && (
+                    <div className="rounded-2xl border border-yellow-400/15 bg-yellow-400/5 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Suggested follow-up</p>
+                      <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-300">
+                        {aiInsights.topRisk.reminder}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={copyAiReminder}
+                        className="mt-4 rounded-xl border border-yellow-400/30 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition-all hover:bg-yellow-400 hover:text-black"
+                      >
+                        Copy Reminder
+                      </button>
+                    </div>
+                  )}
+                  {aiInsights.recommendations?.length > 0 && (
+                    <div className="space-y-2">
+                      {aiInsights.recommendations.slice(0, 3).map((item) => (
+                        <div key={item} className="flex gap-3 text-xs font-semibold leading-relaxed text-zinc-500">
+                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-400" />
+                          <p>{item}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="pt-8 border-t border-white/5">
-                    <button
-                      onClick={() => navigate('/create-invoice')}
-                      className="w-full py-4 rounded-xl border border-yellow-400/30 text-yellow-400 text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all"
-                    >
-                      Create Invoice
-                    </button>
+                    <div className="grid gap-3">
+                      <button
+                        onClick={() => navigate('/create-invoice')}
+                        className="w-full py-4 rounded-xl border border-yellow-400/30 text-yellow-400 text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all"
+                      >
+                        Create Invoice
+                      </button>
+                      {!isPro && (
+                        <button
+                          type="button"
+                          onClick={() => navigate('/payment')}
+                          className="w-full rounded-xl bg-white py-4 text-[10px] font-black uppercase tracking-widest text-black transition-all hover:bg-yellow-300"
+                        >
+                          Upgrade Pro
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ) : (

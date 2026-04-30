@@ -24,7 +24,7 @@ const formatCurrency = (amount, currency) => {
         maximumFractionDigits: 2
     });
 
-    return currency === 'USD' ? `$${fixed}` : `₹${fixed}`;
+    return currency === 'USD' ? `USD ${fixed}` : `Rs ${fixed}`;
 };
 
 const formatDate = (date) => {

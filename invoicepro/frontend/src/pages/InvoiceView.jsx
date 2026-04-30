@@ -9,14 +9,14 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 const formatCurrency = (amount, currency = 'INR') => {
-  const symbol = currency === 'USD' ? '$' : 'Rs ';
+  const symbol = currency === 'USD' ? 'USD ' : 'Rs ';
   return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2
   })}`;
 };
 
 const formatCurrencyPdf = (amount, currency = 'INR') => {
-  const code = currency === 'USD' ? 'USD' : 'INR';
+  const code = currency === 'USD' ? 'USD' : 'Rs';
   return `${code} ${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2
   })}`;

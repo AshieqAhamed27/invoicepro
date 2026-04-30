@@ -21,13 +21,13 @@ const planDetails = {
   monthly: {
     amount: 499,
     label: "Pro Monthly",
-    note: "Unlimited invoices, payment links, and recurring billing.",
+    note: "Unlimited invoices, AI revenue coach, payment links, and recurring billing.",
     duration: "Billed every 30 days"
   },
   yearly: {
     amount: 4999,
     label: "Pro Annual",
-    note: "Best value for agencies and repeat-billing businesses.",
+    note: "Best value with AI revenue coaching for repeat-billing businesses.",
     duration: "Billed every 365 days"
   }
 };
@@ -212,8 +212,8 @@ export default function Payment() {
             </h1>
 
             <p className="max-w-xl text-lg text-zinc-500 font-medium leading-relaxed mb-10">
-              Pay securely with Razorpay and unlock unlimited invoices, payment links,
-              and recurring billing for your business.
+              Pay securely with Razorpay and unlock unlimited invoices, AI collection prompts,
+              payment links, and recurring billing for your business.
             </p>
 
             <div className="premium-panel p-8 relative overflow-hidden group">
@@ -244,6 +244,14 @@ export default function Payment() {
                   <div className="flex items-center gap-4 group/item">
                      <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                      <p className="group-hover:text-white transition-colors">Secure Razorpay Checkout</p>
+                  </div>
+                  <div className="flex items-center gap-4 group/item">
+                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                     <p className="group-hover:text-white transition-colors">AI Revenue Coach</p>
+                  </div>
+                  <div className="flex items-center gap-4 group/item">
+                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                     <p className="group-hover:text-white transition-colors">Reminder Copy Assistant</p>
                   </div>
                   <div className="flex items-center gap-4 group/item">
                      <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />

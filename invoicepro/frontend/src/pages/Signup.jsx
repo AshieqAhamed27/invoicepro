@@ -117,6 +117,7 @@ export default function Signup() {
                     <input
                       type="text"
                       required
+                      autoComplete="name"
                       placeholder="Jane Doe"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -127,6 +128,7 @@ export default function Signup() {
                     <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Company</p>
                     <input
                       type="text"
+                      autoComplete="organization"
                       placeholder="Optional"
                       value={form.companyName}
                       onChange={(e) => setForm({ ...form, companyName: e.target.value })}
@@ -140,6 +142,7 @@ export default function Signup() {
                   <input
                     type="email"
                     required
+                    autoComplete="email"
                     placeholder="name@company.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -152,6 +155,7 @@ export default function Signup() {
                   <input
                     type="password"
                     required
+                    autoComplete="new-password"
                     placeholder="6+ characters"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}

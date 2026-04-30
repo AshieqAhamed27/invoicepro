@@ -17,8 +17,8 @@ const trustSignals = [
     description: 'Use a recognizable checkout flow with Razorpay and provide UPI-ready payment details.'
   },
   {
-    title: 'GST and business details',
-    description: 'Keep totals, tax fields, due dates, and company information visible before payment starts.'
+    title: 'AI revenue coaching',
+    description: 'Spot overdue revenue, copy client reminders, and prioritize the invoices most likely to unlock cash.'
   },
   {
     title: 'Recurring billing built in',
@@ -97,7 +97,7 @@ const plans = [
     price: 'Rs 499',
     suffix: '/ month',
     description: 'For consultants and solo operators who bill clients every month.',
-    features: ['Unlimited invoices', 'Razorpay and UPI collection flow', 'Recurring invoices'],
+    features: ['Unlimited invoices', 'Razorpay and UPI collection flow', 'AI cashflow score and reminders'],
     cta: 'Upgrade Monthly',
     featured: false,
     action: 'monthly'
@@ -107,7 +107,7 @@ const plans = [
     price: 'Rs 4,999',
     suffix: '/ year',
     description: 'For agencies and repeat-billing teams that want the lower effective monthly cost.',
-    features: ['Everything in Monthly', 'Annual savings versus paying monthly', 'Priority support'],
+    features: ['Everything in Monthly', 'Recurring invoices', 'AI revenue coach and priority support'],
     cta: 'Save With Annual',
     featured: true,
     action: 'yearly'
@@ -163,7 +163,7 @@ export default function Home() {
 
               <p className="reveal reveal-delay-3 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
                 InvoicePro helps freelancers, agencies, and consultants send structured invoices,
-                collect through public payment links, and stay on top of repeat billing with fewer manual follow-ups.
+                collect through public payment links, and use AI revenue coaching to stay on top of repeat billing with fewer manual follow-ups.
               </p>
               <p className="hidden">
                 InvoicePro is an invoice generator for freelancers and businesses in India.
@@ -181,13 +181,8 @@ export default function Home() {
                   <p className="mt-2 text-sm font-semibold text-white">Public invoice pages with totals and due dates</p>
                 </div>
                 <div className="premium-panel px-4 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Support</p>
-                  <a
-                    href={`mailto:${SUPPORT_EMAIL}`}
-                    className="mt-3 block text-sm font-semibold text-white hover:text-yellow-300 break-words leading-relaxed"
-                  >
-                    {SUPPORT_EMAIL}
-                  </a>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">AI Coach</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Cashflow score with ready-to-send reminders</p>
                 </div>
               </div>
 
@@ -235,7 +230,7 @@ export default function Home() {
 
               <div className="reveal reveal-delay-3 mt-8 flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500 sm:text-xs sm:tracking-[0.2em]">
                 <span className="rounded-full border border-white/10 px-3 py-2">No client login required</span>
-                <span className="rounded-full border border-white/10 px-3 py-2">Recurring billing support</span>
+                <span className="rounded-full border border-white/10 px-3 py-2">AI collection prompts</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">GST-ready invoice fields</span>
               </div>
             </div>
@@ -444,7 +439,7 @@ export default function Home() {
                 Transparent plans before checkout begins
               </h2>
               <p className="mt-4 text-base font-medium leading-relaxed text-zinc-400">
-                The homepage now frames pricing more like a real billing product: clear plan scope, visible totals, and secure checkout on paid plans.
+                The homepage frames pricing like a real billing product: clear plan scope, AI collection support, visible totals, and secure checkout on paid plans.
               </p>
             </div>
 

@@ -21,7 +21,7 @@ const loadRazorpayScript = () => {
 };
 
 const formatCurrency = (amount, currency) => {
-  const symbol = currency && currency !== 'INR' ? '$' : 'Rs ';
+  const symbol = currency && currency !== 'INR' ? `${currency} ` : 'Rs ';
   return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2
   })}`;
