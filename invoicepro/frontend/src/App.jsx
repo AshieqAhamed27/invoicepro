@@ -276,8 +276,25 @@ export default function App() {
         <Route path="/blog/how-to-create-invoice-india" element={<HowToCreateInvoiceIndia />} />
         <Route path="/blog/gst-invoice-format-india" element={<GSTInvoiceFormatIndia />} />
 
-        
       </Routes>
+      {/* ✅ WhatsApp Floating Button */}
+      <a
+        href="https://wa.me/919876543210?text=Hi%20I%20am%20interested%20in%20InvoicePro"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-5 right-5 z-50"
+      >
+        <div className="bg-green-500 p-4 rounded-full shadow-lg hover:scale-110 transition">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="white"
+            viewBox="0 0 24 24"
+            className="w-6 h-6"
+          >
+            <path d="M20.52 3.48A11.87 11.87 0 0012.02 0C5.38 0 .03 5.35.03 11.99c0 2.12.55 4.19 1.6 6.02L0 24l6.2-1.62a11.93 11.93 0 005.82 1.49h.01c6.63 0 11.99-5.35 11.99-11.99 0-3.2-1.25-6.21-3.5-8.4z" />
+          </svg>
+        </div>
+      </a>
     </BrowserRouter>
   );
 }
