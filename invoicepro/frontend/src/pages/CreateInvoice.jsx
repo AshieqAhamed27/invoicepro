@@ -32,6 +32,7 @@ export default function CreateInvoice() {
 
   const [items, setItems] = useState([{ name: '', price: '' }]);
   const [loading, setLoading] = useState(false);
+  const [aiWriting, setAiWriting] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [recurring, setRecurring] = useState({
     enabled: false,
@@ -42,6 +43,7 @@ export default function CreateInvoice() {
   });
 
   const user = getUser() || {};
+  const isPro = user.plan && user.plan !== 'free';
 
   const [clients, setClients] = useState([]);
   const isProposal = documentType === 'proposal';
@@ -145,11 +147,30 @@ export default function CreateInvoice() {
     subtotal <= 0 && 'Add billable work'
   ].filter(Boolean);
 
-  const applySmartDescription = () => {
-    setForm((prev) => ({
-      ...prev,
-      serviceDescription: smartDescription
-    }));
+  const applySmartDescription = async () => {
+    try {
+      setAiWriting(true);
+      const res = await api.post('/ai/draft', {
+        type: isProposal ? 'proposal-summary' : 'invoice-summary',
+        context: {
+          clientName: form.clientName,
+          items,
+          amount: total
+        }
+      });
+
+      setForm((prev) => ({
+        ...prev,
+        serviceDescription: res.data?.text || smartDescription
+      }));
+    } catch {
+      setForm((prev) => ({
+        ...prev,
+        serviceDescription: smartDescription
+      }));
+    } finally {
+      setAiWriting(false);
+    }
   };
 
   const applySmartDueDate = () => {
@@ -190,6 +211,9 @@ export default function CreateInvoice() {
     } catch (err) {
       if (err.response?.data?.limitReached) {
         setLimitReached(true);
+      } else if (err.response?.data?.upgradeRequired) {
+        alert(err.response.data.message || 'This is a Pro feature.');
+        navigate('/payment');
       } else {
         alert('Error creating invoice');
       }
@@ -503,9 +527,10 @@ export default function CreateInvoice() {
                     <button
                       type="button"
                       onClick={applySmartDescription}
+                      disabled={aiWriting}
                       className="w-full py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 transition-all"
                     >
-                      Generate Summary
+                      {aiWriting ? 'Writing...' : 'AI Generate Summary'}
                     </button>
                     {!dateFieldValue && (
                       <button
@@ -533,16 +558,32 @@ export default function CreateInvoice() {
                      <input
                        type="checkbox"
                        checked={recurring.enabled}
-                       onChange={(e) => setRecurring((prev) => ({ ...prev, enabled: e.target.checked }))}
+                       onChange={(e) => {
+                         if (!isPro && e.target.checked) {
+                           navigate('/payment');
+                           return;
+                         }
+                         setRecurring((prev) => ({ ...prev, enabled: e.target.checked }));
+                       }}
                        className="h-5 w-5 accent-yellow-400"
                      />
                      <span className="text-[10px] font-black uppercase tracking-widest text-yellow-300">
-                       {recurring.enabled ? 'On' : 'Off'}
+                       {isPro ? (recurring.enabled ? 'On' : 'Off') : 'Pro'}
                      </span>
                    </label>
                  </div>
 
-                 {recurring.enabled && (
+                 {!isPro && (
+                   <button
+                     type="button"
+                     onClick={() => navigate('/payment')}
+                     className="mt-5 w-full rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition-all hover:bg-yellow-400 hover:text-black"
+                   >
+                     Upgrade to automate recurring invoices
+                   </button>
+                 )}
+
+                 {isPro && recurring.enabled && (
                    <div className="mt-6 grid gap-4">
                      <div className="grid gap-4 sm:grid-cols-2">
                        <div className="space-y-1.5">

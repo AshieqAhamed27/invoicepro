@@ -4,6 +4,7 @@ import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 import Navbar from '../components/Navbar';
+import BrandLogo from '../components/BrandLogo';
 import QRCode from 'react-qr-code';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -131,8 +132,13 @@ export default function InvoiceView() {
 
   if (!invoice || !meta) return null;
 
-  const companyName = user?.companyName || user?.name || 'InvoicePro';
-  const rawLogo = user?.logo?.trim();
+  const business = invoice.businessSnapshot || {};
+  const companyName = business.name || user?.companyName || user?.name || 'InvoicePro';
+  const businessEmail = business.email || user?.email || '';
+  const businessAddress = business.address || user?.address || '';
+  const businessGst = business.gstNumber || user?.gstNumber || invoice.gst || '';
+  const businessUpi = business.upiId || user?.upiId || '';
+  const rawLogo = (business.logo || user?.logo || '').trim();
   const logoUrl = getSafeRemoteImageUrl(rawLogo) || null;
 
   const items = invoice.items?.length > 0
@@ -141,7 +147,7 @@ export default function InvoiceView() {
   const subtotal = items.reduce((sum, item) => sum + getLineTotal(item), 0);
   const total = Number(invoice.amount || 0);
   const tax = Math.max(0, total - subtotal);
-  const finalUpi = invoice.upiId || user?.upiId || '';
+  const finalUpi = invoice.upiId || businessUpi || '';
   const publicDocumentUrl = `${window.location.origin}/public/invoice/${invoice._id}`;
   const displayDate = meta.isProposal ? invoice.validUntil : invoice.dueDate;
   const upiLink = !meta.isProposal && finalUpi
@@ -260,9 +266,12 @@ export default function InvoiceView() {
       doc.setFontSize(10);
       doc.setTextColor(...muted);
       doc.text(invoice.clientEmail || 'No email supplied', margin, infoY + 40);
-      doc.text(user?.email || 'InvoicePro workspace', pageWidth / 2 + 10, infoY + 40);
-      if (user?.gstNumber || invoice.gst) {
-        doc.text(`GSTIN: ${user?.gstNumber || invoice.gst}`, pageWidth / 2 + 10, infoY + 58);
+      doc.text(businessEmail || 'InvoicePro workspace', pageWidth / 2 + 10, infoY + 40);
+      if (businessAddress) {
+        doc.text(businessAddress, pageWidth / 2 + 10, infoY + 58, { maxWidth: 210 });
+      }
+      if (businessGst) {
+        doc.text(`GSTIN: ${businessGst}`, pageWidth / 2 + 10, businessAddress ? infoY + 84 : infoY + 58);
       }
 
       doc.setDrawColor(...line);
@@ -281,6 +290,16 @@ export default function InvoiceView() {
       doc.text(formatDate(displayDate), margin + 150, 326);
       doc.setTextColor(37, 99, 235);
       doc.text(publicDocumentUrl, margin + 310, 326, { maxWidth: pageWidth - margin * 2 - 310 });
+
+      if (!meta.isProposal && finalUpi) {
+        doc.setTextColor(...muted);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.text('UPI COLLECTION ID', margin, 352);
+        doc.setTextColor(...dark);
+        doc.setFontSize(10);
+        doc.text(finalUpi, margin + 118, 352);
+      }
 
       const tableBody = items.map((item) => [
         item.name || invoice.serviceDescription || 'Service',
@@ -350,6 +369,17 @@ export default function InvoiceView() {
       doc.text('Total', totalsX + 18, totalsY + (tax > 0 ? 96 : 72));
       doc.text(formatCurrencyPdf(total, invoice.currency), totalsX + 192, totalsY + (tax > 0 ? 96 : 72), { align: 'right' });
 
+      if (invoice.notes) {
+        const notesY = Math.min(totalsY, pageHeight - 175);
+        doc.setTextColor(...muted);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.text('NOTES', margin, notesY);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(invoice.notes, margin, notesY + 18, { maxWidth: totalsX - margin - 22 });
+      }
+
       const noteY = Math.max(totalsY + (tax > 0 ? 148 : 122), pageHeight - 86);
       doc.setDrawColor(...line);
       doc.line(margin, noteY - 24, pageWidth - margin, noteY - 24);
@@ -395,27 +425,48 @@ export default function InvoiceView() {
       <Navbar />
 
       <main className="container-custom py-10 md:py-16">
-        <div className="reveal mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="reveal mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="h-px w-8 bg-yellow-400" />
               <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">{meta.headerLabel} / #{invoice.invoiceNumber}</p>
             </div>
-            <h1 className="text-4xl font-bold sm:text-5xl tracking-tight text-white mb-2">
-              {meta.title}
+            <h1 className="text-4xl font-bold sm:text-5xl tracking-tight text-white mb-3">
+              {meta.typeLabel} for {invoice.clientName}
             </h1>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${statusClass}`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${meta.status === 'paid' || meta.status === 'accepted' ? 'bg-emerald-400' : meta.status === 'expired' ? 'bg-red-400' : 'bg-yellow-500 animate-pulse'}`} />
                 {meta.status}
               </span>
-              <p className="text-sm font-medium text-zinc-500">
-                {meta.isProposal ? `Prepared for ${invoice.clientName}` : `Issued to ${invoice.clientName}`}
-              </p>
+              <p className="text-sm font-medium text-zinc-500">Branded as {companyName}</p>
+              <p className="text-sm font-black text-white">{formatCurrency(total, invoice.currency)}</p>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={downloadPdf}
+              disabled={downloadingPdf}
+              className="btn btn-secondary px-6 py-3"
+            >
+              {downloadingPdf ? 'Preparing PDF...' : 'Download PDF'}
+            </button>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="btn btn-secondary px-6 py-3"
+            >
+              Print
+            </button>
+            <button
+              type="button"
+              onClick={sharePublicLink}
+              className="btn btn-dark px-6 py-3"
+            >
+              Share
+            </button>
             {!meta.isProposal && invoice.status !== 'paid' && (
               <button
                 onClick={markAsPaid}
@@ -444,6 +495,20 @@ export default function InvoiceView() {
           </div>
         </div>
 
+        <section className="reveal reveal-delay-1 mb-10 grid gap-4 md:grid-cols-4">
+          {[
+            { label: meta.isProposal ? 'Proposal Total' : 'Amount Due', value: formatCurrency(total, invoice.currency) },
+            { label: 'Issued', value: formatDate(invoice.date) },
+            { label: meta.dateLabel, value: formatDate(displayDate) },
+            { label: 'Brand', value: companyName }
+          ].map((item) => (
+            <div key={item.label} className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">{item.label}</p>
+              <p className="mt-2 truncate text-sm font-black text-white">{item.value}</p>
+            </div>
+          ))}
+        </section>
+
         <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
           <section className="reveal reveal-delay-1 premium-panel p-3 md:p-6 relative overflow-hidden">
             <div id="invoice" className="invoice-document overflow-hidden rounded-lg bg-white text-slate-950 shadow-2xl">
@@ -452,17 +517,24 @@ export default function InvoiceView() {
                   <div>
                     <div className="flex items-center gap-3">
                       {logoUrl ? (
-                        <img src={logoUrl} alt={`${companyName} logo`} className="h-11 w-11 rounded-lg bg-white object-contain p-1" />
+                        <img src={logoUrl} alt={`${companyName} logo`} className="h-14 w-14 rounded-lg bg-white object-contain p-1.5 shadow-lg" />
                       ) : (
-                        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-sm font-black text-slate-950">
-                          {companyName.slice(0, 2).toUpperCase()}
-                        </div>
+                        companyName === 'InvoicePro'
+                          ? <BrandLogo showText={false} />
+                          : (
+                            <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white text-sm font-black text-slate-950 shadow-lg">
+                              {companyName.slice(0, 2).toUpperCase()}
+                            </div>
+                          )
                       )}
                       <div>
-                        <p className="text-lg font-black leading-none text-white">{companyName}</p>
+                        <p className="text-2xl font-black leading-none text-white">{companyName}</p>
                         <p className="mt-1 text-xs font-semibold text-slate-400">
                           {meta.isProposal ? 'Service proposal' : 'Professional invoice'}
                         </p>
+                        {businessAddress && (
+                          <p className="mt-2 max-w-md text-xs font-medium leading-relaxed text-slate-500">{businessAddress}</p>
+                        )}
                       </div>
                     </div>
 
@@ -495,10 +567,13 @@ export default function InvoiceView() {
                 <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r md:p-8">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">From</p>
                   <h3 className="mt-3 text-xl font-black text-slate-950">{companyName}</h3>
-                  <p className="mt-1 text-sm font-medium text-slate-500">{user?.email || 'InvoicePro workspace'}</p>
-                  {(user?.gstNumber || invoice.gst) && (
+                  <p className="mt-1 text-sm font-medium text-slate-500">{businessEmail || 'InvoicePro workspace'}</p>
+                  {businessAddress && (
+                    <p className="mt-2 text-sm font-medium leading-relaxed text-slate-500">{businessAddress}</p>
+                  )}
+                  {businessGst && (
                     <p className="mt-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-                      GSTIN {user?.gstNumber || invoice.gst}
+                      GSTIN {businessGst}
                     </p>
                   )}
                 </div>
@@ -564,6 +639,13 @@ export default function InvoiceView() {
                           : 'Use the public link to review this invoice and complete payment through the available checkout option.'}
                     </p>
 
+                    {invoice.notes && (
+                      <div className="mt-5 rounded-lg border border-slate-200 bg-white p-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Notes</p>
+                        <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{invoice.notes}</p>
+                      </div>
+                    )}
+
                     {upiLink && (
                       <div className="mt-5 inline-flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-4">
                         <QRCode value={upiLink} size={88} />
@@ -608,7 +690,17 @@ export default function InvoiceView() {
           <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
             <div className="premium-panel p-8">
               <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-8">
-                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Share Assets</p>
+                <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Client Delivery</p>
+              </div>
+
+              <div className="mb-6 rounded-lg border border-yellow-400/15 bg-yellow-400/5 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-300">PDF Export</p>
+                <p className="mt-2 text-sm font-bold leading-relaxed text-zinc-300">
+                  Downloads a branded one-page PDF with your logo, company name, GST, payment details, notes, and totals.
+                </p>
+                <p className="mt-3 break-all rounded-lg bg-black/30 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                  {meta.typeLabel.toLowerCase()}-{invoice.invoiceNumber}.pdf
+                </p>
               </div>
 
               <div className="space-y-4 mb-8">

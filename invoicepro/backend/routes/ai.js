@@ -1,4 +1,5 @@
 const express = require('express');
+const https = require('https');
 const Invoice = require('../models/Invoice');
 const { protect } = require('../middleware/auth');
 
@@ -35,6 +36,108 @@ const buildReminder = (invoice) => {
 
     return `Hi ${invoice.clientName}, quick reminder for invoice ${invoice.invoiceNumber} of ${formatCurrency(invoice.amount)} due on ${formatDate(invoice.dueDate)}. You can review and pay here: ${link}. Thank you.`;
 };
+
+const buildDraftFallback = (type, context = {}) => {
+    const itemNames = Array.isArray(context.items)
+        ? context.items.map((item) => item?.name).filter(Boolean).join(', ')
+        : '';
+    const clientName = context.clientName || 'the client';
+    const amount = context.amount ? formatCurrency(context.amount) : 'the agreed total';
+
+    if (type === 'payment-reminder') {
+        return `Hi ${clientName}, a quick reminder that your invoice for ${amount} is pending. Please review the payment link when convenient. Thank you.`;
+    }
+
+    if (type === 'proposal-summary') {
+        return `Proposed scope for ${clientName}: ${itemNames || 'professional services'} with delivery, review, and approval checkpoints. Total proposal value: ${amount}.`;
+    }
+
+    return `Professional services for ${clientName}: ${itemNames || 'project work'} including planning, delivery, review, and final handover. Total invoice value: ${amount}.`;
+};
+
+const extractOpenAiText = (body) => {
+    if (body?.output_text) return body.output_text;
+
+    const output = Array.isArray(body?.output) ? body.output : [];
+    for (const item of output) {
+        const content = Array.isArray(item?.content) ? item.content : [];
+        for (const part of content) {
+            if (part?.text) return part.text;
+        }
+    }
+
+    return '';
+};
+
+const callOpenAiDraft = ({ type, context }) => new Promise((resolve, reject) => {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) return resolve('');
+
+    const prompt = [
+        'You are InvoicePro AI, a concise billing assistant for Indian freelancers, agencies, and consultants.',
+        'Write one polished client-facing billing text. No markdown. No emojis. Keep it under 55 words.',
+        `Task: ${type}.`,
+        `Client: ${context.clientName || 'Client'}.`,
+        `Items: ${Array.isArray(context.items) ? context.items.map((item) => item?.name).filter(Boolean).join(', ') : 'Professional services'}.`,
+        `Amount: ${context.amount ? formatCurrency(context.amount) : 'Not specified'}.`
+    ].join('\n');
+
+    const payload = JSON.stringify({
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
+        input: prompt
+    });
+
+    const request = https.request({
+        hostname: 'api.openai.com',
+        path: '/v1/responses',
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload)
+        },
+        timeout: 12000
+    }, (response) => {
+        let raw = '';
+        response.on('data', (chunk) => { raw += chunk; });
+        response.on('end', () => {
+            try {
+                const body = raw ? JSON.parse(raw) : {};
+                if (response.statusCode < 200 || response.statusCode >= 300) {
+                    return reject(new Error(body?.error?.message || 'OpenAI request failed'));
+                }
+                resolve(extractOpenAiText(body));
+            } catch (err) {
+                reject(err);
+            }
+        });
+    });
+
+    request.on('error', reject);
+    request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
+    request.write(payload);
+    request.end();
+});
+
+router.post('/draft', protect, async(req, res) => {
+    const type = String(req.body?.type || 'invoice-summary');
+    const context = req.body?.context || {};
+    const fallback = buildDraftFallback(type, context);
+
+    try {
+        const generated = await callOpenAiDraft({ type, context });
+        res.json({
+            source: generated ? 'openai' : 'rules',
+            text: generated || fallback
+        });
+    } catch (err) {
+        console.error('AI DRAFT FALLBACK:', err.message);
+        res.json({
+            source: 'rules',
+            text: fallback
+        });
+    }
+});
 
 router.get('/insights', protect, async(req, res) => {
     try {

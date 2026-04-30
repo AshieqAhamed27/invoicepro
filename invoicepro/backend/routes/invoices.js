@@ -24,6 +24,17 @@ const FREE_PLAN_LIMIT = 2;
 
 const isProposalDocument = (value) => String(value || 'invoice').toLowerCase() === 'proposal';
 
+const isPaidPlan = (user) => user?.plan && user.plan !== 'free';
+
+const buildBusinessSnapshot = (user, details = {}) => ({
+    name: user.companyName || user.name || 'InvoicePro',
+    email: user.email || '',
+    address: user.address || '',
+    gstNumber: details.gst || user.gstNumber || '',
+    upiId: details.upiId || user.upiId || '',
+    logo: user.logo || ''
+});
+
 const getInvoiceDocumentMatch = (documentType) => (
     isProposalDocument(documentType)
         ? { documentType: 'proposal' }
@@ -235,7 +246,7 @@ router.post('/', protect, async(req, res) => {
             user: user._id
         });
 
-        if (user.plan === 'free' && count >= FREE_PLAN_LIMIT) {
+        if (!isPaidPlan(user) && count >= FREE_PLAN_LIMIT) {
             return res.status(403).json({
                 message: 'Free plan limit reached',
                 limitReached: true
@@ -269,6 +280,15 @@ router.post('/', protect, async(req, res) => {
         }
 
         const normalizedDocumentType = isProposalDocument(documentType) ? 'proposal' : 'invoice';
+        const finalUpiId = normalizedDocumentType === 'invoice' ? (upiId || user.upiId || '') : '';
+
+        if (normalizedDocumentType === 'invoice' && recurring?.enabled && !isPaidPlan(user)) {
+            return res.status(403).json({
+                message: 'Recurring invoices are a Pro feature.',
+                upgradeRequired: true
+            });
+        }
+
         const invoiceNumber = await generateDocumentNumber(user._id, normalizedDocumentType);
 
         const invoice = await Invoice.create({
@@ -287,7 +307,11 @@ router.post('/', protect, async(req, res) => {
             gst: gst || '',
             cgst: Number(cgst) || 0,
             sgst: Number(sgst) || 0,
-            upiId: normalizedDocumentType === 'invoice' ? (upiId || '') : '',
+            upiId: finalUpiId,
+            businessSnapshot: buildBusinessSnapshot(user, {
+                gst,
+                upiId: finalUpiId
+            }),
             invoiceNumber,
             user: user._id,
             proposalStatus: normalizedDocumentType === 'proposal' ? 'sent' : null,
@@ -432,6 +456,16 @@ router.post('/:id/convert', protect, async(req, res) => {
         }
 
         const invoiceNumber = await generateDocumentNumber(req.user._id, 'invoice');
+        const proposalSnapshot = proposal.businessSnapshot || {};
+        const hasProposalSnapshot = Boolean(
+            proposalSnapshot.name ||
+            proposalSnapshot.email ||
+            proposalSnapshot.address ||
+            proposalSnapshot.gstNumber ||
+            proposalSnapshot.upiId ||
+            proposalSnapshot.logo
+        );
+        const finalUpiId = proposal.upiId || proposalSnapshot.upiId || req.user.upiId || '';
         const invoice = await Invoice.create({
             documentType: 'invoice',
             clientName: proposal.clientName,
@@ -446,7 +480,13 @@ router.post('/:id/convert', protect, async(req, res) => {
             gst: proposal.gst || '',
             cgst: Number(proposal.cgst) || 0,
             sgst: Number(proposal.sgst) || 0,
-            upiId: proposal.upiId || req.user.upiId || '',
+            upiId: finalUpiId,
+            businessSnapshot: hasProposalSnapshot
+                ? { ...proposalSnapshot, upiId: finalUpiId }
+                : buildBusinessSnapshot(req.user, {
+                    gst: proposal.gst,
+                    upiId: finalUpiId
+                }),
             invoiceNumber,
             user: req.user._id,
             status: 'pending',
@@ -673,11 +713,10 @@ router.post('/recurring/:id/run-now', protect, async(req, res) => {
             return res.status(404).json({ message: 'Recurring invoice not found' });
         }
 
-        const invoiceCount = await Invoice.countDocuments({ user: req.user._id });
-        if (req.user.plan === 'free' && invoiceCount >= FREE_PLAN_LIMIT) {
+        if (!isPaidPlan(req.user)) {
             return res.status(403).json({
-                message: 'Free plan limit reached',
-                limitReached: true
+                message: 'Recurring invoices are a Pro feature.',
+                upgradeRequired: true
             });
         }
 
@@ -703,6 +742,10 @@ router.post('/recurring/:id/run-now', protect, async(req, res) => {
             cgst: Number(schedule.template.cgst) || 0,
             sgst: Number(schedule.template.sgst) || 0,
             upiId: schedule.template.upiId || '',
+            businessSnapshot: buildBusinessSnapshot(req.user, {
+                gst: schedule.template.gst,
+                upiId: schedule.template.upiId
+            }),
             invoiceNumber,
             user: req.user._id,
             status: 'pending',
@@ -778,7 +821,7 @@ router.post('/recurring/run', async(req, res) => {
         processed += 1;
 
         try {
-            const user = await User.findById(schedule.user).select('plan companyName name');
+            const user = await User.findById(schedule.user).select('plan companyName name email address gstNumber upiId logo');
             if (!user) {
                 schedule.status = 'paused';
                 schedule.pauseReason = 'user_missing';
@@ -786,10 +829,9 @@ router.post('/recurring/run', async(req, res) => {
                 continue;
             }
 
-            const invoiceCount = await Invoice.countDocuments({ user: schedule.user });
-            if (user.plan === 'free' && invoiceCount >= FREE_PLAN_LIMIT) {
+            if (!isPaidPlan(user)) {
                 schedule.status = 'paused';
-                schedule.pauseReason = 'plan_limit_reached';
+                schedule.pauseReason = 'pro_plan_required';
                 await schedule.save();
                 continue;
             }
@@ -816,6 +858,10 @@ router.post('/recurring/run', async(req, res) => {
                 cgst: Number(schedule.template.cgst) || 0,
                 sgst: Number(schedule.template.sgst) || 0,
                 upiId: schedule.template.upiId || '',
+                businessSnapshot: buildBusinessSnapshot(user, {
+                    gst: schedule.template.gst,
+                    upiId: schedule.template.upiId
+                }),
                 invoiceNumber,
                 user: schedule.user,
                 status: 'pending',

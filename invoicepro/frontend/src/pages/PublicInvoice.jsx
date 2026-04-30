@@ -208,8 +208,14 @@ export default function PublicInvoice() {
     }
   };
 
-  const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending'
-    ? `upi://pay?pa=${invoice.user?.upiId || invoice.upiId}&pn=${encodeURIComponent(invoice.user?.companyName || 'Service Provider')}&am=${total.toFixed(2)}&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}`
+  const business = invoice.businessSnapshot || {};
+  const companyName = business.name || invoice.user?.companyName || 'Service Provider';
+  const companyAddress = business.address || invoice.user?.address || 'Tamil Nadu, India';
+  const companyLogo = business.logo || invoice.user?.logo || '';
+  const companyUpi = invoice.upiId || business.upiId || invoice.user?.upiId || '';
+
+  const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && companyUpi
+    ? `upi://pay?pa=${companyUpi}&pn=${encodeURIComponent(companyName)}&am=${total.toFixed(2)}&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}`
     : '';
 
   const badgeContent = invoiceMeta.isProposal
@@ -222,7 +228,7 @@ export default function PublicInvoice() {
       ? { label: 'Paid', className: 'bg-green-500' }
       : null;
 
-  const safeCompanyLogoUrl = getSafeRemoteImageUrl(invoice.user?.logo);
+  const safeCompanyLogoUrl = getSafeRemoteImageUrl(companyLogo);
 
   return (
     <div className="premium-page min-h-screen px-4 py-10">
@@ -236,12 +242,17 @@ export default function PublicInvoice() {
         <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-200 pb-8 mb-8">
           <div>
             <div className="mb-2 flex items-center gap-3">
-              {safeCompanyLogoUrl && (
-                <div className="h-10 w-10 rounded-lg border border-gray-200 bg-white p-1">
-                  <img src={safeCompanyLogoUrl} alt="Company logo" className="h-full w-full object-contain" />
+              {safeCompanyLogoUrl ? (
+                <div className="h-12 w-12 rounded-lg border border-gray-200 bg-white p-1 shadow-sm">
+                  <img src={safeCompanyLogoUrl} alt={`${companyName} logo`} className="h-full w-full object-contain" />
                 </div>
+              ) : (
+                <BrandLogo showText={false} textColor="black" />
               )}
-              <BrandLogo showText={true} textColor="black" />
+              <div>
+                <p className="text-xl font-black leading-none text-slate-950">{companyName}</p>
+                <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Powered by InvoicePro</p>
+              </div>
             </div>
             <p className="text-slate-500 mt-2 font-bold uppercase text-[10px] tracking-widest">
               {invoiceMeta.headerNote}
@@ -282,19 +293,19 @@ export default function PublicInvoice() {
             </p>
           </div>
 
-          {invoice.user?.companyName && (
+          {companyName && (
             <div className="md:text-right">
             <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-3">
                 From
               </p>
               <h2 className="text-xl font-bold text-slate-950 leading-tight">
-                {invoice.user.companyName}
+                {companyName}
               </h2>
               <p className="text-gray-500 mt-1">
                 {invoiceMeta.isProposal ? 'Service Proposal' : 'Professional Services'}
               </p>
               <p className="text-gray-500 mt-1 text-sm">
-                {invoice.user?.address || 'Tamil Nadu, India'}
+                {companyAddress}
               </p>
             </div>
           )}
@@ -408,7 +419,7 @@ export default function PublicInvoice() {
               <div className="rounded-xl bg-red-50 border border-red-100 p-6">
                 <p className="font-bold text-red-800">Proposal expired</p>
                 <p className="text-sm text-red-600 mt-1">
-                  This proposal is no longer valid. Please contact {invoice.user?.companyName || 'the provider'} for an updated version.
+                  This proposal is no longer valid. Please contact {companyName || 'the provider'} for an updated version.
                 </p>
               </div>
             )}
@@ -450,7 +461,7 @@ export default function PublicInvoice() {
 
         <div className="mt-12 pt-8 border-t border-gray-100 text-center">
           <p className="text-sm text-gray-400">
-            Thank you for your business. For any queries, please contact <span className="font-semibold text-gray-600">{invoice.user?.companyName || 'the provider'}</span>.
+            Thank you for your business. For any queries, please contact <span className="font-semibold text-gray-600">{companyName || 'the provider'}</span>.
           </p>
         </div>
       </div>

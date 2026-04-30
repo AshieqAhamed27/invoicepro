@@ -79,6 +79,33 @@ const invoiceSchema = new mongoose.Schema({
         default: ''
     },
 
+    businessSnapshot: {
+        name: {
+            type: String,
+            default: ''
+        },
+        email: {
+            type: String,
+            default: ''
+        },
+        address: {
+            type: String,
+            default: ''
+        },
+        gstNumber: {
+            type: String,
+            default: ''
+        },
+        upiId: {
+            type: String,
+            default: ''
+        },
+        logo: {
+            type: String,
+            default: ''
+        }
+    },
+
     date: {
         type: Date,
         default: Date.now
