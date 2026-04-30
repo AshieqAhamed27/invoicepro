@@ -77,6 +77,55 @@ const getProposalStatus = (invoice) => {
   return expired ? 'expired' : (invoice.proposalStatus || 'draft');
 };
 
+const firstText = (...values) => {
+  for (const value of values) {
+    const text = String(value || '').trim();
+    if (text) return text;
+  }
+
+  return '';
+};
+
+const getBrandInitials = (name = 'InvoicePro') => {
+  const words = String(name || 'InvoicePro')
+    .replace(/[^a-z0-9\s]/gi, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (!words.length) return 'IP';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+
+  return `${words[0][0]}${words[1][0]}`.toUpperCase();
+};
+
+const drawPdfBrandMark = async (doc, { x, y, size, logoUrl, initials, dark, gold, line }) => {
+  let renderedLogo = false;
+
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(...line);
+  doc.roundedRect(x, y, size, size, 8, 8, 'FD');
+
+  if (logoUrl) {
+    try {
+      const logo = await loadImageForPdf(logoUrl);
+      doc.addImage(logo.dataUrl, logo.format, x + 6, y + 6, size - 12, size - 12);
+      renderedLogo = true;
+    } catch {
+      renderedLogo = false;
+    }
+  }
+
+  if (!renderedLogo) {
+    doc.setFillColor(...gold);
+    doc.roundedRect(x + 8, y + 8, size - 16, size - 16, 6, 6, 'F');
+    doc.setTextColor(...dark);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text(initials, x + size / 2, y + size / 2 + 5, { align: 'center' });
+  }
+};
+
 export default function InvoiceView() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -133,13 +182,23 @@ export default function InvoiceView() {
   if (!invoice || !meta) return null;
 
   const business = invoice.businessSnapshot || {};
-  const companyName = business.name || user?.companyName || user?.name || 'InvoicePro';
-  const businessEmail = business.email || user?.email || '';
-  const businessAddress = business.address || user?.address || '';
-  const businessGst = business.gstNumber || user?.gstNumber || invoice.gst || '';
-  const businessUpi = business.upiId || user?.upiId || '';
-  const rawLogo = (business.logo || user?.logo || '').trim();
+  const invoiceProfile = invoice.user && typeof invoice.user === 'object' ? invoice.user : {};
+  const profile = { ...(user || {}), ...invoiceProfile };
+  const snapshotName = firstText(business.name);
+  const companyName = firstText(
+    profile.companyName,
+    snapshotName !== 'InvoicePro' ? snapshotName : '',
+    profile.name,
+    snapshotName,
+    'InvoicePro'
+  );
+  const businessEmail = firstText(profile.email, business.email);
+  const businessAddress = firstText(profile.address, business.address);
+  const businessGst = firstText(invoice.gst, profile.gstNumber, business.gstNumber);
+  const businessUpi = firstText(profile.upiId, business.upiId);
+  const rawLogo = firstText(profile.logo, business.logo);
   const logoUrl = getSafeRemoteImageUrl(rawLogo) || null;
+  const brandInitials = getBrandInitials(companyName);
 
   const items = invoice.items?.length > 0
     ? invoice.items
@@ -217,23 +276,31 @@ export default function InvoiceView() {
       doc.setFillColor(...dark);
       doc.roundedRect(margin, 32, pageWidth - margin * 2, 126, 8, 8, 'F');
 
-      if (logoUrl) {
-        try {
-          const logo = await loadImageForPdf(logoUrl);
-          doc.addImage(logo.dataUrl, logo.format, margin + 24, 54, 36, 36);
-        } catch {
-          // Remote logos may block canvas access; the PDF still renders without it.
-        }
-      }
+      await drawPdfBrandMark(doc, {
+        x: margin + 24,
+        y: 54,
+        size: 38,
+        logoUrl,
+        initials: brandInitials,
+        dark,
+        gold,
+        line
+      });
 
       doc.setTextColor(255, 255, 255);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
-      doc.text(companyName, margin + (logoUrl ? 72 : 24), 72);
+      const brandTextX = margin + 74;
+      const companyNameLines = doc.splitTextToSize(companyName, 245).slice(0, 2);
+      doc.text(companyNameLines, brandTextX, 70);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor(203, 213, 225);
-      doc.text(meta.isProposal ? 'Service proposal prepared for review' : 'Professional invoice prepared for payment', margin + (logoUrl ? 72 : 24), 90);
+      doc.text(
+        meta.isProposal ? 'Service proposal prepared for review' : 'Professional invoice prepared for payment',
+        brandTextX,
+        90 + Math.max(0, companyNameLines.length - 1) * 14
+      );
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(26);
@@ -523,7 +590,7 @@ export default function InvoiceView() {
                           ? <BrandLogo showText={false} />
                           : (
                             <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white text-sm font-black text-slate-950 shadow-lg">
-                              {companyName.slice(0, 2).toUpperCase()}
+                              {brandInitials}
                             </div>
                           )
                       )}

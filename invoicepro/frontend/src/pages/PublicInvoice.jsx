@@ -47,6 +47,15 @@ const isDatePastEndOfDay = (value) => {
   return date < new Date();
 };
 
+const firstText = (...values) => {
+  for (const value of values) {
+    const text = String(value || '').trim();
+    if (text) return text;
+  }
+
+  return '';
+};
+
 export default function PublicInvoice() {
   const { id } = useParams();
 
@@ -209,10 +218,17 @@ export default function PublicInvoice() {
   };
 
   const business = invoice.businessSnapshot || {};
-  const companyName = business.name || invoice.user?.companyName || 'Service Provider';
-  const companyAddress = business.address || invoice.user?.address || 'Tamil Nadu, India';
-  const companyLogo = business.logo || invoice.user?.logo || '';
-  const companyUpi = invoice.upiId || business.upiId || invoice.user?.upiId || '';
+  const snapshotName = firstText(business.name);
+  const companyName = firstText(
+    snapshotName !== 'InvoicePro' ? snapshotName : '',
+    invoice.user?.companyName,
+    invoice.user?.name,
+    snapshotName,
+    'Service Provider'
+  );
+  const companyAddress = firstText(business.address, invoice.user?.address, 'Tamil Nadu, India');
+  const companyLogo = firstText(business.logo, invoice.user?.logo);
+  const companyUpi = firstText(invoice.upiId, business.upiId, invoice.user?.upiId);
 
   const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && companyUpi
     ? `upi://pay?pa=${companyUpi}&pn=${encodeURIComponent(companyName)}&am=${total.toFixed(2)}&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}`

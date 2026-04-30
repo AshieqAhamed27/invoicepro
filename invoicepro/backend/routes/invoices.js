@@ -161,7 +161,7 @@ router.get('/public/:id', async(req, res) => {
         }
 
         const invoice = await Invoice.findById(req.params.id)
-            .populate('user', 'companyName upiId address logo');
+            .populate('user', 'companyName name email gstNumber upiId address logo');
 
         if (!invoice) {
             return res.status(404).json({
@@ -928,7 +928,7 @@ router.get('/:id', protect, async(req, res) => {
         const invoice = await Invoice.findOne({
             _id: req.params.id,
             user: req.user._id
-        });
+        }).populate('user', 'companyName name email gstNumber upiId address logo');
 
         if (!invoice) {
             return res.status(404).json({
