@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { invoices } from '../data/mockData';
+import { formatRs } from '../utils/currency';
 import Skeleton from './ui/Skeleton';
 
 const statusStyles = {
@@ -8,9 +9,6 @@ const statusStyles = {
   Pending: 'border-amber-300/20 bg-amber-300/10 text-amber-100',
   Overdue: 'border-rose-400/20 bg-rose-400/10 text-rose-200'
 };
-
-const formatCurrency = (amount) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
 
 export default function InvoiceTable({ loading }) {
   return (
@@ -62,7 +60,7 @@ export default function InvoiceTable({ loading }) {
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</p>
-                    <p className="mt-1 font-bold text-white">{formatCurrency(invoice.amount)}</p>
+                    <p className="mt-1 font-bold text-white">{formatRs(invoice.amount)}</p>
                   </div>
                 </div>
               </motion.article>
@@ -103,7 +101,7 @@ export default function InvoiceTable({ loading }) {
                       {invoice.status}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-right font-bold text-white">{formatCurrency(invoice.amount)}</td>
+                  <td className="px-5 py-4 text-right font-bold text-white">{formatRs(invoice.amount)}</td>
                 </motion.tr>
               ))}
             </tbody>

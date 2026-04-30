@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { CreditCard, FileText, Settings, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import InvoiceTable from '../components/InvoiceTable';
 import PageTransition from '../components/ui/PageTransition';
 import { clients } from '../data/mockData';
+import { formatRs } from '../utils/currency';
 
 const pageMeta = {
   invoices: {
@@ -71,6 +73,26 @@ export default function WorkspacePage({ type }) {
             </motion.article>
           ))}
         </div>
+      )}
+
+      {type === 'payments' && (
+        <section className="rounded-3xl border border-blue-300/20 bg-gradient-to-br from-blue-500/12 to-violet-500/10 p-6 shadow-2xl shadow-black/20">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-cyan-300">Pro checkout</p>
+              <h3 className="mt-2 text-2xl font-black text-white">Upgrade with Razorpay</h3>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+                Monthly Pro starts at {formatRs(499)} and unlocks unlimited invoices, payment links, and recurring billing.
+              </p>
+            </div>
+            <Link
+              to="/upgrade"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-950/30 outline-none transition hover:from-blue-400 hover:to-violet-400 focus-visible:ring-2 focus-visible:ring-blue-300"
+            >
+              Upgrade Pro
+            </Link>
+          </div>
+        </section>
       )}
 
       {(type === 'payments' || type === 'settings') && (

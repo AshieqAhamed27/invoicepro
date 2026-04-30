@@ -93,13 +93,16 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onClose }) {
         </nav>
 
         <div className="border-t border-white/10 p-4">
-          <div className={`rounded-2xl border border-white/10 bg-white/[0.05] p-3 ${collapsed ? 'hidden' : ''}`}>
+          <Link
+            to="/upgrade"
+            className={`block rounded-2xl border border-white/10 bg-white/[0.05] p-3 outline-none transition hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-blue-300 ${collapsed ? 'hidden' : ''}`}
+          >
             <p className="text-xs font-semibold text-slate-300">Growth plan</p>
             <div className="mt-3 h-2 rounded-full bg-white/10">
               <div className="h-2 w-3/4 rounded-full bg-gradient-to-r from-cyan-400 to-violet-400" />
             </div>
-            <p className="mt-3 text-xs text-slate-500">74% of monthly invoice volume used</p>
-          </div>
+            <p className="mt-3 text-xs text-slate-500">Upgrade to Pro with Razorpay</p>
+          </Link>
 
           <button
             type="button"

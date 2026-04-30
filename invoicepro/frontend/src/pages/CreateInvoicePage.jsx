@@ -5,11 +5,7 @@ import SuccessModal from '../components/SuccessModal';
 import MotionButton from '../components/ui/MotionButton';
 import PageTransition from '../components/ui/PageTransition';
 import { clients } from '../data/mockData';
-
-const currency = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD'
-});
+import { formatRs } from '../utils/currency';
 
 const createItem = () => ({
   id: crypto.randomUUID(),
@@ -212,7 +208,7 @@ export default function CreateInvoicePage() {
 
                     <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-right text-sm font-bold text-white">
                       <span className="mb-1 block text-left text-xs font-semibold text-slate-500 lg:hidden">Amount</span>
-                      {currency.format(amount)}
+                      {formatRs(amount)}
                     </div>
 
                     <button
@@ -255,7 +251,7 @@ export default function CreateInvoicePage() {
           <section className="rounded-3xl border border-white/10 bg-slate-800 p-6 shadow-2xl shadow-black/20">
             <h3 className="text-lg font-bold text-white">Total</h3>
             <div className="mt-5 space-y-4">
-              <SummaryRow label="Subtotal" value={currency.format(totals.subtotal)} />
+              <SummaryRow label="Subtotal" value={formatRs(totals.subtotal)} />
               <div className="flex items-center justify-between gap-4">
                 <label htmlFor="taxRate" className="text-sm font-medium text-slate-400">
                   Tax
@@ -282,9 +278,9 @@ export default function CreateInvoicePage() {
                   <span className="text-sm text-slate-400">%</span>
                 </div>
               </div>
-              <SummaryRow label="Tax amount" value={currency.format(totals.tax)} />
+              <SummaryRow label="Tax amount" value={formatRs(totals.tax)} />
               <div className="h-px bg-white/10" />
-              <SummaryRow label="Amount due" value={currency.format(totals.total)} large />
+              <SummaryRow label="Amount due" value={formatRs(totals.total)} large />
             </div>
 
             <MotionButton type="submit" className="mt-6 w-full" disabled={submitting}>
@@ -298,7 +294,7 @@ export default function CreateInvoicePage() {
       <SuccessModal
         open={successOpen}
         onClose={() => setSuccessOpen(false)}
-        total={currency.format(totals.total)}
+        total={formatRs(totals.total)}
       />
     </PageTransition>
   );

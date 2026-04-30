@@ -103,15 +103,28 @@ const createRazorpayOrder = (payload, authHeader) => {
                     resolve({
                         ok: res.statusCode >= 200 && res.statusCode < 300,
                         status: res.statusCode,
-                        body: JSON.parse(body)
+                        body: body ? JSON.parse(body) : {}
                     });
-                } catch (err) { reject(err); }
+                } catch (err) {
+                    resolve({
+                        ok: false,
+                        status: res.statusCode || 500,
+                        body: { message: body || 'Invalid Razorpay response' }
+                    });
+                }
             });
         });
         req.on('error', reject);
         req.write(data);
         req.end();
     });
+};
+
+const getRazorpayErrorMessage = (body) => {
+    return body?.error?.description ||
+        body?.error?.reason ||
+        body?.message ||
+        'Failed to create Razorpay order';
 };
 
 router.get('/plans', async(req, res) => {
@@ -147,7 +160,11 @@ router.post('/razorpay/order', protect, async(req, res) => {
             notes: { userId: String(req.user._id), plan: normalizedPlan }
         }, authHeader);
 
-        if (!razorpayRes.ok) return res.status(razorpayRes.status).json({ message: 'Failed to create order' });
+        if (!razorpayRes.ok) {
+            return res.status(razorpayRes.status).json({
+                message: getRazorpayErrorMessage(razorpayRes.body)
+            });
+        }
 
         res.json({
             keyId: process.env.RAZORPAY_KEY_ID,
@@ -155,7 +172,10 @@ router.post('/razorpay/order', protect, async(req, res) => {
             plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount },
             pricingVersion: PRICING_VERSION
         });
-    } catch (err) { res.status(500).json({ message: 'Server error' }); }
+    } catch (err) {
+        console.error('Razorpay plan order error:', err.message);
+        res.status(500).json({ message: 'Unable to create Razorpay order' });
+    }
 });
 
 router.post('/public/order', async(req, res) => {
@@ -184,9 +204,16 @@ router.post('/public/order', async(req, res) => {
             notes: { invoiceId: String(invoice._id) }
         }, authHeader);
 
-        if (!razorpayRes.ok) return res.status(razorpayRes.status).json({ message: 'Failed to create order' });
+        if (!razorpayRes.ok) {
+            return res.status(razorpayRes.status).json({
+                message: getRazorpayErrorMessage(razorpayRes.body)
+            });
+        }
         res.json({ keyId: process.env.RAZORPAY_KEY_ID, order: razorpayRes.body });
-    } catch (err) { res.status(500).json({ message: 'Server error' }); }
+    } catch (err) {
+        console.error('Razorpay public order error:', err.message);
+        res.status(500).json({ message: 'Unable to create Razorpay order' });
+    }
 });
 
 router.post('/public/verify', async(req, res) => {

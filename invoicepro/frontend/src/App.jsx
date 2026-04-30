@@ -4,6 +4,7 @@ import DashboardLayout from './components/DashboardLayout';
 import CreateInvoicePage from './pages/CreateInvoicePage';
 import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
+import UpgradePage from './pages/UpgradePage';
 import WorkspacePage from './pages/WorkspacePage';
 
 function AppRoutes() {
@@ -50,6 +51,22 @@ function AppRoutes() {
           element={
             <DashboardLayout>
               <WorkspacePage type="payments" />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/payment"
+          element={
+            <DashboardLayout>
+              <UpgradePage />
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="/upgrade"
+          element={
+            <DashboardLayout>
+              <UpgradePage />
             </DashboardLayout>
           }
         />

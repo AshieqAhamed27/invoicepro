@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Banknote,
   CreditCard,
-  DollarSign,
+  IndianRupee,
   Link as LinkIcon,
   Plus,
   ReceiptText,
@@ -17,6 +17,7 @@ import StatCard from '../components/StatCard';
 import MotionButton from '../components/ui/MotionButton';
 import PageTransition from '../components/ui/PageTransition';
 import Skeleton from '../components/ui/Skeleton';
+import { formatRs } from '../utils/currency';
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
@@ -46,6 +47,12 @@ export default function DashboardPage() {
       icon: paymentLinkSent ? Send : LinkIcon,
       onClick: () => setPaymentLinkSent(true),
       variant: 'secondary'
+    },
+    {
+      label: 'Upgrade Pro',
+      icon: CreditCard,
+      onClick: () => navigate('/upgrade'),
+      variant: 'secondary'
     }
   ];
 
@@ -57,7 +64,7 @@ export default function DashboardPage() {
             <div>
               <p className="text-sm font-semibold text-cyan-300">April cash flow</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                $54,320 collected with 91% on-time payments.
+                {formatRs(54320)} collected with 91% on-time payments.
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
                 Your billing pipeline is healthy. Three high-value invoices are pending this week.
@@ -93,9 +100,9 @@ export default function DashboardPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <StatCard label="Revenue" value="$54.3k" delta="+18.4%" icon={DollarSign} tone="blue" loading={loading} />
-        <StatCard label="Pending" value="$18.4k" delta="+5.2%" icon={ReceiptText} tone="amber" loading={loading} />
-        <StatCard label="Paid" value="$41.7k" delta="+22.1%" icon={Banknote} tone="emerald" loading={loading} />
+        <StatCard label="Revenue" value={formatRs(54320, { compact: true })} delta="+18.4%" icon={IndianRupee} tone="blue" loading={loading} />
+        <StatCard label="Pending" value={formatRs(18400, { compact: true })} delta="+5.2%" icon={ReceiptText} tone="amber" loading={loading} />
+        <StatCard label="Paid" value={formatRs(41700, { compact: true })} delta="+22.1%" icon={Banknote} tone="emerald" loading={loading} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_360px]">

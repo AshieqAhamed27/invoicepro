@@ -114,20 +114,20 @@ export const features = [
 export const plans = [
   {
     name: 'Starter',
-    price: '$19',
+    price: 'Rs 499',
     description: 'For solo operators and new studios.',
     perks: ['Unlimited invoices', 'Payment links', 'Client profiles']
   },
   {
     name: 'Growth',
-    price: '$49',
+    price: 'Rs 1,499',
     description: 'For teams with recurring client work.',
     perks: ['Team dashboard', 'Automated reminders', 'Advanced tax controls'],
     highlighted: true
   },
   {
     name: 'Scale',
-    price: '$99',
+    price: 'Rs 2,999',
     description: 'For agencies with complex billing.',
     perks: ['Approval workflows', 'Custom roles', 'Priority support']
   }
