@@ -224,36 +224,36 @@ export default function Dashboard() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-10 md:py-16">
+      <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
+          <div className="min-w-0">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-5">
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">{isPro ? 'Pro Plan' : 'Free Plan'}</span>
             </div>
-            <h1 className="text-4xl font-bold sm:text-6xl tracking-tight text-white leading-none">
+            <h1 className="text-4xl font-bold sm:text-5xl lg:text-6xl tracking-tight text-white leading-none">
               Good morning, {user.name?.split(' ')[0] || 'there'}.
             </h1>
-            <p className="mt-4 text-xl text-zinc-500 font-medium">
+            <p className="mt-4 text-base sm:text-xl text-zinc-500 font-medium">
               You currently have <span className="text-white font-black italic">{stats.pending} unpaid</span> invoices in play.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-3 md:flex md:flex-wrap md:gap-4">
             <Link
               to="/launch"
-              className="btn btn-dark px-8 py-5 font-black uppercase text-xs tracking-widest"
+              className="btn btn-dark px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
             >
               Launch Center
             </Link>
             <Link
               to="/create-invoice?type=proposal"
-              className="btn btn-secondary px-8 py-5 font-black uppercase text-xs tracking-widest"
+              className="btn btn-secondary px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
             >
               New Proposal
             </Link>
             <Link
               to="/create-invoice"
-              className="btn btn-primary px-10 py-5 shadow-2xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all font-black uppercase text-xs tracking-widest"
+              className="btn btn-primary px-5 sm:px-10 py-4 sm:py-5 shadow-2xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all font-black uppercase text-xs tracking-widest"
             >
               New Invoice
             </Link>
@@ -261,13 +261,13 @@ export default function Dashboard() {
         </section>
 
         {!loading && invoices.length === 0 && !onboardingDismissed && (
-          <section className="reveal reveal-delay-1 mb-12 premium-panel p-10 relative overflow-hidden">
+          <section className="reveal reveal-delay-1 mb-12 premium-panel p-5 sm:p-8 lg:p-10 relative overflow-hidden">
             <div className="relative z-10 flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
               <div className="max-w-2xl">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600 mb-3">
                   Quick Start
                 </p>
-                <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none">
+                <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-none">
                   Create your first invoice or proposal in 60 seconds.
                 </h2>
                 <p className="mt-4 text-zinc-500 font-medium text-sm sm:text-base leading-relaxed">
@@ -278,14 +278,14 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={() => navigate('/create-invoice')}
-                    className="btn btn-primary px-8 py-4 rounded-2xl text-base font-black shadow-xl shadow-yellow-500/10"
+                    className="btn btn-primary px-6 sm:px-8 py-4 rounded-2xl text-base font-black shadow-xl shadow-yellow-500/10"
                   >
                     Create First Invoice
                   </button>
                   <button
                     type="button"
                     onClick={() => navigate('/create-invoice?type=proposal')}
-                    className="btn btn-dark px-8 py-4 rounded-2xl text-base font-black"
+                    className="btn btn-dark px-6 sm:px-8 py-4 rounded-2xl text-base font-black"
                   >
                     Create First Proposal
                   </button>
@@ -322,26 +322,26 @@ export default function Dashboard() {
           </section>
         )}
 
-        <section className="mb-12 grid grid-cols-2 gap-6 lg:grid-cols-4">
+        <section className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {[
             { label: 'Collected Revenue', val: formatCurrency(stats.totalRevenue), color: 'text-white' },
             { label: 'Pending Invoices', val: stats.pending, color: 'text-yellow-400' },
             { label: 'Paid Invoices', val: stats.paid, color: 'text-white' },
             { label: 'Total Invoices', val: stats.total, color: 'text-white' }
           ].map((item, i) => (
-            <div key={i} className="card p-8 hover:scale-[1.02] transition-transform relative overflow-hidden group">
+            <div key={i} className="card p-5 sm:p-8 hover:scale-[1.02] transition-transform relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-10 transition-opacity">
                 <svg className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={i === 0 ? 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' : 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'} /></svg>
               </div>
               <p className="text-[10px] uppercase tracking-widest font-black text-zinc-600 mb-6">{item.label}</p>
-              <h2 className={`text-4xl font-black ${item.color} tracking-tight`}>{item.val}</h2>
+              <h2 className={`text-3xl sm:text-4xl font-black ${item.color} tracking-tight break-words`}>{item.val}</h2>
             </div>
           ))}
         </section>
 
-        <section className="reveal reveal-delay-1 mb-12 grid gap-10 lg:grid-cols-[2fr_1fr]">
-          <div className="premium-panel p-10 relative overflow-hidden">
-            <div className="mb-12 flex justify-between items-center">
+        <section className="reveal reveal-delay-1 mb-12 grid gap-8 lg:grid-cols-[2fr_1fr] lg:gap-10">
+          <div className="premium-panel p-5 sm:p-8 lg:p-10 relative overflow-hidden">
+            <div className="mb-8 sm:mb-12 flex justify-between items-center gap-4">
               <div>
                 <h2 className="text-2xl font-bold text-white mb-1">Revenue Trend</h2>
                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Performance Over Recent Billing Periods</p>
@@ -376,7 +376,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="premium-panel p-10 relative overflow-hidden group">
+          <div className="premium-panel p-5 sm:p-8 lg:p-10 relative overflow-hidden group">
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-400/10 border border-yellow-400/20 mb-8">
                 <p className="text-[10px] uppercase tracking-widest font-black text-yellow-300">AI Revenue Coach</p>
@@ -465,7 +465,7 @@ export default function Dashboard() {
         </section>
 
         <section className="reveal reveal-delay-2 premium-panel overflow-hidden">
-          <div className="px-10 py-8 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="px-5 py-6 sm:px-8 lg:px-10 lg:py-8 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold text-white">Recent Billing Documents</h2>
               <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mt-1">Track proposals, invoices, approvals, and follow-ups</p>
@@ -484,20 +484,20 @@ export default function Dashboard() {
                 {[1, 2, 3].map((i) => <div key={i} className="h-16 w-full bg-white/5 rounded-2xl animate-pulse" />)}
               </div>
             ) : invoices.length === 0 ? (
-              <div className="p-16 text-center">
+              <div className="p-6 sm:p-10 lg:p-16 text-center">
                 <p className="text-zinc-600 font-black uppercase tracking-widest text-xs mb-6">No billing documents yet.</p>
-                <div className="flex justify-center gap-3">
+                <div className="flex flex-col justify-center gap-3 sm:flex-row">
                   <button
                     type="button"
                     onClick={() => navigate('/create-invoice')}
-                    className="btn btn-primary px-10 py-4 rounded-2xl text-base font-black shadow-xl shadow-yellow-500/10"
+                    className="btn btn-primary px-6 sm:px-10 py-4 rounded-2xl text-base font-black shadow-xl shadow-yellow-500/10"
                   >
                     Create Invoice
                   </button>
                   <button
                     type="button"
                     onClick={() => navigate('/create-invoice?type=proposal')}
-                    className="btn btn-secondary px-10 py-4 rounded-2xl text-base font-black"
+                    className="btn btn-secondary px-6 sm:px-10 py-4 rounded-2xl text-base font-black"
                   >
                     Create Proposal
                   </button>

@@ -231,17 +231,17 @@ export default function PublicInvoice() {
   const safeCompanyLogoUrl = getSafeRemoteImageUrl(companyLogo);
 
   return (
-    <div className="premium-page min-h-screen px-4 py-10">
-      <div className="reveal mx-auto max-w-4xl rounded-lg bg-white p-8 text-black shadow-2xl md:p-12 relative overflow-hidden">
+    <div className="premium-page min-h-screen px-3 py-5 sm:px-4 sm:py-10">
+      <div className="reveal mx-auto max-w-4xl rounded-lg bg-white p-5 text-black shadow-2xl sm:p-8 md:p-12 relative overflow-hidden">
         {badgeContent && (
-          <div className={`absolute top-12 right-[-40px] rotate-45 ${badgeContent.className} text-white px-16 py-1 font-bold text-lg shadow-md uppercase tracking-widest z-10`}>
+          <div className={`absolute top-6 right-[-46px] rotate-45 ${badgeContent.className} text-white px-12 py-1 text-xs font-bold shadow-md uppercase tracking-widest z-10 sm:top-12 sm:right-[-40px] sm:px-16 sm:text-lg`}>
             {badgeContent.label}
           </div>
         )}
 
         <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-200 pb-8 mb-8">
           <div>
-            <div className="mb-2 flex items-center gap-3">
+            <div className="mb-2 flex min-w-0 items-center gap-3">
               {safeCompanyLogoUrl ? (
                 <div className="h-12 w-12 rounded-lg border border-gray-200 bg-white p-1 shadow-sm">
                   <img src={safeCompanyLogoUrl} alt={`${companyName} logo`} className="h-full w-full object-contain" />
@@ -250,7 +250,7 @@ export default function PublicInvoice() {
                 <BrandLogo showText={false} textColor="black" />
               )}
               <div>
-                <p className="text-xl font-black leading-none text-slate-950">{companyName}</p>
+                <p className="break-words text-lg font-black leading-none text-slate-950 sm:text-xl">{companyName}</p>
                 <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Powered by InvoicePro</p>
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function PublicInvoice() {
 
           <div className="text-left md:text-right">
             <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">{invoiceMeta.idLabel}</p>
-            <p className="text-2xl font-bold text-slate-950">
+            <p className="break-words text-xl font-bold text-slate-950 sm:text-2xl">
               {invoice.invoiceNumber}
             </p>
 
@@ -312,7 +312,7 @@ export default function PublicInvoice() {
         </div>
 
         <div className="mb-10 overflow-hidden rounded-xl border border-gray-100 shadow-sm">
-          <div className="grid grid-cols-[1fr_auto] bg-slate-950 px-6 py-4 font-bold text-white text-sm uppercase tracking-wider">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 bg-slate-950 px-4 py-4 font-bold text-white text-xs uppercase tracking-wider sm:px-6 sm:text-sm">
             <span>Description</span>
             <span className="text-right">Amount</span>
           </div>
@@ -321,12 +321,12 @@ export default function PublicInvoice() {
             {items.map((item, index) => (
               <div
                 key={index}
-                  className="grid grid-cols-[1fr_auto] px-6 py-5 items-center bg-white hover:bg-slate-50 transition-colors"
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 bg-white px-4 py-5 transition-colors hover:bg-slate-50 sm:px-6"
               >
-                <div>
-                  <p className="font-semibold text-slate-950">{item.name}</p>
+                <div className="min-w-0">
+                  <p className="break-words font-semibold text-slate-950">{item.name}</p>
                 </div>
-                <p className="text-right font-bold text-slate-950">
+                <p className="text-right font-bold text-slate-950 whitespace-nowrap">
                   {formatCurrency(item.price, invoice.currency)}
                 </p>
               </div>
@@ -340,7 +340,7 @@ export default function PublicInvoice() {
               <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-6">
                 <div className="flex flex-col sm:flex-row gap-6 items-center">
                   <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                    <QRCode value={upiUri} size={110} />
+                    <QRCode value={upiUri} size={96} />
                   </div>
                   <div className="text-center sm:text-left">
                     <p className="text-sm font-bold text-gray-900 mb-1">Scan to pay instantly</p>
@@ -351,13 +351,13 @@ export default function PublicInvoice() {
                       <button
                         onClick={handlePayNow}
                         disabled={paying}
-                        className="w-full sm:w-auto px-8 py-3 bg-slate-950 text-white rounded-lg font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-slate-950 text-white rounded-lg font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
                       >
                         {paying ? 'Opening...' : 'Razorpay Secure'}
                       </button>
                       <button
                         onClick={() => { window.location.href = upiUri; }}
-                        className="w-full sm:w-auto px-8 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-emerald-600 transition-all active:scale-95 uppercase tracking-widest md:hidden"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-emerald-600 transition-all active:scale-95 uppercase tracking-widest md:hidden"
                       >
                         Pay via UPI App
                       </button>

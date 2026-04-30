@@ -36,20 +36,27 @@ const upload = multer({
     }
 });
 
+const getConfiguredAmount = (envName, fallback) => {
+    const amount = Number(process.env[envName]);
+    return Number.isFinite(amount) && amount > 0 ? amount : fallback;
+};
+
 const planDetails = {
     monthly: {
-        amount: 499,
+        amount: getConfiguredAmount('PRO_MONTHLY_AMOUNT', 499),
         label: 'Pro Monthly',
         durationDays: 30,
         subscriptionCycles: 120,
-        planEnv: 'RAZORPAY_MONTHLY_PLAN_ID'
+        planEnv: 'RAZORPAY_MONTHLY_PLAN_ID',
+        amountEnv: 'PRO_MONTHLY_AMOUNT'
     },
     yearly: {
-        amount: 4999,
+        amount: getConfiguredAmount('PRO_YEARLY_AMOUNT', 4999),
         label: 'Pro Annual',
         durationDays: 365,
         subscriptionCycles: 10,
-        planEnv: 'RAZORPAY_YEARLY_PLAN_ID'
+        planEnv: 'RAZORPAY_YEARLY_PLAN_ID',
+        amountEnv: 'PRO_YEARLY_AMOUNT'
     }
 };
 
@@ -64,13 +71,18 @@ const getRazorpaySubscriptionPlanId = (plan) => {
     return process.env[planDetails[normalizedPlan].planEnv] || '';
 };
 
-const serializePlans = () => Object.entries(planDetails).map(([id, details]) => ({
+const serializePlan = (id, details, overrides = {}) => ({
     id,
-    amount: details.amount,
-    label: details.label,
+    amount: overrides.amount ?? details.amount,
+    currency: overrides.currency || 'INR',
+    label: overrides.label || details.label,
     durationDays: details.durationDays,
-    subscriptionReady: process.env.PAYMENT_SIMULATION === 'true' || Boolean(getRazorpaySubscriptionPlanId(id))
-}));
+    period: overrides.period || (id === 'yearly' ? 'yearly' : 'monthly'),
+    providerPlanId: overrides.providerPlanId || getRazorpaySubscriptionPlanId(id) || '',
+    amountSource: overrides.amountSource || 'configured',
+    subscriptionReady: process.env.PAYMENT_SIMULATION === 'true' || Boolean(getRazorpaySubscriptionPlanId(id)),
+    warning: overrides.warning || ''
+});
 
 const serializeUser = (user) => ({
     id: user._id,
@@ -171,16 +183,22 @@ const createRazorpayOrder = (payload, authHeader) => {
 
 const requestRazorpay = ({ path, method = 'POST', payload = {}, authHeader }) => {
     return new Promise((resolve, reject) => {
-        const data = JSON.stringify(payload);
+        const hasBody = method !== 'GET' && payload && Object.keys(payload).length > 0;
+        const data = hasBody ? JSON.stringify(payload) : '';
+        const headers = {
+            Authorization: authHeader
+        };
+
+        if (hasBody) {
+            headers['Content-Type'] = 'application/json';
+            headers['Content-Length'] = Buffer.byteLength(data);
+        }
+
         const req = https.request({
             hostname: 'api.razorpay.com',
             path,
             method,
-            headers: {
-                Authorization: authHeader,
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(data)
-            }
+            headers
         }, (res) => {
             let body = '';
             res.on('data', (chunk) => { body += chunk; });
@@ -201,10 +219,68 @@ const requestRazorpay = ({ path, method = 'POST', payload = {}, authHeader }) =>
             });
         });
         req.on('error', reject);
-        req.write(data);
+        if (hasBody) req.write(data);
         req.end();
     });
 };
+
+const amountFromRazorpayItem = (item = {}) => {
+    const paise = Number(item.amount ?? item.unit_amount);
+    if (!Number.isFinite(paise) || paise <= 0) return null;
+    return paise / 100;
+};
+
+const resolvePlanPricing = async(normalizedPlan, options = {}) => {
+    const details = planDetails[normalizedPlan];
+    const providerPlanId = getRazorpaySubscriptionPlanId(normalizedPlan);
+    const authHeader = getRazorpayAuthHeader();
+    const fallback = serializePlan(normalizedPlan, details);
+    const shouldFetchLivePlan = process.env.PAYMENT_SIMULATION !== 'true' && providerPlanId && authHeader;
+
+    if (!shouldFetchLivePlan) {
+        return fallback;
+    }
+
+    const razorpayRes = await requestRazorpay({
+        path: `/v1/plans/${encodeURIComponent(providerPlanId)}`,
+        method: 'GET',
+        authHeader
+    });
+
+    if (!razorpayRes.ok) {
+        if (options.requireLive) {
+            throw new Error(getRazorpayErrorMessage(razorpayRes.body) || 'Unable to verify Razorpay plan amount');
+        }
+
+        return serializePlan(normalizedPlan, details, {
+            warning: 'Could not fetch live Razorpay plan amount. Showing configured fallback amount.'
+        });
+    }
+
+    const liveAmount = amountFromRazorpayItem(razorpayRes.body?.item);
+    if (!liveAmount) {
+        if (options.requireLive) {
+            throw new Error('Razorpay plan amount is missing or invalid');
+        }
+
+        return serializePlan(normalizedPlan, details, {
+            warning: 'Razorpay plan amount is missing. Showing configured fallback amount.'
+        });
+    }
+
+    return serializePlan(normalizedPlan, details, {
+        amount: liveAmount,
+        currency: razorpayRes.body?.item?.currency || 'INR',
+        label: razorpayRes.body?.item?.name || details.label,
+        period: razorpayRes.body?.period || fallback.period,
+        providerPlanId,
+        amountSource: 'razorpay'
+    });
+};
+
+const resolveAllPlanPricing = async() => Promise.all(
+    Object.keys(planDetails).map((id) => resolvePlanPricing(id))
+);
 
 const mapSubscriptionEntity = (entity = {}) => ({
     providerPlanId: entity.plan_id || '',
@@ -229,10 +305,17 @@ const getRazorpayErrorMessage = (body) => {
 };
 
 router.get('/plans', async(req, res) => {
-    res.json({
-        pricingVersion: PRICING_VERSION,
-        plans: serializePlans()
-    });
+    try {
+        const plans = await resolveAllPlanPricing();
+        res.json({
+            pricingVersion: PRICING_VERSION,
+            plans,
+            warnings: plans.map((plan) => plan.warning).filter(Boolean)
+        });
+    } catch (err) {
+        console.error('Plan pricing error:', err.message);
+        res.status(500).json({ message: 'Unable to load plan pricing' });
+    }
 });
 
 router.get('/subscription/status', protect, async(req, res) => {
@@ -256,7 +339,17 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
         const normalizedPlan = normalizePlan(plan);
         if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
 
-        const selectedPlan = planDetails[normalizedPlan];
+        let selectedPlan;
+        try {
+            selectedPlan = await resolvePlanPricing(normalizedPlan, {
+                requireLive: process.env.PAYMENT_SIMULATION !== 'true'
+            });
+        } catch (pricingErr) {
+            return res.status(500).json({
+                message: `Unable to verify Razorpay ${normalizedPlan} plan amount. Check the plan ID, key mode, and Razorpay amount. ${pricingErr.message}`
+            });
+        }
+
         const providerPlanId = getRazorpaySubscriptionPlanId(normalizedPlan);
         const authHeader = getRazorpayAuthHeader();
 
@@ -297,7 +390,7 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
                     id: record.providerSubscriptionId,
                     status: record.status
                 },
-                plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount },
+                plan: selectedPlan,
                 user: serializeUser(user)
             });
         }
@@ -305,7 +398,7 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
         if (!authHeader) return res.status(500).json({ message: 'Razorpay keys not configured' });
         if (!providerPlanId) {
             return res.status(500).json({
-                message: `${selectedPlan.planEnv} is not configured. Create Razorpay Subscription plans and add their IDs to the backend environment.`
+                message: `${planDetails[normalizedPlan].planEnv} is not configured. Create Razorpay Subscription plans and add their IDs to the backend environment.`
             });
         }
 
@@ -314,7 +407,7 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
             authHeader,
             payload: {
                 plan_id: providerPlanId,
-                total_count: selectedPlan.subscriptionCycles,
+            total_count: planDetails[normalizedPlan].subscriptionCycles,
                 quantity: 1,
                 customer_notify: true,
                 notes: {
@@ -350,7 +443,7 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
         res.json({
             keyId: process.env.RAZORPAY_KEY_ID,
             subscription: razorpayRes.body,
-            plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount },
+            plan: selectedPlan,
             checkoutType: 'subscription',
             pricingVersion: PRICING_VERSION
         });
@@ -499,7 +592,16 @@ router.post('/razorpay/order', protect, async(req, res) => {
         const { plan } = req.body;
         const normalizedPlan = normalizePlan(plan);
         if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
-        const selectedPlan = planDetails[normalizedPlan];
+        let selectedPlan;
+        try {
+            selectedPlan = await resolvePlanPricing(normalizedPlan, {
+                requireLive: process.env.PAYMENT_SIMULATION !== 'true'
+            });
+        } catch (pricingErr) {
+            return res.status(500).json({
+                message: `Unable to verify Razorpay ${normalizedPlan} plan amount. Check the plan ID, key mode, and Razorpay amount. ${pricingErr.message}`
+            });
+        }
 
         const authHeader = getRazorpayAuthHeader();
         if (process.env.PAYMENT_SIMULATION === 'true') {
@@ -507,7 +609,7 @@ router.post('/razorpay/order', protect, async(req, res) => {
                 simulation: true,
                 keyId: 'rzp_test_simulation',
                 order: { id: 'order_sim_' + Date.now(), amount: selectedPlan.amount * 100, currency: 'INR' },
-                plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount }
+                plan: selectedPlan
             });
         }
 
@@ -529,7 +631,7 @@ router.post('/razorpay/order', protect, async(req, res) => {
         res.json({
             keyId: process.env.RAZORPAY_KEY_ID,
             order: razorpayRes.body,
-            plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount },
+            plan: selectedPlan,
             pricingVersion: PRICING_VERSION
         });
     } catch (err) {

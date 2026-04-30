@@ -88,7 +88,7 @@ export default function Settings() {
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
-      <main className="container-custom py-10 md:py-16">
+      <main className="container-custom py-8 sm:py-10 md:py-16">
         <div className="reveal mb-12">
           <div className="flex items-center gap-2 mb-4">
              <span className="h-px w-8 bg-yellow-400" />
@@ -97,17 +97,17 @@ export default function Settings() {
           <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-4">
             Settings
           </h1>
-          <p className="max-w-2xl text-lg text-zinc-500 font-medium leading-relaxed">
+          <p className="max-w-2xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed">
             Manage the business details that appear on your invoices and payment pages.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="grid gap-10 lg:grid-cols-[1fr_340px]"
+          className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-10"
         >
           <div className="reveal reveal-delay-1 space-y-8">
-            <section className="premium-panel p-8 relative overflow-hidden group">
+            <section className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Business Details</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Your public invoicing identity</p>
@@ -138,7 +138,7 @@ export default function Settings() {
               </div>
             </section>
 
-            <section className="premium-panel p-8">
+            <section className="premium-panel p-5 sm:p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Payment Details</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Where clients should send payment</p>
@@ -157,7 +157,7 @@ export default function Settings() {
               </div>
             </section>
 
-            <section className="premium-panel p-8">
+            <section className="premium-panel p-5 sm:p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Business Address</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Displayed on your invoices</p>
@@ -173,7 +173,7 @@ export default function Settings() {
               />
             </section>
 
-            <section className="premium-panel p-8">
+            <section className="premium-panel p-5 sm:p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Logo</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Branding shown on invoices and PDFs</p>
@@ -201,8 +201,8 @@ export default function Settings() {
             </section>
           </div>
 
-          <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
-            <div className="premium-panel p-8 relative overflow-hidden group">
+          <aside className="reveal reveal-delay-2 space-y-6 xl:sticky xl:top-28 h-fit">
+            <div className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
                  <svg className="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2z" /></svg>
               </div>

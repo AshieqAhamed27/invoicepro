@@ -28,7 +28,7 @@ export default function Clients() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-10 md:py-16">
+      <main className="container-custom py-8 sm:py-10 md:py-16">
         <div className="reveal mb-12 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -43,7 +43,7 @@ export default function Clients() {
             </p>
           </div>
           
-          <Link to="/create-invoice" className="btn btn-primary px-8 py-4 rounded-2xl shadow-xl shadow-yellow-500/10 font-black uppercase tracking-widest text-xs">
+          <Link to="/create-invoice" className="btn btn-primary w-full px-8 py-4 rounded-2xl shadow-xl shadow-yellow-500/10 font-black uppercase tracking-widest text-xs sm:w-auto">
              Create Invoice
           </Link>
         </div>
@@ -55,7 +55,7 @@ export default function Clients() {
              ))}
           </div>
         ) : !Array.isArray(clients) || clients.length === 0 ? (
-          <div className="premium-panel p-20 text-center">
+          <div className="premium-panel p-8 text-center sm:p-12 lg:p-20">
             <h2 className="text-2xl font-black text-white mb-2">No Clients Yet</h2>
             <p className="text-zinc-500 font-medium mb-8">Start by creating your first invoice to populate your CRM.</p>
             <Link to="/create-invoice" className="btn btn-secondary py-4 px-10 rounded-2xl">Create First Invoice</Link>
@@ -65,7 +65,7 @@ export default function Clients() {
             {Array.isArray(clients) && clients.map((client) => (
               <div 
                 key={client._id}
-                className="group premium-panel p-8 hover:-translate-y-1 transition-all hover:border-emerald-400/20 relative overflow-hidden"
+                className="group premium-panel p-5 sm:p-8 hover:-translate-y-1 transition-all hover:border-emerald-400/20 relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.1] transition-opacity pointer-events-none grayscale">
                    <svg className="h-16 w-16" fill="currentColor" viewBox="0 0 24 24">
@@ -77,7 +77,7 @@ export default function Clients() {
                   {client.name || 'Anonymous'}
                 </h3>
 
-                <p className="text-sm font-bold text-emerald-400/60 lowercase tracking-tight mb-8">
+                <p className="break-all text-sm font-bold text-emerald-400/60 lowercase tracking-tight mb-8">
                   {client.email}
                 </p>
 

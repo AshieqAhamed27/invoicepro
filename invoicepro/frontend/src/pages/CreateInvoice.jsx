@@ -226,7 +226,7 @@ export default function CreateInvoice() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-10 md:py-16">
+      <main className="container-custom py-8 sm:py-10 md:py-16">
         <div className="reveal mb-12">
           <div className="flex items-center gap-2 mb-4">
              <span className="h-px w-8 bg-yellow-400" />
@@ -235,13 +235,13 @@ export default function CreateInvoice() {
           <h1 className="text-4xl font-bold sm:text-5xl tracking-tight text-white mb-4">
             {isProposal ? 'New Proposal' : 'New Invoice'}
           </h1>
-          <p className="max-w-2xl text-lg text-zinc-500 font-medium">
+          <p className="max-w-2xl text-base sm:text-lg text-zinc-500 font-medium">
             {isProposal
               ? 'Create a client-ready proposal, collect approval online, and convert it into an invoice later.'
               : 'Create a professional invoice, add payment details, and send it in minutes.'}
           </p>
 
-          <div className="mt-8 inline-flex rounded-lg border border-white/10 bg-white/[0.03] p-1">
+          <div className="mt-8 grid w-full grid-cols-1 gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-1 sm:inline-grid sm:w-auto sm:grid-cols-2">
             {[
               { id: 'invoice', label: 'Invoice', note: 'Collect payment now' },
               { id: 'proposal', label: 'Proposal', note: 'Get approval first' }
@@ -262,15 +262,15 @@ export default function CreateInvoice() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-[1fr_380px]">
+        <form onSubmit={handleSubmit} className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-10">
           <div className="reveal reveal-delay-1 space-y-8">
             {/* Section: Client */}
-            <section className="premium-panel p-8 relative overflow-hidden group">
+            <section className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
                  <svg className="h-24 w-24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
               </div>
 
-              <div className="mb-8 flex items-center justify-between">
+              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-2xl font-black text-white leading-none mb-1">Client Details</h2>
                   <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
@@ -280,7 +280,7 @@ export default function CreateInvoice() {
 
                 {clients.length > 0 && (
                   <select
-                    className="rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-[10px] font-black tracking-widest uppercase text-yellow-300 outline-none focus:border-yellow-300/50 cursor-pointer"
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-[10px] font-black tracking-widest uppercase text-yellow-300 outline-none focus:border-yellow-300/50 cursor-pointer sm:w-auto"
                     onChange={(e) => {
                       const c = clients.find(client => client._id === e.target.value);
                       if (c) selectClient(c);
@@ -322,7 +322,7 @@ export default function CreateInvoice() {
             </section>
 
             {/* Section: Service */}
-            <section className="premium-panel p-8">
+            <section className="premium-panel p-5 sm:p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">
                   {isProposal ? 'Proposal Summary' : 'Invoice Summary'}
@@ -343,7 +343,7 @@ export default function CreateInvoice() {
             </section>
 
             {/* Section: Items */}
-            <section className="premium-panel p-8">
+            <section className="premium-panel p-5 sm:p-8">
               <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-2xl font-black text-white leading-none mb-1">Line Items</h2>
@@ -363,9 +363,9 @@ export default function CreateInvoice() {
 
               <div className="space-y-4">
                 {items.map((item, i) => (
-                  <div key={i} className="group/item grid gap-3 p-4 rounded-2xl border border-white/5 bg-black/10 transition-all hover:bg-black/20 md:grid-cols-[1fr_200px_50px]">
+                  <div key={i} className="group/item grid gap-3 p-4 rounded-2xl border border-white/5 bg-black/10 transition-all hover:bg-black/20 lg:grid-cols-[minmax(0,1fr)_200px_50px]">
                     <div className="space-y-1.5">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 md:hidden">Service Description</p>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 lg:hidden">Service Description</p>
                        <input
                          placeholder="Consulting, Design, etc."
                          value={item.name}
@@ -375,7 +375,7 @@ export default function CreateInvoice() {
                     </div>
 
                     <div className="space-y-1.5 relative">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 md:hidden">Amount</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 lg:hidden">Amount</p>
                         <div className="flex items-center">
                             <span className="text-zinc-500 font-bold mr-2">Rs</span>
                             <input
@@ -402,7 +402,7 @@ export default function CreateInvoice() {
             </section>
 
             {/* Section: Tax & Date */}
-            <section className="premium-panel p-8">
+            <section className="premium-panel p-5 sm:p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">
                   {isProposal ? 'Proposal Details' : 'Payment Details'}
@@ -479,8 +479,8 @@ export default function CreateInvoice() {
           </div>
 
           {/* SIDEBAR */}
-          <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
-            <div className="premium-panel p-8">
+          <aside className="reveal reveal-delay-2 space-y-6 xl:sticky xl:top-28 h-fit">
+            <div className="premium-panel p-5 sm:p-8">
                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-6">
                  <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">
                    {isProposal ? 'Proposal Total' : 'Invoice Total'}
@@ -500,11 +500,11 @@ export default function CreateInvoice() {
                   )}
                   <div className="pt-6 border-t border-white/5 flex flex-col items-end">
                     <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2 text-right w-full">Final Total</span>
-                    <span className="text-5xl font-black text-emerald-400 tracking-tighter">{formatCurrency(total)}</span>
+                    <span className="text-3xl sm:text-5xl font-black text-emerald-400 tracking-tighter break-words text-right">{formatCurrency(total)}</span>
                   </div>
                </div>
 
-               <div className="rounded-[2rem] border border-yellow-400/20 bg-yellow-400/5 p-6 mb-8 group/coach">
+               <div className="rounded-[2rem] border border-yellow-400/20 bg-yellow-400/5 p-5 sm:p-6 mb-8 group/coach">
                   <div className="flex items-center gap-2 mb-4">
                      <div className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
                      <p className="text-[10px] font-black text-yellow-300 uppercase tracking-widest">Quick Checks</p>
@@ -545,8 +545,8 @@ export default function CreateInvoice() {
                </div>
 
                {!isProposal && (
-               <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] p-6 mb-8">
-                 <div className="flex items-start justify-between gap-4">
+               <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] p-5 sm:p-6 mb-8">
+                 <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
                    <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Recurring Invoice</p>
                      <p className="text-xs font-bold text-zinc-600 leading-relaxed">

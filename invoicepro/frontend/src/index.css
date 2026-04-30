@@ -47,6 +47,7 @@
 html {
     scroll-behavior: smooth;
     scroll-padding-top: 96px;
+    width: 100%;
 }
 
 body {
@@ -56,6 +57,27 @@ body {
     overflow-x: hidden;
     position: relative;
     color: #f7f8fb;
+}
+
+#root {
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+img,
+picture,
+video,
+canvas {
+    display: block;
+    max-width: 100%;
+}
+
+svg {
+    flex-shrink: 0;
+}
+
+table {
+    max-width: 100%;
 }
 
 
@@ -126,13 +148,15 @@ select {
     }
     /* Container */
     .container-custom {
-        @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+        @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
     }
     /* Buttons */
     .btn {
-        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition whitespace-nowrap;
+        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-center text-sm font-semibold transition;
         min-height: 42px;
         border-radius: 8px;
+        max-width: 100%;
+        white-space: normal;
     }
     .btn-primary {
         @apply bg-white text-zinc-950 shadow-lg shadow-black/20;
@@ -151,6 +175,7 @@ select {
     .input {
         @apply w-full bg-white/[0.055] border border-white/10 p-3 rounded-lg text-sm text-white outline-none;
         min-height: 46px;
+        min-width: 0;
         border-radius: 8px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
         transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
@@ -310,6 +335,7 @@ select {
 .premium-page {
     min-height: 100vh;
     color: #f7f8fb;
+    overflow-x: hidden;
 }
 
 .premium-page main {
@@ -381,6 +407,56 @@ select {
 
 .premium-table tbody tr:hover {
     background: rgba(255, 255, 255, 0.045);
+}
+
+
+/* --- RESPONSIVE SAFETY --- */
+
+@supports (padding: max(0px)) {
+    .container-custom {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+}
+
+@media (max-width: 640px) {
+    html {
+        scroll-padding-top: 80px;
+    }
+
+    body::after {
+        background-size: 32px 32px;
+    }
+
+    .premium-page main {
+        animation-duration: 180ms;
+    }
+
+    .btn {
+        min-height: 46px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .premium-eyebrow {
+        width: 100%;
+        border-radius: 8px;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .premium-table th,
+    .premium-table td {
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .container-custom {
+        padding-left: 0.875rem;
+        padding-right: 0.875rem;
+    }
 }
 
 

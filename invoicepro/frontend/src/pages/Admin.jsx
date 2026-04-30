@@ -4,10 +4,6 @@ import Navbar from '../components/Navbar';
 
 const API_BASE_URL = api.defaults.baseURL || '';
 const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
-const EXPECTED_PRICING = {
-  monthly: 499,
-  yearly: 4999
-};
 
 export default function Admin() {
   const [requests, setRequests] = useState([]);
@@ -95,7 +91,7 @@ export default function Admin() {
 
   const monthlyAmount = pricing?.plans?.monthly ?? null;
   const yearlyAmount = pricing?.plans?.yearly ?? null;
-  const pricingMatches = monthlyAmount === EXPECTED_PRICING.monthly && yearlyAmount === EXPECTED_PRICING.yearly;
+  const pricingReady = Number(monthlyAmount || 0) > 0 && Number(yearlyAmount || 0) > 0;
   const requiredChecks = health?.envSanity?.required || {};
   const paymentChecks = health?.envSanity?.payments || {};
   const recurringChecks = health?.envSanity?.recurring || {};
@@ -107,7 +103,7 @@ export default function Admin() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-10 md:py-16">
+      <main className="container-custom py-8 sm:py-10 md:py-16">
         <div className="reveal mb-12">
           <div className="flex items-center gap-2 mb-4">
             <span className="h-px w-8 bg-red-500" />
@@ -122,7 +118,7 @@ export default function Admin() {
         </div>
 
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="border-b border-white/5 p-5 sm:p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Live Checkout Pricing</p>
               <h2 className="text-2xl font-black text-white tracking-tight">Backend payment diagnostics</h2>
@@ -130,28 +126,28 @@ export default function Admin() {
 
             <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${pricingError
               ? 'bg-red-400/5 text-red-400 border-red-400/10'
-              : pricingMatches
+              : pricingReady
                 ? 'bg-emerald-400/5 text-emerald-400 border-emerald-400/10'
                 : 'bg-yellow-400/5 text-yellow-500 border-yellow-400/10'
               }`}>
               <span className={`h-1.5 w-1.5 rounded-full ${pricingError
                 ? 'bg-red-400'
-                : pricingMatches
+                : pricingReady
                   ? 'bg-emerald-400'
                   : 'bg-yellow-500 animate-pulse'
                 }`} />
-              {pricingError ? 'Unavailable' : pricingMatches ? 'Pricing Correct' : 'Mismatch'}
+              {pricingError ? 'Unavailable' : pricingReady ? 'Pricing Loaded' : 'Needs Pricing'}
             </span>
           </div>
 
-          <div className="grid gap-6 p-8 md:grid-cols-3">
+          <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-3">
             <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Monthly Plan</p>
               <p className="text-4xl font-black text-white tracking-tighter">
                 {pricingLoading ? '--' : `Rs ${monthlyAmount ?? 'N/A'}`}
               </p>
               <p className="mt-2 text-xs font-bold text-zinc-500">
-                Expected: Rs {EXPECTED_PRICING.monthly}
+                Source: backend / Razorpay plan
               </p>
             </div>
 
@@ -161,7 +157,7 @@ export default function Admin() {
                 {pricingLoading ? '--' : `Rs ${yearlyAmount ?? 'N/A'}`}
               </p>
               <p className="mt-2 text-xs font-bold text-zinc-500">
-                Expected: Rs {EXPECTED_PRICING.yearly}
+                Source: backend / Razorpay plan
               </p>
             </div>
 
@@ -186,7 +182,7 @@ export default function Admin() {
         </section>
 
         <section className="reveal reveal-delay-2 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="border-b border-white/5 p-5 sm:p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Runtime Diagnostics</p>
               <h2 className="text-2xl font-black text-white tracking-tight">Live backend health details</h2>
@@ -208,7 +204,7 @@ export default function Admin() {
             </span>
           </div>
 
-          <div className="grid gap-6 p-8 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Startup Entrypoint</p>
               <p className="text-2xl font-black text-white tracking-tight break-words">
@@ -266,7 +262,7 @@ export default function Admin() {
             ))}
           </div>
         ) : requests.length === 0 ? (
-          <div className="premium-panel p-20 text-center">
+          <div className="premium-panel p-8 text-center sm:p-12 lg:p-20">
             <div className="h-20 w-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/5 text-zinc-700">
               <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>

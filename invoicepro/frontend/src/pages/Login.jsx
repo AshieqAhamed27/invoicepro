@@ -121,7 +121,7 @@ export default function Login() {
                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Client billing workspace</p>
             </div>
 
-            <h1 className="mb-6 text-5xl font-black leading-none tracking-tight">
+            <h1 className="mb-6 text-4xl font-black leading-none tracking-tight xl:text-5xl">
               Sign in to manage <br /> <span className="text-yellow-300">invoices and collections.</span>
             </h1>
 
@@ -166,7 +166,7 @@ export default function Login() {
 
             {googleClientId && (
               <>
-                <div id="googleBtn" className="mb-8 flex justify-center scale-110" />
+                <div id="googleBtn" className="mb-8 flex max-w-full justify-center overflow-hidden sm:scale-110" />
 
                 <div className="mb-8 flex items-center gap-4">
                   <span className="h-px flex-1 bg-white/5" />

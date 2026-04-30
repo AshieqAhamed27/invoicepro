@@ -15,8 +15,8 @@ export default function NotFound() {
     <div className="premium-page min-h-screen text-white selection:bg-yellow-400 selection:text-black">
       <Navbar />
 
-      <main className="container-custom py-20 md:py-28">
-        <section className="premium-panel relative overflow-hidden p-10 sm:p-14">
+      <main className="container-custom py-12 sm:py-20 md:py-28">
+        <section className="premium-panel relative overflow-hidden p-6 sm:p-10 lg:p-14">
           <div className="absolute -top-24 right-0 h-80 w-80 rounded-full bg-yellow-400/10 blur-[140px]" />
           <div className="absolute -bottom-32 left-0 h-96 w-96 rounded-full bg-emerald-400/10 blur-[160px]" />
 
@@ -25,7 +25,7 @@ export default function NotFound() {
               Error 404
             </p>
 
-            <h1 className="mt-5 text-5xl sm:text-6xl font-black tracking-tight leading-[0.95] text-white">
+            <h1 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight leading-[0.95] text-white">
               Lost in the ledger.
             </h1>
 

@@ -172,24 +172,24 @@ export default function LaunchCenter() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-10 md:py-16">
+      <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal mb-12 grid gap-8 lg:grid-cols-[1fr_360px] lg:items-end">
-          <div>
+          <div className="min-w-0">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/10 px-3 py-1">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Company Launch Center</p>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-white sm:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-white sm:text-5xl lg:text-6xl">
               Make InvoicePro ready to sell, collect, and retain.
             </h1>
-            <p className="mt-5 max-w-2xl text-lg font-medium leading-relaxed text-zinc-400">
+            <p className="mt-5 max-w-2xl text-base sm:text-lg font-medium leading-relaxed text-zinc-400">
               One operating screen for the business setup, payment engine, AI layer, client billing loop, and launch blockers.
             </p>
           </div>
 
-          <div className="premium-panel p-8 text-center">
+          <div className="premium-panel p-5 text-center sm:p-8">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Go-live score</p>
-            <p className="mt-4 text-7xl font-black tracking-tighter text-white">{loading ? '--' : companyScore}%</p>
+            <p className="mt-4 text-5xl font-black tracking-tighter text-white sm:text-7xl">{loading ? '--' : companyScore}%</p>
             <p className="mt-3 text-sm font-bold text-zinc-500">
               {readiness.moneyReady ? 'Ready for real checkout traffic' : 'Finish blockers before paid launch'}
             </p>
@@ -217,11 +217,11 @@ export default function LaunchCenter() {
         </section>
 
         <section className="reveal reveal-delay-2 mb-12 grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="premium-panel p-8">
+          <div className="premium-panel p-5 sm:p-8">
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Priority actions</p>
-                <h2 className="mt-3 text-3xl font-black tracking-tight text-white">Next moves that unlock revenue</h2>
+                <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">Next moves that unlock revenue</h2>
               </div>
               <button
                 type="button"
@@ -269,9 +269,9 @@ export default function LaunchCenter() {
             )}
           </div>
 
-          <div className="premium-panel p-8">
+          <div className="premium-panel p-5 sm:p-8">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Revenue machine</p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-white">The loop this SaaS must repeat</h2>
+            <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">The loop this SaaS must repeat</h2>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {[
@@ -291,11 +291,11 @@ export default function LaunchCenter() {
         </section>
 
         <section className="reveal reveal-delay-2 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 p-8">
+          <div className="border-b border-white/5 p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Readiness checklist</p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-white">Company setup and product operations</h2>
+                <h2 className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">Company setup and product operations</h2>
               </div>
               <span className={`rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest ${readiness.moneyReady ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300' : 'border-yellow-400/20 bg-yellow-400/10 text-yellow-200'}`}>
                 {readiness.stage || 'checking'}
@@ -303,7 +303,7 @@ export default function LaunchCenter() {
             </div>
           </div>
 
-          <div className="grid gap-5 p-8 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-3">
             {loading
               ? [1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="h-48 rounded-[1.75rem] bg-white/5 animate-pulse" />)
               : allChecks.map((check) => <LaunchCheck key={check.id} check={check} />)}

@@ -64,7 +64,7 @@ export default function Signup() {
                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Set up your billing workspace</p>
               </div>
 
-              <h1 className="mb-6 text-5xl font-black leading-none tracking-tight">
+              <h1 className="mb-6 text-4xl font-black leading-none tracking-tight xl:text-5xl">
                 Start sending invoices <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-white">with a company-grade workflow.</span>
               </h1>
 

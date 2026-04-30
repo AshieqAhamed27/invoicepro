@@ -78,23 +78,23 @@ export default function Recurring() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-10 md:py-16">
+      <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
+          <div className="min-w-0">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-5">
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Automation Layer</span>
             </div>
-            <h1 className="text-4xl font-bold sm:text-6xl tracking-tight text-white leading-none">
+            <h1 className="text-4xl font-bold sm:text-5xl lg:text-6xl tracking-tight text-white leading-none">
               Recurring Invoices
             </h1>
-            <p className="mt-4 text-xl text-zinc-500 font-medium max-w-2xl">
+            <p className="mt-4 text-base sm:text-xl text-zinc-500 font-medium max-w-2xl">
               Bill retainers automatically. Each cycle creates a fresh invoice link for your client to pay.
             </p>
           </div>
         </section>
 
         <section className="reveal reveal-delay-1 premium-panel overflow-hidden">
-          <div className="px-10 py-8 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="px-5 py-6 sm:px-8 lg:px-10 lg:py-8 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold text-white">Schedules</h2>
               <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mt-1">
@@ -105,13 +105,13 @@ export default function Recurring() {
 
           <div className="overflow-x-auto">
             {loading ? (
-              <div className="p-10 space-y-6">
+              <div className="p-5 sm:p-10 space-y-6">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="h-16 w-full bg-white/5 rounded-2xl animate-pulse" />
                 ))}
               </div>
             ) : schedules.length === 0 ? (
-              <div className="p-16 text-center border-2 border-dashed border-white/5 rounded-[2rem] m-10">
+              <div className="m-5 rounded-[2rem] border-2 border-dashed border-white/5 p-8 text-center sm:m-10 sm:p-16">
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">No recurring schedules yet</p>
                 <p className="text-[10px] font-medium mt-2 text-zinc-600">
                   Turn on Recurring Invoice while issuing an invoice to create one.

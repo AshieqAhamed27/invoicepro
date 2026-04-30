@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
 import Navbar from '../components/Navbar';
@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import { SUPPORT_EMAIL } from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { Link } from 'react-router-dom';
+import api from '../utils/api';
 
 const trustSignals = [
   {
@@ -117,11 +118,36 @@ const plans = [
 export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
+  const [livePlans, setLivePlans] = useState({});
 
   useDocumentMeta(
     'Invoice Generator India – Create GST Invoices & Get Paid Online | InvoicePro',
     'Create GST invoices online in India. Accept UPI & Razorpay payments, send invoice links, and manage recurring billing for freelancers and agencies.'
   );
+
+  useEffect(() => {
+    const loadPlans = async () => {
+      try {
+        const res = await api.get('/payment/plans');
+        const nextPlans = {};
+
+        (res.data?.plans || []).forEach((plan) => {
+          if (plan?.id && Number(plan.amount || 0) > 0) {
+            nextPlans[plan.id] = {
+              price: `Rs ${Number(plan.amount).toLocaleString('en-IN')}`,
+              label: plan.label
+            };
+          }
+        });
+
+        setLivePlans(nextPlans);
+      } catch {
+        setLivePlans({});
+      }
+    };
+
+    loadPlans();
+  }, []);
 
   const handleSubscribe = (plan) => {
     localStorage.setItem('plan', plan);
@@ -471,7 +497,7 @@ export default function Home() {
                     <h3 className="text-2xl font-black text-white">{plan.name}</h3>
                     <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{plan.description}</p>
                     <p className="mt-8 text-4xl font-black tracking-tight text-white sm:text-5xl">
-                      {plan.price}
+                      {livePlans[plan.action]?.price || plan.price}
                       <span className="ml-2 text-sm font-black uppercase tracking-[0.18em] text-zinc-500">{plan.suffix}</span>
                     </p>
 

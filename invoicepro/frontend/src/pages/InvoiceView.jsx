@@ -424,14 +424,14 @@ export default function InvoiceView() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-10 md:py-16">
+      <main className="container-custom py-8 sm:py-10 md:py-16">
         <div className="reveal mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 mb-4">
               <span className="h-px w-8 bg-yellow-400" />
               <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">{meta.headerLabel} / #{invoice.invoiceNumber}</p>
             </div>
-            <h1 className="text-4xl font-bold sm:text-5xl tracking-tight text-white mb-3">
+            <h1 className="text-3xl font-bold tracking-tight text-white mb-3 sm:text-5xl">
               {meta.typeLabel} for {invoice.clientName}
             </h1>
             <div className="flex flex-wrap items-center gap-3">
@@ -444,7 +444,7 @@ export default function InvoiceView() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="grid w-full grid-cols-1 gap-3 sm:w-auto sm:grid-cols-2 lg:flex lg:flex-wrap">
             <button
               type="button"
               onClick={downloadPdf}
@@ -488,14 +488,14 @@ export default function InvoiceView() {
 
             <button
               onClick={deleteInvoice}
-              className="px-8 py-3 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500/60 font-black text-xs uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 transition-all"
+              className="rounded-xl border border-red-500/10 bg-red-500/5 px-6 py-3 text-xs font-black uppercase tracking-widest text-red-500/60 transition-all hover:bg-red-500/10 hover:text-red-500 sm:px-8"
             >
               Delete
             </button>
           </div>
         </div>
 
-        <section className="reveal reveal-delay-1 mb-10 grid gap-4 md:grid-cols-4">
+        <section className="reveal reveal-delay-1 mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: meta.isProposal ? 'Proposal Total' : 'Amount Due', value: formatCurrency(total, invoice.currency) },
             { label: 'Issued', value: formatDate(invoice.date) },
@@ -509,12 +509,12 @@ export default function InvoiceView() {
           ))}
         </section>
 
-        <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-10">
           <section className="reveal reveal-delay-1 premium-panel p-3 md:p-6 relative overflow-hidden">
             <div id="invoice" className="invoice-document overflow-hidden rounded-lg bg-white text-slate-950 shadow-2xl">
               <div className="bg-slate-950 px-6 py-7 text-white md:px-10">
                 <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex items-center gap-3">
                       {logoUrl ? (
                         <img src={logoUrl} alt={`${companyName} logo`} className="h-14 w-14 rounded-lg bg-white object-contain p-1.5 shadow-lg" />
@@ -528,7 +528,7 @@ export default function InvoiceView() {
                           )
                       )}
                       <div>
-                        <p className="text-2xl font-black leading-none text-white">{companyName}</p>
+                        <p className="break-words text-xl font-black leading-none text-white sm:text-2xl">{companyName}</p>
                         <p className="mt-1 text-xs font-semibold text-slate-400">
                           {meta.isProposal ? 'Service proposal' : 'Professional invoice'}
                         </p>
@@ -547,7 +547,7 @@ export default function InvoiceView() {
 
                   <div className="text-left md:text-right">
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{meta.typeLabel}</p>
-                    <h2 className="mt-2 text-4xl font-black tracking-tight text-white">#{invoice.invoiceNumber}</h2>
+                    <h2 className="mt-2 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">#{invoice.invoiceNumber}</h2>
                     <span className={`mt-4 inline-flex rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${statusClass}`}>
                       {toTitleCase(meta.status)}
                     </span>
@@ -673,22 +673,22 @@ export default function InvoiceView() {
                         <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
                           {meta.isProposal ? 'Proposal Total' : 'Amount Due'}
                         </p>
-                        <p className="mt-2 text-3xl font-black tracking-tight text-white">{formatCurrency(total, invoice.currency)}</p>
+                        <p className="mt-2 break-words text-2xl font-black tracking-tight text-white sm:text-3xl">{formatCurrency(total, invoice.currency)}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-5 text-xs font-semibold text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-                  <span>Public link: {publicDocumentUrl}</span>
+                  <span className="break-all">Public link: {publicDocumentUrl}</span>
                   <span>Generated with InvoicePro</span>
                 </div>
               </div>
             </div>
           </section>
 
-          <aside className="reveal reveal-delay-2 space-y-6 lg:sticky lg:top-28 h-fit">
-            <div className="premium-panel p-8">
+          <aside className="reveal reveal-delay-2 space-y-6 xl:sticky xl:top-28 h-fit">
+            <div className="premium-panel p-5 sm:p-8">
               <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-8">
                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Client Delivery</p>
               </div>

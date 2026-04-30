@@ -35,7 +35,7 @@ export default function Navbar() {
           <BrandLogo markClassName="transition-transform duration-300 group-hover:scale-110" />
         </NavLink>
 
-        <div className="hidden items-center gap-2 text-sm md:flex">
+        <div className="hidden items-center gap-2 text-sm lg:flex">
           <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
             Home
           </NavLink>
@@ -106,7 +106,7 @@ export default function Navbar() {
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="btn btn-secondary shrink-0 px-3 py-2 md:hidden"
+          className="btn btn-secondary shrink-0 px-3 py-2 lg:hidden"
           aria-expanded={menuOpen}
           aria-label="Toggle navigation menu"
         >
@@ -115,7 +115,7 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="mx-3 mt-3 rounded-lg border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/35 backdrop-blur-2xl md:hidden sm:mx-4">
+        <div className="mx-3 mt-3 rounded-lg border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/35 backdrop-blur-2xl lg:hidden sm:mx-4">
           <div className="flex flex-col space-y-3 px-4 py-4 text-base sm:px-6 sm:py-6">
             <NavLink to="/" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
               Home

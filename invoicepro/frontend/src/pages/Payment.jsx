@@ -21,15 +21,19 @@ const loadRazorpayScript = () => {
 const planDetails = {
   monthly: {
     amount: 499,
+    currency: "INR",
     label: "Pro Monthly",
     note: "Unlimited invoices, AI revenue coach, payment links, and recurring billing.",
-    duration: "Billed every 30 days"
+    duration: "Billed every 30 days",
+    amountSource: "fallback"
   },
   yearly: {
     amount: 4999,
+    currency: "INR",
     label: "Pro Annual",
     note: "Best value with AI revenue coaching for repeat-billing businesses.",
-    duration: "Billed every 365 days"
+    duration: "Billed every 365 days",
+    amountSource: "fallback"
   }
 };
 
@@ -41,8 +45,12 @@ const mapPlansById = (plans = []) =>
       acc[plan.id] = {
         ...planDetails[plan.id],
         amount: Number(plan.amount || 0),
+        currency: plan.currency || "INR",
         label: plan.label || plan.id,
-        duration: Number(plan.durationDays || 0) === 365 ? "Billed every 365 days" : "Billed every 30 days"
+        duration: Number(plan.durationDays || 0) === 365 ? "Billed every 365 days" : "Billed every 30 days",
+        amountSource: plan.amountSource || "backend",
+        subscriptionReady: Boolean(plan.subscriptionReady),
+        warning: plan.warning || ""
       };
     }
     return acc;
@@ -51,8 +59,10 @@ const mapPlansById = (plans = []) =>
 export default function Payment() {
   const [plan, setPlan] = useState('monthly');
   const [loading, setLoading] = useState(false);
+  const [pricingLoading, setPricingLoading] = useState(true);
   const [serverPlanDetails, setServerPlanDetails] = useState(planDetails);
   const [pricingWarning, setPricingWarning] = useState('');
+  const [pricingBlocked, setPricingBlocked] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
 
   useEffect(() => {
@@ -64,29 +74,26 @@ export default function Payment() {
   useEffect(() => {
     const loadPricing = async () => {
       try {
+        setPricingLoading(true);
+        setPricingBlocked(false);
         const res = await api.get('/payment/plans');
         const nextPlans = mapPlansById(res.data?.plans || []);
 
         if (nextPlans.monthly?.amount && nextPlans.yearly?.amount) {
-          if (
-            nextPlans.monthly.amount !== planDetails.monthly.amount ||
-            nextPlans.yearly.amount !== planDetails.yearly.amount
-          ) {
-            setPricingWarning(
-              `Backend checkout is still serving old pricing: monthly Rs ${nextPlans.monthly.amount}, yearly Rs ${nextPlans.yearly.amount}. Redeploy the backend before accepting payments.`
-            );
-            return;
-          }
-
           setServerPlanDetails((prev) => ({
             ...prev,
             ...nextPlans
           }));
+          setPricingWarning((res.data?.warnings || []).join(' '));
+        } else {
+          setPricingWarning('Backend did not return both monthly and yearly checkout prices.');
+          setPricingBlocked(true);
         }
-
-        setPricingWarning('');
       } catch {
         setPricingWarning('Could not verify live checkout pricing from the backend. Please retry before taking payments.');
+        setPricingBlocked(true);
+      } finally {
+        setPricingLoading(false);
       }
     };
 
@@ -110,6 +117,11 @@ export default function Payment() {
   }, []);
 
   const current = serverPlanDetails[getSafePlan(plan)] || planDetails[getSafePlan(plan)];
+  const selectPlan = (nextPlan) => {
+    const safePlan = getSafePlan(nextPlan);
+    localStorage.setItem("plan", safePlan);
+    setPlan(safePlan);
+  };
 
   const handleRazorpayPayment = async () => {
     let checkoutOpened = false;
@@ -133,13 +145,15 @@ export default function Payment() {
         throw new Error("Invalid subscription response");
       }
 
-      if (
-        serverPlan?.id === selectedPlan &&
-        Number(serverPlan.amount || 0) !== Number(planDetails[selectedPlan].amount)
-      ) {
-        throw new Error(
-          `Checkout amount mismatch detected. Server returned Rs ${serverPlan.amount} for the ${selectedPlan} plan. Redeploy the backend first.`
-        );
+      if (serverPlan?.id) {
+        setServerPlanDetails((prev) => ({
+          ...prev,
+          [serverPlan.id]: {
+            ...prev[serverPlan.id],
+            ...serverPlan,
+            duration: Number(serverPlan.durationDays || 0) === 365 ? "Billed every 365 days" : "Billed every 30 days"
+          }
+        }));
       }
 
       if (simulation) {
@@ -213,39 +227,62 @@ export default function Payment() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-10 md:py-20">
-        <div className="grid gap-12 lg:grid-cols-[1fr_400px]">
+      <main className="container-custom py-8 sm:py-10 md:py-16 xl:py-20">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_400px] xl:gap-12">
           <section className="reveal">
             <div className="flex items-center gap-2 mb-4">
                <span className="h-px w-8 bg-yellow-400" />
                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Secure Checkout</p>
             </div>
-            <h1 className="text-4xl font-bold sm:text-5xl lg:text-7xl tracking-tight text-white mb-6 leading-none">
+            <h1 className="text-4xl font-bold sm:text-5xl xl:text-7xl tracking-tight text-white mb-6 leading-none">
               Upgrade to <br /> <span className="text-zinc-600">Pro.</span>
             </h1>
 
-            <p className="max-w-xl text-lg text-zinc-500 font-medium leading-relaxed mb-10">
+            <p className="max-w-xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed mb-8 sm:mb-10">
               Start a real Razorpay subscription and unlock unlimited invoices, AI collection prompts,
               payment links, and recurring billing for your business.
             </p>
 
-            <div className="premium-panel p-8 relative overflow-hidden group">
+            <div className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
                   <svg className="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" /></svg>
                </div>
 
-               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 pb-10 border-b border-white/5">
-                  <div>
-                    <h2 className="text-2xl font-black text-white italic mb-1">{current.label}</h2>
-                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">{current.note}</p>
+               <div className="mb-8 grid gap-3 sm:grid-cols-2">
+                 {Object.entries(serverPlanDetails).map(([id, details]) => (
+                   <button
+                     key={id}
+                     type="button"
+                     onClick={() => selectPlan(id)}
+                     className={`rounded-xl border p-4 text-left transition-all ${
+                       plan === id
+                         ? 'border-yellow-400/40 bg-yellow-400/10 text-white'
+                         : 'border-white/10 bg-black/20 text-zinc-400 hover:border-white/20 hover:bg-white/5 hover:text-white'
+                     }`}
+                   >
+                     <p className="text-[10px] font-black uppercase tracking-widest">{details.label}</p>
+                     <p className="mt-2 text-2xl font-black text-white">Rs {details.amount}</p>
+                     <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                       {details.duration}
+                     </p>
+                   </button>
+                 ))}
+               </div>
+
+               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 sm:mb-10 pb-8 sm:pb-10 border-b border-white/5">
+                  <div className="min-w-0">
+                    <h2 className="text-xl sm:text-2xl font-black text-white italic mb-1">{current.label}</h2>
+                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest leading-relaxed">{current.note}</p>
                   </div>
                   <div className="text-left sm:text-right">
-                    <p className="text-4xl font-black text-white tracking-tight">Rs {current.amount}</p>
+                    <p className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                      {pricingLoading ? 'Checking...' : `Rs ${current.amount}`}
+                    </p>
                     <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">Subscription Price</p>
                   </div>
                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8 text-[10px] font-black uppercase tracking-widest text-zinc-500">
                   <div className="flex items-center gap-4 group/item">
                      <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                      <p className="group-hover:text-white transition-colors">Unlimited Invoices</p>
@@ -275,23 +312,25 @@ export default function Payment() {
           </section>
 
           <aside className="reveal reveal-delay-1 h-fit">
-            <div className="premium-panel p-10">
+            <div className="premium-panel p-5 sm:p-8 xl:p-10">
                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-8">
                  <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Checkout Terminal</p>
                </div>
 
                 <div className="space-y-6 mb-10">
-                  <div className="flex justify-between items-center text-sm font-bold">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-sm font-bold">
                     <span className="text-zinc-600 uppercase tracking-widest">Recurring Plan</span>
-                    <span className="text-white">Rs {current.amount}.00</span>
+                    <span className="text-white">{pricingLoading ? 'Checking...' : `Rs ${current.amount}.00`}</span>
                   </div>
-                  <div className="flex justify-between items-center text-sm font-bold">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-sm font-bold">
                     <span className="text-zinc-600 uppercase tracking-widest">Payment Processing</span>
                     <span className="text-emerald-400 italic">Included</span>
                   </div>
                   <div className="pt-6 border-t border-white/5 flex flex-col items-end">
                     <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em] mb-2">Plan Amount</p>
-                    <p className="text-5xl font-black text-white tracking-tight">Rs {current.amount}</p>
+                    <p className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+                      {pricingLoading ? '--' : `Rs ${current.amount}`}
+                    </p>
                     <p className="text-xs font-bold text-zinc-500 mt-2">{current.duration}</p>
                   </div>
                </div>
@@ -307,14 +346,18 @@ export default function Payment() {
 
                <button
                  onClick={handleRazorpayPayment}
-                 disabled={loading || Boolean(pricingWarning)}
+                 disabled={loading || pricingLoading || pricingBlocked}
                  className="btn btn-primary w-full py-5 text-lg shadow-xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all"
                >
-                 {loading ? 'Starting Subscription...' : 'Start Subscription'}
+                 {pricingLoading ? 'Verifying Price...' : loading ? 'Starting Subscription...' : 'Start Subscription'}
                </button>
 
                {pricingWarning && (
-                 <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                 <div className={`mt-4 rounded-2xl border p-4 text-sm font-bold ${
+                   pricingBlocked
+                     ? 'border-red-400/20 bg-red-400/10 text-red-300'
+                     : 'border-yellow-400/20 bg-yellow-400/10 text-yellow-200'
+                 }`}>
                    {pricingWarning}
                  </div>
                )}
