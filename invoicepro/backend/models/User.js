@@ -35,6 +35,31 @@ const userSchema = new mongoose.Schema({
         default: null
     },
 
+    subscriptionProvider: {
+        type: String,
+        default: ''
+    },
+
+    subscriptionStatus: {
+        type: String,
+        default: ''
+    },
+
+    razorpaySubscriptionId: {
+        type: String,
+        default: ''
+    },
+
+    planStartedAt: {
+        type: Date,
+        default: null
+    },
+
+    lastPaymentAt: {
+        type: Date,
+        default: null
+    },
+
     companyName: {
         type: String,
         default: ''

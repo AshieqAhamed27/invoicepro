@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
+import { getUser } from '../utils/auth';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -52,6 +53,7 @@ export default function Payment() {
   const [loading, setLoading] = useState(false);
   const [serverPlanDetails, setServerPlanDetails] = useState(planDetails);
   const [pricingWarning, setPricingWarning] = useState('');
+  const [subscriptionStatus, setSubscriptionStatus] = useState(null);
 
   useEffect(() => {
     const selectedPlan = getSafePlan(localStorage.getItem("plan") || "monthly");
@@ -91,6 +93,22 @@ export default function Payment() {
     loadPricing();
   }, []);
 
+  useEffect(() => {
+    const loadSubscription = async () => {
+      try {
+        const res = await api.get('/payment/subscription/status');
+        setSubscriptionStatus(res.data?.subscription || null);
+        if (res.data?.user) {
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+        }
+      } catch {
+        setSubscriptionStatus(null);
+      }
+    };
+
+    loadSubscription();
+  }, []);
+
   const current = serverPlanDetails[getSafePlan(plan)] || planDetails[getSafePlan(plan)];
 
   const handleRazorpayPayment = async () => {
@@ -102,17 +120,17 @@ export default function Payment() {
     try {
       setLoading(true);
 
-      const orderRes = await api.post('/payment/razorpay/order', {
+      const subscriptionRes = await api.post('/payment/razorpay/subscription', {
         plan: selectedPlan
       });
 
-      const keyId = orderRes.data?.keyId;
-      const order = orderRes.data?.order;
-      const simulation = Boolean(orderRes.data?.simulation);
-      const serverPlan = orderRes.data?.plan;
+      const keyId = subscriptionRes.data?.keyId;
+      const subscription = subscriptionRes.data?.subscription;
+      const simulation = Boolean(subscriptionRes.data?.simulation);
+      const serverPlan = subscriptionRes.data?.plan;
 
-      if (!order?.id) {
-        throw new Error("Invalid order response");
+      if (!subscription?.id) {
+        throw new Error("Invalid subscription response");
       }
 
       if (
@@ -125,18 +143,11 @@ export default function Payment() {
       }
 
       if (simulation) {
-        const verifyRes = await api.post('/payment/razorpay/verify', {
-          plan: selectedPlan,
-          razorpay_order_id: order.id,
-          razorpay_payment_id: `pay_sim_${Date.now()}`,
-          razorpay_signature: 'sim_signature'
-        });
-
-        if (verifyRes.data?.user) {
-          localStorage.setItem('user', JSON.stringify(verifyRes.data.user));
+        if (subscriptionRes.data?.user) {
+          localStorage.setItem('user', JSON.stringify(subscriptionRes.data.user));
         }
 
-        alert("Payment successful");
+        alert("Subscription active");
         window.location.href = "/dashboard";
         return;
       }
@@ -150,11 +161,13 @@ export default function Payment() {
 
       const options = {
         key: keyId,
-        amount: order.amount,
-        currency: order.currency,
         name: "InvoicePro",
-        description: "Subscription Payment",
-        order_id: order.id,
+        description: `${serverPlan?.label || 'Pro'} Subscription`,
+        subscription_id: subscription.id,
+        prefill: {
+          name: getUser()?.name || '',
+          email: getUser()?.email || ''
+        },
         modal: {
           ondismiss: function() {
             setLoading(false);
@@ -162,9 +175,9 @@ export default function Payment() {
         },
         handler: async function(response) {
           try {
-            const verifyRes = await api.post('/payment/razorpay/verify', {
+            const verifyRes = await api.post('/payment/razorpay/subscription/verify', {
               plan: selectedPlan,
-              razorpay_order_id: response.razorpay_order_id,
+              razorpay_subscription_id: response.razorpay_subscription_id || subscription.id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature
             });
@@ -173,10 +186,10 @@ export default function Payment() {
               localStorage.setItem('user', JSON.stringify(verifyRes.data.user));
             }
 
-            alert("Payment successful");
+            alert("Subscription active");
             window.location.href = "/dashboard";
           } catch (verifyErr) {
-            const verifyMessage = verifyErr?.response?.data?.message || "Payment verification failed";
+            const verifyMessage = verifyErr?.response?.data?.message || "Subscription verification failed";
             alert(verifyMessage);
             setLoading(false);
           }
@@ -187,7 +200,7 @@ export default function Payment() {
       checkoutOpened = true;
       rzp.open();
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || "Payment failed";
+      const msg = err?.response?.data?.message || err?.message || "Subscription failed";
       alert(msg);
     } finally {
       if (!checkoutOpened) {
@@ -212,7 +225,7 @@ export default function Payment() {
             </h1>
 
             <p className="max-w-xl text-lg text-zinc-500 font-medium leading-relaxed mb-10">
-              Pay securely with Razorpay and unlock unlimited invoices, AI collection prompts,
+              Start a real Razorpay subscription and unlock unlimited invoices, AI collection prompts,
               payment links, and recurring billing for your business.
             </p>
 
@@ -228,7 +241,7 @@ export default function Payment() {
                   </div>
                   <div className="text-left sm:text-right">
                     <p className="text-4xl font-black text-white tracking-tight">Rs {current.amount}</p>
-                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">Total Due Now</p>
+                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">Subscription Price</p>
                   </div>
                </div>
 
@@ -269,7 +282,7 @@ export default function Payment() {
 
                 <div className="space-y-6 mb-10">
                   <div className="flex justify-between items-center text-sm font-bold">
-                    <span className="text-zinc-600 uppercase tracking-widest">Plan Price</span>
+                    <span className="text-zinc-600 uppercase tracking-widest">Recurring Plan</span>
                     <span className="text-white">Rs {current.amount}.00</span>
                   </div>
                   <div className="flex justify-between items-center text-sm font-bold">
@@ -277,18 +290,27 @@ export default function Payment() {
                     <span className="text-emerald-400 italic">Included</span>
                   </div>
                   <div className="pt-6 border-t border-white/5 flex flex-col items-end">
-                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em] mb-2">Total Due Today</p>
+                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em] mb-2">Plan Amount</p>
                     <p className="text-5xl font-black text-white tracking-tight">Rs {current.amount}</p>
-                    <p className="text-xs font-bold text-zinc-500 mt-2">inclusive of all taxes</p>
+                    <p className="text-xs font-bold text-zinc-500 mt-2">{current.duration}</p>
                   </div>
                </div>
+
+               {subscriptionStatus && (
+                 <div className="mb-6 rounded-2xl border border-emerald-400/15 bg-emerald-400/10 p-4">
+                   <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Current Subscription</p>
+                   <p className="mt-2 text-sm font-bold text-white">
+                     {subscriptionStatus.plan} / {subscriptionStatus.status}
+                   </p>
+                 </div>
+               )}
 
                <button
                  onClick={handleRazorpayPayment}
                  disabled={loading || Boolean(pricingWarning)}
                  className="btn btn-primary w-full py-5 text-lg shadow-xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all"
                >
-                 {loading ? 'Starting Payment...' : 'Pay Securely'}
+                 {loading ? 'Starting Subscription...' : 'Start Subscription'}
                </button>
 
                {pricingWarning && (
@@ -304,7 +326,7 @@ export default function Payment() {
 
              <div className="mt-8 p-8 rounded-[2rem] border border-white/5 bg-white/[0.01]">
                 <p className="text-[10px] font-bold text-zinc-600 leading-relaxed uppercase tracking-widest text-center">
-                  Your Pro access starts immediately after successful payment.
+                  Your Pro access starts after subscription authorization and stays synced by Razorpay webhooks.
                 </p>
              </div>
           </aside>

@@ -36,7 +36,13 @@ const getEnvSanity = () => {
             simulationEnabled: process.env.PAYMENT_SIMULATION === 'true',
             razorpayKeyId: hasValue('RAZORPAY_KEY_ID'),
             razorpayKeySecret: hasValue('RAZORPAY_KEY_SECRET'),
-            razorpayWebhookSecret: hasValue('RAZORPAY_WEBHOOK_SECRET')
+            razorpayWebhookSecret: hasValue('RAZORPAY_WEBHOOK_SECRET'),
+            razorpayMonthlyPlanId: hasValue('RAZORPAY_MONTHLY_PLAN_ID'),
+            razorpayYearlyPlanId: hasValue('RAZORPAY_YEARLY_PLAN_ID')
+        },
+        ai: {
+            openAiKey: hasValue('OPENAI_API_KEY'),
+            openAiModel: process.env.OPENAI_MODEL || null
         },
         recurring: {
             cronSecret: hasValue('CRON_SECRET')

@@ -8,6 +8,7 @@ const { protect } = require('../middleware/auth');
 const User = require('../models/User');
 const PaymentRequest = require('../models/PaymentRequest');
 const Invoice = require('../models/Invoice');
+const BillingSubscription = require('../models/BillingSubscription');
 const sendEmail = require('../utils/sendEmail');
 const { paymentConfirmed } = require('../utils/emailTemplates');
 const { getPublicInvoiceUrl } = require('../utils/recurrence');
@@ -39,12 +40,16 @@ const planDetails = {
     monthly: {
         amount: 499,
         label: 'Pro Monthly',
-        durationDays: 30
+        durationDays: 30,
+        subscriptionCycles: 120,
+        planEnv: 'RAZORPAY_MONTHLY_PLAN_ID'
     },
     yearly: {
         amount: 4999,
         label: 'Pro Annual',
-        durationDays: 365
+        durationDays: 365,
+        subscriptionCycles: 10,
+        planEnv: 'RAZORPAY_YEARLY_PLAN_ID'
     }
 };
 
@@ -53,12 +58,46 @@ const normalizePlan = (plan) => {
     return planDetails[safePlan] ? safePlan : null;
 };
 
+const getRazorpaySubscriptionPlanId = (plan) => {
+    const normalizedPlan = normalizePlan(plan);
+    if (!normalizedPlan) return '';
+    return process.env[planDetails[normalizedPlan].planEnv] || '';
+};
+
 const serializePlans = () => Object.entries(planDetails).map(([id, details]) => ({
     id,
     amount: details.amount,
     label: details.label,
-    durationDays: details.durationDays
+    durationDays: details.durationDays,
+    subscriptionReady: process.env.PAYMENT_SIMULATION === 'true' || Boolean(getRazorpaySubscriptionPlanId(id))
 }));
+
+const serializeUser = (user) => ({
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    plan: user.plan,
+    planExpiresAt: user.planExpiresAt,
+    subscriptionProvider: user.subscriptionProvider,
+    subscriptionStatus: user.subscriptionStatus,
+    razorpaySubscriptionId: user.razorpaySubscriptionId,
+    planStartedAt: user.planStartedAt,
+    lastPaymentAt: user.lastPaymentAt,
+    companyName: user.companyName,
+    gstNumber: user.gstNumber,
+    upiId: user.upiId,
+    address: user.address,
+    logo: user.logo
+});
+
+const unixToDate = (value) => value ? new Date(Number(value) * 1000) : null;
+
+const getFallbackExpiry = (plan) => {
+    const normalizedPlan = normalizePlan(plan);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + (planDetails[normalizedPlan]?.durationDays || 30));
+    return expiresAt;
+};
 
 const getRazorpayAuthHeader = () => {
     const keyId = process.env.RAZORPAY_KEY_ID;
@@ -67,18 +106,28 @@ const getRazorpayAuthHeader = () => {
     return `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString('base64')}`;
 };
 
-const setUserPlan = async(user, plan) => {
+const setUserPlan = async(user, plan, options = {}) => {
     const normalizedPlan = normalizePlan(plan);
     if (!normalizedPlan) {
         throw new Error('Invalid plan');
     }
 
-    const selectedPlan = planDetails[normalizedPlan];
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + (selectedPlan?.durationDays || 30));
-
     user.plan = normalizedPlan;
-    user.planExpiresAt = expiresAt;
+    user.planExpiresAt = options.expiresAt || getFallbackExpiry(normalizedPlan);
+    user.subscriptionProvider = options.subscriptionProvider ?? user.subscriptionProvider;
+    user.subscriptionStatus = options.subscriptionStatus ?? user.subscriptionStatus;
+    user.razorpaySubscriptionId = options.subscriptionId ?? user.razorpaySubscriptionId;
+    user.planStartedAt = options.planStartedAt || user.planStartedAt || new Date();
+    user.lastPaymentAt = options.lastPaymentAt || user.lastPaymentAt;
+    await user.save();
+    return user;
+};
+
+const setUserFree = async(user, status = 'cancelled') => {
+    user.plan = 'free';
+    user.planExpiresAt = null;
+    user.subscriptionStatus = status;
+    user.subscriptionProvider = user.subscriptionProvider || 'razorpay';
     await user.save();
     return user;
 };
@@ -120,6 +169,58 @@ const createRazorpayOrder = (payload, authHeader) => {
     });
 };
 
+const requestRazorpay = ({ path, method = 'POST', payload = {}, authHeader }) => {
+    return new Promise((resolve, reject) => {
+        const data = JSON.stringify(payload);
+        const req = https.request({
+            hostname: 'api.razorpay.com',
+            path,
+            method,
+            headers: {
+                Authorization: authHeader,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(data)
+            }
+        }, (res) => {
+            let body = '';
+            res.on('data', (chunk) => { body += chunk; });
+            res.on('end', () => {
+                try {
+                    resolve({
+                        ok: res.statusCode >= 200 && res.statusCode < 300,
+                        status: res.statusCode,
+                        body: body ? JSON.parse(body) : {}
+                    });
+                } catch (err) {
+                    resolve({
+                        ok: false,
+                        status: res.statusCode || 500,
+                        body: { message: body || 'Invalid Razorpay response' }
+                    });
+                }
+            });
+        });
+        req.on('error', reject);
+        req.write(data);
+        req.end();
+    });
+};
+
+const mapSubscriptionEntity = (entity = {}) => ({
+    providerPlanId: entity.plan_id || '',
+    status: entity.status || 'created',
+    currentStart: unixToDate(entity.current_start),
+    currentEnd: unixToDate(entity.current_end),
+    chargeAt: unixToDate(entity.charge_at),
+    endedAt: unixToDate(entity.ended_at),
+    totalCount: entity.total_count ?? null,
+    paidCount: entity.paid_count || 0,
+    remainingCount: entity.remaining_count ?? null,
+    customerId: entity.customer_id || '',
+    shortUrl: entity.short_url || '',
+    raw: entity
+});
+
 const getRazorpayErrorMessage = (body) => {
     return body?.error?.description ||
         body?.error?.reason ||
@@ -132,6 +233,265 @@ router.get('/plans', async(req, res) => {
         pricingVersion: PRICING_VERSION,
         plans: serializePlans()
     });
+});
+
+router.get('/subscription/status', protect, async(req, res) => {
+    try {
+        const subscription = await BillingSubscription.findOne({
+            user: req.user._id
+        }).sort({ createdAt: -1 }).lean();
+
+        res.json({
+            user: serializeUser(req.user),
+            subscription
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Unable to load subscription status' });
+    }
+});
+
+router.post('/razorpay/subscription', protect, async(req, res) => {
+    try {
+        const { plan } = req.body;
+        const normalizedPlan = normalizePlan(plan);
+        if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
+
+        const selectedPlan = planDetails[normalizedPlan];
+        const providerPlanId = getRazorpaySubscriptionPlanId(normalizedPlan);
+        const authHeader = getRazorpayAuthHeader();
+
+        if (process.env.PAYMENT_SIMULATION === 'true') {
+            const subscriptionId = `sub_sim_${Date.now()}`;
+            const expiresAt = getFallbackExpiry(normalizedPlan);
+            const record = await BillingSubscription.create({
+                user: req.user._id,
+                plan: normalizedPlan,
+                providerSubscriptionId: subscriptionId,
+                providerPlanId: 'simulation',
+                amount: selectedPlan.amount,
+                currency: 'INR',
+                status: 'active',
+                currentStart: new Date(),
+                currentEnd: expiresAt,
+                totalCount: 1,
+                paidCount: 1,
+                remainingCount: 0,
+                lastPaymentId: `pay_sim_${Date.now()}`,
+                latestEvent: 'simulation.subscription.active',
+                raw: { simulation: true }
+            });
+
+            const user = await User.findById(req.user._id);
+            await setUserPlan(user, normalizedPlan, {
+                expiresAt,
+                subscriptionId,
+                subscriptionProvider: 'razorpay',
+                subscriptionStatus: 'active',
+                lastPaymentAt: new Date()
+            });
+
+            return res.json({
+                simulation: true,
+                keyId: 'rzp_test_simulation',
+                subscription: {
+                    id: record.providerSubscriptionId,
+                    status: record.status
+                },
+                plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount },
+                user: serializeUser(user)
+            });
+        }
+
+        if (!authHeader) return res.status(500).json({ message: 'Razorpay keys not configured' });
+        if (!providerPlanId) {
+            return res.status(500).json({
+                message: `${selectedPlan.planEnv} is not configured. Create Razorpay Subscription plans and add their IDs to the backend environment.`
+            });
+        }
+
+        const razorpayRes = await requestRazorpay({
+            path: '/v1/subscriptions',
+            authHeader,
+            payload: {
+                plan_id: providerPlanId,
+                total_count: selectedPlan.subscriptionCycles,
+                quantity: 1,
+                customer_notify: true,
+                notes: {
+                    userId: String(req.user._id),
+                    plan: normalizedPlan
+                }
+            }
+        });
+
+        if (!razorpayRes.ok) {
+            return res.status(razorpayRes.status).json({
+                message: getRazorpayErrorMessage(razorpayRes.body)
+            });
+        }
+
+        await BillingSubscription.findOneAndUpdate({
+            providerSubscriptionId: razorpayRes.body.id
+        }, {
+            user: req.user._id,
+            plan: normalizedPlan,
+            provider: 'razorpay',
+            providerSubscriptionId: razorpayRes.body.id,
+            amount: selectedPlan.amount,
+            currency: 'INR',
+            latestEvent: 'subscription.created',
+            ...mapSubscriptionEntity(razorpayRes.body)
+        }, {
+            upsert: true,
+            new: true,
+            setDefaultsOnInsert: true
+        });
+
+        res.json({
+            keyId: process.env.RAZORPAY_KEY_ID,
+            subscription: razorpayRes.body,
+            plan: { id: normalizedPlan, label: selectedPlan.label, amount: selectedPlan.amount },
+            checkoutType: 'subscription',
+            pricingVersion: PRICING_VERSION
+        });
+    } catch (err) {
+        console.error('Razorpay subscription create error:', err.message);
+        res.status(500).json({ message: 'Unable to create Razorpay subscription' });
+    }
+});
+
+router.post('/razorpay/subscription/verify', protect, async(req, res) => {
+    try {
+        const {
+            plan,
+            razorpay_subscription_id,
+            razorpay_payment_id,
+            razorpay_signature
+        } = req.body;
+
+        const normalizedPlan = normalizePlan(plan);
+        if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
+        if (!razorpay_subscription_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({ message: 'Missing Razorpay subscription verification fields' });
+        }
+
+        const subscription = await BillingSubscription.findOne({
+            user: req.user._id,
+            providerSubscriptionId: razorpay_subscription_id
+        });
+
+        if (!subscription) {
+            return res.status(404).json({ message: 'Subscription record not found' });
+        }
+
+        if (subscription.plan !== normalizedPlan) {
+            return res.status(400).json({ message: 'Subscription plan mismatch' });
+        }
+
+        if (process.env.PAYMENT_SIMULATION !== 'true') {
+            if (!process.env.RAZORPAY_KEY_SECRET) {
+                return res.status(500).json({ message: 'Razorpay keys missing' });
+            }
+
+            const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+            shasum.update(`${razorpay_payment_id}|${subscription.providerSubscriptionId}`);
+            if (shasum.digest('hex') !== razorpay_signature) {
+                return res.status(400).json({ message: 'Subscription verification failed' });
+            }
+        }
+
+        subscription.status = 'authenticated';
+        subscription.lastPaymentId = razorpay_payment_id;
+        subscription.latestEvent = 'checkout.subscription.authorized';
+        if (!subscription.currentStart) subscription.currentStart = new Date();
+        if (!subscription.currentEnd) subscription.currentEnd = getFallbackExpiry(normalizedPlan);
+        await subscription.save();
+
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        await setUserPlan(user, normalizedPlan, {
+            expiresAt: subscription.currentEnd || getFallbackExpiry(normalizedPlan),
+            subscriptionId: subscription.providerSubscriptionId,
+            subscriptionProvider: 'razorpay',
+            subscriptionStatus: subscription.status,
+            lastPaymentAt: new Date()
+        });
+
+        res.json({
+            message: 'Subscription verified',
+            user: serializeUser(user),
+            subscription,
+            plan: normalizedPlan
+        });
+    } catch (err) {
+        console.error('Razorpay subscription verify error:', err.message);
+        res.status(500).json({ message: 'Subscription verification failed' });
+    }
+});
+
+router.post('/razorpay/subscription/cancel', protect, async(req, res) => {
+    try {
+        const cancelAtCycleEnd = req.body?.cancelAtCycleEnd !== false;
+        const subscription = await BillingSubscription.findOne({
+            user: req.user._id,
+            providerSubscriptionId: req.user.razorpaySubscriptionId
+        });
+
+        if (!subscription) return res.status(404).json({ message: 'Active subscription not found' });
+
+        if (process.env.PAYMENT_SIMULATION === 'true') {
+            subscription.status = cancelAtCycleEnd ? 'cancel_scheduled' : 'cancelled';
+            subscription.latestEvent = 'simulation.subscription.cancelled';
+            if (!cancelAtCycleEnd) subscription.endedAt = new Date();
+            await subscription.save();
+
+            const user = await User.findById(req.user._id);
+            if (cancelAtCycleEnd) {
+                user.subscriptionStatus = 'cancel_scheduled';
+                await user.save();
+            } else {
+                await setUserFree(user, 'cancelled');
+            }
+
+            return res.json({ message: 'Subscription cancelled', user: serializeUser(user), subscription });
+        }
+
+        const authHeader = getRazorpayAuthHeader();
+        if (!authHeader) return res.status(500).json({ message: 'Razorpay keys not configured' });
+
+        const razorpayRes = await requestRazorpay({
+            path: `/v1/subscriptions/${subscription.providerSubscriptionId}/cancel`,
+            authHeader,
+            payload: {
+                cancel_at_cycle_end: Boolean(cancelAtCycleEnd)
+            }
+        });
+
+        if (!razorpayRes.ok) {
+            return res.status(razorpayRes.status).json({
+                message: getRazorpayErrorMessage(razorpayRes.body)
+            });
+        }
+
+        Object.assign(subscription, mapSubscriptionEntity(razorpayRes.body), {
+            latestEvent: 'subscription.cancel_requested'
+        });
+        await subscription.save();
+
+        const user = await User.findById(req.user._id);
+        if (cancelAtCycleEnd && subscription.currentEnd && subscription.currentEnd > new Date()) {
+            user.subscriptionStatus = 'cancel_scheduled';
+            await user.save();
+        } else {
+            await setUserFree(user, 'cancelled');
+        }
+
+        res.json({ message: 'Subscription cancelled', user: serializeUser(user), subscription });
+    } catch (err) {
+        console.error('Razorpay subscription cancel error:', err.message);
+        res.status(500).json({ message: 'Unable to cancel subscription' });
+    }
 });
 
 router.post('/razorpay/order', protect, async(req, res) => {
@@ -282,8 +642,12 @@ router.post('/razorpay/verify', protect, async(req, res) => {
         const user = await User.findById(req.user._id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        await setUserPlan(user, normalizedPlan);
-        res.json({ message: 'Success', user, plan: normalizedPlan });
+        await setUserPlan(user, normalizedPlan, {
+            subscriptionProvider: 'razorpay',
+            subscriptionStatus: 'one_time_payment',
+            lastPaymentAt: new Date()
+        });
+        res.json({ message: 'Success', user: serializeUser(user), plan: normalizedPlan });
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
 
@@ -348,10 +712,78 @@ router.put('/approve/:id', protect, async(req, res) => {
         request.status = 'approved';
         await request.save();
         const user = await User.findById(request.user);
-        if (user) await setUserPlan(user, request.plan);
+        if (user) await setUserPlan(user, request.plan, {
+            subscriptionStatus: 'manual_approval',
+            lastPaymentAt: new Date()
+        });
         res.json({ message: 'Approved' });
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
+
+const syncSubscriptionFromWebhook = async(event, subscriptionEntity, paymentEntity = null) => {
+    if (!subscriptionEntity?.id) return;
+
+    const notes = subscriptionEntity.notes || {};
+    let subscription = await BillingSubscription.findOne({
+        providerSubscriptionId: subscriptionEntity.id
+    });
+
+    const normalizedPlan = normalizePlan(subscription?.plan || notes.plan);
+    const userId = subscription?.user || notes.userId;
+
+    if (!normalizedPlan || !userId || !isValidObjectId(userId)) return;
+
+    if (!subscription) {
+        subscription = new BillingSubscription({
+            user: userId,
+            plan: normalizedPlan,
+            provider: 'razorpay',
+            providerSubscriptionId: subscriptionEntity.id,
+            amount: planDetails[normalizedPlan].amount,
+            currency: 'INR'
+        });
+    }
+
+    Object.assign(subscription, mapSubscriptionEntity(subscriptionEntity), {
+        latestEvent: event,
+        lastPaymentId: paymentEntity?.id || subscription.lastPaymentId
+    });
+
+    await subscription.save();
+
+    const user = await User.findById(userId);
+    if (!user) return;
+
+    const status = subscriptionEntity.status || subscription.status;
+    const shouldActivate = [
+        'subscription.authenticated',
+        'subscription.activated',
+        'subscription.charged'
+    ].includes(event) || ['authenticated', 'active'].includes(status);
+
+    const shouldDeactivate = [
+        'subscription.cancelled',
+        'subscription.completed',
+        'subscription.expired',
+        'subscription.halted',
+        'subscription.paused'
+    ].includes(event) || ['cancelled', 'completed', 'expired', 'halted', 'paused'].includes(status);
+
+    if (shouldActivate) {
+        await setUserPlan(user, normalizedPlan, {
+            expiresAt: subscription.currentEnd || getFallbackExpiry(normalizedPlan),
+            subscriptionId: subscription.providerSubscriptionId,
+            subscriptionProvider: 'razorpay',
+            subscriptionStatus: status || 'active',
+            lastPaymentAt: paymentEntity ? new Date() : user.lastPaymentAt
+        });
+        return;
+    }
+
+    if (shouldDeactivate) {
+        await setUserFree(user, status || 'cancelled');
+    }
+};
 
 router.post('/webhook', async (req, res) => {
     try {
@@ -360,11 +792,19 @@ router.post('/webhook', async (req, res) => {
 
         if (secret && signature) {
             const shasum = crypto.createHmac('sha256', secret);
-            shasum.update(JSON.stringify(req.body));
+            shasum.update(req.rawBody || JSON.stringify(req.body));
             if (shasum.digest('hex') !== signature) return res.status(400).json({ message: 'Invalid signature' });
         }
 
         const { event, payload } = req.body;
+        if (event && String(event).startsWith('subscription.')) {
+            await syncSubscriptionFromWebhook(
+                event,
+                payload?.subscription?.entity,
+                payload?.payment?.entity
+            );
+        }
+
         if (event === 'payment.captured' || event === 'order.paid') {
             const notes = (payload.payment?.entity?.notes) || (payload.order?.entity?.notes);
             if (notes?.invoiceId && isValidObjectId(notes.invoiceId)) {
@@ -394,7 +834,10 @@ router.post('/webhook', async (req, res) => {
                 const normalizedPlan = normalizePlan(notes.plan);
                 if (normalizedPlan) {
                     const u = await User.findById(notes.userId);
-                    if (u) await setUserPlan(u, normalizedPlan);
+                    if (u) await setUserPlan(u, normalizedPlan, {
+                        subscriptionStatus: 'webhook_payment',
+                        lastPaymentAt: new Date()
+                    });
                 }
             }
         }

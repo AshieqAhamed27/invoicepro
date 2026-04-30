@@ -60,6 +60,24 @@ const generateToken = (id) => {
     );
 };
 
+const serializeUser = (user) => ({
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    plan: user.plan,
+    planExpiresAt: user.planExpiresAt,
+    subscriptionProvider: user.subscriptionProvider,
+    subscriptionStatus: user.subscriptionStatus,
+    razorpaySubscriptionId: user.razorpaySubscriptionId,
+    planStartedAt: user.planStartedAt,
+    lastPaymentAt: user.lastPaymentAt,
+    companyName: user.companyName,
+    gstNumber: user.gstNumber,
+    upiId: user.upiId,
+    address: user.address,
+    logo: user.logo
+});
+
 // ==========================
 // SIGNUP
 // ==========================
@@ -111,17 +129,7 @@ router.post(
                 token: generateToken(
                     user._id
                 ),
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    plan: user.plan,
-                    companyName: user.companyName,
-                    gstNumber: user.gstNumber,
-                    upiId: user.upiId,
-                    address: user.address,
-                    logo: user.logo
-                }
+                user: serializeUser(user)
             });
 
         } catch (err) {
@@ -190,17 +198,7 @@ router.post(
                 token: generateToken(
                     user._id
                 ),
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    plan: user.plan,
-                    companyName: user.companyName,
-                    gstNumber: user.gstNumber,
-                    upiId: user.upiId,
-                    address: user.address,
-                    logo: user.logo
-                }
+                user: serializeUser(user)
             });
 
         } catch (err) {
@@ -247,17 +245,7 @@ router.post(
                 token: generateToken(
                     user._id
                 ),
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    plan: user.plan,
-                    companyName: user.companyName,
-                    gstNumber: user.gstNumber,
-                    upiId: user.upiId,
-                    address: user.address,
-                    logo: user.logo
-                }
+                user: serializeUser(user)
             });
 
         } catch {
@@ -276,17 +264,7 @@ router.get(
     protect,
     (req, res) => {
         res.json({
-            user: {
-                id: req.user._id,
-                name: req.user.name,
-                email: req.user.email,
-                plan: req.user.plan,
-                companyName: req.user.companyName,
-                gstNumber: req.user.gstNumber,
-                upiId: req.user.upiId,
-                address: req.user.address,
-                logo: req.user.logo
-            }
+            user: serializeUser(req.user)
         });
     }
 );
@@ -331,17 +309,7 @@ router.put(
 
             res.json({
                 message: 'Profile updated',
-                user: {
-                    id: req.user._id,
-                    name: req.user.name,
-                    email: req.user.email,
-                    plan: req.user.plan,
-                    companyName: req.user.companyName,
-                    gstNumber: req.user.gstNumber,
-                    upiId: req.user.upiId,
-                    address: req.user.address,
-                    logo: req.user.logo
-                }
+                user: serializeUser(req.user)
             });
 
         } catch (err) {

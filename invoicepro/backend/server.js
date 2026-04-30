@@ -78,7 +78,12 @@ app.use(
     })
 );
 
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({
+    limit: '5mb',
+    verify: (req, res, buf) => {
+        req.rawBody = buf.toString('utf8');
+    }
+}));
 
 // ✅ ROUTES
 app.use('/api/auth', authRoutes);
