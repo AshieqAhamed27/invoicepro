@@ -227,7 +227,7 @@ export default function PublicInvoice() {
     'Service Provider'
   );
   const companyAddress = firstText(business.address, invoice.user?.address, 'Tamil Nadu, India');
-  const companyLogo = firstText(business.logo, invoice.user?.logo);
+  const companyLogo = firstText(business.logo, invoice.user?.logo, '/logo.svg');
   const companyUpi = firstText(invoice.upiId, business.upiId, invoice.user?.upiId);
 
   const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && companyUpi

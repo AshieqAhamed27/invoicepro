@@ -20,6 +20,11 @@ export const getSafeRemoteImageUrl = (value) => {
   // Allow inline data URLs for logos.
   if (/^data:image\//i.test(input)) return input;
 
+  // Allow bundled public assets such as /logo.svg.
+  if (/^\/(?!\/).+\.(svg|png|jpe?g|webp|gif)([?#].*)?$/i.test(input)) {
+    return input;
+  }
+
   let parsed;
   try {
     parsed = new URL(input);

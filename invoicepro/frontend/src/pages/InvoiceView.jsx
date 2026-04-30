@@ -196,7 +196,7 @@ export default function InvoiceView() {
   const businessAddress = firstText(profile.address, business.address);
   const businessGst = firstText(invoice.gst, profile.gstNumber, business.gstNumber);
   const businessUpi = firstText(profile.upiId, business.upiId);
-  const rawLogo = firstText(profile.logo, business.logo);
+  const rawLogo = firstText(profile.logo, business.logo, '/logo.svg');
   const logoUrl = getSafeRemoteImageUrl(rawLogo) || null;
   const brandInitials = getBrandInitials(companyName);
 

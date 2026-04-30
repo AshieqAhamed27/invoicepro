@@ -28,6 +28,10 @@ const normalizeLogoUrl = (value) => {
 
     if (/^data:image\//i.test(input)) return input;
 
+    if (/^\/(?!\/).+\.(svg|png|jpe?g|webp|gif)([?#].*)?$/i.test(input)) {
+        return input;
+    }
+
     let parsed;
     try {
         parsed = new URL(input);

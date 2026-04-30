@@ -32,7 +32,7 @@ const buildBusinessSnapshot = (user, details = {}) => ({
     address: user.address || '',
     gstNumber: details.gst || user.gstNumber || '',
     upiId: details.upiId || user.upiId || '',
-    logo: user.logo || ''
+    logo: user.logo || '/logo.svg'
 });
 
 const getInvoiceDocumentMatch = (documentType) => (

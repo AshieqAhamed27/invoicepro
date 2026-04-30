@@ -56,7 +56,7 @@ export default function Settings() {
       setSaving(true);
       const safeLogo = getSafeRemoteImageUrl(form.logo);
       if (String(form.logo || '').trim() && !safeLogo) {
-        alert('Logo URL must be a public https URL (not localhost/private IP).');
+        alert('Logo must be /logo.svg or a public https image URL.');
         setSaving(false);
         return;
       }
@@ -185,17 +185,17 @@ export default function Settings() {
                     name="logo"
                     value={form.logo}
                     onChange={handleChange}
-                    placeholder="https://cloud.com/your-logo.png"
+                    placeholder="/logo.svg or https://cloud.com/your-logo.png"
                     className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
                   />
                   {logoInvalid && (
                     <div className="mt-3 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-[10px] font-bold text-red-300 max-w-md">
-                      Logo URL looks unsafe for production. Use a public `https://` URL (not `localhost` or private IP).
+                      Logo URL looks unsafe for production. Use `/logo.svg` or a public `https://` image URL.
                     </div>
                   )}
                   <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/5 max-w-md">
                      <svg className="h-4 w-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                     <p className="text-[10px] font-medium text-zinc-400">Pro Tip: Use a high-res PNG with a transparent background for best results.</p>
+                     <p className="text-[10px] font-medium text-zinc-400">Use /logo.svg for the bundled InvoicePro logo, or a high-res public PNG/SVG for custom branding.</p>
                   </div>
               </div>
             </section>
