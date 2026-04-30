@@ -59,6 +59,9 @@ export default function Navbar() {
               <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Dashboard
               </NavLink>
+              <NavLink to="/launch" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
+                Launch
+              </NavLink>
               <NavLink to="/clients" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Clients
               </NavLink>
@@ -136,6 +139,9 @@ export default function Navbar() {
               <>
                 <NavLink to="/dashboard" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Dashboard
+                </NavLink>
+                <NavLink to="/launch" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
+                  Launch Center
                 </NavLink>
                 <NavLink to="/clients" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Clients

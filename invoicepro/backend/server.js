@@ -14,6 +14,7 @@ const {
     PRICING_VERSION,
     getConnectionStateLabel,
     getEnvSanity,
+    getLaunchReadiness,
     markStartup,
     startupState
 } = require('./utils/runtimeDiagnostics');
@@ -101,6 +102,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/health/details', (req, res) => {
+    const databaseState = getConnectionStateLabel(mongoose.connection.readyState);
+
     res.json({
         status: 'OK',
         message: 'InvoicePro API diagnostics',
@@ -113,9 +116,25 @@ app.get('/api/health/details', (req, res) => {
             nodeVersion: process.version
         },
         database: {
-            state: getConnectionStateLabel(mongoose.connection.readyState)
+            state: databaseState
         },
-        envSanity: getEnvSanity()
+        envSanity: getEnvSanity(),
+        readiness: getLaunchReadiness({ databaseState })
+    });
+});
+
+app.get('/api/health/launch-readiness', (req, res) => {
+    const databaseState = getConnectionStateLabel(mongoose.connection.readyState);
+
+    res.json({
+        status: 'OK',
+        message: 'InvoicePro launch readiness',
+        pricingVersion: PRICING_VERSION,
+        database: {
+            state: databaseState
+        },
+        envSanity: getEnvSanity(),
+        readiness: getLaunchReadiness({ databaseState })
     });
 });
 

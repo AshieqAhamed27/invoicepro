@@ -104,6 +104,7 @@ router.get('/dashboard', protect, async(req, res) => {
                     $group: {
                         _id: null,
                         totalRevenue: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, '$amount', 0] } },
+                        pendingAmount: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, '$amount', 0] } },
                         pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
                         paid: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] } },
                         total: { $sum: 1 }
@@ -130,6 +131,7 @@ router.get('/dashboard', protect, async(req, res) => {
             invoices,
             stats: {
                 totalRevenue: stats.totalRevenue || 0,
+                pendingAmount: stats.pendingAmount || 0,
                 pending: stats.pending || 0,
                 paid: stats.paid || 0,
                 total: stats.total || 0,

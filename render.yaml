@@ -21,8 +21,16 @@ services:
         sync: false
       - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
+      - key: RAZORPAY_MONTHLY_PLAN_ID
+        sync: false
+      - key: RAZORPAY_YEARLY_PLAN_ID
+        sync: false
       - key: PAYMENT_SIMULATION
         value: "false"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5-mini
       - key: EMAIL_USER
         sync: false
       - key: EMAIL_PASS

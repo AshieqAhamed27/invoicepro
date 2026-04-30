@@ -240,6 +240,12 @@ export default function Dashboard() {
 
           <div className="flex flex-wrap gap-4">
             <Link
+              to="/launch"
+              className="btn btn-dark px-8 py-5 font-black uppercase text-xs tracking-widest"
+            >
+              Launch Center
+            </Link>
+            <Link
               to="/create-invoice?type=proposal"
               className="btn btn-secondary px-8 py-5 font-black uppercase text-xs tracking-widest"
             >

@@ -21,6 +21,7 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const LaunchCenter = lazy(() => import('./pages/LaunchCenter'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 const Payment = lazy(() => import('./pages/Payment'));
@@ -180,6 +181,17 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <Dashboard />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/launch"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <LaunchCenter />
               </Suspense>
             </PrivateRoute>
           }
