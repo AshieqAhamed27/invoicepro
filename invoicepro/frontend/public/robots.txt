@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /clients
+Disallow: /create-invoice
+Disallow: /dashboard
+Disallow: /invoice/
+Disallow: /launch
+Disallow: /payment
+Disallow: /p/invoice/
+Disallow: /public/invoice/
+Disallow: /recurring
+Disallow: /settings
+
+Sitemap: https://invoicepro.vercel.app/sitemap.xml

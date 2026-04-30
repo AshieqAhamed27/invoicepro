@@ -1,33 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
   <url>
-    <loc>https://invoicepro-lime.vercel.app/</loc>
-    <priority>1.0</priority>
-  </url>
-
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/login</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/signup</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/dashboard</loc>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/create-invoice</loc>
-    <priority>0.7</priority>
+    <loc>https://invoicepro.vercel.app/</loc>
+    <lastmod>2026-05-01</lastmod>
   </url>
   <url>
-  <loc>https://invoicepro-lime.vercel.app/blog/gst-invoice-format-india</loc>
-  <priority>0.9</priority>
-</url>
-
+    <loc>https://invoicepro.vercel.app/invoice-generator</loc>
+    <lastmod>2026-05-01</lastmod>
+  </url>
+  <url>
+    <loc>https://invoicepro.vercel.app/blog/how-to-create-invoice-india</loc>
+    <lastmod>2026-05-01</lastmod>
+  </url>
+  <url>
+    <loc>https://invoicepro.vercel.app/blog/gst-invoice-format-india</loc>
+    <lastmod>2026-05-01</lastmod>
+  </url>
+  <url>
+    <loc>https://invoicepro.vercel.app/contact</loc>
+    <lastmod>2026-05-01</lastmod>
+  </url>
+  <url>
+    <loc>https://invoicepro.vercel.app/privacy</loc>
+    <lastmod>2026-05-01</lastmod>
+  </url>
+  <url>
+    <loc>https://invoicepro.vercel.app/terms</loc>
+    <lastmod>2026-05-01</lastmod>
+  </url>
 </urlset>
