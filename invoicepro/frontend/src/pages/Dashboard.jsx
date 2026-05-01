@@ -58,7 +58,6 @@ export default function Dashboard() {
   const [aiInsights, setAiInsights] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState('');
-  const [sendingReminderId, setSendingReminderId] = useState(null);
   const [convertingProposalId, setConvertingProposalId] = useState(null);
   const [onboardingDismissed, setOnboardingDismissed] = useState(() => {
     try {
@@ -116,18 +115,6 @@ export default function Dashboard() {
       localStorage.setItem('onboarding_dismissed', '1');
     } catch { }
     setOnboardingDismissed(true);
-  };
-
-  const sendReminder = async (id) => {
-    try {
-      setSendingReminderId(id);
-      await api.post(`/invoices/${id}/reminder`);
-      alert('Reminder email sent to client.');
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to send reminder.');
-    } finally {
-      setSendingReminderId(null);
-    }
   };
 
   const deleteInvoice = async (id) => {
@@ -218,24 +205,13 @@ export default function Dashboard() {
               </Link>
 
               {!meta.isProposal && inv.status !== 'paid' && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => sendWhatsAppReminder(inv)}
-                    className="rounded-xl border border-emerald-400/15 bg-emerald-400/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition-all hover:bg-emerald-400/15 hover:text-emerald-200"
-                  >
-                    WhatsApp
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={sendingReminderId === inv._id}
-                    onClick={() => sendReminder(inv._id)}
-                    className="btn btn-dark px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                  >
-                    {sendingReminderId === inv._id ? 'Sending...' : 'Email'}
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={() => sendWhatsAppReminder(inv)}
+                  className="rounded-xl border border-emerald-400/15 bg-emerald-400/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition-all hover:bg-emerald-400/15 hover:text-emerald-200"
+                >
+                  WhatsApp
+                </button>
               )}
 
               {meta.isProposal && inv.proposalStatus === 'accepted' && !inv.convertedToInvoiceId && (
@@ -261,7 +237,7 @@ export default function Dashboard() {
         </tr>
       );
     });
-  }, [convertingProposalId, invoices, sendingReminderId]);
+  }, [convertingProposalId, invoices]);
 
   return (
     <div className="premium-page min-h-screen text-white">
