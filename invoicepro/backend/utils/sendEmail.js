@@ -1,4 +1,9 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+if (typeof dns.setDefaultResultOrder === 'function') {
+    dns.setDefaultResultOrder('ipv4first');
+}
 
 let cachedTransporter = null;
 let cachedKey = '';
@@ -52,6 +57,7 @@ const getTransporter = () => {
             host: config.host,
             port: config.port,
             secure: config.secure,
+            family: 4,
             requireTLS: !config.secure,
             connectionTimeout: 10000,
             greetingTimeout: 10000,
