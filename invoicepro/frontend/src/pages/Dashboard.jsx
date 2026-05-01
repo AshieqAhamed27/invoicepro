@@ -111,8 +111,8 @@ export default function Dashboard() {
       setSendingReminderId(id);
       await api.post(`/invoices/${id}/reminder`);
       alert('Reminder email sent to client.');
-    } catch {
-      alert('Failed to send reminder.');
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to send reminder.');
     } finally {
       setSendingReminderId(null);
     }

@@ -967,7 +967,8 @@ router.post('/:id/reminder', protect, async(req, res) => {
 
         res.json({ message: 'Reminder sent successfully' });
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('SEND REMINDER ERROR:', err.message);
+        res.status(500).json({ message: err.message || 'Reminder email failed' });
     }
 });
 
