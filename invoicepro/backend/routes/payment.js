@@ -712,7 +712,7 @@ router.post('/public/verify', async(req, res) => {
             setImmediate(async() => {
                 try {
                     const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
-                    const senderName = invoice.user?.companyName || invoice.user?.name || DEFAULT_COMPANY_NAME;
+                    const senderName = invoice.user?.companyName || DEFAULT_COMPANY_NAME;
                     const template = paymentConfirmed({ invoice, publicUrl, senderName });
 
                     await sendEmail(invoice.clientEmail, template.subject, template);
@@ -921,7 +921,7 @@ router.post('/webhook', async (req, res) => {
                     setImmediate(async() => {
                         try {
                             const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, inv._id);
-                            const senderName = inv.user?.companyName || inv.user?.name || DEFAULT_COMPANY_NAME;
+                            const senderName = inv.user?.companyName || DEFAULT_COMPANY_NAME;
                             const template = paymentConfirmed({ invoice: inv, publicUrl, senderName });
 
                             await sendEmail(inv.clientEmail, template.subject, template);

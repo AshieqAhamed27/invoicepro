@@ -28,7 +28,7 @@ const isProposalDocument = (value) => String(value || 'invoice').toLowerCase() =
 const isPaidPlan = (user) => user?.plan && user.plan !== 'free';
 
 const buildBusinessSnapshot = (user, details = {}) => ({
-    name: user.companyName || user.name || DEFAULT_COMPANY_NAME,
+    name: user.companyName || DEFAULT_COMPANY_NAME,
     email: user.email || '',
     address: user.address || '',
     gstNumber: details.gst || user.gstNumber || '',
@@ -395,7 +395,7 @@ router.post('/', protect, async(req, res) => {
             try {
                 const publicInvoiceLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
 
-                const senderName = user.companyName || user.name || DEFAULT_COMPANY_NAME;
+                const senderName = user.companyName || DEFAULT_COMPANY_NAME;
                 const template = invoiceCreated({ invoice, publicUrl: publicInvoiceLink, senderName });
 
                 await sendEmail(invoice.clientEmail, template.subject, template);
@@ -571,7 +571,7 @@ router.put('/:id/status', protect, async(req, res) => {
             setImmediate(async() => {
                 try {
                     const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
-                    const senderName = req.user.companyName || req.user.name || DEFAULT_COMPANY_NAME;
+                    const senderName = req.user.companyName || DEFAULT_COMPANY_NAME;
                     const template = paymentConfirmed({ invoice, publicUrl, senderName });
                     await sendEmail(invoice.clientEmail, template.subject, template);
                 } catch (e) {}
@@ -783,7 +783,7 @@ router.post('/recurring/:id/run-now', protect, async(req, res) => {
             setImmediate(async() => {
                 try {
                     const publicInvoiceLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
-                    const senderName = req.user.companyName || req.user.name || DEFAULT_COMPANY_NAME;
+                    const senderName = req.user.companyName || DEFAULT_COMPANY_NAME;
                     const template = invoiceCreated({ invoice, publicUrl: publicInvoiceLink, senderName });
                     await sendEmail(invoice.clientEmail, template.subject, template);
                 } catch (e) {}
@@ -901,7 +901,7 @@ router.post('/recurring/run', async(req, res) => {
                 setImmediate(async() => {
                     try {
                         const publicInvoiceLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
-                        const senderName = user.companyName || user.name || DEFAULT_COMPANY_NAME;
+                        const senderName = user.companyName || DEFAULT_COMPANY_NAME;
                         const template = invoiceCreated({ invoice, publicUrl: publicInvoiceLink, senderName });
                         await sendEmail(invoice.clientEmail, template.subject, template);
                     } catch (e) {}
@@ -964,7 +964,7 @@ router.post('/:id/reminder', protect, async(req, res) => {
 
         const publicLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
 
-        const senderName = req.user.companyName || req.user.name || DEFAULT_COMPANY_NAME;
+        const senderName = req.user.companyName || DEFAULT_COMPANY_NAME;
         const template = invoiceReminder({ invoice, publicUrl: publicLink, senderName });
         await sendEmail(invoice.clientEmail, template.subject, template);
 

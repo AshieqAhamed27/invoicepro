@@ -220,11 +220,14 @@ export default function PublicInvoice() {
 
   const business = invoice.businessSnapshot || {};
   const snapshotName = firstText(business.name);
+  const personalName = firstText(invoice.user?.name);
+  const businessSnapshotName =
+    snapshotName !== COMPANY_SHORT_NAME && snapshotName !== COMPANY_NAME && snapshotName !== personalName
+      ? snapshotName
+      : '';
   const companyName = firstText(
-    snapshotName !== COMPANY_SHORT_NAME && snapshotName !== COMPANY_NAME ? snapshotName : '',
+    businessSnapshotName,
     invoice.user?.companyName,
-    invoice.user?.name,
-    snapshotName,
     COMPANY_NAME
   );
   const companyAddress = firstText(business.address, invoice.user?.address, 'Tamil Nadu, India');

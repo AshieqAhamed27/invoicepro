@@ -186,11 +186,14 @@ export default function InvoiceView() {
   const invoiceProfile = invoice.user && typeof invoice.user === 'object' ? invoice.user : {};
   const profile = { ...(user || {}), ...invoiceProfile };
   const snapshotName = firstText(business.name);
+  const personalName = firstText(profile.name);
+  const businessSnapshotName =
+    snapshotName !== COMPANY_SHORT_NAME && snapshotName !== COMPANY_NAME && snapshotName !== personalName
+      ? snapshotName
+      : '';
   const companyName = firstText(
     profile.companyName,
-    snapshotName !== COMPANY_SHORT_NAME && snapshotName !== COMPANY_NAME ? snapshotName : '',
-    profile.name,
-    snapshotName,
+    businessSnapshotName,
     COMPANY_NAME
   );
   const businessEmail = firstText(profile.email, business.email);
