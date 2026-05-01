@@ -26,6 +26,13 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('session') === 'expired') {
+      setError('Your session expired. Please sign in again.');
+    }
+  }, [location.search]);
+
   const handleGoogleLogin = async (response) => {
     const decoded = jwtDecode(response.credential);
 
