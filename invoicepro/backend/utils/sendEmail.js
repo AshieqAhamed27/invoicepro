@@ -30,12 +30,17 @@ const withTimeout = (promise, timeoutMs) => new Promise((resolve, reject) => {
 const getEmailConfig = () => {
     const user = String(process.env.EMAIL_USER || '').trim();
     const pass = String(process.env.EMAIL_PASS || '').replace(/\s+/g, '');
+    const host = String(process.env.EMAIL_HOST || 'smtp.gmail.com').trim();
+    const port = Number(process.env.EMAIL_PORT || 587);
+    const secure = process.env.EMAIL_SECURE !== undefined
+        ? ['1', 'true', 'yes'].includes(String(process.env.EMAIL_SECURE).toLowerCase())
+        : port === 465;
 
     if (!user || !pass) {
         throw new Error('Email is not configured. Add EMAIL_USER and EMAIL_PASS in backend environment variables.');
     }
 
-    return { user, pass };
+    return { user, pass, host, port, secure };
 };
 
 const getTransporter = () => {
@@ -44,11 +49,20 @@ const getTransporter = () => {
 
     if (!cachedTransporter || cachedKey !== key) {
         cachedTransporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: config.host,
+            port: config.port,
+            secure: config.secure,
+            requireTLS: !config.secure,
             connectionTimeout: 10000,
             greetingTimeout: 10000,
             socketTimeout: EMAIL_SEND_TIMEOUT_MS,
-            auth: config
+            auth: {
+                user: config.user,
+                pass: config.pass
+            },
+            tls: {
+                servername: config.host
+            }
         });
         cachedKey = key;
     }
