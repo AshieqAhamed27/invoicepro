@@ -16,8 +16,7 @@ const router = express.Router();
 const sendEmail = require('../utils/sendEmail');
 const {
     invoiceCreated,
-    invoiceReminder,
-    paymentConfirmed
+    invoiceReminder
 } = require('../utils/emailTemplates');
 
 const FREE_PLAN_LIMIT = 2;
@@ -516,7 +515,7 @@ router.post('/:id/convert', protect, async(req, res) => {
 });
 
 // ==========================
-// UPDATE STATUS (FIXED)
+// UPDATE STATUS
 // ==========================
 router.put('/:id/status', protect, async(req, res) => {
     try {
@@ -532,7 +531,10 @@ router.put('/:id/status', protect, async(req, res) => {
             });
         }
 
-        if (invoice.user.toString() !== req.user._id.toString()) {
+        const isOwner = invoice.user.toString() === req.user._id.toString();
+        const isAdmin = req.user.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
             return res.status(403).json({
                 message: 'Unauthorized action'
             });
@@ -552,12 +554,18 @@ router.put('/:id/status', protect, async(req, res) => {
             });
         }
 
-        const previousStatus = invoice.status;
+        if (status === 'paid' && !isAdmin) {
+            return res.status(403).json({
+                message: 'Invoices can be marked paid only after verified payment.'
+            });
+        }
 
         invoice.status = status;
 
         if (status === 'paid') {
             invoice.paidAt = new Date();
+        } else {
+            invoice.paidAt = null;
         }
 
         await invoice.save();
@@ -566,17 +574,6 @@ router.put('/:id/status', protect, async(req, res) => {
             message: 'Status updated!',
             invoice
         });
-
-        if (previousStatus !== 'paid' && status === 'paid') {
-            setImmediate(async() => {
-                try {
-                    const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
-                    const senderName = req.user.companyName || DEFAULT_COMPANY_NAME;
-                    const template = paymentConfirmed({ invoice, publicUrl, senderName });
-                    await sendEmail(invoice.clientEmail, template.subject, template);
-                } catch (e) {}
-            });
-        }
 
     } catch (err) {
         console.error('UPDATE STATUS ERROR:', err);

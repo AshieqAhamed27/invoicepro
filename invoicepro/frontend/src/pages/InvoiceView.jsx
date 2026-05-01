@@ -227,17 +227,6 @@ export default function InvoiceView() {
         ? 'bg-red-400/5 text-red-400 border-red-400/10'
         : 'bg-sky-400/5 text-sky-300 border-sky-400/10';
 
-  const markAsPaid = async () => {
-    try {
-      await api.put(`/invoices/${invoice._id}/status`, {
-        status: 'paid'
-      });
-      setInvoice((prev) => ({ ...prev, status: 'paid', paidAt: new Date().toISOString() }));
-    } catch {
-      alert('Failed to update status');
-    }
-  };
-
   const deleteInvoice = async () => {
     if (!window.confirm(`Delete this ${meta.typeLabel.toLowerCase()} permanently?`)) return;
     try {
@@ -540,10 +529,11 @@ export default function InvoiceView() {
             </button>
             {!meta.isProposal && invoice.status !== 'paid' && (
               <button
-                onClick={markAsPaid}
+                type="button"
+                onClick={sharePublicLink}
                 className="btn btn-primary px-8 py-3 shadow-xl shadow-black/20 hover:-translate-y-0.5 transition-all"
               >
-                Mark as Paid
+                Share Payment Link
               </button>
             )}
 
