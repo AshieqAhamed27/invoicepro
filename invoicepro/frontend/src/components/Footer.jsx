@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import BrandLogo from './BrandLogo';
-import { SUPPORT_EMAIL } from '../utils/company';
+import { COMPANY_NAME, COMPANY_TAGLINE, SUPPORT_EMAIL } from '../utils/company';
 
 export default function Footer() {
   return (
@@ -13,8 +13,7 @@ export default function Footer() {
               <BrandLogo showText={true} />
             </div>
             <p className="max-w-xs text-zinc-400 font-medium leading-relaxed">
-              InvoicePro helps Indian service businesses send clear invoices, share public payment links,
-              and manage recurring billing with more confidence.
+              {COMPANY_TAGLINE}
             </p>
           </div>
 
@@ -66,7 +65,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 md:flex-row">
-          <p className="text-center md:text-left">Copyright {new Date().getFullYear()} InvoicePro</p>
+          <p className="text-center md:text-left">Copyright {new Date().getFullYear()} {COMPANY_NAME}</p>
           <div className="mt-0 flex flex-wrap items-center justify-center gap-4 sm:gap-8 md:justify-end">
             <Link className="transition-colors hover:text-zinc-500" to="/privacy">Privacy</Link>
             <Link className="transition-colors hover:text-zinc-500" to="/terms">Terms</Link>

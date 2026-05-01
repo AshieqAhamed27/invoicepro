@@ -4,6 +4,7 @@ import api from '../utils/api';
 import QRCode from 'react-qr-code';
 import BrandLogo from '../components/BrandLogo';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
+import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_LOGO } from '../utils/company';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -165,7 +166,7 @@ export default function PublicInvoice() {
         key: keyId,
         amount: order.amount,
         currency: order.currency,
-        name: 'InvoicePro',
+        name: COMPANY_SHORT_NAME,
         description: `Invoice ${invoice.invoiceNumber}`,
         order_id: order.id,
         prefill: {
@@ -220,14 +221,14 @@ export default function PublicInvoice() {
   const business = invoice.businessSnapshot || {};
   const snapshotName = firstText(business.name);
   const companyName = firstText(
-    snapshotName !== 'InvoicePro' ? snapshotName : '',
+    snapshotName !== COMPANY_SHORT_NAME && snapshotName !== COMPANY_NAME ? snapshotName : '',
     invoice.user?.companyName,
     invoice.user?.name,
     snapshotName,
-    'Service Provider'
+    COMPANY_NAME
   );
   const companyAddress = firstText(business.address, invoice.user?.address, 'Tamil Nadu, India');
-  const companyLogo = firstText(business.logo, invoice.user?.logo, '/logo.svg');
+  const companyLogo = firstText(business.logo, invoice.user?.logo, COMPANY_LOGO);
   const companyUpi = firstText(invoice.upiId, business.upiId, invoice.user?.upiId);
 
   const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && companyUpi
@@ -267,7 +268,7 @@ export default function PublicInvoice() {
               )}
               <div>
                 <p className="break-words text-lg font-black leading-none text-slate-950 sm:text-xl">{companyName}</p>
-                <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Powered by InvoicePro</p>
+                <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Powered by {COMPANY_SHORT_NAME}</p>
               </div>
             </div>
             <p className="text-slate-500 mt-2 font-bold uppercase text-[10px] tracking-widest">
@@ -488,7 +489,7 @@ export default function PublicInvoice() {
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L1 21h22L12 2zm0 3.45l8.1 14.1H3.9L12 5.45z" />
             </svg>
-            InvoicePro
+            {COMPANY_SHORT_NAME}
           </span>
         </p>
       </div>

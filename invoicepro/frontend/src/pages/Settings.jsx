@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
+import { COMPANY_SHORT_NAME } from '../utils/company';
 
 export default function Settings() {
   const [form, setForm] = useState({
@@ -195,7 +196,7 @@ export default function Settings() {
                   )}
                   <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/5 max-w-md">
                      <svg className="h-4 w-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                     <p className="text-[10px] font-medium text-zinc-400">Use /logo.svg for the bundled InvoicePro logo, or a high-res public PNG/SVG for custom branding.</p>
+                     <p className="text-[10px] font-medium text-zinc-400">Use /logo.svg for the bundled {COMPANY_SHORT_NAME} logo, or a high-res public PNG/SVG for custom branding.</p>
                   </div>
               </div>
             </section>

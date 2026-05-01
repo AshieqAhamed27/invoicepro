@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
+import { COMPANY_SHORT_NAME } from '../utils/company';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -175,7 +176,7 @@ export default function Payment() {
 
       const options = {
         key: keyId,
-        name: "InvoicePro",
+        name: COMPANY_SHORT_NAME,
         description: `${serverPlan?.label || 'Pro'} Subscription`,
         subscription_id: subscription.id,
         prefill: {

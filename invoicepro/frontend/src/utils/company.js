@@ -1,4 +1,8 @@
-export const COMPANY_NAME = 'InvoicePro';
+export const PRODUCT_NAME = 'InvoicePro';
+export const COMPANY_NAME = 'InvoicePro Billing Technologies';
+export const COMPANY_SHORT_NAME = 'InvoicePro';
+export const COMPANY_TAGLINE = 'AI invoicing, GST billing, and payment links for growing businesses.';
+export const COMPANY_LOGO = '/logo.svg';
 export const SUPPORT_EMAIL = 'ashieqahamed27@gmail.com';
 export const COMPANY_LOCATION = 'India';
 export const SITE_URL = 'https://invoicepro.vercel.app';
