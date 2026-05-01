@@ -480,6 +480,18 @@ export default function InvoiceView() {
     }
   };
 
+  const shareWhatsAppReminder = () => {
+    const message = [
+      `Hi ${invoice.clientName},`,
+      `This is a quick reminder for ${meta.typeLabel.toLowerCase()} ${invoice.invoiceNumber} of ${formatCurrency(total, invoice.currency)}.`,
+      `${meta.dateLabel}: ${formatDate(displayDate)}.`,
+      `You can view${meta.isProposal ? '' : ' and pay'} here: ${publicDocumentUrl}`,
+      'Thank you.'
+    ].join('\n\n');
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
@@ -527,6 +539,15 @@ export default function InvoiceView() {
             >
               Share
             </button>
+            {!meta.isProposal && invoice.status !== 'paid' && (
+              <button
+                type="button"
+                onClick={shareWhatsAppReminder}
+                className="rounded-xl border border-emerald-400/15 bg-emerald-400/10 px-6 py-3 text-xs font-black uppercase tracking-widest text-emerald-300 transition-all hover:bg-emerald-400/15 hover:text-emerald-200"
+              >
+                WhatsApp
+              </button>
+            )}
             {!meta.isProposal && invoice.status !== 'paid' && (
               <button
                 type="button"
