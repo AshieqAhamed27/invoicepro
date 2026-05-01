@@ -1,10 +1,20 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { COMPANY_NAME, LEGAL_EFFECTIVE_DATE, SUPPORT_EMAIL } from '../utils/company';
+import {
+  COMPANY_LEGAL_DESCRIPTION,
+  COMPANY_NAME,
+  LEGAL_EFFECTIVE_DATE,
+  SUPPORT_EMAIL,
+  UDYAM_REGISTRATION_NUMBER
+} from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
 
 const sections = [
+  {
+    title: 'Business identity',
+    body: `${COMPANY_LEGAL_DESCRIPTION} Udyam Registration Number: ${UDYAM_REGISTRATION_NUMBER}. This registration identifies the business as an MSME/proprietorship and does not represent a Private Limited company or LLP.`
+  },
   {
     title: 'Using the service',
     body: `${COMPANY_NAME} is designed to help businesses create invoices, proposals, client records, and payment links. You are responsible for using the service lawfully and for making sure the business, client, and billing information you add is accurate.`

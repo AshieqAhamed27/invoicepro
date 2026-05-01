@@ -1,10 +1,20 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { COMPANY_NAME, LEGAL_EFFECTIVE_DATE, SUPPORT_EMAIL } from '../utils/company';
+import {
+  COMPANY_LEGAL_DESCRIPTION,
+  COMPANY_NAME,
+  LEGAL_EFFECTIVE_DATE,
+  SUPPORT_EMAIL,
+  UDYAM_REGISTRATION_NUMBER
+} from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
 
 const sections = [
+  {
+    title: 'Business operator',
+    body: `${COMPANY_LEGAL_DESCRIPTION} Udyam Registration Number: ${UDYAM_REGISTRATION_NUMBER}.`
+  },
   {
     title: 'Information we collect',
     body: `${COMPANY_NAME} collects the information you provide when you create an account, set up your business profile, add clients, create invoices or proposals, and contact support. This can include your name, email address, company details, client billing information, invoice line items, and payment-related events that are required to operate the product.`

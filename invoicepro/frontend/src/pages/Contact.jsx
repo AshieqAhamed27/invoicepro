@@ -1,7 +1,13 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { COMPANY_LOCATION, COMPANY_NAME, SUPPORT_EMAIL } from '../utils/company';
+import {
+  COMPANY_LEGAL_DESCRIPTION,
+  COMPANY_LOCATION,
+  COMPANY_NAME,
+  SUPPORT_EMAIL,
+  UDYAM_REGISTRATION_NUMBER
+} from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
 
 const contactTopics = [
@@ -45,10 +51,13 @@ export default function Contact() {
               </div>
 
               <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5 sm:p-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Location</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Business registration</p>
                 <p className="mt-3 text-xl font-black text-white">{COMPANY_LOCATION}</p>
                 <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
-                  Support is handled from India. We aim to respond on business days as quickly as possible.
+                  {COMPANY_LEGAL_DESCRIPTION}
+                </p>
+                <p className="mt-3 break-all text-xs font-black uppercase tracking-widest text-yellow-300">
+                  Udyam No: {UDYAM_REGISTRATION_NUMBER}
                 </p>
               </div>
             </div>

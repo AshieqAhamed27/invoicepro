@@ -1,7 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import BrandLogo from './BrandLogo';
-import { COMPANY_NAME, COMPANY_TAGLINE, SUPPORT_EMAIL } from '../utils/company';
+import {
+  COMPANY_LEGAL_DESCRIPTION,
+  COMPANY_NAME,
+  COMPANY_TAGLINE,
+  SUPPORT_EMAIL,
+  UDYAM_REGISTRATION_NUMBER
+} from '../utils/company';
 
 export default function Footer() {
   return (
@@ -44,8 +50,8 @@ export default function Footer() {
             <div className="grid gap-4 font-medium text-zinc-400">
               <Link className="transition-colors hover:text-yellow-300" to="/privacy">Privacy</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/terms">Terms</Link>
-              <p>Public invoice links</p>
-              <p>Razorpay checkout support</p>
+              <p>{COMPANY_LEGAL_DESCRIPTION}</p>
+              <p className="break-all text-xs font-bold text-zinc-500">Udyam No: {UDYAM_REGISTRATION_NUMBER}</p>
             </div>
           </div>
 
