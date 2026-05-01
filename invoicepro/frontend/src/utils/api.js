@@ -1,27 +1,27 @@
 import axios from "axios";
 import { clearAuth, setPostLoginRedirect } from "./auth";
 
-// ✅ Dynamic base URL (supports dev + prod + env)
-const fallbackBaseUrl =
-    import.meta.env.PROD ?
-    "https://invoicepro-527e.onrender.com/api" :
-    "/api";
+const productionApiUrl = "https://invoicepro-527e.onrender.com/api";
+const localApiUrl = "http://127.0.0.1:5000/api";
+
+const isLocalHost = () => {
+    if (typeof window === "undefined") return false;
+    return ["localhost", "127.0.0.1", "0.0.0.0"].includes(window.location.hostname);
+};
 
 const baseURL =
-    (
-        import.meta.env.VITE_API_URL || "").trim() || fallbackBaseUrl;
+    (import.meta.env.VITE_API_URL || "").trim() ||
+    (isLocalHost() ? localApiUrl : productionApiUrl);
 
 const requestTimeout =
     Number(import.meta.env.VITE_API_TIMEOUT_MS) ||
     (import.meta.env.PROD ? 45000 : 30000);
 
-// ✅ Create axios instance
 const api = axios.create({
     baseURL,
     timeout: requestTimeout,
 });
 
-// ✅ REQUEST INTERCEPTOR - attach token
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
 
@@ -32,7 +32,6 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// ✅ RESPONSE INTERCEPTOR - handle errors
 api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -43,6 +42,12 @@ api.interceptors.response.use(
                 timeout: requestTimeout,
                 url: error.config?.url
             });
+        }
+
+        if (error.code === "ERR_NETWORK") {
+            error.friendlyMessage = isLocalHost()
+                ? "Local backend is not reachable. Start the backend server, then retry."
+                : "The server is not reachable right now. Please retry in a moment.";
         }
 
         const status = error.response?.status;

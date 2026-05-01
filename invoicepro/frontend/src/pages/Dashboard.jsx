@@ -45,6 +45,7 @@ export default function Dashboard() {
   });
   const [aiInsights, setAiInsights] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [dashboardError, setDashboardError] = useState('');
   const [sendingReminderId, setSendingReminderId] = useState(null);
   const [convertingProposalId, setConvertingProposalId] = useState(null);
   const [onboardingDismissed, setOnboardingDismissed] = useState(() => {
@@ -65,6 +66,8 @@ export default function Dashboard() {
 
   const fetchDashboard = async () => {
     try {
+      setLoading(true);
+      setDashboardError('');
       const res = await api.get('/invoices/dashboard');
 
       setInvoices((res.data.invoices || []).slice(0, 20));
@@ -78,8 +81,13 @@ export default function Dashboard() {
 
       setLoading(false);
       loadExtraData();
-    } catch {
-      console.error('Failed to load dashboard');
+    } catch (err) {
+      console.error('Failed to load dashboard', err);
+      setDashboardError(
+        err.friendlyMessage ||
+          err.response?.data?.message ||
+          'Dashboard could not be loaded. Please retry after checking your connection.'
+      );
       setLoading(false);
     }
   };
@@ -260,7 +268,31 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {!loading && invoices.length === 0 && !onboardingDismissed && (
+        {dashboardError && (
+          <section className="reveal reveal-delay-1 mb-12 rounded-2xl border border-red-400/20 bg-red-400/5 p-5 sm:p-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-300">Dashboard Error</p>
+            <h2 className="mt-3 text-2xl font-black text-white">Could not load your dashboard.</h2>
+            <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-300">{dashboardError}</p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={fetchDashboard}
+                className="btn btn-primary px-6 py-3 text-xs font-black uppercase tracking-widest"
+              >
+                Retry Dashboard
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="btn btn-secondary px-6 py-3 text-xs font-black uppercase tracking-widest"
+              >
+                Sign In Again
+              </button>
+            </div>
+          </section>
+        )}
+
+        {!dashboardError && !loading && invoices.length === 0 && !onboardingDismissed && (
           <section className="reveal reveal-delay-1 mb-12 premium-panel p-5 sm:p-8 lg:p-10 relative overflow-hidden">
             <div className="relative z-10 flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
               <div className="max-w-2xl">
