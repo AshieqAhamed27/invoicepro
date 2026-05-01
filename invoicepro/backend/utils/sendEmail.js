@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const dns = require('dns');
+const https = require('https');
 
 if (typeof dns.setDefaultResultOrder === 'function') {
     dns.setDefaultResultOrder('ipv4first');
@@ -85,6 +86,64 @@ const getFromAddress = () => {
     return `"${fromName}" <${fromEmail}>`;
 };
 
+const getResendFromAddress = () => process.env.RESEND_FROM || getFromAddress();
+
+const sendWithResend = async({ to, subject, html, text }) => {
+    const apiKey = String(process.env.RESEND_API_KEY || '').trim();
+    if (!apiKey) return null;
+
+    const payload = JSON.stringify({
+        from: getResendFromAddress(),
+        to: [to],
+        subject,
+        html,
+        text
+    });
+
+    return new Promise((resolve, reject) => {
+        const req = https.request({
+            hostname: 'api.resend.com',
+            path: '/emails',
+            method: 'POST',
+            family: 4,
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(payload)
+            }
+        }, (res) => {
+            let body = '';
+            res.on('data', (chunk) => { body += chunk; });
+            res.on('end', () => {
+                let parsed = {};
+                try {
+                    parsed = body ? JSON.parse(body) : {};
+                } catch {
+                    parsed = { message: body || 'Invalid Resend response' };
+                }
+
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    return resolve(parsed);
+                }
+
+                const message = parsed?.message || parsed?.error?.message || parsed?.error || 'Resend email failed';
+                const error = new Error(message);
+                error.status = res.statusCode || 500;
+                error.provider = 'resend';
+                reject(error);
+            });
+        });
+
+        req.setTimeout(EMAIL_SEND_TIMEOUT_MS, () => {
+            req.destroy(new Error(`Resend timed out after ${Math.round(EMAIL_SEND_TIMEOUT_MS / 1000)} seconds.`));
+        });
+
+        req.on('error', reject);
+        req.write(payload);
+        req.end();
+    });
+};
+
 const sendEmail = async(to, subject, content) => {
     try {
         const recipient = String(to || '').trim();
@@ -94,6 +153,18 @@ const sendEmail = async(to, subject, content) => {
 
         const html = typeof content === 'string' ? content : content?.html;
         const text = typeof content === 'string' ? undefined : content?.text;
+
+        const resendInfo = await sendWithResend({
+            to: recipient,
+            subject,
+            html,
+            text
+        });
+
+        if (resendInfo) {
+            console.log(`Email sent via Resend to ${recipient}`);
+            return resendInfo;
+        }
 
         const info = await withTimeout(getTransporter().sendMail({
             from: getFromAddress(),

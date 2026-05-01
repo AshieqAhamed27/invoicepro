@@ -75,7 +75,9 @@ const getEnvSanity = () => {
         email: {
             emailUser: hasUsableValue('EMAIL_USER'),
             emailPass: hasUsableValue('EMAIL_PASS'),
-            emailFrom: hasUsableValue('EMAIL_FROM') || hasUsableValue('EMAIL_USER')
+            emailFrom: hasUsableValue('EMAIL_FROM') || hasUsableValue('EMAIL_USER'),
+            resendApiKey: hasUsableValue('RESEND_API_KEY'),
+            resendFrom: hasUsableValue('RESEND_FROM')
         },
         recurring: {
             cronSecret: hasUsableValue('CRON_SECRET')
