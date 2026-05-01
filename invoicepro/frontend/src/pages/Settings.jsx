@@ -15,6 +15,7 @@ export default function Settings() {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -69,6 +70,18 @@ export default function Settings() {
       alert('Failed to save settings');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const sendTestEmail = async () => {
+    try {
+      setTestingEmail(true);
+      const res = await api.post('/auth/email-test');
+      alert(res.data?.message || 'Test email sent.');
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Email test failed.');
+    } finally {
+      setTestingEmail(false);
     }
   };
 
@@ -258,6 +271,21 @@ export default function Settings() {
             <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.01]">
                <p className="text-xs font-medium text-zinc-500 leading-relaxed italic">
                  Changes made here will apply to future invoices. Existing invoices keep the business details they were created with.
+               </p>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.01]">
+               <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Email Diagnostics</p>
+               <button
+                 type="button"
+                 onClick={sendTestEmail}
+                 disabled={testingEmail}
+                 className="btn btn-secondary w-full py-4 disabled:cursor-not-allowed disabled:opacity-60"
+               >
+                 {testingEmail ? 'Testing Email...' : 'Send Test Email'}
+               </button>
+               <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">
+                 Sends a test email to your login email using the same backend settings as invoice reminders.
                </p>
             </div>
           </aside>

@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
 const { getJwtSecret } = require('../utils/env');
 const {
     protect
@@ -270,6 +271,34 @@ router.get(
         res.json({
             user: serializeUser(req.user)
         });
+    }
+);
+
+// ==========================
+// SEND TEST EMAIL
+// ==========================
+router.post(
+    '/email-test',
+    protect,
+    async(req, res) => {
+        try {
+            await sendEmail(req.user.email, 'InvoicePro email test', {
+                html: `
+                    <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;">
+                        <h2>InvoicePro email is working</h2>
+                        <p>This test confirms your backend email settings can send mail.</p>
+                    </div>
+                `,
+                text: 'InvoicePro email is working. This test confirms your backend email settings can send mail.'
+            });
+
+            res.json({ message: `Test email sent to ${req.user.email}` });
+        } catch (err) {
+            console.error('EMAIL TEST ERROR:', err.message);
+            res.status(err.status || 500).json({
+                message: err.message || 'Email test failed'
+            });
+        }
     }
 );
 
