@@ -266,22 +266,73 @@ const buildReminder = (invoice) => {
     return `Hi ${invoice.clientName}, quick reminder for invoice ${invoice.invoiceNumber} of ${formatCurrency(invoice.amount)} due on ${formatDate(invoice.dueDate)}. You can review and pay here: ${link}. Thank you.`;
 };
 
+const getContextItems = (context = {}) => {
+    const sourceItems = Array.isArray(context.items) ? context.items : [];
+    return sourceItems
+        .map((item) => ({
+            name: String(item?.name || '').trim(),
+            price: toMoneyNumber(item?.price)
+        }))
+        .filter((item) => item.name || item.price > 0);
+};
+
+const compactText = (value, fallback = '') =>
+    String(value || fallback)
+        .replace(/\s+/g, ' ')
+        .trim();
+
+const pickVariant = (seed, count) => {
+    const text = String(seed || Date.now());
+    let hash = 0;
+
+    for (let index = 0; index < text.length; index += 1) {
+        hash = (hash * 31 + text.charCodeAt(index)) % 9973;
+    }
+
+    return Math.abs(hash) % count;
+};
+
 const buildDraftFallback = (type, context = {}) => {
-    const itemNames = Array.isArray(context.items)
-        ? context.items.map((item) => item?.name).filter(Boolean).join(', ')
-        : '';
-    const clientName = context.clientName || 'the client';
+    const items = getContextItems(context);
+    const itemNames = compactText(
+        items.map((item) => item.name).filter(Boolean).join(', '),
+        compactText(context.serviceDescription, 'professional services')
+    );
+    const primaryItem = items.find((item) => item.name)?.name || itemNames;
+    const clientName = compactText(context.clientName, 'the client');
     const amount = context.amount ? formatCurrency(context.amount) : 'the agreed total';
+    const taxRate = toPercentNumber(context.taxRate) || toPercentNumber(context.cgst) + toPercentNumber(context.sgst);
+    const dueDate = context.dueDate || context.validUntil;
+    const dateText = dueDate ? ` Target date: ${formatDate(dueDate)}.` : '';
+    const taxText = taxRate ? ` Tax applied at ${taxRate}%.` : '';
+    const seed = `${type}|${context.variantSeed || ''}|${clientName}|${itemNames}|${amount}|${taxRate}|${dueDate}`;
 
     if (type === 'payment-reminder') {
-        return `Hi ${clientName}, a quick reminder that your invoice for ${amount} is pending. Please review the payment link when convenient. Thank you.`;
+        const reminders = [
+            `Hi ${clientName}, this is a quick reminder that ${amount} is pending for ${primaryItem}. Please review the payment link when convenient. Thank you.`,
+            `Hi ${clientName}, sharing a friendly follow-up for the pending invoice of ${amount}. The invoice covers ${itemNames}. Please complete payment when possible.`,
+            `Hi ${clientName}, your invoice for ${itemNames} is still awaiting payment. Amount due: ${amount}.${dateText} Thank you.`
+        ];
+        return reminders[pickVariant(seed, reminders.length)];
     }
 
     if (type === 'proposal-summary') {
-        return `Proposed scope for ${clientName}: ${itemNames || 'professional services'} with delivery, review, and approval checkpoints. Total proposal value: ${amount}.`;
+        const proposals = [
+            `Proposal for ${clientName}: ${itemNames}. Scope includes execution, review, and approval support with a total value of ${amount}.${dateText}`,
+            `Prepared proposal covering ${itemNames} for ${clientName}. The engagement includes planned delivery, feedback rounds, and final handover. Total: ${amount}.${dateText}`,
+            `${clientName} proposal summary: deliver ${itemNames} with clear milestones, review checkpoints, and completion support. Estimated value: ${amount}.${dateText}`
+        ];
+        return proposals[pickVariant(seed, proposals.length)];
     }
 
-    return `Professional services for ${clientName}: ${itemNames || 'project work'} including planning, delivery, review, and final handover. Total invoice value: ${amount}.`;
+    const invoices = [
+        `Invoice summary for ${clientName}: ${itemNames}. Work includes service delivery, review, and final handover. Total payable: ${amount}.${taxText}${dateText}`,
+        `Billing note for ${clientName}: ${primaryItem} and related professional work completed as agreed. Invoice total is ${amount}.${taxText}${dateText}`,
+        `${clientName} is being billed for ${itemNames}. This invoice covers the completed scope, coordination, and final delivery. Amount due: ${amount}.${taxText}${dateText}`,
+        `Professional services delivered for ${clientName}: ${itemNames}. The invoice includes completed work, quality review, and handover support. Total: ${amount}.${taxText}${dateText}`
+    ];
+
+    return invoices[pickVariant(seed, invoices.length)];
 };
 
 const extractOpenAiText = (body) => {
@@ -305,10 +356,15 @@ const callOpenAiDraft = ({ type, context }) => new Promise((resolve, reject) => 
     const prompt = [
         'You are InvoicePro AI, a concise billing assistant for Indian freelancers, agencies, and consultants.',
         'Write one polished client-facing billing text. No markdown. No emojis. Keep it under 55 words.',
+        'Use the actual client, item names, total, tax, and date. Avoid generic wording and do not repeat the same sentence structure.',
         `Task: ${type}.`,
         `Client: ${context.clientName || 'Client'}.`,
         `Items: ${Array.isArray(context.items) ? context.items.map((item) => item?.name).filter(Boolean).join(', ') : 'Professional services'}.`,
-        `Amount: ${context.amount ? formatCurrency(context.amount) : 'Not specified'}.`
+        `Amount: ${context.amount ? formatCurrency(context.amount) : 'Not specified'}.`,
+        `Existing draft: ${context.serviceDescription || 'None'}.`,
+        `Tax rate: ${context.taxRate || Number(context.cgst || 0) + Number(context.sgst || 0) || 0}%.`,
+        `Date: ${context.dueDate || context.validUntil || 'Not set'}.`,
+        `Variation seed: ${context.variantSeed || Date.now()}.`
     ].join('\n');
 
     const payload = JSON.stringify({

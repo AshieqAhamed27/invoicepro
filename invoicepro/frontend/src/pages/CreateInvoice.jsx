@@ -169,7 +169,16 @@ export default function CreateInvoice() {
         type: isProposal ? 'proposal-summary' : 'invoice-summary',
         context: {
           clientName: form.clientName,
+          clientEmail: form.clientEmail,
+          serviceDescription: form.serviceDescription,
           items,
+          cgst: form.cgst,
+          sgst: form.sgst,
+          taxRate,
+          dueDate: isProposal ? '' : form.dueDate,
+          validUntil: isProposal ? form.validUntil : '',
+          documentType,
+          variantSeed: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
           amount: total
         }
       });
