@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import { COMPANY_SHORT_NAME } from '../utils/company';
+import { trackEvent } from '../utils/analytics';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -122,6 +123,11 @@ export default function Payment() {
     const safePlan = getSafePlan(nextPlan);
     localStorage.setItem("plan", safePlan);
     setPlan(safePlan);
+    trackEvent('select_subscription_plan', {
+      plan: safePlan,
+      value: Number(serverPlanDetails[safePlan]?.amount || planDetails[safePlan].amount),
+      currency: 'INR'
+    });
   };
 
   const handleRazorpayPayment = async () => {
@@ -132,6 +138,11 @@ export default function Payment() {
 
     try {
       setLoading(true);
+      trackEvent('begin_checkout', {
+        plan: selectedPlan,
+        value: Number(current.amount || 0),
+        currency: current.currency || 'INR'
+      });
 
       const subscriptionRes = await api.post('/payment/razorpay/subscription', {
         plan: selectedPlan
@@ -163,6 +174,12 @@ export default function Payment() {
         }
 
         alert("Subscription active");
+        trackEvent('purchase', {
+          transaction_id: subscription.id,
+          plan: selectedPlan,
+          value: Number(serverPlan?.amount || current.amount || 0),
+          currency: serverPlan?.currency || current.currency || 'INR'
+        });
         window.location.href = "/dashboard";
         return;
       }
@@ -202,6 +219,12 @@ export default function Payment() {
             }
 
             alert("Subscription active");
+            trackEvent('purchase', {
+              transaction_id: response.razorpay_payment_id,
+              plan: selectedPlan,
+              value: Number(serverPlan?.amount || current.amount || 0),
+              currency: serverPlan?.currency || current.currency || 'INR'
+            });
             window.location.href = "/dashboard";
           } catch (verifyErr) {
             const verifyMessage = verifyErr?.response?.data?.message || "Subscription verification failed";

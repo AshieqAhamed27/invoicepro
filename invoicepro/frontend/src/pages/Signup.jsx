@@ -5,6 +5,7 @@ import { resolvePostLoginRedirect, setAuth } from '../utils/auth';
 import Navbar from '../components/Navbar';
 import { SUPPORT_EMAIL } from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
+import { trackEvent } from '../utils/analytics';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -39,6 +40,10 @@ export default function Signup() {
     try {
       const res = await api.post('/auth/signup', form);
       setAuth(res.data.token, res.data.user);
+      trackEvent('sign_up', {
+        method: 'email',
+        has_company_name: Boolean(form.companyName)
+      });
       navigate(resolvePostLoginRedirect(location.state), { replace: true });
     } catch (err) {
       setError(

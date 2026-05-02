@@ -41,6 +41,18 @@ export default function Footer() {
               <Link className="transition-colors hover:text-yellow-300" to="/invoice-generator">
                 Invoice Generator
               </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/gst-invoice-generator">
+                GST Invoice Generator
+              </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/online-invoice-maker-india">
+                Online Invoice Maker
+              </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/freelance-invoice-software">
+                Freelancer Billing
+              </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/payment-reminder-software">
+                Payment Reminders
+              </Link>
               <Link className="transition-colors hover:text-yellow-300" to="/contact">Contact Support</Link>
             </div>
           </div>

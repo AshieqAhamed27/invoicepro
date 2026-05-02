@@ -7,6 +7,7 @@ import { SUPPORT_EMAIL } from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
+import { trackCtaClick } from '../utils/analytics';
 
 const trustSignals = [
   {
@@ -151,6 +152,7 @@ export default function Home() {
 
   const handleSubscribe = (plan) => {
     localStorage.setItem('plan', plan);
+    trackCtaClick(`select_${plan}_plan`, 'home_pricing', loggedIn ? '/payment' : '/signup');
     navigate(loggedIn ? '/payment' : '/signup');
   };
 
@@ -161,6 +163,7 @@ export default function Home() {
 
   const handlePlanAction = (action) => {
     if (action === 'start') {
+      trackCtaClick('start_free_plan', 'home_pricing', loggedIn ? '/dashboard' : '/signup');
       navigate(loggedIn ? '/dashboard' : '/signup');
       return;
     }
@@ -232,13 +235,19 @@ export default function Home() {
 
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <button
-                    onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
+                    onClick={() => {
+                      trackCtaClick(loggedIn ? 'open_dashboard' : 'start_free', 'home_hero', loggedIn ? '/dashboard' : '/signup');
+                      navigate(loggedIn ? '/dashboard' : '/signup');
+                    }}
                     className="btn btn-primary w-full px-10 py-5 text-lg font-black shadow-2xl shadow-black/20 transition-all hover:-translate-y-0.5 active:scale-95 sm:w-auto"
                   >
                     {loggedIn ? 'Open Dashboard' : 'Start Free'}
                   </button>
                   <button
-                    onClick={() => (loggedIn ? navigate('/create-invoice') : jumpToSection('pricing'))}
+                    onClick={() => {
+                      trackCtaClick(loggedIn ? 'create_invoice' : 'see_pricing', 'home_hero', loggedIn ? '/create-invoice' : '#pricing');
+                      loggedIn ? navigate('/create-invoice') : jumpToSection('pricing');
+                    }}
                     className="btn btn-secondary w-full px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5 sm:w-auto"
                   >
                     {loggedIn ? 'Create Invoice' : 'See Pricing'}
@@ -578,7 +587,10 @@ export default function Home() {
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
                   <button
-                    onClick={() => navigate(loggedIn ? '/dashboard' : '/signup')}
+                    onClick={() => {
+                      trackCtaClick(loggedIn ? 'open_dashboard' : 'claim_free_workspace', 'home_bottom', loggedIn ? '/dashboard' : '/signup');
+                      navigate(loggedIn ? '/dashboard' : '/signup');
+                    }}
                     className="btn btn-primary px-10 py-5 text-lg font-black shadow-2xl shadow-black/20 transition-all hover:-translate-y-0.5 active:scale-95"
                   >
                     {loggedIn ? 'Open Dashboard' : 'Claim Your Free Workspace'}

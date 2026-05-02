@@ -10,6 +10,7 @@ import {
 import { isLoggedIn, getUser } from './utils/auth';
 import api from './utils/api';
 import { getWhatsAppShareUrl } from './utils/whatsapp';
+import { trackPageView } from './utils/analytics';
 import InvoiceGenerator from './pages/InvoiceGenerator';
 import HowToCreateInvoiceIndia from './pages/blog/HowToCreateInvoiceIndia';
 import GSTInvoiceFormatIndia from './pages/blog/GSTInvoiceFormatIndia';
@@ -32,6 +33,7 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Clients = lazy(() => import('./pages/Clients'));
 const Recurring = lazy(() => import('./pages/Recurring'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const SEOPage = lazy(() => import('./pages/SEOPage'));
 
 // Loader
 const RouteLoader = () => (
@@ -42,11 +44,12 @@ const RouteLoader = () => (
 );
 
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [pathname]);
+    trackPageView(`${pathname}${search}`);
+  }, [pathname, search]);
 
   return null;
 };
@@ -337,6 +340,46 @@ export default function App() {
         <Route path="/invoice-generator" element={<InvoiceGenerator />} />
         <Route path="/blog/how-to-create-invoice-india" element={<HowToCreateInvoiceIndia />} />
         <Route path="/blog/gst-invoice-format-india" element={<GSTInvoiceFormatIndia />} />
+        <Route
+          path="/gst-invoice-generator"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <SEOPage pageKey="gst-invoice-generator" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/online-invoice-maker-india"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <SEOPage pageKey="online-invoice-maker-india" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/freelance-invoice-software"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <SEOPage pageKey="freelance-invoice-software" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/payment-reminder-software"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <SEOPage pageKey="payment-reminder-software" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/razorpay-invoice-payment-tracking"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <SEOPage pageKey="razorpay-invoice-payment-tracking" />
+            </Suspense>
+          }
+        />
 
       </Routes>
       {/* ✅ WhatsApp Floating Button */}

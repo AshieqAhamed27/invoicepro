@@ -5,6 +5,7 @@ import { getUser } from '../utils/auth';
 import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
 import AIBillingAgent from '../components/AIBillingAgent';
+import { trackEvent } from '../utils/analytics';
 
 const formatCurrency = (amount) =>
   `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
@@ -168,6 +169,12 @@ export default function Dashboard() {
     ].join('\n\n');
 
     openWhatsAppShare(message);
+    trackEvent('share_whatsapp_reminder', {
+      location: 'dashboard',
+      invoice_status: invoice.status,
+      value: Number(invoice.amount || 0),
+      currency: 'INR'
+    });
   };
 
   const copyAiReminder = async () => {
@@ -176,6 +183,7 @@ export default function Dashboard() {
 
     try {
       await navigator.clipboard.writeText(reminder);
+      trackEvent('copy_ai_reminder', { location: 'dashboard' });
       alert('AI reminder copied. Send it on email or WhatsApp.');
     } catch {
       window.prompt('Copy this reminder:', reminder);
@@ -188,6 +196,7 @@ export default function Dashboard() {
     } catch { }
 
     navigate('/create-invoice?ai=draft');
+    trackEvent('apply_ai_invoice_draft', { location: 'dashboard' });
   };
 
   const maxTrend = useMemo(() => {

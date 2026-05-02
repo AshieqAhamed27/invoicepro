@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import Navbar from '../components/Navbar';
 import { SUPPORT_EMAIL } from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
+import { trackEvent } from '../utils/analytics';
 
 const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim();
 
@@ -43,6 +44,7 @@ export default function Login() {
       });
 
       setAuth(res.data.token, res.data.user);
+      trackEvent('login', { method: 'google' });
       navigate(resolvePostLoginRedirect(location.state), { replace: true });
     } catch (err) {
       console.log(err);
@@ -104,6 +106,7 @@ export default function Login() {
     try {
       const res = await api.post('/auth/login', form);
       setAuth(res.data.token, res.data.user);
+      trackEvent('login', { method: 'email' });
       navigate(resolvePostLoginRedirect(location.state), { replace: true });
     } catch (err) {
       setError(

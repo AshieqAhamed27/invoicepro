@@ -5,6 +5,7 @@ import QRCode from 'react-qr-code';
 import BrandLogo from '../components/BrandLogo';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_LOGO } from '../utils/company';
+import { trackEvent } from '../utils/analytics';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -134,6 +135,11 @@ export default function PublicInvoice() {
   const handlePayNow = async () => {
     try {
       setPaying(true);
+      trackEvent('begin_invoice_payment', {
+        method: 'razorpay',
+        value: total,
+        currency: invoice.currency || 'INR'
+      });
       const isLoaded = await loadRazorpayScript();
 
       if (!isLoaded) {
@@ -160,6 +166,11 @@ export default function PublicInvoice() {
         });
 
         alert('Payment successful!');
+        trackEvent('invoice_payment_success', {
+          method: 'simulation',
+          value: total,
+          currency: invoice.currency || 'INR'
+        });
         fetchInvoice();
         return;
       }
@@ -191,6 +202,11 @@ export default function PublicInvoice() {
               razorpay_signature: response.razorpay_signature
             });
             alert('Payment successful!');
+            trackEvent('invoice_payment_success', {
+              method: 'razorpay',
+              value: total,
+              currency: invoice.currency || 'INR'
+            });
             fetchInvoice();
           } catch {
             alert('Verification failed');
@@ -212,6 +228,10 @@ export default function PublicInvoice() {
       setAccepting(true);
       await api.post(`/invoices/public/${id}/accept`);
       await fetchInvoice();
+      trackEvent('accept_proposal', {
+        value: total,
+        currency: invoice.currency || 'INR'
+      });
       alert('Proposal accepted successfully.');
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to accept proposal.');
@@ -380,7 +400,14 @@ export default function PublicInvoice() {
                         {paying ? 'Opening...' : 'Razorpay Secure'}
                       </button>
                       <button
-                        onClick={() => { window.location.href = upiUri; }}
+                        onClick={() => {
+                          trackEvent('begin_invoice_payment', {
+                            method: 'upi_app',
+                            value: total,
+                            currency: invoice.currency || 'INR'
+                          });
+                          window.location.href = upiUri;
+                        }}
                         className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-emerald-600 transition-all active:scale-95 uppercase tracking-widest md:hidden"
                       >
                         Pay via UPI App

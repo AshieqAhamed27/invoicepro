@@ -4,6 +4,7 @@ import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import { getUser } from '../utils/auth';
 import AIBillingAgent from '../components/AIBillingAgent';
+import { trackEvent } from '../utils/analytics';
 
 const formatCurrency = (amount) =>
   `Rs ${Number(amount || 0).toLocaleString('en-IN', {
@@ -271,6 +272,12 @@ export default function CreateInvoice() {
         recurring: isProposal ? { enabled: false } : recurring
       });
 
+      trackEvent(isProposal ? 'create_proposal' : 'create_invoice', {
+        value: total,
+        currency: 'INR',
+        item_count: items.length,
+        recurring_enabled: Boolean(!isProposal && recurring.enabled)
+      });
       navigate(`/invoice/${res.data.invoice._id}`);
     } catch (err) {
       if (err.response?.data?.limitReached) {
