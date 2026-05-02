@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
+import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
 
 const formatCurrency = (amount) =>
@@ -149,7 +150,7 @@ export default function Dashboard() {
       'Thank you.'
     ].join('\n\n');
 
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    openWhatsAppShare(message);
   };
 
   const copyAiReminder = async () => {

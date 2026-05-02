@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
+import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
 import BrandLogo from '../components/BrandLogo';
 import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_LOGO } from '../utils/company';
@@ -489,7 +490,7 @@ export default function InvoiceView() {
       'Thank you.'
     ].join('\n\n');
 
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    openWhatsAppShare(message);
   };
 
   return (

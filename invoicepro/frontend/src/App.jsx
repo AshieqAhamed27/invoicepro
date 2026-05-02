@@ -9,6 +9,7 @@ import {
 
 import { isLoggedIn, getUser } from './utils/auth';
 import api from './utils/api';
+import { getWhatsAppShareUrl } from './utils/whatsapp';
 import InvoiceGenerator from './pages/InvoiceGenerator';
 import HowToCreateInvoiceIndia from './pages/blog/HowToCreateInvoiceIndia';
 import GSTInvoiceFormatIndia from './pages/blog/GSTInvoiceFormatIndia';
@@ -91,6 +92,9 @@ const isAdmin = () => {
 };
 
 export default function App() {
+  const supportMessage = 'Hi I am interested in InvoicePro';
+  const supportWhatsAppUrl = getWhatsAppShareUrl(supportMessage, '919080963704');
+
   return (
     <BrowserRouter>
       <ScrollToTop />
@@ -291,10 +295,11 @@ export default function App() {
       </Routes>
       {/* ✅ WhatsApp Floating Button */}
       <a
-        href="https://wa.me/919080963704?text=Hi%20I%20am%20interested%20in%20InvoicePro"
+        href={supportWhatsAppUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-5 right-5 z-50"
+        aria-label="Chat with InvoicePro on WhatsApp"
       >
         <div className="bg-green-500 p-4 rounded-full shadow-lg hover:scale-110 transition">
           <svg
