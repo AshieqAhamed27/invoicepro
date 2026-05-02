@@ -11,7 +11,7 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-[#07090d]/90 py-16 sm:py-20">
+    <footer className="border-t border-white/10 bg-[#07090d]/90 pt-16 pb-28 sm:py-20">
       <div className="container-custom">
         <div className="mb-16 grid grid-cols-1 gap-10 rounded-lg border border-white/10 bg-white/[0.035] p-6 text-sm shadow-2xl shadow-black/20 sm:grid-cols-2 sm:p-8 md:mb-12 md:grid-cols-4 md:gap-12 lg:p-10">
           <div className="col-span-1">

@@ -91,9 +91,55 @@ const isAdmin = () => {
   return user?.role === 'admin';
 };
 
-export default function App() {
-  const supportMessage = 'Hi I am interested in InvoicePro';
+const supportMessage = 'Hi I am interested in InvoicePro';
+const appRoutePrefixes = [
+  '/admin',
+  '/clients',
+  '/contact',
+  '/create-invoice',
+  '/dashboard',
+  '/invoice/',
+  '/launch',
+  '/login',
+  '/payment',
+  '/public/invoice',
+  '/p/invoice',
+  '/recurring',
+  '/settings',
+  '/signup'
+];
+
+const WhatsAppFloatingButton = () => {
+  const { pathname } = useLocation();
+  const hiddenOnCurrentRoute = appRoutePrefixes.some((prefix) => pathname.startsWith(prefix));
+
+  if (hiddenOnCurrentRoute) return null;
+
   const supportWhatsAppUrl = getWhatsAppShareUrl(supportMessage, '919080963704');
+
+  return (
+    <a
+      href={supportWhatsAppUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="fixed bottom-5 right-4 z-40 print:hidden sm:right-5"
+      aria-label="Chat with InvoicePro on WhatsApp"
+    >
+      <div className="rounded-full bg-green-500 p-3.5 shadow-lg shadow-black/25 transition hover:scale-110 sm:p-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="white"
+          viewBox="0 0 24 24"
+          className="h-5 w-5 sm:h-6 sm:w-6"
+        >
+          <path d="M20.52 3.48A11.87 11.87 0 0012.02 0C5.38 0 .03 5.35.03 11.99c0 2.12.55 4.19 1.6 6.02L0 24l6.2-1.62a11.93 11.93 0 005.82 1.49h.01c6.63 0 11.99-5.35 11.99-11.99 0-3.2-1.25-6.21-3.5-8.4z" />
+        </svg>
+      </div>
+    </a>
+  );
+};
+
+export default function App() {
 
   return (
     <BrowserRouter>
@@ -294,24 +340,7 @@ export default function App() {
 
       </Routes>
       {/* ✅ WhatsApp Floating Button */}
-      <a
-        href={supportWhatsAppUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-5 right-5 z-50"
-        aria-label="Chat with InvoicePro on WhatsApp"
-      >
-        <div className="bg-green-500 p-4 rounded-full shadow-lg hover:scale-110 transition">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="white"
-            viewBox="0 0 24 24"
-            className="w-6 h-6"
-          >
-            <path d="M20.52 3.48A11.87 11.87 0 0012.02 0C5.38 0 .03 5.35.03 11.99c0 2.12.55 4.19 1.6 6.02L0 24l6.2-1.62a11.93 11.93 0 005.82 1.49h.01c6.63 0 11.99-5.35 11.99-11.99 0-3.2-1.25-6.21-3.5-8.4z" />
-          </svg>
-        </div>
-      </a>
+      <WhatsAppFloatingButton />
     </BrowserRouter>
   );
 }
