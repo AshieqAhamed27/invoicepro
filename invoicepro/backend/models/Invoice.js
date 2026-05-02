@@ -170,6 +170,26 @@ const invoiceSchema = new mongoose.Schema({
     paidAt: {
         type: Date,
         default: null
+    },
+
+    paymentPromise: {
+        promisedDate: {
+            type: Date,
+            default: null
+        },
+        note: {
+            type: String,
+            default: ''
+        },
+        status: {
+            type: String,
+            enum: ['open', 'kept', 'missed', 'cleared'],
+            default: 'open'
+        },
+        updatedAt: {
+            type: Date,
+            default: null
+        }
     }
 
 }, {

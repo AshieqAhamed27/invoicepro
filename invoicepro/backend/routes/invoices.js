@@ -69,6 +69,12 @@ const isDatePastEndOfDay = (value) => {
     return date < new Date();
 };
 
+const getPaymentPromiseStatus = (promisedDate, currentStatus = 'open') => {
+    if (!promisedDate) return 'cleared';
+    if (currentStatus === 'kept' || currentStatus === 'cleared') return currentStatus;
+    return isDatePastEndOfDay(promisedDate) ? 'missed' : 'open';
+};
+
 // ==========================
 // GET ALL INVOICES
 // ==========================
@@ -577,6 +583,69 @@ router.put('/:id/status', protect, async(req, res) => {
 
     } catch (err) {
         console.error('UPDATE STATUS ERROR:', err);
+
+        res.status(500).json({
+            message: 'Server error.'
+        });
+    }
+});
+
+router.patch('/:id/payment-promise', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'invoice');
+        }
+
+        const invoice = await Invoice.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!invoice) {
+            return res.status(404).json({
+                message: 'Invoice not found.'
+            });
+        }
+
+        if (isProposalDocument(invoice.documentType)) {
+            return res.status(400).json({
+                message: 'Promise-to-pay can be set only on invoices.'
+            });
+        }
+
+        if (invoice.status === 'paid') {
+            return res.status(400).json({
+                message: 'This invoice is already paid.'
+            });
+        }
+
+        const promisedDate = parseDateInput(req.body?.promisedDate);
+        const note = String(req.body?.note || '').trim().slice(0, 240);
+
+        if (!promisedDate) {
+            invoice.paymentPromise = {
+                promisedDate: null,
+                note: '',
+                status: 'cleared',
+                updatedAt: new Date()
+            };
+        } else {
+            invoice.paymentPromise = {
+                promisedDate,
+                note,
+                status: getPaymentPromiseStatus(promisedDate),
+                updatedAt: new Date()
+            };
+        }
+
+        await invoice.save();
+
+        res.json({
+            message: promisedDate ? 'Promise-to-pay saved.' : 'Promise-to-pay cleared.',
+            invoice
+        });
+    } catch (err) {
+        console.error('PAYMENT PROMISE ERROR:', err);
 
         res.status(500).json({
             message: 'Server error.'

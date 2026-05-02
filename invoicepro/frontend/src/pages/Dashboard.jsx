@@ -5,6 +5,7 @@ import { getUser } from '../utils/auth';
 import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
 import AIBillingAgent from '../components/AIBillingAgent';
+import PaymentCollectionAgent from '../components/PaymentCollectionAgent';
 import { trackEvent } from '../utils/analytics';
 
 const formatCurrency = (amount) =>
@@ -416,6 +417,11 @@ export default function Dashboard() {
             </div>
           ))}
         </section>
+
+        <PaymentCollectionAgent
+          insights={aiInsights}
+          onPromiseSaved={fetchDashboard}
+        />
 
         <section className="reveal reveal-delay-1 mb-12">
           <AIBillingAgent

@@ -153,6 +153,177 @@ const buildStatusSummary = (invoices = []) => {
     };
 };
 
+const getPromiseStatus = (invoice) => {
+    const promisedDate = invoice?.paymentPromise?.promisedDate;
+    if (!promisedDate || invoice.status === 'paid') return '';
+
+    const daysUntilPromise = getDaysUntil(promisedDate);
+    if (daysUntilPromise !== null && daysUntilPromise < 0) return 'missed';
+    if (daysUntilPromise === 0) return 'due_today';
+    return 'open';
+};
+
+const getCollectionRiskScore = (invoice) => {
+    if (invoice.status === 'paid' || invoice.documentType === 'proposal') return 0;
+
+    const amount = Number(invoice.amount || 0);
+    const daysUntilDue = getDaysUntil(invoice.dueDate);
+    const promiseStatus = getPromiseStatus(invoice);
+    let score = Math.min(35, Math.floor(amount / 1000));
+
+    if (daysUntilDue === null) score += 18;
+    else if (daysUntilDue < 0) score += Math.min(45, Math.abs(daysUntilDue) * 5 + 18);
+    else if (daysUntilDue === 0) score += 22;
+    else if (daysUntilDue <= 3) score += 14;
+    else if (daysUntilDue <= 7) score += 7;
+
+    if (promiseStatus === 'missed') score += 24;
+    if (promiseStatus === 'due_today') score += 12;
+    if (invoice.paymentPromise?.promisedDate && promiseStatus === 'open') score -= 4;
+
+    return Math.max(1, Math.min(100, score));
+};
+
+const getFollowUpTone = (invoice) => {
+    const daysUntilDue = getDaysUntil(invoice.dueDate);
+    const promiseStatus = getPromiseStatus(invoice);
+
+    if (promiseStatus === 'missed') return 'final';
+    if (daysUntilDue !== null && daysUntilDue < 0) return Math.abs(daysUntilDue) >= 7 ? 'firm' : 'polite';
+    if (daysUntilDue === 0) return 'due_today';
+    return 'friendly';
+};
+
+const getFollowUpMessage = (invoice, tone = getFollowUpTone(invoice)) => {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const link = `${frontendUrl}/public/invoice/${invoice._id}`;
+    const amount = formatCurrency(invoice.amount);
+    const dueText = formatDate(invoice.dueDate);
+    const promiseDate = invoice.paymentPromise?.promisedDate
+        ? formatDate(invoice.paymentPromise.promisedDate)
+        : '';
+
+    const templates = {
+        friendly: `Hi ${invoice.clientName}, hope you are doing well. Sharing invoice ${invoice.invoiceNumber} for ${amount}. You can review and pay here: ${link}. Thank you.`,
+        polite: `Hi ${invoice.clientName}, gentle reminder for invoice ${invoice.invoiceNumber} of ${amount}, due on ${dueText}. Please complete it when possible: ${link}. Thank you.`,
+        due_today: `Hi ${invoice.clientName}, invoice ${invoice.invoiceNumber} of ${amount} is due today. You can review and pay here: ${link}. Thank you.`,
+        firm: `Hi ${invoice.clientName}, invoice ${invoice.invoiceNumber} of ${amount} is overdue since ${dueText}. Please prioritize payment here: ${link}. Thank you.`,
+        final: `Hi ${invoice.clientName}, following up on invoice ${invoice.invoiceNumber} of ${amount}. Payment was promised for ${promiseDate || dueText} and is still pending. Please complete it here: ${link}.`
+    };
+
+    return templates[tone] || templates.friendly;
+};
+
+const buildCollectionPlan = (invoices = []) => {
+    return invoices
+        .filter((invoice) => invoice.documentType !== 'proposal' && invoice.status !== 'paid')
+        .map((invoice) => {
+            const daysUntilDue = getDaysUntil(invoice.dueDate);
+            const promiseStatus = getPromiseStatus(invoice);
+            const priorityScore = getCollectionRiskScore(invoice);
+            const tone = getFollowUpTone(invoice);
+
+            return {
+                id: invoice._id,
+                invoiceNumber: invoice.invoiceNumber,
+                clientName: invoice.clientName,
+                clientEmail: invoice.clientEmail,
+                amount: invoice.amount,
+                dueDate: invoice.dueDate,
+                daysUntilDue,
+                priorityScore,
+                tone,
+                promiseStatus,
+                paymentPromise: invoice.paymentPromise || null,
+                reason: promiseStatus === 'missed'
+                    ? 'Promise-to-pay date was missed'
+                    : daysUntilDue === null
+                        ? 'No due date set'
+                        : daysUntilDue < 0
+                            ? `${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) === 1 ? '' : 's'} overdue`
+                            : daysUntilDue === 0
+                                ? 'Due today'
+                                : `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`,
+                suggestedAction: tone === 'final'
+                    ? 'Send final reminder'
+                    : tone === 'firm'
+                        ? 'Send firm reminder'
+                        : 'Send friendly reminder',
+                followUpMessage: getFollowUpMessage(invoice, tone),
+                messageVariants: {
+                    friendly: getFollowUpMessage(invoice, 'friendly'),
+                    polite: getFollowUpMessage(invoice, 'polite'),
+                    firm: getFollowUpMessage(invoice, 'firm'),
+                    final: getFollowUpMessage(invoice, 'final')
+                }
+            };
+        })
+        .sort((a, b) => b.priorityScore - a.priorityScore)
+        .slice(0, 6);
+};
+
+const buildClientPaymentScores = (invoices = []) => {
+    const groups = new Map();
+
+    invoices
+        .filter((invoice) => invoice.documentType !== 'proposal')
+        .forEach((invoice) => {
+            const key = invoice.clientEmail || invoice.clientName || String(invoice._id);
+            const existing = groups.get(key) || {
+                clientName: invoice.clientName,
+                clientEmail: invoice.clientEmail,
+                totalInvoices: 0,
+                paidInvoices: 0,
+                pendingInvoices: 0,
+                overdueInvoices: 0,
+                paidAmount: 0,
+                pendingAmount: 0
+            };
+
+            const status = getInvoiceOperationalStatus(invoice);
+            existing.totalInvoices += 1;
+
+            if (invoice.status === 'paid') {
+                existing.paidInvoices += 1;
+                existing.paidAmount += Number(invoice.amount || 0);
+            } else {
+                existing.pendingInvoices += 1;
+                existing.pendingAmount += Number(invoice.amount || 0);
+            }
+
+            if (status === 'overdue') {
+                existing.overdueInvoices += 1;
+            }
+
+            groups.set(key, existing);
+        });
+
+    return Array.from(groups.values())
+        .map((client) => {
+            const paidRate = client.totalInvoices
+                ? Math.round((client.paidInvoices / client.totalInvoices) * 100)
+                : 0;
+            const overduePenalty = Math.min(45, client.overdueInvoices * 18);
+            const pendingPenalty = Math.min(25, client.pendingInvoices * 7);
+            const score = Math.max(10, Math.min(100, 35 + paidRate - overduePenalty - pendingPenalty));
+            const label = score >= 78
+                ? 'Fast payer'
+                : score >= 55
+                    ? 'Normal payer'
+                    : score >= 35
+                        ? 'Slow payer'
+                        : 'High risk';
+
+            return {
+                ...client,
+                score,
+                label
+            };
+        })
+        .sort((a, b) => a.score - b.score)
+        .slice(0, 5);
+};
+
 const detectAgentIntent = (message) => {
     const text = String(message || '').toLowerCase();
 
@@ -473,7 +644,7 @@ router.post('/agent', protect, async(req, res) => {
         const intent = detectAgentIntent(message);
         const invoices = await Invoice.find({ user: req.user._id })
             .sort({ createdAt: -1 })
-            .select('clientName clientEmail amount status invoiceNumber dueDate documentType createdAt paidAt')
+            .select('clientName clientEmail amount status invoiceNumber dueDate documentType createdAt paidAt paymentPromise')
             .limit(100)
             .lean();
         const statusSummary = buildStatusSummary(invoices);
@@ -564,14 +735,21 @@ router.get('/insights', protect, async(req, res) => {
             .sort({
                 createdAt: -1
             })
-            .select('clientName clientEmail amount status invoiceNumber dueDate createdAt paidAt')
+            .select('clientName clientEmail amount status invoiceNumber dueDate documentType createdAt paidAt paymentPromise')
             .lean();
 
-        const total = invoices.length;
-        const pendingInvoices = invoices.filter((invoice) => invoice.status === 'pending');
-        const paidInvoices = invoices.filter((invoice) => invoice.status === 'paid');
+        const billableInvoices = invoices.filter((invoice) => invoice.documentType !== 'proposal');
+        const total = billableInvoices.length;
+        const pendingInvoices = billableInvoices.filter((invoice) => invoice.status === 'pending');
+        const paidInvoices = billableInvoices.filter((invoice) => invoice.status === 'paid');
         const pendingAmount = pendingInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
         const paidAmount = paidInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+        const collectionPlan = buildCollectionPlan(billableInvoices);
+        const clientPaymentScores = buildClientPaymentScores(billableInvoices);
+        const promisesDue = pendingInvoices.filter((invoice) => {
+            const promiseStatus = getPromiseStatus(invoice);
+            return promiseStatus === 'missed' || promiseStatus === 'due_today';
+        });
 
         const overdueInvoices = pendingInvoices
             .map((invoice) => ({
@@ -601,7 +779,7 @@ router.get('/insights', protect, async(req, res) => {
         const missingDuePenalty = Math.min(missingDueDates * 4, 16);
         const cashFlowScore = Math.max(28, Math.min(98, 92 - overduePenalty - pendingPenalty - missingDuePenalty + Math.round(paidRatio / 8)));
 
-        const topRisk = overdueInvoices[0] || dueSoonInvoices[0] || pendingInvoices[0] || null;
+        const topRisk = collectionPlan[0] || overdueInvoices[0] || dueSoonInvoices[0] || pendingInvoices[0] || null;
         const recommendations = [];
         const moneyActions = [];
 
@@ -616,6 +794,16 @@ router.get('/insights', protect, async(req, res) => {
                 description: `Send reminders for ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''}.`,
                 value: formatCurrency(overdueAmount),
                 cta: 'Send reminders'
+            });
+        }
+
+        if (promisesDue.length) {
+            recommendations.push(`${promisesDue.length} promise-to-pay follow-up${promisesDue.length > 1 ? 's are' : ' is'} due now. Check those before sending new invoices.`);
+            moneyActions.push({
+                title: 'Follow promised payments',
+                description: 'A client promised to pay, so this should be your highest-priority follow-up.',
+                value: String(promisesDue.length),
+                cta: 'Open collection agent'
             });
         }
 
@@ -643,6 +831,15 @@ router.get('/insights', protect, async(req, res) => {
                 description: `${largestPending.clientName || 'A client'} has the biggest pending amount right now.`,
                 value: formatCurrency(largestPending.amount),
                 cta: 'Open dashboard'
+            });
+        }
+
+        if (collectionPlan[0]) {
+            moneyActions.unshift({
+                title: 'AI top collection target',
+                description: `${collectionPlan[0].clientName} has the highest follow-up priority: ${collectionPlan[0].reason}.`,
+                value: formatCurrency(collectionPlan[0].amount),
+                cta: collectionPlan[0].suggestedAction
             });
         }
 
@@ -693,9 +890,20 @@ router.get('/insights', protect, async(req, res) => {
                 pendingAmount,
                 overdueAmount,
                 dueSoonAmount,
-                largestPendingAmount: Number(largestPending?.amount || 0)
+                largestPendingAmount: Number(largestPending?.amount || 0),
+                promisesDueAmount: promisesDue.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0),
+                recoverableThisWeek: collectionPlan
+                    .filter((item) => item.daysUntilDue === null || item.daysUntilDue <= 7 || item.promiseStatus === 'missed' || item.promiseStatus === 'due_today')
+                    .reduce((sum, item) => sum + Number(item.amount || 0), 0)
             },
             moneyActions: moneyActions.slice(0, 4),
+            collectionPlan,
+            clientPaymentScores,
+            promiseStats: {
+                dueNow: promisesDue.length,
+                dueNowAmount: promisesDue.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0),
+                active: pendingInvoices.filter((invoice) => invoice.paymentPromise?.promisedDate).length
+            },
             proUpsell: req.user?.plan === 'free' ? {
                 title: 'Unlock InvoicePro AI Revenue Coach',
                 description: 'Use Pro to pair payment links, recurring billing, and collection prompts with unlimited invoices.',
@@ -703,13 +911,14 @@ router.get('/insights', protect, async(req, res) => {
             } : null,
             recommendations: recommendations.slice(0, 4),
             topRisk: topRisk ? {
-                id: topRisk._id,
+                id: topRisk.id || topRisk._id,
                 clientName: topRisk.clientName,
                 invoiceNumber: topRisk.invoiceNumber,
                 amount: topRisk.amount,
                 dueDate: topRisk.dueDate,
-                daysUntilDue: getDaysUntil(topRisk.dueDate),
-                reminder: buildReminder(topRisk)
+                daysUntilDue: topRisk.daysUntilDue ?? getDaysUntil(topRisk.dueDate),
+                priorityScore: topRisk.priorityScore || getCollectionRiskScore(topRisk),
+                reminder: topRisk.followUpMessage || buildReminder(topRisk)
             } : null
         });
 
