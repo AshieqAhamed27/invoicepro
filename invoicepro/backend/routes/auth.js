@@ -76,6 +76,8 @@ const serializeUser = (user) => ({
     razorpaySubscriptionId: user.razorpaySubscriptionId,
     planStartedAt: user.planStartedAt,
     lastPaymentAt: user.lastPaymentAt,
+    trialStartedAt: user.trialStartedAt,
+    trialUsedAt: user.trialUsedAt,
     companyName: user.companyName,
     gstNumber: user.gstNumber,
     upiId: user.upiId,

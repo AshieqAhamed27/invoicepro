@@ -59,6 +59,15 @@ const planDetails = {
         subscriptionCycles: 10,
         planEnv: 'RAZORPAY_YEARLY_PLAN_ID',
         amountEnv: 'PRO_YEARLY_AMOUNT'
+    },
+    founder90: {
+        amount: getConfiguredAmount('FOUNDER_90_AMOUNT', 999),
+        label: 'Founder 90 Days',
+        durationDays: 90,
+        subscriptionCycles: 1,
+        planEnv: '',
+        amountEnv: 'FOUNDER_90_AMOUNT',
+        checkoutType: 'one_time'
     }
 };
 
@@ -79,10 +88,11 @@ const serializePlan = (id, details, overrides = {}) => ({
     currency: overrides.currency || 'INR',
     label: overrides.label || details.label,
     durationDays: details.durationDays,
-    period: overrides.period || (id === 'yearly' ? 'yearly' : 'monthly'),
+    period: overrides.period || (id === 'yearly' ? 'yearly' : id === 'founder90' ? '90_days' : 'monthly'),
+    checkoutType: overrides.checkoutType || details.checkoutType || 'subscription',
     providerPlanId: overrides.providerPlanId || getRazorpaySubscriptionPlanId(id) || '',
     amountSource: overrides.amountSource || 'configured',
-    subscriptionReady: process.env.PAYMENT_SIMULATION === 'true' || Boolean(getRazorpaySubscriptionPlanId(id)),
+    subscriptionReady: details.checkoutType === 'one_time' || process.env.PAYMENT_SIMULATION === 'true' || Boolean(getRazorpaySubscriptionPlanId(id)),
     warning: overrides.warning || ''
 });
 
@@ -97,6 +107,8 @@ const serializeUser = (user) => ({
     razorpaySubscriptionId: user.razorpaySubscriptionId,
     planStartedAt: user.planStartedAt,
     lastPaymentAt: user.lastPaymentAt,
+    trialStartedAt: user.trialStartedAt,
+    trialUsedAt: user.trialUsedAt,
     companyName: user.companyName,
     gstNumber: user.gstNumber,
     upiId: user.upiId,
@@ -335,11 +347,51 @@ router.get('/subscription/status', protect, async(req, res) => {
     }
 });
 
+router.post('/trial/start', protect, async(req, res) => {
+    try {
+        if (req.user.trialUsedAt) {
+            return res.status(400).json({ message: 'Your 7-day trial has already been used on this account.' });
+        }
+
+        const alreadyActive = req.user.plan && req.user.plan !== 'free' && (!req.user.planExpiresAt || req.user.planExpiresAt > new Date());
+        if (alreadyActive) {
+            return res.json({
+                message: 'Your account already has active Pro access.',
+                user: serializeUser(req.user)
+            });
+        }
+
+        const now = new Date();
+        const expiresAt = new Date(now);
+        expiresAt.setDate(expiresAt.getDate() + 7);
+
+        req.user.plan = 'trial';
+        req.user.planExpiresAt = expiresAt;
+        req.user.subscriptionProvider = 'manual';
+        req.user.subscriptionStatus = 'trial';
+        req.user.planStartedAt = now;
+        req.user.trialStartedAt = now;
+        req.user.trialUsedAt = now;
+        await req.user.save();
+
+        res.json({
+            message: '7-day Pro trial activated',
+            user: serializeUser(req.user)
+        });
+    } catch (err) {
+        console.error('Trial activation error:', err.message);
+        res.status(500).json({ message: 'Unable to activate trial' });
+    }
+});
+
 router.post('/razorpay/subscription', protect, async(req, res) => {
     try {
         const { plan } = req.body;
         const normalizedPlan = normalizePlan(plan);
         if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
+        if (planDetails[normalizedPlan].checkoutType === 'one_time') {
+            return res.status(400).json({ message: 'This plan uses one-time checkout, not subscription checkout.' });
+        }
 
         let selectedPlan;
         try {
@@ -939,7 +991,7 @@ router.post('/webhook', async (req, res) => {
                 if (normalizedPlan) {
                     const u = await User.findById(notes.userId);
                     if (u) await setUserPlan(u, normalizedPlan, {
-                        subscriptionStatus: 'webhook_payment',
+                        subscriptionStatus: planDetails[normalizedPlan].checkoutType === 'one_time' ? 'one_time_payment' : 'webhook_payment',
                         lastPaymentAt: new Date()
                     });
                 }

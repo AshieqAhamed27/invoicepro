@@ -17,6 +17,22 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ message: 'User not found.' });
     }
 
+    const expiresAt = req.user.planExpiresAt ? new Date(req.user.planExpiresAt) : null;
+    const canExpireLocally = ['trial', 'one_time_payment', 'manual_approval', 'webhook_payment'].includes(req.user.subscriptionStatus);
+
+    if (
+      req.user.plan &&
+      req.user.plan !== 'free' &&
+      expiresAt &&
+      expiresAt <= new Date() &&
+      canExpireLocally
+    ) {
+      req.user.plan = 'free';
+      req.user.planExpiresAt = null;
+      req.user.subscriptionStatus = 'expired';
+      await req.user.save();
+    }
+
     next();
   } catch (err) {
     const expired = err?.name === 'TokenExpiredError';

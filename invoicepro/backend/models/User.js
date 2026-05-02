@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     // 🔥 UPDATED PLAN SYSTEM
     plan: {
         type: String,
-        enum: ['free', 'pro', 'monthly', 'yearly'],
+        enum: ['free', 'pro', 'monthly', 'yearly', 'founder90', 'trial'],
         default: 'free'
     },
 
@@ -56,6 +56,16 @@ const userSchema = new mongoose.Schema({
     },
 
     lastPaymentAt: {
+        type: Date,
+        default: null
+    },
+
+    trialStartedAt: {
+        type: Date,
+        default: null
+    },
+
+    trialUsedAt: {
         type: Date,
         default: null
     },

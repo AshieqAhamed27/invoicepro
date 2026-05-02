@@ -36,10 +36,27 @@ const planDetails = {
     note: "Best value with AI revenue coaching for repeat-billing businesses.",
     duration: "Billed every 365 days",
     amountSource: "fallback"
+  },
+  founder90: {
+    amount: 999,
+    currency: "INR",
+    label: "Founder 90 Days",
+    note: "Early-user offer: 90 days of Pro access with one-time Razorpay payment.",
+    duration: "Valid for 90 days",
+    amountSource: "fallback",
+    checkoutType: "one_time"
   }
 };
 
 const getSafePlan = (value) => (planDetails[value] ? value : 'monthly');
+
+const getDurationLabel = (durationDays = 30) => {
+  const days = Number(durationDays || 30);
+  if (days === 365) return "Billed every 365 days";
+  if (days === 90) return "Valid for 90 days";
+  if (days === 7) return "Valid for 7 days";
+  return "Billed every 30 days";
+};
 
 const mapPlansById = (plans = []) =>
   plans.reduce((acc, plan) => {
@@ -49,8 +66,9 @@ const mapPlansById = (plans = []) =>
         amount: Number(plan.amount || 0),
         currency: plan.currency || "INR",
         label: plan.label || plan.id,
-        duration: Number(plan.durationDays || 0) === 365 ? "Billed every 365 days" : "Billed every 30 days",
+        duration: getDurationLabel(plan.durationDays),
         amountSource: plan.amountSource || "backend",
+        checkoutType: plan.checkoutType || planDetails[plan.id]?.checkoutType || "subscription",
         subscriptionReady: Boolean(plan.subscriptionReady),
         warning: plan.warning || ""
       };
@@ -61,6 +79,7 @@ const mapPlansById = (plans = []) =>
 export default function Payment() {
   const [plan, setPlan] = useState('monthly');
   const [loading, setLoading] = useState(false);
+  const [trialLoading, setTrialLoading] = useState(false);
   const [pricingLoading, setPricingLoading] = useState(true);
   const [serverPlanDetails, setServerPlanDetails] = useState(planDetails);
   const [pricingWarning, setPricingWarning] = useState('');
@@ -130,11 +149,156 @@ export default function Payment() {
     });
   };
 
+  const handleTrialStart = async () => {
+    try {
+      setTrialLoading(true);
+      const res = await api.post('/payment/trial/start');
+
+      if (res.data?.user) {
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+      }
+
+      trackEvent('start_trial', {
+        value: 0,
+        currency: 'INR'
+      });
+      alert(res.data?.message || '7-day Pro trial activated');
+      window.location.href = '/dashboard';
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Unable to activate trial');
+    } finally {
+      setTrialLoading(false);
+    }
+  };
+
+  const handleOneTimePayment = async (selectedPlan) => {
+    let checkoutOpened = false;
+
+    try {
+      setLoading(true);
+      trackEvent('begin_checkout', {
+        plan: selectedPlan,
+        value: Number(current.amount || 0),
+        currency: current.currency || 'INR',
+        checkout_type: 'one_time'
+      });
+
+      const orderRes = await api.post('/payment/razorpay/order', {
+        plan: selectedPlan
+      });
+
+      const keyId = orderRes.data?.keyId;
+      const order = orderRes.data?.order;
+      const simulation = Boolean(orderRes.data?.simulation);
+      const serverPlan = orderRes.data?.plan;
+
+      if (!order?.id) {
+        throw new Error('Invalid order response');
+      }
+
+      if (serverPlan?.id) {
+        setServerPlanDetails((prev) => ({
+          ...prev,
+          [serverPlan.id]: {
+            ...prev[serverPlan.id],
+            ...serverPlan,
+            duration: getDurationLabel(serverPlan.durationDays)
+          }
+        }));
+      }
+
+      if (simulation) {
+        const verifyRes = await api.post('/payment/razorpay/verify', {
+          plan: selectedPlan,
+          razorpay_order_id: order.id,
+          razorpay_payment_id: `pay_sim_${Date.now()}`,
+          razorpay_signature: 'simulation'
+        });
+
+        if (verifyRes.data?.user) {
+          localStorage.setItem('user', JSON.stringify(verifyRes.data.user));
+        }
+
+        alert('Founder offer activated');
+        window.location.href = '/dashboard';
+        return;
+      }
+
+      const isLoaded = await loadRazorpayScript();
+
+      if (!isLoaded) {
+        alert('Razorpay failed to load');
+        return;
+      }
+
+      const options = {
+        key: keyId,
+        name: COMPANY_SHORT_NAME,
+        description: serverPlan?.label || current.label,
+        order_id: order.id,
+        amount: order.amount,
+        currency: order.currency || current.currency || 'INR',
+        prefill: {
+          name: getUser()?.name || '',
+          email: getUser()?.email || ''
+        },
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+          }
+        },
+        handler: async function(response) {
+          try {
+            const verifyRes = await api.post('/payment/razorpay/verify', {
+              plan: selectedPlan,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+
+            if (verifyRes.data?.user) {
+              localStorage.setItem('user', JSON.stringify(verifyRes.data.user));
+            }
+
+            trackEvent('purchase', {
+              transaction_id: response.razorpay_payment_id,
+              plan: selectedPlan,
+              value: Number(serverPlan?.amount || current.amount || 0),
+              currency: serverPlan?.currency || current.currency || 'INR',
+              checkout_type: 'one_time'
+            });
+
+            alert('Founder offer activated');
+            window.location.href = '/dashboard';
+          } catch (verifyErr) {
+            alert(verifyErr?.response?.data?.message || 'Payment verification failed');
+            setLoading(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      checkoutOpened = true;
+      rzp.open();
+    } catch (err) {
+      alert(err?.response?.data?.message || err?.message || 'Payment failed');
+    } finally {
+      if (!checkoutOpened) {
+        setLoading(false);
+      }
+    }
+  };
+
   const handleRazorpayPayment = async () => {
     let checkoutOpened = false;
     const selectedPlan = getSafePlan(plan);
     setPlan(selectedPlan);
     localStorage.setItem("plan", selectedPlan);
+
+    if ((serverPlanDetails[selectedPlan] || planDetails[selectedPlan])?.checkoutType === 'one_time') {
+      await handleOneTimePayment(selectedPlan);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -163,7 +327,7 @@ export default function Payment() {
           [serverPlan.id]: {
             ...prev[serverPlan.id],
             ...serverPlan,
-            duration: Number(serverPlan.durationDays || 0) === 365 ? "Billed every 365 days" : "Billed every 30 days"
+            duration: getDurationLabel(serverPlan.durationDays)
           }
         }));
       }
@@ -343,7 +507,9 @@ export default function Payment() {
 
                 <div className="space-y-6 mb-10">
                   <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-sm font-bold">
-                    <span className="text-zinc-600 uppercase tracking-widest">Recurring Plan</span>
+                    <span className="text-zinc-600 uppercase tracking-widest">
+                      {current.checkoutType === 'one_time' ? 'One-Time Plan' : 'Recurring Plan'}
+                    </span>
                     <span className="text-white">{pricingLoading ? 'Checking...' : `Rs ${current.amount}.00`}</span>
                   </div>
                   <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-sm font-bold">
@@ -373,7 +539,22 @@ export default function Payment() {
                  disabled={loading || pricingLoading || pricingBlocked}
                  className="btn btn-primary w-full py-5 text-lg shadow-xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all"
                >
-                 {pricingLoading ? 'Verifying Price...' : loading ? 'Starting Subscription...' : 'Start Subscription'}
+                 {pricingLoading
+                   ? 'Verifying Price...'
+                   : loading
+                     ? 'Starting Checkout...'
+                     : current.checkoutType === 'one_time'
+                       ? 'Pay Once and Activate'
+                       : 'Start Subscription'}
+               </button>
+
+               <button
+                 type="button"
+                 onClick={handleTrialStart}
+                 disabled={trialLoading || loading}
+                 className="mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm font-black text-white transition-all hover:bg-white/[0.06] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+               >
+                 {trialLoading ? 'Activating Trial...' : 'Start 7-Day Free Trial'}
                </button>
 
                {pricingWarning && (
@@ -393,7 +574,7 @@ export default function Payment() {
 
              <div className="mt-8 p-8 rounded-[2rem] border border-white/5 bg-white/[0.01]">
                 <p className="text-[10px] font-bold text-zinc-600 leading-relaxed uppercase tracking-widest text-center">
-                  Your Pro access starts after subscription authorization and stays synced by Razorpay webhooks.
+                  Use the 7-day trial for free setup calls, the founder offer for early users, or monthly billing for repeat subscribers.
                 </p>
              </div>
           </aside>

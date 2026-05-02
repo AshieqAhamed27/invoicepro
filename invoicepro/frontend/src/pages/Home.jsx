@@ -129,6 +129,16 @@ const plans = [
     cta: 'Save With Annual',
     featured: true,
     action: 'yearly'
+  },
+  {
+    name: 'Founder 90 Days',
+    price: 'Rs 999',
+    suffix: '/ 3 months',
+    description: 'Early-user offer for your first customers who want to try Pro seriously.',
+    features: ['90 days Pro access', 'One-time Razorpay payment', 'WhatsApp reminders and AI collection agent'],
+    cta: 'Claim Founder Offer',
+    featured: false,
+    action: 'founder90'
   }
 ];
 
@@ -582,7 +592,7 @@ export default function Home() {
                 Transparent plans before checkout begins
               </h2>
               <p className="mt-4 text-base font-medium leading-relaxed text-zinc-400">
-                The homepage frames pricing like a real billing product: clear plan scope, AI collection support, visible totals, and secure checkout on paid plans.
+                Start with the free workspace, activate a 7-day Pro trial from checkout, or use the founder offer for early users.
               </p>
             </div>
 
@@ -595,7 +605,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
+            <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2 xl:grid-cols-4">
               {plans.map((plan) => (
                 <div
                   key={plan.name}
