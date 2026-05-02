@@ -95,7 +95,9 @@ export default function PublicInvoice() {
       isProposal,
       status: isProposal
         ? (proposalExpired ? 'expired' : (invoice.proposalStatus || 'draft'))
-        : invoice.status,
+        : invoice.status === 'pending' && isDatePastEndOfDay(invoice.dueDate)
+          ? 'overdue'
+          : invoice.status,
       title: isProposal ? 'Proposal' : 'Invoice',
       idLabel: isProposal ? 'Proposal Number' : 'Invoice Number',
       dateLabel: isProposal ? 'Valid Until' : 'Due',
@@ -246,7 +248,9 @@ export default function PublicInvoice() {
         : { label: 'Proposal', className: 'bg-sky-500' }
     : invoice.status === 'paid'
       ? { label: 'Paid', className: 'bg-green-500' }
-      : null;
+      : invoiceMeta.status === 'overdue'
+        ? { label: 'Overdue', className: 'bg-red-500' }
+        : null;
 
   const safeCompanyLogoUrl = getSafeRemoteImageUrl(companyLogo);
 

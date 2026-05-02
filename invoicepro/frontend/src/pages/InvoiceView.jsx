@@ -158,7 +158,11 @@ export default function InvoiceView() {
     if (!invoice) return null;
 
     const isProposal = invoice.documentType === 'proposal';
-    const status = isProposal ? getProposalStatus(invoice) : invoice.status;
+    const status = isProposal
+      ? getProposalStatus(invoice)
+      : invoice.status === 'pending' && isDatePastEndOfDay(invoice.dueDate)
+        ? 'overdue'
+        : invoice.status;
 
     return {
       isProposal,
@@ -221,7 +225,9 @@ export default function InvoiceView() {
   const statusClass = !meta.isProposal
     ? meta.status === 'paid'
       ? 'bg-emerald-400/5 text-emerald-400 border-emerald-400/10'
-      : 'bg-yellow-400/5 text-yellow-500 border-yellow-400/10'
+      : meta.status === 'overdue'
+        ? 'bg-red-400/5 text-red-400 border-red-400/10'
+        : 'bg-yellow-400/5 text-yellow-500 border-yellow-400/10'
     : meta.status === 'accepted'
       ? 'bg-emerald-400/5 text-emerald-400 border-emerald-400/10'
       : meta.status === 'expired'
@@ -509,7 +515,7 @@ export default function InvoiceView() {
             </h1>
             <div className="flex flex-wrap items-center gap-3">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${statusClass}`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${meta.status === 'paid' || meta.status === 'accepted' ? 'bg-emerald-400' : meta.status === 'expired' ? 'bg-red-400' : 'bg-yellow-500 animate-pulse'}`} />
+                <span className={`h-1.5 w-1.5 rounded-full ${meta.status === 'paid' || meta.status === 'accepted' ? 'bg-emerald-400' : meta.status === 'expired' || meta.status === 'overdue' ? 'bg-red-400' : 'bg-yellow-500 animate-pulse'}`} />
                 {meta.status}
               </span>
               <p className="text-sm font-medium text-zinc-500">Branded as {companyName}</p>

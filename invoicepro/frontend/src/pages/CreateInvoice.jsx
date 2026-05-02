@@ -3,12 +3,26 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import { getUser } from '../utils/auth';
+import AIBillingAgent from '../components/AIBillingAgent';
 
 const formatCurrency = (amount) =>
   `Rs ${Number(amount || 0).toLocaleString('en-IN', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })}`;
+
+const normalizeDraftDate = (value) => {
+  if (!value) return '';
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(String(value))) {
+    return String(value).slice(0, 10);
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+
+  return date.toISOString().slice(0, 10);
+};
 
 export default function CreateInvoice() {
   const navigate = useNavigate();
@@ -180,6 +194,56 @@ export default function CreateInvoice() {
     }));
   };
 
+  const applyAiDraft = (draft) => {
+    if (!draft) return;
+
+    const nextDocumentType = draft.documentType === 'proposal' ? 'proposal' : 'invoice';
+    const nextItems = Array.isArray(draft.items)
+      ? draft.items
+          .map((item) => ({
+            name: String(item?.name || '').trim(),
+            price: item?.price === undefined || item?.price === null ? '' : String(item.price)
+          }))
+          .filter((item) => item.name || Number(item.price || 0) > 0)
+      : [];
+
+    setDocumentType(nextDocumentType);
+    setForm((prev) => ({
+      ...prev,
+      clientName: draft.clientName || prev.clientName,
+      clientEmail: draft.clientEmail || prev.clientEmail,
+      serviceDescription: draft.serviceDescription || prev.serviceDescription,
+      cgst: draft.cgst ?? prev.cgst,
+      sgst: draft.sgst ?? prev.sgst,
+      upiId: nextDocumentType === 'invoice' ? (draft.upiId || prev.upiId) : '',
+      dueDate: nextDocumentType === 'invoice' ? normalizeDraftDate(draft.dueDate) : '',
+      validUntil: nextDocumentType === 'proposal' ? normalizeDraftDate(draft.validUntil) : ''
+    }));
+
+    if (nextItems.length) {
+      setItems(nextItems);
+    }
+
+    if (nextDocumentType === 'proposal') {
+      setRecurring((prev) => ({
+        ...prev,
+        enabled: false
+      }));
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    try {
+      const storedDraft = localStorage.getItem('invoicepro_ai_invoice_draft');
+      if (!storedDraft) return;
+
+      localStorage.removeItem('invoicepro_ai_invoice_draft');
+      applyAiDraft(JSON.parse(storedDraft));
+    } catch { }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -260,6 +324,23 @@ export default function CreateInvoice() {
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="reveal reveal-delay-1 mb-8">
+          <AIBillingAgent
+            mode="builder"
+            context={{
+              documentType,
+              form,
+              items,
+              cgst: form.cgst,
+              sgst: form.sgst,
+              subtotal,
+              tax,
+              total
+            }}
+            onApplyDraft={applyAiDraft}
+          />
         </div>
 
         <form onSubmit={handleSubmit} className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-10">

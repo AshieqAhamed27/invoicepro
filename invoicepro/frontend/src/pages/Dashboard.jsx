@@ -4,6 +4,7 @@ import api from '../utils/api';
 import { getUser } from '../utils/auth';
 import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
+import AIBillingAgent from '../components/AIBillingAgent';
 
 const formatCurrency = (amount) =>
   `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
@@ -20,9 +21,23 @@ const formatDate = (value) => {
   });
 };
 
+const isDatePastEndOfDay = (value) => {
+  if (!value) return false;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+
+  date.setHours(23, 59, 59, 999);
+  return date < new Date();
+};
+
 const getDocumentMeta = (doc) => {
   const isProposal = doc.documentType === 'proposal';
-  const statusLabel = isProposal ? (doc.proposalStatus || 'draft') : doc.status;
+  const statusLabel = isProposal
+    ? (doc.proposalStatus || 'draft')
+    : doc.status === 'pending' && isDatePastEndOfDay(doc.dueDate)
+      ? 'overdue'
+      : doc.status;
 
   if (!isProposal) {
     return {
@@ -31,7 +46,9 @@ const getDocumentMeta = (doc) => {
       statusLabel,
       statusClass: statusLabel === 'paid'
         ? 'bg-emerald-400/5 text-emerald-400 border-emerald-400/10'
-        : 'bg-yellow-400/5 text-yellow-500 border-yellow-400/10'
+        : statusLabel === 'overdue'
+          ? 'bg-red-400/5 text-red-400 border-red-400/10'
+          : 'bg-yellow-400/5 text-yellow-500 border-yellow-400/10'
     };
   }
 
@@ -163,6 +180,14 @@ export default function Dashboard() {
     } catch {
       window.prompt('Copy this reminder:', reminder);
     }
+  };
+
+  const openAiDraftInBuilder = (draft) => {
+    try {
+      localStorage.setItem('invoicepro_ai_invoice_draft', JSON.stringify(draft));
+    } catch { }
+
+    navigate('/create-invoice?ai=draft');
   };
 
   const maxTrend = useMemo(() => {
@@ -381,6 +406,15 @@ export default function Dashboard() {
               <h2 className={`text-3xl sm:text-4xl font-black ${item.color} tracking-tight break-words`}>{item.val}</h2>
             </div>
           ))}
+        </section>
+
+        <section className="reveal reveal-delay-1 mb-12">
+          <AIBillingAgent
+            mode="dashboard"
+            context={{ stats, invoices }}
+            onApplyDraft={openAiDraftInBuilder}
+            applyDraftLabel="Open In Builder"
+          />
         </section>
 
         <section className="reveal reveal-delay-1 mb-12 grid gap-8 lg:grid-cols-[2fr_1fr] lg:gap-10">
