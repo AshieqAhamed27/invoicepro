@@ -93,6 +93,21 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/clients', clientRoutes);
 
+app.get('/api', (req, res) => {
+    res.json({
+        status: 'OK',
+        message: 'InvoicePro API is running',
+        routes: {
+            health: '/api/health',
+            auth: '/api/auth',
+            invoices: '/api/invoices',
+            payment: '/api/payment',
+            ai: '/api/ai',
+            clients: '/api/clients'
+        }
+    });
+});
+
 // ✅ HEALTH CHECK
 app.get('/api/health', (req, res) => {
     res.json({
