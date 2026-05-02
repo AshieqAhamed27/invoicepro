@@ -62,6 +62,12 @@ export default function Footer() {
             <div className="grid gap-4 font-medium text-zinc-400">
               <Link className="transition-colors hover:text-yellow-300" to="/privacy">Privacy</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/terms">Terms</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/refund-policy">
+                Refund Policy
+              </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/shipping-policy">
+                Digital Delivery
+              </Link>
               <p>{COMPANY_LEGAL_DESCRIPTION}</p>
               <p className="break-all text-xs font-bold text-zinc-500">Udyam No: {UDYAM_REGISTRATION_NUMBER}</p>
             </div>
@@ -87,6 +93,8 @@ export default function Footer() {
           <div className="mt-0 flex flex-wrap items-center justify-center gap-4 sm:gap-8 md:justify-end">
             <Link className="transition-colors hover:text-zinc-500" to="/privacy">Privacy</Link>
             <Link className="transition-colors hover:text-zinc-500" to="/terms">Terms</Link>
+            <Link className="transition-colors hover:text-zinc-500" to="/refund-policy">Refund</Link>
+            <Link className="transition-colors hover:text-zinc-500" to="/shipping-policy">Delivery</Link>
             <Link className="transition-colors hover:text-zinc-500" to="/contact">Contact</Link>
           </div>
         </div>

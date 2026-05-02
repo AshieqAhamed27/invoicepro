@@ -1,51 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://invoicepro.vercel.app/</loc>
+    <loc>https://invoicepro-lime.vercel.app/</loc>
     <lastmod>2026-05-01</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/invoice-generator</loc>
+    <loc>https://invoicepro-lime.vercel.app/invoice-generator</loc>
     <lastmod>2026-05-01</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/blog/how-to-create-invoice-india</loc>
+    <loc>https://invoicepro-lime.vercel.app/blog/how-to-create-invoice-india</loc>
     <lastmod>2026-05-01</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/blog/gst-invoice-format-india</loc>
+    <loc>https://invoicepro-lime.vercel.app/blog/gst-invoice-format-india</loc>
     <lastmod>2026-05-02</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/gst-invoice-generator</loc>
+    <loc>https://invoicepro-lime.vercel.app/gst-invoice-generator</loc>
     <lastmod>2026-05-02</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/online-invoice-maker-india</loc>
+    <loc>https://invoicepro-lime.vercel.app/online-invoice-maker-india</loc>
     <lastmod>2026-05-02</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/freelance-invoice-software</loc>
+    <loc>https://invoicepro-lime.vercel.app/freelance-invoice-software</loc>
     <lastmod>2026-05-02</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/payment-reminder-software</loc>
+    <loc>https://invoicepro-lime.vercel.app/payment-reminder-software</loc>
     <lastmod>2026-05-02</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/razorpay-invoice-payment-tracking</loc>
+    <loc>https://invoicepro-lime.vercel.app/razorpay-invoice-payment-tracking</loc>
     <lastmod>2026-05-02</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/contact</loc>
+    <loc>https://invoicepro-lime.vercel.app/contact</loc>
     <lastmod>2026-05-01</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/privacy</loc>
+    <loc>https://invoicepro-lime.vercel.app/privacy</loc>
     <lastmod>2026-05-01</lastmod>
   </url>
   <url>
-    <loc>https://invoicepro.vercel.app/terms</loc>
+    <loc>https://invoicepro-lime.vercel.app/terms</loc>
     <lastmod>2026-05-01</lastmod>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/refund-policy</loc>
+    <lastmod>2026-05-02</lastmod>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/shipping-policy</loc>
+    <lastmod>2026-05-02</lastmod>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/cancellation-refund-policy</loc>
+    <lastmod>2026-05-02</lastmod>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/digital-delivery-policy</loc>
+    <lastmod>2026-05-02</lastmod>
   </url>
 </urlset>

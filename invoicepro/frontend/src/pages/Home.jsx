@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { isLoggedIn } from '../utils/auth';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { SUPPORT_EMAIL } from '../utils/company';
+import { COMPANY_NAME, SUPPORT_EMAIL, UDYAM_REGISTRATION_NUMBER } from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
@@ -21,6 +21,10 @@ const trustSignals = [
   {
     title: 'AI revenue coaching',
     description: 'Spot overdue revenue, copy client reminders, and prioritize the invoices most likely to unlock cash.'
+  },
+  {
+    title: 'WhatsApp-first reminders',
+    description: 'Send payment follow-ups through WhatsApp links so you can start collecting without a paid email domain.'
   },
   {
     title: 'Recurring billing built in',
@@ -80,6 +84,10 @@ const faqs = [
   {
     question: 'Can I include GST information and business details?',
     answer: 'Yes. The invoice flow includes GST-related fields, company details, due dates, and client information.'
+  },
+  {
+    question: 'Can I send reminders without buying a domain?',
+    answer: 'Yes. InvoicePro supports WhatsApp reminder links, so you can follow up with clients now and add email reminders later when you have a verified business domain.'
   }
 ];
 
@@ -121,6 +129,29 @@ const plans = [
     cta: 'Save With Annual',
     featured: true,
     action: 'yearly'
+  }
+];
+
+const policyLinks = [
+  {
+    title: 'Privacy Policy',
+    description: 'Explains how account, client, invoice, and payment-related data is handled.',
+    to: '/privacy'
+  },
+  {
+    title: 'Terms of Use',
+    description: 'Sets expectations for using InvoicePro responsibly as billing software.',
+    to: '/terms'
+  },
+  {
+    title: 'Refund Policy',
+    description: 'Covers cancellation, duplicate payments, failed activation, and support requests.',
+    to: '/refund-policy'
+  },
+  {
+    title: 'Digital Delivery',
+    description: 'Clarifies that InvoicePro is cloud software delivered online after signup or payment.',
+    to: '/shipping-policy'
   }
 ];
 
@@ -377,7 +408,7 @@ export default function Home() {
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">Trust signals grounded in the actual workflow</h2>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {trustSignals.map((signal) => (
                 <div key={signal.title} className="rounded-3xl border border-white/8 bg-white/[0.02] p-6">
                   <p className="text-sm font-black uppercase tracking-[0.16em] text-yellow-300">{signal.title}</p>
@@ -414,6 +445,45 @@ export default function Home() {
                   </blockquote>
                 </figure>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-black/20 py-16">
+          <div className="container-custom">
+            <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Business trust</p>
+                <h2 className="mt-3 max-w-xl text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Public policies and business details in one place.
+                </h2>
+                <p className="mt-4 max-w-lg text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+                  {COMPANY_NAME} now includes public trust pages, visible support, Udyam registration, and a WhatsApp-first follow-up flow.
+                </p>
+
+                <div className="mt-6 rounded-[2rem] border border-emerald-400/15 bg-emerald-400/8 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Registered MSME</p>
+                  <p className="mt-2 break-all text-sm font-black text-white">Udyam No: {UDYAM_REGISTRATION_NUMBER}</p>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
+                    Public policy pages, support details, and registration information help clients verify the product before they pay.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {policyLinks.map((item) => (
+                  <Link
+                    key={item.title}
+                    to={item.to}
+                    className="group rounded-[2rem] border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-yellow-400/25 hover:bg-white/[0.05]"
+                  >
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Policy</p>
+                    <h3 className="mt-3 text-xl font-black text-white">{item.title}</h3>
+                    <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{item.description}</p>
+                    <p className="mt-5 text-sm font-black text-white group-hover:text-yellow-300">Open page</p>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </section>

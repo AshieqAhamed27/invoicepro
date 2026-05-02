@@ -13,4 +13,4 @@ Disallow: /public/invoice/
 Disallow: /recurring
 Disallow: /settings
 
-Sitemap: https://invoicepro.vercel.app/sitemap.xml
+Sitemap: https://invoicepro-lime.vercel.app/sitemap.xml

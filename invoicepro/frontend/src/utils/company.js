@@ -8,5 +8,5 @@ export const UDYAM_REGISTRATION_NUMBER = 'UDYAM-TN-37-0055272';
 export const COMPANY_LEGAL_DESCRIPTION = `${COMPANY_NAME} is a ${COMPANY_LEGAL_TYPE} business in India.`;
 export const SUPPORT_EMAIL = 'ashieqahamed27@gmail.com';
 export const COMPANY_LOCATION = 'India';
-export const SITE_URL = 'https://invoicepro.vercel.app';
+export const SITE_URL = 'https://invoicepro-lime.vercel.app';
 export const LEGAL_EFFECTIVE_DATE = 'April 23, 2026';

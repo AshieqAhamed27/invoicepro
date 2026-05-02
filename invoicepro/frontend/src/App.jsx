@@ -20,6 +20,8 @@ const Home = lazy(() => import('./pages/Home'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
+const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
+const DigitalDeliveryPolicy = lazy(() => import('./pages/DigitalDeliveryPolicy'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -182,6 +184,42 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <Terms />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/refund-policy"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <RefundPolicy />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/cancellation-refund-policy"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <RefundPolicy />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/shipping-policy"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <DigitalDeliveryPolicy />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/digital-delivery-policy"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <DigitalDeliveryPolicy />
             </Suspense>
           }
         />
