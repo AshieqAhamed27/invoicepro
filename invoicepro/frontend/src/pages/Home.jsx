@@ -83,6 +83,14 @@ const faqs = [
   }
 ];
 
+const testimonials = [
+  {
+    name: 'Aftab',
+    source: 'LinkedIn feedback',
+    quote: 'The interface is clean, and the overall workflow feels simple and user-friendly, which is great for an invoicing tool.'
+  }
+];
+
 const plans = [
   {
     name: 'Free',
@@ -375,6 +383,36 @@ export default function Home() {
                   <p className="text-sm font-black uppercase tracking-[0.16em] text-yellow-300">{signal.title}</p>
                   <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">{signal.description}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-zinc-950/35 py-16">
+          <div className="container-custom">
+            <div className="mb-10 max-w-2xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Customer feedback</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Early users are already noticing the clean billing experience.
+              </h2>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              {testimonials.map((testimonial) => (
+                <figure key={testimonial.name} className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-6 sm:p-8">
+                  <div className="mb-6 flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-yellow-400 text-sm font-black text-black">
+                      {testimonial.name.slice(0, 1)}
+                    </div>
+                    <div>
+                      <figcaption className="text-sm font-black text-white">{testimonial.name}</figcaption>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">{testimonial.source}</p>
+                    </div>
+                  </div>
+                  <blockquote className="text-base font-semibold leading-relaxed text-zinc-300">
+                    "{testimonial.quote}"
+                  </blockquote>
+                </figure>
               ))}
             </div>
           </div>
