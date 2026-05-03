@@ -11,6 +11,7 @@ import { isLoggedIn, getUser } from './utils/auth';
 import api from './utils/api';
 import { getWhatsAppShareUrl } from './utils/whatsapp';
 import { trackPageView } from './utils/analytics';
+import ScrollAnimator from './components/ScrollAnimator';
 import InvoiceGenerator from './pages/InvoiceGenerator';
 import HowToCreateInvoiceIndia from './pages/blog/HowToCreateInvoiceIndia';
 import GSTInvoiceFormatIndia from './pages/blog/GSTInvoiceFormatIndia';
@@ -149,6 +150,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <ScrollAnimator />
       <Routes>
 
         {/* Public */}

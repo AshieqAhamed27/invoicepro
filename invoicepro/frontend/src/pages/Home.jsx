@@ -229,14 +229,14 @@ export default function Home() {
           <div className="container-custom relative z-10 grid gap-12 lg:grid-cols-2 lg:items-start">
             <div className="max-w-lg">
               <div className="reveal premium-eyebrow w-full max-w-full flex-wrap sm:w-auto">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                <span className="pulse-dot h-2 w-2 rounded-full bg-emerald-400 text-emerald-400" />
                 <p className="max-w-[16rem] break-words text-[10px] font-black uppercase leading-relaxed tracking-[0.14em] text-emerald-300 sm:max-w-none sm:text-[11px] sm:tracking-[0.22em]">
                   Professional invoicing for Indian service businesses
                 </p>
               </div>
 
               <h1 className="reveal reveal-delay-1 mt-6 max-w-4xl break-words text-4xl font-bold tracking-tight leading-tight text-white sm:mt-8 sm:text-5xl md:text-6xl">
-                Invoices your clients can open, trust, and pay without confusion.
+                Invoices your clients can open, <span className="animated-gradient-text">trust, and pay</span> without confusion.
               </h1>
 
               <p className="reveal reveal-delay-3 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
@@ -384,7 +384,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-16">
+        <section className="scroll-reveal py-16">
           <div className="container-custom">
             <h2 className="text-3xl font-black text-white">
               Invoice Generator for Indian Freelancers
@@ -411,7 +411,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-y border-white/5 bg-zinc-950/60 py-16">
+        <section className="scroll-reveal border-y border-white/5 bg-zinc-950/60 py-16">
           <div className="container-custom">
             <div className="mb-10 max-w-2xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Why it feels safer</p>
@@ -429,7 +429,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-zinc-950/35 py-16">
+        <section className="scroll-reveal border-b border-white/5 bg-zinc-950/35 py-16">
           <div className="container-custom">
             <div className="mb-10 max-w-2xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Customer feedback</p>
@@ -459,7 +459,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-black/20 py-16">
+        <section className="scroll-reveal border-b border-white/5 bg-black/20 py-16">
           <div className="container-custom">
             <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
               <div>
@@ -498,7 +498,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-20 sm:py-24">
+        <section className="scroll-reveal py-20 sm:py-24">
           <div className="container-custom">
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Workflow</p>
@@ -522,7 +522,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="trust" className="border-t border-white/5 bg-zinc-950/40 py-24">
+        <section id="trust" className="scroll-reveal border-t border-white/5 bg-zinc-950/40 py-24">
           <div className="container-custom">
             <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
               <div className="rounded-[2.5rem] border border-white/8 bg-zinc-950 p-8 sm:p-10">
@@ -584,7 +584,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="pricing" className="py-24">
+        <section id="pricing" className="scroll-reveal py-24">
           <div className="container-custom">
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Pricing</p>
@@ -655,7 +655,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="faq" className="border-t border-white/5 bg-zinc-950/50 py-24">
+        <section id="faq" className="scroll-reveal border-t border-white/5 bg-zinc-950/50 py-24">
           <div className="container-custom">
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
@@ -691,7 +691,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-t border-white/5 py-24">
+        <section className="scroll-reveal border-t border-white/5 py-24">
           <div className="container-custom">
             <div className="premium-panel px-6 py-12 text-center sm:px-12 sm:py-20">
               <div className="mx-auto max-w-3xl">
