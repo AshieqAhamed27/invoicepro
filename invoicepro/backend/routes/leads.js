@@ -1,6 +1,7 @@
 const express = require('express');
 const Lead = require('../models/Lead');
 const Client = require('../models/Client');
+const Invoice = require('../models/Invoice');
 const { protect } = require('../middleware/auth');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 
@@ -101,6 +102,15 @@ const buildStats = (leads = []) => {
     };
 };
 
+const sumBy = (items = [], getValue) =>
+    items.reduce((total, item) => total + Number(getValue(item) || 0), 0);
+
+const isOpenLead = (lead) => !['won', 'lost'].includes(lead.status);
+
+const isOpenProposal = (proposal) =>
+    proposal.documentType === 'proposal' &&
+    !['accepted', 'rejected', 'expired'].includes(proposal.proposalStatus);
+
 router.get('/', protect, async(req, res) => {
     try {
         const query = { user: req.user._id };
@@ -119,6 +129,87 @@ router.get('/', protect, async(req, res) => {
         });
     } catch (err) {
         console.error('GET LEADS ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.get('/dashboard', protect, async(req, res) => {
+    try {
+        const [leads, proposals, linkedInvoices] = await Promise.all([
+            Lead.find({ user: req.user._id })
+                .sort({ nextFollowUpAt: 1, updatedAt: -1 })
+                .lean(),
+            Invoice.find({
+                user: req.user._id,
+                documentType: 'proposal'
+            })
+                .select('amount proposalStatus sourceLeadId convertedToInvoiceId clientName invoiceNumber createdAt validUntil')
+                .lean(),
+            Invoice.find({
+                user: req.user._id,
+                documentType: { $ne: 'proposal' },
+                sourceLeadId: { $ne: null }
+            })
+                .select('amount status sourceLeadId clientName invoiceNumber dueDate')
+                .lean()
+        ]);
+
+        const stats = buildStats(leads);
+        const openLeads = leads.filter(isOpenLead);
+        const wonLeads = leads.filter((lead) => lead.status === 'won');
+        const openProposals = proposals.filter(isOpenProposal);
+        const acceptedProposals = proposals.filter((proposal) => proposal.proposalStatus === 'accepted');
+        const paidLinkedInvoices = linkedInvoices.filter((invoice) => invoice.status === 'paid');
+        const pendingLinkedInvoices = linkedInvoices.filter((invoice) => invoice.status !== 'paid');
+        const conversionRate = stats.total
+            ? Math.round(((stats.won || 0) / stats.total) * 100)
+            : 0;
+
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+
+        const followUpsDue = leads
+            .filter((lead) =>
+                isOpenLead(lead) &&
+                lead.nextFollowUpAt &&
+                new Date(lead.nextFollowUpAt) <= todayEnd
+            )
+            .slice(0, 5);
+
+        const hotLeads = openLeads
+            .filter((lead) =>
+                lead.status === 'interested' ||
+                lead.urgency === 'high' ||
+                Number(lead.fitScore || 0) >= 70
+            )
+            .sort((a, b) => {
+                const budgetDiff = Number(b.budget || 0) - Number(a.budget || 0);
+                if (budgetDiff !== 0) return budgetDiff;
+                return Number(b.fitScore || 0) - Number(a.fitScore || 0);
+            })
+            .slice(0, 5);
+
+        res.json({
+            stats,
+            summary: {
+                pipelineValue: sumBy(openLeads, (lead) => lead.budget),
+                totalLeadValue: sumBy(leads, (lead) => lead.budget),
+                wonLeadValue: sumBy(wonLeads, (lead) => lead.budget),
+                openProposalValue: sumBy(openProposals, (proposal) => proposal.amount),
+                acceptedProposalValue: sumBy(acceptedProposals, (proposal) => proposal.amount),
+                paidLeadInvoiceRevenue: sumBy(paidLinkedInvoices, (invoice) => invoice.amount),
+                pendingLeadInvoiceValue: sumBy(pendingLinkedInvoices, (invoice) => invoice.amount),
+                conversionRate
+            },
+            followUpsDue,
+            hotLeads,
+            openProposals: openProposals.slice(0, 5),
+            acceptedProposals: acceptedProposals
+                .filter((proposal) => !proposal.convertedToInvoiceId)
+                .slice(0, 5)
+        });
+    } catch (err) {
+        console.error('LEADS DASHBOARD ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
 });

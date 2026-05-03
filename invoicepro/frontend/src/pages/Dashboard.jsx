@@ -66,6 +66,28 @@ const getDocumentMeta = (doc) => {
   };
 };
 
+const getLeadName = (lead = {}) =>
+  lead.businessName || lead.contactName || lead.email || lead.phone || 'Unnamed lead';
+
+const getLeadStatusLabel = (status = '') => ({
+  new: 'New',
+  contacted: 'Contacted',
+  interested: 'Interested',
+  proposal_sent: 'Proposal Sent',
+  won: 'Won',
+  lost: 'Lost'
+}[status] || 'New');
+
+const buildLeadFollowUpMessage = (lead = {}) => {
+  const name = lead.contactName || 'there';
+  const business = lead.businessName || 'your business';
+  const pain = lead.pain
+    ? `I was thinking about this opportunity: ${lead.pain}`
+    : 'I had a quick idea that could help improve enquiries or trust.';
+
+  return `Hi ${name}, following up about ${business}.\n\n${pain}\n\nWould you like me to share 2 simple improvement ideas and a fixed-price proposal?`;
+};
+
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const [stats, setStats] = useState({
@@ -76,6 +98,15 @@ export default function Dashboard() {
     trends: []
   });
   const [aiInsights, setAiInsights] = useState(null);
+  const [leadDashboard, setLeadDashboard] = useState({
+    stats: {},
+    summary: {},
+    followUpsDue: [],
+    hotLeads: [],
+    openProposals: [],
+    acceptedProposals: []
+  });
+  const [leadDashboardError, setLeadDashboardError] = useState('');
   const [loading, setLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState('');
   const [convertingProposalId, setConvertingProposalId] = useState(null);
@@ -124,10 +155,32 @@ export default function Dashboard() {
   };
 
   const loadExtraData = async () => {
-    try {
-      const aiResult = await api.get('/ai/insights');
-      setAiInsights(aiResult.data);
-    } catch { }
+    const [aiResult, leadResult] = await Promise.allSettled([
+      api.get('/ai/insights'),
+      api.get('/leads/dashboard')
+    ]);
+
+    if (aiResult.status === 'fulfilled') {
+      setAiInsights(aiResult.value.data);
+    }
+
+    if (leadResult.status === 'fulfilled') {
+      setLeadDashboard({
+        stats: leadResult.value.data?.stats || {},
+        summary: leadResult.value.data?.summary || {},
+        followUpsDue: leadResult.value.data?.followUpsDue || [],
+        hotLeads: leadResult.value.data?.hotLeads || [],
+        openProposals: leadResult.value.data?.openProposals || [],
+        acceptedProposals: leadResult.value.data?.acceptedProposals || []
+      });
+      setLeadDashboardError('');
+    } else {
+      setLeadDashboardError(
+        leadResult.reason?.friendlyMessage ||
+          leadResult.reason?.response?.data?.message ||
+          'Lead revenue dashboard is not available yet.'
+      );
+    }
   };
 
   const dismissOnboarding = () => {
@@ -178,6 +231,16 @@ export default function Dashboard() {
     });
   };
 
+  const sendLeadFollowUp = (lead) => {
+    openWhatsAppShare(buildLeadFollowUpMessage(lead), lead.phone);
+    trackEvent('share_lead_followup', {
+      location: 'dashboard',
+      lead_status: lead.status || 'new',
+      value: Number(lead.budget || 0),
+      currency: 'INR'
+    });
+  };
+
   const copyAiReminder = async () => {
     const reminder = aiInsights?.topRisk?.reminder;
     if (!reminder) return;
@@ -205,6 +268,91 @@ export default function Dashboard() {
       ? Math.max(...stats.trends.map((t) => t.value), 1000)
       : 1000;
   }, [stats.trends]);
+
+  const acquisitionSummary = leadDashboard.summary || {};
+  const acquisitionStats = leadDashboard.stats || {};
+  const dueLeadList = leadDashboard.followUpsDue || [];
+  const hotLeadList = leadDashboard.hotLeads || [];
+  const acceptedProposalList = leadDashboard.acceptedProposals || [];
+
+  const acquisitionCards = useMemo(() => ([
+    {
+      label: 'Lead Pipeline Value',
+      value: formatCurrency(acquisitionSummary.pipelineValue || 0),
+      note: `${acquisitionStats.total || 0} total leads`
+    },
+    {
+      label: 'Open Proposal Value',
+      value: formatCurrency(acquisitionSummary.openProposalValue || 0),
+      note: `${acquisitionStats.proposal_sent || 0} in proposal stage`
+    },
+    {
+      label: 'Won Lead Value',
+      value: formatCurrency(acquisitionSummary.wonLeadValue || acquisitionSummary.acceptedProposalValue || 0),
+      note: `${acquisitionStats.won || 0} won leads`
+    },
+    {
+      label: 'Conversion Rate',
+      value: `${Number(acquisitionSummary.conversionRate || 0)}%`,
+      note: `${acquisitionStats.followUpsDue || 0} follow-ups due`
+    }
+  ]), [acquisitionStats, acquisitionSummary]);
+
+  const nextMoneyActions = useMemo(() => {
+    const actions = [];
+
+    if (dueLeadList.length > 0) {
+      actions.push({
+        title: `Follow up ${dueLeadList.length} lead${dueLeadList.length === 1 ? '' : 's'} today`,
+        detail: 'These leads already have a follow-up date due.',
+        cta: 'Open Pipeline',
+        action: () => navigate('/leads'),
+        tone: 'yellow'
+      });
+    }
+
+    if (acceptedProposalList.length > 0) {
+      actions.push({
+        title: 'Convert accepted proposal',
+        detail: `${acceptedProposalList[0].clientName} has accepted. Turn it into an invoice.`,
+        cta: 'Open Proposal',
+        action: () => navigate(`/invoice/${acceptedProposalList[0]._id}`),
+        tone: 'emerald'
+      });
+    }
+
+    if ((acquisitionStats.interested || 0) > 0) {
+      actions.push({
+        title: 'Send proposal to interested leads',
+        detail: 'Interested leads should not stay idle. Package an offer and move them forward.',
+        cta: 'Create Proposal',
+        action: () => navigate('/leads'),
+        tone: 'sky'
+      });
+    }
+
+    if ((stats.pending || 0) > 0) {
+      actions.push({
+        title: 'Collect pending invoices',
+        detail: `${stats.pending} invoice${stats.pending === 1 ? ' is' : 's are'} waiting for payment.`,
+        cta: 'Review Invoices',
+        action: () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }),
+        tone: 'zinc'
+      });
+    }
+
+    if (actions.length === 0) {
+      actions.push({
+        title: 'Add 5 verified leads',
+        detail: 'Start by saving real prospects from Google Maps, LinkedIn, or Instagram.',
+        cta: 'Find Clients',
+        action: () => navigate('/client-finder'),
+        tone: 'emerald'
+      });
+    }
+
+    return actions.slice(0, 4);
+  }, [acceptedProposalList, acquisitionStats, dueLeadList, navigate, stats.pending]);
 
   const renderedInvoices = useMemo(() => {
     return invoices.map((inv) => {
@@ -429,6 +577,141 @@ export default function Dashboard() {
               <h2 className={`text-3xl sm:text-4xl font-black ${item.color} tracking-tight break-words`}>{item.val}</h2>
             </div>
           ))}
+        </section>
+
+        <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-5 sm:p-8 lg:p-10">
+          <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                Client Acquisition Revenue
+              </p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-white">
+                Where your next money is coming from.
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                Track leads, proposals, won opportunities, and follow-ups in one revenue view.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link to="/leads" className="btn btn-secondary px-6 py-3">
+                Open Pipeline
+              </Link>
+              <Link to="/client-finder" className="btn btn-primary px-6 py-3">
+                Find Clients
+              </Link>
+            </div>
+          </div>
+
+          {leadDashboardError && (
+            <div className="mb-6 rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-4">
+              <p className="text-xs font-semibold leading-relaxed text-yellow-100/80">
+                {leadDashboardError}
+              </p>
+            </div>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {acquisitionCards.map((card) => (
+              <div key={card.label} className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{card.label}</p>
+                <p className="mt-3 break-words text-3xl font-black text-white">{card.value}</p>
+                <p className="mt-2 text-xs font-bold text-zinc-500">{card.note}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5 sm:p-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Next Money Actions</p>
+                  <h3 className="mt-2 text-xl font-black text-white">Do these first today.</h3>
+                </div>
+                <p className="text-xs font-semibold text-zinc-500">
+                  Leads to proposal to invoice to payment
+                </p>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-2">
+                {nextMoneyActions.map((action) => (
+                  <button
+                    key={action.title}
+                    type="button"
+                    onClick={action.action}
+                    className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${
+                      action.tone === 'emerald'
+                        ? 'border-emerald-400/20 bg-emerald-400/10'
+                        : action.tone === 'yellow'
+                          ? 'border-yellow-400/20 bg-yellow-400/10'
+                          : action.tone === 'sky'
+                            ? 'border-sky-400/20 bg-sky-400/10'
+                            : 'border-white/10 bg-white/[0.04]'
+                    }`}
+                  >
+                    <p className="text-sm font-black text-white">{action.title}</p>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-400">{action.detail}</p>
+                    <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                      {action.cta}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5 sm:p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Hot Leads</p>
+              <h3 className="mt-2 text-xl font-black text-white">Best prospects to contact.</h3>
+
+              <div className="mt-5 space-y-3">
+                {hotLeadList.length ? (
+                  hotLeadList.slice(0, 4).map((lead) => (
+                    <div key={lead._id} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-white">{getLeadName(lead)}</p>
+                          <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                            {getLeadStatusLabel(lead.status)} / {formatCurrency(lead.budget)}
+                          </p>
+                        </div>
+                        <span className="shrink-0 rounded-full border border-white/10 px-2 py-1 text-[10px] font-black uppercase text-zinc-400">
+                          {lead.urgency || 'normal'}
+                        </span>
+                      </div>
+
+                      {lead.pain && (
+                        <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">{lead.pain}</p>
+                      )}
+
+                      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                        <button
+                          type="button"
+                          onClick={() => sendLeadFollowUp(lead)}
+                          className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                        >
+                          WhatsApp
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/leads')}
+                          className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/[0.08]"
+                        >
+                          Open
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5 text-center">
+                    <p className="text-sm font-bold text-zinc-400">No hot leads yet.</p>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-600">
+                      Save leads with budget, urgency, or fit score to see them here.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </section>
 
         <PaymentCollectionAgent
