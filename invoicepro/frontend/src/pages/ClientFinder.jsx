@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
@@ -301,6 +301,21 @@ export default function ClientFinder() {
     { path: '/client-finder' }
   );
 
+  useEffect(() => {
+    const loadPipelineLeads = async () => {
+      try {
+        const res = await api.get('/leads');
+        const pipelineLeads = Array.isArray(res.data?.leads) ? res.data.leads.slice(0, 12) : [];
+
+        if (pipelineLeads.length) {
+          setSavedLeads(pipelineLeads);
+        }
+      } catch { }
+    };
+
+    loadPipelineLeads();
+  }, []);
+
   const updateField = (field, value) => {
     setForm((prev) => ({
       ...prev,
@@ -368,9 +383,9 @@ export default function ClientFinder() {
   const effectiveContext = getClientContext(form);
   const realLeadSources = getRealLeadSources(effectiveContext, plan);
 
-  const saveLead = () => {
-    if (!leadForm.businessName.trim() && !leadForm.email.trim()) {
-      alert('Add at least business name or email.');
+  const saveLead = async () => {
+    if (!leadForm.businessName.trim() && !leadForm.email.trim() && !leadForm.phone.trim() && !leadForm.website.trim()) {
+      alert('Add business name, email, phone, or website.');
       return;
     }
 
@@ -381,10 +396,22 @@ export default function ClientFinder() {
       fitLabel: leadFit?.label || 'New lead',
       savedAt: new Date().toISOString()
     };
-    const nextLeads = [nextLead, ...savedLeads.filter((lead) => lead.email !== nextLead.email || !nextLead.email)].slice(0, 12);
-    persistLeads(nextLeads);
-    trackEvent('save_growth_lead', { fit_score: nextLead.fitScore });
-    alert('Lead saved in your growth workspace.');
+
+    try {
+      const res = await api.post('/leads', {
+        ...nextLead,
+        source: 'client-finder'
+      });
+      const savedLead = res.data?.lead || nextLead;
+      const nextLeads = [savedLead, ...savedLeads.filter((lead) => lead.email !== savedLead.email || !savedLead.email)].slice(0, 12);
+      persistLeads(nextLeads);
+      trackEvent('save_growth_lead', { fit_score: savedLead.fitScore || nextLead.fitScore });
+      alert('Lead saved in your CRM pipeline.');
+    } catch (err) {
+      const nextLeads = [nextLead, ...savedLeads.filter((lead) => lead.email !== nextLead.email || !nextLead.email)].slice(0, 12);
+      persistLeads(nextLeads);
+      alert(err.response?.data?.message || 'Lead saved locally. Open Pipeline after backend deploy.');
+    }
   };
 
   const saveLeadAsClient = async (lead = leadForm) => {
@@ -394,13 +421,17 @@ export default function ClientFinder() {
     }
 
     try {
-      await api.post('/clients', {
-        name: lead.contactName || lead.businessName,
-        email: lead.email,
-        companyName: lead.businessName,
-        address: '',
-        gst: ''
-      });
+      if (lead._id) {
+        await api.post(`/leads/${lead._id}/convert-client`);
+      } else {
+        await api.post('/clients', {
+          name: lead.contactName || lead.businessName,
+          email: lead.email,
+          companyName: lead.businessName,
+          address: '',
+          gst: ''
+        });
+      }
       trackEvent('save_lead_as_client', { location: 'client_finder' });
       alert('Lead saved as client.');
     } catch (err) {
@@ -1072,14 +1103,24 @@ export default function ClientFinder() {
                   </div>
 
                   <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-                    <h3 className="text-xl font-black text-white">Saved Growth Leads</h3>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <h3 className="text-xl font-black text-white">Saved Growth Leads</h3>
+                      <button
+                        type="button"
+                        onClick={() => navigate('/leads')}
+                        className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                      >
+                        Open Pipeline
+                      </button>
+                    </div>
                     <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {savedLeads.length ? (
                         savedLeads.map((lead) => {
                           const contactActions = getLeadContactActions(lead, buildLeadOutreach(lead, plan, form));
+                          const leadId = lead._id || lead.id || `${lead.email}-${lead.businessName}`;
 
                           return (
-                            <div key={lead.id} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <div key={leadId} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
                               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div className="min-w-0">
                                   <p className="truncate text-sm font-black text-white">{lead.businessName || lead.contactName || lead.email}</p>
@@ -1121,7 +1162,7 @@ export default function ClientFinder() {
                                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                                   {contactActions.map((action) => (
                                     <a
-                                      key={`${lead.id}-${action.label}-${action.href}`}
+                                      key={`${leadId}-${action.label}-${action.href}`}
                                       href={action.href}
                                       target={action.external ? '_blank' : undefined}
                                       rel={action.external ? 'noopener noreferrer' : undefined}

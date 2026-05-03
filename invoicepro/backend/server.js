@@ -24,6 +24,7 @@ const invoiceRoutes = require('./routes/invoices');
 const paymentRoutes = require('./routes/payment');
 const aiRoutes = require('./routes/ai');
 const clientRoutes = require('./routes/clients');
+const leadRoutes = require('./routes/leads');
 
 const app = express();
 
@@ -92,6 +93,7 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/clients', clientRoutes);
+app.use('/api/leads', leadRoutes);
 
 app.get('/api', (req, res) => {
     res.json({
@@ -103,7 +105,8 @@ app.get('/api', (req, res) => {
             invoices: '/api/invoices',
             payment: '/api/payment',
             ai: '/api/ai',
-            clients: '/api/clients'
+            clients: '/api/clients',
+            leads: '/api/leads'
         }
     });
 });

@@ -25,6 +25,7 @@ const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const LaunchCenter = lazy(() => import('./pages/LaunchCenter'));
 const ClientFinder = lazy(() => import('./pages/ClientFinder'));
+const LeadPipeline = lazy(() => import('./pages/LeadPipeline'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 const Payment = lazy(() => import('./pages/Payment'));
@@ -108,6 +109,7 @@ const appRoutePrefixes = [
   '/dashboard',
   '/invoice/',
   '/launch',
+  '/leads',
   '/login',
   '/payment',
   '/public/invoice',
@@ -298,6 +300,17 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <ClientFinder />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/leads"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <LeadPipeline />
               </Suspense>
             </PrivateRoute>
           }
