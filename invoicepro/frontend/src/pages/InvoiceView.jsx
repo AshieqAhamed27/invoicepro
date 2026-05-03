@@ -9,8 +9,6 @@ import BrandLogo from '../components/BrandLogo';
 import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_LOGO } from '../utils/company';
 import { trackEvent } from '../utils/analytics';
 import QRCode from 'react-qr-code';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
 const formatCurrency = (amount, currency = 'INR') => {
   const symbol = currency === 'USD' ? 'USD ' : 'Rs ';
@@ -261,6 +259,10 @@ export default function InvoiceView() {
     try {
       setDownloadingPdf(true);
 
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+        import('jspdf'),
+        import('jspdf-autotable')
+      ]);
       const doc = new jsPDF('p', 'pt', 'a4');
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();

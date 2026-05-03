@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -12,9 +12,6 @@ import api from './utils/api';
 import { getWhatsAppShareUrl } from './utils/whatsapp';
 import { trackPageView } from './utils/analytics';
 import ScrollAnimator from './components/ScrollAnimator';
-import InvoiceGenerator from './pages/InvoiceGenerator';
-import HowToCreateInvoiceIndia from './pages/blog/HowToCreateInvoiceIndia';
-import GSTInvoiceFormatIndia from './pages/blog/GSTInvoiceFormatIndia';
 
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/Home'));
@@ -37,6 +34,9 @@ const Clients = lazy(() => import('./pages/Clients'));
 const Recurring = lazy(() => import('./pages/Recurring'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const SEOPage = lazy(() => import('./pages/SEOPage'));
+const InvoiceGenerator = lazy(() => import('./pages/InvoiceGenerator'));
+const HowToCreateInvoiceIndia = lazy(() => import('./pages/blog/HowToCreateInvoiceIndia'));
+const GSTInvoiceFormatIndia = lazy(() => import('./pages/blog/GSTInvoiceFormatIndia'));
 
 // Loader
 const RouteLoader = () => (
@@ -377,9 +377,30 @@ export default function App() {
             </Suspense>
           }
         />
-        <Route path="/invoice-generator" element={<InvoiceGenerator />} />
-        <Route path="/blog/how-to-create-invoice-india" element={<HowToCreateInvoiceIndia />} />
-        <Route path="/blog/gst-invoice-format-india" element={<GSTInvoiceFormatIndia />} />
+        <Route
+          path="/invoice-generator"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <InvoiceGenerator />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/blog/how-to-create-invoice-india"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <HowToCreateInvoiceIndia />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/blog/gst-invoice-format-india"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <GSTInvoiceFormatIndia />
+            </Suspense>
+          }
+        />
         <Route
           path="/gst-invoice-generator"
           element={
