@@ -220,6 +220,17 @@ export default function InvoiceView() {
   const upiLink = !meta.isProposal && finalUpi
     ? `upi://pay?pa=${finalUpi}&pn=${encodeURIComponent(companyName)}&am=${invoice.amount}&cu=INR`
     : '';
+  const canCollectPayment = !meta.isProposal && meta.status !== 'paid';
+  const publicActionLabel = meta.isProposal
+    ? 'Open Proposal'
+    : canCollectPayment
+      ? 'Pay Now'
+      : 'Open Receipt';
+  const publicQrLabel = meta.isProposal
+    ? 'Proposal QR'
+    : canCollectPayment
+      ? 'Payment QR'
+      : 'Receipt QR';
 
   const statusClass = !meta.isProposal
     ? meta.status === 'paid'
@@ -620,6 +631,72 @@ export default function InvoiceView() {
               <p className="mt-2 truncate text-sm font-black text-white">{item.value}</p>
             </div>
           ))}
+        </section>
+
+        <section className="reveal reveal-delay-1 mb-10 rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-2xl shadow-black/10 sm:p-6 print:hidden">
+          <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_150px] md:items-center">
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-400">
+                Client Payment
+              </p>
+              <h2 className="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl">
+                {canCollectPayment ? 'Pay now link and QR code' : meta.isProposal ? 'Client review link and QR code' : 'Receipt link and QR code'}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                {canCollectPayment
+                  ? 'Share this link with your client or scan the QR on mobile to open the secure payment page.'
+                  : meta.isProposal
+                    ? 'Share this public proposal link with your client for review and approval.'
+                    : 'This invoice is already paid. Use the public link to view or share the receipt.'}
+              </p>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
+                <a
+                  href={publicDocumentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    if (canCollectPayment) {
+                      trackEvent('begin_invoice_payment', {
+                        method: 'public_link',
+                        location: 'invoice_view_mobile_panel',
+                        value: total,
+                        currency: invoice.currency || 'INR'
+                      });
+                    }
+                  }}
+                  className="btn btn-primary justify-center px-6 py-3 text-center"
+                >
+                  {publicActionLabel}
+                </a>
+
+                <button
+                  type="button"
+                  onClick={sharePublicLink}
+                  className="btn btn-secondary justify-center px-6 py-3"
+                >
+                  Share Link
+                </button>
+
+                {canCollectPayment && (
+                  <button
+                    type="button"
+                    onClick={shareWhatsAppReminder}
+                    className="rounded-xl border border-emerald-400/15 bg-emerald-400/10 px-6 py-3 text-xs font-black uppercase tracking-widest text-emerald-300 transition-all hover:bg-emerald-400/15 hover:text-emerald-200"
+                  >
+                    WhatsApp
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="mx-auto w-full max-w-[150px] rounded-2xl border border-white/10 bg-white p-3 text-center shadow-xl shadow-black/20 md:ml-auto md:mr-0">
+              <QRCode value={publicDocumentUrl} size={124} className="h-auto w-full" />
+              <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                {publicQrLabel}
+              </p>
+            </div>
+          </div>
         </section>
 
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-10">
