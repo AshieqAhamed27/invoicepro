@@ -837,7 +837,14 @@ const buildClientFinderFallback = (context = {}) => {
     const price = roundPrice(toMoneyNumber(context.projectPrice) || category.price);
     const starterPrice = roundPrice(price * 0.65);
     const premiumPrice = roundPrice(price * 1.6);
-    const firstNiche = category.niches[0] || targetMarket;
+    const targetSegments = Array.from(new Set([
+            targetMarket,
+            ...category.niches
+        ]
+        .map((item) => compactText(item))
+        .filter(Boolean)))
+        .slice(0, 5);
+    const firstNiche = targetSegments[0] || targetMarket || category.niches[0];
 
     return {
         positioning: `${service} for ${targetMarket} who want ${category.pain.toLowerCase()}`,
@@ -853,7 +860,7 @@ const buildClientFinderFallback = (context = {}) => {
                 'InvoicePro proposal and payment link'
             ]
         },
-        targetClients: category.niches.slice(0, 5).map((niche, index) => ({
+        targetClients: targetSegments.map((niche, index) => ({
             segment: `${toTitleCase(niche)} in ${location}`,
             problem: category.pain,
             offerAngle: index % 2 === 0 ?
@@ -1310,6 +1317,7 @@ const callOpenAiClientFinder = ({ context, fallback }) => new Promise((resolve, 
         'You are InvoicePro AI, an ethical client acquisition coach for freelancers and small agencies.',
         'Return only valid JSON. No markdown, no explanation.',
         'Do not invent real private contact details. Do not recommend spam. Suggest niches, search queries, outreach copy, offers, and a proposal draft.',
+        'Prioritize the user supplied targetMarket and location exactly. Do not replace them with unrelated client categories.',
         'JSON shape: positioning, bestNiche, starterOffer{title,price,promise,deliverables[]}, targetClients[{segment,problem,offerAngle,whereToFind}], leadSearches[{platform,query}], outreachMessages[{channel,text}], packages[{name,price,scope}], weeklyPlan[], growthSystem{headline,pipeline[{stage,goal,action}]}, idealClientSignals[], redFlags[], discoveryQuestions[], qualificationScorecard[{criterion,strongSignal,weakSignal}], objectionHandlers[{objection,response}], proposalToInvoicePath[], proposalDraft{documentType,clientName,clientEmail,serviceDescription,items,cgst,sgst,validUntil,notes}, guardrails[].',
         'Use practical Indian freelancer context. Keep prices as INR numbers. The proposalDraft must be ready for InvoicePro.',
         `User context: ${JSON.stringify(context)}`,

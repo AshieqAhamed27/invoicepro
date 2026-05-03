@@ -19,15 +19,11 @@ const defaultForm = {
   experienceLevel: 'intermediate'
 };
 
-const defaultClientContext = {
-  service: 'website development, landing pages, and payment setup',
-  skills: 'React websites, mobile responsive landing pages, SEO basics, payment links, and invoice setup',
-  targetMarket: 'small businesses and local service providers',
-  location: 'Tamil Nadu, India',
-  goal: 'get 3 paying clients this month',
-  projectPrice: '15000',
-  experienceLevel: 'intermediate'
-};
+const requiredProfileFields = [
+  { key: 'service', label: 'service' },
+  { key: 'targetMarket', label: 'target client' },
+  { key: 'location', label: 'location' }
+];
 
 const defaultLeadForm = {
   businessName: '',
@@ -88,28 +84,29 @@ const getLeadSearchUrl = (platform = '', query = '') => {
   return `https://www.google.com/search?q=${encoded}`;
 };
 
-const getEffectiveClientContext = (value = {}) => {
-  const hasAnyInput = Object.entries(value)
-    .filter(([key]) => key !== 'experienceLevel')
-    .some(([, fieldValue]) => String(fieldValue || '').trim());
-
-  if (!hasAnyInput) return defaultClientContext;
-
+const getClientContext = (value = {}) => {
   return {
-    ...defaultClientContext,
-    ...Object.fromEntries(
-      Object.entries(value).map(([key, fieldValue]) => [
-        key,
-        String(fieldValue || '').trim() || defaultClientContext[key] || ''
-      ])
-    )
+    service: String(value.service || '').trim(),
+    skills: String(value.skills || '').trim(),
+    targetMarket: String(value.targetMarket || '').trim(),
+    location: String(value.location || '').trim(),
+    goal: String(value.goal || '').trim(),
+    projectPrice: String(value.projectPrice || '').trim(),
+    experienceLevel: String(value.experienceLevel || 'intermediate').trim() || 'intermediate'
   };
 };
 
-const getRealLeadSources = (context = defaultClientContext, plan = null) => {
-  const niche = plan?.bestNiche || context.targetMarket || defaultClientContext.targetMarket;
-  const location = context.location || defaultClientContext.location;
-  const service = context.service || defaultClientContext.service;
+const getMissingProfileFields = (context = {}) =>
+  requiredProfileFields
+    .filter((field) => !String(context[field.key] || '').trim())
+    .map((field) => field.label);
+
+const getRealLeadSources = (context = {}, plan = null) => {
+  const niche = plan?.bestNiche || context.targetMarket;
+  const location = context.location;
+  const service = context.service;
+
+  if (!niche || !location || !service) return [];
 
   return [
     {
@@ -287,6 +284,7 @@ export default function ClientFinder() {
   const [savedLeads, setSavedLeads] = useState(loadSavedLeads);
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
 
   useDocumentMeta(
     'AI Client Finder for Freelancers | InvoicePro',
@@ -317,15 +315,22 @@ export default function ClientFinder() {
 
   const generatePlan = async (event) => {
     event.preventDefault();
-    const context = getEffectiveClientContext(form);
+    const context = getClientContext(form);
+    const missingFields = getMissingProfileFields(context);
+
+    if (missingFields.length) {
+      setFormError(`Fill ${missingFields.join(', ')} before generating the client plan.`);
+      setPlan(null);
+      return;
+    }
 
     try {
       setLoading(true);
+      setFormError('');
       const res = await api.post('/ai/client-finder', {
         context
       });
 
-      setForm(context);
       setPlan(res.data?.plan || null);
       trackEvent('generate_client_finder_plan', {
         source: res.data?.source || 'unknown',
@@ -351,7 +356,7 @@ export default function ClientFinder() {
   };
 
   const leadFit = plan ? getLeadFit(leadForm, plan, form) : null;
-  const effectiveContext = getEffectiveClientContext(form);
+  const effectiveContext = getClientContext(form);
   const realLeadSources = getRealLeadSources(effectiveContext, plan);
 
   const saveLead = () => {
@@ -447,17 +452,20 @@ export default function ClientFinder() {
           </div>
         </section>
 
-        <div className="grid gap-8 xl:grid-cols-[420px_minmax(0,1fr)]">
-          <form onSubmit={generatePlan} className="reveal reveal-delay-1 h-fit rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7 xl:sticky xl:top-28">
+        <div className={plan ? 'grid gap-8' : 'grid gap-8 xl:grid-cols-[420px_minmax(0,1fr)]'}>
+          <form
+            onSubmit={generatePlan}
+            className={`reveal reveal-delay-1 h-fit rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7 ${plan ? '' : 'xl:sticky xl:top-28'}`}
+          >
             <div className="mb-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Freelancer Profile</p>
               <h2 className="mt-2 text-2xl font-black text-white">Tell AI what you sell</h2>
               <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
-                You can leave this empty. InvoicePro will start with a website/payment setup niche and real search links.
+                Fill service, target client, and location so the AI suggests correct client types and searches.
               </p>
             </div>
 
-            <div className="grid gap-4">
+            <div className={plan ? 'grid gap-4 md:grid-cols-2 xl:grid-cols-3' : 'grid gap-4'}>
               <label className="grid gap-2">
                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Service</span>
                 <input
@@ -479,7 +487,7 @@ export default function ClientFinder() {
                 />
               </label>
 
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2 xl:grid-cols-1'}>
                 <label className="grid gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Target Market</span>
                   <input
@@ -501,7 +509,7 @@ export default function ClientFinder() {
                 </label>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2 xl:grid-cols-1'}>
                 <label className="grid gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Project Price</span>
                   <input
@@ -540,6 +548,12 @@ export default function ClientFinder() {
               </label>
             </div>
 
+            {formError && (
+              <div className="mt-5 rounded-2xl border border-red-400/20 bg-red-400/10 p-4">
+                <p className="text-xs font-bold leading-relaxed text-red-200">{formError}</p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
@@ -562,38 +576,48 @@ export default function ClientFinder() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
                   </div>
-                  <h2 className="text-2xl font-black text-white">Generate a client plan without filling anything.</h2>
+                  <h2 className="text-2xl font-black text-white">Fill the required profile first.</h2>
                   <p className="mx-auto mt-3 max-w-xl text-sm font-semibold leading-relaxed text-zinc-500">
-                    Click Generate Client Plan and InvoicePro will start with a practical freelancer niche, outreach copy, packages, and real lead search links.
+                    Add your service, target client, and location. Then AI can generate the right client plan instead of guessing wrong prospects.
                   </p>
-                </div>
-
-                <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-6 sm:p-8">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Real Client Searches</p>
-                  <h3 className="mt-2 text-2xl font-black text-white">Open real public places to find prospects.</h3>
-                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
-                    These links open real search results. Save only businesses you personally verify.
-                  </p>
-
-                  <div className="mt-5 grid gap-3 md:grid-cols-2">
-                    {realLeadSources.map((source) => (
-                      <div key={`${source.platform}-${source.query}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{source.platform}</p>
-                        <p className="mt-2 break-words text-sm font-black text-white">{source.query}</p>
-                        <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{source.note}</p>
-                        <a
-                          href={getLeadSearchUrl(source.platform, source.query)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`${actionLinkClass} mt-4`}
-                          onClick={() => trackEvent('open_default_real_lead_search', { platform: source.platform })}
-                        >
-                          Open Real Search
-                        </a>
+                  <div className="mx-auto mt-6 grid max-w-2xl gap-3 sm:grid-cols-3">
+                    {requiredProfileFields.map((field) => (
+                      <div key={field.key} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Required</p>
+                        <p className="mt-2 text-sm font-black capitalize text-white">{field.label}</p>
                       </div>
                     ))}
                   </div>
                 </div>
+
+                {realLeadSources.length > 0 && (
+                  <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-6 sm:p-8">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Real Client Searches</p>
+                    <h3 className="mt-2 text-2xl font-black text-white">Open real public places to find prospects.</h3>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
+                      These links open real search results. Save only businesses you personally verify.
+                    </p>
+
+                    <div className="mt-5 grid gap-3 md:grid-cols-2">
+                      {realLeadSources.map((source) => (
+                        <div key={`${source.platform}-${source.query}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{source.platform}</p>
+                          <p className="mt-2 break-words text-sm font-black text-white">{source.query}</p>
+                          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{source.note}</p>
+                          <a
+                            href={getLeadSearchUrl(source.platform, source.query)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`${actionLinkClass} mt-4`}
+                            onClick={() => trackEvent('open_default_real_lead_search', { platform: source.platform })}
+                          >
+                            Open Real Search
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-6">
