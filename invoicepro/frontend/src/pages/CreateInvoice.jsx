@@ -50,6 +50,7 @@ export default function CreateInvoice() {
   const [loading, setLoading] = useState(false);
   const [aiWriting, setAiWriting] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
+  const [sourceLeadId, setSourceLeadId] = useState('');
   const [recurring, setRecurring] = useState({
     enabled: false,
     frequency: 'monthly',
@@ -209,6 +210,7 @@ export default function CreateInvoice() {
     if (!draft) return;
 
     const nextDocumentType = draft.documentType === 'proposal' ? 'proposal' : 'invoice';
+    setSourceLeadId(draft.sourceLeadId || '');
     const nextItems = Array.isArray(draft.items)
       ? draft.items
           .map((item) => ({
@@ -300,6 +302,7 @@ export default function CreateInvoice() {
         ...form,
         documentType,
         upiId: finalUpi,
+        sourceLeadId,
         items,
         amount: total,
         recurring: isProposal ? { enabled: false } : recurring

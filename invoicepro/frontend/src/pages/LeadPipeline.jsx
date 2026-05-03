@@ -93,6 +93,7 @@ const buildProposalDraft = (lead = {}) => {
 
   return {
     documentType: 'proposal',
+    sourceLeadId: lead._id || '',
     clientName: lead.businessName || lead.contactName || '',
     clientEmail: lead.email || '',
     serviceDescription: [

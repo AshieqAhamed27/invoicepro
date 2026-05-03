@@ -242,6 +242,7 @@ const buildLeadOutreach = (lead, plan, form) => {
 const buildLeadProposalDraft = (lead, plan) => ({
   ...(plan?.proposalDraft || {}),
   documentType: 'proposal',
+  sourceLeadId: lead?._id || '',
   clientName: lead?.businessName || lead?.contactName || plan?.proposalDraft?.clientName || '',
   clientEmail: lead?.email || plan?.proposalDraft?.clientEmail || '',
   serviceDescription: [

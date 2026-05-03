@@ -159,6 +159,12 @@ const invoiceSchema = new mongoose.Schema({
         default: null
     },
 
+    sourceLeadId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Lead',
+        default: null
+    },
+
     // ✅ FIXED STATUS SYSTEM
     status: {
         type: String,
@@ -199,5 +205,6 @@ const invoiceSchema = new mongoose.Schema({
 invoiceSchema.index({ user: 1, createdAt: -1 });
 invoiceSchema.index({ user: 1, status: 1 });
 invoiceSchema.index({ user: 1, documentType: 1, createdAt: -1 });
+invoiceSchema.index({ user: 1, sourceLeadId: 1 });
 
 module.exports = mongoose.model('Invoice', invoiceSchema);

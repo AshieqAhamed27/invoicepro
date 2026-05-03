@@ -2,6 +2,7 @@ const express = require('express');
 const Invoice = require('../models/Invoice');
 const RecurringInvoice = require('../models/RecurringInvoice');
 const User = require('../models/User');
+const Lead = require('../models/Lead');
 const { protect } = require('../middleware/auth');
 const {
     addDays,
@@ -25,6 +26,31 @@ const DEFAULT_COMPANY_NAME = 'InvoicePro Billing Technologies';
 const isProposalDocument = (value) => String(value || 'invoice').toLowerCase() === 'proposal';
 
 const isPaidPlan = (user) => user?.plan && user.plan !== 'free';
+
+const getValidSourceLead = async(sourceLeadId, userId) => {
+    if (!isValidObjectId(sourceLeadId)) return null;
+
+    return Lead.findOne({
+        _id: sourceLeadId,
+        user: userId
+    });
+};
+
+const markProposalLeadWon = async(proposal) => {
+    if (!proposal?.sourceLeadId) return null;
+
+    return Lead.findOneAndUpdate(
+        {
+            _id: proposal.sourceLeadId,
+            user: proposal.user?._id || proposal.user
+        },
+        {
+            status: 'won',
+            nextFollowUpAt: null
+        },
+        { new: true }
+    );
+};
 
 const buildBusinessSnapshot = (user, details = {}) => ({
     name: user.companyName || DEFAULT_COMPANY_NAME,
@@ -202,9 +228,11 @@ router.post('/public/:id/accept', async(req, res) => {
         }
 
         if (proposal.proposalStatus === 'accepted') {
+            const sourceLead = await markProposalLeadWon(proposal);
             return res.json({
                 message: 'Proposal already accepted.',
-                proposal
+                proposal,
+                lead: sourceLead
             });
         }
 
@@ -222,9 +250,12 @@ router.post('/public/:id/accept', async(req, res) => {
         proposal.proposalRejectedAt = null;
         await proposal.save();
 
+        const sourceLead = await markProposalLeadWon(proposal);
+
         res.json({
             message: 'Proposal accepted successfully.',
-            proposal
+            proposal,
+            lead: sourceLead
         });
     } catch (err) {
         console.error('PUBLIC PROPOSAL ACCEPT ERROR:', err);
@@ -278,6 +309,7 @@ router.post('/', protect, async(req, res) => {
             cgst,
             sgst,
             upiId,
+            sourceLeadId,
             recurring
         } = req.body;
 
@@ -289,6 +321,7 @@ router.post('/', protect, async(req, res) => {
 
         const normalizedDocumentType = isProposalDocument(documentType) ? 'proposal' : 'invoice';
         const finalUpiId = normalizedDocumentType === 'invoice' ? (upiId || user.upiId || '') : '';
+        const sourceLead = await getValidSourceLead(sourceLeadId, user._id);
 
         if (normalizedDocumentType === 'invoice' && recurring?.enabled && !isPaidPlan(user)) {
             return res.status(403).json({
@@ -323,11 +356,18 @@ router.post('/', protect, async(req, res) => {
             invoiceNumber,
             user: user._id,
             proposalStatus: normalizedDocumentType === 'proposal' ? 'sent' : null,
+            sourceLeadId: sourceLead?._id || null,
 
             // ✅ FIXED STATUS SYSTEM
             status: 'pending',
             paidAt: null
         });
+
+        if (sourceLead && normalizedDocumentType === 'proposal') {
+            sourceLead.status = 'proposal_sent';
+            sourceLead.lastContactedAt = sourceLead.lastContactedAt || new Date();
+            await sourceLead.save();
+        }
 
         let recurringInvoice = null;
         let recurringError = null;
@@ -499,7 +539,8 @@ router.post('/:id/convert', protect, async(req, res) => {
             user: req.user._id,
             status: 'pending',
             paidAt: null,
-            sourceProposalId: proposal._id
+            sourceProposalId: proposal._id,
+            sourceLeadId: proposal.sourceLeadId || null
         });
 
         proposal.convertedToInvoiceId = invoice._id;
