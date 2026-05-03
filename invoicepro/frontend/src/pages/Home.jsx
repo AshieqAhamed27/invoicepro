@@ -76,6 +76,44 @@ const workflow = [
   }
 ];
 
+const demoFlow = [
+  {
+    step: '01',
+    title: 'Find client',
+    label: 'AI Fit 86',
+    description: 'AI turns your skill into a target niche and shows who is most likely to need your service.',
+    metric: 'Example: local businesses needing invoice setup, website fixes, and payment links'
+  },
+  {
+    step: '02',
+    title: 'Send proposal',
+    label: 'Pitch ready',
+    description: 'InvoicePro prepares a clear offer, outreach message, discovery questions, and next-step CTA.',
+    metric: 'Proposal package: starter website cleanup + billing setup'
+  },
+  {
+    step: '03',
+    title: 'Create invoice',
+    label: 'INV-0007',
+    description: 'When the client accepts, convert the work into an itemized invoice with tax and due date.',
+    metric: 'Invoice total: Rs 14,999 with payment terms'
+  },
+  {
+    step: '04',
+    title: 'Share payment link',
+    label: 'Razorpay ready',
+    description: 'Create a payable invoice link and share it through WhatsApp, email, or the public invoice page.',
+    metric: 'Payment route: Razorpay checkout + UPI-friendly invoice'
+  },
+  {
+    step: '05',
+    title: 'Track payment',
+    label: 'Paid',
+    description: 'The dashboard shows paid, pending, and overdue work so revenue follow-up stays organized.',
+    metric: 'Next action: save client and schedule repeat billing'
+  }
+];
+
 const proofBlocks = [
   {
     title: 'Not just invoicing',
@@ -402,6 +440,113 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="scroll-reveal border-y border-white/5 bg-zinc-950/70 py-16 sm:py-20">
+          <div className="container-custom">
+            <div className="mb-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Client to cash demo</p>
+                <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+                  See how one lead becomes a paid invoice.
+                </h2>
+              </div>
+              <p className="max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base lg:ml-auto">
+                This is the money flow InvoicePro should make obvious to every visitor:
+                find a useful client, send a strong proposal, create a professional invoice,
+                share a Razorpay payment link, and track the payment status.
+              </p>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+              <div className="grid gap-4">
+                {demoFlow.map((item) => (
+                  <div
+                    key={item.title}
+                    className="group rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/20 hover:bg-white/[0.05] sm:p-6"
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="flex gap-4">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-sm font-black text-emerald-200">
+                          {item.step}
+                        </span>
+                        <div>
+                          <h3 className="text-xl font-black text-white">{item.title}</h3>
+                          <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="w-fit rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-yellow-200">
+                        {item.label}
+                      </span>
+                    </div>
+                    <div className="mt-5 rounded-2xl border border-white/8 bg-black/25 px-4 py-3">
+                      <p className="text-xs font-bold leading-relaxed text-zinc-300">{item.metric}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <aside className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/10 p-5 shadow-2xl shadow-black/20 sm:p-6 lg:sticky lg:top-24">
+                <div className="rounded-[1.5rem] border border-white/8 bg-zinc-950/90 p-5 sm:p-6">
+                  <div className="flex items-start justify-between gap-4 border-b border-white/8 pb-5">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Demo deal</p>
+                      <h3 className="mt-2 text-2xl font-black text-white">Website care + billing setup</h3>
+                    </div>
+                    <span className="rounded-full bg-emerald-400 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-black">
+                      Paid
+                    </span>
+                  </div>
+
+                  <div className="mt-5 grid gap-3">
+                    {[
+                      ['Client', 'Local service business'],
+                      ['Lead source', 'AI client finder'],
+                      ['Proposal', 'Accepted'],
+                      ['Invoice', 'INV-0007'],
+                      ['Amount', 'Rs 14,999'],
+                      ['Collection', 'Razorpay link shared']
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{label}</p>
+                        <p className="text-right text-sm font-black text-white">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 rounded-2xl border border-yellow-400/15 bg-yellow-400/10 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-300">Why this converts</p>
+                    <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-300">
+                      Visitors do not just see invoice software. They see a complete path from finding a client to collecting payment.
+                    </p>
+                  </div>
+
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                    <button
+                      onClick={() => {
+                        trackCtaClick('demo_client_finder', 'home_demo_flow', loggedIn ? '/client-finder' : '/signup');
+                        navigate(loggedIn ? '/client-finder' : '/signup');
+                      }}
+                      className="rounded-2xl bg-emerald-400 px-5 py-4 text-sm font-black text-black transition-all hover:bg-emerald-300 active:scale-95"
+                    >
+                      Try Client Finder
+                    </button>
+                    <button
+                      onClick={() => {
+                        trackCtaClick('demo_create_invoice', 'home_demo_flow', loggedIn ? '/create-invoice' : '/signup');
+                        navigate(loggedIn ? '/create-invoice' : '/signup');
+                      }}
+                      className="rounded-2xl border border-white/10 bg-zinc-900 px-5 py-4 text-sm font-black text-white transition-all hover:bg-zinc-800 active:scale-95"
+                    >
+                      Create Invoice
+                    </button>
+                  </div>
+                </div>
+              </aside>
             </div>
           </div>
         </section>
