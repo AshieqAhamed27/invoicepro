@@ -19,6 +19,16 @@ const defaultForm = {
   experienceLevel: 'intermediate'
 };
 
+const defaultClientContext = {
+  service: 'website development, landing pages, and payment setup',
+  skills: 'React websites, mobile responsive landing pages, SEO basics, payment links, and invoice setup',
+  targetMarket: 'small businesses and local service providers',
+  location: 'Tamil Nadu, India',
+  goal: 'get 3 paying clients this month',
+  projectPrice: '15000',
+  experienceLevel: 'intermediate'
+};
+
 const defaultLeadForm = {
   businessName: '',
   contactName: '',
@@ -76,6 +86,53 @@ const getLeadSearchUrl = (platform = '', query = '') => {
   }
 
   return `https://www.google.com/search?q=${encoded}`;
+};
+
+const getEffectiveClientContext = (value = {}) => {
+  const hasAnyInput = Object.entries(value)
+    .filter(([key]) => key !== 'experienceLevel')
+    .some(([, fieldValue]) => String(fieldValue || '').trim());
+
+  if (!hasAnyInput) return defaultClientContext;
+
+  return {
+    ...defaultClientContext,
+    ...Object.fromEntries(
+      Object.entries(value).map(([key, fieldValue]) => [
+        key,
+        String(fieldValue || '').trim() || defaultClientContext[key] || ''
+      ])
+    )
+  };
+};
+
+const getRealLeadSources = (context = defaultClientContext, plan = null) => {
+  const niche = plan?.bestNiche || context.targetMarket || defaultClientContext.targetMarket;
+  const location = context.location || defaultClientContext.location;
+  const service = context.service || defaultClientContext.service;
+
+  return [
+    {
+      platform: 'Google Maps',
+      query: `${niche} near ${location}`,
+      note: 'Find active local businesses, call numbers, websites, and directions.'
+    },
+    {
+      platform: 'LinkedIn',
+      query: `${niche} owner founder ${location}`,
+      note: 'Find decision makers and company pages to message professionally.'
+    },
+    {
+      platform: 'Instagram',
+      query: `${niche} ${location}`,
+      note: 'Find businesses already posting but needing better enquiry flow.'
+    },
+    {
+      platform: 'Google',
+      query: `${niche} ${location} ${service} contact`,
+      note: 'Find websites with contact pages and visible business problems.'
+    }
+  ];
 };
 
 const loadSavedLeads = () => {
@@ -260,17 +317,19 @@ export default function ClientFinder() {
 
   const generatePlan = async (event) => {
     event.preventDefault();
+    const context = getEffectiveClientContext(form);
 
     try {
       setLoading(true);
       const res = await api.post('/ai/client-finder', {
-        context: form
+        context
       });
 
+      setForm(context);
       setPlan(res.data?.plan || null);
       trackEvent('generate_client_finder_plan', {
         source: res.data?.source || 'unknown',
-        service: form.service || 'not_set'
+        service: context.service || 'not_set'
       });
     } catch (err) {
       alert(err.response?.data?.message || 'AI client finder failed. Please retry.');
@@ -292,6 +351,8 @@ export default function ClientFinder() {
   };
 
   const leadFit = plan ? getLeadFit(leadForm, plan, form) : null;
+  const effectiveContext = getEffectiveClientContext(form);
+  const realLeadSources = getRealLeadSources(effectiveContext, plan);
 
   const saveLead = () => {
     if (!leadForm.businessName.trim() && !leadForm.email.trim()) {
@@ -391,6 +452,9 @@ export default function ClientFinder() {
             <div className="mb-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Freelancer Profile</p>
               <h2 className="mt-2 text-2xl font-black text-white">Tell AI what you sell</h2>
+              <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+                You can leave this empty. InvoicePro will start with a website/payment setup niche and real search links.
+              </p>
             </div>
 
             <div className="grid gap-4">
@@ -485,22 +549,51 @@ export default function ClientFinder() {
             </button>
 
             <p className="mt-4 text-xs font-semibold leading-relaxed text-zinc-500">
-              This agent gives strategy and messages. It does not scrape private data or send spam automatically.
+              No fake clients are generated. The agent gives a plan and opens real public searches where you save actual prospects.
             </p>
           </form>
 
           <section className="reveal reveal-delay-1 min-w-0">
             {!plan ? (
-              <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center sm:p-12">
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-yellow-400/20 bg-yellow-400/10">
-                  <svg className="h-8 w-8 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
+              <div className="space-y-6">
+                <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center sm:p-12">
+                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-yellow-400/20 bg-yellow-400/10">
+                    <svg className="h-8 w-8 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-black text-white">Generate a client plan without filling anything.</h2>
+                  <p className="mx-auto mt-3 max-w-xl text-sm font-semibold leading-relaxed text-zinc-500">
+                    Click Generate Client Plan and InvoicePro will start with a practical freelancer niche, outreach copy, packages, and real lead search links.
+                  </p>
                 </div>
-                <h2 className="text-2xl font-black text-white">Your client plan will appear here.</h2>
-                <p className="mx-auto mt-3 max-w-xl text-sm font-semibold leading-relaxed text-zinc-500">
-                  Fill your service details and the AI will create a niche plan, lead search terms, outreach copy, packages, and a proposal draft.
-                </p>
+
+                <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-6 sm:p-8">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Real Client Searches</p>
+                  <h3 className="mt-2 text-2xl font-black text-white">Open real public places to find prospects.</h3>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
+                    These links open real search results. Save only businesses you personally verify.
+                  </p>
+
+                  <div className="mt-5 grid gap-3 md:grid-cols-2">
+                    {realLeadSources.map((source) => (
+                      <div key={`${source.platform}-${source.query}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{source.platform}</p>
+                        <p className="mt-2 break-words text-sm font-black text-white">{source.query}</p>
+                        <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{source.note}</p>
+                        <a
+                          href={getLeadSearchUrl(source.platform, source.query)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${actionLinkClass} mt-4`}
+                          onClick={() => trackEvent('open_default_real_lead_search', { platform: source.platform })}
+                        >
+                          Open Real Search
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-6">
@@ -557,6 +650,37 @@ export default function ClientFinder() {
                 </div>
 
                 <div className="space-y-6">
+                  <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-6 sm:p-8">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Real Client Searches</p>
+                        <h3 className="mt-2 text-2xl font-black text-white">Find actual businesses, then save verified leads.</h3>
+                      </div>
+                      <p className="max-w-md text-xs font-semibold leading-relaxed text-zinc-500">
+                        InvoicePro opens public search pages. It does not invent names, scrape private data, or auto-message people.
+                      </p>
+                    </div>
+
+                    <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                      {realLeadSources.map((source) => (
+                        <div key={`${source.platform}-${source.query}`} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{source.platform}</p>
+                          <p className="mt-2 break-words text-sm font-black text-white">{source.query}</p>
+                          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{source.note}</p>
+                          <a
+                            href={getLeadSearchUrl(source.platform, source.query)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`${actionLinkClass} mt-auto`}
+                            onClick={() => trackEvent('open_real_lead_search', { platform: source.platform })}
+                          >
+                            Open Real Search
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-6 sm:p-8">
                     <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">AI Lead Fit Radar</p>
                     <h3 className="mt-2 text-2xl font-black text-white">Score a real prospect before pitching.</h3>
