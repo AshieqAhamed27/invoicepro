@@ -756,6 +756,322 @@ const normalizePriceSuggestion = (value, fallback) => {
     };
 };
 
+const toTitleCase = (value = '') =>
+    String(value || '')
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+const compactArray = (value, fallback = []) => {
+    const source = Array.isArray(value) && value.length ? value : fallback;
+    return source
+        .map((item) => {
+            if (typeof item === 'string') return compactText(item);
+            if (item && typeof item === 'object') return item;
+            return '';
+        })
+        .filter((item) => {
+            if (typeof item === 'string') return Boolean(item);
+            return item && Object.keys(item).length > 0;
+        });
+};
+
+const getClientFinderCategory = (serviceText) => {
+    const value = String(serviceText || '').toLowerCase();
+
+    if (/\b(website|web app|saas|mern|react|wordpress|shopify|software)\b/.test(value)) {
+        return {
+            label: 'Website and software services',
+            niches: ['local clinics', 'coaching centres', 'real estate agents', 'boutiques', 'small manufacturers'],
+            pain: 'They need a better online presence, enquiry flow, or payment-ready website.',
+            offer: 'Website audit plus a conversion-focused landing page or business website.',
+            price: 18000
+        };
+    }
+
+    if (/\b(social media|instagram|facebook|content|seo|marketing|ads)\b/.test(value)) {
+        return {
+            label: 'Digital marketing services',
+            niches: ['restaurants', 'salons', 'gyms', 'coaches', 'local stores'],
+            pain: 'They need more leads and consistent content without hiring a full team.',
+            offer: '30-day content and lead campaign with weekly reporting.',
+            price: 12000
+        };
+    }
+
+    if (/\b(video|editing|reel|youtube|motion)\b/.test(value)) {
+        return {
+            label: 'Video and content production',
+            niches: ['coaches', 'educators', 'real estate agents', 'fitness trainers', 'D2C brands'],
+            pain: 'They need short-form content that looks professional and posts consistently.',
+            offer: 'Monthly short-video editing package with hooks, captions, and thumbnails.',
+            price: 10000
+        };
+    }
+
+    if (/\b(design|logo|brand|ui|ux|figma)\b/.test(value)) {
+        return {
+            label: 'Design and branding services',
+            niches: ['new businesses', 'D2C sellers', 'cafes', 'consultants', 'app founders'],
+            pain: 'They need trust-building visuals before launching or selling.',
+            offer: 'Starter brand kit with logo, colors, social templates, and landing page direction.',
+            price: 15000
+        };
+    }
+
+    return {
+        label: 'Freelance professional service',
+        niches: ['local service businesses', 'consultants', 'small agencies', 'coaches', 'online sellers'],
+        pain: 'They need a specialist who can solve one business problem without a full-time hire.',
+        offer: 'Focused project package with clear deliverables, timeline, and payment milestones.',
+        price: 15000
+    };
+};
+
+const buildClientFinderFallback = (context = {}) => {
+    const service = compactText(context.service, 'freelance service');
+    const skills = compactText(context.skills, service);
+    const targetMarket = compactText(context.targetMarket, 'small businesses');
+    const location = compactText(context.location, 'India');
+    const goal = compactText(context.goal, 'get 3 paying clients this month');
+    const category = getClientFinderCategory(`${service} ${skills}`);
+    const price = roundPrice(toMoneyNumber(context.projectPrice) || category.price);
+    const starterPrice = roundPrice(price * 0.65);
+    const premiumPrice = roundPrice(price * 1.6);
+    const firstNiche = category.niches[0] || targetMarket;
+
+    return {
+        positioning: `${service} for ${targetMarket} who want ${category.pain.toLowerCase()}`,
+        bestNiche: firstNiche,
+        starterOffer: {
+            title: category.offer,
+            price,
+            promise: `Help ${firstNiche} improve enquiries, trust, or sales with a clear ${service} package.`,
+            deliverables: [
+                'Discovery call and problem audit',
+                'Clear scope with milestones',
+                'Delivery package with one review cycle',
+                'InvoicePro proposal and payment link'
+            ]
+        },
+        targetClients: category.niches.slice(0, 5).map((niche, index) => ({
+            segment: `${toTitleCase(niche)} in ${location}`,
+            problem: category.pain,
+            offerAngle: index % 2 === 0 ?
+                'Offer a quick audit and show one improvement they can make this week.' :
+                'Offer a fixed-price starter package so the client can decide quickly.',
+            whereToFind: ['Google Maps', 'LinkedIn', 'Instagram', 'local business directories'][index % 4]
+        })),
+        leadSearches: [{
+                platform: 'Google',
+                query: `${firstNiche} ${location} contact email`
+            },
+            {
+                platform: 'LinkedIn',
+                query: `${firstNiche} owner ${location}`
+            },
+            {
+                platform: 'Instagram',
+                query: `${firstNiche} ${location} business`
+            },
+            {
+                platform: 'Google Maps',
+                query: `${firstNiche} near ${location}`
+            }
+        ],
+        outreachMessages: [{
+                channel: 'LinkedIn',
+                text: `Hi, I help ${firstNiche} improve enquiries with ${service}. I noticed many businesses lose leads because their online flow is unclear. Would you like me to share 2 quick improvement ideas for your business?`
+            },
+            {
+                channel: 'WhatsApp',
+                text: `Hi, I am a freelancer helping ${firstNiche} with ${service}. I can do a quick audit and suggest how to improve enquiries or trust. Would you like me to share a simple idea?`
+            },
+            {
+                channel: 'Email',
+                text: `Subject: Quick idea for your business\n\nHi,\n\nI help ${firstNiche} with ${service}. I found a few simple improvements that could make your business look more trustworthy and get more enquiries.\n\nIf useful, I can share a short audit and a fixed-price package.\n\nRegards`
+            }
+        ],
+        packages: [{
+                name: 'Starter',
+                price: starterPrice,
+                scope: 'Small audit plus one focused improvement.'
+            },
+            {
+                name: 'Growth',
+                price,
+                scope: 'Recommended package with complete delivery and one review cycle.'
+            },
+            {
+                name: 'Premium',
+                price: premiumPrice,
+                scope: 'Higher-touch package with strategy, delivery, revisions, and handover.'
+            }
+        ],
+        weeklyPlan: [
+            'Day 1: Pick one niche and collect 20 possible leads from Google Maps, LinkedIn, or Instagram.',
+            'Day 2: Send 10 personalized messages with one useful observation for each client.',
+            'Day 3: Follow up with a short audit or sample idea for interested leads.',
+            'Day 4: Send an InvoicePro proposal with clear scope, timeline, and price.',
+            'Day 5: Follow up on proposals and offer a starter package for fast decision.',
+            'Day 6: Convert accepted proposal into invoice and collect advance payment.',
+            'Day 7: Review replies, update your best message, and repeat the strongest niche.'
+        ],
+        growthSystem: {
+            headline: `Turn ${service} into a repeatable client pipeline`,
+            pipeline: [{
+                    stage: 'Find',
+                    goal: `Collect 20 ${firstNiche} leads from ${location}`,
+                    action: 'Use the lead searches and save promising businesses before messaging.'
+                },
+                {
+                    stage: 'Qualify',
+                    goal: 'Score each lead before outreach',
+                    action: 'Prioritize leads with visible pain, active business activity, and a clear revenue reason.'
+                },
+                {
+                    stage: 'Pitch',
+                    goal: 'Start a useful conversation',
+                    action: 'Send one personalized observation and ask permission to share ideas.'
+                },
+                {
+                    stage: 'Propose',
+                    goal: 'Turn interested leads into a clear project',
+                    action: 'Send an InvoicePro proposal with scope, price, validity, and payment milestone.'
+                },
+                {
+                    stage: 'Invoice',
+                    goal: 'Collect advance or final payment',
+                    action: 'Convert accepted proposals into invoices and collect through Razorpay, UPI, or public link.'
+                }
+            ]
+        },
+        idealClientSignals: [
+            'Business is active online but the enquiry or booking flow is weak.',
+            'Owner is reachable and already spending effort on sales, content, or local visibility.',
+            'The problem connects to revenue, trust, time saved, or faster customer response.',
+            `They can afford a ${formatCurrency(price)} project without needing many approvals.`
+        ],
+        redFlags: [
+            'They ask for free complete work before a proposal.',
+            'They have no clear owner, decision maker, or response path.',
+            'They only compare the lowest price and ignore business outcome.',
+            'They avoid advance payment, written scope, or invoice terms.'
+        ],
+        discoveryQuestions: [
+            'What result would make this project worth paying for?',
+            'Where are you currently losing enquiries, trust, or sales?',
+            'Who will approve the work and payment?',
+            'What deadline or business event is making this important now?',
+            'Would you prefer a starter package or a complete growth package?'
+        ],
+        qualificationScorecard: [{
+                criterion: 'Pain is visible',
+                strongSignal: 'Their current online flow has obvious gaps.',
+                weakSignal: 'They only say they are browsing ideas.'
+            },
+            {
+                criterion: 'Can pay',
+                strongSignal: `Budget can support around ${formatCurrency(price)}.`,
+                weakSignal: 'They ask for heavy discount before seeing scope.'
+            },
+            {
+                criterion: 'Fast decision',
+                strongSignal: 'Owner or decision maker is directly involved.',
+                weakSignal: 'Many unclear approvals are needed.'
+            },
+            {
+                criterion: 'Repeat potential',
+                strongSignal: 'They may need monthly support after the first project.',
+                weakSignal: 'One tiny task with no follow-up value.'
+            }
+        ],
+        objectionHandlers: [{
+                objection: 'Your price is high.',
+                response: `I understand. The ${formatCurrency(price)} package is priced around the outcome and the full delivery scope. We can also start with the starter package if you want a smaller first step.`
+            },
+            {
+                objection: 'We will think and tell you later.',
+                response: 'Sure. To make the decision easier, I can send a short proposal with scope, timeline, and price valid for 7 days.'
+            },
+            {
+                objection: 'Can you show proof?',
+                response: 'I can share a small audit of your current flow and explain what I would improve first before you decide.'
+            }
+        ],
+        proposalToInvoicePath: [
+            'Save the interested lead as a client.',
+            'Generate a proposal from the client finder plan.',
+            'Send the public proposal link and collect approval.',
+            'Convert accepted proposal into an invoice.',
+            'Collect advance or final payment through the invoice payment link.'
+        ],
+        proposalDraft: {
+            documentType: 'proposal',
+            clientName: '',
+            clientEmail: '',
+            serviceDescription: `${category.offer} for ${toTitleCase(firstNiche)}. Includes discovery, delivery, review, and payment milestone through InvoicePro.`,
+            items: [{
+                name: category.offer,
+                price
+            }],
+            cgst: 0,
+            sgst: 0,
+            validUntil: getDateAfterDays(7),
+            notes: `Goal: ${goal}. Scope can be adjusted after the discovery call.`
+        },
+        guardrails: [
+            'Do not spam bulk messages. Personalize each outreach with one real observation.',
+            'Ask permission before sending repeated WhatsApp follow-ups.',
+            'Use InvoicePro proposal links only after the client shows interest.'
+        ]
+    };
+};
+
+const normalizeClientFinderPlan = (value, fallback) => {
+    const raw = value && typeof value === 'object' ? value : {};
+    const starterOffer = raw.starterOffer && typeof raw.starterOffer === 'object' ? raw.starterOffer : fallback.starterOffer;
+    const proposalDraft = raw.proposalDraft && typeof raw.proposalDraft === 'object' ? raw.proposalDraft : fallback.proposalDraft;
+    const growthSystem = raw.growthSystem && typeof raw.growthSystem === 'object' ? raw.growthSystem : fallback.growthSystem;
+
+    return {
+        positioning: compactText(raw.positioning, fallback.positioning),
+        bestNiche: compactText(raw.bestNiche, fallback.bestNiche),
+        starterOffer: {
+            title: compactText(starterOffer.title, fallback.starterOffer.title),
+            price: toMoneyNumber(starterOffer.price) || fallback.starterOffer.price,
+            promise: compactText(starterOffer.promise, fallback.starterOffer.promise),
+            deliverables: compactArray(starterOffer.deliverables, fallback.starterOffer.deliverables).slice(0, 6)
+        },
+        targetClients: compactArray(raw.targetClients, fallback.targetClients).slice(0, 6),
+        leadSearches: compactArray(raw.leadSearches, fallback.leadSearches).slice(0, 6),
+        outreachMessages: compactArray(raw.outreachMessages, fallback.outreachMessages).slice(0, 5),
+        packages: compactArray(raw.packages, fallback.packages).slice(0, 4),
+        weeklyPlan: compactArray(raw.weeklyPlan, fallback.weeklyPlan).slice(0, 8),
+        growthSystem: {
+            headline: compactText(growthSystem.headline, fallback.growthSystem.headline),
+            pipeline: compactArray(growthSystem.pipeline, fallback.growthSystem.pipeline).slice(0, 6)
+        },
+        idealClientSignals: compactArray(raw.idealClientSignals, fallback.idealClientSignals).slice(0, 6),
+        redFlags: compactArray(raw.redFlags, fallback.redFlags).slice(0, 6),
+        discoveryQuestions: compactArray(raw.discoveryQuestions, fallback.discoveryQuestions).slice(0, 7),
+        qualificationScorecard: compactArray(raw.qualificationScorecard, fallback.qualificationScorecard).slice(0, 6),
+        objectionHandlers: compactArray(raw.objectionHandlers, fallback.objectionHandlers).slice(0, 5),
+        proposalToInvoicePath: compactArray(raw.proposalToInvoicePath, fallback.proposalToInvoicePath).slice(0, 6),
+        proposalDraft: {
+            documentType: 'proposal',
+            clientName: compactText(proposalDraft.clientName, ''),
+            clientEmail: compactText(proposalDraft.clientEmail, '').toLowerCase(),
+            serviceDescription: compactText(proposalDraft.serviceDescription, fallback.proposalDraft.serviceDescription),
+            items: calculateTotals(Array.isArray(proposalDraft.items) ? proposalDraft.items : fallback.proposalDraft.items, 0, 0).items,
+            cgst: 0,
+            sgst: 0,
+            validUntil: toDateInput(proposalDraft.validUntil) || fallback.proposalDraft.validUntil,
+            notes: compactText(proposalDraft.notes, fallback.proposalDraft.notes)
+        },
+        guardrails: compactArray(raw.guardrails, fallback.guardrails).slice(0, 4)
+    };
+};
+
 const pickVariant = (seed, count) => {
     const text = String(seed || Date.now());
     let hash = 0;
@@ -984,6 +1300,77 @@ const callOpenAiPriceSuggestion = ({ context, fallback }) => new Promise((resolv
     request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
     request.write(payload);
     request.end();
+});
+
+const callOpenAiClientFinder = ({ context, fallback }) => new Promise((resolve, reject) => {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) return resolve(null);
+
+    const prompt = [
+        'You are InvoicePro AI, an ethical client acquisition coach for freelancers and small agencies.',
+        'Return only valid JSON. No markdown, no explanation.',
+        'Do not invent real private contact details. Do not recommend spam. Suggest niches, search queries, outreach copy, offers, and a proposal draft.',
+        'JSON shape: positioning, bestNiche, starterOffer{title,price,promise,deliverables[]}, targetClients[{segment,problem,offerAngle,whereToFind}], leadSearches[{platform,query}], outreachMessages[{channel,text}], packages[{name,price,scope}], weeklyPlan[], growthSystem{headline,pipeline[{stage,goal,action}]}, idealClientSignals[], redFlags[], discoveryQuestions[], qualificationScorecard[{criterion,strongSignal,weakSignal}], objectionHandlers[{objection,response}], proposalToInvoicePath[], proposalDraft{documentType,clientName,clientEmail,serviceDescription,items,cgst,sgst,validUntil,notes}, guardrails[].',
+        'Use practical Indian freelancer context. Keep prices as INR numbers. The proposalDraft must be ready for InvoicePro.',
+        `User context: ${JSON.stringify(context)}`,
+        `Rule fallback: ${JSON.stringify(fallback)}`
+    ].join('\n');
+
+    const payload = JSON.stringify({
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
+        input: prompt
+    });
+
+    const request = https.request({
+        hostname: 'api.openai.com',
+        path: '/v1/responses',
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload)
+        },
+        timeout: 14000
+    }, (response) => {
+        let raw = '';
+        response.on('data', (chunk) => { raw += chunk; });
+        response.on('end', () => {
+            try {
+                const body = raw ? JSON.parse(raw) : {};
+                if (response.statusCode < 200 || response.statusCode >= 300) {
+                    return reject(new Error(body?.error?.message || 'OpenAI request failed'));
+                }
+
+                resolve(extractJsonObject(extractOpenAiText(body)));
+            } catch (err) {
+                reject(err);
+            }
+        });
+    });
+
+    request.on('error', reject);
+    request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
+    request.write(payload);
+    request.end();
+});
+
+router.post('/client-finder', protect, async(req, res) => {
+    const context = req.body?.context || {};
+    const fallback = buildClientFinderFallback(context);
+
+    try {
+        const openAiPlan = await callOpenAiClientFinder({ context, fallback });
+        res.json({
+            source: openAiPlan ? 'openai' : 'rules',
+            plan: normalizeClientFinderPlan(openAiPlan, fallback)
+        });
+    } catch (err) {
+        console.error('AI CLIENT FINDER FALLBACK:', err.message);
+        res.json({
+            source: 'rules',
+            plan: fallback
+        });
+    }
 });
 
 router.post('/price-suggestion', protect, async(req, res) => {

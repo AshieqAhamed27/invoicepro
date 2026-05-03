@@ -62,6 +62,9 @@ export default function Navbar() {
               <NavLink to="/launch" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Launch
               </NavLink>
+              <NavLink to="/client-finder" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
+                Find Clients
+              </NavLink>
               <NavLink to="/clients" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Clients
               </NavLink>
@@ -142,6 +145,9 @@ export default function Navbar() {
                 </NavLink>
                 <NavLink to="/launch" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Launch Center
+                </NavLink>
+                <NavLink to="/client-finder" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
+                  Find Clients
                 </NavLink>
                 <NavLink to="/clients" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                   Clients

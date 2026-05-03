@@ -22,6 +22,10 @@ const trustSignals = [
     description: 'Spot overdue revenue, copy client reminders, and prioritize the invoices most likely to unlock cash.'
   },
   {
+    title: 'AI client finder',
+    description: 'Turn freelance skills into target niches, outreach messages, fixed packages, and proposal drafts.'
+  },
+  {
     title: 'WhatsApp-first reminders',
     description: 'Send payment follow-ups through WhatsApp links so you can start collecting without a paid email domain.'
   },
@@ -114,7 +118,7 @@ const plans = [
     price: 'Rs 499',
     suffix: '/ month',
     description: 'For consultants and solo operators who bill clients every month.',
-    features: ['Unlimited invoices', 'Razorpay and UPI collection flow', 'AI cashflow score and reminders'],
+    features: ['Unlimited invoices', 'Razorpay and UPI collection flow', 'AI client finder and reminders'],
     cta: 'Upgrade Monthly',
     featured: false,
     action: 'monthly'
@@ -124,7 +128,7 @@ const plans = [
     price: 'Rs 4,999',
     suffix: '/ year',
     description: 'For agencies and repeat-billing teams that want the lower effective monthly cost.',
-    features: ['Everything in Monthly', 'Recurring invoices', 'AI revenue coach and priority support'],
+    features: ['Everything in Monthly', 'Recurring invoices', 'AI growth coach and priority support'],
     cta: 'Save With Annual',
     featured: true,
     action: 'yearly'
@@ -214,7 +218,7 @@ export default function Home() {
 
               <p className="reveal reveal-delay-3 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
                 InvoicePro helps freelancers, agencies, and consultants send structured invoices,
-                collect through public payment links, and use AI revenue coaching to stay on top of repeat billing with fewer manual follow-ups.
+                find better client opportunities, collect through public payment links, and use AI revenue coaching to stay on top of repeat billing.
               </p>
               <p className="hidden">
                 InvoicePro is an invoice generator for freelancers and businesses in India.
@@ -232,8 +236,8 @@ export default function Home() {
                   <p className="mt-2 text-sm font-semibold text-white">Public invoice pages with totals and due dates</p>
                 </div>
                 <div className="premium-panel px-4 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">AI Coach</p>
-                  <p className="mt-2 text-sm font-semibold text-white">Cashflow score with ready-to-send reminders</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">AI Growth</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Client finder, proposal drafts, and reminders</p>
                 </div>
               </div>
 
@@ -273,6 +277,15 @@ export default function Home() {
                     className="btn btn-secondary w-full px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5 sm:w-auto"
                   >
                     {loggedIn ? 'Create Invoice' : 'See Pricing'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      trackCtaClick('open_client_finder', 'home_hero', loggedIn ? '/client-finder' : '/signup');
+                      navigate(loggedIn ? '/client-finder' : '/signup');
+                    }}
+                    className="btn btn-dark w-full px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5 sm:w-auto"
+                  >
+                    Find Clients
                   </button>
                 </div>
 

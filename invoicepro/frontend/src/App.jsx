@@ -24,6 +24,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const LaunchCenter = lazy(() => import('./pages/LaunchCenter'));
+const ClientFinder = lazy(() => import('./pages/ClientFinder'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 const Payment = lazy(() => import('./pages/Payment'));
@@ -101,6 +102,7 @@ const supportMessage = 'Hi I am interested in InvoicePro';
 const appRoutePrefixes = [
   '/admin',
   '/clients',
+  '/client-finder',
   '/contact',
   '/create-invoice',
   '/dashboard',
@@ -285,6 +287,17 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <LaunchCenter />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/client-finder"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <ClientFinder />
               </Suspense>
             </PrivateRoute>
           }

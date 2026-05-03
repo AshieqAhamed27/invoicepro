@@ -293,12 +293,18 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-3 md:flex md:flex-wrap md:gap-4">
+          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-4 md:flex md:flex-wrap md:gap-4">
             <Link
               to="/launch"
               className="btn btn-dark px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
             >
               Launch Center
+            </Link>
+            <Link
+              to="/client-finder"
+              className="btn btn-dark px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
+            >
+              Find Clients
             </Link>
             <Link
               to="/create-invoice?type=proposal"
@@ -354,6 +360,13 @@ export default function Dashboard() {
                 </p>
 
                 <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/client-finder')}
+                    className="btn btn-secondary px-6 sm:px-8 py-4 rounded-2xl text-base font-black"
+                  >
+                    Find First Client
+                  </button>
                   <button
                     type="button"
                     onClick={() => navigate('/create-invoice')}
