@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { openWhatsAppShare } from '../utils/whatsapp';
 import { trackEvent } from '../utils/analytics';
@@ -38,10 +38,23 @@ const clientScoreClass = (score) => {
 };
 
 export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
+  const [automationOn, setAutomationOn] = useState(() => {
+    try {
+      return localStorage.getItem('invoicepro_reminder_agent_enabled') !== '0';
+    } catch {
+      return true;
+    }
+  });
   const [promiseTarget, setPromiseTarget] = useState(null);
   const [promiseDate, setPromiseDate] = useState('');
   const [promiseNote, setPromiseNote] = useState('');
   const [savingPromise, setSavingPromise] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('invoicepro_reminder_agent_enabled', automationOn ? '1' : '0');
+    } catch { }
+  }, [automationOn]);
 
   if (!insights) return null;
 
@@ -49,7 +62,11 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
   const clientScores = insights.clientPaymentScores || [];
   const opportunity = insights.revenueOpportunity || {};
   const promiseStats = insights.promiseStats || {};
+  const reminderAutomation = insights.reminderAutomation || {};
   const topTarget = collectionPlan[0] || null;
+  const autoQueue = collectionPlan.filter((target) => target.shouldSendToday || target.automationStatus === 'send_now');
+  const scheduledQueue = collectionPlan.filter((target) => target.automationStatus === 'scheduled' || target.automationStatus === 'monitoring');
+  const nextAutoTarget = autoQueue[0] || reminderAutomation.nextTarget || topTarget;
 
   const openPromiseEditor = (target) => {
     setPromiseTarget(target);
@@ -129,6 +146,30 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
     });
   };
 
+  const copyAutomationQueue = async () => {
+    const queue = autoQueue.length ? autoQueue : (nextAutoTarget ? [nextAutoTarget] : []);
+    if (!queue.length) return;
+
+    const text = queue
+      .map((target, index) => {
+        const message = target.messageVariants?.[target.tone] || target.followUpMessage;
+        return [
+          `${index + 1}. ${target.clientName} - ${target.invoiceNumber} - ${formatMoney(target.amount)}`,
+          `Reason: ${target.automationReason || target.reason}`,
+          `Message: ${message}`
+        ].join('\n');
+      })
+      .join('\n\n---\n\n');
+
+    try {
+      await navigator.clipboard.writeText(text);
+      trackEvent('copy_ai_reminder_queue', { count: queue.length });
+      alert('AI reminder queue copied.');
+    } catch {
+      window.prompt('Copy reminder queue:', text);
+    }
+  };
+
   return (
     <section className="reveal reveal-delay-1 mb-12 overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] shadow-2xl shadow-black/20">
       <div className="border-b border-white/10 p-5 sm:p-8 lg:p-10">
@@ -169,6 +210,89 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
               <p className={`mt-3 text-2xl font-black ${item.tone}`}>{item.value}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-white/10 bg-black/25 p-5 sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`h-2 w-2 rounded-full ${automationOn ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600'}`} />
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                  AI Reminder Automation
+                </p>
+                <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                  WhatsApp-assisted
+                </span>
+              </div>
+
+              <h3 className="mt-3 text-2xl font-black text-white">
+                {automationOn ? `${autoQueue.length} reminder${autoQueue.length === 1 ? '' : 's'} ready today` : 'Reminder automation is paused'}
+              </h3>
+              <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
+                {automationOn
+                  ? 'The agent checks due dates, overdue invoices, payment promises, and invoice value to prepare the right follow-up automatically. WhatsApp still needs one click to send.'
+                  : 'Turn it on to let InvoicePro prepare your daily follow-up queue automatically.'}
+              </p>
+
+              {nextAutoTarget && automationOn && (
+                <div className="mt-4 rounded-xl border border-emerald-400/15 bg-emerald-400/10 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Next Reminder</p>
+                  <p className="mt-2 text-sm font-black text-white">
+                    {nextAutoTarget.clientName} / {nextAutoTarget.invoiceNumber} / {formatMoney(nextAutoTarget.amount)}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-emerald-100/80">
+                    {nextAutoTarget.automationLabel || nextAutoTarget.reason} / Best time: {nextAutoTarget.automationBestTime || '10:00 AM'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px] lg:grid-cols-1 xl:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => setAutomationOn((value) => !value)}
+                className={`rounded-xl border px-4 py-3 text-[10px] font-black uppercase tracking-widest transition ${
+                  automationOn
+                    ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/15'
+                    : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10'
+                }`}
+              >
+                {automationOn ? 'Agent On' : 'Turn On'}
+              </button>
+
+              <button
+                type="button"
+                disabled={!automationOn || !nextAutoTarget}
+                onClick={() => sendFollowUp(nextAutoTarget, nextAutoTarget?.tone === 'final' ? 'final' : nextAutoTarget?.tone)}
+                className="rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Send Next
+              </button>
+
+              <button
+                type="button"
+                disabled={!automationOn || (!autoQueue.length && !nextAutoTarget)}
+                onClick={copyAutomationQueue}
+                className="rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-400/15 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Copy Queue
+              </button>
+            </div>
+          </div>
+
+          {automationOn && (
+            <div className="mt-5 grid gap-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:grid-cols-3">
+              <p className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                Ready now: <span className="text-white">{autoQueue.length}</span>
+              </p>
+              <p className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                Scheduled: <span className="text-white">{scheduledQueue.length}</span>
+              </p>
+              <p className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                Queue value: <span className="text-white">{formatMoney(reminderAutomation.queuedAmount || 0)}</span>
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

@@ -214,6 +214,115 @@ const getFollowUpMessage = (invoice, tone = getFollowUpTone(invoice)) => {
     return templates[tone] || templates.friendly;
 };
 
+const getDateAtReminderHour = (offsetDays = 0) => {
+    const date = new Date();
+    date.setDate(date.getDate() + offsetDays);
+    date.setHours(10, 0, 0, 0);
+    return date.toISOString();
+};
+
+const getReminderAutomationPlan = (invoice) => {
+    const daysUntilDue = getDaysUntil(invoice.dueDate);
+    const promiseStatus = getPromiseStatus(invoice);
+    const amount = formatCurrency(invoice.amount);
+
+    if (promiseStatus === 'missed') {
+        return {
+            status: 'send_now',
+            shouldSendToday: true,
+            label: 'Missed promise',
+            cadence: 'Send now, then follow up every 2 days until paid',
+            bestTime: '10:00 AM',
+            nextReminderAt: getDateAtReminderHour(0),
+            reason: `Client promised payment and ${amount} is still pending.`
+        };
+    }
+
+    if (promiseStatus === 'due_today') {
+        return {
+            status: 'send_now',
+            shouldSendToday: true,
+            label: 'Promise due today',
+            cadence: 'Send one promise follow-up today',
+            bestTime: '10:00 AM',
+            nextReminderAt: getDateAtReminderHour(0),
+            reason: `Client promised payment today for ${amount}.`
+        };
+    }
+
+    if (daysUntilDue === null) {
+        return {
+            status: 'needs_due_date',
+            shouldSendToday: false,
+            label: 'Due date missing',
+            cadence: 'Add a due date to automate reminders',
+            bestTime: '10:00 AM',
+            nextReminderAt: null,
+            reason: 'AI needs a due date to schedule reminders accurately.'
+        };
+    }
+
+    if (daysUntilDue < 0) {
+        const daysOverdue = Math.abs(daysUntilDue);
+
+        return {
+            status: 'send_now',
+            shouldSendToday: true,
+            label: `${daysOverdue} day${daysOverdue === 1 ? '' : 's'} overdue`,
+            cadence: daysOverdue >= 7 ? 'Send now, then every 2 days until paid' : 'Send now, then every 3 days until paid',
+            bestTime: '10:00 AM',
+            nextReminderAt: getDateAtReminderHour(0),
+            reason: `Invoice is overdue and ${amount} is uncollected.`
+        };
+    }
+
+    if (daysUntilDue === 0) {
+        return {
+            status: 'send_now',
+            shouldSendToday: true,
+            label: 'Due today',
+            cadence: 'Send one due-date reminder today',
+            bestTime: '10:00 AM',
+            nextReminderAt: getDateAtReminderHour(0),
+            reason: `Invoice is due today for ${amount}.`
+        };
+    }
+
+    if (daysUntilDue <= 3) {
+        return {
+            status: 'send_now',
+            shouldSendToday: true,
+            label: `Due in ${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'}`,
+            cadence: 'Send one friendly reminder before the due date',
+            bestTime: '10:00 AM',
+            nextReminderAt: getDateAtReminderHour(0),
+            reason: `Invoice is close to due date and worth ${amount}.`
+        };
+    }
+
+    if (daysUntilDue <= 7) {
+        return {
+            status: 'scheduled',
+            shouldSendToday: false,
+            label: `Scheduled in ${daysUntilDue - 3} day${daysUntilDue - 3 === 1 ? '' : 's'}`,
+            cadence: 'Friendly reminder 3 days before due date',
+            bestTime: '10:00 AM',
+            nextReminderAt: getDateAtReminderHour(Math.max(1, daysUntilDue - 3)),
+            reason: `AI will remind before the invoice reaches the due date.`
+        };
+    }
+
+    return {
+        status: 'monitoring',
+        shouldSendToday: false,
+        label: 'Monitoring',
+        cadence: 'Reminder starts 3 days before due date',
+        bestTime: '10:00 AM',
+        nextReminderAt: getDateAtReminderHour(Math.max(1, daysUntilDue - 3)),
+        reason: 'No reminder is needed today.'
+    };
+};
+
 const buildCollectionPlan = (invoices = []) => {
     return invoices
         .filter((invoice) => invoice.documentType !== 'proposal' && invoice.status !== 'paid')
@@ -222,6 +331,7 @@ const buildCollectionPlan = (invoices = []) => {
             const promiseStatus = getPromiseStatus(invoice);
             const priorityScore = getCollectionRiskScore(invoice);
             const tone = getFollowUpTone(invoice);
+            const automation = getReminderAutomationPlan(invoice);
 
             return {
                 id: invoice._id,
@@ -234,6 +344,13 @@ const buildCollectionPlan = (invoices = []) => {
                 priorityScore,
                 tone,
                 promiseStatus,
+                automationStatus: automation.status,
+                automationLabel: automation.label,
+                automationCadence: automation.cadence,
+                automationReason: automation.reason,
+                automationBestTime: automation.bestTime,
+                nextReminderAt: automation.nextReminderAt,
+                shouldSendToday: automation.shouldSendToday,
                 paymentPromise: invoice.paymentPromise || null,
                 reason: promiseStatus === 'missed'
                     ? 'Promise-to-pay date was missed'
@@ -1003,6 +1120,8 @@ router.get('/insights', protect, async(req, res) => {
         const pendingAmount = pendingInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
         const paidAmount = paidInvoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
         const collectionPlan = buildCollectionPlan(billableInvoices);
+        const reminderSendNowQueue = collectionPlan.filter((item) => item.shouldSendToday);
+        const reminderScheduledQueue = collectionPlan.filter((item) => item.automationStatus === 'scheduled' || item.automationStatus === 'monitoring');
         const clientPaymentScores = buildClientPaymentScores(billableInvoices);
         const promisesDue = pendingInvoices.filter((invoice) => {
             const promiseStatus = getPromiseStatus(invoice);
@@ -1156,6 +1275,24 @@ router.get('/insights', protect, async(req, res) => {
             },
             moneyActions: moneyActions.slice(0, 4),
             collectionPlan,
+            reminderAutomation: {
+                mode: 'whatsapp_assisted',
+                note: 'AI prepares and prioritizes reminders automatically. WhatsApp still requires a user click unless WhatsApp Business API is connected.',
+                sendNowCount: reminderSendNowQueue.length,
+                scheduledCount: reminderScheduledQueue.length,
+                queuedAmount: reminderSendNowQueue.reduce((sum, item) => sum + Number(item.amount || 0), 0),
+                nextTarget: reminderSendNowQueue[0] || collectionPlan[0] || null,
+                queue: reminderSendNowQueue.slice(0, 5).map((item) => ({
+                    id: item.id,
+                    invoiceNumber: item.invoiceNumber,
+                    clientName: item.clientName,
+                    amount: item.amount,
+                    tone: item.tone,
+                    label: item.automationLabel,
+                    bestTime: item.automationBestTime,
+                    message: item.followUpMessage
+                }))
+            },
             clientPaymentScores,
             promiseStats: {
                 dueNow: promisesDue.length,
