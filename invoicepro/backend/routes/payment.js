@@ -342,6 +342,35 @@ const isReusablePaymentLink = (paymentLink = {}) => {
     return !['paid', 'cancelled', 'expired'].includes(String(paymentLink.status || '').toLowerCase());
 };
 
+const appendInvoicePaymentEvent = (invoice, event = {}) => {
+    invoice.paymentEvents = invoice.paymentEvents || [];
+
+    const eventType = event.type || 'payment.event';
+    const providerPaymentId = event.providerPaymentId || '';
+    const providerPaymentLinkId = event.providerPaymentLinkId || '';
+    const hasDuplicate = invoice.paymentEvents.some((existing) => (
+        existing.type === eventType &&
+        (
+            (providerPaymentId && existing.providerPaymentId === providerPaymentId) ||
+            (!providerPaymentId && providerPaymentLinkId && existing.providerPaymentLinkId === providerPaymentLinkId)
+        )
+    ));
+
+    if (hasDuplicate) return;
+
+    invoice.paymentEvents.push({
+        type: eventType,
+        provider: event.provider || 'razorpay',
+        providerPaymentId,
+        providerPaymentLinkId,
+        status: event.status || '',
+        amount: Number(event.amount || invoice.amount || 0),
+        currency: event.currency || invoice.currency || 'INR',
+        message: event.message || '',
+        occurredAt: event.occurredAt || new Date()
+    });
+};
+
 const sendInvoicePaymentConfirmation = (invoice) => {
     setImmediate(async() => {
         try {
@@ -363,6 +392,8 @@ const markInvoicePaidFromPayment = async(invoice, options = {}) => {
     const previousStatus = invoice.status;
     invoice.status = 'paid';
     invoice.paidAt = invoice.paidAt || new Date();
+    const paymentId = options.paymentId || getPaymentLinkPaymentId(options.paymentLinkEntity || {}, options.paymentEntity);
+    const paymentLinkId = options.paymentLinkEntity?.id || invoice.paymentLink?.providerPaymentLinkId || '';
 
     if (options.paymentLinkEntity) {
         invoice.paymentLink = {
@@ -372,11 +403,22 @@ const markInvoicePaidFromPayment = async(invoice, options = {}) => {
     } else if (options.paymentId) {
         invoice.paymentLink = {
             ...(invoice.paymentLink?.toObject ? invoice.paymentLink.toObject() : invoice.paymentLink || {}),
-            paymentId: options.paymentId,
+            paymentId,
             paidAt: invoice.paidAt,
             status: 'paid'
         };
     }
+
+    appendInvoicePaymentEvent(invoice, {
+        type: options.eventType || (options.paymentLinkEntity ? 'payment_link.paid' : 'payment.captured'),
+        providerPaymentId: paymentId,
+        providerPaymentLinkId: paymentLinkId,
+        status: 'paid',
+        amount: Number(options.paymentEntity?.amount || options.paymentLinkEntity?.amount || 0) / 100 || invoice.amount,
+        currency: options.paymentEntity?.currency || options.paymentLinkEntity?.currency || invoice.currency || 'INR',
+        message: 'Verified Razorpay payment received.',
+        occurredAt: invoice.paidAt
+    });
 
     await invoice.save();
 
@@ -811,6 +853,14 @@ router.post('/invoices/:id/payment-link', protect, async(req, res) => {
                 paymentId: '',
                 raw: { simulation: true }
             };
+            appendInvoicePaymentEvent(invoice, {
+                type: 'payment_link.created',
+                providerPaymentLinkId: invoice.paymentLink.providerPaymentLinkId,
+                status: 'created',
+                amount,
+                currency: invoice.currency || 'INR',
+                message: 'Simulation Razorpay payment link created.'
+            });
             await invoice.save();
 
             return res.json({
@@ -860,6 +910,14 @@ router.post('/invoices/:id/payment-link', protect, async(req, res) => {
         }
 
         invoice.paymentLink = mapPaymentLinkEntity(razorpayRes.body);
+        appendInvoicePaymentEvent(invoice, {
+            type: 'payment_link.created',
+            providerPaymentLinkId: invoice.paymentLink.providerPaymentLinkId,
+            status: invoice.paymentLink.status || 'created',
+            amount: invoice.paymentLink.amount || amount,
+            currency: invoice.paymentLink.currency || invoice.currency || 'INR',
+            message: 'Razorpay payment link created for this invoice.'
+        });
         await invoice.save();
 
         res.json({
@@ -1003,6 +1061,94 @@ router.get('/requests', protect, async(req, res) => {
             screenshotUrl: `/api/payment/requests/${request._id}/screenshot`
         })));
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
+});
+
+router.get('/admin/revenue', protect, async(req, res) => {
+    try {
+        if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+
+        const activeSubscriptionStatuses = ['active', 'authenticated'];
+        const [userStats, invoiceStatsResult, activeSubscriptions, recentSubscriptions, recentPaidInvoices] = await Promise.all([
+            User.aggregate([
+                {
+                    $group: {
+                        _id: null,
+                        totalUsers: { $sum: 1 },
+                        proUsers: {
+                            $sum: {
+                                $cond: [{ $in: ['$plan', ['monthly', 'yearly', 'founder90', 'trial', 'pro']] }, 1, 0]
+                            }
+                        },
+                        trialUsers: {
+                            $sum: {
+                                $cond: [{ $eq: ['$plan', 'trial'] }, 1, 0]
+                            }
+                        }
+                    }
+                }
+            ]),
+            Invoice.aggregate([
+                { $match: { documentType: { $ne: 'proposal' } } },
+                {
+                    $group: {
+                        _id: null,
+                        totalInvoiceValue: { $sum: '$amount' },
+                        paidRevenue: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, '$amount', 0] } },
+                        pendingRevenue: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, '$amount', 0] } },
+                        totalInvoices: { $sum: 1 },
+                        paidInvoices: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] } },
+                        paymentLinks: {
+                            $sum: {
+                                $cond: [{ $gt: [{ $strLenCP: { $ifNull: ['$paymentLink.shortUrl', ''] } }, 0] }, 1, 0]
+                            }
+                        }
+                    }
+                }
+            ]),
+            BillingSubscription.find({
+                status: { $in: activeSubscriptionStatuses }
+            }).select('plan amount currency status currentEnd providerSubscriptionId updatedAt').lean(),
+            BillingSubscription.find()
+                .select('plan amount currency status currentEnd providerSubscriptionId latestEvent lastPaymentId updatedAt createdAt')
+                .sort({ updatedAt: -1 })
+                .limit(8)
+                .lean(),
+            Invoice.find({ documentType: { $ne: 'proposal' }, status: 'paid' })
+                .select('clientName clientEmail invoiceNumber amount currency paidAt paymentLink paymentEvents')
+                .sort({ paidAt: -1, updatedAt: -1 })
+                .limit(8)
+                .lean()
+        ]);
+
+        const userSummary = userStats[0] || { totalUsers: 0, proUsers: 0, trialUsers: 0 };
+        const invoiceSummary = invoiceStatsResult[0] || {
+            totalInvoiceValue: 0,
+            paidRevenue: 0,
+            pendingRevenue: 0,
+            totalInvoices: 0,
+            paidInvoices: 0,
+            paymentLinks: 0
+        };
+        const mrr = activeSubscriptions.reduce((sum, subscription) => {
+            if (subscription.plan === 'yearly') return sum + Number(subscription.amount || 0) / 12;
+            if (subscription.plan === 'founder90') return sum;
+            return sum + Number(subscription.amount || 0);
+        }, 0);
+
+        res.json({
+            users: userSummary,
+            invoices: invoiceSummary,
+            subscriptions: {
+                active: activeSubscriptions.length,
+                mrr: Math.round(mrr),
+                recent: recentSubscriptions
+            },
+            recentPaidInvoices
+        });
+    } catch (err) {
+        console.error('ADMIN REVENUE ERROR:', err.message);
+        res.status(500).json({ message: 'Unable to load revenue dashboard' });
+    }
 });
 
 router.get('/requests/:id/screenshot', protect, async(req, res) => {

@@ -127,8 +127,17 @@ export default function LaunchCenter() {
       category: 'Validation',
       label: 'Payment proof in dashboard',
       ready: Number(stats.paid || 0) > 0,
-      action: 'Collect or mark the first invoice as paid to validate the money loop.',
+      action: 'Collect the first verified Razorpay invoice payment to validate the money loop.',
       doneText: `${stats.paid || 0} paid invoice${Number(stats.paid || 0) === 1 ? '' : 's'} tracked.`
+    },
+    {
+      id: 'razorpay-payment-link',
+      category: 'Collection',
+      label: 'Razorpay invoice link created',
+      ready: Number(stats.paymentLinks || 0) > 0,
+      action: 'Open an unpaid invoice and click Create Razorpay Link before sharing it with a client.',
+      doneText: `${stats.paymentLinks || 0} invoice payment link${Number(stats.paymentLinks || 0) === 1 ? '' : 's'} created.`,
+      path: '/dashboard'
     },
     {
       id: 'pro-plan',
@@ -139,7 +148,7 @@ export default function LaunchCenter() {
       doneText: 'Pro access is active or a subscription record exists.',
       path: '/payment'
     }
-  ]), [isPro, stats.paid, stats.total, subscription, user?.companyName, user?.name, user?.upiId]);
+  ]), [isPro, stats.paid, stats.paymentLinks, stats.total, subscription, user?.companyName, user?.name, user?.upiId]);
 
   const allChecks = useMemo(() => {
     const normalizedRuntime = runtimeChecks.map((check) => ({

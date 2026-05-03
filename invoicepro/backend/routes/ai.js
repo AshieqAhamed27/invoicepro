@@ -194,9 +194,14 @@ const getFollowUpTone = (invoice) => {
     return 'friendly';
 };
 
-const getFollowUpMessage = (invoice, tone = getFollowUpTone(invoice)) => {
+const getInvoicePaymentUrl = (invoice) => {
+    if (invoice?.paymentLink?.shortUrl) return invoice.paymentLink.shortUrl;
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const link = `${frontendUrl}/public/invoice/${invoice._id}`;
+    return `${frontendUrl}/public/invoice/${invoice._id}`;
+};
+
+const getFollowUpMessage = (invoice, tone = getFollowUpTone(invoice)) => {
+    const link = getInvoicePaymentUrl(invoice);
     const amount = formatCurrency(invoice.amount);
     const dueText = formatDate(invoice.dueDate);
     const promiseDate = invoice.paymentPromise?.promisedDate
@@ -548,8 +553,7 @@ const normalizeInvoiceDraft = (draft, message, user) => {
 };
 
 const buildReminder = (invoice) => {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const link = `${frontendUrl}/public/invoice/${invoice._id}`;
+    const link = getInvoicePaymentUrl(invoice);
 
     return `Hi ${invoice.clientName}, quick reminder for invoice ${invoice.invoiceNumber} of ${formatCurrency(invoice.amount)} due on ${formatDate(invoice.dueDate)}. You can review and pay here: ${link}. Thank you.`;
 };
@@ -1414,7 +1418,7 @@ router.post('/agent', protect, async(req, res) => {
         const intent = detectAgentIntent(message);
         const invoices = await Invoice.find({ user: req.user._id })
             .sort({ createdAt: -1 })
-            .select('clientName clientEmail amount status invoiceNumber dueDate documentType createdAt paidAt paymentPromise')
+            .select('clientName clientEmail amount status invoiceNumber dueDate documentType createdAt paidAt paymentPromise paymentLink')
             .limit(100)
             .lean();
         const statusSummary = buildStatusSummary(invoices);
@@ -1505,7 +1509,7 @@ router.get('/insights', protect, async(req, res) => {
             .sort({
                 createdAt: -1
             })
-            .select('clientName clientEmail amount status invoiceNumber dueDate documentType createdAt paidAt paymentPromise')
+            .select('clientName clientEmail amount status invoiceNumber dueDate documentType createdAt paidAt paymentPromise paymentLink')
             .lean();
 
         const billableInvoices = invoices.filter((invoice) => invoice.documentType !== 'proposal');

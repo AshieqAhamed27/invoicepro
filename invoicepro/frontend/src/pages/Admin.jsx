@@ -4,6 +4,17 @@ import Navbar from '../components/Navbar';
 
 const API_BASE_URL = api.defaults.baseURL || '';
 const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
+const formatMoney = (amount) => `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
+const formatDate = (value) => {
+  if (!value) return 'Not set';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Not set';
+  return date.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+};
 
 export default function Admin() {
   const [requests, setRequests] = useState([]);
@@ -14,6 +25,9 @@ export default function Admin() {
   const [health, setHealth] = useState(null);
   const [healthLoading, setHealthLoading] = useState(true);
   const [healthError, setHealthError] = useState('');
+  const [revenue, setRevenue] = useState(null);
+  const [revenueLoading, setRevenueLoading] = useState(true);
+  const [revenueError, setRevenueError] = useState('');
 
   const getScreenshotUrl = (request) => {
     return request.screenshotUrl
@@ -72,6 +86,20 @@ export default function Admin() {
     }
   };
 
+  const fetchRevenue = async () => {
+    try {
+      setRevenueLoading(true);
+      setRevenueError('');
+      const res = await api.get('/payment/admin/revenue');
+      setRevenue(res.data || null);
+    } catch (err) {
+      console.log(err);
+      setRevenueError('Could not load revenue dashboard.');
+    } finally {
+      setRevenueLoading(false);
+    }
+  };
+
   const approve = async (id) => {
     try {
       await api.put(`/payment/approve/${id}`);
@@ -87,6 +115,7 @@ export default function Admin() {
     fetchRequests();
     fetchPricing();
     fetchHealthDetails();
+    fetchRevenue();
   }, []);
 
   const monthlyAmount = pricing?.plans?.monthly ?? null;
@@ -116,6 +145,86 @@ export default function Admin() {
             Verify manual payment evidence and confirm live checkout pricing.
           </p>
         </div>
+
+        <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
+          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Company Revenue</p>
+                <h2 className="text-2xl font-black tracking-tight text-white">Money dashboard</h2>
+              </div>
+              <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                revenueError ? 'border-red-400/10 bg-red-400/5 text-red-400' : 'border-emerald-400/10 bg-emerald-400/5 text-emerald-400'
+              }`}>
+                {revenueError ? 'Unavailable' : 'Live'}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              { label: 'MRR Estimate', value: formatMoney(revenue?.subscriptions?.mrr), tone: 'text-emerald-300' },
+              { label: 'Paid Invoice Revenue', value: formatMoney(revenue?.invoices?.paidRevenue), tone: 'text-white' },
+              { label: 'Pending Invoice Revenue', value: formatMoney(revenue?.invoices?.pendingRevenue), tone: 'text-yellow-300' },
+              { label: 'Active Subscriptions', value: revenue?.subscriptions?.active || 0, tone: 'text-sky-300' }
+            ].map((item) => (
+              <div key={item.label} className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+                <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
+                <p className={`text-3xl font-black tracking-tight ${item.tone}`}>{revenueLoading ? '--' : item.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-6 px-5 pb-5 sm:px-8 sm:pb-8 lg:grid-cols-2">
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">User Funnel</p>
+              <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+                {[
+                  ['Users', revenue?.users?.totalUsers || 0],
+                  ['Paid/Trial', revenue?.users?.proUsers || 0],
+                  ['Trials', revenue?.users?.trialUsers || 0]
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                    <p className="text-2xl font-black text-white">{revenueLoading ? '--' : value}</p>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Payment Links</p>
+              <p className="mt-4 text-4xl font-black text-white">{revenueLoading ? '--' : (revenue?.invoices?.paymentLinks || 0)}</p>
+              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
+                {revenueLoading ? 'Checking...' : `${revenue?.invoices?.paidInvoices || 0} paid invoices / ${revenue?.invoices?.totalInvoices || 0} total invoices`}
+              </p>
+            </div>
+          </div>
+
+          {!revenueLoading && revenue?.recentPaidInvoices?.length > 0 && (
+            <div className="border-t border-white/5 p-5 sm:p-8">
+              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent Paid Invoices</p>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {revenue.recentPaidInvoices.map((invoice) => (
+                  <div key={invoice._id} className="rounded-2xl border border-white/5 bg-black/10 p-4">
+                    <p className="truncate text-sm font-black text-white">{invoice.clientName}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{invoice.invoiceNumber}</p>
+                    <p className="mt-3 text-lg font-black text-emerald-300">{formatMoney(invoice.amount)}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{formatDate(invoice.paidAt)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {revenueError && (
+            <div className="px-8 pb-8">
+              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                {revenueError}
+              </div>
+            </div>
+          )}
+        </section>
 
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
           <div className="border-b border-white/5 p-5 sm:p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

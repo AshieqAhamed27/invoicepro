@@ -129,7 +129,7 @@ router.get('/', protect, async(req, res) => {
 // ==========================
 router.get('/dashboard', protect, async(req, res) => {
     try {
-        const [statsResult, invoices, trends] = await Promise.all([
+        const [statsResult, invoices, trends, paymentLinkCount] = await Promise.all([
             Invoice.aggregate([
                 { $match: { user: req.user._id, documentType: { $ne: 'proposal' } } },
                 {
@@ -154,7 +154,12 @@ router.get('/dashboard', protect, async(req, res) => {
                 },
                 { $sort: { '_id.year': -1, '_id.month': -1 } },
                 { $limit: 6 }
-            ])
+            ]),
+            Invoice.countDocuments({
+                user: req.user._id,
+                documentType: { $ne: 'proposal' },
+                'paymentLink.shortUrl': { $nin: ['', null] }
+            })
         ]);
 
         const stats = statsResult[0] || { totalRevenue: 0, pending: 0, paid: 0, total: 0 };
@@ -167,6 +172,7 @@ router.get('/dashboard', protect, async(req, res) => {
                 pending: stats.pending || 0,
                 paid: stats.paid || 0,
                 total: stats.total || 0,
+                paymentLinks: paymentLinkCount || 0,
                 trends: trends.map(t => ({
                     label: new Date(t._id.year, t._id.month - 1).toLocaleString('default', { month: 'short' }),
                     value: t.amount

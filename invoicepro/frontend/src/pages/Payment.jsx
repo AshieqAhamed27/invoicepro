@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
-import { COMPANY_SHORT_NAME } from '../utils/company';
+import { COMPANY_SHORT_NAME, SUPPORT_EMAIL } from '../utils/company';
 import { trackEvent } from '../utils/analytics';
 
 const loadRazorpayScript = () => {
@@ -85,6 +85,7 @@ export default function Payment() {
   const [pricingWarning, setPricingWarning] = useState('');
   const [pricingBlocked, setPricingBlocked] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
     const selectedPlan = getSafePlan(localStorage.getItem("plan") || "monthly");
@@ -411,6 +412,34 @@ export default function Payment() {
     }
   };
 
+  const handleCancelSubscription = async () => {
+    if (!window.confirm('Cancel this subscription at the end of the current billing cycle?')) return;
+
+    try {
+      setCancelLoading(true);
+      const res = await api.post('/payment/razorpay/subscription/cancel', {
+        cancelAtCycleEnd: true
+      });
+
+      if (res.data?.user) {
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+      }
+
+      setSubscriptionStatus(res.data?.subscription || subscriptionStatus);
+      trackEvent('cancel_subscription_requested', {
+        plan: subscriptionStatus?.plan || plan
+      });
+      alert(res.data?.message || 'Subscription cancellation requested.');
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Unable to cancel subscription');
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  const canCancelSubscription = subscriptionStatus?.providerSubscriptionId &&
+    !['cancelled', 'cancel_scheduled', 'completed', 'expired'].includes(String(subscriptionStatus.status || '').toLowerCase());
+
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
@@ -531,6 +560,11 @@ export default function Payment() {
                    <p className="mt-2 text-sm font-bold text-white">
                      {subscriptionStatus.plan} / {subscriptionStatus.status}
                    </p>
+                   {subscriptionStatus.currentEnd && (
+                     <p className="mt-2 text-xs font-bold text-emerald-100/80">
+                       Current access until {new Date(subscriptionStatus.currentEnd).toLocaleDateString('en-IN')}
+                     </p>
+                   )}
                  </div>
                )}
 
@@ -566,6 +600,31 @@ export default function Payment() {
                    {pricingWarning}
                  </div>
                )}
+
+               <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Billing Support</p>
+                 <p className="mt-2 text-xs font-bold leading-relaxed text-zinc-500">
+                   Cancel from here when a Razorpay subscription is active. Refunds are reviewed by support and processed through Razorpay when approved.
+                 </p>
+                 <div className="mt-4 grid gap-3">
+                   {canCancelSubscription && (
+                     <button
+                       type="button"
+                       onClick={handleCancelSubscription}
+                       disabled={cancelLoading}
+                       className="rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+                     >
+                       {cancelLoading ? 'Cancelling...' : 'Cancel Renewal'}
+                     </button>
+                   )}
+                   <a
+                     href={`mailto:${SUPPORT_EMAIL}?subject=InvoicePro refund or billing support`}
+                     className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/[0.06]"
+                   >
+                     Request Refund Support
+                   </a>
+                 </div>
+               </div>
 
                <div className="mt-8 flex items-center justify-center gap-4 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
                   <img src="https://cdn.razorpay.com/static/assets/badgetext.png" alt="Razorpay Secure" className="h-6" />

@@ -221,6 +221,45 @@ const invoiceSchema = new mongoose.Schema({
         }
     },
 
+    paymentEvents: [{
+        type: {
+            type: String,
+            default: ''
+        },
+        provider: {
+            type: String,
+            default: 'razorpay'
+        },
+        providerPaymentId: {
+            type: String,
+            default: ''
+        },
+        providerPaymentLinkId: {
+            type: String,
+            default: ''
+        },
+        status: {
+            type: String,
+            default: ''
+        },
+        amount: {
+            type: Number,
+            default: 0
+        },
+        currency: {
+            type: String,
+            default: 'INR'
+        },
+        message: {
+            type: String,
+            default: ''
+        },
+        occurredAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+
     paymentPromise: {
         promisedDate: {
             type: Date,
@@ -250,5 +289,6 @@ invoiceSchema.index({ user: 1, status: 1 });
 invoiceSchema.index({ user: 1, documentType: 1, createdAt: -1 });
 invoiceSchema.index({ user: 1, sourceLeadId: 1 });
 invoiceSchema.index({ 'paymentLink.providerPaymentLinkId': 1 });
+invoiceSchema.index({ 'paymentEvents.providerPaymentId': 1 });
 
 module.exports = mongoose.model('Invoice', invoiceSchema);

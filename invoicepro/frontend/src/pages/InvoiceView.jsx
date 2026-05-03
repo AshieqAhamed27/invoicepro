@@ -33,6 +33,13 @@ const toTitleCase = (value = '') =>
     .replace(/[-_]+/g, ' ')
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
+const getPaymentEventLabel = (type = '') => ({
+  'payment_link.created': 'Payment Link Created',
+  'payment_link.paid': 'Razorpay Link Paid',
+  'payment.captured': 'Payment Captured',
+  'order.paid': 'Order Paid'
+}[type] || toTitleCase(type || 'Payment Event'));
+
 const formatDate = (value) => {
   if (!value) return 'Not specified';
 
@@ -40,6 +47,20 @@ const formatDate = (value) => {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
+  });
+};
+
+const formatDateTime = (value) => {
+  if (!value) return 'Not recorded';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Not recorded';
+
+  return date.toLocaleString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
   });
 };
 
@@ -220,6 +241,31 @@ export default function InvoiceView() {
   const razorpayPaymentUrl = firstText(invoice.paymentLink?.shortUrl);
   const paymentShareUrl = razorpayPaymentUrl || publicDocumentUrl;
   const hasRazorpayPaymentLink = Boolean(razorpayPaymentUrl);
+  const paymentTimeline = [
+    ...(invoice.paymentEvents || []),
+    ...(!invoice.paymentEvents?.length && invoice.paymentLink?.createdAt
+      ? [{
+        type: 'payment_link.created',
+        status: invoice.paymentLink.status || 'created',
+        amount: invoice.paymentLink.amount || total,
+        currency: invoice.paymentLink.currency || invoice.currency,
+        occurredAt: invoice.paymentLink.createdAt,
+        providerPaymentLinkId: invoice.paymentLink.providerPaymentLinkId,
+        message: 'Razorpay payment link created for this invoice.'
+      }]
+      : []),
+    ...(invoice.status === 'paid' && invoice.paidAt && !(invoice.paymentEvents || []).some((event) => String(event.type || '').includes('paid') || String(event.status || '') === 'paid')
+      ? [{
+        type: 'payment.captured',
+        status: 'paid',
+        amount: total,
+        currency: invoice.currency,
+        occurredAt: invoice.paidAt,
+        providerPaymentId: invoice.paymentLink?.paymentId || '',
+        message: 'Payment marked paid after verification.'
+      }]
+      : [])
+  ].sort((a, b) => new Date(b.occurredAt || 0) - new Date(a.occurredAt || 0));
   const displayDate = meta.isProposal ? invoice.validUntil : invoice.dueDate;
   const upiLink = !meta.isProposal && finalUpi
     ? `upi://pay?pa=${finalUpi}&pn=${encodeURIComponent(companyName)}&am=${invoice.amount}&cu=INR`
@@ -1019,6 +1065,48 @@ export default function InvoiceView() {
                   </span>
                   <svg className="h-4 w-4 text-zinc-600 group-hover:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C9.886 14.511 11.41 15.2 13 15.2c3.92 0 7.1-3.18 7.1-7.1S16.92 1 13 1 5.9 4.18 5.9 8.1c0 1.59.689 3.114 1.858 4.316M1 23l7-7m0 0l4-4m-4 4l4 4" /></svg>
                 </button>
+              </div>
+
+              <div className="mb-8 rounded-3xl border border-white/5 bg-black/20 p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Payment History</p>
+                {paymentTimeline.length ? (
+                  <div className="mt-5 space-y-4">
+                    {paymentTimeline.slice(0, 5).map((event, index) => (
+                      <div key={`${event.type}-${event.occurredAt}-${index}`} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-xs font-black text-white">{getPaymentEventLabel(event.type)}</p>
+                            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                              {formatDateTime(event.occurredAt)}
+                            </p>
+                          </div>
+                          <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${
+                            String(event.status || '').toLowerCase() === 'paid'
+                              ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
+                              : 'border-yellow-400/20 bg-yellow-400/10 text-yellow-300'
+                          }`}>
+                            {event.status || 'tracked'}
+                          </span>
+                        </div>
+                        <p className="mt-3 text-sm font-black text-white">
+                          {formatCurrency(event.amount || total, event.currency || invoice.currency)}
+                        </p>
+                        {event.providerPaymentId && (
+                          <p className="mt-2 break-all text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                            Payment ID: {event.providerPaymentId}
+                          </p>
+                        )}
+                        {event.message && (
+                          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{event.message}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-500">
+                    No Razorpay activity yet. Create a payment link to start tracking the collection flow.
+                  </p>
+                )}
               </div>
 
               {!meta.isProposal && invoice.status !== 'paid' && finalUpi && (
