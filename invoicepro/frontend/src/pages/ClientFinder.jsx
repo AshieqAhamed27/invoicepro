@@ -556,7 +556,7 @@ export default function ClientFinder() {
                   </div>
                 </div>
 
-                <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
+                <div className="space-y-6">
                   <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-6 sm:p-8">
                     <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">AI Lead Fit Radar</p>
                     <h3 className="mt-2 text-2xl font-black text-white">Score a real prospect before pitching.</h3>
@@ -763,15 +763,15 @@ export default function ClientFinder() {
                   </div>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-2">
+                <div className="space-y-6">
                   <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
                     <h3 className="text-xl font-black text-white">Target Clients</h3>
-                    <div className="mt-5 space-y-3">
+                    <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                       {(plan.targetClients || []).map((client, index) => (
-                        <div key={`${client.segment}-${index}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <div key={`${client.segment}-${index}`} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
                           <p className="text-sm font-black text-white">{client.segment}</p>
                           <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{client.problem}</p>
-                          <p className="mt-2 text-xs font-bold text-emerald-300">{client.whereToFind}</p>
+                          <p className="mt-auto pt-3 text-xs font-bold text-emerald-300">{client.whereToFind}</p>
                         </div>
                       ))}
                     </div>
@@ -779,15 +779,15 @@ export default function ClientFinder() {
 
                   <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
                     <h3 className="text-xl font-black text-white">Lead Searches</h3>
-                    <div className="mt-5 space-y-3">
+                    <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                       {(plan.leadSearches || []).map((lead, index) => (
                         <div
                           key={`${lead.platform}-${index}`}
-                          className="rounded-2xl border border-white/8 bg-black/20 p-4"
+                          className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4"
                         >
                           <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{lead.platform}</p>
                           <p className="mt-2 break-words text-sm font-bold text-white">{lead.query}</p>
-                          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                          <div className="mt-auto grid gap-2 pt-4 sm:grid-cols-2">
                             <a
                               href={getLeadSearchUrl(lead.platform, lead.query)}
                               target="_blank"
@@ -813,15 +813,15 @@ export default function ClientFinder() {
 
                 <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
                   <h3 className="text-xl font-black text-white">Outreach Messages</h3>
-                  <div className="mt-5 grid gap-4 lg:grid-cols-3">
+                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {(plan.outreachMessages || []).map((message, index) => (
-                      <div key={`${message.channel}-${index}`} className="rounded-2xl border border-white/8 bg-black/20 p-5">
+                      <div key={`${message.channel}-${index}`} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-5">
                         <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">{message.channel}</p>
                         <p className="mt-3 whitespace-pre-line text-sm font-semibold leading-relaxed text-zinc-300">{message.text}</p>
                         <button
                           type="button"
                           onClick={() => copyText(message.text, `${message.channel} message`)}
-                          className="mt-4 rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-400/15"
+                          className="mt-auto rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-400/15"
                         >
                           Copy
                         </button>
@@ -830,18 +830,18 @@ export default function ClientFinder() {
                   </div>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+                <div className="space-y-6">
                   <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
                     <h3 className="text-xl font-black text-white">Packages</h3>
-                    <div className="mt-5 space-y-3">
+                    <div className="mt-5 grid gap-3 md:grid-cols-3">
                       {(plan.packages || []).map((item) => (
-                        <div key={item.name} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <div className="flex items-start justify-between gap-4">
+                        <div key={item.name} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <div className="flex h-full flex-col gap-4">
                             <div>
                               <p className="font-black text-white">{item.name}</p>
                               <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{item.scope}</p>
                             </div>
-                            <p className="shrink-0 text-sm font-black text-emerald-300">{formatMoney(item.price)}</p>
+                            <p className="mt-auto shrink-0 text-sm font-black text-emerald-300">{formatMoney(item.price)}</p>
                           </div>
                         </div>
                       ))}
@@ -850,7 +850,7 @@ export default function ClientFinder() {
 
                   <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
                     <h3 className="text-xl font-black text-white">7-Day Action Plan</h3>
-                    <div className="mt-5 space-y-3">
+                    <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {(plan.weeklyPlan || []).map((step, index) => (
                         <div key={step} className="flex gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
                           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-yellow-400 text-xs font-black text-black">
@@ -863,10 +863,10 @@ export default function ClientFinder() {
                   </div>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-2">
+                <div className="space-y-6">
                   <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
                     <h3 className="text-xl font-black text-white">Discovery Questions</h3>
-                    <div className="mt-5 space-y-3">
+                    <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {(plan.discoveryQuestions || []).map((question) => (
                         <button
                           key={question}
@@ -882,15 +882,15 @@ export default function ClientFinder() {
 
                   <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
                     <h3 className="text-xl font-black text-white">Objection Replies</h3>
-                    <div className="mt-5 space-y-3">
+                    <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {(plan.objectionHandlers || []).map((item) => (
-                        <div key={item.objection} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <div key={item.objection} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
                           <p className="text-sm font-black text-white">{item.objection}</p>
                           <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{item.response}</p>
                           <button
                             type="button"
                             onClick={() => copyText(item.response, 'Objection reply')}
-                            className="mt-3 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15"
+                            className="mt-auto rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15"
                           >
                             Copy
                           </button>
@@ -900,10 +900,10 @@ export default function ClientFinder() {
                   </div>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+                <div className="space-y-6">
                   <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
                     <h3 className="text-xl font-black text-white">Qualification Scorecard</h3>
-                    <div className="mt-5 space-y-3">
+                    <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {(plan.qualificationScorecard || []).map((item) => (
                         <div key={item.criterion} className="rounded-2xl border border-white/8 bg-black/20 p-4">
                           <p className="text-sm font-black text-white">{item.criterion}</p>
@@ -916,13 +916,13 @@ export default function ClientFinder() {
 
                   <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
                     <h3 className="text-xl font-black text-white">Saved Growth Leads</h3>
-                    <div className="mt-5 space-y-3">
+                    <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {savedLeads.length ? (
                         savedLeads.map((lead) => {
                           const contactActions = getLeadContactActions(lead, buildLeadOutreach(lead, plan, form));
 
                           return (
-                            <div key={lead.id} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <div key={lead.id} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
                               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div className="min-w-0">
                                   <p className="truncate text-sm font-black text-white">{lead.businessName || lead.contactName || lead.email}</p>
@@ -941,7 +941,7 @@ export default function ClientFinder() {
                               {lead.pain && (
                                 <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">{lead.pain}</p>
                               )}
-                              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                              <div className="mt-auto grid gap-2 pt-4 sm:grid-cols-2">
                                 <button
                                   type="button"
                                   onClick={() => copyLeadOutreach(lead)}
@@ -980,7 +980,7 @@ export default function ClientFinder() {
                           );
                         })
                       ) : (
-                        <div className="rounded-2xl border border-white/8 bg-black/20 p-6 text-center">
+                        <div className="rounded-2xl border border-white/8 bg-black/20 p-6 text-center md:col-span-2">
                           <p className="text-sm font-bold text-zinc-400">No growth leads saved yet.</p>
                           <p className="mt-2 text-xs font-semibold text-zinc-600">Score a prospect above and save it to keep your pipeline moving.</p>
                         </div>
