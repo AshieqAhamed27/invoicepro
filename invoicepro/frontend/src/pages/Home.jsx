@@ -35,6 +35,29 @@ const trustSignals = [
   }
 ];
 
+const operationalTrustBadges = [
+  {
+    label: 'Udyam Registered',
+    value: UDYAM_REGISTRATION_NUMBER
+  },
+  {
+    label: 'Razorpay Enabled',
+    value: 'Payment links + checkout'
+  },
+  {
+    label: 'International Cards',
+    value: 'Enabled in Razorpay'
+  },
+  {
+    label: 'WhatsApp Sharing',
+    value: 'Invoice and reminder links'
+  },
+  {
+    label: 'AI Agents',
+    value: 'Client finder + payment collection'
+  }
+];
+
 const workflow = [
   {
     step: '01',
@@ -306,6 +329,15 @@ export default function Home() {
                 <span className="rounded-full border border-white/10 px-3 py-2">No client login required</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">AI lead scoring</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">GST-ready invoice fields</span>
+              </div>
+
+              <div className="reveal reveal-delay-3 mt-6 grid gap-3 sm:grid-cols-2">
+                {operationalTrustBadges.map((badge) => (
+                  <div key={badge.label} className="rounded-2xl border border-emerald-400/10 bg-emerald-400/[0.04] px-4 py-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">{badge.label}</p>
+                    <p className="mt-1 break-words text-xs font-bold leading-relaxed text-zinc-300">{badge.value}</p>
+                  </div>
+                ))}
               </div>
             </div>
 

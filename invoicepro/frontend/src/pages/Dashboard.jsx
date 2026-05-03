@@ -95,6 +95,7 @@ export default function Dashboard() {
     pending: 0,
     paid: 0,
     total: 0,
+    paymentLinks: 0,
     trends: []
   });
   const [aiInsights, setAiInsights] = useState(null);
@@ -110,6 +111,13 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState('');
   const [convertingProposalId, setConvertingProposalId] = useState(null);
+  const [whatsAppShared, setWhatsAppShared] = useState(() => {
+    try {
+      return localStorage.getItem('invoicepro_whatsapp_invoice_shared') === '1';
+    } catch {
+      return false;
+    }
+  });
   const [onboardingDismissed, setOnboardingDismissed] = useState(() => {
     try {
       return localStorage.getItem('onboarding_dismissed') === '1';
@@ -138,6 +146,7 @@ export default function Dashboard() {
         pending: res.data.stats?.pending || 0,
         paid: res.data.stats?.paid || 0,
         total: res.data.stats?.total || 0,
+        paymentLinks: res.data.stats?.paymentLinks || 0,
         trends: res.data.stats?.trends || []
       });
 
@@ -224,6 +233,10 @@ export default function Dashboard() {
     ].join('\n\n');
 
     openWhatsAppShare(message);
+    try {
+      localStorage.setItem('invoicepro_whatsapp_invoice_shared', '1');
+      setWhatsAppShared(true);
+    } catch { }
     trackEvent('share_whatsapp_reminder', {
       location: 'dashboard',
       invoice_status: invoice.status,
@@ -298,6 +311,59 @@ export default function Dashboard() {
       note: `${acquisitionStats.followUpsDue || 0} follow-ups due`
     }
   ]), [acquisitionStats, acquisitionSummary]);
+
+  const setupChecklist = useMemo(() => {
+    const hasLogo = Boolean(user.logo);
+    const hasInvoice = Number(stats.total || 0) > 0;
+    const hasPaymentLink = Number(stats.paymentLinks || 0) > 0;
+    const hasPaidInvoice = Number(stats.paid || 0) > 0;
+    const firstPendingInvoice = invoices.find((invoice) => invoice.documentType !== 'proposal' && invoice.status !== 'paid');
+
+    return [
+      {
+        id: 'logo',
+        label: 'Add logo and business profile',
+        detail: 'Make every invoice look like it came from a real company.',
+        done: hasLogo,
+        cta: 'Open Settings',
+        action: () => navigate('/settings')
+      },
+      {
+        id: 'invoice',
+        label: 'Create first invoice',
+        detail: 'Add client, service, due date, and amount.',
+        done: hasInvoice,
+        cta: 'Create Invoice',
+        action: () => navigate('/create-invoice')
+      },
+      {
+        id: 'payment-link',
+        label: 'Create Razorpay payment link',
+        detail: 'Open an unpaid invoice and create a real hosted payment link.',
+        done: hasPaymentLink,
+        cta: firstPendingInvoice ? 'Open Invoice' : 'Create Invoice',
+        action: () => navigate(firstPendingInvoice ? `/invoice/${firstPendingInvoice._id}` : '/create-invoice')
+      },
+      {
+        id: 'whatsapp',
+        label: 'Share invoice on WhatsApp',
+        detail: 'Send the invoice or payment link where clients actually reply.',
+        done: whatsAppShared,
+        cta: firstPendingInvoice ? 'Send WhatsApp' : 'Create Invoice',
+        action: () => firstPendingInvoice ? sendWhatsAppReminder(firstPendingInvoice) : navigate('/create-invoice')
+      },
+      {
+        id: 'paid',
+        label: 'Collect first verified payment',
+        detail: 'Razorpay webhook should mark the invoice paid automatically.',
+        done: hasPaidInvoice,
+        cta: firstPendingInvoice ? 'Collect Payment' : 'View Dashboard',
+        action: () => firstPendingInvoice ? navigate(`/invoice/${firstPendingInvoice._id}`) : window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+      }
+    ];
+  }, [invoices, navigate, stats.paid, stats.paymentLinks, stats.total, user.logo, whatsAppShared]);
+
+  const setupCompleted = setupChecklist.filter((step) => step.done).length;
 
   const nextMoneyActions = useMemo(() => {
     const actions = [];
@@ -559,6 +625,62 @@ export default function Dashboard() {
               <p className="text-xs font-bold text-zinc-400">
                 Tip: If you bill monthly, turn on <span className="text-yellow-300 font-black">Recurring Invoice</span> on the creation page.
               </p>
+            </div>
+          </section>
+        )}
+
+        {!dashboardError && !loading && setupCompleted < setupChecklist.length && (
+          <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-5 shadow-2xl shadow-black/10 sm:p-8">
+            <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">First Customer Setup</p>
+                <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">
+                  Complete the path from signup to paid invoice.
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                  These are the actions a real user must understand fast: profile, invoice, Razorpay link, WhatsApp share, and verified payment.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Progress</p>
+                <p className="mt-1 text-3xl font-black text-white">{setupCompleted}/{setupChecklist.length}</p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              {setupChecklist.map((step, index) => (
+                <div key={step.id} className={`rounded-2xl border p-5 transition-all ${
+                  step.done
+                    ? 'border-emerald-400/15 bg-emerald-400/10'
+                    : 'border-white/8 bg-black/20 hover:border-yellow-400/20'
+                }`}>
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black ${
+                      step.done ? 'bg-emerald-400 text-black' : 'bg-white/10 text-zinc-300'
+                    }`}>
+                      {step.done ? 'OK' : index + 1}
+                    </span>
+                    <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${
+                      step.done
+                        ? 'border-emerald-400/20 text-emerald-300'
+                        : 'border-yellow-400/20 text-yellow-300'
+                    }`}>
+                      {step.done ? 'Done' : 'Next'}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-black leading-tight text-white">{step.label}</h3>
+                  <p className="mt-2 min-h-[48px] text-xs font-semibold leading-relaxed text-zinc-500">{step.detail}</p>
+                  {!step.done && (
+                    <button
+                      type="button"
+                      onClick={step.action}
+                      className="mt-5 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/[0.08]"
+                    >
+                      {step.cta}
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
           </section>
         )}
