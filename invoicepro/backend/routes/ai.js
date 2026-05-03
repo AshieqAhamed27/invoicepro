@@ -874,7 +874,7 @@ const buildClientFinderFallback = (context = {}) => {
             },
             {
                 platform: 'LinkedIn',
-                query: `${firstNiche} owner ${location}`
+                query: `${firstNiche} ${location}`
             },
             {
                 platform: 'Instagram',

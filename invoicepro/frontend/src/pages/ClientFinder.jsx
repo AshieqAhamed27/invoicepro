@@ -65,13 +65,22 @@ const getInstagramUrl = (value = '') => {
   return normalizeExternalUrl(trimmed);
 };
 
+const getBroadLeadQuery = (value = '') =>
+  String(value || '')
+    .replace(/\b(owner|founder|co-founder|ceo|director|manager|contact|email|phone|near|business)\b/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
 const getLeadSearchUrl = (platform = '', query = '') => {
-  const encoded = encodeURIComponent(query || '');
   const name = String(platform || '').toLowerCase();
 
   if (name.includes('linkedin')) {
-    return `https://www.linkedin.com/search/results/companies/?keywords=${encoded}`;
+    const cleanQuery = getBroadLeadQuery(query) || String(query || '').trim();
+    const linkedInGoogleQuery = `${cleanQuery} LinkedIn profiles companies`;
+    return `https://www.google.com/search?q=${encodeURIComponent(linkedInGoogleQuery)}`;
   }
+
+  const encoded = encodeURIComponent(query || '');
 
   if (name.includes('instagram')) {
     return `https://www.instagram.com/explore/search/keyword/?q=${encoded}`;
@@ -116,8 +125,8 @@ const getRealLeadSources = (context = {}, plan = null) => {
     },
     {
       platform: 'LinkedIn',
-      query: `${niche} owner founder ${location}`,
-      note: 'Find decision makers and company pages to message professionally.'
+      query: `${niche} ${location}`,
+      note: 'Opens broader Google results for LinkedIn profiles and company pages so smaller local markets do not show empty results.'
     },
     {
       platform: 'Instagram',
