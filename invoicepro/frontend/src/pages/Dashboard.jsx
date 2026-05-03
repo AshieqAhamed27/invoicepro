@@ -214,11 +214,12 @@ export default function Dashboard() {
 
   const sendWhatsAppReminder = (invoice) => {
     const publicUrl = `${window.location.origin}/public/invoice/${invoice._id}`;
+    const paymentUrl = invoice.paymentLink?.shortUrl || publicUrl;
     const message = [
       `Hi ${invoice.clientName},`,
       `This is a quick reminder for invoice ${invoice.invoiceNumber} of ${formatCurrency(invoice.amount)}.`,
       `Due date: ${formatDate(invoice.dueDate)}.`,
-      `You can view and pay here: ${publicUrl}`,
+      `You can view and pay here: ${paymentUrl}`,
       'Thank you.'
     ].join('\n\n');
 

@@ -136,6 +136,7 @@ export default function InvoiceView() {
   const [loading, setLoading] = useState(true);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [convertingProposal, setConvertingProposal] = useState(false);
+  const [creatingPaymentLink, setCreatingPaymentLink] = useState(false);
 
   useEffect(() => {
     fetchInvoice();
@@ -216,6 +217,9 @@ export default function InvoiceView() {
   const tax = Math.max(0, total - subtotal);
   const finalUpi = invoice.upiId || businessUpi || '';
   const publicDocumentUrl = `${window.location.origin}/public/invoice/${invoice._id}`;
+  const razorpayPaymentUrl = firstText(invoice.paymentLink?.shortUrl);
+  const paymentShareUrl = razorpayPaymentUrl || publicDocumentUrl;
+  const hasRazorpayPaymentLink = Boolean(razorpayPaymentUrl);
   const displayDate = meta.isProposal ? invoice.validUntil : invoice.dueDate;
   const upiLink = !meta.isProposal && finalUpi
     ? `upi://pay?pa=${finalUpi}&pn=${encodeURIComponent(companyName)}&am=${invoice.amount}&cu=INR`
@@ -224,12 +228,12 @@ export default function InvoiceView() {
   const publicActionLabel = meta.isProposal
     ? 'Open Proposal'
     : canCollectPayment
-      ? 'Pay Now'
+      ? (hasRazorpayPaymentLink ? 'Open Razorpay Link' : 'Open Pay Page')
       : 'Open Receipt';
   const publicQrLabel = meta.isProposal
     ? 'Proposal QR'
     : canCollectPayment
-      ? 'Payment QR'
+      ? (hasRazorpayPaymentLink ? 'Razorpay QR' : 'Payment QR')
       : 'Receipt QR';
 
   const statusClass = !meta.isProposal
@@ -484,13 +488,53 @@ export default function InvoiceView() {
     }
   };
 
+  const createPaymentLink = async ({ openAfterCreate = false } = {}) => {
+    if (!canCollectPayment) return null;
+
+    if (razorpayPaymentUrl) {
+      if (openAfterCreate) {
+        window.open(razorpayPaymentUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      return razorpayPaymentUrl;
+    }
+
+    try {
+      setCreatingPaymentLink(true);
+      const res = await api.post(`/payment/invoices/${invoice._id}/payment-link`);
+      const nextInvoice = res.data?.invoice || invoice;
+      const nextUrl = res.data?.paymentLink?.shortUrl || nextInvoice.paymentLink?.shortUrl || '';
+      setInvoice(nextInvoice);
+
+      trackEvent('create_invoice_payment_link', {
+        location: 'invoice_view',
+        value: total,
+        currency: invoice.currency || 'INR',
+        simulation: Boolean(res.data?.simulation)
+      });
+
+      if (openAfterCreate && nextUrl) {
+        window.open(nextUrl, '_blank', 'noopener,noreferrer');
+      }
+
+      return nextUrl;
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to create Razorpay payment link.');
+      return null;
+    } finally {
+      setCreatingPaymentLink(false);
+    }
+  };
+
   const sharePublicLink = async () => {
+    const shareUrl = meta.isProposal ? publicDocumentUrl : paymentShareUrl;
+
     try {
       if (navigator.share) {
         await navigator.share({
           title: `${meta.typeLabel} ${invoice?.invoiceNumber || ''}`,
           text: `View ${meta.typeLabel.toLowerCase()} ${invoice?.invoiceNumber || ''}`,
-          url: publicDocumentUrl
+          url: shareUrl
         });
         trackEvent('share_invoice_link', {
           method: 'native_share',
@@ -500,16 +544,16 @@ export default function InvoiceView() {
       }
 
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(publicDocumentUrl);
+        await navigator.clipboard.writeText(shareUrl);
         trackEvent('share_invoice_link', {
           method: 'clipboard',
           document_type: meta.typeLabel.toLowerCase()
         });
-        alert('Public link copied');
+        alert('Link copied');
         return;
       }
 
-      window.prompt('Copy this public link:', publicDocumentUrl);
+      window.prompt('Copy this link:', shareUrl);
     } catch {
       // User cancelled the share flow.
     }
@@ -520,7 +564,7 @@ export default function InvoiceView() {
       `Hi ${invoice.clientName},`,
       `This is a quick reminder for ${meta.typeLabel.toLowerCase()} ${invoice.invoiceNumber} of ${formatCurrency(total, invoice.currency)}.`,
       `${meta.dateLabel}: ${formatDate(displayDate)}.`,
-      `You can view${meta.isProposal ? '' : ' and pay'} here: ${publicDocumentUrl}`,
+      `You can view${meta.isProposal ? '' : ' and pay'} here: ${meta.isProposal ? publicDocumentUrl : paymentShareUrl}`,
       'Thank you.'
     ].join('\n\n');
 
@@ -593,10 +637,11 @@ export default function InvoiceView() {
             {!meta.isProposal && invoice.status !== 'paid' && (
               <button
                 type="button"
-                onClick={sharePublicLink}
+                onClick={() => createPaymentLink({ openAfterCreate: true })}
+                disabled={creatingPaymentLink}
                 className="btn btn-primary px-8 py-3 shadow-xl shadow-black/20 hover:-translate-y-0.5 transition-all"
               >
-                Share Payment Link
+                {creatingPaymentLink ? 'Creating Link...' : hasRazorpayPaymentLink ? 'Open Razorpay Link' : 'Create Razorpay Link'}
               </button>
             )}
 
@@ -651,24 +696,44 @@ export default function InvoiceView() {
               </p>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
-                <a
-                  href={publicDocumentUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    if (canCollectPayment) {
-                      trackEvent('begin_invoice_payment', {
-                        method: 'public_link',
-                        location: 'invoice_view_mobile_panel',
-                        value: total,
-                        currency: invoice.currency || 'INR'
-                      });
-                    }
-                  }}
-                  className="btn btn-primary justify-center px-6 py-3 text-center"
-                >
-                  {publicActionLabel}
-                </a>
+                {canCollectPayment ? (
+                  hasRazorpayPaymentLink ? (
+                    <a
+                      href={razorpayPaymentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        trackEvent('begin_invoice_payment', {
+                          method: 'razorpay_payment_link',
+                          location: 'invoice_view_mobile_panel',
+                          value: total,
+                          currency: invoice.currency || 'INR'
+                        });
+                      }}
+                      className="btn btn-primary justify-center px-6 py-3 text-center"
+                    >
+                      {publicActionLabel}
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => createPaymentLink({ openAfterCreate: true })}
+                      disabled={creatingPaymentLink}
+                      className="btn btn-primary justify-center px-6 py-3 text-center disabled:opacity-60"
+                    >
+                      {creatingPaymentLink ? 'Creating...' : 'Create Razorpay Link'}
+                    </button>
+                  )
+                ) : (
+                  <a
+                    href={publicDocumentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary justify-center px-6 py-3 text-center"
+                  >
+                    {publicActionLabel}
+                  </a>
+                )}
 
                 <button
                   type="button"
@@ -691,7 +756,7 @@ export default function InvoiceView() {
             </div>
 
             <div className="mx-auto w-full max-w-[150px] rounded-2xl border border-white/10 bg-white p-3 text-center shadow-xl shadow-black/20 md:ml-auto md:mr-0">
-              <QRCode value={publicDocumentUrl} size={124} className="h-auto w-full" />
+              <QRCode value={meta.isProposal ? publicDocumentUrl : paymentShareUrl} size={124} className="h-auto w-full" />
               <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
                 {publicQrLabel}
               </p>
@@ -906,6 +971,34 @@ export default function InvoiceView() {
                   <svg className="h-4 w-4 text-zinc-600 group-hover:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 </a>
 
+                {canCollectPayment && (
+                  hasRazorpayPaymentLink ? (
+                    <a
+                      href={razorpayPaymentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-4 rounded-2xl bg-emerald-400/10 border border-emerald-400/15 hover:bg-emerald-400/15 transition-all group"
+                    >
+                      <span className="text-xs font-bold text-emerald-300 group-hover:text-emerald-200">
+                        Open Razorpay Payment Link
+                      </span>
+                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => createPaymentLink({ openAfterCreate: true })}
+                      disabled={creatingPaymentLink}
+                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-emerald-400/10 border border-emerald-400/15 hover:bg-emerald-400/15 transition-all group disabled:opacity-60"
+                    >
+                      <span className="text-xs font-bold text-emerald-300 group-hover:text-emerald-200">
+                        {creatingPaymentLink ? 'Creating Razorpay Link...' : 'Create Razorpay Payment Link'}
+                      </span>
+                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" /></svg>
+                    </button>
+                  )
+                )}
+
                 <button
                   onClick={downloadPdf}
                   disabled={downloadingPdf}
@@ -921,7 +1014,9 @@ export default function InvoiceView() {
                   onClick={sharePublicLink}
                   className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all group"
                 >
-                  <span className="text-xs font-bold text-zinc-400 group-hover:text-white">Share Public Link</span>
+                  <span className="text-xs font-bold text-zinc-400 group-hover:text-white">
+                    {canCollectPayment && hasRazorpayPaymentLink ? 'Share Payment Link' : 'Share Public Link'}
+                  </span>
                   <svg className="h-4 w-4 text-zinc-600 group-hover:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C9.886 14.511 11.41 15.2 13 15.2c3.92 0 7.1-3.18 7.1-7.1S16.92 1 13 1 5.9 4.18 5.9 8.1c0 1.59.689 3.114 1.858 4.316M1 23l7-7m0 0l4-4m-4 4l4 4" /></svg>
                 </button>
               </div>

@@ -131,8 +131,19 @@ export default function PublicInvoice() {
   const sgst = Number(invoice.sgst || 0);
   const total = subtotal + (subtotal * (cgst + sgst)) / 100;
   const documentDate = invoiceMeta.isProposal ? invoice.validUntil : invoice.dueDate;
+  const razorpayPaymentUrl = firstText(invoice.paymentLink?.shortUrl);
 
   const handlePayNow = async () => {
+    if (razorpayPaymentUrl) {
+      trackEvent('begin_invoice_payment', {
+        method: 'razorpay_payment_link',
+        value: total,
+        currency: invoice.currency || 'INR'
+      });
+      window.location.href = razorpayPaymentUrl;
+      return;
+    }
+
     try {
       setPaying(true);
       trackEvent('begin_invoice_payment', {
@@ -259,6 +270,7 @@ export default function PublicInvoice() {
   const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && companyUpi
     ? `upi://pay?pa=${companyUpi}&pn=${encodeURIComponent(companyName)}&am=${total.toFixed(2)}&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}`
     : '';
+  const paymentQrValue = razorpayPaymentUrl || upiUri || window.location.href;
 
   const badgeContent = invoiceMeta.isProposal
     ? invoiceMeta.status === 'accepted'
@@ -384,12 +396,16 @@ export default function PublicInvoice() {
               <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-6">
                 <div className="flex flex-col sm:flex-row gap-6 items-center">
                   <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                    <QRCode value={upiUri} size={96} />
+                    <QRCode value={paymentQrValue} size={96} />
                   </div>
                   <div className="text-center sm:text-left">
-                    <p className="text-sm font-bold text-gray-900 mb-1">Scan to pay instantly</p>
+                    <p className="text-sm font-bold text-gray-900 mb-1">
+                      {razorpayPaymentUrl ? 'Scan to pay with Razorpay' : 'Scan to pay instantly'}
+                    </p>
                     <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-                      Use any UPI app like GPay, PhonePe, or Paytm to scan and pay the total amount.
+                      {razorpayPaymentUrl
+                        ? 'Use this secure Razorpay hosted link to pay by card, UPI, netbanking, or supported international methods.'
+                        : 'Use any UPI app like GPay, PhonePe, or Paytm to scan and pay the total amount.'}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <button
@@ -397,21 +413,23 @@ export default function PublicInvoice() {
                         disabled={paying}
                         className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-slate-950 text-white rounded-lg font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
                       >
-                        {paying ? 'Opening...' : 'Razorpay Secure'}
+                        {paying ? 'Opening...' : razorpayPaymentUrl ? 'Pay Securely' : 'Razorpay Secure'}
                       </button>
-                      <button
-                        onClick={() => {
-                          trackEvent('begin_invoice_payment', {
-                            method: 'upi_app',
-                            value: total,
-                            currency: invoice.currency || 'INR'
-                          });
-                          window.location.href = upiUri;
-                        }}
-                        className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-emerald-600 transition-all active:scale-95 uppercase tracking-widest md:hidden"
-                      >
-                        Pay via UPI App
-                      </button>
+                      {upiUri && (
+                        <button
+                          onClick={() => {
+                            trackEvent('begin_invoice_payment', {
+                              method: 'upi_app',
+                              value: total,
+                              currency: invoice.currency || 'INR'
+                            });
+                            window.location.href = upiUri;
+                          }}
+                          className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-emerald-600 transition-all active:scale-95 uppercase tracking-widest md:hidden"
+                        >
+                          Pay via UPI App
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

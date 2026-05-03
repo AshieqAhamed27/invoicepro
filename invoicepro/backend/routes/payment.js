@@ -311,6 +311,82 @@ const mapSubscriptionEntity = (entity = {}) => ({
     raw: entity
 });
 
+const normalizeNotes = (notes) => {
+    if (!notes || Array.isArray(notes)) return {};
+    return typeof notes === 'object' ? notes : {};
+};
+
+const getPaymentLinkPaymentId = (paymentLinkEntity = {}, paymentEntity = null) => {
+    if (paymentEntity?.id) return paymentEntity.id;
+    if (paymentLinkEntity.payment_id) return paymentLinkEntity.payment_id;
+
+    const payments = Array.isArray(paymentLinkEntity.payments) ? paymentLinkEntity.payments : [];
+    return payments.find((payment) => payment?.payment_id)?.payment_id || '';
+};
+
+const mapPaymentLinkEntity = (entity = {}, paymentEntity = null) => ({
+    provider: 'razorpay',
+    providerPaymentLinkId: entity.id || '',
+    shortUrl: entity.short_url || '',
+    status: entity.status || '',
+    amount: Number(entity.amount || 0) / 100,
+    currency: entity.currency || 'INR',
+    createdAt: unixToDate(entity.created_at),
+    paidAt: unixToDate(entity.paid_at) || (entity.status === 'paid' ? new Date() : null),
+    paymentId: getPaymentLinkPaymentId(entity, paymentEntity),
+    raw: entity
+});
+
+const isReusablePaymentLink = (paymentLink = {}) => {
+    if (!paymentLink.shortUrl || !paymentLink.providerPaymentLinkId) return false;
+    return !['paid', 'cancelled', 'expired'].includes(String(paymentLink.status || '').toLowerCase());
+};
+
+const sendInvoicePaymentConfirmation = (invoice) => {
+    setImmediate(async() => {
+        try {
+            const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
+            const senderName = invoice.user?.companyName || DEFAULT_COMPANY_NAME;
+            const template = paymentConfirmed({ invoice, publicUrl, senderName });
+
+            await sendEmail(invoice.clientEmail, template.subject, template);
+
+            const ownerEmail = invoice.user?.email;
+            if (ownerEmail && ownerEmail !== invoice.clientEmail) {
+                await sendEmail(ownerEmail, template.subject, template);
+            }
+        } catch (e) {}
+    });
+};
+
+const markInvoicePaidFromPayment = async(invoice, options = {}) => {
+    const previousStatus = invoice.status;
+    invoice.status = 'paid';
+    invoice.paidAt = invoice.paidAt || new Date();
+
+    if (options.paymentLinkEntity) {
+        invoice.paymentLink = {
+            ...(invoice.paymentLink?.toObject ? invoice.paymentLink.toObject() : invoice.paymentLink || {}),
+            ...mapPaymentLinkEntity(options.paymentLinkEntity, options.paymentEntity)
+        };
+    } else if (options.paymentId) {
+        invoice.paymentLink = {
+            ...(invoice.paymentLink?.toObject ? invoice.paymentLink.toObject() : invoice.paymentLink || {}),
+            paymentId: options.paymentId,
+            paidAt: invoice.paidAt,
+            status: 'paid'
+        };
+    }
+
+    await invoice.save();
+
+    if (previousStatus !== 'paid') {
+        sendInvoicePaymentConfirmation(invoice);
+    }
+
+    return invoice;
+};
+
 const getRazorpayErrorMessage = (body) => {
     return body?.error?.description ||
         body?.error?.reason ||
@@ -694,6 +770,109 @@ router.post('/razorpay/order', protect, async(req, res) => {
     }
 });
 
+router.post('/invoices/:id/payment-link', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) return rejectInvalidObjectId(res, 'invoice');
+
+        const invoice = await Invoice.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+        if (invoice.documentType === 'proposal') return res.status(400).json({ message: 'Proposals cannot be paid' });
+        if (invoice.status === 'paid') return res.status(400).json({ message: 'This invoice is already paid' });
+
+        const amount = Number(invoice.amount || 0);
+        if (!Number.isFinite(amount) || amount <= 0) {
+            return res.status(400).json({ message: 'Invoice amount must be greater than zero' });
+        }
+
+        if (isReusablePaymentLink(invoice.paymentLink)) {
+            return res.json({
+                message: 'Payment link already exists',
+                paymentLink: invoice.paymentLink,
+                invoice
+            });
+        }
+
+        const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
+
+        if (process.env.PAYMENT_SIMULATION === 'true') {
+            invoice.paymentLink = {
+                provider: 'razorpay',
+                providerPaymentLinkId: `plink_sim_${Date.now()}`,
+                shortUrl: publicUrl,
+                status: 'created',
+                amount,
+                currency: invoice.currency || 'INR',
+                createdAt: new Date(),
+                paidAt: null,
+                paymentId: '',
+                raw: { simulation: true }
+            };
+            await invoice.save();
+
+            return res.json({
+                simulation: true,
+                message: 'Simulation payment link created',
+                paymentLink: invoice.paymentLink,
+                invoice
+            });
+        }
+
+        const authHeader = getRazorpayAuthHeader();
+        if (!authHeader) return res.status(500).json({ message: 'Razorpay keys missing' });
+
+        const referenceId = `inv_${invoice._id}_${Date.now().toString(36)}`.slice(0, 40);
+        const razorpayRes = await requestRazorpay({
+            path: '/v1/payment_links',
+            authHeader,
+            payload: {
+                amount: Math.round(amount * 100),
+                currency: invoice.currency || 'INR',
+                accept_partial: false,
+                description: `Invoice ${invoice.invoiceNumber}`,
+                reference_id: referenceId,
+                customer: {
+                    name: invoice.clientName || 'Client',
+                    email: invoice.clientEmail || undefined
+                },
+                notify: {
+                    sms: false,
+                    email: false
+                },
+                reminder_enable: true,
+                callback_url: publicUrl || undefined,
+                callback_method: publicUrl ? 'get' : undefined,
+                notes: {
+                    invoiceId: String(invoice._id),
+                    userId: String(invoice.user),
+                    invoiceNumber: invoice.invoiceNumber
+                }
+            }
+        });
+
+        if (!razorpayRes.ok) {
+            return res.status(razorpayRes.status).json({
+                message: getRazorpayErrorMessage(razorpayRes.body)
+            });
+        }
+
+        invoice.paymentLink = mapPaymentLinkEntity(razorpayRes.body);
+        await invoice.save();
+
+        res.json({
+            message: 'Payment link created',
+            paymentLink: invoice.paymentLink,
+            invoice
+        });
+    } catch (err) {
+        console.error('Razorpay invoice payment link error:', err.message);
+        res.status(500).json({ message: 'Unable to create payment link' });
+    }
+});
+
 router.post('/public/order', async(req, res) => {
     try {
         const { invoiceId } = req.body;
@@ -754,28 +933,10 @@ router.post('/public/verify', async(req, res) => {
             if (shasum.digest('hex') !== razorpay_signature) return res.status(400).json({ message: 'Verification failed' });
         }
 
-        const previousStatus = invoice.status;
-        invoice.status = 'paid';
-        invoice.paidAt = new Date();
-        await invoice.save();
+        await markInvoicePaidFromPayment(invoice, {
+            paymentId: razorpay_payment_id
+        });
         res.json({ message: 'Success', status: 'paid' });
-
-        if (previousStatus !== 'paid') {
-            setImmediate(async() => {
-                try {
-                    const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
-                    const senderName = invoice.user?.companyName || DEFAULT_COMPANY_NAME;
-                    const template = paymentConfirmed({ invoice, publicUrl, senderName });
-
-                    await sendEmail(invoice.clientEmail, template.subject, template);
-
-                    const ownerEmail = invoice.user?.email;
-                    if (ownerEmail && ownerEmail !== invoice.clientEmail) {
-                        await sendEmail(ownerEmail, template.subject, template);
-                    }
-                } catch (e) {}
-            });
-        }
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
 
@@ -946,7 +1107,8 @@ router.post('/webhook', async (req, res) => {
         const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
         const signature = req.headers['x-razorpay-signature'];
 
-        if (secret && signature) {
+        if (secret) {
+            if (!signature) return res.status(400).json({ message: 'Missing signature' });
             const shasum = crypto.createHmac('sha256', secret);
             shasum.update(req.rawBody || JSON.stringify(req.body));
             if (shasum.digest('hex') !== signature) return res.status(400).json({ message: 'Invalid signature' });
@@ -961,28 +1123,43 @@ router.post('/webhook', async (req, res) => {
             );
         }
 
+        if (event === 'payment_link.paid') {
+            const paymentLinkEntity = payload?.payment_link?.entity;
+            const paymentEntity = payload?.payment?.entity;
+            const notes = {
+                ...normalizeNotes(paymentLinkEntity?.notes),
+                ...normalizeNotes(paymentEntity?.notes)
+            };
+
+            let inv = null;
+            if (notes.invoiceId && isValidObjectId(notes.invoiceId)) {
+                inv = await Invoice.findById(notes.invoiceId).populate('user', 'companyName name email');
+            } else if (paymentLinkEntity?.id) {
+                inv = await Invoice.findOne({
+                    'paymentLink.providerPaymentLinkId': paymentLinkEntity.id
+                }).populate('user', 'companyName name email');
+            }
+
+            if (inv && inv.documentType !== 'proposal') {
+                await markInvoicePaidFromPayment(inv, {
+                    paymentLinkEntity,
+                    paymentEntity
+                });
+            }
+        }
+
         if (event === 'payment.captured' || event === 'order.paid') {
-            const notes = (payload.payment?.entity?.notes) || (payload.order?.entity?.notes);
+            const paymentEntity = payload?.payment?.entity;
+            const orderEntity = payload?.order?.entity;
+            const notes = {
+                ...normalizeNotes(orderEntity?.notes),
+                ...normalizeNotes(paymentEntity?.notes)
+            };
             if (notes?.invoiceId && isValidObjectId(notes.invoiceId)) {
                 const inv = await Invoice.findById(notes.invoiceId).populate('user', 'companyName name email');
-                if (inv && inv.documentType !== 'proposal' && inv.status !== 'paid') {
-                    inv.status = 'paid';
-                    inv.paidAt = new Date();
-                    await inv.save();
-
-                    setImmediate(async() => {
-                        try {
-                            const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, inv._id);
-                            const senderName = inv.user?.companyName || DEFAULT_COMPANY_NAME;
-                            const template = paymentConfirmed({ invoice: inv, publicUrl, senderName });
-
-                            await sendEmail(inv.clientEmail, template.subject, template);
-
-                            const ownerEmail = inv.user?.email;
-                            if (ownerEmail && ownerEmail !== inv.clientEmail) {
-                                await sendEmail(ownerEmail, template.subject, template);
-                            }
-                        } catch (e) {}
+                if (inv && inv.documentType !== 'proposal') {
+                    await markInvoicePaidFromPayment(inv, {
+                        paymentId: paymentEntity?.id
                     });
                 }
             }

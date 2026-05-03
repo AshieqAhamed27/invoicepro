@@ -1069,7 +1069,7 @@ router.post('/:id/reminder', protect, async(req, res) => {
         if (isProposalDocument(invoice.documentType)) return res.status(400).json({ message: 'Use the public proposal link to request approval' });
         if (invoice.status === 'paid') return res.status(400).json({ message: 'Already paid' });
 
-        const publicLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
+        const publicLink = invoice.paymentLink?.shortUrl || getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
 
         const senderName = req.user.companyName || DEFAULT_COMPANY_NAME;
         const template = invoiceReminder({ invoice, publicUrl: publicLink, senderName });
