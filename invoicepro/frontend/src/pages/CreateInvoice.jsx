@@ -4,6 +4,7 @@ import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import { getUser } from '../utils/auth';
 import AIBillingAgent from '../components/AIBillingAgent';
+import PriceSuggestionAgent from '../components/PriceSuggestionAgent';
 import { trackEvent } from '../utils/analytics';
 
 const formatCurrency = (amount) =>
@@ -244,6 +245,29 @@ export default function CreateInvoice() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const applySuggestedPrice = (price, label = 'Professional service package') => {
+    const cleanPrice = Number(price || 0);
+    if (!cleanPrice) return;
+
+    setItems([
+      {
+        name: label,
+        price: String(cleanPrice)
+      }
+    ]);
+
+    if (!form.serviceDescription) {
+      setForm((prev) => ({
+        ...prev,
+        serviceDescription: isProposal
+          ? `Proposed scope for ${label}. Includes delivery, review, and handover support.`
+          : `Professional services for ${label}. Includes delivery, review, and handover support.`
+      }));
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     try {
       const storedDraft = localStorage.getItem('invoicepro_ai_invoice_draft');
@@ -356,6 +380,22 @@ export default function CreateInvoice() {
               total
             }}
             onApplyDraft={applyAiDraft}
+          />
+        </div>
+
+        <div className="reveal reveal-delay-2 mb-8">
+          <PriceSuggestionAgent
+            context={{
+              documentType,
+              serviceDescription: form.serviceDescription,
+              items,
+              subtotal,
+              tax,
+              total,
+              clientName: form.clientName,
+              clientEmail: form.clientEmail
+            }}
+            onApplyPrice={applySuggestedPrice}
           />
         </div>
 

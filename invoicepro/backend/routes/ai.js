@@ -452,6 +452,193 @@ const compactText = (value, fallback = '') =>
         .replace(/\s+/g, ' ')
         .trim();
 
+const roundPrice = (value) => {
+    const amount = Number(value || 0);
+    const step = amount < 10000 ? 500 : amount < 100000 ? 1000 : 5000;
+    return Math.max(step, Math.round(amount / step) * step);
+};
+
+const getPriceCategory = (text) => {
+    const value = String(text || '').toLowerCase();
+
+    if (/\b(ecommerce|e-commerce|shopify|woocommerce|online store|payment gateway)\b/.test(value)) {
+        return { label: 'E-commerce website', low: 25000, recommended: 55000, high: 120000 };
+    }
+
+    if (/\b(web app|saas|dashboard|crm|portal|admin panel|mern|full stack|full-stack)\b/.test(value)) {
+        return { label: 'Web application / SaaS work', low: 40000, recommended: 90000, high: 220000 };
+    }
+
+    if (/\b(website|wordpress|business site|portfolio site|company site)\b/.test(value)) {
+        return { label: 'Business website', low: 12000, recommended: 28000, high: 65000 };
+    }
+
+    if (/\b(landing page|sales page|lead page)\b/.test(value)) {
+        return { label: 'Landing page', low: 7000, recommended: 16000, high: 35000 };
+    }
+
+    if (/\b(logo|brand identity|branding|brand kit)\b/.test(value)) {
+        return { label: 'Branding / logo design', low: 3000, recommended: 10000, high: 30000 };
+    }
+
+    if (/\b(social media|instagram|facebook|content calendar|posts|reels)\b/.test(value)) {
+        return { label: 'Social media package', low: 6000, recommended: 18000, high: 45000 };
+    }
+
+    if (/\b(seo|search engine|google ranking|technical seo)\b/.test(value)) {
+        return { label: 'SEO service', low: 8000, recommended: 22000, high: 60000 };
+    }
+
+    if (/\b(video|editing|reel|youtube|motion graphics)\b/.test(value)) {
+        return { label: 'Video editing / motion work', low: 2500, recommended: 10000, high: 35000 };
+    }
+
+    if (/\b(copywriting|content writing|blog|article|script)\b/.test(value)) {
+        return { label: 'Writing / content service', low: 1500, recommended: 6000, high: 20000 };
+    }
+
+    if (/\b(consulting|consultation|strategy|audit|training)\b/.test(value)) {
+        return { label: 'Consulting / strategy service', low: 5000, recommended: 18000, high: 75000 };
+    }
+
+    return { label: 'Professional service project', low: 5000, recommended: 18000, high: 50000 };
+};
+
+const getComplexityMultiplier = (complexity) => ({
+    simple: 0.78,
+    standard: 1,
+    advanced: 1.45,
+    premium: 1.9
+}[String(complexity || 'standard').toLowerCase()] || 1);
+
+const getExperienceMultiplier = (experienceLevel) => ({
+    beginner: 0.78,
+    intermediate: 1,
+    senior: 1.35,
+    expert: 1.7
+}[String(experienceLevel || 'intermediate').toLowerCase()] || 1);
+
+const getClientMultiplier = (clientType) => ({
+    individual: 0.85,
+    small_business: 1,
+    startup: 1.18,
+    agency: 1.28,
+    enterprise: 1.65
+}[String(clientType || 'small_business').toLowerCase()] || 1);
+
+const getTimelineMultiplier = (timeline) => {
+    const value = String(timeline || '').toLowerCase();
+    if (/\b(today|tomorrow|urgent|rush|24|48)\b/.test(value)) return 1.35;
+    if (/\b(week|7 days|fast)\b/.test(value)) return 1.15;
+    return 1;
+};
+
+const buildPriceSuggestionFallback = (context = {}) => {
+    const items = getContextItems(context);
+    const serviceText = compactText(
+        [
+            context.serviceName,
+            context.serviceDescription,
+            context.scope,
+            items.map((item) => item.name).join(', ')
+        ].filter(Boolean).join(' '),
+        'professional service project'
+    );
+    const category = getPriceCategory(serviceText);
+    const multiplier =
+        getComplexityMultiplier(context.complexity) *
+        getExperienceMultiplier(context.experienceLevel) *
+        getClientMultiplier(context.clientType) *
+        getTimelineMultiplier(context.timeline);
+    const low = roundPrice(category.low * multiplier);
+    const recommended = roundPrice(category.recommended * multiplier);
+    const high = Math.max(recommended + 1000, roundPrice(category.high * multiplier));
+    const currentTotal = toMoneyNumber(context.currentTotal || context.amount);
+    const currentTotalSignal = currentTotal
+        ? currentTotal < low
+            ? 'below_range'
+            : currentTotal > high
+                ? 'above_range'
+                : 'inside_range'
+        : 'not_set';
+
+    return {
+        serviceLabel: category.label,
+        currency: 'INR',
+        pricingModel: 'Fixed project',
+        range: { low, recommended, high },
+        confidence: serviceText.length > 20 ? 'Medium' : 'Low',
+        currentTotal,
+        currentTotalSignal,
+        strategyTips: [
+            currentTotalSignal === 'below_range'
+                ? 'Your current invoice total looks below the suggested range. Increase scope clarity or quote closer to the recommended number.'
+                : currentTotalSignal === 'above_range'
+                    ? 'Your current total is above the suggested range. Justify it with stronger deliverables, timeline, support, or measurable outcomes.'
+                    : 'Keep the recommended price as the main quote, then show a smaller starter option and a higher premium option.',
+            'Avoid quoting only one number. Offer three packages so the client can choose based on value, not only cost.',
+            'Mention revision limits, delivery timeline, and what is excluded. Clear boundaries protect your margin.',
+            'For urgent delivery, add a rush fee instead of silently absorbing extra pressure.'
+        ],
+        packageIdeas: [
+            {
+                name: 'Starter',
+                price: low,
+                positioning: 'Lean version with essential deliverables and limited revisions.'
+            },
+            {
+                name: 'Recommended',
+                price: recommended,
+                positioning: 'Best balance of scope, quality, review, and delivery support.'
+            },
+            {
+                name: 'Premium',
+                price: high,
+                positioning: 'Full-scope delivery with priority turnaround, extra revisions, and handover support.'
+            }
+        ],
+        assumptions: [
+            'Estimate is based on Indian freelancer and small-business project pricing patterns.',
+            'Final price should change based on exact scope, deadlines, revisions, assets, and client expectations.'
+        ],
+        disclaimer: 'This is a pricing estimate, not a guaranteed market rate.'
+    };
+};
+
+const normalizePriceSuggestion = (value, fallback) => {
+    const raw = value && typeof value === 'object' ? value : {};
+    const fallbackRange = fallback.range;
+    const low = roundPrice(raw?.range?.low || raw.low || fallbackRange.low);
+    const recommended = roundPrice(raw?.range?.recommended || raw.recommended || fallbackRange.recommended);
+    const high = Math.max(recommended, roundPrice(raw?.range?.high || raw.high || fallbackRange.high));
+
+    return {
+        serviceLabel: compactText(raw.serviceLabel, fallback.serviceLabel),
+        currency: 'INR',
+        pricingModel: compactText(raw.pricingModel, fallback.pricingModel),
+        range: { low, recommended, high },
+        confidence: compactText(raw.confidence, fallback.confidence),
+        currentTotal: toMoneyNumber(raw.currentTotal || fallback.currentTotal),
+        currentTotalSignal: compactText(raw.currentTotalSignal, fallback.currentTotalSignal),
+        strategyTips: (Array.isArray(raw.strategyTips) && raw.strategyTips.length ? raw.strategyTips : fallback.strategyTips)
+            .map((tip) => compactText(tip))
+            .filter(Boolean)
+            .slice(0, 5),
+        packageIdeas: (Array.isArray(raw.packageIdeas) && raw.packageIdeas.length ? raw.packageIdeas : fallback.packageIdeas)
+            .map((item) => ({
+                name: compactText(item?.name, 'Package'),
+                price: roundPrice(item?.price || recommended),
+                positioning: compactText(item?.positioning, 'Clear scope and delivery expectations.')
+            }))
+            .slice(0, 3),
+        assumptions: (Array.isArray(raw.assumptions) && raw.assumptions.length ? raw.assumptions : fallback.assumptions)
+            .map((assumption) => compactText(assumption))
+            .filter(Boolean)
+            .slice(0, 4),
+        disclaimer: compactText(raw.disclaimer, fallback.disclaimer)
+    };
+};
+
 const pickVariant = (seed, count) => {
     const text = String(seed || Date.now());
     let hash = 0;
@@ -628,6 +815,77 @@ const callOpenAiInvoiceDraft = ({ message, user }) => new Promise((resolve, reje
     request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
     request.write(payload);
     request.end();
+});
+
+const callOpenAiPriceSuggestion = ({ context, fallback }) => new Promise((resolve, reject) => {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) return resolve(null);
+
+    const prompt = [
+        'You are InvoicePro AI, a pricing strategy assistant for Indian freelancers, consultants, agencies, and service businesses.',
+        'Return only valid JSON. No markdown, no explanation.',
+        'Give a realistic INR project price range and strategy tips. Do not guarantee exact market rates.',
+        'JSON shape: serviceLabel, pricingModel, range{low,recommended,high}, confidence, currentTotalSignal, strategyTips[], packageIdeas[{name,price,positioning}], assumptions[], disclaimer.',
+        'Keep prices as numbers in INR. Use practical Indian small-business context.',
+        `Service context: ${JSON.stringify(context)}`,
+        `Rule baseline: ${JSON.stringify(fallback)}`
+    ].join('\n');
+
+    const payload = JSON.stringify({
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
+        input: prompt
+    });
+
+    const request = https.request({
+        hostname: 'api.openai.com',
+        path: '/v1/responses',
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload)
+        },
+        timeout: 12000
+    }, (response) => {
+        let raw = '';
+        response.on('data', (chunk) => { raw += chunk; });
+        response.on('end', () => {
+            try {
+                const body = raw ? JSON.parse(raw) : {};
+                if (response.statusCode < 200 || response.statusCode >= 300) {
+                    return reject(new Error(body?.error?.message || 'OpenAI request failed'));
+                }
+
+                resolve(extractJsonObject(extractOpenAiText(body)));
+            } catch (err) {
+                reject(err);
+            }
+        });
+    });
+
+    request.on('error', reject);
+    request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
+    request.write(payload);
+    request.end();
+});
+
+router.post('/price-suggestion', protect, async(req, res) => {
+    const context = req.body?.context || {};
+    const fallback = buildPriceSuggestionFallback(context);
+
+    try {
+        const openAiSuggestion = await callOpenAiPriceSuggestion({ context, fallback });
+        res.json({
+            source: openAiSuggestion ? 'openai' : 'rules',
+            suggestion: normalizePriceSuggestion(openAiSuggestion, fallback)
+        });
+    } catch (err) {
+        console.error('AI PRICE SUGGESTION FALLBACK:', err.message);
+        res.json({
+            source: 'rules',
+            suggestion: fallback
+        });
+    }
 });
 
 router.post('/agent', protect, async(req, res) => {
