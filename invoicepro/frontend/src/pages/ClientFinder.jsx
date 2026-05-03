@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { trackEvent } from '../utils/analytics';
+import { getWhatsAppShareUrl } from '../utils/whatsapp';
 
 const formatMoney = (amount) =>
   `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
@@ -22,7 +23,10 @@ const defaultLeadForm = {
   businessName: '',
   contactName: '',
   email: '',
+  phone: '',
   website: '',
+  linkedinUrl: '',
+  instagramUrl: '',
   niche: '',
   pain: '',
   budget: '',
@@ -30,6 +34,49 @@ const defaultLeadForm = {
 };
 
 const inputClass = 'input bg-black/25';
+const actionLinkClass = 'flex min-h-10 w-full items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-yellow-400/25 hover:bg-white/[0.08] hover:text-white';
+
+const normalizeExternalUrl = (value = '') => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (/^(https?:|mailto:|tel:)/i.test(trimmed)) return trimmed;
+  return `https://${trimmed.replace(/^\/+/, '')}`;
+};
+
+const getCleanPhone = (value = '') => String(value || '').replace(/\D/g, '');
+
+const getLinkedInUrl = (value = '') => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('@')) return `https://www.linkedin.com/in/${trimmed.slice(1)}`;
+  return normalizeExternalUrl(trimmed);
+};
+
+const getInstagramUrl = (value = '') => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('@')) return `https://www.instagram.com/${trimmed.slice(1)}`;
+  return normalizeExternalUrl(trimmed);
+};
+
+const getLeadSearchUrl = (platform = '', query = '') => {
+  const encoded = encodeURIComponent(query || '');
+  const name = String(platform || '').toLowerCase();
+
+  if (name.includes('linkedin')) {
+    return `https://www.linkedin.com/search/results/companies/?keywords=${encoded}`;
+  }
+
+  if (name.includes('instagram')) {
+    return `https://www.instagram.com/explore/search/keyword/?q=${encoded}`;
+  }
+
+  if (name.includes('map')) {
+    return `https://www.google.com/maps/search/${encoded}`;
+  }
+
+  return `https://www.google.com/search?q=${encoded}`;
+};
 
 const loadSavedLeads = () => {
   try {
@@ -41,7 +88,7 @@ const loadSavedLeads = () => {
 };
 
 const getLeadFit = (lead, plan, form) => {
-  const text = `${lead.businessName} ${lead.niche} ${lead.pain} ${lead.website}`.toLowerCase();
+  const text = `${lead.businessName} ${lead.niche} ${lead.pain} ${lead.website} ${lead.linkedinUrl} ${lead.instagramUrl}`.toLowerCase();
   const targetText = `${plan?.bestNiche || ''} ${form.targetMarket || ''} ${form.service || ''}`.toLowerCase();
   const starterPrice = Number(plan?.starterOffer?.price || form.projectPrice || 0);
   const budget = Number(lead.budget || 0);
@@ -58,9 +105,19 @@ const getLeadFit = (lead, plan, form) => {
     reasons.push('Direct contact available');
   }
 
+  if (getCleanPhone(lead.phone).length >= 10) {
+    score += 12;
+    reasons.push('Call or WhatsApp contact available');
+  }
+
   if (lead.website.trim()) {
     score += 8;
     reasons.push('Online presence can be reviewed');
+  }
+
+  if (lead.linkedinUrl.trim() || lead.instagramUrl.trim()) {
+    score += 10;
+    reasons.push('Social profile available for direct message');
   }
 
   if (lead.pain.trim().length > 12) {
@@ -138,6 +195,33 @@ const buildLeadProposalDraft = (lead, plan) => ({
     ? `Lead budget signal: ${formatMoney(lead.budget)}. ${plan?.proposalDraft?.notes || ''}`.trim()
     : plan?.proposalDraft?.notes
 });
+
+const getLeadContactActions = (lead, message) => {
+  const cleanPhone = getCleanPhone(lead?.phone);
+  const linkedinUrl = getLinkedInUrl(lead?.linkedinUrl);
+  const instagramUrl = getInstagramUrl(lead?.instagramUrl);
+  const websiteUrl = normalizeExternalUrl(lead?.website);
+  const email = String(lead?.email || '').trim();
+  const actions = [];
+
+  if (cleanPhone) {
+    actions.push({ label: 'Call', href: `tel:${cleanPhone}` });
+    actions.push({ label: 'WhatsApp', href: getWhatsAppShareUrl(message, cleanPhone), external: true });
+  }
+
+  if (email) {
+    actions.push({
+      label: 'Email',
+      href: `mailto:${email}?subject=${encodeURIComponent('Quick idea for your business')}&body=${encodeURIComponent(message)}`
+    });
+  }
+
+  if (linkedinUrl) actions.push({ label: 'LinkedIn', href: linkedinUrl, external: true });
+  if (instagramUrl) actions.push({ label: 'Instagram', href: instagramUrl, external: true });
+  if (websiteUrl) actions.push({ label: 'Website', href: websiteUrl, external: true });
+
+  return actions;
+};
 
 export default function ClientFinder() {
   const navigate = useNavigate();
@@ -252,6 +336,8 @@ export default function ClientFinder() {
   const copyLeadOutreach = async (lead = leadForm) => {
     await copyText(buildLeadOutreach(lead, plan, form), 'Lead outreach');
   };
+
+  const currentLeadActions = getLeadContactActions(leadForm, buildLeadOutreach(leadForm, plan, form));
 
   const startProposal = (lead = null) => {
     if (!plan?.proposalDraft) return;
@@ -456,9 +542,9 @@ export default function ClientFinder() {
                     </p>
                   </div>
 
-                  <div className="mt-6 grid gap-3 md:grid-cols-5">
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                     {(plan.growthSystem?.pipeline || []).map((stage, index) => (
-                      <div key={`${stage.stage}-${index}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <div key={`${stage.stage}-${index}`} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
                         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-yellow-400 text-xs font-black text-black">
                           {index + 1}
                         </span>
@@ -508,11 +594,41 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Website / Profile</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Phone</span>
+                        <input
+                          value={leadForm.phone}
+                          onChange={(event) => updateLeadField('phone', event.target.value)}
+                          placeholder="Example: 9876543210"
+                          className={inputClass}
+                        />
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Website</span>
                         <input
                           value={leadForm.website}
                           onChange={(event) => updateLeadField('website', event.target.value)}
-                          placeholder="Website, Instagram, LinkedIn"
+                          placeholder="https://business.com"
+                          className={inputClass}
+                        />
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">LinkedIn</span>
+                        <input
+                          value={leadForm.linkedinUrl}
+                          onChange={(event) => updateLeadField('linkedinUrl', event.target.value)}
+                          placeholder="linkedin.com/company/name"
+                          className={inputClass}
+                        />
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Instagram</span>
+                        <input
+                          value={leadForm.instagramUrl}
+                          onChange={(event) => updateLeadField('instagramUrl', event.target.value)}
+                          placeholder="@businessname"
                           className={inputClass}
                         />
                       </label>
@@ -620,6 +736,30 @@ export default function ClientFinder() {
                         Create Proposal
                       </button>
                     </div>
+
+                    <div className="mt-6 rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Direct Client Links</p>
+                      {currentLeadActions.length ? (
+                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                          {currentLeadActions.map((action) => (
+                            <a
+                              key={`${action.label}-${action.href}`}
+                              href={action.href}
+                              target={action.external ? '_blank' : undefined}
+                              rel={action.external ? 'noopener noreferrer' : undefined}
+                              className={actionLinkClass}
+                              onClick={() => trackEvent('open_growth_lead_contact', { channel: action.label.toLowerCase() })}
+                            >
+                              {action.label}
+                            </a>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">
+                          Add phone, email, LinkedIn, Instagram, or website to message or call this prospect directly.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -641,15 +781,31 @@ export default function ClientFinder() {
                     <h3 className="text-xl font-black text-white">Lead Searches</h3>
                     <div className="mt-5 space-y-3">
                       {(plan.leadSearches || []).map((lead, index) => (
-                        <button
+                        <div
                           key={`${lead.platform}-${index}`}
-                          type="button"
-                          onClick={() => copyText(lead.query, `${lead.platform} search`)}
-                          className="w-full rounded-2xl border border-white/8 bg-black/20 p-4 text-left transition hover:bg-white/[0.06]"
+                          className="rounded-2xl border border-white/8 bg-black/20 p-4"
                         >
                           <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{lead.platform}</p>
                           <p className="mt-2 break-words text-sm font-bold text-white">{lead.query}</p>
-                        </button>
+                          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                            <a
+                              href={getLeadSearchUrl(lead.platform, lead.query)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={actionLinkClass}
+                              onClick={() => trackEvent('open_lead_search', { platform: lead.platform })}
+                            >
+                              Open Search
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => copyText(lead.query, `${lead.platform} search`)}
+                              className={actionLinkClass}
+                            >
+                              Copy Query
+                            </button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -762,46 +918,67 @@ export default function ClientFinder() {
                     <h3 className="text-xl font-black text-white">Saved Growth Leads</h3>
                     <div className="mt-5 space-y-3">
                       {savedLeads.length ? (
-                        savedLeads.map((lead) => (
-                          <div key={lead.id} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-black text-white">{lead.businessName || lead.contactName || lead.email}</p>
-                                <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-zinc-600">
-                                  {lead.fitLabel} / Score {lead.fitScore}
-                                </p>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => startProposal(lead)}
-                                className="shrink-0 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15"
-                              >
-                                Proposal
-                              </button>
-                            </div>
-                            {lead.pain && (
-                              <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">{lead.pain}</p>
-                            )}
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={() => copyLeadOutreach(lead)}
-                                className="rounded-lg border border-sky-400/20 bg-sky-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-sky-300"
-                              >
-                                Copy Pitch
-                              </button>
-                              {lead.email && (
+                        savedLeads.map((lead) => {
+                          const contactActions = getLeadContactActions(lead, buildLeadOutreach(lead, plan, form));
+
+                          return (
+                            <div key={lead.id} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-black text-white">{lead.businessName || lead.contactName || lead.email}</p>
+                                  <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                                    {lead.fitLabel} / Score {lead.fitScore}
+                                  </p>
+                                </div>
                                 <button
                                   type="button"
-                                  onClick={() => saveLeadAsClient(lead)}
-                                  className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300"
+                                  onClick={() => startProposal(lead)}
+                                  className="shrink-0 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15"
                                 >
-                                  Save Client
+                                  Proposal
                                 </button>
+                              </div>
+                              {lead.pain && (
+                                <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">{lead.pain}</p>
+                              )}
+                              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                                <button
+                                  type="button"
+                                  onClick={() => copyLeadOutreach(lead)}
+                                  className={actionLinkClass}
+                                >
+                                  Copy Pitch
+                                </button>
+                                {lead.email && (
+                                  <button
+                                    type="button"
+                                    onClick={() => saveLeadAsClient(lead)}
+                                    className={actionLinkClass}
+                                  >
+                                    Save Client
+                                  </button>
+                                )}
+                              </div>
+
+                              {contactActions.length > 0 && (
+                                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                                  {contactActions.map((action) => (
+                                    <a
+                                      key={`${lead.id}-${action.label}-${action.href}`}
+                                      href={action.href}
+                                      target={action.external ? '_blank' : undefined}
+                                      rel={action.external ? 'noopener noreferrer' : undefined}
+                                      className={actionLinkClass}
+                                      onClick={() => trackEvent('open_saved_growth_lead_contact', { channel: action.label.toLowerCase() })}
+                                    >
+                                      {action.label}
+                                    </a>
+                                  ))}
+                                </div>
                               )}
                             </div>
-                          </div>
-                        ))
+                          );
+                        })
                       ) : (
                         <div className="rounded-2xl border border-white/8 bg-black/20 p-6 text-center">
                           <p className="text-sm font-bold text-zinc-400">No growth leads saved yet.</p>
