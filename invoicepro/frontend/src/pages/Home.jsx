@@ -10,20 +10,20 @@ import { trackCtaClick } from '../utils/analytics';
 
 const trustSignals = [
   {
-    title: 'Public invoice links',
-    description: 'Clients can open the invoice or proposal from a normal browser without creating an account.'
+    title: 'AI lead fit radar',
+    description: 'Score freelance prospects by pain, budget, urgency, niche fit, and next action before you spend time pitching.'
+  },
+  {
+    title: 'Client finder workspace',
+    description: 'Turn skills into target niches, search queries, outreach messages, discovery questions, and saved growth leads.'
+  },
+  {
+    title: 'Proposal to invoice',
+    description: 'Move an interested lead into a proposal, then convert accepted work into a payable invoice from the same product.'
   },
   {
     title: 'Razorpay and UPI collection',
     description: 'Use a recognizable checkout flow with Razorpay and provide UPI-ready payment details.'
-  },
-  {
-    title: 'AI revenue coaching',
-    description: 'Spot overdue revenue, copy client reminders, and prioritize the invoices most likely to unlock cash.'
-  },
-  {
-    title: 'AI client finder',
-    description: 'Turn freelance skills into target niches, outreach messages, fixed packages, and proposal drafts.'
   },
   {
     title: 'WhatsApp-first reminders',
@@ -38,22 +38,27 @@ const trustSignals = [
 const workflow = [
   {
     step: '01',
-    title: 'Prepare a complete invoice',
-    description: 'Add client details, line items, GST fields, due dates, notes, and payment instructions in one place.'
+    title: 'Find a better-fit client',
+    description: 'Use AI to choose a niche, build lead searches, score real prospects, and prepare a useful first message.'
   },
   {
     step: '02',
-    title: 'Share a link clients understand',
-    description: 'Send a clean invoice page by email or chat so clients see the amount, due date, and payment options clearly.'
+    title: 'Pitch with a clear package',
+    description: 'Create discovery questions, objection replies, service packages, and a proposal draft from the same client plan.'
   },
   {
     step: '03',
-    title: 'Track payment status without guesswork',
-    description: 'Monitor pending and paid invoices, send reminders, and manage recurring billing for repeat clients.'
+    title: 'Invoice and collect payment',
+    description: 'Convert accepted work into invoices, share public payment links, and follow up on pending revenue.'
   }
 ];
 
 const proofBlocks = [
+  {
+    title: 'Not just invoicing',
+    description: 'InvoicePro helps freelancers work from prospect to payment instead of only creating a bill at the end.',
+    bullets: ['AI lead scoring before outreach', 'Saved growth leads and personalized pitch copy', 'Proposal drafts connected to invoice creation']
+  },
   {
     title: 'Clear before clients pay',
     description: 'The billing page can show the invoice number, due date, itemized amount, tax split, and who the invoice is from.',
@@ -63,15 +68,14 @@ const proofBlocks = [
     title: 'Checkout they recognize',
     description: 'When the invoice is ready to collect, clients can use a familiar Razorpay flow or pay from a UPI app.',
     bullets: ['Razorpay checkout for online collection', 'UPI QR and deep-link options on public invoices', 'Paid status reflected back into the product after collection']
-  },
-  {
-    title: 'Support that is actually reachable',
-    description: 'The homepage now shows a real contact path so the product does not feel anonymous or unfinished.',
-    bullets: ['Visible support email in the landing experience', 'Pricing presented before checkout starts', 'No fake roadmap or placeholder resource links']
   }
 ];
 
 const faqs = [
+  {
+    question: 'Can InvoicePro help me find freelance clients?',
+    answer: 'Yes. The AI client finder helps you choose target niches, score prospects, write outreach, prepare discovery questions, and move interested leads into proposals.'
+  },
   {
     question: 'Do my clients need an InvoicePro account to pay?',
     answer: 'No. Invoice and proposal links open in a browser, so clients can review the document and pay without signing up.'
@@ -107,7 +111,7 @@ const plans = [
     name: 'Free',
     price: 'Rs 0',
     suffix: '/ forever',
-    description: 'For testing your invoice flow with the first few client payments.',
+    description: 'For testing the client-to-invoice workflow with your first prospects.',
     features: ['2 invoices included', 'Public invoice page', 'Saved client basics'],
     cta: 'Start Free',
     featured: false,
@@ -117,7 +121,7 @@ const plans = [
     name: 'Pro Monthly',
     price: 'Rs 499',
     suffix: '/ month',
-    description: 'For consultants and solo operators who bill clients every month.',
+    description: 'For freelancers who want one place to find, pitch, invoice, and follow up.',
     features: ['Unlimited invoices', 'Razorpay and UPI collection flow', 'AI client finder and reminders'],
     cta: 'Upgrade Monthly',
     featured: false,
@@ -127,7 +131,7 @@ const plans = [
     name: 'Pro Annual',
     price: 'Rs 4,999',
     suffix: '/ year',
-    description: 'For agencies and repeat-billing teams that want the lower effective monthly cost.',
+    description: 'For freelancers and agencies building a repeatable client pipeline.',
     features: ['Everything in Monthly', 'Recurring invoices', 'AI growth coach and priority support'],
     cta: 'Save With Annual',
     featured: true,
@@ -172,8 +176,8 @@ export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
   useDocumentMeta(
-    'Invoice Generator India – Create GST Invoices & Get Paid Online | InvoicePro',
-    'Create GST invoices online in India. Accept UPI & Razorpay payments, send invoice links, and manage recurring billing for freelancers and agencies.'
+    'AI Client Finder + Invoice Software for Freelancers | InvoicePro',
+    'Find better freelance clients with AI, send proposals, create GST invoices, accept UPI and Razorpay payments, and track reminders in InvoicePro.'
   );
 
   const handleSubscribe = (plan) => {
@@ -208,17 +212,17 @@ export default function Home() {
               <div className="reveal premium-eyebrow w-full max-w-full flex-wrap sm:w-auto">
                 <span className="pulse-dot h-2 w-2 rounded-full bg-emerald-400 text-emerald-400" />
                 <p className="max-w-[16rem] break-words text-[10px] font-black uppercase leading-relaxed tracking-[0.14em] text-emerald-300 sm:max-w-none sm:text-[11px] sm:tracking-[0.22em]">
-                  Professional invoicing for Indian service businesses
+                  AI client finder + invoicing for freelancers
                 </p>
               </div>
 
               <h1 className="reveal reveal-delay-1 mt-6 max-w-4xl break-words text-4xl font-bold tracking-tight leading-tight text-white sm:mt-8 sm:text-5xl md:text-6xl">
-                Invoices your clients can open, <span className="animated-gradient-text">trust, and pay</span> without confusion.
+                Find better clients, close projects, then <span className="animated-gradient-text">invoice and get paid</span>.
               </h1>
 
               <p className="reveal reveal-delay-3 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
-                InvoicePro helps freelancers, agencies, and consultants send structured invoices,
-                find better client opportunities, collect through public payment links, and use AI revenue coaching to stay on top of repeat billing.
+                InvoicePro helps freelancers turn skills into target niches, score real prospects,
+                write better outreach, send proposals, create invoices, collect payments, and follow up on unpaid revenue.
               </p>
               <p className="hidden">
                 InvoicePro is an invoice generator for freelancers and businesses in India.
@@ -228,16 +232,16 @@ export default function Home() {
 
               <div className="reveal reveal-delay-3 mt-8 grid gap-3 sm:grid-cols-3">
                 <div className="premium-panel px-4 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Checkout</p>
-                  <p className="mt-2 text-sm font-semibold text-white">Razorpay-backed online payment flow</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Find</p>
+                  <p className="mt-2 text-sm font-semibold text-white">AI lead fit scoring and niche targeting</p>
                 </div>
                 <div className="premium-panel px-4 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Visibility</p>
-                  <p className="mt-2 text-sm font-semibold text-white">Public invoice pages with totals and due dates</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Close</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Packages, proposals, and objection replies</p>
                 </div>
                 <div className="premium-panel px-4 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">AI Growth</p>
-                  <p className="mt-2 text-sm font-semibold text-white">Client finder, proposal drafts, and reminders</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Collect</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Invoices, payment links, and reminders</p>
                 </div>
               </div>
 
@@ -271,21 +275,21 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => {
-                      trackCtaClick(loggedIn ? 'create_invoice' : 'see_pricing', 'home_hero', loggedIn ? '/create-invoice' : '#pricing');
-                      loggedIn ? navigate('/create-invoice') : jumpToSection('pricing');
-                    }}
-                    className="btn btn-secondary w-full px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5 sm:w-auto"
-                  >
-                    {loggedIn ? 'Create Invoice' : 'See Pricing'}
-                  </button>
-                  <button
-                    onClick={() => {
                       trackCtaClick('open_client_finder', 'home_hero', loggedIn ? '/client-finder' : '/signup');
                       navigate(loggedIn ? '/client-finder' : '/signup');
                     }}
-                    className="btn btn-dark w-full px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5 sm:w-auto"
+                    className="btn btn-secondary w-full px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5 sm:w-auto"
                   >
                     Find Clients
+                  </button>
+                  <button
+                    onClick={() => {
+                      trackCtaClick(loggedIn ? 'create_invoice' : 'see_pricing', 'home_hero', loggedIn ? '/create-invoice' : '#pricing');
+                      loggedIn ? navigate('/create-invoice') : jumpToSection('pricing');
+                    }}
+                    className="btn btn-dark w-full px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5 sm:w-auto"
+                  >
+                    {loggedIn ? 'Create Invoice' : 'See Pricing'}
                   </button>
                 </div>
 
@@ -300,7 +304,7 @@ export default function Home() {
 
               <div className="reveal reveal-delay-3 mt-8 flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500 sm:text-xs sm:tracking-[0.2em]">
                 <span className="rounded-full border border-white/10 px-3 py-2">No client login required</span>
-                <span className="rounded-full border border-white/10 px-3 py-2">AI collection prompts</span>
+                <span className="rounded-full border border-white/10 px-3 py-2">AI lead scoring</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">GST-ready invoice fields</span>
               </div>
             </div>
@@ -309,58 +313,58 @@ export default function Home() {
               <div className="premium-panel p-5 sm:p-8">
                 <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 pb-6 sm:flex-row sm:items-center">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Trust Snapshot</p>
-                    <h2 className="mt-2 max-w-[14ch] break-words text-2xl font-black text-white sm:max-w-none sm:text-3xl">What feels reliable to a client</h2>
+                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Growth Snapshot</p>
+                    <h2 className="mt-2 max-w-[14ch] break-words text-2xl font-black text-white sm:max-w-none sm:text-3xl">What turns a lead into cash</h2>
                   </div>
                   <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-left sm:text-right">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Public Flow</p>
-                    <p className="mt-1 text-lg font-black text-white">Client-ready</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">AI Workflow</p>
+                    <p className="mt-1 text-lg font-black text-white">Lead-ready</p>
                   </div>
                 </div>
 
                 <div className="mt-6 grid gap-4">
                   <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Before payment</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Before outreach</p>
                     <div className="mt-4 space-y-3">
                       <div className="flex items-start gap-3">
                         <span className="mt-1 h-2.5 w-2.5 rounded-full bg-yellow-400" />
                         <p className="text-sm font-medium leading-relaxed text-zinc-300">
-                          Invoice number, due date, line items, and tax totals are visible before a client commits.
+                          AI scores each prospect by pain, budget, urgency, niche fit, and contact quality.
                         </p>
                       </div>
                       <div className="flex items-start gap-3">
                         <span className="mt-1 h-2.5 w-2.5 rounded-full bg-yellow-400" />
                         <p className="text-sm font-medium leading-relaxed text-zinc-300">
-                          Company details, client details, and payment instructions sit in the same flow.
+                          Outreach, discovery questions, and objection replies are generated from your service offer.
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="rounded-3xl border border-white/8 bg-white/[0.02] p-5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">During payment</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">After interest</p>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
                       <div className="rounded-2xl border border-white/8 bg-black/30 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Checkout path</p>
-                        <p className="mt-2 text-sm font-semibold text-white">Razorpay checkout for online payment</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Proposal path</p>
+                        <p className="mt-2 text-sm font-semibold text-white">Turn a qualified lead into a public proposal</p>
                       </div>
                       <div className="rounded-2xl border border-white/8 bg-black/30 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Alternative</p>
-                        <p className="mt-2 text-sm font-semibold text-white">UPI-friendly payment route for mobile-first clients</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Invoice path</p>
+                        <p className="mt-2 text-sm font-semibold text-white">Convert accepted work into a payable invoice</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="rounded-3xl border border-emerald-400/15 bg-emerald-400/8 p-5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">After payment</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">After invoice</p>
                     <div className="mt-4 space-y-3">
                       <div className="flex items-center gap-3">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-400 text-xs font-black text-black">1</span>
-                        <p className="text-sm font-semibold text-white">Invoice status can move from pending to paid</p>
+                        <p className="text-sm font-semibold text-white">Collect with Razorpay, UPI, or a public invoice link</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-400 text-xs font-black text-black">2</span>
-                        <p className="text-sm font-semibold text-white">Collected amounts stay visible in the workspace dashboard</p>
+                        <p className="text-sm font-semibold text-white">Use AI reminders to follow up on pending revenue</p>
                       </div>
                     </div>
                   </div>
@@ -373,15 +377,15 @@ export default function Home() {
         <section className="scroll-reveal py-16">
           <div className="container-custom">
             <h2 className="text-3xl font-black text-white">
-              Invoice Generator for Indian Freelancers
+              AI Client Finder for Indian Freelancers
             </h2>
             <p className="mt-4 text-zinc-400 max-w-2xl">
-              InvoicePro is an invoice generator in India that helps freelancers and agencies
-              create professional invoices, send payment links, and collect payments online.
+              InvoicePro helps freelancers identify better-fit prospects, write useful outreach,
+              save leads, and move interested clients into proposals and invoices.
             </p>
 
             <h2 className="mt-10 text-3xl font-black text-white">
-              Create GST Invoices Online
+              Create GST Invoices Online After You Close Work
             </h2>
             <p className="mt-4 text-zinc-400 max-w-2xl">
               Generate GST invoices with tax fields, client details, due dates, and payment instructions.
@@ -400,8 +404,8 @@ export default function Home() {
         <section className="scroll-reveal border-y border-white/5 bg-zinc-950/60 py-16">
           <div className="container-custom">
             <div className="mb-10 max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Why it feels safer</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">Trust signals grounded in the actual workflow</h2>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Why it feels different</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">A freelancer growth system, not only an invoice maker</h2>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -489,10 +493,10 @@ export default function Home() {
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Workflow</p>
               <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
-                From draft to paid, the flow stays easy to understand
+                From finding a lead to collecting payment
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-relaxed text-zinc-400">
-                A more trustworthy homepage should make the product feel operational, not hypothetical. These are the core steps the app actually supports.
+                InvoicePro keeps freelancer growth connected: prospect research, pitch copy, proposal creation, invoice generation, payment links, and reminders.
               </p>
             </div>
 
@@ -514,7 +518,7 @@ export default function Home() {
               <div className="rounded-[2.5rem] border border-white/8 bg-zinc-950 p-8 sm:p-10">
                 <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Client-facing view</p>
                 <h2 className="mt-4 max-w-xl text-4xl font-black tracking-tight text-white">
-                  What your clients see should answer their questions before they ask.
+                  Every serious lead should become a clear proposal or invoice.
                 </h2>
 
                 <div className="mt-8 rounded-[2rem] border border-white/8 bg-black/30 p-5 sm:p-6">
@@ -575,10 +579,10 @@ export default function Home() {
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Pricing</p>
               <h2 className="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">
-                Transparent plans before checkout begins
+                Plans for freelancers who want clients and cashflow
               </h2>
               <p className="mt-4 text-base font-medium leading-relaxed text-zinc-400">
-                Start with the free workspace, activate a 7-day Pro trial from checkout, or use the founder offer for early users.
+                Start with the free workspace, then upgrade when you want unlimited invoices, AI client finder, payment collection, and reminders.
               </p>
             </div>
 
@@ -646,9 +650,9 @@ export default function Home() {
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">FAQ</p>
-                <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">Questions a careful buyer will ask</h2>
+                <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">Questions freelancers ask before using it</h2>
                 <p className="mt-4 max-w-md text-base font-medium leading-relaxed text-zinc-400">
-                  Adding these answers to the homepage makes the product feel more accountable and less like a generic landing page.
+                  InvoicePro is built to support real client work, from first outreach to final payment.
                 </p>
 
                 <div className="mt-8 rounded-[2rem] border border-white/8 bg-white/[0.02] p-6">
@@ -681,12 +685,12 @@ export default function Home() {
           <div className="container-custom">
             <div className="premium-panel px-6 py-12 text-center sm:px-12 sm:py-20">
               <div className="mx-auto max-w-3xl">
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Ready to collect more professionally?</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Ready to build a client-to-cash workflow?</p>
                 <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-6xl">
-                  Send a billing link that looks complete before the client even reaches checkout.
+                  Find better prospects, send stronger proposals, and collect payment from one workspace.
                 </h2>
                 <p className="mx-auto mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-400">
-                  Start with the free plan, or reach out directly if you want to confirm the workflow before you upgrade.
+                  Start free, test the AI client finder, and turn the right lead into a proposal or invoice when they are ready.
                 </p>
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -697,13 +701,16 @@ export default function Home() {
                     }}
                     className="btn btn-primary px-10 py-5 text-lg font-black shadow-2xl shadow-black/20 transition-all hover:-translate-y-0.5 active:scale-95"
                   >
-                    {loggedIn ? 'Open Dashboard' : 'Claim Your Free Workspace'}
+                    {loggedIn ? 'Open Dashboard' : 'Start Your Free Workspace'}
                   </button>
                   <button
-                    onClick={() => jumpToSection('faq')}
+                    onClick={() => {
+                      trackCtaClick('bottom_client_finder', 'home_bottom', loggedIn ? '/client-finder' : '/signup');
+                      navigate(loggedIn ? '/client-finder' : '/signup');
+                    }}
                     className="btn btn-secondary px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5"
                   >
-                    Read FAQ
+                    Find Clients
                   </button>
                 </div>
               </div>
