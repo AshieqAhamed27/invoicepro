@@ -38,6 +38,12 @@ export default function Footer() {
               >
                 How to Create Invoice
               </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/client-finder">
+                AI Client Finder
+              </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/leads">
+                Lead Pipeline
+              </Link>
               <Link className="transition-colors hover:text-yellow-300" to="/invoice-generator">
                 Invoice Generator
               </Link>

@@ -1,7 +1,7 @@
 export const PRODUCT_NAME = 'InvoicePro';
 export const COMPANY_NAME = 'InvoicePro Billing Technologies';
 export const COMPANY_SHORT_NAME = 'InvoicePro';
-export const COMPANY_TAGLINE = 'AI invoicing, GST billing, and payment links for growing businesses.';
+export const COMPANY_TAGLINE = 'AI client-to-cash platform for freelancers and small service businesses.';
 export const COMPANY_LOGO = '/logo.svg';
 export const COMPANY_LEGAL_TYPE = 'Udyam-registered sole proprietorship';
 export const UDYAM_REGISTRATION_NUMBER = 'UDYAM-TN-37-0055272';

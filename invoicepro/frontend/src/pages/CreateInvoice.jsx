@@ -37,7 +37,6 @@ export default function CreateInvoice() {
   const [form, setForm] = useState({
     clientName: '',
     clientEmail: '',
-    clientPhone: '',
     serviceDescription: '',
     gst: '',
     cgst: '',
@@ -106,7 +105,6 @@ export default function CreateInvoice() {
       ...prev,
       clientName: client.name,
       clientEmail: client.email,
-      clientPhone: client.phone || prev.clientPhone,
       gst: client.gst || prev.gst
     }));
   };
@@ -227,7 +225,6 @@ export default function CreateInvoice() {
       ...prev,
       clientName: draft.clientName || prev.clientName,
       clientEmail: draft.clientEmail || prev.clientEmail,
-      clientPhone: draft.clientPhone || prev.clientPhone,
       serviceDescription: draft.serviceDescription || prev.serviceDescription,
       cgst: draft.cgst ?? prev.cgst,
       sgst: draft.sgst ?? prev.sgst,
@@ -462,19 +459,6 @@ export default function CreateInvoice() {
                     />
                 </div>
 
-                <div className="space-y-1.5 sm:col-span-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Client WhatsApp Number</p>
-                    <input
-                      name="clientPhone"
-                      value={form.clientPhone}
-                      onChange={handleChange}
-                      placeholder="Optional, e.g. 919080963704"
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
-                    />
-                    <p className="text-[10px] text-zinc-500 mt-2 font-medium">
-                      Needed for WhatsApp Cloud API reminders. Use country code for best delivery.
-                    </p>
-                </div>
               </div>
             </section>
 

@@ -31,12 +31,6 @@ const invoiceSchema = new mongoose.Schema({
         trim: true
     },
 
-    clientPhone: {
-        type: String,
-        default: '',
-        trim: true
-    },
-
     serviceDescription: {
         type: String,
         default: ''
@@ -266,45 +260,6 @@ const invoiceSchema = new mongoose.Schema({
         }
     }],
 
-    reminderEvents: [{
-        channel: {
-            type: String,
-            default: ''
-        },
-        provider: {
-            type: String,
-            default: ''
-        },
-        providerMessageId: {
-            type: String,
-            default: ''
-        },
-        to: {
-            type: String,
-            default: ''
-        },
-        status: {
-            type: String,
-            default: ''
-        },
-        message: {
-            type: String,
-            default: ''
-        },
-        sentAt: {
-            type: Date,
-            default: null
-        },
-        updatedAt: {
-            type: Date,
-            default: null
-        },
-        raw: {
-            type: mongoose.Schema.Types.Mixed,
-            default: null
-        }
-    }],
-
     paymentPromise: {
         promisedDate: {
             type: Date,
@@ -335,6 +290,5 @@ invoiceSchema.index({ user: 1, documentType: 1, createdAt: -1 });
 invoiceSchema.index({ user: 1, sourceLeadId: 1 });
 invoiceSchema.index({ 'paymentLink.providerPaymentLinkId': 1 });
 invoiceSchema.index({ 'paymentEvents.providerPaymentId': 1 });
-invoiceSchema.index({ 'reminderEvents.providerMessageId': 1 });
 
 module.exports = mongoose.model('Invoice', invoiceSchema);

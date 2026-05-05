@@ -93,7 +93,6 @@ const recurringInvoiceSchema = new mongoose.Schema({
     template: {
         clientName: { type: String, required: true, trim: true },
         clientEmail: { type: String, required: true, lowercase: true, trim: true },
-        clientPhone: { type: String, default: '', trim: true },
         serviceDescription: { type: String, default: '' },
         items: [{
             name: { type: String, default: '' },

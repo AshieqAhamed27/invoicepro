@@ -158,7 +158,6 @@ export default function InvoiceView() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [convertingProposal, setConvertingProposal] = useState(false);
   const [creatingPaymentLink, setCreatingPaymentLink] = useState(false);
-  const [sendingWhatsAppApi, setSendingWhatsAppApi] = useState(false);
 
   useEffect(() => {
     fetchInvoice();
@@ -267,8 +266,6 @@ export default function InvoiceView() {
       }]
       : [])
   ].sort((a, b) => new Date(b.occurredAt || 0) - new Date(a.occurredAt || 0));
-  const reminderTimeline = [...(invoice.reminderEvents || [])]
-    .sort((a, b) => new Date(b.sentAt || b.updatedAt || 0) - new Date(a.sentAt || a.updatedAt || 0));
   const displayDate = meta.isProposal ? invoice.validUntil : invoice.dueDate;
   const upiLink = !meta.isProposal && finalUpi
     ? `upi://pay?pa=${finalUpi}&pn=${encodeURIComponent(companyName)}&am=${invoice.amount}&cu=INR`
@@ -627,32 +624,6 @@ export default function InvoiceView() {
     });
   };
 
-  const sendWhatsAppCloudReminder = async () => {
-    if (!canCollectPayment) return;
-
-    const phone = invoice.clientPhone || window.prompt(
-      'Enter client WhatsApp number with country code, for example 919080963704:'
-    );
-
-    if (!phone) return;
-
-    try {
-      setSendingWhatsAppApi(true);
-      const res = await api.post(`/whatsapp/invoices/${invoice._id}/reminder`, { phone });
-      setInvoice(res.data?.invoice || invoice);
-      trackEvent('send_whatsapp_cloud_reminder', {
-        location: 'invoice_view',
-        value: total,
-        currency: invoice.currency || 'INR'
-      });
-      alert(res.data?.message || 'WhatsApp reminder sent.');
-    } catch (err) {
-      alert(err.response?.data?.message || 'WhatsApp Cloud API reminder failed.');
-    } finally {
-      setSendingWhatsAppApi(false);
-    }
-  };
-
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
@@ -707,16 +678,6 @@ export default function InvoiceView() {
                 className="rounded-xl border border-emerald-400/15 bg-emerald-400/10 px-6 py-3 text-xs font-black uppercase tracking-widest text-emerald-300 transition-all hover:bg-emerald-400/15 hover:text-emerald-200"
               >
                 WhatsApp
-              </button>
-            )}
-            {!meta.isProposal && invoice.status !== 'paid' && (
-              <button
-                type="button"
-                onClick={sendWhatsAppCloudReminder}
-                disabled={sendingWhatsAppApi}
-                className="rounded-xl border border-sky-400/15 bg-sky-400/10 px-6 py-3 text-xs font-black uppercase tracking-widest text-sky-300 transition-all hover:bg-sky-400/15 hover:text-sky-200 disabled:opacity-60"
-              >
-                {sendingWhatsAppApi ? 'Sending...' : 'WA API'}
               </button>
             )}
             {!meta.isProposal && invoice.status !== 'paid' && (
@@ -837,16 +798,6 @@ export default function InvoiceView() {
                     WhatsApp
                   </button>
                 )}
-                {canCollectPayment && (
-                  <button
-                    type="button"
-                    onClick={sendWhatsAppCloudReminder}
-                    disabled={sendingWhatsAppApi}
-                    className="rounded-xl border border-sky-400/15 bg-sky-400/10 px-6 py-3 text-xs font-black uppercase tracking-widest text-sky-300 transition-all hover:bg-sky-400/15 hover:text-sky-200 disabled:opacity-60"
-                  >
-                    {sendingWhatsAppApi ? 'Sending...' : 'Send via WA API'}
-                  </button>
-                )}
               </div>
             </div>
 
@@ -912,9 +863,6 @@ export default function InvoiceView() {
                   </p>
                   <h3 className="mt-3 text-xl font-black text-slate-950">{invoice.clientName}</h3>
                   <p className="mt-1 break-words text-sm font-medium text-slate-500">{invoice.clientEmail}</p>
-                  {invoice.clientPhone && (
-                    <p className="mt-1 break-words text-sm font-medium text-slate-500">WhatsApp: {invoice.clientPhone}</p>
-                  )}
                 </div>
 
                 <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r md:p-8">
@@ -1118,48 +1066,6 @@ export default function InvoiceView() {
                   <svg className="h-4 w-4 text-zinc-600 group-hover:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C9.886 14.511 11.41 15.2 13 15.2c3.92 0 7.1-3.18 7.1-7.1S16.92 1 13 1 5.9 4.18 5.9 8.1c0 1.59.689 3.114 1.858 4.316M1 23l7-7m0 0l4-4m-4 4l4 4" /></svg>
                 </button>
 
-                {canCollectPayment && (
-                  <button
-                    onClick={sendWhatsAppCloudReminder}
-                    disabled={sendingWhatsAppApi}
-                    className="w-full flex items-center justify-between p-4 rounded-2xl bg-sky-400/10 border border-sky-400/15 hover:bg-sky-400/15 transition-all group disabled:opacity-60"
-                  >
-                    <span className="text-xs font-bold text-sky-300 group-hover:text-sky-200">
-                      {sendingWhatsAppApi ? 'Sending via WhatsApp API...' : 'Send WhatsApp API Reminder'}
-                    </span>
-                    <svg className="h-4 w-4 text-sky-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-                  </button>
-                )}
-              </div>
-
-              <div className="mb-8 rounded-3xl border border-white/5 bg-black/20 p-5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">WhatsApp API History</p>
-                {reminderTimeline.length ? (
-                  <div className="mt-5 space-y-4">
-                    {reminderTimeline.slice(0, 4).map((event, index) => (
-                      <div key={`${event.providerMessageId || event.sentAt}-${index}`} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-xs font-black text-white">WhatsApp Reminder</p>
-                            <p className="mt-1 break-all text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                              To: {event.to || invoice.clientPhone || 'client'}
-                            </p>
-                          </div>
-                          <span className="shrink-0 rounded-full border border-sky-400/20 bg-sky-400/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-sky-300">
-                            {event.status || 'sent'}
-                          </span>
-                        </div>
-                        <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">
-                          {formatDateTime(event.sentAt || event.updatedAt)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-500">
-                    No Cloud API reminders yet. Manual WhatsApp share still works without Meta setup.
-                  </p>
-                )}
               </div>
 
               <div className="mb-8 rounded-3xl border border-white/5 bg-black/20 p-5">
