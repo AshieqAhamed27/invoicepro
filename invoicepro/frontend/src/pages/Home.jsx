@@ -30,6 +30,10 @@ const trustSignals = [
     description: 'Send payment follow-ups through WhatsApp links so you can start collecting without a paid email domain.'
   },
   {
+    title: 'Daily business assistant',
+    description: 'Open the dashboard and see the next money actions ranked by invoices, leads, proposals, and income goal.'
+  },
+  {
     title: 'Recurring billing built in',
     description: 'Set up monthly client work once and keep repeat invoices organized from the same dashboard.'
   }
@@ -96,6 +100,33 @@ const businessOutcomes = [
   {
     title: 'Build repeat revenue',
     description: 'Use recurring invoices and client history to manage retainers, monthly services, and repeat work.'
+  }
+];
+
+const automationPreview = [
+  {
+    category: 'Collect',
+    title: 'Fix overdue payment',
+    description: 'Finds the highest-risk pending invoice and tells you which client to open first.',
+    impact: 'Recover pending money'
+  },
+  {
+    category: 'Convert',
+    title: 'Turn accepted work into invoice',
+    description: 'Spots accepted proposals so approved work does not sit without a payable invoice.',
+    impact: 'Shorter cash cycle'
+  },
+  {
+    category: 'Follow-up',
+    title: 'Move warm leads forward',
+    description: 'Highlights due leads and interested prospects so you can send the right proposal next.',
+    impact: 'More client chances'
+  },
+  {
+    category: 'Grow',
+    title: 'Hit today lead target',
+    description: 'Uses your income goal to suggest how many prospects you should add today.',
+    impact: 'Daily growth habit'
   }
 ];
 
@@ -179,6 +210,10 @@ const faqs = [
   {
     question: 'Can I send reminders without buying a domain?',
     answer: 'Yes. ClientFlow AI supports WhatsApp reminder links, so you can follow up with clients now and add email reminders later when you have a verified business domain.'
+  },
+  {
+    question: 'What automation works before email or WhatsApp API setup?',
+    answer: 'The Daily Business Assistant works now. It ranks overdue invoices, warm leads, accepted proposals, and income-goal actions so you know what to do next without automatic sending.'
   }
 ];
 
@@ -206,7 +241,7 @@ const plans = [
     price: 'Rs 499',
     suffix: '/ month',
     description: 'For freelancers who want one place to find clients, close deals, collect payment, and follow up.',
-    features: ['Unlimited invoices', 'AI client finder and proposals', 'Razorpay, UPI, and WhatsApp collection flow'],
+    features: ['Unlimited invoices', 'AI client finder and proposals', 'Daily AI business plan', 'Razorpay, UPI, and WhatsApp collection flow'],
     cta: 'Upgrade Monthly',
     featured: false,
     action: 'monthly'
@@ -216,7 +251,7 @@ const plans = [
     price: 'Rs 4,999',
     suffix: '/ year',
     description: 'For freelancers and agencies building a repeatable client pipeline.',
-    features: ['Everything in Monthly', 'Recurring invoices', 'AI growth coach and priority support'],
+    features: ['Everything in Monthly', 'Recurring invoices', 'AI growth coach and daily work plan', 'Priority support'],
     cta: 'Save With Annual',
     featured: true,
     action: 'yearly'
@@ -389,6 +424,7 @@ export default function Home() {
               <div className="reveal reveal-delay-3 mt-8 flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500 sm:text-xs sm:tracking-[0.2em]">
                 <span className="rounded-full border border-white/10 px-3 py-2">No client login required</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">AI lead scoring</span>
+                <span className="rounded-full border border-white/10 px-3 py-2">Daily AI work plan</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">GST-ready invoice fields</span>
               </div>
 
@@ -634,6 +670,86 @@ export default function Home() {
               <p className="mt-3 text-base font-bold leading-relaxed text-white sm:text-lg">
                 ClientFlow AI helps freelancers find clients, send proposals, collect payments, and manage business cashflow from one AI-powered workspace.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="scroll-reveal border-y border-white/5 bg-sky-400/[0.035] py-16 sm:py-20">
+          <div className="container-custom">
+            <div className="mb-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Daily Business Assistant</p>
+                <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Know what to do today to move money forward.
+                </h2>
+              </div>
+              <p className="max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base lg:ml-auto">
+                ClientFlow AI does not need to auto-send reminders to be useful. It checks your leads,
+                proposals, invoices, pending payments, and income goal, then creates a ranked action plan
+                you can open, copy, and complete manually.
+              </p>
+            </div>
+
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+              <div className="grid gap-4 md:grid-cols-2">
+                {automationPreview.map((item, index) => (
+                  <div
+                    key={item.title}
+                    className="rounded-[2rem] border border-white/8 bg-zinc-950/80 p-5 transition-all hover:-translate-y-1 hover:border-sky-400/25 sm:p-6"
+                  >
+                    <div className="mb-5 flex items-center justify-between gap-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-sky-400/20 bg-sky-400/10 text-xs font-black text-sky-200">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[9px] font-black uppercase tracking-[0.18em] text-zinc-300">
+                        {item.category}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-black text-white">{item.title}</h3>
+                    <p className="mt-3 min-h-[66px] text-sm font-medium leading-relaxed text-zinc-400">{item.description}</p>
+                    <p className="mt-5 rounded-2xl border border-emerald-400/15 bg-emerald-400/10 px-4 py-3 text-xs font-black text-emerald-200">
+                      {item.impact}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <aside className="rounded-[2rem] border border-yellow-400/20 bg-yellow-400/10 p-5 sm:p-6">
+                <div className="rounded-[1.5rem] border border-white/8 bg-zinc-950/90 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Example today plan</p>
+                  <h3 className="mt-3 text-2xl font-black tracking-tight text-white">
+                    Open the dashboard and act, not guess.
+                  </h3>
+
+                  <div className="mt-6 space-y-3">
+                    {[
+                      ['Top priority', 'Open highest pending invoice'],
+                      ['Next action', 'Convert accepted proposal'],
+                      ['Growth action', 'Add 3 targeted leads'],
+                      ['Manual safe step', 'Copy plan or mark done']
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-600">{label}</p>
+                        <p className="mt-1 text-sm font-black text-white">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="mt-5 text-sm font-medium leading-relaxed text-zinc-400">
+                    Email and WhatsApp automation can come later. This assistant already gives users a daily operating system for client work.
+                  </p>
+
+                  <button
+                    onClick={() => {
+                      trackCtaClick('daily_assistant_dashboard', 'home_daily_assistant', loggedIn ? '/dashboard' : '/signup');
+                      navigate(loggedIn ? '/dashboard' : '/signup');
+                    }}
+                    className="mt-6 w-full rounded-2xl bg-yellow-400 px-6 py-4 text-sm font-black text-black transition-all hover:bg-yellow-300 active:scale-95"
+                  >
+                    {loggedIn ? 'Open Daily Plan' : 'Start Free'}
+                  </button>
+                </div>
+              </aside>
             </div>
           </div>
         </section>
