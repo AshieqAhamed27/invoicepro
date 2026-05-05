@@ -115,10 +115,33 @@ const getBrandInitials = (name = COMPANY_SHORT_NAME) => {
     .split(/\s+/)
     .filter(Boolean);
 
-  if (!words.length) return 'IP';
+  if (!words.length) return 'CF';
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
 
   return `${words[0][0]}${words[1][0]}`.toUpperCase();
+};
+
+const legacyBrandNames = new Set([
+  'invoicepro',
+  'invoice pro',
+  'invoicepro billing technologies'
+]);
+
+const normalizeName = (value = '') =>
+  String(value || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+
+const getCleanBusinessName = (value, personalName = '') => {
+  const text = String(value || '').trim();
+  const normalized = normalizeName(text);
+
+  if (!text) return '';
+  if (legacyBrandNames.has(normalized)) return '';
+  if (personalName && normalized === normalizeName(personalName)) return '';
+
+  return text;
 };
 
 const drawPdfBrandMark = async (doc, { x, y, size, logoUrl, initials, dark, gold, line }) => {
@@ -213,12 +236,9 @@ export default function InvoiceView() {
   const profile = { ...(user || {}), ...invoiceProfile };
   const snapshotName = firstText(business.name);
   const personalName = firstText(profile.name);
-  const businessSnapshotName =
-    snapshotName !== COMPANY_SHORT_NAME && snapshotName !== COMPANY_NAME && snapshotName !== personalName
-      ? snapshotName
-      : '';
+  const businessSnapshotName = getCleanBusinessName(snapshotName, personalName);
   const companyName = firstText(
-    profile.companyName,
+    getCleanBusinessName(profile.companyName, personalName),
     businessSnapshotName,
     COMPANY_NAME
   );

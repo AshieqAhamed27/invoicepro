@@ -58,6 +58,29 @@ const firstText = (...values) => {
   return '';
 };
 
+const legacyBrandNames = new Set([
+  'invoicepro',
+  'invoice pro',
+  'invoicepro billing technologies'
+]);
+
+const normalizeName = (value = '') =>
+  String(value || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+
+const getCleanBusinessName = (value, personalName = '') => {
+  const text = String(value || '').trim();
+  const normalized = normalizeName(text);
+
+  if (!text) return '';
+  if (legacyBrandNames.has(normalized)) return '';
+  if (personalName && normalized === normalizeName(personalName)) return '';
+
+  return text;
+};
+
 export default function PublicInvoice() {
   const { id } = useParams();
 
@@ -254,13 +277,10 @@ export default function PublicInvoice() {
   const business = invoice.businessSnapshot || {};
   const snapshotName = firstText(business.name);
   const personalName = firstText(invoice.user?.name);
-  const businessSnapshotName =
-    snapshotName !== COMPANY_SHORT_NAME && snapshotName !== COMPANY_NAME && snapshotName !== personalName
-      ? snapshotName
-      : '';
+  const businessSnapshotName = getCleanBusinessName(snapshotName, personalName);
   const companyName = firstText(
     businessSnapshotName,
-    invoice.user?.companyName,
+    getCleanBusinessName(invoice.user?.companyName, personalName),
     COMPANY_NAME
   );
   const companyAddress = firstText(business.address, invoice.user?.address, 'Tamil Nadu, India');

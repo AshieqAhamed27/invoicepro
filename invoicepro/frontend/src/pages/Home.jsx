@@ -157,7 +157,7 @@ const proofBlocks = [
 
 const faqs = [
   {
-    question: 'Ca ClientFlow AI help me find freelance clients?',
+    question: 'Can ClientFlow AI help me find freelance clients?',
     answer: 'Yes. The AI client finder helps you choose target niches, score prospects, write outreach, prepare discovery questions, and move interested leads into proposals.'
   },
   {
