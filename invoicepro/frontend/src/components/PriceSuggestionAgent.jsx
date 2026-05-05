@@ -202,9 +202,9 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
                   Suggested Range
                 </p>
                 <p className="mt-3 text-sm font-black text-white">{suggestion.serviceLabel}</p>
-                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                <div className="mt-4 grid gap-2 text-center sm:grid-cols-3">
                   <div className="rounded-lg bg-white/[0.04] p-3">
-                    <p className="text-sm font-black text-zinc-300">{formatMoney(range.low)}</p>
+                    <p className="break-words text-sm font-black text-zinc-300">{formatMoney(range.low)}</p>
                     <p className="mt-1 text-[10px] font-bold uppercase text-zinc-600">Low</p>
                   </div>
                   <button
@@ -212,11 +212,11 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
                     onClick={() => applyPrice(range.recommended, suggestion.serviceLabel)}
                     className="rounded-lg border border-emerald-400/25 bg-emerald-400/10 p-3 transition-all hover:bg-emerald-400 hover:text-black"
                   >
-                    <p className="text-sm font-black text-emerald-200">{formatMoney(range.recommended)}</p>
+                    <p className="break-words text-sm font-black text-emerald-200">{formatMoney(range.recommended)}</p>
                     <p className="mt-1 text-[10px] font-bold uppercase text-emerald-300">Apply</p>
                   </button>
                   <div className="rounded-lg bg-white/[0.04] p-3">
-                    <p className="text-sm font-black text-zinc-300">{formatMoney(range.high)}</p>
+                    <p className="break-words text-sm font-black text-zinc-300">{formatMoney(range.high)}</p>
                     <p className="mt-1 text-[10px] font-bold uppercase text-zinc-600">High</p>
                   </div>
                 </div>
@@ -235,7 +235,7 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
                       onClick={() => applyPrice(pkg.price, `${suggestion.serviceLabel} - ${pkg.name}`)}
                       className="w-full rounded-lg border border-white/10 bg-white/[0.03] p-3 text-left transition-all hover:border-yellow-400/25 hover:bg-yellow-400/10"
                     >
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                         <p className="text-sm font-black text-white">{pkg.name}</p>
                         <p className="shrink-0 text-sm font-black text-yellow-300">{formatMoney(pkg.price)}</p>
                       </div>

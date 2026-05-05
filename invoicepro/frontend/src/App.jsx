@@ -132,7 +132,7 @@ const WhatsAppFloatingButton = () => {
       href={supportWhatsAppUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-5 right-4 z-40 print:hidden sm:right-5"
+      className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 z-40 print:hidden sm:right-5"
       aria-label="Chat with ClientFlow AI on WhatsApp"
     >
       <div className="rounded-full bg-green-500 p-3.5 shadow-lg shadow-black/25 transition hover:scale-110 sm:p-4">

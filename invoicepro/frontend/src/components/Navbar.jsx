@@ -121,8 +121,8 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="animate-menu-drop mx-3 mt-3 rounded-lg border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/35 backdrop-blur-2xl lg:hidden sm:mx-4">
-          <div className="flex flex-col space-y-3 px-4 py-4 text-base sm:px-6 sm:py-6">
+        <div className="animate-menu-drop mx-3 mt-3 max-h-[calc(100vh-5.75rem)] overflow-y-auto overscroll-contain rounded-lg border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/35 backdrop-blur-2xl lg:hidden sm:mx-4">
+          <div className="flex flex-col space-y-2 px-4 py-4 text-base sm:space-y-3 sm:px-6 sm:py-6">
             <NavLink to="/" onClick={() => setMenuOpen(false)} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
               Home
             </NavLink>

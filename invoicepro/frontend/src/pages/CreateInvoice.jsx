@@ -402,7 +402,7 @@ export default function CreateInvoice() {
           />
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-10">
+        <form onSubmit={handleSubmit} className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-10">
           <div className="reveal reveal-delay-1 space-y-8">
             {/* Section: Client */}
             <section className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
@@ -591,7 +591,7 @@ export default function CreateInvoice() {
                     />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">CGST %</p>
                         <input
@@ -669,7 +669,7 @@ export default function CreateInvoice() {
                       type="button"
                       onClick={applySmartDescription}
                       disabled={aiWriting}
-                      className="w-full py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 transition-all"
+                      className="w-full rounded-xl border border-white/5 bg-white/5 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition-all hover:bg-white/10"
                     >
                       {aiWriting ? 'Writing...' : 'AI Generate Summary'}
                     </button>
@@ -677,7 +677,7 @@ export default function CreateInvoice() {
                       <button
                         type="button"
                         onClick={applySmartDueDate}
-                        className="w-full py-3 rounded-xl border border-white/5 bg-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 transition-all"
+                        className="w-full rounded-xl border border-white/5 bg-white/5 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition-all hover:bg-white/10"
                       >
                         {isProposal ? 'Set 7-Day Validity' : 'Set 7-Day Due Date'}
                       </button>

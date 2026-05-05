@@ -310,13 +310,13 @@ export default function PublicInvoice() {
     <div className="premium-page min-h-screen px-3 py-5 sm:px-4 sm:py-10">
       <div className="reveal mx-auto max-w-4xl rounded-lg bg-white p-5 text-black shadow-2xl sm:p-8 md:p-12 relative overflow-hidden">
         {badgeContent && (
-          <div className={`absolute top-6 right-[-46px] rotate-45 ${badgeContent.className} text-white px-12 py-1 text-xs font-bold shadow-md uppercase tracking-widest z-10 sm:top-12 sm:right-[-40px] sm:px-16 sm:text-lg`}>
+          <div className={`absolute top-4 right-[-42px] z-10 rotate-45 ${badgeContent.className} px-12 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-md sm:top-12 sm:right-[-40px] sm:px-16 sm:text-lg`}>
             {badgeContent.label}
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-200 pb-8 mb-8">
-          <div>
+        <div className="mb-8 flex flex-col justify-between gap-6 border-b border-gray-200 pb-8 md:flex-row">
+          <div className="min-w-0">
             <div className="mb-2 flex min-w-0 items-center gap-3">
               {safeCompanyLogoUrl ? (
                 <div className="h-12 w-12 rounded-lg border border-gray-200 bg-white p-1 shadow-sm">
@@ -335,7 +335,7 @@ export default function PublicInvoice() {
             </p>
           </div>
 
-          <div className="text-left md:text-right">
+          <div className="min-w-0 text-left md:text-right">
             <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">{invoiceMeta.idLabel}</p>
             <p className="break-words text-xl font-bold text-slate-950 sm:text-2xl">
               {invoice.invoiceNumber}
@@ -356,8 +356,8 @@ export default function PublicInvoice() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-10 mb-10">
-          <div>
+        <div className="mb-10 grid gap-8 md:grid-cols-2 md:gap-10">
+          <div className="min-w-0">
             <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-3">
               {invoiceMeta.isProposal ? 'Prepared For' : 'Bill To'}
             </p>
@@ -370,7 +370,7 @@ export default function PublicInvoice() {
           </div>
 
           {companyName && (
-            <div className="md:text-right">
+            <div className="min-w-0 md:text-right">
             <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-3">
                 From
               </p>
@@ -388,7 +388,7 @@ export default function PublicInvoice() {
         </div>
 
         <div className="mb-10 overflow-hidden rounded-xl border border-gray-100 shadow-sm">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 bg-slate-950 px-4 py-4 font-bold text-white text-xs uppercase tracking-wider sm:px-6 sm:text-sm">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(5rem,auto)] gap-4 bg-slate-950 px-4 py-4 text-xs font-bold uppercase tracking-wider text-white sm:px-6 sm:text-sm">
             <span>Description</span>
             <span className="text-right">Amount</span>
           </div>
@@ -397,12 +397,12 @@ export default function PublicInvoice() {
             {items.map((item, index) => (
               <div
                 key={index}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 bg-white px-4 py-5 transition-colors hover:bg-slate-50 sm:px-6"
+                  className="grid gap-2 bg-white px-4 py-5 transition-colors hover:bg-slate-50 sm:grid-cols-[minmax(0,1fr)_minmax(5rem,auto)] sm:items-center sm:gap-4 sm:px-6"
               >
                 <div className="min-w-0">
                   <p className="break-words font-semibold text-slate-950">{item.name}</p>
                 </div>
-                <p className="text-right font-bold text-slate-950 whitespace-nowrap">
+                <p className="text-left font-bold text-slate-950 sm:text-right sm:whitespace-nowrap">
                   {formatCurrency(item.price, invoice.currency)}
                 </p>
               </div>
@@ -410,7 +410,7 @@ export default function PublicInvoice() {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between gap-10">
+        <div className="flex flex-col justify-between gap-10 md:flex-row">
           <div className="flex-1">
             {!invoiceMeta.isProposal && invoice.status === 'pending' && (
               <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-6">
@@ -457,7 +457,7 @@ export default function PublicInvoice() {
             )}
 
             {!invoiceMeta.isProposal && invoice.status === 'paid' && (
-              <div className="rounded-xl bg-green-50 border border-green-100 p-6 flex items-center gap-4">
+              <div className="flex flex-col gap-4 rounded-xl border border-green-100 bg-green-50 p-6 sm:flex-row sm:items-center">
                 <div className="h-10 w-10 bg-green-500 rounded-full flex items-center justify-center text-white">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -514,7 +514,7 @@ export default function PublicInvoice() {
             )}
           </div>
 
-          <div className="w-full max-w-sm space-y-3">
+          <div className="w-full max-w-sm space-y-3 md:ml-auto">
             <div className="flex justify-between text-gray-500 text-sm font-medium">
               <span>Subtotal</span>
                 <span className="text-slate-950">{formatCurrency(subtotal, invoice.currency)}</span>
@@ -534,7 +534,7 @@ export default function PublicInvoice() {
               </div>
             )}
 
-            <div className="border-t border-gray-200 pt-5 mt-5 flex justify-between items-baseline">
+            <div className="mt-5 flex flex-col gap-2 border-t border-gray-200 pt-5 sm:flex-row sm:items-baseline sm:justify-between">
               <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">
                 {invoiceMeta.isProposal ? 'Proposal Total' : 'Total Amount'}
               </span>

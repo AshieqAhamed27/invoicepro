@@ -48,6 +48,8 @@ html {
     scroll-behavior: smooth;
     scroll-padding-top: 96px;
     width: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 body {
@@ -57,6 +59,7 @@ body {
     overflow-x: hidden;
     position: relative;
     color: #f7f8fb;
+    min-width: 320px;
 }
 
 #root {
@@ -70,6 +73,7 @@ video,
 canvas {
     display: block;
     max-width: 100%;
+    height: auto;
 }
 
 svg {
@@ -78,6 +82,14 @@ svg {
 
 table {
     max-width: 100%;
+}
+
+.premium-page :where(main, section, article, aside, form, header, footer) {
+    min-width: 0;
+}
+
+.premium-page :where(h1, h2, h3, h4, h5, h6, p, li, label, a, button) {
+    overflow-wrap: break-word;
 }
 
 .grid > *,
@@ -196,6 +208,7 @@ select {
         @apply w-full bg-white/[0.055] border border-white/10 p-3 rounded-lg text-sm text-white outline-none;
         min-height: 46px;
         min-width: 0;
+        max-width: 100%;
         border-radius: 8px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
         transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
@@ -482,6 +495,18 @@ select {
     background: rgba(255, 255, 255, 0.045);
 }
 
+.responsive-scroll {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.responsive-scroll > table,
+.responsive-scroll > .premium-table {
+    min-width: 680px;
+}
+
 
 /* --- RESPONSIVE SAFETY --- */
 
@@ -511,6 +536,26 @@ select {
         padding-right: 1rem;
     }
 
+    main .btn {
+        width: 100%;
+    }
+
+    main :where(.premium-panel, .surface, .card) {
+        max-width: 100%;
+    }
+
+    main :where(h1) {
+        line-height: 1.05;
+    }
+
+    main :where(h2) {
+        line-height: 1.12;
+    }
+
+    main :where(input, select, textarea) {
+        font-size: 16px;
+    }
+
     .premium-eyebrow {
         width: 100%;
         border-radius: 8px;
@@ -523,12 +568,28 @@ select {
         padding-left: 1.25rem !important;
         padding-right: 1.25rem !important;
     }
+
+    .invoice-document {
+        border-radius: 8px;
+    }
+
+    .invoice-document :where(.grid, .flex) {
+        min-width: 0;
+    }
 }
 
 @media (max-width: 380px) {
     .container-custom {
         padding-left: 0.875rem;
         padding-right: 0.875rem;
+    }
+
+    main .btn {
+        font-size: 0.86rem;
+    }
+
+    .premium-eyebrow {
+        letter-spacing: 0.1em;
     }
 }
 

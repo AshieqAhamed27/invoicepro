@@ -968,7 +968,7 @@ export default function InvoiceView() {
                     )}
 
                     {upiLink && (
-                      <div className="mt-5 inline-flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-4">
+                      <div className="mt-5 flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:inline-flex sm:flex-row sm:items-center">
                         <QRCode value={upiLink} size={88} />
                         <div>
                           <p className="text-xs font-black uppercase tracking-widest text-slate-400">UPI Ready</p>

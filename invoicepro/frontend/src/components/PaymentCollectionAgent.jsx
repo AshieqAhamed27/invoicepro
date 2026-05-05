@@ -247,7 +247,7 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
               )}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px] lg:grid-cols-1 xl:grid-cols-3">
+            <div className="grid w-full gap-3 sm:grid-cols-3 lg:w-auto lg:min-w-[420px] lg:grid-cols-1 xl:grid-cols-3">
               <button
                 type="button"
                 onClick={() => setAutomationOn((value) => !value)}
@@ -298,8 +298,8 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
 
       <div className="grid gap-6 p-5 sm:p-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] lg:p-10">
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="min-w-0">
               <h3 className="text-xl font-black text-white">Collection Priority</h3>
               <p className="mt-1 text-xs font-bold uppercase tracking-widest text-zinc-600">Ranked by risk, due date, amount, and promises</p>
             </div>
