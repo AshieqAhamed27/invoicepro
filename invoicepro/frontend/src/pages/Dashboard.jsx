@@ -11,6 +11,9 @@ import { trackEvent } from '../utils/analytics';
 const formatCurrency = (amount) =>
   `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
 
+const clampNumber = (value, min, max) =>
+  Math.max(min, Math.min(max, Number(value || 0)));
+
 const formatDate = (value) => {
   if (!value) return 'not specified';
   const date = new Date(value);
@@ -126,6 +129,29 @@ export default function Dashboard() {
       return false;
     }
   });
+  const [incomeGoal, setIncomeGoal] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('invoicepro_income_goal') || '{}');
+
+      return {
+        target: stored.target || 50000,
+        averageDeal: stored.averageDeal || 12500,
+        closeRate: stored.closeRate || 25,
+        proposalRate: stored.proposalRate || 35,
+        hoursPerWeek: stored.hoursPerWeek || 20,
+        service: stored.service || 'Website, design, or business service package'
+      };
+    } catch {
+      return {
+        target: 50000,
+        averageDeal: 12500,
+        closeRate: 25,
+        proposalRate: 35,
+        hoursPerWeek: 20,
+        service: 'Website, design, or business service package'
+      };
+    }
+  });
 
   const navigate = useNavigate();
   const user = getUser() || {};
@@ -199,6 +225,21 @@ export default function Dashboard() {
       localStorage.setItem('onboarding_dismissed', '1');
     } catch { }
     setOnboardingDismissed(true);
+  };
+
+  const updateIncomeGoal = (field, value) => {
+    setIncomeGoal((prev) => {
+      const next = {
+        ...prev,
+        [field]: field === 'service' ? value : Number(value || 0)
+      };
+
+      try {
+        localStorage.setItem('invoicepro_income_goal', JSON.stringify(next));
+      } catch { }
+
+      return next;
+    });
   };
 
   const deleteInvoice = async (id) => {
@@ -509,6 +550,70 @@ export default function Dashboard() {
     const completedStages = moneyPipelineStages.filter((stage) => Number(stage.count || 0) > 0 || Number(String(stage.value).replace(/\D/g, '') || 0) > 0).length;
     return Math.round((completedStages / moneyPipelineStages.length) * 100);
   }, [moneyPipelineStages]);
+
+  const incomePlan = useMemo(() => {
+    const target = Math.max(1000, Number(incomeGoal.target || 0));
+    const averageDeal = Math.max(500, Number(incomeGoal.averageDeal || 0));
+    const closeRate = clampNumber(incomeGoal.closeRate, 5, 100);
+    const proposalRate = clampNumber(incomeGoal.proposalRate, 5, 100);
+    const hoursPerWeek = Math.max(1, Number(incomeGoal.hoursPerWeek || 0));
+    const collected = Number(stats.totalRevenue || 0);
+    const pending = Number(stats.pendingAmount || 0);
+    const remaining = Math.max(0, target - collected);
+    const clientsNeeded = Math.max(1, Math.ceil(remaining / averageDeal));
+    const proposalsNeeded = Math.max(1, Math.ceil(clientsNeeded / (closeRate / 100)));
+    const leadsNeeded = Math.max(1, Math.ceil(proposalsNeeded / (proposalRate / 100)));
+    const dailyLeadTarget = Math.max(1, Math.ceil(leadsNeeded / 20));
+    const weeklyLeadTarget = Math.max(dailyLeadTarget, Math.ceil(leadsNeeded / 4));
+    const hoursPerClient = Math.max(1, Math.floor((hoursPerWeek * 4) / clientsNeeded));
+    const progress = Math.min(100, Math.round((collected / target) * 100));
+    const projectedWithPending = Math.min(100, Math.round(((collected + pending) / target) * 100));
+
+    const packages = [
+      {
+        label: 'Starter',
+        price: Math.max(999, Math.round(averageDeal * 0.55 / 500) * 500),
+        note: 'Fast entry package for new clients'
+      },
+      {
+        label: 'Growth',
+        price: Math.round(averageDeal / 500) * 500,
+        note: 'Main offer to hit the monthly target'
+      },
+      {
+        label: 'Premium',
+        price: Math.round(averageDeal * 1.6 / 500) * 500,
+        note: 'Higher-value package for urgent clients'
+      }
+    ];
+
+    const actions = [
+      `Contact ${dailyLeadTarget} new lead${dailyLeadTarget === 1 ? '' : 's'} today for ${incomeGoal.service}.`,
+      `Send ${Math.max(1, Math.ceil(proposalsNeeded / 4))} proposal${Math.ceil(proposalsNeeded / 4) === 1 ? '' : 's'} this week.`,
+      `Follow up ${Math.max(1, Math.min(3, Number(stats.pending || 0) || 1))} pending payment${Number(stats.pending || 0) === 1 ? '' : 's'} before adding new work.`
+    ];
+
+    return {
+      target,
+      averageDeal,
+      closeRate,
+      proposalRate,
+      hoursPerWeek,
+      collected,
+      pending,
+      remaining,
+      clientsNeeded,
+      proposalsNeeded,
+      leadsNeeded,
+      dailyLeadTarget,
+      weeklyLeadTarget,
+      hoursPerClient,
+      progress,
+      projectedWithPending,
+      packages,
+      actions
+    };
+  }, [incomeGoal, stats.pending, stats.pendingAmount, stats.totalRevenue]);
 
   const renderedInvoices = useMemo(() => {
     return invoices.map((inv) => {
@@ -873,6 +978,218 @@ export default function Dashboard() {
                   A user should open InvoicePro and immediately know the next money action:
                   find a prospect, send a proposal, convert accepted work, collect pending payment, or turn a paid client into repeat income.
                 </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {!dashboardError && !loading && (
+          <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-yellow-400/20 bg-yellow-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
+            <div className="mb-8 grid gap-6 xl:grid-cols-[0.8fr_1.2fr] xl:items-start">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">
+                  Income Goal Agent
+                </p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Your {formatCurrency(incomePlan.target)} monthly income plan.
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                  Set a monthly target and InvoicePro calculates how many leads, proposals,
+                  clients, packages, and daily actions you need to reach it.
+                </p>
+
+                <div className="mt-6 rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <div className="mb-3 flex items-center justify-between gap-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Collected progress</p>
+                    <p className="text-xs font-black text-white">{incomePlan.progress}%</p>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-yellow-400 transition-all"
+                      style={{ width: `${incomePlan.progress}%` }}
+                    />
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Collected</p>
+                      <p className="mt-1 text-lg font-black text-white">{formatCurrency(incomePlan.collected)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Pending</p>
+                      <p className="mt-1 text-lg font-black text-yellow-300">{formatCurrency(incomePlan.pending)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Remaining</p>
+                      <p className="mt-1 text-lg font-black text-white">{formatCurrency(incomePlan.remaining)}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Monthly Target</p>
+                  <div className="mt-3 flex items-center gap-3">
+                    <span className="text-sm font-black text-zinc-500">Rs</span>
+                    <input
+                      type="number"
+                      min="1000"
+                      value={incomeGoal.target}
+                      onChange={(e) => updateIncomeGoal('target', e.target.value)}
+                      className="input bg-black/30 py-3 text-lg font-black"
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Average Deal</p>
+                  <div className="mt-3 flex items-center gap-3">
+                    <span className="text-sm font-black text-zinc-500">Rs</span>
+                    <input
+                      type="number"
+                      min="500"
+                      value={incomeGoal.averageDeal}
+                      onChange={(e) => updateIncomeGoal('averageDeal', e.target.value)}
+                      className="input bg-black/30 py-3 text-lg font-black"
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Close Rate %</p>
+                  <input
+                    type="number"
+                    min="5"
+                    max="100"
+                    value={incomeGoal.closeRate}
+                    onChange={(e) => updateIncomeGoal('closeRate', e.target.value)}
+                    className="input mt-3 bg-black/30 py-3 text-lg font-black"
+                  />
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Proposal Rate %</p>
+                  <input
+                    type="number"
+                    min="5"
+                    max="100"
+                    value={incomeGoal.proposalRate}
+                    onChange={(e) => updateIncomeGoal('proposalRate', e.target.value)}
+                    className="input mt-3 bg-black/30 py-3 text-lg font-black"
+                  />
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Hours / Week</p>
+                  <input
+                    type="number"
+                    min="1"
+                    max="80"
+                    value={incomeGoal.hoursPerWeek}
+                    onChange={(e) => updateIncomeGoal('hoursPerWeek', e.target.value)}
+                    className="input mt-3 bg-black/30 py-3 text-lg font-black"
+                  />
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Service You Sell</p>
+                  <input
+                    type="text"
+                    value={incomeGoal.service}
+                    onChange={(e) => updateIncomeGoal('service', e.target.value)}
+                    className="input mt-3 bg-black/30 py-3 text-sm font-bold"
+                    placeholder="Website design, video editing, marketing, consulting..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {[
+                ['Clients needed', incomePlan.clientsNeeded, `At ${formatCurrency(incomePlan.averageDeal)} average deal size`],
+                ['Proposals needed', incomePlan.proposalsNeeded, `Using ${incomePlan.closeRate}% proposal close rate`],
+                ['Leads needed', incomePlan.leadsNeeded, `Using ${incomePlan.proposalRate}% lead to proposal rate`],
+                ['Daily lead target', incomePlan.dailyLeadTarget, `${incomePlan.weeklyLeadTarget} leads per week recommended`],
+                ['Target with pending', `${incomePlan.projectedWithPending}%`, 'Collected plus pending invoices against your goal'],
+                ['Delivery capacity', `${incomePlan.hoursPerClient}h`, `Approx hours available per new client this month`]
+              ].map(([label, value, note]) => (
+                <div key={label} className="rounded-2xl border border-white/10 bg-zinc-950/70 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                  <p className="mt-3 text-4xl font-black text-white">{value}</p>
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{note}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+              <div className="rounded-2xl border border-white/10 bg-black/25 p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Suggested Packages</p>
+                <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+                  {incomePlan.packages.map((item) => (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={() => {
+                        try {
+                          localStorage.setItem('invoicepro_ai_invoice_draft', JSON.stringify({
+                            documentType: 'proposal',
+                            serviceDescription: `${item.label} package for ${incomeGoal.service}`,
+                            items: [{ name: `${item.label} package`, price: item.price }],
+                            validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+                          }));
+                        } catch { }
+                        navigate('/create-invoice?type=proposal');
+                      }}
+                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left transition hover:-translate-y-0.5 hover:bg-white/[0.08]"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-black text-white">{item.label}</p>
+                          <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{item.note}</p>
+                        </div>
+                        <p className="shrink-0 text-sm font-black text-yellow-300">{formatCurrency(item.price)}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/25 p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Today Agent Plan</p>
+                <div className="mt-5 space-y-3">
+                  {incomePlan.actions.map((action, index) => (
+                    <div key={action} className="flex gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-yellow-400 text-xs font-black text-black">
+                        {index + 1}
+                      </span>
+                      <p className="text-sm font-semibold leading-relaxed text-zinc-300">{action}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/client-finder')}
+                    className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                  >
+                    Find Leads
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/create-invoice?type=proposal')}
+                    className="rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15"
+                  >
+                    Proposal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => firstPendingInvoice ? navigate(`/invoice/${firstPendingInvoice._id}`) : navigate('/create-invoice')}
+                    className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/[0.08]"
+                  >
+                    Collect
+                  </button>
+                </div>
               </div>
             </div>
           </section>
