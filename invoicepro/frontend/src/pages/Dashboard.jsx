@@ -92,6 +92,7 @@ export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const [stats, setStats] = useState({
     totalRevenue: 0,
+    pendingAmount: 0,
     pending: 0,
     paid: 0,
     total: 0,
@@ -143,6 +144,7 @@ export default function Dashboard() {
       setInvoices((res.data.invoices || []).slice(0, 20));
       setStats({
         totalRevenue: res.data.stats?.totalRevenue || 0,
+        pendingAmount: res.data.stats?.pendingAmount || 0,
         pending: res.data.stats?.pending || 0,
         paid: res.data.stats?.paid || 0,
         total: res.data.stats?.total || 0,
@@ -421,6 +423,93 @@ export default function Dashboard() {
     return actions.slice(0, 4);
   }, [acceptedProposalList, acquisitionStats, dueLeadList, navigate, stats.pending]);
 
+  const firstPendingInvoice = useMemo(
+    () => invoices.find((invoice) => invoice.documentType !== 'proposal' && invoice.status !== 'paid'),
+    [invoices]
+  );
+
+  const moneyPipelineStages = useMemo(() => {
+    const leadCount = Number(acquisitionStats.new || 0) +
+      Number(acquisitionStats.contacted || 0) +
+      Number(acquisitionStats.interested || 0);
+    const proposalCount = Number(acquisitionStats.proposal_sent || 0);
+    const acceptedCount = acceptedProposalList.length;
+    const pendingAmount = Number(stats.pendingAmount || 0);
+
+    return [
+      {
+        id: 'lead-pool',
+        label: 'Lead Pool',
+        title: 'Find real prospects',
+        count: leadCount,
+        value: formatCurrency(acquisitionSummary.pipelineValue || 0),
+        detail: 'Save businesses that match your service, budget, urgency, and contact quality.',
+        cta: 'Find Leads',
+        tone: 'sky',
+        action: () => navigate('/client-finder')
+      },
+      {
+        id: 'proposal',
+        label: 'Proposal',
+        title: 'Package the offer',
+        count: proposalCount,
+        value: formatCurrency(acquisitionSummary.openProposalValue || 0),
+        detail: 'Turn interested leads into a clear scope, price, validity date, and public proposal link.',
+        cta: 'Send Proposal',
+        tone: 'yellow',
+        action: () => navigate('/create-invoice?type=proposal')
+      },
+      {
+        id: 'accepted',
+        label: 'Accepted',
+        title: 'Convert won work',
+        count: acceptedCount,
+        value: formatCurrency(acquisitionSummary.acceptedProposalValue || 0),
+        detail: 'Accepted proposals should become invoices quickly so collection can start.',
+        cta: acceptedProposalList[0] ? 'Convert Now' : 'Open Pipeline',
+        tone: 'emerald',
+        action: () => navigate(acceptedProposalList[0] ? `/invoice/${acceptedProposalList[0]._id}` : '/leads')
+      },
+      {
+        id: 'payment-pending',
+        label: 'Payment Pending',
+        title: 'Collect money',
+        count: Number(stats.pending || 0),
+        value: formatCurrency(pendingAmount),
+        detail: 'Create or open Razorpay links, share invoices on WhatsApp, and follow up before money goes cold.',
+        cta: firstPendingInvoice ? 'Collect' : 'Create Invoice',
+        tone: 'orange',
+        action: () => navigate(firstPendingInvoice ? `/invoice/${firstPendingInvoice._id}` : '/create-invoice')
+      },
+      {
+        id: 'paid-repeat',
+        label: 'Paid + Repeat',
+        title: 'Grow repeat revenue',
+        count: Number(stats.paid || 0),
+        value: formatCurrency(stats.totalRevenue || 0),
+        detail: 'Use paid clients, recurring billing, and client history to build monthly cashflow.',
+        cta: 'Recurring',
+        tone: 'purple',
+        action: () => navigate('/recurring')
+      }
+    ];
+  }, [
+    acceptedProposalList,
+    acquisitionStats,
+    acquisitionSummary,
+    firstPendingInvoice,
+    navigate,
+    stats.paid,
+    stats.pending,
+    stats.pendingAmount,
+    stats.totalRevenue
+  ]);
+
+  const operatingScore = useMemo(() => {
+    const completedStages = moneyPipelineStages.filter((stage) => Number(stage.count || 0) > 0 || Number(String(stage.value).replace(/\D/g, '') || 0) > 0).length;
+    return Math.round((completedStages / moneyPipelineStages.length) * 100);
+  }, [moneyPipelineStages]);
+
   const renderedInvoices = useMemo(() => {
     return invoices.map((inv) => {
       const meta = getDocumentMeta(inv);
@@ -504,7 +593,7 @@ export default function Dashboard() {
               Good morning, {user.name?.split(' ')[0] || 'there'}.
             </h1>
             <p className="mt-4 text-base sm:text-xl text-zinc-500 font-medium">
-              You currently have <span className="text-white font-black italic">{stats.pending} unpaid</span> invoices in play.
+              Run your client-to-cash system: find leads, close proposals, collect payments, and build repeat revenue.
             </p>
           </div>
 
@@ -531,7 +620,7 @@ export default function Dashboard() {
               to="/create-invoice"
               className="btn btn-primary px-5 sm:px-10 py-4 sm:py-5 shadow-2xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all font-black uppercase text-xs tracking-widest"
             >
-              New Invoice
+              New Deal
             </Link>
           </div>
         </section>
@@ -681,6 +770,110 @@ export default function Dashboard() {
                   )}
                 </div>
               ))}
+            </div>
+          </section>
+        )}
+
+        {!dashboardError && !loading && (
+          <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
+            <div className="mb-8 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-end">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">
+                  Business Operating System
+                </p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Your money pipeline from lead to repeat revenue.
+                </h2>
+                <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  InvoicePro now works as one connected system: lead discovery, proposal, invoice,
+                  payment collection, and recurring client revenue.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-emerald-400/15 bg-emerald-400/10 p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">System Health</p>
+                <div className="mt-3 flex items-end justify-between gap-4">
+                  <p className="text-4xl font-black text-white">{operatingScore}%</p>
+                  <p className="max-w-[12rem] text-right text-xs font-semibold leading-relaxed text-zinc-400">
+                    Add activity in every stage to make this a real money machine.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 xl:grid-cols-5">
+              {moneyPipelineStages.map((stage, index) => (
+                <div
+                  key={stage.id}
+                  className={`rounded-[1.75rem] border p-5 transition-all hover:-translate-y-1 ${
+                    stage.tone === 'emerald'
+                      ? 'border-emerald-400/20 bg-emerald-400/10'
+                      : stage.tone === 'yellow'
+                        ? 'border-yellow-400/20 bg-yellow-400/10'
+                        : stage.tone === 'sky'
+                          ? 'border-sky-400/20 bg-sky-400/10'
+                          : stage.tone === 'orange'
+                            ? 'border-orange-400/20 bg-orange-400/10'
+                            : 'border-purple-400/20 bg-purple-400/10'
+                  }`}
+                >
+                  <div className="mb-5 flex items-center justify-between gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-black/25 text-xs font-black text-white">
+                      {index + 1}
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
+                      {stage.label}
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg font-black text-white">{stage.title}</h3>
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Count</p>
+                      <p className="mt-1 text-2xl font-black text-white">{stage.count}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Value</p>
+                      <p className="mt-1 break-words text-sm font-black text-white">{stage.value}</p>
+                    </div>
+                  </div>
+                  <p className="mt-4 min-h-[72px] text-xs font-semibold leading-relaxed text-zinc-400">{stage.detail}</p>
+                  <button
+                    type="button"
+                    onClick={stage.action}
+                    className="mt-5 w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-white/10"
+                  >
+                    {stage.cta}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 grid gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Today's Focus</p>
+                <h3 className="mt-2 text-xl font-black text-white">{nextMoneyActions[0]?.title}</h3>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+                  {nextMoneyActions[0]?.detail}
+                </p>
+                {nextMoneyActions[0] && (
+                  <button
+                    type="button"
+                    onClick={nextMoneyActions[0].action}
+                    className="mt-5 rounded-xl bg-yellow-400 px-5 py-3 text-[10px] font-black uppercase tracking-widest text-black transition hover:bg-yellow-300"
+                  >
+                    {nextMoneyActions[0].cta}
+                  </button>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">What this means</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+                  A user should open InvoicePro and immediately know the next money action:
+                  find a prospect, send a proposal, convert accepted work, collect pending payment, or turn a paid client into repeat income.
+                </p>
+              </div>
             </div>
           </section>
         )}
