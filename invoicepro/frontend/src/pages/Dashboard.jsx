@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
@@ -13,6 +13,24 @@ const formatCurrency = (amount) =>
 
 const clampNumber = (value, min, max) =>
   Math.max(min, Math.min(max, Number(value || 0)));
+
+const DEFAULT_INCOME_GOAL = {
+  target: 50000,
+  averageDeal: 12500,
+  closeRate: 25,
+  proposalRate: 35,
+  hoursPerWeek: 20,
+  service: 'Website, design, or business service package'
+};
+
+const normalizeIncomeGoal = (goal = {}) => ({
+  target: clampNumber(goal.target || DEFAULT_INCOME_GOAL.target, 1000, 100000000),
+  averageDeal: clampNumber(goal.averageDeal || DEFAULT_INCOME_GOAL.averageDeal, 500, 10000000),
+  closeRate: clampNumber(goal.closeRate || DEFAULT_INCOME_GOAL.closeRate, 5, 100),
+  proposalRate: clampNumber(goal.proposalRate || DEFAULT_INCOME_GOAL.proposalRate, 5, 100),
+  hoursPerWeek: clampNumber(goal.hoursPerWeek || DEFAULT_INCOME_GOAL.hoursPerWeek, 1, 80),
+  service: String(goal.service || DEFAULT_INCOME_GOAL.service).trim() || DEFAULT_INCOME_GOAL.service
+});
 
 const formatDate = (value) => {
   if (!value) return 'not specified';
@@ -91,6 +109,14 @@ const buildLeadFollowUpMessage = (lead = {}) => {
   return `Hi ${name}, following up about ${business}.\n\n${pain}\n\nWould you like me to share 2 simple improvement ideas and a fixed-price proposal?`;
 };
 
+const incomeGoalSyncLabels = {
+  loading: 'Loading saved goal',
+  local: 'Using local goal',
+  saving: 'Saving to cloud',
+  saved: 'Saved to cloud',
+  error: 'Save failed'
+};
+
 export default function Dashboard() {
   const [invoices, setInvoices] = useState([]);
   const [stats, setStats] = useState({
@@ -132,26 +158,14 @@ export default function Dashboard() {
   const [incomeGoal, setIncomeGoal] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('invoicepro_income_goal') || '{}');
-
-      return {
-        target: stored.target || 50000,
-        averageDeal: stored.averageDeal || 12500,
-        closeRate: stored.closeRate || 25,
-        proposalRate: stored.proposalRate || 35,
-        hoursPerWeek: stored.hoursPerWeek || 20,
-        service: stored.service || 'Website, design, or business service package'
-      };
+      return normalizeIncomeGoal(stored);
     } catch {
-      return {
-        target: 50000,
-        averageDeal: 12500,
-        closeRate: 25,
-        proposalRate: 35,
-        hoursPerWeek: 20,
-        service: 'Website, design, or business service package'
-      };
+      return DEFAULT_INCOME_GOAL;
     }
   });
+  const [incomeGoalLoaded, setIncomeGoalLoaded] = useState(false);
+  const [incomeGoalSyncStatus, setIncomeGoalSyncStatus] = useState('loading');
+  const lastSavedIncomeGoal = useRef('');
 
   const navigate = useNavigate();
   const user = getUser() || {};
@@ -160,6 +174,67 @@ export default function Dashboard() {
   useEffect(() => {
     fetchDashboard();
   }, []);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadIncomeGoal = async () => {
+      try {
+        const res = await api.get('/business-goal');
+        const nextGoal = normalizeIncomeGoal(res.data?.goal);
+        const serialized = JSON.stringify(nextGoal);
+
+        if (!isActive) return;
+
+        setIncomeGoal(nextGoal);
+        lastSavedIncomeGoal.current = serialized;
+        localStorage.setItem('invoicepro_income_goal', serialized);
+        setIncomeGoalSyncStatus('saved');
+      } catch (err) {
+        if (!isActive) return;
+        setIncomeGoalSyncStatus('local');
+      } finally {
+        if (isActive) {
+          setIncomeGoalLoaded(true);
+        }
+      }
+    };
+
+    loadIncomeGoal();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!incomeGoalLoaded) return undefined;
+
+    const nextGoal = normalizeIncomeGoal(incomeGoal);
+    const serialized = JSON.stringify(nextGoal);
+
+    try {
+      localStorage.setItem('invoicepro_income_goal', serialized);
+    } catch { }
+
+    if (serialized === lastSavedIncomeGoal.current) {
+      return undefined;
+    }
+
+    setIncomeGoalSyncStatus('saving');
+
+    const timer = setTimeout(async () => {
+      try {
+        await api.put('/business-goal', nextGoal);
+        lastSavedIncomeGoal.current = serialized;
+        setIncomeGoalSyncStatus('saved');
+      } catch (err) {
+        setIncomeGoalSyncStatus('error');
+      }
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [incomeGoal, incomeGoalLoaded]);
 
   const fetchDashboard = async () => {
     try {
@@ -987,9 +1062,20 @@ export default function Dashboard() {
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-yellow-400/20 bg-yellow-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
             <div className="mb-8 grid gap-6 xl:grid-cols-[0.8fr_1.2fr] xl:items-start">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">
-                  Income Goal Agent
-                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">
+                    Income Goal Agent
+                  </p>
+                  <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
+                    incomeGoalSyncStatus === 'error'
+                      ? 'border-red-400/20 bg-red-400/10 text-red-300'
+                      : incomeGoalSyncStatus === 'saving'
+                        ? 'border-yellow-400/20 bg-yellow-400/10 text-yellow-300'
+                        : 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
+                  }`}>
+                    {incomeGoalSyncLabels[incomeGoalSyncStatus] || 'Saved'}
+                  </span>
+                </div>
                 <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
                   Your {formatCurrency(incomePlan.target)} monthly income plan.
                 </h2>

@@ -25,6 +25,7 @@ const paymentRoutes = require('./routes/payment');
 const aiRoutes = require('./routes/ai');
 const clientRoutes = require('./routes/clients');
 const leadRoutes = require('./routes/leads');
+const businessGoalRoutes = require('./routes/businessGoal');
 
 const app = express();
 
@@ -94,6 +95,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/leads', leadRoutes);
+app.use('/api/business-goal', businessGoalRoutes);
 
 app.get('/api', (req, res) => {
     res.json({
@@ -106,7 +108,8 @@ app.get('/api', (req, res) => {
             payment: '/api/payment',
             ai: '/api/ai',
             clients: '/api/clients',
-            leads: '/api/leads'
+            leads: '/api/leads',
+            businessGoal: '/api/business-goal'
         }
     });
 });
