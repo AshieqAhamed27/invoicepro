@@ -165,6 +165,15 @@ export default function Dashboard() {
   });
   const [incomeGoalLoaded, setIncomeGoalLoaded] = useState(false);
   const [incomeGoalSyncStatus, setIncomeGoalSyncStatus] = useState('loading');
+  const [dailyAutomationDone, setDailyAutomationDone] = useState(() => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const stored = JSON.parse(localStorage.getItem('clientflow_daily_automation_done') || '{}');
+      return stored.date === today && stored.done ? stored.done : {};
+    } catch {
+      return {};
+    }
+  });
   const lastSavedIncomeGoal = useRef('');
 
   const navigate = useNavigate();
@@ -395,6 +404,31 @@ export default function Dashboard() {
     trackEvent('apply_ai_invoice_draft', { location: 'dashboard' });
   };
 
+  const toggleDailyAutomationAction = (id) => {
+    const nextCompleted = !dailyAutomationDone[id];
+
+    setDailyAutomationDone((prev) => {
+      const next = {
+        ...prev,
+        [id]: nextCompleted
+      };
+
+      try {
+        localStorage.setItem('clientflow_daily_automation_done', JSON.stringify({
+          date: new Date().toISOString().slice(0, 10),
+          done: next
+        }));
+      } catch { }
+
+      return next;
+    });
+
+    trackEvent('toggle_daily_automation_action', {
+      action_id: id,
+      completed: nextCompleted
+    });
+  };
+
   const maxTrend = useMemo(() => {
     return stats.trends.length
       ? Math.max(...stats.trends.map((t) => t.value), 1000)
@@ -405,6 +439,7 @@ export default function Dashboard() {
   const acquisitionStats = leadDashboard.stats || {};
   const dueLeadList = leadDashboard.followUpsDue || [];
   const hotLeadList = leadDashboard.hotLeads || [];
+  const openProposalList = leadDashboard.openProposals || [];
   const acceptedProposalList = leadDashboard.acceptedProposals || [];
 
   const acquisitionCards = useMemo(() => ([
@@ -690,6 +725,207 @@ export default function Dashboard() {
     };
   }, [incomeGoal, stats.pending, stats.pendingAmount, stats.totalRevenue]);
 
+  const pendingInvoiceList = useMemo(
+    () => invoices.filter((invoice) => invoice.documentType !== 'proposal' && invoice.status !== 'paid'),
+    [invoices]
+  );
+
+  const overdueInvoiceList = useMemo(
+    () => pendingInvoiceList.filter((invoice) => isDatePastEndOfDay(invoice.dueDate)),
+    [pendingInvoiceList]
+  );
+
+  const topPendingInvoice = useMemo(() => {
+    return [...pendingInvoiceList].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0] || null;
+  }, [pendingInvoiceList]);
+
+  const dailyAutomationDate = useMemo(() => {
+    return new Date().toLocaleDateString('en-IN', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short'
+    });
+  }, []);
+
+  const dailyAutomationPlan = useMemo(() => {
+    const actions = [];
+    const addAction = (action) => {
+      if (!actions.some((item) => item.id === action.id)) {
+        actions.push(action);
+      }
+    };
+
+    const highestOverdue = [...overdueInvoiceList]
+      .sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+
+    if (highestOverdue) {
+      addAction({
+        id: `overdue-${highestOverdue._id}`,
+        category: 'Collect',
+        title: 'Fix the biggest overdue payment',
+        detail: `${highestOverdue.clientName} has ${formatCurrency(highestOverdue.amount)} overdue from ${formatDate(highestOverdue.dueDate)}.`,
+        impact: formatCurrency(highestOverdue.amount),
+        cta: 'Open Invoice',
+        tone: 'red',
+        action: () => navigate(`/invoice/${highestOverdue._id}`)
+      });
+    }
+
+    if (acceptedProposalList[0]) {
+      addAction({
+        id: `accepted-${acceptedProposalList[0]._id}`,
+        category: 'Convert',
+        title: 'Turn accepted work into an invoice',
+        detail: `${acceptedProposalList[0].clientName} already accepted. Converting now shortens the cash cycle.`,
+        impact: formatCurrency(acceptedProposalList[0].amount),
+        cta: 'Open Proposal',
+        tone: 'emerald',
+        action: () => navigate(`/invoice/${acceptedProposalList[0]._id}`)
+      });
+    }
+
+    if (dueLeadList[0]) {
+      addAction({
+        id: `lead-due-${dueLeadList[0]._id || 'today'}`,
+        category: 'Follow-up',
+        title: 'Follow up the warmest due lead',
+        detail: `${getLeadName(dueLeadList[0])} is due for follow-up. Open the pipeline and use the saved pitch.`,
+        impact: formatCurrency(dueLeadList[0].budget),
+        cta: 'Open Pipeline',
+        tone: 'yellow',
+        action: () => navigate('/leads')
+      });
+    }
+
+    if (topPendingInvoice && !highestOverdue) {
+      addAction({
+        id: `pending-${topPendingInvoice._id}`,
+        category: 'Collect',
+        title: 'Prepare today payment collection',
+        detail: `${topPendingInvoice.clientName} is pending for ${formatCurrency(topPendingInvoice.amount)}. Open it, check payment link, then share manually.`,
+        impact: formatCurrency(topPendingInvoice.amount),
+        cta: 'Open Invoice',
+        tone: 'orange',
+        action: () => navigate(`/invoice/${topPendingInvoice._id}`)
+      });
+    }
+
+    if ((acquisitionStats.interested || 0) > 0) {
+      addAction({
+        id: 'proposal-interested-leads',
+        category: 'Proposal',
+        title: 'Convert interested leads into offers',
+        detail: `${acquisitionStats.interested} interested lead${acquisitionStats.interested === 1 ? '' : 's'} should receive a fixed-scope proposal today.`,
+        impact: `${acquisitionStats.interested} warm lead${acquisitionStats.interested === 1 ? '' : 's'}`,
+        cta: 'Create Proposal',
+        tone: 'sky',
+        action: () => navigate('/create-invoice?type=proposal')
+      });
+    }
+
+    if (openProposalList.length > 0) {
+      addAction({
+        id: 'review-open-proposals',
+        category: 'Close',
+        title: 'Review open proposal value',
+        detail: `${openProposalList.length} proposal${openProposalList.length === 1 ? '' : 's'} can be moved forward before creating more work.`,
+        impact: formatCurrency(acquisitionSummary.openProposalValue),
+        cta: 'Open Pipeline',
+        tone: 'purple',
+        action: () => navigate('/leads')
+      });
+    }
+
+    if (Number(acquisitionStats.total || 0) < incomePlan.dailyLeadTarget) {
+      addAction({
+        id: 'add-daily-leads',
+        category: 'Pipeline',
+        title: 'Add enough prospects for today',
+        detail: `Your goal needs ${incomePlan.dailyLeadTarget} new lead${incomePlan.dailyLeadTarget === 1 ? '' : 's'} today. Save only businesses with a real contact path.`,
+        impact: `${incomePlan.dailyLeadTarget} lead target`,
+        cta: 'Find Clients',
+        tone: 'emerald',
+        action: () => navigate('/client-finder')
+      });
+    }
+
+    if (Number(stats.total || 0) === 0) {
+      addAction({
+        id: 'first-billing-document',
+        category: 'Setup',
+        title: 'Create the first billable document',
+        detail: 'Start with a proposal if the client has not agreed, or an invoice if the work is already approved.',
+        impact: 'First deal',
+        cta: 'Create Document',
+        tone: 'sky',
+        action: () => navigate('/create-invoice')
+      });
+    }
+
+    addAction({
+      id: 'package-offer',
+      category: 'Offer',
+      title: 'Package one service into a paid offer',
+      detail: `Use the ${formatCurrency(incomePlan.averageDeal)} average deal target to create one clear offer for ${incomeGoal.service}.`,
+      impact: formatCurrency(incomePlan.averageDeal),
+      cta: 'Build Proposal',
+      tone: 'zinc',
+      action: () => navigate('/create-invoice?type=proposal')
+    });
+
+    addAction({
+      id: 'recurring-revenue',
+      category: 'Retain',
+      title: 'Look for one repeat revenue chance',
+      detail: 'Check whether any current client can become a monthly retainer, maintenance plan, or recurring service.',
+      impact: 'Repeat income',
+      cta: 'Recurring',
+      tone: 'purple',
+      action: () => navigate('/recurring')
+    });
+
+    return actions.slice(0, 6);
+  }, [
+    acceptedProposalList,
+    acquisitionStats.interested,
+    acquisitionStats.total,
+    acquisitionSummary.openProposalValue,
+    dueLeadList,
+    incomeGoal.service,
+    incomePlan.averageDeal,
+    incomePlan.dailyLeadTarget,
+    navigate,
+    openProposalList,
+    overdueInvoiceList,
+    stats.total,
+    topPendingInvoice
+  ]);
+
+  const completedAutomationCount = dailyAutomationPlan.filter((action) => dailyAutomationDone[action.id]).length;
+  const dailyAutomationProgress = dailyAutomationPlan.length
+    ? Math.round((completedAutomationCount / dailyAutomationPlan.length) * 100)
+    : 0;
+  const automationFocus = dailyAutomationPlan.find((action) => !dailyAutomationDone[action.id]) || dailyAutomationPlan[0];
+  const overdueAmount = overdueInvoiceList.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+  const collectionRiskAmount = overdueAmount || Number(stats.pendingAmount || 0);
+  const collectionRiskNote = overdueInvoiceList.length
+    ? `${overdueInvoiceList.length} overdue invoice${overdueInvoiceList.length === 1 ? '' : 's'}`
+    : `${pendingInvoiceList.length} pending invoice${pendingInvoiceList.length === 1 ? '' : 's'}`;
+
+  const copyDailyAutomationPlan = async () => {
+    const planText = dailyAutomationPlan
+      .map((action, index) => `${index + 1}. ${action.title} - ${action.detail} Impact: ${action.impact}.`)
+      .join('\n');
+
+    try {
+      await navigator.clipboard.writeText(`ClientFlow AI daily plan (${dailyAutomationDate})\n\n${planText}`);
+      trackEvent('copy_daily_automation_plan', { action_count: dailyAutomationPlan.length });
+      alert('Today plan copied. You can paste it into your notes or task list.');
+    } catch {
+      window.prompt('Copy today plan:', planText);
+    }
+  };
+
   const renderedInvoices = useMemo(() => {
     return invoices.map((inv) => {
       const meta = getDocumentMeta(inv);
@@ -950,6 +1186,161 @@ export default function Dashboard() {
                   )}
                 </div>
               ))}
+            </div>
+          </section>
+        )}
+
+        {!dashboardError && !loading && (
+          <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-sky-400/20 bg-sky-400/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-stretch">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">
+                    Daily Business Assistant
+                  </p>
+                  <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                    No domain needed
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                    {dailyAutomationDate}
+                  </span>
+                </div>
+
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Your automated work plan for today.
+                </h2>
+                <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  ClientFlow AI checks invoices, proposals, leads, and your income goal, then ranks the
+                  actions most likely to move money forward. It prepares the work without auto-sending anything.
+                </p>
+
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  {[
+                    ['Collection risk', formatCurrency(collectionRiskAmount), collectionRiskNote],
+                    ['Follow-ups due', dueLeadList.length, 'Warm leads to move forward'],
+                    ['Plan completed', `${dailyAutomationProgress}%`, `${completedAutomationCount}/${dailyAutomationPlan.length} actions done`]
+                  ].map(([label, value, note]) => (
+                    <div key={label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                      <p className="mt-2 break-words text-2xl font-black text-white">{value}</p>
+                      <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{note}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/10 p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Top Priority</p>
+                <h3 className="mt-3 text-xl font-black leading-tight text-white">
+                  {automationFocus?.title}
+                </h3>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+                  {automationFocus?.detail}
+                </p>
+                <div className="mt-5 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Expected Impact</p>
+                    <p className="mt-1 text-sm font-black text-white">{automationFocus?.impact}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={automationFocus?.action}
+                    className="shrink-0 rounded-xl bg-yellow-400 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-black transition hover:bg-yellow-300"
+                  >
+                    {automationFocus?.cta}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+              {dailyAutomationPlan.map((action, index) => {
+                const done = Boolean(dailyAutomationDone[action.id]);
+                const toneClass = action.tone === 'emerald'
+                  ? 'border-emerald-400/20 bg-emerald-400/10'
+                  : action.tone === 'yellow'
+                    ? 'border-yellow-400/20 bg-yellow-400/10'
+                    : action.tone === 'sky'
+                      ? 'border-sky-400/20 bg-sky-400/10'
+                      : action.tone === 'orange'
+                        ? 'border-orange-400/20 bg-orange-400/10'
+                        : action.tone === 'red'
+                          ? 'border-red-400/20 bg-red-400/10'
+                          : action.tone === 'purple'
+                            ? 'border-purple-400/20 bg-purple-400/10'
+                            : 'border-white/10 bg-white/[0.04]';
+
+                return (
+                  <article
+                    key={action.id}
+                    className={`rounded-2xl border p-5 transition-all ${done ? 'border-emerald-400/25 bg-emerald-400/[0.07] opacity-75' : toneClass}`}
+                  >
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <span className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-black ${done ? 'bg-emerald-400 text-black' : 'bg-black/25 text-white'}`}>
+                          {done ? 'OK' : index + 1}
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
+                          {action.category}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                        {action.impact}
+                      </span>
+                    </div>
+
+                    <h3 className="text-base font-black leading-tight text-white">{action.title}</h3>
+                    <p className="mt-3 min-h-[60px] text-xs font-semibold leading-relaxed text-zinc-400">
+                      {action.detail}
+                    </p>
+
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                      <button
+                        type="button"
+                        onClick={action.action}
+                        className="rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                      >
+                        {action.cta}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleDailyAutomationAction(action.id)}
+                        className={`rounded-xl border px-4 py-3 text-[10px] font-black uppercase tracking-widest transition ${
+                          done
+                            ? 'border-emerald-400/30 bg-emerald-400/15 text-emerald-200'
+                            : 'border-white/10 bg-white/[0.04] text-zinc-300 hover:bg-white/[0.08]'
+                        }`}
+                      >
+                        {done ? 'Done Today' : 'Mark Done'}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <button
+                type="button"
+                onClick={copyDailyAutomationPlan}
+                className="btn btn-secondary px-6 py-3 text-xs font-black uppercase tracking-widest"
+              >
+                Copy Today Plan
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/client-finder')}
+                className="btn btn-dark px-6 py-3 text-xs font-black uppercase tracking-widest"
+              >
+                Find Clients
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/create-invoice?type=proposal')}
+                className="btn btn-primary px-6 py-3 text-xs font-black uppercase tracking-widest"
+              >
+                Build Offer
+              </button>
             </div>
           </section>
         )}
