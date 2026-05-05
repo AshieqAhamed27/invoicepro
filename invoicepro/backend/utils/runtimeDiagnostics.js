@@ -82,6 +82,14 @@ const getEnvSanity = () => {
         recurring: {
             cronSecret: hasUsableValue('CRON_SECRET')
         },
+        whatsapp: {
+            accessToken: hasUsableValue('WHATSAPP_CLOUD_API_TOKEN') || hasUsableValue('WHATSAPP_ACCESS_TOKEN'),
+            phoneNumberId: hasUsableValue('WHATSAPP_PHONE_NUMBER_ID'),
+            businessAccountId: hasUsableValue('WHATSAPP_BUSINESS_ACCOUNT_ID'),
+            webhookVerifyToken: hasUsableValue('WHATSAPP_WEBHOOK_VERIFY_TOKEN'),
+            appSecret: hasUsableValue('WHATSAPP_APP_SECRET'),
+            reminderTemplateName: hasUsableValue('WHATSAPP_REMINDER_TEMPLATE_NAME')
+        },
         cors: {
             frontendUrl: normalizeUrl(process.env.FRONTEND_URL) || null,
             productionFrontend: isProductionUrl(process.env.FRONTEND_URL),
@@ -168,6 +176,17 @@ const getLaunchReadiness = ({ databaseState = 'unknown' } = {}) => {
             ready: envSanity.recurring.cronSecret,
             severity: 'important',
             action: 'Set CRON_SECRET and schedule the recurring invoice job.'
+        },
+        {
+            id: 'whatsapp',
+            category: 'Retention',
+            label: 'WhatsApp Cloud API reminders',
+            ready: envSanity.whatsapp.accessToken &&
+                envSanity.whatsapp.phoneNumberId &&
+                envSanity.whatsapp.webhookVerifyToken &&
+                envSanity.whatsapp.reminderTemplateName,
+            severity: 'important',
+            action: 'Add Meta WhatsApp token, phone number ID, webhook verify token, and an approved reminder template.'
         }
     ];
 
