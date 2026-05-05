@@ -18,6 +18,29 @@ const CheckPill = ({ ready }) => (
   </span>
 );
 
+const recentUpdates = [
+  {
+    label: 'Homepage',
+    title: 'Clear product message',
+    detail: 'Changed the public promise to: Get clients and get paid faster.'
+  },
+  {
+    label: 'Dashboard',
+    title: 'Business automation center',
+    detail: 'Added daily work plan, payment follow-up, lead follow-up, proposal follow-up, recurring client detection, and risk alerts.'
+  },
+  {
+    label: 'Payments',
+    title: 'Real collection flow',
+    detail: 'Razorpay checkout, UPI route, public invoice page, and paid status protection are now part of the product flow.'
+  },
+  {
+    label: 'Trust',
+    title: 'Launch trust pages',
+    detail: 'Added business setup, policy pages, SEO basics, analytics, and launch-readiness tracking.'
+  }
+];
+
 const LaunchCheck = ({ check }) => (
   <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.02] p-6">
     <div className="mb-5 flex items-start justify-between gap-4">
@@ -309,6 +332,28 @@ export default function LaunchCenter() {
               <span className={`rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest ${readiness.moneyReady ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300' : 'border-yellow-400/20 bg-yellow-400/10 text-yellow-200'}`}>
                 {readiness.stage || 'checking'}
               </span>
+            </div>
+          </div>
+
+          <div className="border-b border-white/5 p-5 sm:p-8">
+            <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Recent updates</p>
+                <h3 className="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl">What has improved recently</h3>
+              </div>
+              <p className="max-w-xl text-sm font-medium leading-relaxed text-zinc-500">
+                These are the latest product and company-readiness improvements added before launch.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {recentUpdates.map((update) => (
+                <div key={update.title} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-300">{update.label}</p>
+                  <h4 className="mt-3 text-base font-black leading-tight text-white">{update.title}</h4>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-500">{update.detail}</p>
+                </div>
+              ))}
             </div>
           </div>
 
