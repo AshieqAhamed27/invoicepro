@@ -39,8 +39,8 @@ const sections = [
 
 export default function Terms() {
   useDocumentMeta(
-    'Terms of Use | InvoicePro',
-    'Read the InvoicePro terms covering product use, account responsibility, payments, support, and service updates.'
+    'Terms of Use | ClientFlow AI',
+    'Read the ClientFlow AI terms covering product use, account responsibility, payments, support, and service updates.'
   );
 
   return (
@@ -51,7 +51,7 @@ export default function Terms() {
         <section className="mx-auto max-w-4xl">
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Terms of Use</p>
           <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl md:text-6xl">
-            Simple terms for using InvoicePro responsibly.
+            Simple terms for using ClientFlow AI responsibly.
           </h1>
           <p className="mt-6 max-w-3xl text-base font-medium leading-relaxed text-zinc-400 md:text-lg">
             These terms summarize the basic expectations for using {COMPANY_NAME} as a billing and invoicing product.

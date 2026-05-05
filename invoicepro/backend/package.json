@@ -1,7 +1,7 @@
 {
   "name": "invoicepro-backend",
   "version": "1.0.0",
-  "description": "InvoicePro Backend API",
+  "description": "ClientFlow AI Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node local.js",

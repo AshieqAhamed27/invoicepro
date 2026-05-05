@@ -297,8 +297,8 @@ export default function ClientFinder() {
   const [formError, setFormError] = useState('');
 
   useDocumentMeta(
-    'AI Client Finder for Freelancers | InvoicePro',
-    'Find freelance client niches, outreach messages, service packages, and proposal drafts with InvoicePro AI.',
+    'AI Client Finder for Freelancers | ClientFlow AI',
+    'Find freelance client niches, outreach messages, service packages, and proposal drafts with ClientFlow AI.',
     { path: '/client-finder' }
   );
 
@@ -475,7 +475,7 @@ export default function ClientFinder() {
               Find clients, pitch better, then turn work into invoices.
             </h1>
             <p className="mt-5 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-              InvoicePro now helps freelancers choose a profitable niche, generate outreach, package an offer, send a proposal, and collect payment from the same workflow.
+              ClientFlow AI now helps freelancers choose a profitable niche, generate outreach, package an offer, send a proposal, and collect payment from the same workflow.
             </p>
           </div>
 
@@ -722,7 +722,7 @@ export default function ClientFinder() {
                         <h3 className="mt-2 text-2xl font-black text-white">Find actual businesses, then save verified leads.</h3>
                       </div>
                       <p className="max-w-md text-xs font-semibold leading-relaxed text-zinc-500">
-                        InvoicePro opens public search pages. It does not invent names, scrape private data, or auto-message people.
+                        ClientFlow AI opens public search pages. It does not invent names, scrape private data, or auto-message people.
                       </p>
                     </div>
 

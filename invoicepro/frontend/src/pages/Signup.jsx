@@ -12,8 +12,8 @@ export default function Signup() {
   const location = useLocation();
 
   useDocumentMeta(
-    'Create Your Account | InvoicePro',
-    'Start your InvoicePro workspace to send invoices, share payment links, and organize recurring billing.'
+    'Create Your Account | ClientFlow AI',
+    'Start your ClientFlow AI workspace to send invoices, share payment links, and organize recurring billing.'
   );
 
   const [form, setForm] = useState({

@@ -137,7 +137,7 @@ export default function AIBillingAgent({
             <div className="mt-5 rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-4">
               <p className="text-sm font-semibold leading-relaxed text-emerald-100">{result.reply}</p>
               <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-emerald-400/70">
-                Source: {result.source === 'openai' ? 'OpenAI + InvoicePro rules' : 'InvoicePro rules'}
+                Source: {result.source === 'openai' ? 'OpenAI + ClientFlow AI rules' : 'ClientFlow AI rules'}
               </p>
             </div>
           )}

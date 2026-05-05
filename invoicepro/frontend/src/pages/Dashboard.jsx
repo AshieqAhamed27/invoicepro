@@ -965,7 +965,7 @@ export default function Dashboard() {
                   Your money pipeline from lead to repeat revenue.
                 </h2>
                 <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                  InvoicePro now works as one connected system: lead discovery, proposal, invoice,
+                  ClientFlow AI now works as one connected system: lead discovery, proposal, invoice,
                   payment collection, and recurring client revenue.
                 </p>
               </div>
@@ -1050,7 +1050,7 @@ export default function Dashboard() {
               <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">What this means</p>
                 <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
-                  A user should open InvoicePro and immediately know the next money action:
+                  A user should open ClientFlow AI and immediately know the next money action:
                   find a prospect, send a proposal, convert accepted work, collect pending payment, or turn a paid client into repeat income.
                 </p>
               </div>
@@ -1080,7 +1080,7 @@ export default function Dashboard() {
                   Your {formatCurrency(incomePlan.target)} monthly income plan.
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                  Set a monthly target and InvoicePro calculates how many leads, proposals,
+                  Set a monthly target and ClientFlow AI calculates how many leads, proposals,
                   clients, packages, and daily actions you need to reach it.
                 </p>
 

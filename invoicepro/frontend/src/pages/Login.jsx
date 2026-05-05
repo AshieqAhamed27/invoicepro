@@ -15,8 +15,8 @@ export default function Login() {
   const location = useLocation();
 
   useDocumentMeta(
-    'Login | InvoicePro',
-    'Sign in to manage invoices, clients, recurring billing, and payment tracking in InvoicePro.'
+    'Login | ClientFlow AI',
+    'Sign in to manage invoices, clients, recurring billing, and payment tracking in ClientFlow AI.'
   );
 
   const [form, setForm] = useState({
@@ -224,7 +224,7 @@ export default function Login() {
 
             <div className="mt-10 pt-8 border-t border-white/5 text-center">
               <p className="text-sm font-medium text-zinc-500">
-                New to InvoicePro?{' '}
+                New to ClientFlow AI?{' '}
                 <Link to="/signup" className="font-black text-yellow-300 hover:text-white transition-colors">
                   Create an account
                 </Link>

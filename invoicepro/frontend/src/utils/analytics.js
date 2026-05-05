@@ -41,7 +41,7 @@ export const trackEvent = (eventName, params = {}) => {
   if (!ensureAnalytics()) return;
 
   window.gtag('event', eventName, {
-    app_name: 'InvoicePro',
+    app_name: 'ClientFlow AI',
     ...params
   });
 };

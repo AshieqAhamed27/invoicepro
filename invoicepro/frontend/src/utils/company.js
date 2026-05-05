@@ -1,11 +1,11 @@
-export const PRODUCT_NAME = 'InvoicePro';
-export const COMPANY_NAME = 'InvoicePro Billing Technologies';
-export const COMPANY_SHORT_NAME = 'InvoicePro';
+export const PRODUCT_NAME = 'ClientFlow AI';
+export const COMPANY_NAME = 'ClientFlow AI';
+export const COMPANY_SHORT_NAME = 'ClientFlow AI';
 export const COMPANY_TAGLINE = 'AI client-to-cash platform for freelancers and small service businesses.';
 export const COMPANY_LOGO = '/logo.svg';
 export const COMPANY_LEGAL_TYPE = 'Udyam-registered sole proprietorship';
 export const UDYAM_REGISTRATION_NUMBER = 'UDYAM-TN-37-0055272';
-export const COMPANY_LEGAL_DESCRIPTION = `${COMPANY_NAME} is a ${COMPANY_LEGAL_TYPE} business in India.`;
+export const COMPANY_LEGAL_DESCRIPTION = `${PRODUCT_NAME} is operated by a ${COMPANY_LEGAL_TYPE} business in India.`;
 export const SUPPORT_EMAIL = 'ashieqahamed27@gmail.com';
 export const COMPANY_LOCATION = 'India';
 export const SITE_URL = 'https://invoicepro-lime.vercel.app';

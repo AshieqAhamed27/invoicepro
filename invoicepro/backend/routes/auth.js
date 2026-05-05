@@ -284,14 +284,14 @@ router.post(
     protect,
     async(req, res) => {
         try {
-            await sendEmail(req.user.email, 'InvoicePro email test', {
+            await sendEmail(req.user.email, 'ClientFlow AI email test', {
                 html: `
                     <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827;">
-                        <h2>InvoicePro email is working</h2>
+                        <h2>ClientFlow AI email is working</h2>
                         <p>This test confirms your backend email settings can send mail.</p>
                     </div>
                 `,
-                text: 'InvoicePro email is working. This test confirms your backend email settings can send mail.'
+                text: 'ClientFlow AI email is working. This test confirms your backend email settings can send mail.'
             });
 
             res.json({ message: `Test email sent to ${req.user.email}` });

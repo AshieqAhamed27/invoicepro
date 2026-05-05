@@ -50,7 +50,7 @@ export default function HowToCreateInvoiceIndia() {
                     4. Use an Invoice Tool
                 </h2>
                 <p className="mt-3 text-zinc-400">
-                    Tools like InvoicePro help automate invoice creation and payment tracking.
+                    Tools like ClientFlow AI help automate invoice creation and payment tracking.
                 </p>
                 <section className="mt-12">
                     <h2 className="text-2xl font-bold">
@@ -62,10 +62,10 @@ export default function HowToCreateInvoiceIndia() {
                     </p>
 
                     <h2 className="mt-10 text-2xl font-bold">
-                        Benefits of InvoicePro
+                        Benefits of ClientFlow AI
                     </h2>
                     <p className="mt-3 text-zinc-400">
-                        InvoicePro allows you to create invoices, send payment links, track payments,
+                        ClientFlow AI allows you to create invoices, send payment links, track payments,
                         and manage recurring billing from one place. It is designed for Indian freelancers,
                         agencies, and consultants.
                     </p>

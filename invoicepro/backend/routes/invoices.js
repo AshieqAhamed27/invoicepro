@@ -21,7 +21,7 @@ const {
 } = require('../utils/emailTemplates');
 
 const FREE_PLAN_LIMIT = 2;
-const DEFAULT_COMPANY_NAME = 'InvoicePro Billing Technologies';
+const DEFAULT_COMPANY_NAME = 'ClientFlow AI';
 
 const isProposalDocument = (value) => String(value || 'invoice').toLowerCase() === 'proposal';
 

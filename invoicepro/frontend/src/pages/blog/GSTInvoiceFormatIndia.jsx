@@ -44,7 +44,7 @@ export default function GSTInvoiceFormatIndia() {
           How to Create GST Invoice Easily
         </h2>
         <p className="mt-3 text-zinc-400">
-          Instead of manual work, you can use tools like InvoicePro to generate GST invoices
+          Instead of manual work, you can use tools like ClientFlow AI to generate GST invoices
           and send payment links instantly.
         </p>
 

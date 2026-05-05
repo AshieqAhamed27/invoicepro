@@ -19,8 +19,8 @@ const contactTopics = [
 
 export default function Contact() {
   useDocumentMeta(
-    'Contact | InvoicePro',
-    'Contact InvoicePro for setup help, billing questions, and support related to invoices or client payments.'
+    'Contact | ClientFlow AI',
+    'Contact ClientFlow AI for setup help, billing questions, and support related to invoices or client payments.'
   );
 
   return (
@@ -77,7 +77,7 @@ export default function Contact() {
             </div>
 
             <a
-              href={`mailto:${SUPPORT_EMAIL}?subject=InvoicePro%20Support`}
+              href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI%20Support`}
               className="mt-8 inline-flex rounded-2xl bg-white px-6 py-4 text-sm font-black text-black transition-all hover:scale-[1.02] active:scale-95"
             >
               Email Support

@@ -111,7 +111,7 @@ const demoFlow = [
     step: '02',
     title: 'Send proposal',
     label: 'Pitch ready',
-    description: 'InvoicePro prepares a clear offer, outreach message, discovery questions, and next-step CTA.',
+    description: 'ClientFlow AI prepares a clear offer, outreach message, discovery questions, and next-step CTA.',
     metric: 'Proposal package: starter website cleanup + billing setup'
   },
   {
@@ -140,7 +140,7 @@ const demoFlow = [
 const proofBlocks = [
   {
     title: 'Not just invoicing',
-    description: 'InvoicePro helps freelancers work from prospect to payment instead of only creating a bill at the end.',
+    description: 'ClientFlow AI helps freelancers work from prospect to payment instead of only creating a bill at the end.',
     bullets: ['AI lead scoring before outreach', 'Saved growth leads and personalized pitch copy', 'Proposal drafts connected to payment collection']
   },
   {
@@ -157,11 +157,11 @@ const proofBlocks = [
 
 const faqs = [
   {
-    question: 'Can InvoicePro help me find freelance clients?',
+    question: 'Ca ClientFlow AI help me find freelance clients?',
     answer: 'Yes. The AI client finder helps you choose target niches, score prospects, write outreach, prepare discovery questions, and move interested leads into proposals.'
   },
   {
-    question: 'Do my clients need an InvoicePro account to pay?',
+    question: 'Do my clients need a ClientFlow AI account to pay?',
     answer: 'No. Invoice and proposal links open in a browser, so clients can review the document and pay without signing up.'
   },
   {
@@ -170,7 +170,7 @@ const faqs = [
   },
   {
     question: 'Is this only for one-off invoices?',
-    answer: 'No. InvoicePro also supports recurring invoice schedules for retainers and repeat monthly billing.'
+    answer: 'No. ClientFlow AI also supports recurring invoice schedules for retainers and repeat monthly billing.'
   },
   {
     question: 'Can I include GST information and business details?',
@@ -178,7 +178,7 @@ const faqs = [
   },
   {
     question: 'Can I send reminders without buying a domain?',
-    answer: 'Yes. InvoicePro supports WhatsApp reminder links, so you can follow up with clients now and add email reminders later when you have a verified business domain.'
+    answer: 'Yes. ClientFlow AI supports WhatsApp reminder links, so you can follow up with clients now and add email reminders later when you have a verified business domain.'
   }
 ];
 
@@ -241,7 +241,7 @@ const policyLinks = [
   },
   {
     title: 'Terms of Use',
-    description: 'Sets expectations for using InvoicePro responsibly as billing software.',
+    description: 'Sets expectations for using ClientFlow AI responsibly as billing software.',
     to: '/terms'
   },
   {
@@ -251,7 +251,7 @@ const policyLinks = [
   },
   {
     title: 'Digital Delivery',
-    description: 'Clarifies that InvoicePro is cloud software delivered online after signup or payment.',
+    description: 'Clarifies that ClientFlow AI is cloud software delivered online after signup or payment.',
     to: '/shipping-policy'
   }
 ];
@@ -260,8 +260,8 @@ export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
   useDocumentMeta(
-    'AI Client-to-Cash Platform for Freelancers | InvoicePro',
-    'Find clients with AI, send proposals, create invoices, collect Razorpay and UPI payments, and track pending money in InvoicePro.'
+    'AI Client-to-Cash Platform for Freelancers | ClientFlow AI',
+    'Find clients with AI, send proposals, create invoices, collect Razorpay and UPI payments, and track pending money in ClientFlow AI.'
   );
 
   const handleSubscribe = (plan) => {
@@ -305,11 +305,11 @@ export default function Home() {
               </h1>
 
               <p className="reveal reveal-delay-3 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
-                InvoicePro helps freelancers and small service businesses discover leads,
+                ClientFlow AI helps freelancers and small service businesses discover leads,
                 send proposals, create invoices, collect Razorpay or UPI payments, and track pending money from one AI-powered workspace.
               </p>
               <p className="hidden">
-                InvoicePro is an AI client-to-cash platform for freelancers and businesses in India.
+                ClientFlow AI is an AI client-to-cash platform for freelancers and businesses in India.
                 Find clients, create proposals, generate GST invoices, send payment links,
                 accept UPI and Razorpay payments, and manage recurring invoices easily.
               </p>
@@ -477,7 +477,7 @@ export default function Home() {
                 </h2>
               </div>
               <p className="max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base lg:ml-auto">
-                This is the money flow InvoicePro should make obvious to every visitor:
+                This is the money flow ClientFlow AI should make obvious to every visitor:
                 find a useful client, send a strong proposal, create a professional invoice,
                 share a Razorpay payment link, and track the payment status.
               </p>
@@ -580,7 +580,7 @@ export default function Home() {
               AI Client Finder for Indian Freelancers
             </h2>
             <p className="mt-4 text-zinc-400 max-w-2xl">
-              InvoicePro helps freelancers identify better-fit prospects, write useful outreach,
+              ClientFlow AI helps freelancers identify better-fit prospects, write useful outreach,
               save leads, and move interested clients into proposals and invoices.
             </p>
 
@@ -632,7 +632,7 @@ export default function Home() {
             <div className="mt-10 rounded-[2rem] border border-emerald-400/15 bg-emerald-400/10 p-5 sm:p-6">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">New product promise</p>
               <p className="mt-3 text-base font-bold leading-relaxed text-white sm:text-lg">
-                InvoicePro helps freelancers find clients, send proposals, collect payments, and manage business cashflow from one AI-powered workspace.
+                ClientFlow AI helps freelancers find clients, send proposals, collect payments, and manage business cashflow from one AI-powered workspace.
               </p>
             </div>
           </div>
@@ -733,7 +733,7 @@ export default function Home() {
                 From finding a lead to collecting payment
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-relaxed text-zinc-400">
-                InvoicePro keeps freelancer growth connected: prospect research, pitch copy, proposal creation, invoice generation, payment links, and reminders.
+                ClientFlow AI keeps freelancer growth connected: prospect research, pitch copy, proposal creation, invoice generation, payment links, and reminders.
               </p>
             </div>
 
@@ -889,7 +889,7 @@ export default function Home() {
                 <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">FAQ</p>
                 <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">Questions freelancers ask before using it</h2>
                 <p className="mt-4 max-w-md text-base font-medium leading-relaxed text-zinc-400">
-                  InvoicePro is built to support real client work, from first outreach to final payment.
+                  ClientFlow AI is built to support real client work, from first outreach to final payment.
                 </p>
 
                 <div className="mt-8 rounded-[2rem] border border-white/8 bg-white/[0.02] p-6">

@@ -618,7 +618,7 @@ export default function Payment() {
                      </button>
                    )}
                    <a
-                     href={`mailto:${SUPPORT_EMAIL}?subject=InvoicePro refund or billing support`}
+                     href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI refund or billing support`}
                      className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/[0.06]"
                    >
                      Request Refund Support

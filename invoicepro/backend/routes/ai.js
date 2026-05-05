@@ -861,7 +861,7 @@ const buildClientFinderFallback = (context = {}) => {
                 'Discovery call and problem audit',
                 'Clear scope with milestones',
                 'Delivery package with one review cycle',
-                'InvoicePro proposal and payment link'
+                'ClientFlow AI proposal and payment link'
             ]
         },
         targetClients: targetSegments.map((niche, index) => ({
@@ -922,7 +922,7 @@ const buildClientFinderFallback = (context = {}) => {
             'Day 1: Pick one niche and collect 20 possible leads from Google Maps, LinkedIn, or Instagram.',
             'Day 2: Send 10 personalized messages with one useful observation for each client.',
             'Day 3: Follow up with a short audit or sample idea for interested leads.',
-            'Day 4: Send an InvoicePro proposal with clear scope, timeline, and price.',
+            'Day 4: Send a ClientFlow AI proposal with clear scope, timeline, and price.',
             'Day 5: Follow up on proposals and offer a starter package for fast decision.',
             'Day 6: Convert accepted proposal into invoice and collect advance payment.',
             'Day 7: Review replies, update your best message, and repeat the strongest niche.'
@@ -947,7 +947,7 @@ const buildClientFinderFallback = (context = {}) => {
                 {
                     stage: 'Propose',
                     goal: 'Turn interested leads into a clear project',
-                    action: 'Send an InvoicePro proposal with scope, price, validity, and payment milestone.'
+                    action: 'Send a ClientFlow AI proposal with scope, price, validity, and payment milestone.'
                 },
                 {
                     stage: 'Invoice',
@@ -1020,7 +1020,7 @@ const buildClientFinderFallback = (context = {}) => {
             documentType: 'proposal',
             clientName: '',
             clientEmail: '',
-            serviceDescription: `${category.offer} for ${toTitleCase(firstNiche)}. Includes discovery, delivery, review, and payment milestone through InvoicePro.`,
+            serviceDescription: `${category.offer} for ${toTitleCase(firstNiche)}. Includes discovery, delivery, review, and payment milestone through ClientFlow AI.`,
             items: [{
                 name: category.offer,
                 price
@@ -1033,7 +1033,7 @@ const buildClientFinderFallback = (context = {}) => {
         guardrails: [
             'Do not spam bulk messages. Personalize each outreach with one real observation.',
             'Ask permission before sending repeated WhatsApp follow-ups.',
-            'Use InvoicePro proposal links only after the client shows interest.'
+            'Use ClientFlow AI proposal links only after the client shows interest.'
         ]
     };
 };
@@ -1156,7 +1156,7 @@ const callOpenAiDraft = ({ type, context }) => new Promise((resolve, reject) => 
     if (!apiKey) return resolve('');
 
     const prompt = [
-        'You are InvoicePro AI, a concise billing assistant for Indian freelancers, agencies, and consultants.',
+        'You are ClientFlow AI, a concise billing assistant for Indian freelancers, agencies, and consultants.',
         'Write one polished client-facing billing text. No markdown. No emojis. Keep it under 55 words.',
         'Use the actual client, item names, total, tax, and date. Avoid generic wording and do not repeat the same sentence structure.',
         `Task: ${type}.`,
@@ -1212,7 +1212,7 @@ const callOpenAiInvoiceDraft = ({ message, user }) => new Promise((resolve, reje
 
     const today = toDateInput(new Date());
     const prompt = [
-        'You are InvoicePro AI, a billing agent for Indian freelancers, agencies, and consultants.',
+        'You are ClientFlow AI, a billing agent for Indian freelancers, agencies, and consultants.',
         'Extract an invoice or proposal draft from the user message.',
         'Return only valid JSON. No markdown, no explanation.',
         'JSON fields: documentType, clientName, clientEmail, serviceDescription, items, cgst, sgst, gstRate, dueDate, validUntil, upiId, notes.',
@@ -1266,7 +1266,7 @@ const callOpenAiPriceSuggestion = ({ context, fallback }) => new Promise((resolv
     if (!apiKey) return resolve(null);
 
     const prompt = [
-        'You are InvoicePro AI, a pricing strategy assistant for Indian freelancers, consultants, agencies, and service businesses.',
+        'You are ClientFlow AI, a pricing strategy assistant for Indian freelancers, consultants, agencies, and service businesses.',
         'Return only valid JSON. No markdown, no explanation.',
         'Give a realistic INR project price range and strategy tips. Do not guarantee exact market rates.',
         'JSON shape: serviceLabel, pricingModel, range{low,recommended,high}, confidence, currentTotalSignal, strategyTips[], packageIdeas[{name,price,positioning}], assumptions[], disclaimer.',
@@ -1318,12 +1318,12 @@ const callOpenAiClientFinder = ({ context, fallback }) => new Promise((resolve, 
     if (!apiKey) return resolve(null);
 
     const prompt = [
-        'You are InvoicePro AI, an ethical client acquisition coach for freelancers and small agencies.',
+        'You are ClientFlow AI, an ethical client acquisition coach for freelancers and small agencies.',
         'Return only valid JSON. No markdown, no explanation.',
         'Do not invent real private contact details. Do not recommend spam. Suggest niches, search queries, outreach copy, offers, and a proposal draft.',
         'Prioritize the user supplied targetMarket and location exactly. Do not replace them with unrelated client categories.',
         'JSON shape: positioning, bestNiche, starterOffer{title,price,promise,deliverables[]}, targetClients[{segment,problem,offerAngle,whereToFind}], leadSearches[{platform,query}], outreachMessages[{channel,text}], packages[{name,price,scope}], weeklyPlan[], growthSystem{headline,pipeline[{stage,goal,action}]}, idealClientSignals[], redFlags[], discoveryQuestions[], qualificationScorecard[{criterion,strongSignal,weakSignal}], objectionHandlers[{objection,response}], proposalToInvoicePath[], proposalDraft{documentType,clientName,clientEmail,serviceDescription,items,cgst,sgst,validUntil,notes}, guardrails[].',
-        'Use practical Indian freelancer context. Keep prices as INR numbers. The proposalDraft must be ready for InvoicePro.',
+        'Use practical Indian freelancer context. Keep prices as INR numbers. The proposalDraft must be ready for ClientFlow AI.',
         `User context: ${JSON.stringify(context)}`,
         `Rule fallback: ${JSON.stringify(fallback)}`
     ].join('\n');
@@ -1560,7 +1560,7 @@ router.get('/insights', protect, async(req, res) => {
         const moneyActions = [];
 
         if (!total) {
-            recommendations.push('Create your first invoice with a due date and UPI ID so InvoicePro can start predicting payment risk.');
+            recommendations.push('Create your first invoice with a due date and UPI ID so ClientFlow AI can start predicting payment risk.');
         }
 
         if (overdueInvoices.length) {
@@ -1699,7 +1699,7 @@ router.get('/insights', protect, async(req, res) => {
                 active: pendingInvoices.filter((invoice) => invoice.paymentPromise?.promisedDate).length
             },
             proUpsell: req.user?.plan === 'free' ? {
-                title: 'Unlock InvoicePro AI Revenue Coach',
+                title: 'Unlock ClientFlow AI Revenue Coach',
                 description: 'Use Pro to pair payment links, recurring billing, and collection prompts with unlimited invoices.',
                 path: '/payment'
             } : null,

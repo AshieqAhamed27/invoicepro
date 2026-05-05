@@ -13,7 +13,7 @@ import useDocumentMeta from '../utils/useDocumentMeta';
 const sections = [
   {
     title: 'Digital product delivery',
-    body: `${COMPANY_NAME} is a cloud-based software product. There is no physical shipping. Access is delivered digitally through your InvoicePro account after signup or successful subscription activation.`
+    body: `${COMPANY_NAME} is a cloud-based software product. There is no physical shipping. Access is delivered digitally through your ClientFlow AI account after signup or successful subscription activation.`
   },
   {
     title: 'Delivery timeline',
@@ -39,8 +39,8 @@ const sections = [
 
 export default function DigitalDeliveryPolicy() {
   useDocumentMeta(
-    'Digital Delivery Policy | InvoicePro',
-    'InvoicePro is delivered digitally as cloud-based invoice and billing software. Read activation timelines and support details.',
+    'Digital Delivery Policy | ClientFlow AI',
+    'ClientFlow AI is delivered digitally as cloud-based invoice and billing software. Read activation timelines and support details.',
     { path: '/shipping-policy' }
   );
 
@@ -54,10 +54,10 @@ export default function DigitalDeliveryPolicy() {
             Digital Delivery Policy
           </p>
           <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl md:text-6xl">
-            InvoicePro is delivered online, not shipped physically.
+            ClientFlow AI is delivered online, not shipped physically.
           </h1>
           <p className="mt-6 max-w-3xl text-base font-medium leading-relaxed text-zinc-400 md:text-lg">
-            This page explains how software access is delivered for InvoicePro users and paid subscribers.
+            This page explains how software access is delivered for ClientFlow AI users and paid subscribers.
           </p>
           <p className="mt-4 text-sm font-semibold text-zinc-500">Effective date: {LEGAL_EFFECTIVE_DATE}</p>
 

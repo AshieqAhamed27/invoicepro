@@ -7,7 +7,7 @@ import useDocumentMeta from '../utils/useDocumentMeta';
 export default function InvoiceGenerator() {
 
   useDocumentMeta(
-    "Invoice Generator India – Create GST Invoices Online | InvoicePro",
+    "Invoice Generator India – Create GST Invoices Online | ClientFlow AI",
     "Free invoice generator for India. Create GST invoices, send payment links, and accept UPI or Razorpay payments easily."
   );
 
@@ -43,7 +43,7 @@ export default function InvoiceGenerator() {
             Create GST Invoices Online
           </h2>
           <p className="mt-3 text-zinc-400 max-w-2xl">
-            InvoicePro allows you to create GST-ready invoices with tax fields, client details,
+            ClientFlow AI allows you to create GST-ready invoices with tax fields, client details,
             due dates, and payment instructions. Perfect for Indian freelancers and consultants.
           </p>
         </section>
@@ -65,7 +65,7 @@ export default function InvoiceGenerator() {
             Built for Freelancers and Agencies
           </h2>
           <p className="mt-3 text-zinc-400 max-w-2xl">
-            Whether you are a freelancer, agency, or consultant, InvoicePro helps you manage
+            Whether you are a freelancer, agency, or consultant, ClientFlow AI helps you manage
             billing, recurring invoices, and payment tracking in one place.
           </p>
         </section>

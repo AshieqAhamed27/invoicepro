@@ -39,8 +39,8 @@ const sections = [
 
 export default function Privacy() {
   useDocumentMeta(
-    'Privacy Policy | InvoicePro',
-    'Read the InvoicePro privacy policy for account data, client records, invoices, support interactions, and payment-related information.'
+    'Privacy Policy | ClientFlow AI',
+    'Read the ClientFlow AI privacy policy for account data, client records, invoices, support interactions, and payment-related information.'
   );
 
   return (
@@ -51,7 +51,7 @@ export default function Privacy() {
         <section className="mx-auto max-w-4xl">
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Privacy Policy</p>
           <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl md:text-6xl">
-            Plain-language privacy information for InvoicePro.
+            Plain-language privacy information for ClientFlow AI.
           </h1>
           <p className="mt-6 max-w-3xl text-base font-medium leading-relaxed text-zinc-400 md:text-lg">
             This page explains, at a high level, how {COMPANY_NAME} handles product data for accounts, clients,

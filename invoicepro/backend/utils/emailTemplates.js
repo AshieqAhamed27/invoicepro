@@ -75,7 +75,7 @@ const baseLayout = ({ preheader, title, bodyHtml, ctaHref, ctaLabel, footerHtml 
       <div style="max-width:600px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden;">
         <div style="padding:22px 24px;border-bottom:1px solid #f3f4f6;background:linear-gradient(180deg,#fff7ed 0%, #ffffff 70%);">
           <p style="margin:0 0 6px 0;font-family:Arial,sans-serif;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a16207;font-weight:800;">
-            InvoicePro
+            ClientFlow AI
           </p>
           <h1 style="margin:0;font-family:Arial,sans-serif;font-size:22px;line-height:1.2;color:#111827;">
             ${safeTitle}
@@ -99,7 +99,7 @@ const baseLayout = ({ preheader, title, bodyHtml, ctaHref, ctaLabel, footerHtml 
         </div>
 
         <div style="padding:16px 24px;border-top:1px solid #f3f4f6;background:#fafafa;font-family:Arial,sans-serif;">
-          ${footerHtml || '<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">Sent via InvoicePro.</p>'}
+          ${footerHtml || '<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">Sent via ClientFlow AI.</p>'}
         </div>
       </div>
       <p style="max-width:600px;margin:14px auto 0;color:#9ca3af;font-family:Arial,sans-serif;font-size:11px;line-height:1.5;text-align:center;">
@@ -110,7 +110,7 @@ const baseLayout = ({ preheader, title, bodyHtml, ctaHref, ctaLabel, footerHtml 
 };
 
 const invoiceCreated = ({ invoice, publicUrl, senderName }) => {
-    const fromName = senderName || 'InvoicePro';
+    const fromName = senderName || 'ClientFlow AI';
     const clientName = escapeHtml(invoice.clientName);
     const invoiceNumber = escapeHtml(invoice.invoiceNumber);
     const amount = formatCurrency(invoice.amount, invoice.currency);
@@ -174,7 +174,7 @@ const invoiceCreated = ({ invoice, publicUrl, senderName }) => {
 };
 
 const invoiceReminder = ({ invoice, publicUrl, senderName }) => {
-    const fromName = senderName || 'InvoicePro';
+    const fromName = senderName || 'ClientFlow AI';
     const clientName = escapeHtml(invoice.clientName);
     const invoiceNumber = escapeHtml(invoice.invoiceNumber);
     const amount = formatCurrency(invoice.amount, invoice.currency);
@@ -230,7 +230,7 @@ const invoiceReminder = ({ invoice, publicUrl, senderName }) => {
         bodyHtml,
         ctaHref: publicUrl,
         ctaLabel: 'View & Pay',
-        footerHtml: `<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">Sent by ${escapeHtml(fromName)} via InvoicePro.</p>`
+        footerHtml: `<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">Sent by ${escapeHtml(fromName)} via ClientFlow AI.</p>`
     });
 
     const text = `Hi ${invoice.clientName},\n\nReminder: invoice ${invoice.invoiceNumber} from ${fromName} is still pending (${amount}). Due: ${due}.\nView & pay: ${publicUrl}\n`;
@@ -239,7 +239,7 @@ const invoiceReminder = ({ invoice, publicUrl, senderName }) => {
 };
 
 const paymentConfirmed = ({ invoice, publicUrl, senderName }) => {
-    const fromName = senderName || 'InvoicePro';
+    const fromName = senderName || 'ClientFlow AI';
     const clientName = escapeHtml(invoice.clientName);
     const invoiceNumber = escapeHtml(invoice.invoiceNumber);
     const amount = formatCurrency(invoice.amount, invoice.currency);
@@ -283,7 +283,7 @@ const paymentConfirmed = ({ invoice, publicUrl, senderName }) => {
         bodyHtml,
         ctaHref: publicUrl,
         ctaLabel: 'View Invoice',
-        footerHtml: `<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">Thank you. This confirmation was sent via InvoicePro.</p>`
+        footerHtml: `<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">Thank you. This confirmation was sent via ClientFlow AI.</p>`
     });
 
     const text = `Hi ${invoice.clientName},\n\nPayment received for invoice ${invoice.invoiceNumber} (${amount}). Paid on: ${paidAt}.\nView: ${publicUrl}\n`;

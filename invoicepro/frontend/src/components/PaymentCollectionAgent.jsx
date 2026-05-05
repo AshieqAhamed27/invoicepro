@@ -185,7 +185,7 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
               Get paid faster with follow-up intelligence.
             </h2>
             <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-              InvoicePro ranks unpaid invoices, suggests the right WhatsApp tone, tracks promises to pay, and scores client payment behavior.
+              ClientFlow AI ranks unpaid invoices, suggests the right WhatsApp tone, tracks promises to pay, and scores client payment behavior.
             </p>
           </div>
 
@@ -231,7 +231,7 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
               <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
                 {automationOn
                   ? 'The agent checks due dates, overdue invoices, payment promises, and invoice value to prepare the right follow-up automatically. WhatsApp still needs one click to send.'
-                  : 'Turn it on to let InvoicePro prepare your daily follow-up queue automatically.'}
+                  : 'Turn it on to let ClientFlow AI prepare your daily follow-up queue automatically.'}
               </p>
 
               {nextAutoTarget && automationOn && (

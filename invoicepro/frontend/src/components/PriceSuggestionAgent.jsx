@@ -221,7 +221,7 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
                   </div>
                 </div>
                 <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                  Source: {result.source === 'openai' ? 'OpenAI + InvoicePro rules' : 'InvoicePro rules'}
+                  Source: {result.source === 'openai' ? 'OpenAI + ClientFlow AI rules' : 'ClientFlow AI rules'}
                 </p>
               </div>
 

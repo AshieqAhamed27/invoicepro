@@ -99,7 +99,7 @@ const isAdmin = () => {
   return user?.role === 'admin';
 };
 
-const supportMessage = 'Hi I am interested in InvoicePro';
+const supportMessage = 'Hi I am interested in ClientFlow AI';
 const appRoutePrefixes = [
   '/admin',
   '/clients',
@@ -133,7 +133,7 @@ const WhatsAppFloatingButton = () => {
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-5 right-4 z-40 print:hidden sm:right-5"
-      aria-label="Chat with InvoicePro on WhatsApp"
+      aria-label="Chat with ClientFlow AI on WhatsApp"
     >
       <div className="rounded-full bg-green-500 p-3.5 shadow-lg shadow-black/25 transition hover:scale-110 sm:p-4">
         <svg

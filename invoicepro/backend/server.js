@@ -100,7 +100,7 @@ app.use('/api/business-goal', businessGoalRoutes);
 app.get('/api', (req, res) => {
     res.json({
         status: 'OK',
-        message: 'InvoicePro API is running',
+        message: 'ClientFlow AI API is running',
         routes: {
             health: '/api/health',
             auth: '/api/auth',
@@ -118,7 +118,7 @@ app.get('/api', (req, res) => {
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
-        message: 'InvoicePro API is running'
+        message: 'ClientFlow AI API is running'
     });
 });
 
@@ -127,7 +127,7 @@ app.get('/api/health/details', (req, res) => {
 
     res.json({
         status: 'OK',
-        message: 'InvoicePro API diagnostics',
+        message: 'ClientFlow AI API diagnostics',
         pricingVersion: PRICING_VERSION,
         startup: {
             entrypoint: startupState.entrypoint,
@@ -149,7 +149,7 @@ app.get('/api/health/launch-readiness', (req, res) => {
 
     res.json({
         status: 'OK',
-        message: 'InvoicePro launch readiness',
+        message: 'ClientFlow AI launch readiness',
         pricingVersion: PRICING_VERSION,
         database: {
             state: databaseState

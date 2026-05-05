@@ -40,7 +40,7 @@ services:
       - key: EMAIL_PASS
         sync: false
       - key: EMAIL_FROM_NAME
-        value: InvoicePro
+        value: ClientFlow AI
       - key: EMAIL_FROM
         sync: false
       - key: CRON_SECRET

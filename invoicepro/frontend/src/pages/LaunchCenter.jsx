@@ -189,7 +189,7 @@ export default function LaunchCenter() {
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Company Launch Center</p>
             </div>
             <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Make InvoicePro ready to sell, collect, and retain.
+              Make ClientFlow AI ready to sell, collect, and retain.
             </h1>
             <p className="mt-5 max-w-2xl text-base sm:text-lg font-medium leading-relaxed text-zinc-400">
               One operating screen for the business setup, payment engine, AI layer, client billing loop, and launch blockers.

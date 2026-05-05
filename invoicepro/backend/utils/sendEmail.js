@@ -79,7 +79,7 @@ const getTransporter = () => {
 
 const getFromAddress = () => {
     const fromEmail = process.env.EMAIL_FROM || process.env.EMAIL_USER;
-    const fromName = process.env.EMAIL_FROM_NAME || 'InvoicePro';
+    const fromName = process.env.EMAIL_FROM_NAME || 'ClientFlow AI';
 
     if (!fromEmail) return fromName;
 

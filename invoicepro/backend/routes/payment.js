@@ -15,7 +15,7 @@ const { getPublicInvoiceUrl } = require('../utils/recurrence');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 const { PRICING_VERSION } = require('../utils/runtimeDiagnostics');
 
-const DEFAULT_COMPANY_NAME = 'InvoicePro Billing Technologies';
+const DEFAULT_COMPANY_NAME = 'ClientFlow AI';
 
 const allowedScreenshotTypes = new Set([
     'image/jpeg',

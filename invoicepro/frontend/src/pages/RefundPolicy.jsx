@@ -39,8 +39,8 @@ const sections = [
 
 export default function RefundPolicy() {
   useDocumentMeta(
-    'Cancellation & Refund Policy | InvoicePro',
-    'Read the InvoicePro cancellation and refund policy for subscription payments, billing issues, and support contact details.',
+    'Cancellation & Refund Policy | ClientFlow AI',
+    'Read the ClientFlow AI cancellation and refund policy for subscription payments, billing issues, and support contact details.',
     { path: '/refund-policy' }
   );
 
@@ -54,10 +54,10 @@ export default function RefundPolicy() {
             Cancellation & Refund Policy
           </p>
           <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl md:text-6xl">
-            Clear refund rules for InvoicePro subscriptions.
+            Clear refund rules for ClientFlow AI subscriptions.
           </h1>
           <p className="mt-6 max-w-3xl text-base font-medium leading-relaxed text-zinc-400 md:text-lg">
-            This policy explains how cancellation and refund requests are handled for paid InvoicePro software access.
+            This policy explains how cancellation and refund requests are handled for paid ClientFlow AI software access.
           </p>
           <p className="mt-4 text-sm font-semibold text-zinc-500">Effective date: {LEGAL_EFFECTIVE_DATE}</p>
 

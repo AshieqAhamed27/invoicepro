@@ -9,11 +9,11 @@ import { trackCtaClick } from '../utils/analytics';
 const pages = {
   'gst-invoice-generator': {
     path: '/gst-invoice-generator',
-    title: 'GST Invoice Generator India | Create GST Bills Online | InvoicePro',
+    title: 'GST Invoice Generator India | Create GST Bills Online | ClientFlow AI',
     description: 'Create GST invoices online with client details, tax fields, PDF download, UPI details, and payment tracking for Indian freelancers and businesses.',
     eyebrow: 'GST invoice generator India',
     headline: 'Create GST invoices online without fighting spreadsheets.',
-    subhead: 'InvoicePro helps Indian freelancers, consultants, and small businesses prepare GST-ready invoices, share client payment links, and keep payment status organized.',
+    subhead: 'ClientFlow AI helps Indian freelancers, consultants, and small businesses prepare GST-ready invoices, share client payment links, and keep payment status organized.',
     primaryCta: 'Create Free GST Invoice',
     secondaryCta: 'View GST Format Guide',
     secondaryPath: '/blog/gst-invoice-format-india',
@@ -25,15 +25,15 @@ const pages = {
     ],
     workflow: ['Create invoice', 'Add GST and items', 'Share link or PDF', 'Track payment status'],
     faqs: [
-      ['Can I create GST invoices online?', 'Yes. InvoicePro lets you create GST-ready invoices with item totals, tax fields, due dates, and business details.'],
+      ['Can I create GST invoices online?', 'Yes. ClientFlow AI lets you create GST-ready invoices with item totals, tax fields, due dates, and business details.'],
       ['Can I download the invoice as PDF?', 'Yes. You can download a branded PDF invoice and share it with clients.'],
       ['Is this useful for freelancers?', 'Yes. It is built for freelancers, consultants, agencies, and small service businesses in India.']
     ]
   },
   'online-invoice-maker-india': {
     path: '/online-invoice-maker-india',
-    title: 'Online Invoice Maker India | Free Invoice Tool | InvoicePro',
-    description: 'Use InvoicePro as an online invoice maker for India. Create invoices, download PDFs, share payment links, and manage clients from one dashboard.',
+    title: 'Online Invoice Maker India | Free Invoice Tool | ClientFlow AI',
+    description: 'Use ClientFlow AI as an online invoice maker for India. Create invoices, download PDFs, share payment links, and manage clients from one dashboard.',
     eyebrow: 'Online invoice maker India',
     headline: 'Make professional invoices your clients can open, understand, and pay.',
     subhead: 'Build invoices with line items, due dates, client details, UPI payment details, and public payment links designed for Indian businesses.',
@@ -48,18 +48,18 @@ const pages = {
     ],
     workflow: ['Enter client', 'Add service items', 'Preview total', 'Share invoice'],
     faqs: [
-      ['Is InvoicePro free to start?', 'Yes. You can start with the free workspace and upgrade when you need Pro features.'],
+      ['Is ClientFlow AI free to start?', 'Yes. You can start with the free workspace and upgrade when you need Pro features.'],
       ['Can clients open invoices without login?', 'Yes. Public invoice links open in a normal browser.'],
       ['Can I use it on mobile?', 'Yes. The website is responsive for desktop and mobile screens.']
     ]
   },
   'freelance-invoice-software': {
     path: '/freelance-invoice-software',
-    title: 'Freelance Invoice Software India | InvoicePro',
+    title: 'Freelance Invoice Software India | ClientFlow AI',
     description: 'Freelance invoice software for Indian freelancers, consultants, and agencies. Create invoices, track unpaid work, and share payment links fast.',
     eyebrow: 'Freelance invoice software',
     headline: 'Freelancers need billing that looks serious from the first invoice.',
-    subhead: 'InvoicePro turns client work into professional invoices, proposals, PDF downloads, and payment tracking without heavy accounting software.',
+    subhead: 'ClientFlow AI turns client work into professional invoices, proposals, PDF downloads, and payment tracking without heavy accounting software.',
     primaryCta: 'Start Freelance Billing',
     secondaryCta: 'Read Invoice Guide',
     secondaryPath: '/blog/how-to-create-invoice-india',
@@ -71,18 +71,18 @@ const pages = {
     ],
     workflow: ['Add client', 'Create proposal', 'Convert to invoice', 'Follow up on payment'],
     faqs: [
-      ['Can freelancers use InvoicePro without GST?', 'Yes. GST fields can be used when needed, but the invoice flow also works for non-GST freelancers.'],
+      ['Can freelancers use ClientFlow AI without GST?', 'Yes. GST fields can be used when needed, but the invoice flow also works for non-GST freelancers.'],
       ['Can I send reminders?', 'Yes. You can share invoice reminders through WhatsApp using the public invoice link.'],
       ['Can I bill monthly clients?', 'Yes. Pro includes recurring billing support for repeat work.']
     ]
   },
   'payment-reminder-software': {
     path: '/payment-reminder-software',
-    title: 'Payment Reminder Software India | InvoicePro',
-    description: 'Track pending invoices and send payment reminders through WhatsApp links. InvoicePro helps Indian businesses follow up professionally.',
+    title: 'Payment Reminder Software India | ClientFlow AI',
+    description: 'Track pending invoices and send payment reminders through WhatsApp links. ClientFlow AI helps Indian businesses follow up professionally.',
     eyebrow: 'Payment reminder software',
     headline: 'Follow up on unpaid invoices without sounding unprofessional.',
-    subhead: 'InvoicePro shows pending and overdue invoices, prepares WhatsApp-ready reminder text, and keeps the public payment link attached.',
+    subhead: 'ClientFlow AI shows pending and overdue invoices, prepares WhatsApp-ready reminder text, and keeps the public payment link attached.',
     primaryCta: 'Track Pending Payments',
     secondaryCta: 'See Pricing',
     secondaryPath: '/#pricing',
@@ -94,19 +94,19 @@ const pages = {
     ],
     workflow: ['Create invoice', 'Wait for due date', 'Send reminder', 'Track paid status'],
     faqs: [
-      ['Does InvoicePro mark overdue invoices automatically?', 'It displays overdue status when a pending invoice passes its due date.'],
-      ['Can I send reminders by WhatsApp?', 'Yes. InvoicePro can open WhatsApp with a prepared reminder message and public invoice link.'],
+      ['Does ClientFlow AI mark overdue invoices automatically?', 'It displays overdue status when a pending invoice passes its due date.'],
+      ['Can I send reminders by WhatsApp?', 'Yes. ClientFlow AI can open WhatsApp with a prepared reminder message and public invoice link.'],
       ['Can I use email reminders now?', 'WhatsApp reminders are active now. Email reminders can be enabled later after domain email setup.']
     ]
   },
   'razorpay-invoice-payment-tracking': {
     path: '/razorpay-invoice-payment-tracking',
-    title: 'Razorpay Invoice Payment Tracking | InvoicePro',
-    description: 'Use InvoicePro with Razorpay checkout for subscriptions and invoice payment tracking. Built for Indian SaaS billing and client collection workflows.',
+    title: 'Razorpay Invoice Payment Tracking | ClientFlow AI',
+    description: 'Use ClientFlow AI with Razorpay checkout for subscriptions and invoice payment tracking. Built for Indian SaaS billing and client collection workflows.',
     eyebrow: 'Razorpay invoice payment tracking',
     headline: 'Connect invoices with payment status your business can trust.',
-    subhead: 'InvoicePro supports Razorpay checkout flows, UPI-friendly invoice pages, and verified payment status so paid invoices are not guessed manually.',
-    primaryCta: 'Start With InvoicePro',
+    subhead: 'ClientFlow AI supports Razorpay checkout flows, UPI-friendly invoice pages, and verified payment status so paid invoices are not guessed manually.',
+    primaryCta: 'Start With ClientFlow AI',
     secondaryCta: 'Contact Support',
     secondaryPath: '/contact',
     keywords: ['Razorpay invoice tracking', 'invoice payment tracking', 'UPI invoice payment', 'Razorpay billing software'],
@@ -117,9 +117,9 @@ const pages = {
     ],
     workflow: ['Share invoice link', 'Client pays securely', 'Payment verifies', 'Dashboard updates'],
     faqs: [
-      ['Can I use Razorpay for InvoicePro subscriptions?', 'Yes. Pro subscriptions use Razorpay checkout when configured in the backend.'],
+      ['Can I use Razorpay for ClientFlow AI subscriptions?', 'Yes. Pro subscriptions use Razorpay checkout when configured in the backend.'],
       ['Can clients pay invoices from public links?', 'Yes. Public invoice pages can show Razorpay and UPI payment options.'],
-      ['Can users mark invoices paid without payment?', 'No. InvoicePro is designed so normal users cannot manually mark unpaid invoices as paid.']
+      ['Can users mark invoices paid without payment?', 'No. ClientFlow AI is designed so normal users cannot manually mark unpaid invoices as paid.']
     ]
   }
 };
@@ -222,7 +222,7 @@ export default function SEOPage({ pageKey }) {
         <section className="py-16 sm:py-20">
           <div className="container-custom">
             <div className="mb-10 max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Why use InvoicePro</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Why use ClientFlow AI</p>
               <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">
                 Built for billing work that needs to look real.
               </h2>
@@ -267,7 +267,7 @@ export default function SEOPage({ pageKey }) {
                 Create your first invoice and see the full workflow.
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                Use InvoicePro for invoices, proposals, PDFs, WhatsApp sharing, payment tracking, and AI billing support.
+                Use ClientFlow AI for invoices, proposals, PDFs, WhatsApp sharing, payment tracking, and AI billing support.
               </p>
               <Link
                 to="/signup"

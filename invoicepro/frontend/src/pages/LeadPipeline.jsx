@@ -107,7 +107,7 @@ const buildProposalDraft = (lead = {}) => {
       }
     ],
     validUntil,
-    notes: 'Created from InvoicePro lead pipeline.'
+    notes: 'Created from ClientFlow AI lead pipeline.'
   };
 };
 
@@ -145,8 +145,8 @@ export default function LeadPipeline() {
   const [saving, setSaving] = useState(false);
 
   useDocumentMeta(
-    'Lead CRM Pipeline | InvoicePro',
-    'Track freelance leads from first search to proposal, client conversion, and invoice workflow in InvoicePro.',
+    'Lead CRM Pipeline | ClientFlow AI',
+    'Track freelance leads from first search to proposal, client conversion, and invoice workflow in ClientFlow AI.',
     { path: '/leads' }
   );
 

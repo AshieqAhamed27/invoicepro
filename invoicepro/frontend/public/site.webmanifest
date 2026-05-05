@@ -1,6 +1,6 @@
 {
-  "name": "InvoicePro Billing Technologies",
-  "short_name": "InvoicePro",
+  "name": "ClientFlow AI",
+  "short_name": "ClientFlow AI",
   "description": "Create GST invoices, payment links, and recurring billing for Indian businesses.",
   "start_url": "/",
   "scope": "/",
