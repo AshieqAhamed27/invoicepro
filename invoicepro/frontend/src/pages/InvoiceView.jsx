@@ -739,7 +739,7 @@ export default function InvoiceView() {
           ].map((item) => (
             <div key={item.label} className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">{item.label}</p>
-              <p className="mt-2 truncate text-sm font-black text-white">{item.value}</p>
+              <p className="mt-2 break-words text-sm font-black text-white">{item.value}</p>
             </div>
           ))}
         </section>
@@ -848,7 +848,7 @@ export default function InvoiceView() {
                             </div>
                           )
                       )}
-                      <div>
+                      <div className="min-w-0">
                         <p className="break-words text-xl font-black leading-none text-white sm:text-2xl">{companyName}</p>
                         <p className="mt-1 text-xs font-semibold text-slate-400">
                           {meta.isProposal ? 'Service proposal' : 'Professional invoice'}

@@ -325,7 +325,7 @@ export default function PublicInvoice() {
               ) : (
                 <BrandLogo showText={false} textColor="black" />
               )}
-              <div>
+              <div className="min-w-0">
                 <p className="break-words text-lg font-black leading-none text-slate-950 sm:text-xl">{companyName}</p>
                 <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Powered by {COMPANY_SHORT_NAME}</p>
               </div>

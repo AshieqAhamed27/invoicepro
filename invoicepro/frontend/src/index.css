@@ -80,6 +80,19 @@ table {
     max-width: 100%;
 }
 
+.grid > *,
+.flex > * {
+    min-width: 0;
+}
+
+.balance-copy {
+    text-wrap: balance;
+}
+
+.pretty-copy {
+    text-wrap: pretty;
+}
+
 
 /* Background effects */
 
@@ -420,9 +433,15 @@ select {
     transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
 }
 
-.premium-panel:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    .premium-panel:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+.aligned-card {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
 }
 
 .invoice-document {

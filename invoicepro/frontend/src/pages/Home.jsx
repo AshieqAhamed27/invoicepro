@@ -291,8 +291,8 @@ export default function Home() {
 
       <main>
         <section className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28">
-          <div className="container-custom relative z-10 grid gap-12 lg:grid-cols-2 lg:items-start">
-            <div className="max-w-lg">
+          <div className="container-custom relative z-10 grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)] lg:items-start">
+            <div className="max-w-2xl">
               <div className="reveal premium-eyebrow w-full max-w-full flex-wrap sm:w-auto">
                 <span className="pulse-dot h-2 w-2 rounded-full bg-emerald-400 text-emerald-400" />
                 <p className="max-w-[16rem] break-words text-[10px] font-black uppercase leading-relaxed tracking-[0.14em] text-emerald-300 sm:max-w-none sm:text-[11px] sm:tracking-[0.22em]">
@@ -300,7 +300,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <h1 className="reveal reveal-delay-1 mt-6 max-w-4xl break-words text-4xl font-bold tracking-tight leading-tight text-white sm:mt-8 sm:text-5xl md:text-6xl">
+              <h1 className="balance-copy reveal reveal-delay-1 mt-6 max-w-4xl break-words text-4xl font-bold tracking-tight leading-tight text-white sm:mt-8 sm:text-5xl md:text-6xl">
                 Find clients. Close deals. <span className="animated-gradient-text">Get paid faster</span>.
               </h1>
 
@@ -315,15 +315,15 @@ export default function Home() {
               </p>
 
               <div className="reveal reveal-delay-3 mt-8 grid gap-3 sm:grid-cols-3">
-                <div className="premium-panel px-4 py-4">
+                <div className="aligned-card premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Find</p>
                   <p className="mt-2 text-sm font-semibold text-white">AI lead fit scoring and niche targeting</p>
                 </div>
-                <div className="premium-panel px-4 py-4">
+                <div className="aligned-card premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Close</p>
                   <p className="mt-2 text-sm font-semibold text-white">Packages, proposals, and objection replies</p>
                 </div>
-                <div className="premium-panel px-4 py-4">
+                <div className="aligned-card premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Collect</p>
                   <p className="mt-2 text-sm font-semibold text-white">Invoices, payment links, and reminders</p>
                 </div>
@@ -403,7 +403,7 @@ export default function Home() {
             </div>
 
             <div className="reveal reveal-delay-3">
-              <div className="premium-panel p-5 sm:p-8">
+              <div className="premium-panel h-full p-5 sm:p-8">
                 <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 pb-6 sm:flex-row sm:items-center">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Growth Snapshot</p>
@@ -616,7 +616,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {businessOutcomes.map((outcome, index) => (
                 <div
                   key={outcome.title}
@@ -645,7 +645,7 @@ export default function Home() {
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">A freelancer growth system, not only an invoice maker</h2>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {trustSignals.map((signal) => (
                 <div key={signal.title} className="rounded-3xl border border-white/8 bg-white/[0.02] p-6">
                   <p className="text-sm font-black uppercase tracking-[0.16em] text-yellow-300">{signal.title}</p>
@@ -665,7 +665,7 @@ export default function Home() {
               </h2>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="mx-auto grid max-w-3xl gap-5">
               {testimonials.map((testimonial) => (
                 <figure key={testimonial.name} className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-6 sm:p-8">
                   <div className="mb-6 flex items-center gap-3">
@@ -729,7 +729,7 @@ export default function Home() {
           <div className="container-custom">
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Workflow</p>
-              <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+              <h2 className="balance-copy mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
                 From finding a lead to collecting payment
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-relaxed text-zinc-400">
@@ -815,7 +815,7 @@ export default function Home() {
           <div className="container-custom">
             <div className="mx-auto mb-16 max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Pricing</p>
-              <h2 className="mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">
+              <h2 className="balance-copy mt-4 text-4xl font-black tracking-tight text-white md:text-5xl">
                 Plans for freelancers who want clients and cashflow
               </h2>
               <p className="mt-4 text-base font-medium leading-relaxed text-zinc-400">

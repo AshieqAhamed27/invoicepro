@@ -13,7 +13,7 @@ export default function BrandLogo({ showText = true, className = '', markClassNa
       />
 
       {showText && (
-        <span className={`text-lg font-black tracking-tighter sm:text-xl ${textClass}`}>
+        <span className={`max-w-[9.5rem] truncate text-lg font-black tracking-tighter sm:max-w-none sm:text-xl ${textClass}`}>
           {COMPANY_SHORT_NAME}
         </span>
       )}

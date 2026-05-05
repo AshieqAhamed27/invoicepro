@@ -1190,7 +1190,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
               {[
                 ['Clients needed', incomePlan.clientsNeeded, `At ${formatCurrency(incomePlan.averageDeal)} average deal size`],
                 ['Proposals needed', incomePlan.proposalsNeeded, `Using ${incomePlan.closeRate}% proposal close rate`],
@@ -1388,7 +1388,7 @@ export default function Dashboard() {
                     <div key={lead._id} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-white">{getLeadName(lead)}</p>
+                          <p className="break-words text-sm font-black text-white">{getLeadName(lead)}</p>
                           <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-zinc-600">
                             {getLeadStatusLabel(lead.status)} / {formatCurrency(lead.budget)}
                           </p>
