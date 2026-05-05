@@ -10,16 +10,16 @@ import { trackCtaClick } from '../utils/analytics';
 
 const trustSignals = [
   {
-    title: 'AI lead fit radar',
-    description: 'Score freelance prospects by pain, budget, urgency, niche fit, and next action before you spend time pitching.'
+    title: 'AI lead helper',
+    description: 'Find better client leads and see who is worth messaging first.'
   },
   {
     title: 'Client finder workspace',
-    description: 'Turn skills into target niches, search queries, outreach messages, discovery questions, and saved growth leads.'
+    description: 'Turn your skill into lead ideas, search links, first messages, and saved contacts.'
   },
   {
     title: 'Proposal to invoice',
-    description: 'Move an interested lead into a proposal, then convert accepted work into a payable invoice from the same product.'
+    description: 'Move an interested client into a proposal, then turn approved work into an invoice.'
   },
   {
     title: 'Razorpay and UPI collection',
@@ -65,8 +65,8 @@ const operationalTrustBadges = [
 const workflow = [
   {
     step: '01',
-    title: 'Find a better-fit client',
-    description: 'Use AI to choose a niche, build lead searches, score real prospects, and prepare a useful first message.'
+    title: 'Find client leads',
+    description: 'Use AI to choose who to contact, create search links, and prepare a useful first message.'
   },
   {
     step: '02',
@@ -83,23 +83,23 @@ const workflow = [
 const businessOutcomes = [
   {
     title: 'Get client opportunities',
-    description: 'Turn your skill into niche ideas, lead searches, outreach copy, and a saved pipeline of prospects to contact.'
+    description: 'Use your skill to find client leads, save them, and know who to contact next.'
   },
   {
     title: 'Close with confidence',
-    description: 'Package your service, answer objections, send a clear proposal, and move serious leads toward approval.'
+    description: 'Write a clear offer, send a proposal, and follow up until the client says yes.'
   },
   {
     title: 'Collect payment faster',
-    description: 'Create a branded invoice, attach Razorpay or UPI payment options, and share a client-ready payment page.'
+    description: 'Create an invoice, add Razorpay or UPI payment options, and share it with the client.'
   },
   {
     title: 'Control pending money',
-    description: 'See paid, pending, and overdue invoices with follow-up actions so unpaid revenue does not get forgotten.'
+    description: 'See paid, pending, and overdue invoices so unpaid work does not get forgotten.'
   },
   {
     title: 'Build repeat revenue',
-    description: 'Use recurring invoices and client history to manage retainers, monthly services, and repeat work.'
+    description: 'Manage monthly clients, repeat invoices, and retainer work in the same place.'
   }
 ];
 
@@ -119,7 +119,7 @@ const automationPreview = [
   {
     category: 'Follow-up',
     title: 'Move warm leads forward',
-    description: 'Highlights due leads and interested prospects so you can send the right proposal next.',
+    description: 'Highlights interested leads so you can send the right proposal next.',
     impact: 'More client chances'
   },
   {
@@ -183,8 +183,8 @@ const demoFlow = [
 const proofBlocks = [
   {
     title: 'Not just invoicing',
-    description: 'ClientFlow AI helps freelancers work from prospect to payment instead of only creating a bill at the end.',
-    bullets: ['AI lead scoring before outreach', 'Saved growth leads and personalized pitch copy', 'Proposal drafts connected to payment collection']
+    description: 'ClientFlow AI helps freelancers find leads, follow up, send proposals, create invoices, and collect payment.',
+    bullets: ['Find client leads', 'Write outreach and proposal text', 'Turn approved work into payment collection']
   },
   {
     title: 'Clear before clients pay',
@@ -201,7 +201,7 @@ const proofBlocks = [
 const faqs = [
   {
     question: 'Can ClientFlow AI help me find freelance clients?',
-    answer: 'Yes. The AI client finder helps you choose target niches, score prospects, write outreach, prepare discovery questions, and move interested leads into proposals.'
+    answer: 'Yes. It helps you decide who to contact, write a simple message, save the lead, and move interested clients into proposals.'
   },
   {
     question: 'Do my clients need a ClientFlow AI account to pay?',
@@ -225,7 +225,7 @@ const faqs = [
   },
   {
     question: 'What automation works before email or WhatsApp API setup?',
-    answer: 'The Daily Business Assistant works now. It ranks overdue invoices, warm leads, accepted proposals, and income-goal actions so you know what to do next without automatic sending.'
+    answer: 'The app shows a daily plan now: which lead to message, which proposal to follow up, and which invoice to collect. Nothing is auto-sent.'
   }
 ];
 
@@ -242,7 +242,7 @@ const plans = [
     name: 'Free',
     price: 'Rs 0',
     suffix: '/ forever',
-    description: 'For testing the client-to-cash workflow with your first prospects.',
+    description: 'For testing leads, proposals, and invoices with your first clients.',
     features: ['2 invoices included', 'Basic client workflow', 'Public invoice page'],
     cta: 'Start Free',
     featured: false,
@@ -307,8 +307,8 @@ export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
   useDocumentMeta(
-    'AI Client-to-Cash Platform for Freelancers | ClientFlow AI',
-    'Find clients with AI, send proposals, create invoices, collect Razorpay and UPI payments, and track pending money in ClientFlow AI.'
+    'Get Clients and Get Paid Faster | ClientFlow AI',
+    'ClientFlow AI helps freelancers find leads, follow up, send proposals, create invoices, and collect Razorpay or UPI payments from one simple dashboard.'
   );
 
   const handleSubscribe = (plan) => {
@@ -343,20 +343,20 @@ export default function Home() {
               <div className="reveal premium-eyebrow w-full max-w-full flex-wrap sm:w-auto">
                 <span className="pulse-dot h-2 w-2 rounded-full bg-emerald-400 text-emerald-400" />
                 <p className="max-w-[16rem] break-words text-[10px] font-black uppercase leading-relaxed tracking-[0.14em] text-emerald-300 sm:max-w-none sm:text-[11px] sm:tracking-[0.22em]">
-                  AI client-to-cash platform for freelancers
+                  Freelancer workspace
                 </p>
               </div>
 
               <h1 className="balance-copy reveal reveal-delay-1 mt-6 max-w-4xl break-words text-4xl font-bold tracking-tight leading-tight text-white sm:mt-8 sm:text-5xl md:text-6xl">
-                Find clients. Close deals. <span className="animated-gradient-text">Get paid faster</span>.
+                Get clients and <span className="animated-gradient-text">get paid faster</span>.
               </h1>
 
               <p className="reveal reveal-delay-3 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
-                ClientFlow AI helps freelancers and small service businesses discover leads,
-                send proposals, create invoices, collect Razorpay or UPI payments, and track pending money from one AI-powered workspace.
+                One simple dashboard to find leads, follow up, send proposals, create invoices,
+                and collect Razorpay or UPI payments.
               </p>
               <p className="hidden">
-                ClientFlow AI is an AI client-to-cash platform for freelancers and businesses in India.
+                ClientFlow AI is a simple workspace for freelancers and businesses in India.
                 Find clients, create proposals, generate GST invoices, send payment links,
                 accept UPI and Razorpay payments, and manage recurring invoices easily.
               </p>
@@ -364,15 +364,15 @@ export default function Home() {
               <div className="reveal reveal-delay-3 mt-8 grid gap-3 sm:grid-cols-3">
                 <div className="aligned-card premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Find</p>
-                  <p className="mt-2 text-sm font-semibold text-white">AI lead fit scoring and niche targeting</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Find better client leads</p>
                 </div>
                 <div className="aligned-card premium-panel px-4 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Close</p>
-                  <p className="mt-2 text-sm font-semibold text-white">Packages, proposals, and objection replies</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Follow up</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Know who to message next</p>
                 </div>
                 <div className="aligned-card premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Collect</p>
-                  <p className="mt-2 text-sm font-semibold text-white">Invoices, payment links, and reminders</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Send invoices and get paid</p>
                 </div>
               </div>
 
@@ -454,8 +454,8 @@ export default function Home() {
               <div className="premium-panel h-full p-5 sm:p-8">
                 <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 pb-6 sm:flex-row sm:items-center">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Growth Snapshot</p>
-                    <h2 className="mt-2 max-w-[14ch] break-words text-2xl font-black text-white sm:max-w-none sm:text-3xl">What turns a lead into cash</h2>
+                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Simple workflow</p>
+                    <h2 className="mt-2 max-w-[14ch] break-words text-2xl font-black text-white sm:max-w-none sm:text-3xl">From lead to payment</h2>
                   </div>
                   <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-left sm:text-right">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">AI Workflow</p>
@@ -470,7 +470,7 @@ export default function Home() {
                       <div className="flex items-start gap-3">
                         <span className="mt-1 h-2.5 w-2.5 rounded-full bg-yellow-400" />
                         <p className="text-sm font-medium leading-relaxed text-zinc-300">
-                          AI scores each prospect by pain, budget, urgency, niche fit, and contact quality.
+                          AI shows which lead to message first and why they may need your service.
                         </p>
                       </div>
                       <div className="flex items-start gap-3">
@@ -628,8 +628,8 @@ export default function Home() {
               AI Client Finder for Indian Freelancers
             </h2>
             <p className="mt-4 text-zinc-400 max-w-2xl">
-              ClientFlow AI helps freelancers identify better-fit prospects, write useful outreach,
-              save leads, and move interested clients into proposals and invoices.
+              ClientFlow AI helps freelancers find client leads, write messages,
+              save interested people, and turn approved work into invoices.
             </p>
 
             <h2 className="mt-10 text-3xl font-black text-white">
@@ -653,14 +653,14 @@ export default function Home() {
           <div className="container-custom">
             <div className="mb-10 grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">What users pay for</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Why users pay</p>
                 <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  Not a document maker. A system for getting work and collecting money.
+                  More than invoices: get work and collect payment.
                 </h2>
               </div>
               <p className="max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base lg:ml-auto">
-                The paid value is not the invoice file. It is the business outcome around it:
-                finding the right client, closing the job, getting paid, and knowing what to follow up next.
+                Users pay because the app helps with the full daily workflow:
+                find leads, follow up, send proposals, create invoices, and collect money.
               </p>
             </div>
 
@@ -678,9 +678,9 @@ export default function Home() {
             </div>
 
             <div className="mt-10 rounded-[2rem] border border-emerald-400/15 bg-emerald-400/10 p-5 sm:p-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">New product promise</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Simple promise</p>
               <p className="mt-3 text-base font-bold leading-relaxed text-white sm:text-lg">
-                ClientFlow AI helps freelancers find clients, send proposals, collect payments, and manage business cashflow from one AI-powered workspace.
+                Find leads. Follow up. Send invoices. Get paid faster.
               </p>
             </div>
           </div>
@@ -690,15 +690,14 @@ export default function Home() {
           <div className="container-custom">
             <div className="mb-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Automation Center</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">What the app automates</p>
                 <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  Know what to do next to move money forward.
+                  It tells you who to contact and what to collect.
                 </h2>
               </div>
               <p className="max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base lg:ml-auto">
-                ClientFlow AI does not need to auto-send reminders to be useful. It checks your leads,
-                proposals, invoices, pending payments, and income goal, then creates a ranked action plan
-                you can open, copy, and complete manually.
+                ClientFlow AI checks your leads, proposals, unpaid invoices, and income goal.
+                Then it shows the next action in plain language. You stay in control of sending.
               </p>
             </div>
 
@@ -728,18 +727,18 @@ export default function Home() {
 
               <aside className="rounded-[2rem] border border-yellow-400/20 bg-yellow-400/10 p-5 sm:p-6">
                 <div className="rounded-[1.5rem] border border-white/8 bg-zinc-950/90 p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Example today plan</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Today's simple plan</p>
                   <h3 className="mt-3 text-2xl font-black tracking-tight text-white">
-                    Open the dashboard and act, not guess.
+                    Open the dashboard. Do the next action.
                   </h3>
 
                   <div className="mt-6 space-y-3">
                     {[
-                      ['Top priority', 'Open highest pending invoice'],
-                      ['Next action', 'Convert accepted proposal'],
-                      ['Growth action', 'Add 3 targeted leads'],
-                      ['Retention action', 'Offer monthly retainer'],
-                      ['Risk action', 'Fix missing payment link'],
+                      ['Lead', 'Message this lead'],
+                      ['Proposal', 'Follow up this proposal'],
+                      ['Invoice', 'Collect this payment'],
+                      ['Monthly work', 'Offer a retainer'],
+                      ['Risk', 'Fix missing payment link'],
                       ['Manual safe step', 'Copy plan or mark done']
                     ].map(([label, value]) => (
                       <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
@@ -750,7 +749,7 @@ export default function Home() {
                   </div>
 
                   <p className="mt-5 text-sm font-medium leading-relaxed text-zinc-400">
-                    Email and WhatsApp automation can come later. This assistant already gives users a daily operating system for client work.
+                    No confusing automation. The app prepares the message. The user clicks WhatsApp, copies, or marks it done.
                   </p>
 
                   <button
@@ -772,7 +771,7 @@ export default function Home() {
           <div className="container-custom">
             <div className="mb-10 max-w-2xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Why it feels different</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">A freelancer growth system, not only an invoice maker</h2>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">One dashboard for clients, invoices, and payments</h2>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -863,7 +862,7 @@ export default function Home() {
                 From finding a lead to collecting payment
               </h2>
               <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-relaxed text-zinc-400">
-                ClientFlow AI keeps freelancer growth connected: prospect research, pitch copy, proposal creation, invoice generation, payment links, and reminders.
+                ClientFlow AI keeps the full work path connected: find leads, send messages, create proposals, make invoices, share payment links, and follow up.
               </p>
             </div>
 
@@ -1052,12 +1051,12 @@ export default function Home() {
           <div className="container-custom">
             <div className="premium-panel px-6 py-12 text-center sm:px-12 sm:py-20">
               <div className="mx-auto max-w-3xl">
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Ready to build a client-to-cash workflow?</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Ready to get clients and get paid?</p>
                 <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-6xl">
-                  Find better prospects, send stronger proposals, and collect payment from one workspace.
+                  Find leads, follow up, send invoices, and collect payment from one workspace.
                 </h2>
                 <p className="mx-auto mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-400">
-                  Start free, test the AI client finder, and turn the right lead into a proposal or invoice when they are ready.
+                  Start free and let ClientFlow AI show the next action to grow your freelance business.
                 </p>
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
