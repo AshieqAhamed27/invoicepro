@@ -25,7 +25,6 @@ const paymentRoutes = require('./routes/payment');
 const aiRoutes = require('./routes/ai');
 const clientRoutes = require('./routes/clients');
 const leadRoutes = require('./routes/leads');
-const whatsappRoutes = require('./routes/whatsapp');
 
 const app = express();
 
@@ -95,7 +94,6 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/leads', leadRoutes);
-app.use('/api/whatsapp', whatsappRoutes);
 
 app.get('/api', (req, res) => {
     res.json({
@@ -108,8 +106,7 @@ app.get('/api', (req, res) => {
             payment: '/api/payment',
             ai: '/api/ai',
             clients: '/api/clients',
-            leads: '/api/leads',
-            whatsapp: '/api/whatsapp'
+            leads: '/api/leads'
         }
     });
 });

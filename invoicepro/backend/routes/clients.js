@@ -20,7 +20,7 @@ router.get('/', protect, async(req, res) => {
 // Create client
 router.post('/', protect, async(req, res) => {
     try {
-        const { name, email, phone, companyName, address, gst } = req.body;
+        const { name, email, companyName, address, gst } = req.body;
 
         if (!name || !email) {
             return res.status(400).json({ message: 'Name and email are required' });
@@ -30,7 +30,6 @@ router.post('/', protect, async(req, res) => {
             user: req.user._id,
             name,
             email,
-            phone,
             companyName,
             address,
             gst
