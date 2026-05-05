@@ -123,10 +123,22 @@ const automationPreview = [
     impact: 'More client chances'
   },
   {
-    category: 'Grow',
-    title: 'Hit today lead target',
-    description: 'Uses your income goal to suggest how many prospects you should add today.',
-    impact: 'Daily growth habit'
+    category: 'Proposal',
+    title: 'Nudge proposals before they go cold',
+    description: 'Finds proposals that were sent but not accepted and prepares a professional follow-up.',
+    impact: 'Better close rate'
+  },
+  {
+    category: 'Retain',
+    title: 'Detect monthly client chances',
+    description: 'Looks at paid clients and suggests who can become a recurring retainer client.',
+    impact: 'Repeat revenue'
+  },
+  {
+    category: 'Risk',
+    title: 'Catch business risks early',
+    description: 'Alerts users about missing payment links, overdue invoices, ignored proposals, and income goal gaps.',
+    impact: 'Less lost money'
   }
 ];
 
@@ -678,9 +690,9 @@ export default function Home() {
           <div className="container-custom">
             <div className="mb-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Daily Business Assistant</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Automation Center</p>
                 <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  Know what to do today to move money forward.
+                  Know what to do next to move money forward.
                 </h2>
               </div>
               <p className="max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base lg:ml-auto">
@@ -726,6 +738,8 @@ export default function Home() {
                       ['Top priority', 'Open highest pending invoice'],
                       ['Next action', 'Convert accepted proposal'],
                       ['Growth action', 'Add 3 targeted leads'],
+                      ['Retention action', 'Offer monthly retainer'],
+                      ['Risk action', 'Fix missing payment link'],
                       ['Manual safe step', 'Copy plan or mark done']
                     ].map(([label, value]) => (
                       <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">

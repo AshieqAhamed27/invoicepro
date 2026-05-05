@@ -6,6 +6,7 @@ import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
 import AIBillingAgent from '../components/AIBillingAgent';
 import PaymentCollectionAgent from '../components/PaymentCollectionAgent';
+import BusinessAutomationCenter from '../components/BusinessAutomationCenter';
 import { trackEvent } from '../utils/analytics';
 
 const formatCurrency = (amount) =>
@@ -1450,6 +1451,17 @@ export default function Dashboard() {
         )}
 
         {!dashboardError && !loading && (
+          <BusinessAutomationCenter
+            invoices={invoices}
+            stats={stats}
+            leadDashboard={leadDashboard}
+            aiInsights={aiInsights}
+            incomePlan={incomePlan}
+            incomeGoal={incomeGoal}
+          />
+        )}
+
+        {!dashboardError && !loading && (
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-yellow-400/20 bg-yellow-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
             <div className="mb-8 grid gap-6 xl:grid-cols-[0.8fr_1.2fr] xl:items-start">
               <div>
@@ -1824,10 +1836,12 @@ export default function Dashboard() {
           </div>
         </section>
 
-        <PaymentCollectionAgent
-          insights={aiInsights}
-          onPromiseSaved={fetchDashboard}
-        />
+        <div id="payment-collection-agent">
+          <PaymentCollectionAgent
+            insights={aiInsights}
+            onPromiseSaved={fetchDashboard}
+          />
+        </div>
 
         <section className="reveal reveal-delay-1 mb-12">
           <AIBillingAgent
