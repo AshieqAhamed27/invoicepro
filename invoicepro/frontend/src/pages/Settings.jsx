@@ -37,6 +37,13 @@ const productSettings = [
     to: '/outbound-autopilot'
   },
   {
+    label: 'Proposals',
+    title: 'AI Proposal & RFP Writer',
+    detail: 'Write executive summaries, scope, timelines, pricing, risks, questions, and client-ready proposal drafts.',
+    status: 'New',
+    to: '/proposal-writer'
+  },
+  {
     label: 'Recurring Revenue',
     title: 'Monthly Client System',
     detail: 'Manage repeat billing ideas and recurring client opportunities from one place.',

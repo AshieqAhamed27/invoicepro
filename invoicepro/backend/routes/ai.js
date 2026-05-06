@@ -1114,6 +1114,179 @@ const normalizeClientFinderPlan = (value, fallback) => {
     };
 };
 
+const buildProposalWriterFallback = (context = {}) => {
+    const proposalType = compactText(context.proposalType, 'Service Proposal');
+    const clientName = compactText(context.clientName, 'the client');
+    const clientIndustry = compactText(context.clientIndustry, 'their business');
+    const projectTitle = compactText(context.projectTitle, `${proposalType} for ${clientName}`);
+    const projectBrief = compactText(context.projectBrief || context.rfpText, 'The client needs a clear solution with defined scope, timeline, pricing, and next steps.');
+    const services = compactText(context.services, 'strategy, implementation, review, and handover');
+    const goals = compactText(context.goals, 'improve enquiries, trust, operations, or revenue');
+    const timelineText = compactText(context.timeline, '2 to 4 weeks');
+    const currency = normalizeCurrency(context.currency);
+    const budget = toMoneyNumber(context.budget);
+    const total = roundPrice(budget || getDefaultPriceForCurrency(25000, currency));
+    const starter = roundPrice(total * 0.35);
+    const delivery = roundPrice(total * 0.45);
+    const handover = Math.max(0, total - starter - delivery);
+
+    return {
+        title: projectTitle,
+        proposalType,
+        clientName,
+        executiveSummary: `This proposal outlines how we will help ${clientName} with ${projectTitle}. The plan focuses on ${goals} through ${services}, with clear milestones and a practical delivery path.`,
+        problemStatement: `${clientName} needs a dependable execution partner who can understand the business context, define the right scope, deliver the work, and make the result easy to approve, launch, and maintain.`,
+        proposedSolution: `We will start with discovery, convert the requirement into a focused delivery plan, execute the agreed scope, review the output with ${clientName}, and complete handover with clear next steps.`,
+        scopeItems: [
+            {
+                title: 'Discovery and requirement mapping',
+                detail: `Understand ${clientIndustry}, current gaps, success criteria, timeline, and approval process.`
+            },
+            {
+                title: 'Solution planning',
+                detail: `Create the delivery structure for ${services}, including priorities, milestones, and acceptance checks.`
+            },
+            {
+                title: 'Execution and review',
+                detail: 'Deliver the agreed work, collect feedback, complete revisions within scope, and prepare final assets or handover notes.'
+            },
+            {
+                title: 'Launch support and handover',
+                detail: 'Support final approval, provide handover guidance, and define recommended next steps after completion.'
+            }
+        ],
+        timeline: [
+            { phase: 'Phase 1', duration: '2 to 3 days', work: 'Discovery, requirement review, and project plan confirmation.' },
+            { phase: 'Phase 2', duration: timelineText, work: 'Core delivery, review cycle, and scope completion.' },
+            { phase: 'Phase 3', duration: '2 to 5 days', work: 'Final fixes, approval, documentation, and handover.' }
+        ],
+        pricing: {
+            currency,
+            total,
+            breakdown: [
+                { label: 'Discovery and planning', amount: starter },
+                { label: 'Core delivery', amount: delivery },
+                { label: 'Review and handover', amount: handover }
+            ],
+            paymentTerms: '50% advance to start, remaining balance before final handover unless agreed otherwise.'
+        },
+        whyUs: [
+            'Clear scope and timeline before work starts.',
+            'Business-result focused delivery, not only task completion.',
+            'Proposal, invoice, payment link, and follow-up can stay connected in ClientFlow AI.',
+            'Simple communication and approval checkpoints.'
+        ],
+        assumptions: [
+            'Client will provide required access, content, brand material, or approvals on time.',
+            'Major scope changes will be quoted separately before extra work starts.',
+            'One standard review cycle is included unless the final proposal states otherwise.'
+        ],
+        risks: [
+            {
+                risk: 'Delayed feedback',
+                mitigation: 'Set review dates in advance and confirm one decision maker.'
+            },
+            {
+                risk: 'Scope expansion',
+                mitigation: 'Document extra requests and convert them into a separate milestone or invoice.'
+            }
+        ],
+        discoveryQuestions: [
+            'What result should this project create for the business?',
+            'Who will approve the final work and payment?',
+            'What existing assets, logins, content, or references are available?',
+            'What deadline is important and why?',
+            'What would make this proposal easy to approve?'
+        ],
+        closingMessage: `If this scope looks aligned, the next step is to approve the proposal, confirm the starting milestone, and begin with discovery. We can then convert the approved proposal into an invoice and payment link.`,
+        followUpMessage: `Hi ${clientName}, following up on the proposal for ${projectTitle}. The scope, timeline, and pricing are ready for review. If it looks aligned, I can convert it into an invoice and start the first milestone.`,
+        proposalDraft: {
+            documentType: 'proposal',
+            clientName: clientName === 'the client' ? '' : clientName,
+            clientEmail: compactText(context.clientEmail, '').toLowerCase(),
+            serviceDescription: `${projectTitle}. ${projectBrief}`,
+            items: [
+                { name: projectTitle, price: total }
+            ],
+            currency,
+            cgst: 0,
+            sgst: 0,
+            validUntil: getDateAfterDays(7),
+            notes: `Scope: ${services}. Timeline: ${timelineText}. Payment terms: 50% advance and balance before final handover.`
+        }
+    };
+};
+
+const normalizeProposalWriterPlan = (value, fallback) => {
+    const raw = value && typeof value === 'object' ? value : {};
+    const pricing = raw.pricing && typeof raw.pricing === 'object' ? raw.pricing : fallback.pricing;
+    const proposalDraft = raw.proposalDraft && typeof raw.proposalDraft === 'object' ? raw.proposalDraft : fallback.proposalDraft;
+    const currency = normalizeCurrency(pricing.currency || proposalDraft.currency || fallback.pricing.currency);
+    const total = toMoneyNumber(pricing.total || proposalDraft.items?.[0]?.price || fallback.pricing.total) || fallback.pricing.total;
+
+    return {
+        title: compactText(raw.title, fallback.title),
+        proposalType: compactText(raw.proposalType, fallback.proposalType),
+        clientName: compactText(raw.clientName, fallback.clientName),
+        executiveSummary: compactText(raw.executiveSummary, fallback.executiveSummary),
+        problemStatement: compactText(raw.problemStatement, fallback.problemStatement),
+        proposedSolution: compactText(raw.proposedSolution, fallback.proposedSolution),
+        scopeItems: compactArray(raw.scopeItems, fallback.scopeItems)
+            .map((item) => typeof item === 'string'
+                ? { title: item, detail: item }
+                : {
+                    title: compactText(item.title, 'Scope item'),
+                    detail: compactText(item.detail, 'Clear deliverable with review and approval.')
+                })
+            .slice(0, 6),
+        timeline: compactArray(raw.timeline, fallback.timeline)
+            .map((item, index) => typeof item === 'string'
+                ? { phase: `Phase ${index + 1}`, duration: 'TBD', work: item }
+                : {
+                    phase: compactText(item.phase, `Phase ${index + 1}`),
+                    duration: compactText(item.duration, 'TBD'),
+                    work: compactText(item.work, 'Delivery milestone')
+                })
+            .slice(0, 5),
+        pricing: {
+            currency,
+            total,
+            breakdown: compactArray(pricing.breakdown, fallback.pricing.breakdown)
+                .map((item) => ({
+                    label: compactText(item.label, 'Project milestone'),
+                    amount: toMoneyNumber(item.amount) || 0
+                }))
+                .slice(0, 5),
+            paymentTerms: compactText(pricing.paymentTerms, fallback.pricing.paymentTerms)
+        },
+        whyUs: compactArray(raw.whyUs, fallback.whyUs).slice(0, 6),
+        assumptions: compactArray(raw.assumptions, fallback.assumptions).slice(0, 6),
+        risks: compactArray(raw.risks, fallback.risks)
+            .map((item) => typeof item === 'string'
+                ? { risk: item, mitigation: 'Clarify early and document the next action.' }
+                : {
+                    risk: compactText(item.risk, 'Project risk'),
+                    mitigation: compactText(item.mitigation, 'Clarify early and document the next action.')
+                })
+            .slice(0, 5),
+        discoveryQuestions: compactArray(raw.discoveryQuestions, fallback.discoveryQuestions).slice(0, 8),
+        closingMessage: compactText(raw.closingMessage, fallback.closingMessage),
+        followUpMessage: compactText(raw.followUpMessage, fallback.followUpMessage),
+        proposalDraft: {
+            documentType: 'proposal',
+            clientName: compactText(proposalDraft.clientName, fallback.proposalDraft.clientName),
+            clientEmail: compactText(proposalDraft.clientEmail, fallback.proposalDraft.clientEmail).toLowerCase(),
+            serviceDescription: compactText(proposalDraft.serviceDescription, fallback.proposalDraft.serviceDescription),
+            items: calculateTotals(Array.isArray(proposalDraft.items) ? proposalDraft.items : fallback.proposalDraft.items, 0, 0).items,
+            currency,
+            cgst: 0,
+            sgst: 0,
+            validUntil: toDateInput(proposalDraft.validUntil) || fallback.proposalDraft.validUntil,
+            notes: compactText(proposalDraft.notes, fallback.proposalDraft.notes)
+        }
+    };
+};
+
 const pickVariant = (seed, count) => {
     const text = String(seed || Date.now());
     let hash = 0;
@@ -1395,6 +1568,79 @@ const callOpenAiClientFinder = ({ context, fallback }) => new Promise((resolve, 
     request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
     request.write(payload);
     request.end();
+});
+
+const callOpenAiProposalWriter = ({ context, fallback }) => new Promise((resolve, reject) => {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) return resolve(null);
+
+    const prompt = [
+        'You are ClientFlow AI, an expert proposal and RFP response writer for freelancers, agencies, consultants, and small service businesses.',
+        'Return only valid JSON. No markdown, no explanation.',
+        'Write clear client-facing proposal content that can be used in a real service proposal.',
+        'Do not make fake certifications, fake case studies, fake guarantees, or invented client names.',
+        'Use practical scope, timeline, pricing, assumptions, risks, and follow-up language.',
+        'JSON shape: title, proposalType, clientName, executiveSummary, problemStatement, proposedSolution, scopeItems[{title,detail}], timeline[{phase,duration,work}], pricing{currency,total,breakdown[{label,amount}],paymentTerms}, whyUs[], assumptions[], risks[{risk,mitigation}], discoveryQuestions[], closingMessage, followUpMessage, proposalDraft{documentType,clientName,clientEmail,serviceDescription,items,currency,cgst,sgst,validUntil,notes}.',
+        'Use the supplied currency if it is INR, USD, GBP, EUR, AED, SGD, AUD, or CAD. Keep amounts as numbers.',
+        `User context: ${JSON.stringify(context)}`,
+        `Fallback baseline: ${JSON.stringify(fallback)}`
+    ].join('\n');
+
+    const payload = JSON.stringify({
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
+        input: prompt
+    });
+
+    const request = https.request({
+        hostname: 'api.openai.com',
+        path: '/v1/responses',
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload)
+        },
+        timeout: 14000
+    }, (response) => {
+        let raw = '';
+        response.on('data', (chunk) => { raw += chunk; });
+        response.on('end', () => {
+            try {
+                const body = raw ? JSON.parse(raw) : {};
+                if (response.statusCode < 200 || response.statusCode >= 300) {
+                    return reject(new Error(body?.error?.message || 'OpenAI request failed'));
+                }
+
+                resolve(extractJsonObject(extractOpenAiText(body)));
+            } catch (err) {
+                reject(err);
+            }
+        });
+    });
+
+    request.on('error', reject);
+    request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
+    request.write(payload);
+    request.end();
+});
+
+router.post('/proposal-writer', protect, async(req, res) => {
+    const context = req.body?.context || {};
+    const fallback = buildProposalWriterFallback(context);
+
+    try {
+        const openAiPlan = await callOpenAiProposalWriter({ context, fallback });
+        res.json({
+            source: openAiPlan ? 'openai' : 'rules',
+            proposal: normalizeProposalWriterPlan(openAiPlan, fallback)
+        });
+    } catch (err) {
+        console.error('AI PROPOSAL WRITER FALLBACK:', err.message);
+        res.json({
+            source: 'rules',
+            proposal: fallback
+        });
+    }
 });
 
 router.post('/client-finder', protect, async(req, res) => {
