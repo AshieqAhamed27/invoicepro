@@ -285,9 +285,11 @@ export default function PublicInvoice() {
   );
   const companyAddress = firstText(business.address, invoice.user?.address, 'Tamil Nadu, India');
   const companyLogo = firstText(business.logo, invoice.user?.logo, COMPANY_LOGO);
-  const companyUpi = firstText(invoice.upiId, business.upiId, invoice.user?.upiId);
+  const companyUpi = invoice.currency === 'INR'
+    ? firstText(invoice.upiId, business.upiId, invoice.user?.upiId)
+    : '';
 
-  const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && companyUpi
+  const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && invoice.currency === 'INR' && companyUpi
     ? `upi://pay?pa=${companyUpi}&pn=${encodeURIComponent(companyName)}&am=${total.toFixed(2)}&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}`
     : '';
   const paymentQrValue = razorpayPaymentUrl || upiUri || window.location.href;

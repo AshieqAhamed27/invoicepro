@@ -5,8 +5,34 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
-const formatCurrency = (amount) =>
-    `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
+const SUPPORTED_BILLING_CURRENCIES = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'];
+
+const normalizeCurrency = (value) => {
+    const currency = String(value || 'INR').trim().toUpperCase();
+    return SUPPORTED_BILLING_CURRENCIES.includes(currency) ? currency : 'INR';
+};
+
+const formatCurrency = (amount, currency = 'INR') => {
+    const code = normalizeCurrency(currency);
+    const prefix = code === 'INR' ? 'Rs ' : `${code} `;
+    return `${prefix}${Number(amount || 0).toLocaleString(code === 'INR' ? 'en-IN' : 'en-US')}`;
+};
+
+const getDefaultPriceForCurrency = (inrPrice, currency = 'INR') => {
+    const code = normalizeCurrency(currency);
+    const defaults = {
+        INR: inrPrice,
+        USD: 199,
+        GBP: 159,
+        EUR: 179,
+        AED: 749,
+        SGD: 259,
+        AUD: 299,
+        CAD: 279
+    };
+
+    return defaults[code] || inrPrice;
+};
 
 const formatDate = (date) => {
     if (!date) return 'not set';
@@ -836,9 +862,10 @@ const buildClientFinderFallback = (context = {}) => {
     const skills = compactText(context.skills, service);
     const targetMarket = compactText(context.targetMarket, 'small businesses');
     const location = compactText(context.location, 'India');
+    const currency = normalizeCurrency(context.currency);
     const goal = compactText(context.goal, 'get 3 paying clients this month');
     const category = getClientFinderCategory(`${service} ${skills}`);
-    const price = roundPrice(toMoneyNumber(context.projectPrice) || category.price);
+    const price = roundPrice(toMoneyNumber(context.projectPrice) || getDefaultPriceForCurrency(category.price, currency));
     const starterPrice = roundPrice(price * 0.65);
     const premiumPrice = roundPrice(price * 1.6);
     const targetSegments = Array.from(new Set([
@@ -853,6 +880,7 @@ const buildClientFinderFallback = (context = {}) => {
     return {
         positioning: `${service} for ${targetMarket} who want ${category.pain.toLowerCase()}`,
         bestNiche: firstNiche,
+        currency,
         starterOffer: {
             title: category.offer,
             price,
@@ -960,7 +988,7 @@ const buildClientFinderFallback = (context = {}) => {
             'Business is active online but the enquiry or booking flow is weak.',
             'Owner is reachable and already spending effort on sales, content, or local visibility.',
             'The problem connects to revenue, trust, time saved, or faster customer response.',
-            `They can afford a ${formatCurrency(price)} project without needing many approvals.`
+            `They can afford a ${formatCurrency(price, currency)} project without needing many approvals.`
         ],
         redFlags: [
             'They ask for free complete work before a proposal.',
@@ -982,7 +1010,7 @@ const buildClientFinderFallback = (context = {}) => {
             },
             {
                 criterion: 'Can pay',
-                strongSignal: `Budget can support around ${formatCurrency(price)}.`,
+                strongSignal: `Budget can support around ${formatCurrency(price, currency)}.`,
                 weakSignal: 'They ask for heavy discount before seeing scope.'
             },
             {
@@ -998,7 +1026,7 @@ const buildClientFinderFallback = (context = {}) => {
         ],
         objectionHandlers: [{
                 objection: 'Your price is high.',
-                response: `I understand. The ${formatCurrency(price)} package is priced around the outcome and the full delivery scope. We can also start with the starter package if you want a smaller first step.`
+                response: `I understand. The ${formatCurrency(price, currency)} package is priced around the outcome and the full delivery scope. We can also start with the starter package if you want a smaller first step.`
             },
             {
                 objection: 'We will think and tell you later.',
@@ -1025,6 +1053,7 @@ const buildClientFinderFallback = (context = {}) => {
                 name: category.offer,
                 price
             }],
+            currency,
             cgst: 0,
             sgst: 0,
             validUntil: getDateAfterDays(7),
@@ -1047,6 +1076,7 @@ const normalizeClientFinderPlan = (value, fallback) => {
     return {
         positioning: compactText(raw.positioning, fallback.positioning),
         bestNiche: compactText(raw.bestNiche, fallback.bestNiche),
+        currency: normalizeCurrency(raw.currency || raw.proposalDraft?.currency || fallback.currency),
         starterOffer: {
             title: compactText(starterOffer.title, fallback.starterOffer.title),
             price: toMoneyNumber(starterOffer.price) || fallback.starterOffer.price,
@@ -1074,6 +1104,7 @@ const normalizeClientFinderPlan = (value, fallback) => {
             clientEmail: compactText(proposalDraft.clientEmail, '').toLowerCase(),
             serviceDescription: compactText(proposalDraft.serviceDescription, fallback.proposalDraft.serviceDescription),
             items: calculateTotals(Array.isArray(proposalDraft.items) ? proposalDraft.items : fallback.proposalDraft.items, 0, 0).items,
+            currency: normalizeCurrency(proposalDraft.currency || raw.currency || fallback.proposalDraft.currency || fallback.currency),
             cgst: 0,
             sgst: 0,
             validUntil: toDateInput(proposalDraft.validUntil) || fallback.proposalDraft.validUntil,
@@ -1322,8 +1353,8 @@ const callOpenAiClientFinder = ({ context, fallback }) => new Promise((resolve, 
         'Return only valid JSON. No markdown, no explanation.',
         'Do not invent real private contact details. Do not recommend spam. Suggest niches, search queries, outreach copy, offers, and a proposal draft.',
         'Prioritize the user supplied targetMarket and location exactly. Do not replace them with unrelated client categories.',
-        'JSON shape: positioning, bestNiche, starterOffer{title,price,promise,deliverables[]}, targetClients[{segment,problem,offerAngle,whereToFind}], leadSearches[{platform,query}], outreachMessages[{channel,text}], packages[{name,price,scope}], weeklyPlan[], growthSystem{headline,pipeline[{stage,goal,action}]}, idealClientSignals[], redFlags[], discoveryQuestions[], qualificationScorecard[{criterion,strongSignal,weakSignal}], objectionHandlers[{objection,response}], proposalToInvoicePath[], proposalDraft{documentType,clientName,clientEmail,serviceDescription,items,cgst,sgst,validUntil,notes}, guardrails[].',
-        'Use practical Indian freelancer context. Keep prices as INR numbers. The proposalDraft must be ready for ClientFlow AI.',
+        'JSON shape: positioning, bestNiche, currency, starterOffer{title,price,promise,deliverables[]}, targetClients[{segment,problem,offerAngle,whereToFind}], leadSearches[{platform,query}], outreachMessages[{channel,text}], packages[{name,price,scope}], weeklyPlan[], growthSystem{headline,pipeline[{stage,goal,action}]}, idealClientSignals[], redFlags[], discoveryQuestions[], qualificationScorecard[{criterion,strongSignal,weakSignal}], objectionHandlers[{objection,response}], proposalToInvoicePath[], proposalDraft{documentType,clientName,clientEmail,serviceDescription,items,currency,cgst,sgst,validUntil,notes}, guardrails[].',
+        'Use the user supplied currency exactly when it is INR, USD, GBP, EUR, AED, SGD, AUD, or CAD. Keep prices as plain numbers in that currency. The proposalDraft must be ready for ClientFlow AI.',
         `User context: ${JSON.stringify(context)}`,
         `Rule fallback: ${JSON.stringify(fallback)}`
     ].join('\n');

@@ -24,6 +24,51 @@ const DEFAULT_INCOME_GOAL = {
   service: 'Website, design, or business service package'
 };
 
+const demoModeCards = [
+  {
+    label: 'Lead',
+    title: 'A boutique owner needs a booking page',
+    value: 'Fit 82/100',
+    detail: 'AI suggests a WhatsApp pitch and a starter service package.'
+  },
+  {
+    label: 'Proposal',
+    title: 'Website cleanup + payment setup',
+    value: 'Rs 14,999',
+    detail: 'Client-ready proposal with scope, validity date, and next step.'
+  },
+  {
+    label: 'Invoice',
+    title: 'INV-DEMO-001 waiting for payment',
+    value: 'Due today',
+    detail: 'Public invoice link, PDF, Razorpay link, and UPI payment route.'
+  },
+  {
+    label: 'Follow-up',
+    title: 'Send payment reminder before it goes cold',
+    value: 'WhatsApp ready',
+    detail: 'AI prepares the message. The user sends it manually.'
+  }
+];
+
+const killerActionExamples = [
+  {
+    label: 'Who to message',
+    value: 'Warm lead due today',
+    detail: 'Open the saved lead and send the prepared WhatsApp or LinkedIn message.'
+  },
+  {
+    label: 'What to invoice',
+    value: 'Accepted proposal',
+    detail: 'Convert approved work into a payable invoice before the cash cycle slows.'
+  },
+  {
+    label: 'What payment to collect',
+    value: 'Highest pending invoice',
+    detail: 'Open the invoice, create or share payment link, and follow up professionally.'
+  }
+];
+
 const normalizeIncomeGoal = (goal = {}) => ({
   target: clampNumber(goal.target || DEFAULT_INCOME_GOAL.target, 1000, 100000000),
   averageDeal: clampNumber(goal.averageDeal || DEFAULT_INCOME_GOAL.averageDeal, 500, 10000000),
@@ -907,6 +952,7 @@ export default function Dashboard() {
     ? Math.round((completedAutomationCount / dailyAutomationPlan.length) * 100)
     : 0;
   const automationFocus = dailyAutomationPlan.find((action) => !dailyAutomationDone[action.id]) || dailyAutomationPlan[0];
+  const showDemoMode = !dashboardError && !loading && invoices.length === 0;
   const overdueAmount = overdueInvoiceList.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
   const collectionRiskAmount = overdueAmount || Number(stats.pendingAmount || 0);
   const collectionRiskNote = overdueInvoiceList.length
@@ -996,6 +1042,60 @@ export default function Dashboard() {
     });
   }, [convertingProposalId, invoices]);
 
+  const mobileBillingCards = useMemo(() => invoices.map((inv) => {
+    const meta = getDocumentMeta(inv);
+
+    return (
+      <article key={inv._id} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="break-words text-base font-black text-white">{inv.clientName}</p>
+            <p className="mt-1 break-words text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-600">
+              {meta.typeLabel} - {inv.invoiceNumber}
+            </p>
+          </div>
+          <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${meta.statusClass}`}>
+            {meta.statusLabel}
+          </span>
+        </div>
+
+        <div className="mt-4 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Amount</p>
+            <p className="mt-1 text-xl font-black text-white">{formatCurrency(inv.amount)}</p>
+          </div>
+          <p className="max-w-[9rem] break-words text-right text-xs font-semibold text-zinc-500">{inv.clientEmail}</p>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-2">
+          <Link
+            to={`/invoice/${inv._id}`}
+            className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white"
+          >
+            View
+          </Link>
+          {!meta.isProposal && inv.status !== 'paid' ? (
+            <button
+              type="button"
+              onClick={() => sendWhatsAppReminder(inv)}
+              className="rounded-xl border border-emerald-400/15 bg-emerald-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-300"
+            >
+              WhatsApp
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => deleteInvoice(inv._id)}
+              className="rounded-xl border border-red-400/10 bg-red-400/5 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-400"
+            >
+              Delete
+            </button>
+          )}
+        </div>
+      </article>
+    );
+  }), [invoices, convertingProposalId]);
+
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
@@ -1061,6 +1161,70 @@ export default function Dashboard() {
                 className="btn btn-secondary px-6 py-3 text-xs font-black uppercase tracking-widest"
               >
                 Sign In Again
+              </button>
+            </div>
+          </section>
+        )}
+
+        {showDemoMode && (
+          <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-yellow-400/20 bg-yellow-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
+            <div className="mb-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Demo Mode</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  See how ClientFlow AI works before your first real client.
+                </h2>
+                <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  Your dashboard is empty, so this preview shows the flow users pay for:
+                  find a lead, send a proposal, create an invoice, then follow up for payment.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Killer feature</p>
+                <p className="mt-2 text-lg font-black leading-tight text-white">
+                  Today's business action: who to message, what to invoice, what payment to collect.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {demoModeCards.map((card) => (
+                <div key={card.title} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
+                  <div className="mb-5 flex items-center justify-between gap-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{card.label}</p>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
+                      Demo
+                    </span>
+                  </div>
+                  <h3 className="text-base font-black leading-tight text-white">{card.title}</h3>
+                  <p className="mt-3 text-xl font-black text-emerald-300">{card.value}</p>
+                  <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">{card.detail}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => navigate('/client-finder')}
+                className="btn btn-secondary px-6 py-4 text-sm font-black"
+              >
+                Try Client Finder
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/create-invoice?type=proposal')}
+                className="btn btn-dark px-6 py-4 text-sm font-black"
+              >
+                Create Demo Proposal
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/create-invoice')}
+                className="btn btn-primary px-6 py-4 text-sm font-black"
+              >
+                Create First Invoice
               </button>
             </div>
           </section>
@@ -1197,7 +1361,7 @@ export default function Dashboard() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">
-                    Daily Business Assistant
+                    Today's Business Action
                   </p>
                   <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
                     No domain needed
@@ -1211,11 +1375,21 @@ export default function Dashboard() {
                   Your automated work plan for today.
                 </h2>
                 <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                  ClientFlow AI checks invoices, proposals, leads, and your income goal, then ranks the
-                  actions most likely to move money forward. It prepares the work without auto-sending anything.
+                  The main value is simple: open the dashboard and know who to message,
+                  what to invoice, and which payment to collect next.
                 </p>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <div className="mt-6 grid gap-3 lg:grid-cols-3">
+                  {killerActionExamples.map((item) => (
+                    <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">{item.label}</p>
+                      <p className="mt-2 text-sm font-black text-white">{item.value}</p>
+                      <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{item.detail}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   {[
                     ['Collection risk', formatCurrency(collectionRiskAmount), collectionRiskNote],
                     ['Follow-ups due', dueLeadList.length, 'Warm leads to move forward'],
@@ -1991,7 +2165,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div>
             {loading ? (
               <div className="p-10 space-y-6">
                 {[1, 2, 3].map((i) => <div key={i} className="h-16 w-full bg-white/5 rounded-2xl animate-pulse" />)}
@@ -2017,19 +2191,27 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              <table className="premium-table w-full text-left min-w-[800px]">
-                <thead>
-                  <tr className="text-[10px] font-black uppercase tracking-widest text-zinc-700 bg-white/[0.005]">
-                    <th className="px-10 py-5">Client</th>
-                    <th className="px-10 py-5">Status</th>
-                    <th className="px-10 py-5 text-right">Amount</th>
-                    <th className="px-10 py-5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {renderedInvoices}
-                </tbody>
-              </table>
+              <>
+                <div className="grid gap-4 p-4 sm:p-6 lg:hidden">
+                  {mobileBillingCards}
+                </div>
+
+                <div className="hidden overflow-x-auto lg:block">
+                  <table className="premium-table w-full text-left min-w-[800px]">
+                    <thead>
+                      <tr className="text-[10px] font-black uppercase tracking-widest text-zinc-700 bg-white/[0.005]">
+                        <th className="px-10 py-5">Client</th>
+                        <th className="px-10 py-5">Status</th>
+                        <th className="px-10 py-5 text-right">Amount</th>
+                        <th className="px-10 py-5 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {renderedInvoices}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </section>

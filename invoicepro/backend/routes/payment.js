@@ -944,7 +944,7 @@ router.post('/public/order', async(req, res) => {
         if (process.env.PAYMENT_SIMULATION === 'true') {
             return res.json({
                 simulation: true, keyId: 'rzp_test_simulation',
-                order: { id: 'order_sim_' + Date.now(), amount: invoice.amount * 100, currency: 'INR' }
+                order: { id: 'order_sim_' + Date.now(), amount: invoice.amount * 100, currency: invoice.currency || 'INR' }
             });
         }
 
@@ -952,7 +952,7 @@ router.post('/public/order', async(req, res) => {
 
         const razorpayRes = await createRazorpayOrder({
             amount: Math.round(invoice.amount * 100),
-            currency: 'INR',
+            currency: invoice.currency || 'INR',
             receipt: `inv_${invoice._id}`,
             notes: { invoiceId: String(invoice._id) }
         }, authHeader);

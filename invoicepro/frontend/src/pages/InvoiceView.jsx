@@ -11,15 +11,15 @@ import { trackEvent } from '../utils/analytics';
 import QRCode from 'react-qr-code';
 
 const formatCurrency = (amount, currency = 'INR') => {
-  const symbol = currency === 'USD' ? 'USD ' : 'Rs ';
-  return `${symbol}${Number(amount || 0).toLocaleString('en-IN', {
+  const symbol = currency === 'INR' ? 'Rs ' : `${currency} `;
+  return `${symbol}${Number(amount || 0).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US', {
     minimumFractionDigits: 2
   })}`;
 };
 
 const formatCurrencyPdf = (amount, currency = 'INR') => {
-  const code = currency === 'USD' ? 'USD' : 'Rs';
-  return `${code} ${Number(amount || 0).toLocaleString('en-IN', {
+  const code = currency === 'INR' ? 'Rs' : currency;
+  return `${code} ${Number(amount || 0).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US', {
     minimumFractionDigits: 2
   })}`;
 };
@@ -256,7 +256,7 @@ export default function InvoiceView() {
   const subtotal = items.reduce((sum, item) => sum + getLineTotal(item), 0);
   const total = Number(invoice.amount || 0);
   const tax = Math.max(0, total - subtotal);
-  const finalUpi = invoice.upiId || businessUpi || '';
+  const finalUpi = invoice.currency === 'INR' ? (invoice.upiId || businessUpi || '') : '';
   const publicDocumentUrl = `${window.location.origin}/public/invoice/${invoice._id}`;
   const razorpayPaymentUrl = firstText(invoice.paymentLink?.shortUrl);
   const paymentShareUrl = razorpayPaymentUrl || publicDocumentUrl;
@@ -287,7 +287,7 @@ export default function InvoiceView() {
       : [])
   ].sort((a, b) => new Date(b.occurredAt || 0) - new Date(a.occurredAt || 0));
   const displayDate = meta.isProposal ? invoice.validUntil : invoice.dueDate;
-  const upiLink = !meta.isProposal && finalUpi
+  const upiLink = !meta.isProposal && invoice.currency === 'INR' && finalUpi
     ? `upi://pay?pa=${finalUpi}&pn=${encodeURIComponent(companyName)}&am=${invoice.amount}&cu=INR`
     : '';
   const canCollectPayment = !meta.isProposal && meta.status !== 'paid';
@@ -648,7 +648,7 @@ export default function InvoiceView() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-8 sm:py-10 md:py-16">
+      <main className="container-custom pb-28 pt-8 sm:py-10 md:py-16">
         <div className="reveal mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-4">
@@ -1172,6 +1172,57 @@ export default function InvoiceView() {
           </aside>
         </div>
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-zinc-950/95 p-3 shadow-2xl shadow-black/40 backdrop-blur md:hidden print:hidden">
+        <div className="mx-auto grid max-w-md grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
+          {canCollectPayment ? (
+            hasRazorpayPaymentLink ? (
+              <a
+                href={razorpayPaymentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-xl bg-yellow-400 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-black"
+              >
+                Pay Now
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => createPaymentLink({ openAfterCreate: true })}
+                disabled={creatingPaymentLink}
+                className="rounded-xl bg-yellow-400 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-black disabled:opacity-60"
+              >
+                {creatingPaymentLink ? 'Creating' : 'Pay Link'}
+              </button>
+            )
+          ) : (
+            <a
+              href={publicDocumentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl bg-yellow-400 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-black"
+            >
+              Open Link
+            </a>
+          )}
+
+          <button
+            type="button"
+            onClick={shareWhatsAppReminder}
+            className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-300"
+          >
+            WA
+          </button>
+          <button
+            type="button"
+            onClick={downloadPdf}
+            disabled={downloadingPdf}
+            className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-[10px] font-black uppercase tracking-widest text-white disabled:opacity-60"
+          >
+            PDF
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

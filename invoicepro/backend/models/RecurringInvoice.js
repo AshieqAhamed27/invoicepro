@@ -99,7 +99,7 @@ const recurringInvoiceSchema = new mongoose.Schema({
             price: { type: Number, default: 0 }
         }],
         amount: { type: Number, required: true, min: 0 },
-        currency: { type: String, enum: ['INR', 'USD'], default: 'INR' },
+        currency: { type: String, enum: ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'], default: 'INR' },
         gst: { type: String, default: '' },
         cgst: { type: Number, default: 0 },
         sgst: { type: Number, default: 0 },
