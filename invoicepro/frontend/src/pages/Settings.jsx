@@ -30,6 +30,13 @@ const productSettings = [
     to: '/client-finder'
   },
   {
+    label: 'Outbound',
+    title: 'AI Outbound Agency Autopilot',
+    detail: 'Turn a service offer into search links, daily outreach tasks, scripts, follow-ups, and proposal actions.',
+    status: 'New',
+    to: '/outbound-autopilot'
+  },
+  {
     label: 'Recurring Revenue',
     title: 'Monthly Client System',
     detail: 'Manage repeat billing ideas and recurring client opportunities from one place.',
