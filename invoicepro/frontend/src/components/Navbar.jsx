@@ -5,6 +5,7 @@ import BrandLogo from './BrandLogo';
 
 const growthLinks = [
   { to: '/client-finder', label: 'Find Clients', detail: 'Search real prospects' },
+  { to: '/sales-agent', label: 'AI Sales Agent', detail: 'Today sales actions' },
   { to: '/outbound-autopilot', label: 'Autopilot', detail: 'Daily outreach plan' },
   { to: '/leads', label: 'Pipeline', detail: 'Follow up and close' }
 ];

@@ -14,6 +14,10 @@ const trustSignals = [
     description: 'Find better client leads and see who is worth messaging first.'
   },
   {
+    title: 'AI Sales Agent',
+    description: 'See today’s sales actions: who to message, what proposal to push, and what payment to collect.'
+  },
+  {
     title: 'Client finder workspace',
     description: 'Turn your skill into lead ideas, search links, first messages, and saved contacts.'
   },
@@ -62,7 +66,7 @@ const operationalTrustBadges = [
   },
   {
     label: 'AI Agents',
-    value: 'Leads + proposals + collection'
+    value: 'Sales + proposals + collection'
   }
 ];
 
@@ -75,7 +79,7 @@ const workflow = [
   {
     step: '02',
     title: 'Pitch with a clear package',
-    description: 'Use AI to write a proposal or RFP response with scope, timeline, pricing, and next-step follow-up.'
+    description: 'Use the Sales Agent to follow up warm leads, then write a proposal or RFP response with scope, timeline, and price.'
   },
   {
     step: '03',
@@ -125,6 +129,12 @@ const automationPreview = [
     title: 'Move warm leads forward',
     description: 'Highlights interested leads so you can send the right proposal next.',
     impact: 'More client chances'
+  },
+  {
+    category: 'Sales',
+    title: 'Run today’s SDR list',
+    description: 'Ranks leads, proposals, and unpaid invoices into one action list for the day.',
+    impact: 'Less missed revenue'
   },
   {
     category: 'Proposal',
@@ -280,7 +290,7 @@ const plans = [
     price: 'Rs 499',
     suffix: '/ month',
     description: 'For freelancers who want one place to find clients, close deals, collect payment, and follow up.',
-    features: ['Unlimited invoices', 'AI client finder and proposal writer', 'Daily AI business plan', 'Razorpay, UPI, and WhatsApp collection flow'],
+    features: ['Unlimited invoices', 'AI client finder, sales agent, and proposal writer', 'Daily AI business plan', 'Razorpay, UPI, and WhatsApp collection flow'],
     cta: 'Upgrade Monthly',
     featured: false,
     action: 'monthly'
@@ -290,7 +300,7 @@ const plans = [
     price: 'Rs 4,999',
     suffix: '/ year',
     description: 'For freelancers and agencies building a repeatable client pipeline.',
-    features: ['Everything in Monthly', 'Recurring invoices', 'AI growth coach and daily work plan', 'Priority support'],
+    features: ['Everything in Monthly', 'Recurring invoices', 'AI sales coach and daily work plan', 'Priority support'],
     cta: 'Save With Annual',
     featured: true,
     action: 'yearly'
@@ -707,6 +717,14 @@ export default function Home() {
             <p className="mt-4 text-zinc-400 max-w-2xl">
               Turn a client brief into a professional proposal with executive summary,
               scope, timeline, pricing, risks, discovery questions, and follow-up text.
+            </p>
+
+            <h2 className="mt-10 text-3xl font-black text-white">
+              AI SDR and Sales Automation Agent
+            </h2>
+            <p className="mt-4 text-zinc-400 max-w-2xl">
+              See who to message today, which proposal needs follow-up, and which unpaid invoice
+              should be collected first. Messages are prepared for review before sending.
             </p>
 
             <h2 className="mt-10 text-3xl font-black text-white">

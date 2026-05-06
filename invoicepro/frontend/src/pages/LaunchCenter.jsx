@@ -35,6 +35,11 @@ const recentUpdates = [
     detail: 'Added an AI agent that writes executive summary, scope, timeline, pricing, risks, follow-up text, and a ready proposal draft.'
   },
   {
+    label: 'AI Sales',
+    title: 'SDR and sales automation agent',
+    detail: 'Added a daily sales action screen that ranks lead follow-ups, proposal follow-ups, and payment collection tasks.'
+  },
+  {
     label: 'Payments',
     title: 'Real collection flow',
     detail: 'Razorpay checkout, UPI route, public invoice page, and paid status protection are now part of the product flow.'

@@ -30,6 +30,13 @@ const productSettings = [
     to: '/client-finder'
   },
   {
+    label: 'Sales Agent',
+    title: 'AI SDR & Sales Automation Agent',
+    detail: 'Ranks today’s leads, proposal follow-ups, and payment collection actions with copy-ready sales messages.',
+    status: 'New',
+    to: '/sales-agent'
+  },
+  {
     label: 'Outbound',
     title: 'AI Outbound Agency Autopilot',
     detail: 'Turn a service offer into search links, daily outreach tasks, scripts, follow-ups, and proposal actions.',
@@ -73,6 +80,11 @@ const automationSettings = [
   {
     title: 'Lead Follow-up Reminders',
     detail: 'Lead pipeline keeps 1 day, 3 day, and 7 day follow-up tasks visible to the user.',
+    state: 'Enabled'
+  },
+  {
+    title: 'AI Sales Agent',
+    detail: 'Daily SDR plan chooses who to message, what proposal to push, and which invoice to collect.',
     state: 'Enabled'
   },
   {

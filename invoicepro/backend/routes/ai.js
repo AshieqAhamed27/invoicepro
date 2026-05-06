@@ -1,6 +1,7 @@
 const express = require('express');
 const https = require('https');
 const Invoice = require('../models/Invoice');
+const Lead = require('../models/Lead');
 const { protect } = require('../middleware/auth');
 
 const router = express.Router();
@@ -470,6 +471,285 @@ const buildClientPaymentScores = (invoices = []) => {
         })
         .sort((a, b) => a.score - b.score)
         .slice(0, 5);
+};
+
+const getLeadDisplayName = (lead = {}) =>
+    lead.businessName || lead.contactName || lead.email || lead.phone || 'Unnamed lead';
+
+const isOpenLeadForSales = (lead = {}) => !['won', 'lost'].includes(String(lead.status || 'new'));
+
+const isLeadFollowUpDue = (lead = {}) => {
+    if (!lead.nextFollowUpAt || !isOpenLeadForSales(lead)) return false;
+    const date = new Date(lead.nextFollowUpAt);
+    if (Number.isNaN(date.getTime())) return false;
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    return date <= todayEnd;
+};
+
+const getLeadPriorityScore = (lead = {}) => {
+    let score = Number(lead.fitScore || 0) || 35;
+    const budget = Number(lead.budget || 0);
+
+    score += Math.min(24, Math.floor(budget / 1000));
+
+    if (lead.urgency === 'high') score += 20;
+    if (lead.status === 'interested') score += 20;
+    if (lead.status === 'proposal_sent') score += 16;
+    if (lead.status === 'contacted') score += 8;
+    if (String(lead.pain || '').trim().length > 20) score += 8;
+    if (lead.email || lead.phone || lead.linkedinUrl || lead.instagramUrl) score += 8;
+    if (isLeadFollowUpDue(lead)) score += 18;
+
+    return Math.max(1, Math.min(100, score));
+};
+
+const getOpenProposalStatus = (proposal = {}) =>
+    !['accepted', 'rejected', 'expired'].includes(String(proposal.proposalStatus || 'draft'));
+
+const getLeadSalesMessage = (lead = {}, type = 'first_touch') => {
+    const name = lead.contactName || 'there';
+    const business = lead.businessName || 'your business';
+    const niche = lead.niche || 'your business category';
+    const pain = lead.pain
+        ? `I noticed this opportunity: ${lead.pain}`
+        : 'I noticed there may be room to improve enquiries, trust, follow-up, or payment collection.';
+
+    const messages = {
+        first_touch: `Hi ${name}, I found ${business} while researching ${niche}.\n\n${pain}\n\nI can share 2 quick improvement ideas. If useful, I can also send a simple proposal after that.\n\nWould you like me to send the ideas?`,
+        follow_up: `Hi ${name}, quick follow-up on my earlier message about ${business}.\n\nI can keep it simple: I will share 2 useful ideas first, and you can decide if it is worth discussing.\n\nShould I send them?`,
+        proposal_next: `Hi ${name}, based on the opportunity for ${business}, I can prepare a short proposal with scope, timeline, and price.\n\nIf you want, I can send a clear fixed-scope option today.`
+    };
+
+    return messages[type] || messages.first_touch;
+};
+
+const getProposalSalesMessage = (proposal = {}) => {
+    const clientName = proposal.clientName || 'there';
+    const amount = formatCurrency(proposal.amount, proposal.currency || 'INR');
+
+    return `Hi ${clientName}, following up on the proposal I shared for ${amount}.\n\nIf the scope looks good, I can answer any questions and convert it into an invoice/payment link so we can start.`;
+};
+
+const getSalesAgentPlan = ({ leads = [], invoices = [], user = {} }) => {
+    const billableInvoices = invoices.filter((invoice) => invoice.documentType !== 'proposal');
+    const proposals = invoices.filter((invoice) => invoice.documentType === 'proposal');
+    const statusSummary = buildStatusSummary(invoices);
+    const collectionPlan = buildCollectionPlan(billableInvoices);
+
+    const openLeads = leads
+        .filter(isOpenLeadForSales)
+        .map((lead) => ({
+            ...lead,
+            priorityScore: getLeadPriorityScore(lead),
+            displayName: getLeadDisplayName(lead)
+        }))
+        .sort((a, b) => b.priorityScore - a.priorityScore);
+
+    const followUpsDue = openLeads.filter(isLeadFollowUpDue);
+    const hotLeads = openLeads.filter((lead) =>
+        lead.status === 'interested' ||
+        lead.urgency === 'high' ||
+        Number(lead.fitScore || 0) >= 70
+    );
+
+    const openProposals = proposals
+        .filter(getOpenProposalStatus)
+        .sort((a, b) => new Date(a.validUntil || a.createdAt || 0) - new Date(b.validUntil || b.createdAt || 0));
+
+    const acceptedProposals = proposals
+        .filter((proposal) => proposal.proposalStatus === 'accepted' && !proposal.convertedToInvoiceId)
+        .sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0));
+
+    const pipelineValue = openLeads.reduce((sum, lead) => sum + Number(lead.budget || 0), 0);
+    const openProposalValue = openProposals.reduce((sum, proposal) => sum + Number(proposal.amount || 0), 0);
+    const acceptedProposalValue = acceptedProposals.reduce((sum, proposal) => sum + Number(proposal.amount || 0), 0);
+    const topLead = followUpsDue[0] || hotLeads[0] || openLeads[0] || null;
+    const topProposal = openProposals[0] || null;
+    const topCollection = collectionPlan[0] || null;
+    const todayRevenueOpportunity = Number(topCollection?.amount || 0) + acceptedProposalValue;
+    const actions = [];
+
+    if (followUpsDue[0]) {
+        actions.push({
+            type: 'lead_follow_up',
+            title: `Follow up ${followUpsDue[0].displayName}`,
+            detail: followUpsDue[0].pain || 'A lead follow-up is due today.',
+            priority: 'High',
+            value: followUpsDue[0].budget ? formatCurrency(followUpsDue[0].budget) : 'Warm lead',
+            path: '/leads',
+            cta: 'Open Pipeline',
+            message: getLeadSalesMessage(followUpsDue[0], 'follow_up')
+        });
+    }
+
+    if (hotLeads[0] && hotLeads[0]?._id !== followUpsDue[0]?._id) {
+        actions.push({
+            type: 'hot_lead',
+            title: `Move ${hotLeads[0].displayName} toward a proposal`,
+            detail: hotLeads[0].fitLabel || 'This lead has a strong fit or urgency signal.',
+            priority: 'High',
+            value: hotLeads[0].budget ? formatCurrency(hotLeads[0].budget) : 'Qualified',
+            path: '/proposal-writer',
+            cta: 'Write Proposal',
+            message: getLeadSalesMessage(hotLeads[0], 'proposal_next')
+        });
+    }
+
+    if (acceptedProposals[0]) {
+        actions.push({
+            type: 'accepted_proposal',
+            title: `Invoice ${acceptedProposals[0].clientName || 'accepted work'}`,
+            detail: 'A proposal is accepted but still needs a payable invoice.',
+            priority: 'High',
+            value: formatCurrency(acceptedProposals[0].amount, acceptedProposals[0].currency || 'INR'),
+            path: '/create-invoice',
+            cta: 'Create Invoice',
+            message: `Create the invoice now so ${acceptedProposals[0].clientName || 'the client'} can pay without delay.`
+        });
+    }
+
+    if (topCollection) {
+        actions.push({
+            type: 'payment_collection',
+            title: `Collect payment from ${topCollection.clientName}`,
+            detail: topCollection.reason,
+            priority: topCollection.priorityScore >= 70 ? 'High' : 'Medium',
+            value: formatCurrency(topCollection.amount),
+            path: '/dashboard',
+            cta: topCollection.suggestedAction,
+            message: topCollection.followUpMessage
+        });
+    }
+
+    if (topProposal) {
+        actions.push({
+            type: 'proposal_follow_up',
+            title: `Follow up proposal for ${topProposal.clientName || 'client'}`,
+            detail: topProposal.validUntil ? `Valid until ${formatDate(topProposal.validUntil)}` : 'Proposal is still open.',
+            priority: 'Medium',
+            value: formatCurrency(topProposal.amount, topProposal.currency || 'INR'),
+            path: '/proposal-writer',
+            cta: 'Prepare Follow-up',
+            message: getProposalSalesMessage(topProposal)
+        });
+    }
+
+    if (!openLeads.length) {
+        actions.push({
+            type: 'find_clients',
+            title: 'Find 10 real prospects today',
+            detail: 'Your pipeline is empty. Start with a narrow niche and save verified leads before messaging.',
+            priority: 'Start',
+            value: '10 leads',
+            path: '/client-finder',
+            cta: 'Find Clients',
+            message: 'Pick one target niche, collect 10 real business leads, and save only prospects with public contact details.'
+        });
+    } else if (openLeads.length < 5) {
+        actions.push({
+            type: 'build_pipeline',
+            title: 'Add 5 more verified leads',
+            detail: 'A small pipeline makes revenue unpredictable. Add more real prospects before chasing cold replies.',
+            priority: 'Medium',
+            value: '5 leads',
+            path: '/client-finder',
+            cta: 'Add Leads',
+            message: 'Research public business listings, save real leads, and avoid invented contacts.'
+        });
+    }
+
+    if (!actions.length) {
+        actions.push({
+            type: 'healthy_pipeline',
+            title: 'Keep the sales loop moving',
+            detail: 'Your pipeline has no urgent blocker. Add fresh leads, follow proposals, and create invoices for accepted work.',
+            priority: 'Normal',
+            value: 'Ready',
+            path: '/dashboard',
+            cta: 'Open Dashboard',
+            message: 'Review today: one new lead, one proposal follow-up, and one invoice/payment action.'
+        });
+    }
+
+    const scripts = [
+        {
+            label: 'First Outreach',
+            useCase: 'Send after verifying a real business lead.',
+            text: topLead ? getLeadSalesMessage(topLead, 'first_touch') : 'Hi, I found your business while researching companies that may need better enquiries, follow-up, or payment collection.\n\nI can share 2 practical improvement ideas. Would you like me to send them?'
+        },
+        {
+            label: 'Lead Follow-up',
+            useCase: 'Use after 1 to 3 days if the lead did not reply.',
+            text: topLead ? getLeadSalesMessage(topLead, 'follow_up') : 'Hi, quick follow-up on my earlier message.\n\nI can share 2 useful ideas first, and you can decide if it is relevant.'
+        },
+        {
+            label: 'Proposal Follow-up',
+            useCase: 'Use after a proposal is sent but not accepted.',
+            text: topProposal ? getProposalSalesMessage(topProposal) : 'Hi, following up on the proposal I shared.\n\nIf the scope looks good, I can answer questions and convert it into an invoice/payment link so we can start.'
+        },
+        {
+            label: 'Payment Follow-up',
+            useCase: 'Use for pending invoices that need collection.',
+            text: topCollection?.followUpMessage || 'Hi, gentle reminder for the pending invoice. You can review and pay from the invoice link when possible. Thank you.'
+        }
+    ];
+
+    return {
+        summary: `AI SDR reviewed ${leads.length} lead${leads.length === 1 ? '' : 's'}, ${openProposals.length} open proposal${openProposals.length === 1 ? '' : 's'}, and ${statusSummary.pending} unpaid invoice${statusSummary.pending === 1 ? '' : 's'}.`,
+        scoreCards: [
+            { label: 'Due Follow-ups', value: followUpsDue.length, note: 'Leads needing action today' },
+            { label: 'Hot Leads', value: hotLeads.length, note: 'Strong fit or urgency' },
+            { label: 'Open Proposals', value: openProposals.length, note: 'Waiting for client decision' },
+            { label: 'Open Money', value: formatCurrency(statusSummary.pendingAmount), note: 'Unpaid invoice value' }
+        ],
+        forecast: {
+            pipelineValue,
+            openProposalValue,
+            acceptedProposalValue,
+            pendingInvoiceValue: statusSummary.pendingAmount,
+            todayRevenueOpportunity,
+            closeFocus: todayRevenueOpportunity > 0
+                ? 'Collect accepted and unpaid work before starting new outreach.'
+                : openLeads.length
+                    ? 'Turn one warm lead into a proposal today.'
+                    : 'Build the first verified lead list today.'
+        },
+        dailyActions: actions.slice(0, 8),
+        scripts,
+        leadQueue: openLeads.slice(0, 6).map((lead) => ({
+            id: lead._id,
+            name: lead.displayName,
+            status: lead.status,
+            urgency: lead.urgency,
+            score: lead.priorityScore,
+            budget: lead.budget,
+            nextFollowUpAt: lead.nextFollowUpAt,
+            reason: lead.pain || lead.fitLabel || 'Needs qualification before outreach.',
+            message: getLeadSalesMessage(lead, isLeadFollowUpDue(lead) ? 'follow_up' : 'first_touch')
+        })),
+        proposalQueue: openProposals.slice(0, 5).map((proposal) => ({
+            id: proposal._id,
+            clientName: proposal.clientName,
+            invoiceNumber: proposal.invoiceNumber,
+            amount: proposal.amount,
+            validUntil: proposal.validUntil,
+            status: proposal.proposalStatus || 'draft',
+            message: getProposalSalesMessage(proposal)
+        })),
+        collectionQueue: collectionPlan.slice(0, 5),
+        rules: [
+            'Review every message before sending.',
+            'Use only real, publicly found business leads.',
+            'Stop follow-up when a lead says no.',
+            'Move interested leads to proposal before invoicing.',
+            'Create invoices only after work is accepted.',
+            'Let payment status come from the verified payment flow.'
+        ],
+        nextBestMove: actions[0] || null,
+        userName: user.name || user.companyName || 'Founder'
+    };
 };
 
 const detectAgentIntent = (message) => {
@@ -1640,6 +1920,30 @@ router.post('/proposal-writer', protect, async(req, res) => {
             source: 'rules',
             proposal: fallback
         });
+    }
+});
+
+router.get('/sales-agent', protect, async(req, res) => {
+    try {
+        const [leads, invoices] = await Promise.all([
+            Lead.find({ user: req.user._id })
+                .sort({ nextFollowUpAt: 1, updatedAt: -1 })
+                .limit(150)
+                .lean(),
+            Invoice.find({ user: req.user._id })
+                .sort({ createdAt: -1 })
+                .select('clientName clientEmail amount status invoiceNumber dueDate documentType createdAt paidAt paymentPromise paymentLink proposalStatus validUntil convertedToInvoiceId sourceLeadId currency')
+                .limit(150)
+                .lean()
+        ]);
+
+        res.json({
+            source: 'rules',
+            agent: getSalesAgentPlan({ leads, invoices, user: req.user })
+        });
+    } catch (err) {
+        console.error('AI SALES AGENT ERROR:', err);
+        res.status(500).json({ message: 'AI sales agent failed. Please try again.' });
     }
 });
 
