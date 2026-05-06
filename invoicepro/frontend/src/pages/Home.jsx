@@ -22,6 +22,10 @@ const trustSignals = [
     description: 'Move an interested client into a proposal, then turn approved work into an invoice.'
   },
   {
+    title: 'AI Proposal and RFP writer',
+    description: 'Write scope, timeline, pricing, risks, and follow-up messages from a client brief.'
+  },
+  {
     title: 'Razorpay and UPI collection',
     description: 'Use a recognizable checkout flow with Razorpay and provide UPI-ready payment details.'
   },
@@ -58,7 +62,7 @@ const operationalTrustBadges = [
   },
   {
     label: 'AI Agents',
-    value: 'Client finder + payment collection'
+    value: 'Leads + proposals + collection'
   }
 ];
 
@@ -71,7 +75,7 @@ const workflow = [
   {
     step: '02',
     title: 'Pitch with a clear package',
-    description: 'Create discovery questions, objection replies, service packages, and a proposal draft from the same client plan.'
+    description: 'Use AI to write a proposal or RFP response with scope, timeline, pricing, and next-step follow-up.'
   },
   {
     step: '03',
@@ -87,7 +91,7 @@ const businessOutcomes = [
   },
   {
     title: 'Close with confidence',
-    description: 'Write a clear offer, send a proposal, and follow up until the client says yes.'
+    description: 'Write a clear proposal or RFP response, send it professionally, and follow up until the client says yes.'
   },
   {
     title: 'Collect payment faster',
@@ -203,7 +207,7 @@ const proofBlocks = [
   {
     title: 'Not just invoicing',
     description: 'ClientFlow AI helps freelancers find leads, follow up, send proposals, create invoices, and collect payment.',
-    bullets: ['Find client leads', 'Write outreach and proposal text', 'Turn approved work into payment collection']
+    bullets: ['Find client leads', 'Write outreach, proposal, and RFP text', 'Turn approved work into payment collection']
   },
   {
     title: 'Clear before clients pay',
@@ -276,7 +280,7 @@ const plans = [
     price: 'Rs 499',
     suffix: '/ month',
     description: 'For freelancers who want one place to find clients, close deals, collect payment, and follow up.',
-    features: ['Unlimited invoices', 'AI client finder and proposals', 'Daily AI business plan', 'Razorpay, UPI, and WhatsApp collection flow'],
+    features: ['Unlimited invoices', 'AI client finder and proposal writer', 'Daily AI business plan', 'Razorpay, UPI, and WhatsApp collection flow'],
     cta: 'Upgrade Monthly',
     featured: false,
     action: 'monthly'
@@ -695,6 +699,14 @@ export default function Home() {
             <p className="mt-4 text-zinc-400 max-w-2xl">
               Generate GST invoices with tax fields, client details, due dates, and payment instructions.
               Perfect for Indian businesses and consultants.
+            </p>
+
+            <h2 className="mt-10 text-3xl font-black text-white">
+              AI Proposal and RFP Writing Agent
+            </h2>
+            <p className="mt-4 text-zinc-400 max-w-2xl">
+              Turn a client brief into a professional proposal with executive summary,
+              scope, timeline, pricing, risks, discovery questions, and follow-up text.
             </p>
 
             <h2 className="mt-10 text-3xl font-black text-white">

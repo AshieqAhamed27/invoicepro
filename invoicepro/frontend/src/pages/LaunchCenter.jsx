@@ -30,6 +30,11 @@ const recentUpdates = [
     detail: 'Added daily work plan, payment follow-up, lead follow-up, proposal follow-up, recurring client detection, and risk alerts.'
   },
   {
+    label: 'AI Proposal',
+    title: 'Proposal and RFP writer',
+    detail: 'Added an AI agent that writes executive summary, scope, timeline, pricing, risks, follow-up text, and a ready proposal draft.'
+  },
+  {
     label: 'Payments',
     title: 'Real collection flow',
     detail: 'Razorpay checkout, UPI route, public invoice page, and paid status protection are now part of the product flow.'
@@ -351,7 +356,7 @@ export default function LaunchCenter() {
               </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {recentUpdates.map((update) => (
                 <div key={update.title} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-300">{update.label}</p>
