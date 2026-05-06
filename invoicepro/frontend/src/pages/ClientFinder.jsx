@@ -14,6 +14,7 @@ const defaultForm = {
   skills: '',
   targetMarket: '',
   location: '',
+  marketScope: 'india',
   goal: '',
   projectPrice: '',
   experienceLevel: 'intermediate'
@@ -41,6 +42,53 @@ const defaultLeadForm = {
 
 const inputClass = 'input bg-black/25';
 const actionLinkClass = 'flex min-h-10 w-full items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-yellow-400/25 hover:bg-white/[0.08] hover:text-white';
+
+const marketPresets = [
+  {
+    id: 'india',
+    label: 'India',
+    location: 'India',
+    helper: 'Best for UPI, GST-ready invoices, Razorpay, WhatsApp, and local service clients.'
+  },
+  {
+    id: 'global',
+    label: 'Global',
+    location: 'United States, United Kingdom, Canada, Australia, UAE, Singapore',
+    helper: 'Best for remote freelance services and international client discovery.'
+  },
+  {
+    id: 'usa',
+    label: 'USA',
+    location: 'United States',
+    helper: 'Good for higher-budget English-speaking businesses and agencies.'
+  },
+  {
+    id: 'uk',
+    label: 'UK',
+    location: 'United Kingdom',
+    helper: 'Good for consultants, service businesses, and B2B local companies.'
+  },
+  {
+    id: 'uae',
+    label: 'UAE',
+    location: 'Dubai, Abu Dhabi, UAE',
+    helper: 'Good for nearby international clients, startups, real estate, and service firms.'
+  },
+  {
+    id: 'singapore',
+    label: 'Singapore',
+    location: 'Singapore',
+    helper: 'Good for startups, consultants, SaaS, and professional services.'
+  },
+  {
+    id: 'australia',
+    label: 'Australia',
+    location: 'Australia',
+    helper: 'Good for small businesses, agencies, coaches, and local service brands.'
+  }
+];
+
+const globalScopeIds = new Set(['global', 'usa', 'uk', 'uae', 'singapore', 'australia']);
 
 const normalizeExternalUrl = (value = '') => {
   const trimmed = String(value || '').trim();
@@ -99,6 +147,7 @@ const getClientContext = (value = {}) => {
     skills: String(value.skills || '').trim(),
     targetMarket: String(value.targetMarket || '').trim(),
     location: String(value.location || '').trim(),
+    marketScope: String(value.marketScope || 'india').trim() || 'india',
     goal: String(value.goal || '').trim(),
     projectPrice: String(value.projectPrice || '').trim(),
     experienceLevel: String(value.experienceLevel || 'intermediate').trim() || 'intermediate'
@@ -114,8 +163,34 @@ const getRealLeadSources = (context = {}, plan = null) => {
   const niche = plan?.bestNiche || context.targetMarket;
   const location = context.location;
   const service = context.service;
+  const isGlobalScope = globalScopeIds.has(context.marketScope);
 
   if (!niche || !location || !service) return [];
+
+  if (isGlobalScope) {
+    return [
+      {
+        platform: 'LinkedIn',
+        query: `${niche} ${location} founder owner agency company`,
+        note: 'Find company pages, founders, and service business decision makers in your selected market.'
+      },
+      {
+        platform: 'Google',
+        query: `${niche} ${location} ${service} contact`,
+        note: 'Find public business websites with contact pages and visible service gaps.'
+      },
+      {
+        platform: 'Google',
+        query: `site:clutch.co ${niche} ${location}`,
+        note: 'Find agencies and service companies listed publicly, then verify contact details yourself.'
+      },
+      {
+        platform: 'Google',
+        query: `site:yelp.com ${niche} ${location} business`,
+        note: 'Find local international service businesses with reviews, websites, and contact paths.'
+      }
+    ];
+  }
 
   return [
     {
