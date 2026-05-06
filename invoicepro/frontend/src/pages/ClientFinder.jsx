@@ -6,8 +6,22 @@ import useDocumentMeta from '../utils/useDocumentMeta';
 import { trackEvent } from '../utils/analytics';
 import { getWhatsAppShareUrl } from '../utils/whatsapp';
 
-const formatMoney = (amount) =>
-  `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
+const currencyOptions = [
+  { code: 'INR', label: 'INR', prefix: 'Rs ' },
+  { code: 'USD', label: 'USD', prefix: 'USD ' },
+  { code: 'GBP', label: 'GBP', prefix: 'GBP ' },
+  { code: 'EUR', label: 'EUR', prefix: 'EUR ' },
+  { code: 'AED', label: 'AED', prefix: 'AED ' },
+  { code: 'SGD', label: 'SGD', prefix: 'SGD ' },
+  { code: 'AUD', label: 'AUD', prefix: 'AUD ' },
+  { code: 'CAD', label: 'CAD', prefix: 'CAD ' }
+];
+
+const getCurrencyPrefix = (currency = 'INR') =>
+  currencyOptions.find((option) => option.code === currency)?.prefix || `${currency} `;
+
+const formatMoney = (amount, currency = 'INR') =>
+  `${getCurrencyPrefix(currency)}${Number(amount || 0).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US')}`;
 
 const defaultForm = {
   service: '',
@@ -15,6 +29,7 @@ const defaultForm = {
   targetMarket: '',
   location: '',
   marketScope: 'india',
+  currency: 'INR',
   goal: '',
   projectPrice: '',
   experienceLevel: 'intermediate'
@@ -48,42 +63,49 @@ const marketPresets = [
     id: 'india',
     label: 'India',
     location: 'India',
+    currency: 'INR',
     helper: 'Best for UPI, GST-ready invoices, Razorpay, WhatsApp, and local service clients.'
   },
   {
     id: 'global',
     label: 'Global',
     location: 'United States, United Kingdom, Canada, Australia, UAE, Singapore',
+    currency: 'USD',
     helper: 'Best for remote freelance services and international client discovery.'
   },
   {
     id: 'usa',
     label: 'USA',
     location: 'United States',
+    currency: 'USD',
     helper: 'Good for higher-budget English-speaking businesses and agencies.'
   },
   {
     id: 'uk',
     label: 'UK',
     location: 'United Kingdom',
+    currency: 'GBP',
     helper: 'Good for consultants, service businesses, and B2B local companies.'
   },
   {
     id: 'uae',
     label: 'UAE',
     location: 'Dubai, Abu Dhabi, UAE',
+    currency: 'AED',
     helper: 'Good for nearby international clients, startups, real estate, and service firms.'
   },
   {
     id: 'singapore',
     label: 'Singapore',
     location: 'Singapore',
+    currency: 'SGD',
     helper: 'Good for startups, consultants, SaaS, and professional services.'
   },
   {
     id: 'australia',
     label: 'Australia',
     location: 'Australia',
+    currency: 'AUD',
     helper: 'Good for small businesses, agencies, coaches, and local service brands.'
   }
 ];
@@ -148,6 +170,7 @@ const getClientContext = (value = {}) => {
     targetMarket: String(value.targetMarket || '').trim(),
     location: String(value.location || '').trim(),
     marketScope: String(value.marketScope || 'india').trim() || 'india',
+    currency: String(value.currency || 'INR').trim().toUpperCase() || 'INR',
     goal: String(value.goal || '').trim(),
     projectPrice: String(value.projectPrice || '').trim(),
     experienceLevel: String(value.experienceLevel || 'intermediate').trim() || 'intermediate'
@@ -329,9 +352,10 @@ const buildLeadProposalDraft = (lead, plan) => ({
     name: plan?.starterOffer?.title || 'Starter service package',
     price: Number(plan?.starterOffer?.price || plan?.proposalDraft?.items?.[0]?.price || 0)
   }],
+  currency: plan?.proposalDraft?.currency || plan?.currency || 'INR',
   validUntil: plan?.proposalDraft?.validUntil,
   notes: lead?.budget
-    ? `Lead budget signal: ${formatMoney(lead.budget)}. ${plan?.proposalDraft?.notes || ''}`.trim()
+    ? `Lead budget signal: ${formatMoney(lead.budget, plan?.proposalDraft?.currency || plan?.currency || 'INR')}. ${plan?.proposalDraft?.notes || ''}`.trim()
     : plan?.proposalDraft?.notes
 });
 
@@ -399,6 +423,15 @@ export default function ClientFinder() {
     }));
   };
 
+  const applyMarketPreset = (preset) => {
+    setForm((prev) => ({
+      ...prev,
+      marketScope: preset.id,
+      location: preset.location,
+      currency: preset.currency
+    }));
+  };
+
   const updateLeadField = (field, value) => {
     setLeadForm((prev) => ({
       ...prev,
@@ -434,7 +467,9 @@ export default function ClientFinder() {
       setPlan(res.data?.plan || null);
       trackEvent('generate_client_finder_plan', {
         source: res.data?.source || 'unknown',
-        service: context.service || 'not_set'
+        service: context.service || 'not_set',
+        market_scope: context.marketScope,
+        currency: context.currency
       });
     } catch (err) {
       alert(err.response?.data?.message || 'AI client finder failed. Please retry.');
@@ -582,6 +617,29 @@ export default function ClientFinder() {
             </div>
 
             <div className={plan ? 'grid gap-4 md:grid-cols-2 xl:grid-cols-3' : 'grid gap-4'}>
+              <div className={plan ? 'md:col-span-2 xl:col-span-3' : ''}>
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Client Reach</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{form.currency}</span>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                  {marketPresets.map((preset) => (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => applyMarketPreset(preset)}
+                      className={`rounded-2xl border p-3 text-left transition-all ${form.marketScope === preset.id
+                        ? 'border-emerald-400/30 bg-emerald-400/10'
+                        : 'border-white/8 bg-black/20 hover:border-white/15 hover:bg-white/[0.04]'
+                      }`}
+                    >
+                      <span className="text-xs font-black text-white">{preset.label}</span>
+                      <span className="mt-1 block text-[11px] font-semibold leading-relaxed text-zinc-500">{preset.helper}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <label className="grid gap-2">
                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Service</span>
                 <input
@@ -636,6 +694,19 @@ export default function ClientFinder() {
                     placeholder="Example: 15000"
                     className={inputClass}
                   />
+                </label>
+
+                <label className="grid gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Currency</span>
+                  <select
+                    value={form.currency}
+                    onChange={(event) => updateField('currency', event.target.value)}
+                    className={inputClass}
+                  >
+                    {currencyOptions.map((option) => (
+                      <option key={option.code} value={option.code}>{option.label}</option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className="grid gap-2">
@@ -747,7 +818,10 @@ export default function ClientFinder() {
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Starter Offer</p>
                       <p className="mt-2 text-lg font-black text-white">{plan.starterOffer?.title}</p>
                       <p className="mt-2 text-sm font-semibold text-zinc-400">{plan.starterOffer?.promise}</p>
-                      <p className="mt-4 text-3xl font-black text-emerald-300">{formatMoney(plan.starterOffer?.price)}</p>
+                      <p className="mt-4 text-3xl font-black text-emerald-300">{formatMoney(plan.starterOffer?.price, plan.currency || form.currency)}</p>
+                      <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+                        Proposal currency: {plan.currency || form.currency}. International card collection depends on Razorpay approval.
+                      </p>
                     </div>
 
                     <button
@@ -1105,7 +1179,7 @@ export default function ClientFinder() {
                               <p className="font-black text-white">{item.name}</p>
                               <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{item.scope}</p>
                             </div>
-                            <p className="mt-auto shrink-0 text-sm font-black text-emerald-300">{formatMoney(item.price)}</p>
+                            <p className="mt-auto shrink-0 text-sm font-black text-emerald-300">{formatMoney(item.price, plan.currency || form.currency)}</p>
                           </div>
                         </div>
                       ))}

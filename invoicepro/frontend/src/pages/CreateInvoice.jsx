@@ -7,8 +7,22 @@ import AIBillingAgent from '../components/AIBillingAgent';
 import PriceSuggestionAgent from '../components/PriceSuggestionAgent';
 import { trackEvent } from '../utils/analytics';
 
-const formatCurrency = (amount) =>
-  `Rs ${Number(amount || 0).toLocaleString('en-IN', {
+const currencyOptions = [
+  { code: 'INR', label: 'INR - Indian Rupee', prefix: 'Rs ' },
+  { code: 'USD', label: 'USD - US Dollar', prefix: 'USD ' },
+  { code: 'GBP', label: 'GBP - British Pound', prefix: 'GBP ' },
+  { code: 'EUR', label: 'EUR - Euro', prefix: 'EUR ' },
+  { code: 'AED', label: 'AED - UAE Dirham', prefix: 'AED ' },
+  { code: 'SGD', label: 'SGD - Singapore Dollar', prefix: 'SGD ' },
+  { code: 'AUD', label: 'AUD - Australian Dollar', prefix: 'AUD ' },
+  { code: 'CAD', label: 'CAD - Canadian Dollar', prefix: 'CAD ' }
+];
+
+const getCurrencyPrefix = (currency = 'INR') =>
+  currencyOptions.find((option) => option.code === currency)?.prefix || `${currency} `;
+
+const formatCurrency = (amount, currency = 'INR') =>
+  `${getCurrencyPrefix(currency)}${Number(amount || 0).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })}`;
@@ -41,6 +55,7 @@ export default function CreateInvoice() {
     gst: '',
     cgst: '',
     sgst: '',
+    currency: 'INR',
     upiId: '',
     dueDate: '',
     validUntil: ''
@@ -160,7 +175,7 @@ export default function CreateInvoice() {
     !form.clientName && 'Enter client name',
     !form.clientEmail && 'Enter client email',
     !dateFieldValue && (isProposal ? 'Proposal validity missing' : 'Due date missing'),
-    !isProposal && !form.upiId && 'UPI ID missing',
+    !isProposal && form.currency === 'INR' && !form.upiId && 'UPI ID missing',
     subtotal <= 0 && 'Add billable work'
   ].filter(Boolean);
 
@@ -228,6 +243,7 @@ export default function CreateInvoice() {
       serviceDescription: draft.serviceDescription || prev.serviceDescription,
       cgst: draft.cgst ?? prev.cgst,
       sgst: draft.sgst ?? prev.sgst,
+      currency: draft.currency || prev.currency || 'INR',
       upiId: nextDocumentType === 'invoice' ? (draft.upiId || prev.upiId) : '',
       dueDate: nextDocumentType === 'invoice' ? normalizeDraftDate(draft.dueDate) : '',
       validUntil: nextDocumentType === 'proposal' ? normalizeDraftDate(draft.validUntil) : ''
@@ -288,9 +304,10 @@ export default function CreateInvoice() {
       return;
     }
 
-    const finalUpi = isProposal ? '' : (form.upiId || user?.upiId);
+    const finalCurrency = form.currency || 'INR';
+    const finalUpi = isProposal || finalCurrency !== 'INR' ? '' : (form.upiId || user?.upiId);
 
-    if (!isProposal && !finalUpi) {
+    if (!isProposal && finalCurrency === 'INR' && !finalUpi) {
       alert("Please add UPI ID in Settings or here");
       return;
     }
@@ -301,6 +318,7 @@ export default function CreateInvoice() {
       const res = await api.post('/invoices', {
         ...form,
         documentType,
+        currency: finalCurrency,
         upiId: finalUpi,
         sourceLeadId,
         items,
@@ -310,7 +328,7 @@ export default function CreateInvoice() {
 
       trackEvent(isProposal ? 'create_proposal' : 'create_invoice', {
         value: total,
-        currency: 'INR',
+        currency: finalCurrency,
         item_count: items.length,
         recurring_enabled: Boolean(!isProposal && recurring.enabled)
       });
@@ -518,7 +536,7 @@ export default function CreateInvoice() {
                     <div className="space-y-1.5 relative">
                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 lg:hidden">Amount</p>
                         <div className="flex items-center">
-                            <span className="text-zinc-500 font-bold mr-2">Rs</span>
+                            <span className="text-zinc-500 font-bold mr-2">{getCurrencyPrefix(form.currency)}</span>
                             <input
                               type="number"
                               min="0"
@@ -555,6 +573,25 @@ export default function CreateInvoice() {
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Currency</p>
+                    <select
+                      name="currency"
+                      value={form.currency}
+                      onChange={handleChange}
+                      className="input py-4 bg-black/20 border-white/5"
+                    >
+                      {currencyOptions.map((option) => (
+                        <option key={option.code} value={option.code}>{option.label}</option>
+                      ))}
+                    </select>
+                    {form.currency !== 'INR' && (
+                      <p className="text-xs font-semibold leading-relaxed text-yellow-200/80">
+                        Global card payment needs international payments enabled in Razorpay. UPI is only for INR invoices.
+                      </p>
+                    )}
+                </div>
+
+                <div className="space-y-1.5">
                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">
                       {isProposal ? 'Valid Until' : 'Due Date'}
                     </p>
@@ -567,7 +604,7 @@ export default function CreateInvoice() {
                     />
                 </div>
 
-                {!isProposal && (
+                {!isProposal && form.currency === 'INR' && (
                   <div className="space-y-1.5">
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">UPI ID for Collection</p>
                       <input
@@ -631,17 +668,17 @@ export default function CreateInvoice() {
                <div className="space-y-4 mb-8">
                   <div className="flex justify-between items-center">
                     <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">Gross</span>
-                    <span className="font-bold text-white text-lg">{formatCurrency(subtotal)}</span>
+                    <span className="font-bold text-white text-lg">{formatCurrency(subtotal, form.currency)}</span>
                   </div>
                   {tax > 0 && (
                     <div className="flex justify-between items-center">
                       <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">Tax ({taxRate}%)</span>
-                      <span className="font-bold text-white text-lg">{formatCurrency(tax)}</span>
+                      <span className="font-bold text-white text-lg">{formatCurrency(tax, form.currency)}</span>
                     </div>
                   )}
                   <div className="pt-6 border-t border-white/5 flex flex-col items-end">
                     <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2 text-right w-full">Final Total</span>
-                    <span className="text-3xl sm:text-5xl font-black text-emerald-400 tracking-tighter break-words text-right">{formatCurrency(total)}</span>
+                    <span className="text-3xl sm:text-5xl font-black text-emerald-400 tracking-tighter break-words text-right">{formatCurrency(total, form.currency)}</span>
                   </div>
                </div>
 
