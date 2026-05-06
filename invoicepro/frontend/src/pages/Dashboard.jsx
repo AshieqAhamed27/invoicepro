@@ -186,6 +186,7 @@ export default function Dashboard() {
   const [leadDashboardError, setLeadDashboardError] = useState('');
   const [loading, setLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState('');
+  const [billingSearch, setBillingSearch] = useState('');
   const [convertingProposalId, setConvertingProposalId] = useState(null);
   const [whatsAppShared, setWhatsAppShared] = useState(() => {
     try {
@@ -959,6 +960,35 @@ export default function Dashboard() {
     ? `${overdueInvoiceList.length} overdue invoice${overdueInvoiceList.length === 1 ? '' : 's'}`
     : `${pendingInvoiceList.length} pending invoice${pendingInvoiceList.length === 1 ? '' : 's'}`;
 
+  const filteredBillingDocuments = useMemo(() => {
+    const query = billingSearch.trim().toLowerCase();
+    if (!query) return invoices;
+
+    return invoices.filter((invoice) => {
+      const meta = getDocumentMeta(invoice);
+      const searchable = [
+        invoice.clientName,
+        invoice.clientEmail,
+        invoice.clientPhone,
+        invoice.invoiceNumber,
+        invoice.documentType,
+        invoice.currency,
+        invoice.amount,
+        invoice.status,
+        invoice.proposalStatus,
+        meta.typeLabel,
+        meta.statusLabel,
+        formatDate(invoice.dueDate),
+        formatCurrency(invoice.amount)
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      return searchable.includes(query);
+    });
+  }, [billingSearch, invoices]);
+
   const copyDailyAutomationPlan = async () => {
     const planText = dailyAutomationPlan
       .map((action, index) => `${index + 1}. ${action.title} - ${action.detail} Impact: ${action.impact}.`)
@@ -974,7 +1004,7 @@ export default function Dashboard() {
   };
 
   const renderedInvoices = useMemo(() => {
-    return invoices.map((inv) => {
+    return filteredBillingDocuments.map((inv) => {
       const meta = getDocumentMeta(inv);
 
       return (
@@ -1040,9 +1070,9 @@ export default function Dashboard() {
         </tr>
       );
     });
-  }, [convertingProposalId, invoices]);
+  }, [convertingProposalId, filteredBillingDocuments]);
 
-  const mobileBillingCards = useMemo(() => invoices.map((inv) => {
+  const mobileBillingCards = useMemo(() => filteredBillingDocuments.map((inv) => {
     const meta = getDocumentMeta(inv);
 
     return (
@@ -1094,7 +1124,7 @@ export default function Dashboard() {
         </div>
       </article>
     );
-  }), [invoices, convertingProposalId]);
+  }), [filteredBillingDocuments, convertingProposalId]);
 
   return (
     <div className="premium-page min-h-screen text-white">
@@ -2152,16 +2182,44 @@ export default function Dashboard() {
         </section>
 
         <section className="reveal reveal-delay-2 premium-panel overflow-hidden">
-          <div className="px-5 py-6 sm:px-8 lg:px-10 lg:py-8 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="px-5 py-6 sm:px-8 lg:px-10 lg:py-8 border-b border-white/5 bg-white/[0.01] flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-2xl font-bold text-white">Recent Billing Documents</h2>
               <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mt-1">Track proposals, invoices, approvals, and follow-ups</p>
             </div>
-            <div className="flex gap-2">
-              <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
+              <div className="relative w-full sm:min-w-[22rem] lg:w-[25rem]">
+                <label htmlFor="billing-search" className="sr-only">Search billing documents</label>
+                <input
+                  id="billing-search"
+                  type="search"
+                  value={billingSearch}
+                  onChange={(event) => setBillingSearch(event.target.value)}
+                  placeholder="Search client, invoice, status, amount..."
+                  className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 pr-12 text-sm font-semibold text-white outline-none transition-all placeholder:text-zinc-700 focus:border-yellow-300/50 focus:bg-black/30 focus:ring-4 focus:ring-yellow-300/10"
+                />
+                {billingSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setBillingSearch('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-400 transition-all hover:bg-white/10 hover:text-white"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
-              <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest flex items-center">Status Tracking Active</p>
+
+              <div className="flex shrink-0 gap-2">
+                <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                  <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                </div>
+                <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest flex items-center">
+                  {billingSearch
+                    ? `${filteredBillingDocuments.length} result${filteredBillingDocuments.length === 1 ? '' : 's'}`
+                    : 'Status Tracking Active'}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -2189,6 +2247,20 @@ export default function Dashboard() {
                     Create Proposal
                   </button>
                 </div>
+              </div>
+            ) : filteredBillingDocuments.length === 0 ? (
+              <div className="p-6 text-center sm:p-10 lg:p-16">
+                <p className="text-xs font-black uppercase tracking-widest text-zinc-600">No matching billing documents.</p>
+                <p className="mx-auto mt-3 max-w-xl text-sm font-medium text-zinc-500">
+                  Try searching by client name, invoice number, email, paid, pending, overdue, proposal, amount, or currency.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setBillingSearch('')}
+                  className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10"
+                >
+                  Clear Search
+                </button>
               </div>
             ) : (
               <>
