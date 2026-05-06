@@ -1,8 +1,72 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 import { COMPANY_SHORT_NAME } from '../utils/company';
+
+const settingsNav = [
+  { label: 'Business Profile', href: '#business-profile' },
+  { label: 'Payment Setup', href: '#payment-setup' },
+  { label: 'Branding', href: '#branding' },
+  { label: 'Product Settings', href: '#product-settings' },
+  { label: 'Automation', href: '#automation-settings' },
+  { label: 'Security', href: '#security-settings' }
+];
+
+const productSettings = [
+  {
+    label: 'Payments',
+    title: 'Razorpay + UPI Collection',
+    detail: 'Create payment links, show Pay Now buttons, and keep invoices protected from manual fake paid status.',
+    status: 'Live',
+    to: '/payment'
+  },
+  {
+    label: 'Client Growth',
+    title: 'Client Finder + Lead Pipeline',
+    detail: 'Find real prospects, save leads, prepare follow-ups, and convert accepted work into invoices.',
+    status: 'Live',
+    to: '/client-finder'
+  },
+  {
+    label: 'Recurring Revenue',
+    title: 'Monthly Client System',
+    detail: 'Manage repeat billing ideas and recurring client opportunities from one place.',
+    status: 'Ready',
+    to: '/recurring'
+  },
+  {
+    label: 'Trust Center',
+    title: 'Company Setup Checklist',
+    detail: 'Review launch readiness, policies, business registration notes, payments, and product operations.',
+    status: 'Ready',
+    to: '/launch'
+  }
+];
+
+const automationSettings = [
+  {
+    title: 'Today Business Action',
+    detail: 'Dashboard prepares who to message, what to invoice, and which payment to collect next.',
+    state: 'Enabled'
+  },
+  {
+    title: 'Smart Payment Follow-up',
+    detail: 'Unpaid invoices are ranked by urgency and WhatsApp messages are prepared for manual sending.',
+    state: 'Enabled'
+  },
+  {
+    title: 'Lead Follow-up Reminders',
+    detail: 'Lead pipeline keeps 1 day, 3 day, and 7 day follow-up tasks visible to the user.',
+    state: 'Enabled'
+  },
+  {
+    title: 'Email Reminders',
+    detail: 'Paused until a verified sending domain is connected. WhatsApp sharing remains available.',
+    state: 'Paused'
+  }
+];
 
 export default function Settings() {
   const [form, setForm] = useState({
@@ -112,16 +176,36 @@ export default function Settings() {
             Settings
           </h1>
           <p className="max-w-2xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed">
-            Manage the business details that appear on your invoices and payment pages.
+            Manage your company identity, payment collection, branding, automation rules, and product readiness from one place.
           </p>
         </div>
+
+        <section className="reveal reveal-delay-1 mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            { label: 'Profile', value: form.companyName ? 'Configured' : 'Needs Name', tone: 'yellow' },
+            { label: 'Payments', value: form.upiId ? 'UPI Ready' : 'Add UPI', tone: 'emerald' },
+            { label: 'Branding', value: safeLogoPreviewUrl ? 'Logo Ready' : 'Use Logo', tone: 'sky' },
+            { label: 'Automation', value: 'AI Enabled', tone: 'purple' }
+          ].map((item) => (
+            <div key={item.label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
+              <p className={`text-[10px] font-black uppercase tracking-widest ${
+                item.tone === 'emerald' ? 'text-emerald-300' :
+                  item.tone === 'sky' ? 'text-sky-300' :
+                    item.tone === 'purple' ? 'text-purple-300' : 'text-yellow-300'
+              }`}>
+                {item.label}
+              </p>
+              <p className="mt-2 text-xl font-black text-white">{item.value}</p>
+            </div>
+          ))}
+        </section>
 
         <form
           onSubmit={handleSubmit}
           className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-10"
         >
           <div className="reveal reveal-delay-1 space-y-8">
-            <section className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
+            <section id="business-profile" className="premium-panel p-5 sm:p-8 relative overflow-hidden group scroll-mt-28">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Business Details</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Your public invoicing identity</p>
@@ -152,7 +236,7 @@ export default function Settings() {
               </div>
             </section>
 
-            <section className="premium-panel p-5 sm:p-8">
+            <section id="payment-setup" className="premium-panel p-5 sm:p-8 scroll-mt-28">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Payment Details</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Where clients should send payment</p>
@@ -187,7 +271,7 @@ export default function Settings() {
               />
             </section>
 
-            <section className="premium-panel p-5 sm:p-8">
+            <section id="branding" className="premium-panel p-5 sm:p-8 scroll-mt-28">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Logo</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Branding shown on invoices and PDFs</p>
@@ -213,9 +297,97 @@ export default function Settings() {
                   </div>
               </div>
             </section>
+
+            <section id="product-settings" className="premium-panel p-5 sm:p-8 scroll-mt-28">
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-white leading-none mb-1">Product Settings</h2>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Control the main business modules</p>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                {productSettings.map((setting) => (
+                  <Link
+                    key={setting.title}
+                    to={setting.to}
+                    className="group rounded-2xl border border-white/8 bg-black/20 p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/30 hover:bg-white/[0.04]"
+                  >
+                    <div className="mb-4 flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{setting.label}</p>
+                        <h3 className="mt-2 text-lg font-black text-white">{setting.title}</h3>
+                      </div>
+                      <span className="rounded-full border border-emerald-400/15 bg-emerald-400/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-300">
+                        {setting.status}
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium leading-relaxed text-zinc-500">{setting.detail}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            <section id="automation-settings" className="premium-panel p-5 sm:p-8 scroll-mt-28">
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-white leading-none mb-1">Automation Settings</h2>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">What ClientFlow AI handles for the user</p>
+              </div>
+
+              <div className="divide-y divide-white/5 rounded-2xl border border-white/8 bg-black/20">
+                {automationSettings.map((setting) => (
+                  <div key={setting.title} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="text-base font-black text-white">{setting.title}</h3>
+                      <p className="mt-1 text-sm font-medium leading-relaxed text-zinc-500">{setting.detail}</p>
+                    </div>
+                    <span className={`shrink-0 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
+                      setting.state === 'Paused'
+                        ? 'border-yellow-400/20 bg-yellow-400/10 text-yellow-300'
+                        : 'border-emerald-400/15 bg-emerald-400/10 text-emerald-300'
+                    }`}>
+                      {setting.state}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section id="security-settings" className="premium-panel p-5 sm:p-8 scroll-mt-28">
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-white leading-none mb-1">Security & Account</h2>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Production safety settings</p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                {[
+                  { title: 'Private Dashboard', detail: 'Protected pages require login before business data loads.' },
+                  { title: 'Safe Logo URLs', detail: 'Only local logo files or public https images are accepted.' },
+                  { title: 'Payment Verification', detail: 'Paid status should come from verified payment flow, not manual guessing.' }
+                ].map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-white/8 bg-black/20 p-5">
+                    <p className="text-sm font-black text-white">{item.title}</p>
+                    <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
 
           <aside className="reveal reveal-delay-2 space-y-6 xl:sticky xl:top-28 h-fit">
+            <div className="premium-panel p-5">
+              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Settings Menu</p>
+              <div className="grid gap-2">
+                {settingsNav.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-xs font-black uppercase tracking-widest text-zinc-400 transition-all hover:border-yellow-300/25 hover:bg-yellow-300/10 hover:text-yellow-200"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+
             <div className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
                  <svg className="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2z" /></svg>
