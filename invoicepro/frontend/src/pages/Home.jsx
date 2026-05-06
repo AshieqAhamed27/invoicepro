@@ -142,6 +142,25 @@ const automationPreview = [
   }
 ];
 
+const availabilityHighlights = [
+  {
+    title: 'India-first setup',
+    description: 'Use Rs pricing, GST-ready fields, business details, Udyam trust information, and UPI collection routes.'
+  },
+  {
+    title: 'Razorpay and UPI payments',
+    description: 'Share public invoice links, open Razorpay checkout, show UPI instructions, and keep payment status organized.'
+  },
+  {
+    title: 'Works from a browser',
+    description: 'Freelancers and clients can open links without needing a U.S. or Canada-only platform account.'
+  },
+  {
+    title: 'International-ready path',
+    description: 'If Razorpay international payments are enabled on your account, invoice pages can support eligible global card payments.'
+  }
+];
+
 const demoFlow = [
   {
     step: '01',
@@ -218,6 +237,10 @@ const faqs = [
   {
     question: 'Can I include GST information and business details?',
     answer: 'Yes. The invoice flow includes GST-related fields, company details, due dates, and client information.'
+  },
+  {
+    question: 'Is ClientFlow AI only for U.S. or Canada users?',
+    answer: 'No. ClientFlow AI is India-first and browser-based. It supports Rs invoices, GST-ready fields, UPI, Razorpay, and WhatsApp sharing. International card collection depends on your Razorpay account approval.'
   },
   {
     question: 'Can I send reminders without buying a domain?',
@@ -435,7 +458,7 @@ export default function Home() {
 
               <div className="reveal reveal-delay-3 mt-8 flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500 sm:text-xs sm:tracking-[0.2em]">
                 <span className="rounded-full border border-white/10 px-3 py-2">No client login required</span>
-                <span className="rounded-full border border-white/10 px-3 py-2">AI lead scoring</span>
+                <span className="rounded-full border border-white/10 px-3 py-2">India-first workspace</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">Daily AI work plan</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">GST-ready invoice fields</span>
               </div>
@@ -511,6 +534,40 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="scroll-reveal border-y border-white/5 bg-emerald-400/[0.035] py-16 sm:py-20">
+          <div className="container-custom">
+            <div className="mb-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Built beyond U.S. and Canada-only tools</p>
+                <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+                  Made for Indian freelancers who need local payment options.
+                </h2>
+              </div>
+              <p className="max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base lg:ml-auto">
+                Some client-management tools are limited to professionals in the U.S. or Canada.
+                ClientFlow AI is designed around India-first workflows: Rs invoices, GST-ready fields,
+                UPI, Razorpay, WhatsApp sharing, and public payment links.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {availabilityHighlights.map((item) => (
+                <div key={item.title} className="rounded-[2rem] border border-emerald-400/15 bg-zinc-950/75 p-6">
+                  <h3 className="text-lg font-black leading-tight text-white">{item.title}</h3>
+                  <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">{item.description}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 rounded-[2rem] border border-yellow-400/15 bg-yellow-400/10 p-5 sm:p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Positioning gap</p>
+              <p className="mt-3 text-base font-bold leading-relaxed text-white sm:text-lg">
+                If a freelancer cannot use a U.S./Canada-only tool, ClientFlow AI gives them a simpler India-ready path to find leads, invoice clients, and collect payment.
+              </p>
             </div>
           </div>
         </section>

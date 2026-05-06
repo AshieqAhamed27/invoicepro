@@ -13,7 +13,7 @@ export default function Signup() {
 
   useDocumentMeta(
     'Create Your Account | ClientFlow AI',
-    'Start your ClientFlow AI workspace to send invoices, share payment links, and organize recurring billing.'
+    'Start your India-ready ClientFlow AI workspace to find leads, send invoices, share Razorpay or UPI payment links, and organize follow-ups.'
   );
 
   const [form, setForm] = useState({
@@ -70,16 +70,17 @@ export default function Signup() {
               </div>
 
               <h1 className="mb-6 text-4xl font-black leading-none tracking-tight xl:text-5xl">
-                Start sending invoices <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-white">with a company-grade workflow.</span>
+                Start finding clients <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-white">and getting paid faster.</span>
               </h1>
 
               <p className="mb-12 text-lg text-zinc-500 font-medium leading-relaxed">
-                Create your workspace to manage clients, send public invoice links,
-                and keep recurring billing organized from day one.
+                Create your India-ready workspace to manage leads, proposals, invoices,
+                Razorpay or UPI collection, and daily follow-ups from day one.
               </p>
 
               <div className="grid gap-6">
                 {[
+                  { t: 'India-first workspace', d: 'Built for Rs invoices, GST-ready fields, UPI, Razorpay, and WhatsApp sharing.' },
                   { t: 'Invoice and proposal links', d: 'Share documents clients can open in a browser without creating an account.' },
                   { t: 'UPI and Razorpay collection', d: 'Offer a recognizable payment flow once the invoice is ready to collect.' },
                   { t: 'Support when you need it', d: `Reach us at ${SUPPORT_EMAIL} if you need help getting set up.` }
@@ -105,7 +106,7 @@ export default function Signup() {
                 Create Account.
               </h2>
               <p className="text-sm font-medium text-zinc-500">
-                No credit card required to start.
+                No credit card required. Not limited to U.S. or Canada-only workflows.
               </p>
             </div>
 

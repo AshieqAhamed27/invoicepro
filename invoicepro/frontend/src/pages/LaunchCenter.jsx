@@ -38,6 +38,11 @@ const recentUpdates = [
     label: 'Trust',
     title: 'Launch trust pages',
     detail: 'Added business setup, policy pages, SEO basics, analytics, and launch-readiness tracking.'
+  },
+  {
+    label: 'Market',
+    title: 'India-first positioning',
+    detail: 'Added messaging for freelancers who need an alternative to U.S. or Canada-only client-flow tools.'
   }
 ];
 
@@ -346,7 +351,7 @@ export default function LaunchCenter() {
               </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               {recentUpdates.map((update) => (
                 <div key={update.title} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-300">{update.label}</p>
