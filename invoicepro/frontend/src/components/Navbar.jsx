@@ -103,7 +103,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 px-3 pt-3 pb-0 sm:px-4 sm:pt-4">
       <div className="container-custom flex h-14 items-center justify-between rounded-2xl border border-white/10 bg-[#090d14]/85 px-4 backdrop-blur-2xl shadow-2xl shadow-black/35 sm:h-16 sm:px-6">
         <NavLink
-          to={loggedIn ? '/dashboard' : '/'}
+          to="/"
           onClick={() => setDesktopMenu('')}
           className="group flex min-w-0 items-center gap-3"
           aria-label="ClientFlow AI home"
@@ -131,6 +131,9 @@ export default function Navbar() {
 
           {loggedIn && (
             <>
+              <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
+                Home
+              </NavLink>
               <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Dashboard
               </NavLink>
