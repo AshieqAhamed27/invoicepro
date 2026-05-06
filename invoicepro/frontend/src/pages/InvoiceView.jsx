@@ -253,6 +253,11 @@ export default function InvoiceView() {
   const items = invoice.items?.length > 0
     ? invoice.items
     : [{ name: invoice.serviceDescription || 'Service', price: invoice.amount }];
+  const primaryProductName = firstText(
+    items[0]?.name,
+    invoice.serviceDescription,
+    meta.isProposal ? 'Service proposal' : 'Professional service'
+  );
   const subtotal = items.reduce((sum, item) => sum + getLineTotal(item), 0);
   const total = Number(invoice.amount || 0);
   const tax = Math.max(0, total - subtotal);
@@ -386,26 +391,32 @@ export default function InvoiceView() {
         90 + Math.max(0, companyNameLines.length - 1) * 14
       );
 
+      const rightHeaderX = pageWidth - margin - 24;
+      const productNameLines = doc.splitTextToSize(primaryProductName, 180).slice(0, 2);
+
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(26);
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text('PRODUCT / SERVICE', rightHeaderX, 58, { align: 'right' });
+      doc.setFontSize(14);
       doc.setTextColor(255, 255, 255);
-      doc.text(title, pageWidth - margin - 24, 74, { align: 'right' });
+      doc.text(productNameLines, rightHeaderX, 78, { align: 'right' });
       doc.setFontSize(10);
       doc.setTextColor(226, 232, 240);
-      doc.text(`#${invoice.invoiceNumber}`, pageWidth - margin - 24, 96, { align: 'right' });
+      doc.text(`${title} #${invoice.invoiceNumber}`, rightHeaderX, 116, { align: 'right' });
 
       doc.setFillColor(...gold);
-      doc.roundedRect(pageWidth - margin - 118, 112, 94, 24, 6, 6, 'F');
+      doc.roundedRect(pageWidth - margin - 118, 128, 94, 24, 6, 6, 'F');
       doc.setTextColor(...dark);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(8);
-      doc.text(toTitleCase(meta.status), pageWidth - margin - 71, 127, { align: 'center' });
+      doc.text(toTitleCase(meta.status), pageWidth - margin - 71, 143, { align: 'center' });
 
       const infoY = 192;
       doc.setTextColor(...muted);
       doc.setFontSize(8);
       doc.setFont('helvetica', 'bold');
-      doc.text(meta.isProposal ? 'PREPARED FOR' : 'BILL TO', margin, infoY);
+      doc.text(meta.isProposal ? 'CLIENT / PREPARED FOR' : 'CLIENT / BILL TO', margin, infoY);
       doc.text('FROM', pageWidth / 2 + 10, infoY);
 
       doc.setTextColor(...dark);
@@ -866,7 +877,11 @@ export default function InvoiceView() {
                     )}
                   </div>
 
-                  <div className="text-left md:text-right">
+                  <div className="text-left md:max-w-xs md:text-right">
+                    <div className="mb-5 rounded-lg border border-white/10 bg-white/[0.06] p-4 shadow-xl shadow-black/10 md:ml-auto">
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Product / Service</p>
+                      <p className="mt-2 break-words text-lg font-black leading-tight text-white sm:text-xl">{primaryProductName}</p>
+                    </div>
                     <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{meta.typeLabel}</p>
                     <h2 className="mt-2 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">#{invoice.invoiceNumber}</h2>
                     <span className={`mt-4 inline-flex rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${statusClass}`}>
@@ -877,11 +892,11 @@ export default function InvoiceView() {
               </div>
 
               <div className="grid gap-0 border-b border-slate-200 md:grid-cols-3">
-                <div className="border-b border-slate-200 p-6 md:border-b-0 md:border-r md:p-8">
+                <div className="border-b border-slate-200 bg-slate-50 p-6 md:border-b-0 md:border-r md:p-8">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
-                    {meta.isProposal ? 'Prepared For' : 'Bill To'}
+                    {meta.isProposal ? 'Client / Prepared For' : 'Client / Bill To'}
                   </p>
-                  <h3 className="mt-3 text-xl font-black text-slate-950">{invoice.clientName}</h3>
+                  <h3 className="mt-3 text-2xl font-black tracking-tight text-slate-950">{invoice.clientName}</h3>
                   <p className="mt-1 break-words text-sm font-medium text-slate-500">{invoice.clientEmail}</p>
                 </div>
 
