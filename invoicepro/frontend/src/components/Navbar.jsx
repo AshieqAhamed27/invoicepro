@@ -70,7 +70,7 @@ export default function Navbar() {
     const isActive = groupActive(links);
 
     return (
-      <div key={id} className="relative" onMouseLeave={() => setDesktopMenu('')}>
+      <div key={id}>
         <button
           type="button"
           onClick={() => setDesktopMenu(isOpen ? '' : id)}
@@ -89,27 +89,15 @@ export default function Navbar() {
             </svg>
           </span>
         </button>
-
-        {isOpen && (
-          <div className="absolute right-0 top-full z-50 mt-3 w-72 rounded-2xl border border-white/10 bg-[#090d14]/95 p-3 shadow-2xl shadow-black/40 backdrop-blur-2xl">
-            <div className="grid gap-2">
-              {links.map((link) => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setDesktopMenu('')}
-                  className={dropdownLinkClass}
-                >
-                  <span className="block text-sm font-black">{link.label}</span>
-                  <span className="mt-1 block text-xs font-medium text-zinc-500">{link.detail}</span>
-                </NavLink>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     );
   };
+
+  const desktopPanel = desktopMenu === 'growth'
+    ? { title: 'Growth Tools', links: growthLinks }
+    : desktopMenu === 'billing'
+      ? { title: 'Billing Tools', links: billingLinks }
+      : null;
 
   return (
     <nav className="sticky top-0 z-50 px-3 pt-3 pb-0 sm:px-4 sm:pt-4">
@@ -193,6 +181,38 @@ export default function Navbar() {
           {menuOpen ? 'Close' : 'Menu'}
         </button>
       </div>
+
+      {loggedIn && desktopPanel && (
+        <div className="container-custom hidden lg:block">
+          <div className="mt-3 rounded-2xl border border-white/10 bg-[#090d14]/95 p-3 shadow-2xl shadow-black/35 backdrop-blur-2xl">
+            <div className="flex items-center justify-between gap-4">
+              <p className="px-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                {desktopPanel.title}
+              </p>
+              <button
+                type="button"
+                onClick={() => setDesktopMenu('')}
+                className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:bg-white/10 hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
+              {desktopPanel.links.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setDesktopMenu('')}
+                  className={dropdownLinkClass}
+                >
+                  <span className="block text-sm font-black">{link.label}</span>
+                  <span className="mt-1 block text-xs font-medium text-zinc-500">{link.detail}</span>
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {menuOpen && (
         <div className="animate-menu-drop mx-3 mt-3 max-h-[calc(100vh-5.75rem)] overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/35 backdrop-blur-2xl lg:hidden sm:mx-4">
