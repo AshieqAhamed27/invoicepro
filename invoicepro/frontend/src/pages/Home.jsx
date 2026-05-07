@@ -30,6 +30,10 @@ const trustSignals = [
     description: 'Write scope, timeline, pricing, risks, and follow-up messages from a client brief.'
   },
   {
+    title: 'AI Deal Closure Room',
+    description: 'Build a trust pack, buyer FAQ, objection replies, and close message before you ask for payment.'
+  },
+  {
     title: 'Razorpay and UPI collection',
     description: 'Use a recognizable checkout flow with Razorpay and provide UPI-ready payment details.'
   },
@@ -66,7 +70,7 @@ const operationalTrustBadges = [
   },
   {
     label: 'AI Agents',
-    value: 'Sales + proposals + collection'
+    value: 'Sales + closing + collection'
   }
 ];
 
@@ -79,7 +83,7 @@ const workflow = [
   {
     step: '02',
     title: 'Pitch with a clear package',
-    description: 'Use the Sales Agent to follow up warm leads, then write a proposal or RFP response with scope, timeline, and price.'
+    description: 'Use the Sales Agent to follow up warm leads, write a proposal, then use the Deal Room to remove buyer doubt before payment.'
   },
   {
     step: '03',
@@ -95,7 +99,7 @@ const businessOutcomes = [
   },
   {
     title: 'Close with confidence',
-    description: 'Write a clear proposal or RFP response, send it professionally, and follow up until the client says yes.'
+    description: 'Write a proposal, answer buyer objections, show proof, and send a clear next step so clients feel safer saying yes.'
   },
   {
     title: 'Collect payment faster',
@@ -141,6 +145,12 @@ const automationPreview = [
     title: 'Nudge proposals before they go cold',
     description: 'Finds proposals that were sent but not accepted and prepares a professional follow-up.',
     impact: 'Better close rate'
+  },
+  {
+    category: 'Close',
+    title: 'Remove client buying doubt',
+    description: 'Creates a trust pack, buyer FAQ, objection replies, close score, and next-step message before invoicing.',
+    impact: 'Higher confidence'
   },
   {
     category: 'Retain',
@@ -237,6 +247,10 @@ const faqs = [
     answer: 'Yes. It helps you decide who to contact, write a simple message, save the lead, and move interested clients into proposals.'
   },
   {
+    question: 'What makes the AI Deal Closure Room useful?',
+    answer: 'Before sending an invoice, it helps you answer buyer doubts with a trust pack, FAQ, objection replies, close score, and a clear next-step message.'
+  },
+  {
     question: 'Do my clients need a ClientFlow AI account to pay?',
     answer: 'No. Invoice and proposal links open in a browser, so clients can review the document and pay without signing up.'
   },
@@ -290,7 +304,7 @@ const plans = [
     price: 'Rs 499',
     suffix: '/ month',
     description: 'For freelancers who want one place to find clients, close deals, collect payment, and follow up.',
-    features: ['Unlimited invoices', 'AI client finder, sales agent, and proposal writer', 'Daily AI business plan', 'Razorpay, UPI, and WhatsApp collection flow'],
+    features: ['Unlimited invoices', 'AI client finder, sales agent, proposal writer, and deal room', 'Daily AI business plan', 'Razorpay, UPI, and WhatsApp collection flow'],
     cta: 'Upgrade Monthly',
     featured: false,
     action: 'monthly'
@@ -300,7 +314,7 @@ const plans = [
     price: 'Rs 4,999',
     suffix: '/ year',
     description: 'For freelancers and agencies building a repeatable client pipeline.',
-    features: ['Everything in Monthly', 'Recurring invoices', 'AI sales coach and daily work plan', 'Priority support'],
+    features: ['Everything in Monthly', 'Recurring invoices', 'AI deal closing and daily work plan', 'Priority support'],
     cta: 'Save With Annual',
     featured: true,
     action: 'yearly'

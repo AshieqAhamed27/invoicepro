@@ -35,6 +35,11 @@ const recentUpdates = [
     detail: 'Added an AI agent that writes executive summary, scope, timeline, pricing, risks, follow-up text, and a ready proposal draft.'
   },
   {
+    label: 'AI Close',
+    title: 'Deal Closure Room',
+    detail: 'Added a close-ready workspace that creates trust packs, buyer FAQs, objection replies, and next-step messages before invoicing.'
+  },
+  {
     label: 'AI Sales',
     title: 'SDR and sales automation agent',
     detail: 'Added a daily sales action screen that ranks lead follow-ups, proposal follow-ups, and payment collection tasks.'
@@ -323,7 +328,7 @@ export default function LaunchCenter() {
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {[
                 { step: '01', title: 'Convert visitor', detail: 'Landing page sends them to signup or pricing.' },
-                { step: '02', title: 'Create document', detail: 'User sends an invoice, proposal, or payment link.' },
+                { step: '02', title: 'Close the deal', detail: 'User removes buyer doubt with a proposal, trust pack, and clear next payment step.' },
                 { step: '03', title: 'Collect payment', detail: 'Razorpay, UPI, email reminders, and public invoice links move cash.' },
                 { step: '04', title: 'Retain customer', detail: 'AI insights and recurring invoices make Pro worth keeping.' }
               ].map((item) => (

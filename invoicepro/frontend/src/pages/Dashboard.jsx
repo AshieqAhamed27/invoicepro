@@ -658,6 +658,17 @@ export default function Dashboard() {
         action: () => navigate('/create-invoice?type=proposal')
       },
       {
+        id: 'deal-room',
+        label: 'Deal Room',
+        title: 'Remove buyer doubt',
+        count: proposalCount,
+        value: formatCurrency(acquisitionSummary.openProposalValue || 0),
+        detail: 'Create a trust pack, buyer FAQ, objection replies, and close message before asking for payment.',
+        cta: 'Close Deal',
+        tone: 'orange',
+        action: () => navigate('/deal-room')
+      },
+      {
         id: 'accepted',
         label: 'Accepted',
         title: 'Convert won work',

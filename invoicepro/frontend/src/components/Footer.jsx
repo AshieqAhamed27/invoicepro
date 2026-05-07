@@ -44,6 +44,9 @@ export default function Footer() {
               <Link className="transition-colors hover:text-yellow-300" to="/leads">
                 Lead Pipeline
               </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/deal-room">
+                Deal Closure Room
+              </Link>
               <Link className="transition-colors hover:text-yellow-300" to="/invoice-generator">
                 Invoice Generator
               </Link>

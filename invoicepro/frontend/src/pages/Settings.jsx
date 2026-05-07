@@ -51,6 +51,13 @@ const productSettings = [
     to: '/proposal-writer'
   },
   {
+    label: 'Close',
+    title: 'AI Deal Closure Room',
+    detail: 'Create a trust pack, buyer FAQ, objection replies, close score, and next-step message before invoicing.',
+    status: 'New',
+    to: '/deal-room'
+  },
+  {
     label: 'Recurring Revenue',
     title: 'Monthly Client System',
     detail: 'Manage repeat billing ideas and recurring client opportunities from one place.',
@@ -85,6 +92,11 @@ const automationSettings = [
   {
     title: 'AI Sales Agent',
     detail: 'Daily SDR plan chooses who to message, what proposal to push, and which invoice to collect.',
+    state: 'Enabled'
+  },
+  {
+    title: 'Deal Closure Room',
+    detail: 'Turns a warm client into a trust pack, objection replies, buyer FAQ, and close-ready next action.',
     state: 'Enabled'
   },
   {

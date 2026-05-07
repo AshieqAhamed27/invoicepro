@@ -28,6 +28,7 @@ const ClientFinder = lazy(() => import('./pages/ClientFinder'));
 const SalesAgent = lazy(() => import('./pages/SalesAgent'));
 const OutboundAutopilot = lazy(() => import('./pages/OutboundAutopilot'));
 const ProposalWriter = lazy(() => import('./pages/ProposalWriter'));
+const DealClosureRoom = lazy(() => import('./pages/DealClosureRoom'));
 const LeadPipeline = lazy(() => import('./pages/LeadPipeline'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
@@ -110,6 +111,7 @@ const appRoutePrefixes = [
   '/contact',
   '/create-invoice',
   '/dashboard',
+  '/deal-room',
   '/invoice/',
   '/launch',
   '/leads',
@@ -339,6 +341,17 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <ProposalWriter />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/deal-room"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <DealClosureRoom />
               </Suspense>
             </PrivateRoute>
           }
