@@ -43,4 +43,31 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const hasPaidPlan = (user) => {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  if (!user.plan || user.plan === 'free') return false;
+
+  if (user.planExpiresAt) {
+    const expiresAt = new Date(user.planExpiresAt);
+    if (!Number.isNaN(expiresAt.getTime()) && expiresAt <= new Date()) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const requirePro = (req, res, next) => {
+  if (!hasPaidPlan(req.user)) {
+    return res.status(402).json({
+      message: 'Upgrade Pro to unlock this feature.',
+      upgradeRequired: true,
+      feature: req.originalUrl
+    });
+  }
+
+  next();
+};
+
+module.exports = { protect, requirePro, hasPaidPlan };

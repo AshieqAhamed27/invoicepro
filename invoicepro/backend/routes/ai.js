@@ -2,7 +2,7 @@ const express = require('express');
 const https = require('https');
 const Invoice = require('../models/Invoice');
 const Lead = require('../models/Lead');
-const { protect } = require('../middleware/auth');
+const { protect, requirePro } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -1904,7 +1904,7 @@ const callOpenAiProposalWriter = ({ context, fallback }) => new Promise((resolve
     request.end();
 });
 
-router.post('/proposal-writer', protect, async(req, res) => {
+router.post('/proposal-writer', protect, requirePro, async(req, res) => {
     const context = req.body?.context || {};
     const fallback = buildProposalWriterFallback(context);
 
@@ -1923,7 +1923,7 @@ router.post('/proposal-writer', protect, async(req, res) => {
     }
 });
 
-router.get('/sales-agent', protect, async(req, res) => {
+router.get('/sales-agent', protect, requirePro, async(req, res) => {
     try {
         const [leads, invoices] = await Promise.all([
             Lead.find({ user: req.user._id })
@@ -1947,7 +1947,7 @@ router.get('/sales-agent', protect, async(req, res) => {
     }
 });
 
-router.post('/client-finder', protect, async(req, res) => {
+router.post('/client-finder', protect, requirePro, async(req, res) => {
     const context = req.body?.context || {};
     const fallback = buildClientFinderFallback(context);
 
@@ -1966,7 +1966,7 @@ router.post('/client-finder', protect, async(req, res) => {
     }
 });
 
-router.post('/price-suggestion', protect, async(req, res) => {
+router.post('/price-suggestion', protect, requirePro, async(req, res) => {
     const context = req.body?.context || {};
     const fallback = buildPriceSuggestionFallback(context);
 
@@ -1985,7 +1985,7 @@ router.post('/price-suggestion', protect, async(req, res) => {
     }
 });
 
-router.post('/agent', protect, async(req, res) => {
+router.post('/agent', protect, requirePro, async(req, res) => {
     const message = String(req.body?.message || '').trim();
     const context = req.body?.context || {};
 

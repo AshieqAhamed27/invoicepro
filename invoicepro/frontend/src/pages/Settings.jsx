@@ -4,6 +4,7 @@ import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 import { COMPANY_SHORT_NAME } from '../utils/company';
+import { getUser, hasProAccess } from '../utils/auth';
 
 const settingsNav = [
   { label: 'Business Profile', href: '#business-profile' },
@@ -19,56 +20,62 @@ const productSettings = [
     label: 'Payments',
     title: 'Razorpay + UPI Collection',
     detail: 'Create payment links, show Pay Now buttons, and keep invoices protected from manual fake paid status.',
-    status: 'Live',
+    status: 'Free',
     to: '/payment'
   },
   {
     label: 'Client Growth',
     title: 'Client Finder + Lead Pipeline',
     detail: 'Find real prospects, save leads, prepare follow-ups, and convert accepted work into invoices.',
-    status: 'Live',
-    to: '/client-finder'
+    status: 'Pro',
+    to: '/client-finder',
+    requiresPro: true
   },
   {
     label: 'Sales Agent',
     title: 'AI SDR & Sales Automation Agent',
     detail: 'Ranks today’s leads, proposal follow-ups, and payment collection actions with copy-ready sales messages.',
-    status: 'New',
-    to: '/sales-agent'
+    status: 'Pro',
+    to: '/sales-agent',
+    requiresPro: true
   },
   {
     label: 'Outbound',
     title: 'AI Outbound Agency Autopilot',
     detail: 'Turn a service offer into search links, daily outreach tasks, scripts, follow-ups, and proposal actions.',
-    status: 'New',
-    to: '/outbound-autopilot'
+    status: 'Pro',
+    to: '/outbound-autopilot',
+    requiresPro: true
   },
   {
     label: 'Proposals',
     title: 'AI Proposal & RFP Writer',
     detail: 'Write executive summaries, scope, timelines, pricing, risks, questions, and client-ready proposal drafts.',
-    status: 'New',
-    to: '/proposal-writer'
+    status: 'Pro',
+    to: '/proposal-writer',
+    requiresPro: true
   },
   {
     label: 'Close',
     title: 'AI Deal Closure Room',
     detail: 'Create a trust pack, buyer FAQ, objection replies, close score, and next-step message before invoicing.',
-    status: 'New',
-    to: '/deal-room'
+    status: 'Pro',
+    to: '/deal-room',
+    requiresPro: true
   },
   {
     label: 'Recurring Revenue',
     title: 'Monthly Client System',
     detail: 'Manage repeat billing ideas and recurring client opportunities from one place.',
-    status: 'Ready',
-    to: '/recurring'
+    status: 'Pro',
+    to: '/recurring',
+    requiresPro: true
   },
   {
     label: 'Trust Center',
     title: 'Company Setup Checklist',
     detail: 'Review launch readiness, policies, business registration notes, payments, and product operations.',
-    status: 'Ready',
+    status: 'Free',
     to: '/launch'
   }
 ];
@@ -118,6 +125,8 @@ export default function Settings() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
+  const currentUser = getUser() || {};
+  const isPro = hasProAccess(currentUser);
 
   useEffect(() => {
     fetchProfile();
@@ -354,11 +363,20 @@ export default function Settings() {
                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{setting.label}</p>
                         <h3 className="mt-2 text-lg font-black text-white">{setting.title}</h3>
                       </div>
-                      <span className="rounded-full border border-emerald-400/15 bg-emerald-400/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-300">
-                        {setting.status}
+                      <span className={`rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
+                        setting.requiresPro && !isPro
+                          ? 'border-yellow-400/20 bg-yellow-400/10 text-yellow-300'
+                          : 'border-emerald-400/15 bg-emerald-400/10 text-emerald-300'
+                      }`}>
+                        {setting.requiresPro && !isPro ? 'Locked' : setting.status}
                       </span>
                     </div>
                     <p className="text-sm font-medium leading-relaxed text-zinc-500">{setting.detail}</p>
+                    {setting.requiresPro && !isPro && (
+                      <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+                        Unlock after Pro payment
+                      </p>
+                    )}
                   </Link>
                 ))}
               </div>

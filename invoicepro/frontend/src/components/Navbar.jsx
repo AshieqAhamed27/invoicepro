@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { clearAuth, isLoggedIn, getUser } from '../utils/auth';
+import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel } from '../utils/auth';
 import BrandLogo from './BrandLogo';
 
 const growthLinks = [
-  { to: '/client-finder', label: 'Find Clients', detail: 'Search real prospects' },
-  { to: '/sales-agent', label: 'AI Sales Agent', detail: 'Today sales actions' },
-  { to: '/outbound-autopilot', label: 'Autopilot', detail: 'Daily outreach plan' },
-  { to: '/leads', label: 'Pipeline', detail: 'Follow up and close' }
+  { to: '/client-finder', label: 'Find Clients', detail: 'Search real prospects', requiresPro: true },
+  { to: '/sales-agent', label: 'AI Sales Agent', detail: 'Today sales actions', requiresPro: true },
+  { to: '/outbound-autopilot', label: 'Autopilot', detail: 'Daily outreach plan', requiresPro: true },
+  { to: '/leads', label: 'Pipeline', detail: 'Follow up and close', requiresPro: true }
 ];
 
 const billingLinks = [
-  { to: '/proposal-writer', label: 'Proposal/RFP', detail: 'Write client-ready proposals' },
-  { to: '/deal-room', label: 'Deal Room', detail: 'Trust pack and close plan' },
+  { to: '/proposal-writer', label: 'Proposal/RFP', detail: 'Write client-ready proposals', requiresPro: true },
+  { to: '/deal-room', label: 'Deal Room', detail: 'Trust pack and close plan', requiresPro: true },
   { to: '/create-invoice', label: 'Create Deal', detail: 'Proposal or invoice' },
   { to: '/clients', label: 'Clients', detail: 'Client records' },
-  { to: '/recurring', label: 'Recurring', detail: 'Monthly revenue' }
+  { to: '/recurring', label: 'Recurring', detail: 'Monthly revenue', requiresPro: true }
 ];
 
 export default function Navbar() {
@@ -27,7 +27,8 @@ export default function Navbar() {
 
   const user = getUser();
   const isAdmin = user?.role === 'admin';
-  const isPro = user?.plan && user.plan !== 'free';
+  const isPro = hasProAccess(user);
+  const planLabel = getPlanLabel(user);
 
   const handleLogout = () => {
     clearAuth();
@@ -211,7 +212,14 @@ export default function Navbar() {
                   onClick={() => setDesktopMenu('')}
                   className={dropdownLinkClass}
                 >
-                  <span className="block text-sm font-black">{link.label}</span>
+                  <span className="flex items-center justify-between gap-3 text-sm font-black">
+                    <span>{link.label}</span>
+                    {link.requiresPro && !isPro && (
+                      <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-yellow-200">
+                        Pro
+                      </span>
+                    )}
+                  </span>
                   <span className="mt-1 block text-xs font-medium text-zinc-500">{link.detail}</span>
                 </NavLink>
               ))}
@@ -261,7 +269,10 @@ export default function Navbar() {
                   <p className="px-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Growth</p>
                   {growthLinks.map((link) => (
                     <NavLink key={link.to} to={link.to} onClick={closeMenus} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
-                      {link.label}
+                      <span className="flex items-center justify-between gap-3">
+                        <span>{link.label}</span>
+                        {link.requiresPro && !isPro && <span className="text-[10px] font-black uppercase text-yellow-300">Pro</span>}
+                      </span>
                     </NavLink>
                   ))}
                 </div>
@@ -270,7 +281,10 @@ export default function Navbar() {
                   <p className="px-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Billing</p>
                   {billingLinks.map((link) => (
                     <NavLink key={link.to} to={link.to} onClick={closeMenus} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
-                      {link.label}
+                      <span className="flex items-center justify-between gap-3">
+                        <span>{link.label}</span>
+                        {link.requiresPro && !isPro && <span className="text-[10px] font-black uppercase text-yellow-300">Pro</span>}
+                      </span>
                     </NavLink>
                   ))}
                 </div>
@@ -281,6 +295,11 @@ export default function Navbar() {
                     <NavLink to="/payment" onClick={closeMenus} className="rounded-lg px-3 py-2 font-semibold text-yellow-300 hover:bg-yellow-400/10">
                       Upgrade Pro
                     </NavLink>
+                  )}
+                  {isPro && (
+                    <span className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-widest text-emerald-300">
+                      {planLabel}
+                    </span>
                   )}
                   <NavLink to="/settings" onClick={closeMenus} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
                     Settings

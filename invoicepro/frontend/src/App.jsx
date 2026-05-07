@@ -7,11 +7,12 @@ import {
   useLocation
 } from 'react-router-dom';
 
-import { isLoggedIn, getUser } from './utils/auth';
+import { isLoggedIn, getUser, hasProAccess } from './utils/auth';
 import api from './utils/api';
 import { getWhatsAppShareUrl } from './utils/whatsapp';
 import { trackPageView } from './utils/analytics';
 import ScrollAnimator from './components/ScrollAnimator';
+import ProFeatureGate from './components/ProFeatureGate';
 
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/Home'));
@@ -101,6 +102,16 @@ const PublicRoute = ({ children }) => {
 const isAdmin = () => {
   const user = getUser();
   return user?.role === 'admin';
+};
+
+const ProRoute = ({ children, title }) => {
+  const user = getUser();
+
+  if (!hasProAccess(user)) {
+    return <ProFeatureGate title={title} />;
+  }
+
+  return children;
 };
 
 const supportMessage = 'Hi I am interested in ClientFlow AI';
@@ -306,9 +317,11 @@ export default function App() {
           path="/client-finder"
           element={
             <PrivateRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <ClientFinder />
-              </Suspense>
+              <ProRoute title="AI Client Finder unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <ClientFinder />
+                </Suspense>
+              </ProRoute>
             </PrivateRoute>
           }
         />
@@ -317,9 +330,11 @@ export default function App() {
           path="/sales-agent"
           element={
             <PrivateRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <SalesAgent />
-              </Suspense>
+              <ProRoute title="AI Sales Agent unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <SalesAgent />
+                </Suspense>
+              </ProRoute>
             </PrivateRoute>
           }
         />
@@ -328,9 +343,11 @@ export default function App() {
           path="/outbound-autopilot"
           element={
             <PrivateRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <OutboundAutopilot />
-              </Suspense>
+              <ProRoute title="AI Outbound Autopilot unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <OutboundAutopilot />
+                </Suspense>
+              </ProRoute>
             </PrivateRoute>
           }
         />
@@ -339,9 +356,11 @@ export default function App() {
           path="/proposal-writer"
           element={
             <PrivateRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <ProposalWriter />
-              </Suspense>
+              <ProRoute title="AI Proposal Writer unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <ProposalWriter />
+                </Suspense>
+              </ProRoute>
             </PrivateRoute>
           }
         />
@@ -350,9 +369,11 @@ export default function App() {
           path="/deal-room"
           element={
             <PrivateRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <DealClosureRoom />
-              </Suspense>
+              <ProRoute title="AI Deal Closure Room unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <DealClosureRoom />
+                </Suspense>
+              </ProRoute>
             </PrivateRoute>
           }
         />
@@ -361,9 +382,11 @@ export default function App() {
           path="/leads"
           element={
             <PrivateRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <LeadPipeline />
-              </Suspense>
+              <ProRoute title="Lead Pipeline unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <LeadPipeline />
+                </Suspense>
+              </ProRoute>
             </PrivateRoute>
           }
         />
@@ -427,9 +450,11 @@ export default function App() {
           path="/recurring"
           element={
             <PrivateRoute>
-              <Suspense fallback={<RouteLoader />}>
-                <Recurring />
-              </Suspense>
+              <ProRoute title="Recurring revenue tools unlock after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <Recurring />
+                </Suspense>
+              </ProRoute>
             </PrivateRoute>
           }
         />

@@ -3,7 +3,7 @@ const Invoice = require('../models/Invoice');
 const RecurringInvoice = require('../models/RecurringInvoice');
 const User = require('../models/User');
 const Lead = require('../models/Lead');
-const { protect } = require('../middleware/auth');
+const { protect, requirePro, hasPaidPlan } = require('../middleware/auth');
 const {
     addDays,
     computeNextRunAt,
@@ -25,7 +25,7 @@ const DEFAULT_COMPANY_NAME = 'ClientFlow AI';
 
 const isProposalDocument = (value) => String(value || 'invoice').toLowerCase() === 'proposal';
 
-const isPaidPlan = (user) => user?.plan && user.plan !== 'free';
+const isPaidPlan = hasPaidPlan;
 
 const getValidSourceLead = async(sourceLeadId, userId) => {
     if (!isValidObjectId(sourceLeadId)) return null;
@@ -328,6 +328,13 @@ router.post('/', protect, async(req, res) => {
         const normalizedDocumentType = isProposalDocument(documentType) ? 'proposal' : 'invoice';
         const finalUpiId = normalizedDocumentType === 'invoice' ? (upiId || user.upiId || '') : '';
         const sourceLead = await getValidSourceLead(sourceLeadId, user._id);
+
+        if (normalizedDocumentType === 'proposal' && !isPaidPlan(user)) {
+            return res.status(403).json({
+                message: 'Proposals are a Pro feature.',
+                upgradeRequired: true
+            });
+        }
 
         if (normalizedDocumentType === 'invoice' && recurring?.enabled && !isPaidPlan(user)) {
             return res.status(403).json({
@@ -762,7 +769,7 @@ router.get('/clients', protect, async(req, res) => {
 // ==========================
 // RECURRING INVOICES
 // ==========================
-router.get('/recurring', protect, async(req, res) => {
+router.get('/recurring', protect, requirePro, async(req, res) => {
     try {
         const schedules = await RecurringInvoice.find({ user: req.user._id })
             .sort({ createdAt: -1 })
@@ -774,7 +781,7 @@ router.get('/recurring', protect, async(req, res) => {
     }
 });
 
-router.patch('/recurring/:id', protect, async(req, res) => {
+router.patch('/recurring/:id', protect, requirePro, async(req, res) => {
     try {
         if (!isValidObjectId(req.params.id)) {
             return rejectInvalidObjectId(res, 'recurring invoice');
@@ -814,7 +821,7 @@ router.patch('/recurring/:id', protect, async(req, res) => {
     }
 });
 
-router.post('/recurring/:id/run-now', protect, async(req, res) => {
+router.post('/recurring/:id/run-now', protect, requirePro, async(req, res) => {
     try {
         if (!isValidObjectId(req.params.id)) {
             return rejectInvalidObjectId(res, 'recurring invoice');

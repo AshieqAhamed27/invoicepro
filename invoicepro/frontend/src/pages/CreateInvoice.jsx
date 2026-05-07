@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
-import { getUser } from '../utils/auth';
+import { getUser, hasProAccess } from '../utils/auth';
 import AIBillingAgent from '../components/AIBillingAgent';
 import PriceSuggestionAgent from '../components/PriceSuggestionAgent';
 import { trackEvent } from '../utils/analytics';
@@ -43,10 +43,12 @@ const normalizeDraftDate = (value) => {
 export default function CreateInvoice() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const user = getUser() || {};
+  const isPro = hasProAccess(user);
 
   const today = new Date();
   const requestedType = searchParams.get('type') === 'proposal' ? 'proposal' : 'invoice';
-  const [documentType, setDocumentType] = useState(requestedType);
+  const [documentType, setDocumentType] = useState(requestedType === 'proposal' && !isPro ? 'invoice' : requestedType);
 
   const [form, setForm] = useState({
     clientName: '',
@@ -74,9 +76,6 @@ export default function CreateInvoice() {
     sendEmail: true
   });
 
-  const user = getUser() || {};
-  const isPro = user.plan && user.plan !== 'free';
-
   const [clients, setClients] = useState([]);
   const isProposal = documentType === 'proposal';
   const dateFieldName = isProposal ? 'validUntil' : 'dueDate';
@@ -94,8 +93,8 @@ export default function CreateInvoice() {
   }, []);
 
   useEffect(() => {
-    setDocumentType(requestedType);
-  }, [requestedType]);
+    setDocumentType(requestedType === 'proposal' && !isPro ? 'invoice' : requestedType);
+  }, [requestedType, isPro]);
 
   useEffect(() => {
     if (documentType === 'proposal') {
@@ -286,6 +285,25 @@ export default function CreateInvoice() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const renderProUpsell = (title, detail) => (
+    <div className="premium-panel border-yellow-400/20 bg-yellow-400/[0.04] p-5 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Pro automation</p>
+          <h3 className="mt-2 text-xl font-black text-white">{title}</h3>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400">{detail}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/payment')}
+          className="btn btn-primary shrink-0 px-5 py-3 text-xs"
+        >
+          Upgrade Pro
+        </button>
+      </div>
+    </div>
+  );
+
   useEffect(() => {
     try {
       const storedDraft = localStorage.getItem('invoicepro_ai_invoice_draft');
@@ -369,18 +387,30 @@ export default function CreateInvoice() {
           <div className="mt-8 grid w-full grid-cols-1 gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-1 sm:inline-grid sm:w-auto sm:grid-cols-2">
             {[
               { id: 'invoice', label: 'Invoice', note: 'Collect payment now' },
-              { id: 'proposal', label: 'Proposal', note: 'Get approval first' }
+              { id: 'proposal', label: 'Proposal', note: isPro ? 'Get approval first' : 'Pro approval flow' }
             ].map((option) => (
               <button
                 key={option.id}
                 type="button"
-                onClick={() => setDocumentType(option.id)}
+                onClick={() => {
+                  if (option.id === 'proposal' && !isPro) {
+                    navigate('/payment');
+                    return;
+                  }
+
+                  setDocumentType(option.id);
+                }}
                 className={`rounded-lg px-5 py-3 text-left transition-all ${documentType === option.id
                   ? 'bg-white text-zinc-950'
                   : 'text-zinc-400 hover:bg-white/5 hover:text-white'
                   }`}
               >
-                <p className="text-[10px] font-black uppercase tracking-widest">{option.label}</p>
+                <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                  {option.label}
+                  {option.id === 'proposal' && !isPro && (
+                    <span className="rounded-full bg-yellow-400/15 px-2 py-0.5 text-[8px] text-yellow-300">Pro</span>
+                  )}
+                </p>
                 <p className="mt-1 text-xs font-bold">{option.note}</p>
               </button>
             ))}
@@ -388,36 +418,46 @@ export default function CreateInvoice() {
         </div>
 
         <div className="reveal reveal-delay-1 mb-8">
-          <AIBillingAgent
-            mode="builder"
-            context={{
-              documentType,
-              form,
-              items,
-              cgst: form.cgst,
-              sgst: form.sgst,
-              subtotal,
-              tax,
-              total
-            }}
-            onApplyDraft={applyAiDraft}
-          />
+          {isPro ? (
+            <AIBillingAgent
+              mode="builder"
+              context={{
+                documentType,
+                form,
+                items,
+                cgst: form.cgst,
+                sgst: form.sgst,
+                subtotal,
+                tax,
+                total
+              }}
+              onApplyDraft={applyAiDraft}
+            />
+          ) : renderProUpsell(
+            'AI invoice assistant',
+            'Let AI create invoice drafts, calculate totals, check pending or overdue status, and prepare billing actions after payment.'
+          )}
         </div>
 
         <div className="reveal reveal-delay-2 mb-8">
-          <PriceSuggestionAgent
-            context={{
-              documentType,
-              serviceDescription: form.serviceDescription,
-              items,
-              subtotal,
-              tax,
-              total,
-              clientName: form.clientName,
-              clientEmail: form.clientEmail
-            }}
-            onApplyPrice={applySuggestedPrice}
-          />
+          {isPro ? (
+            <PriceSuggestionAgent
+              context={{
+                documentType,
+                serviceDescription: form.serviceDescription,
+                items,
+                subtotal,
+                tax,
+                total,
+                clientName: form.clientName,
+                clientEmail: form.clientEmail
+              }}
+              onApplyPrice={applySuggestedPrice}
+            />
+          ) : renderProUpsell(
+            'AI price suggestion agent',
+            'Get realistic market ranges, positioning tips, and package pricing before you send a quote.'
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-10">

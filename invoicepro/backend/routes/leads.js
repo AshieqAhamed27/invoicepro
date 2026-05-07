@@ -2,7 +2,7 @@ const express = require('express');
 const Lead = require('../models/Lead');
 const Client = require('../models/Client');
 const Invoice = require('../models/Invoice');
-const { protect } = require('../middleware/auth');
+const { protect, requirePro } = require('../middleware/auth');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 
 const router = express.Router();
@@ -111,7 +111,7 @@ const isOpenProposal = (proposal) =>
     proposal.documentType === 'proposal' &&
     !['accepted', 'rejected', 'expired'].includes(proposal.proposalStatus);
 
-router.get('/', protect, async(req, res) => {
+router.get('/', protect, requirePro, async(req, res) => {
     try {
         const query = { user: req.user._id };
 
@@ -133,7 +133,7 @@ router.get('/', protect, async(req, res) => {
     }
 });
 
-router.get('/dashboard', protect, async(req, res) => {
+router.get('/dashboard', protect, requirePro, async(req, res) => {
     try {
         const [leads, proposals, linkedInvoices] = await Promise.all([
             Lead.find({ user: req.user._id })
@@ -214,7 +214,7 @@ router.get('/dashboard', protect, async(req, res) => {
     }
 });
 
-router.post('/', protect, async(req, res) => {
+router.post('/', protect, requirePro, async(req, res) => {
     try {
         const payload = stripUndefined(normalizeLeadPayload(req.body));
 
@@ -239,7 +239,7 @@ router.post('/', protect, async(req, res) => {
     }
 });
 
-router.patch('/:id', protect, async(req, res) => {
+router.patch('/:id', protect, requirePro, async(req, res) => {
     try {
         if (!isValidObjectId(req.params.id)) {
             return rejectInvalidObjectId(res, 'lead');
@@ -279,7 +279,7 @@ router.patch('/:id', protect, async(req, res) => {
     }
 });
 
-router.post('/:id/convert-client', protect, async(req, res) => {
+router.post('/:id/convert-client', protect, requirePro, async(req, res) => {
     try {
         if (!isValidObjectId(req.params.id)) {
             return rejectInvalidObjectId(res, 'lead');
@@ -334,7 +334,7 @@ router.post('/:id/convert-client', protect, async(req, res) => {
     }
 });
 
-router.delete('/:id', protect, async(req, res) => {
+router.delete('/:id', protect, requirePro, async(req, res) => {
     try {
         if (!isValidObjectId(req.params.id)) {
             return rejectInvalidObjectId(res, 'lead');

@@ -70,6 +70,30 @@ export const isLoggedIn = () => {
   return true;
 };
 
+export const hasProAccess = (user = getUser()) => {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  if (!user.plan || user.plan === 'free') return false;
+
+  if (user.planExpiresAt) {
+    const expiresAt = new Date(user.planExpiresAt);
+    if (!Number.isNaN(expiresAt.getTime()) && expiresAt <= new Date()) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const getPlanLabel = (user = getUser()) => {
+  if (!user?.plan || user.plan === 'free') return 'Free';
+  if (user.plan === 'trial') return 'Pro Trial';
+  if (user.plan === 'monthly') return 'Pro Monthly';
+  if (user.plan === 'yearly') return 'Pro Annual';
+  if (user.plan === 'founder90') return 'Founder 90 Days';
+  return 'Pro';
+};
+
 export const formatCurrency = (amount, currency) => {
   const symbol = currency === 'USD' ? 'USD ' : 'Rs ';
   return `${symbol}${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

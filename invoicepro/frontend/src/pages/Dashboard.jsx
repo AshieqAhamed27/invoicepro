@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { getUser } from '../utils/auth';
+import { getUser, hasProAccess } from '../utils/auth';
 import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
 import AIBillingAgent from '../components/AIBillingAgent';
@@ -225,7 +225,7 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
   const user = getUser() || {};
-  const isPro = user.plan && user.plan !== 'free';
+  const isPro = hasProAccess(user);
 
   useEffect(() => {
     fetchDashboard();
@@ -2059,12 +2059,33 @@ export default function Dashboard() {
         </div>
 
         <section className="reveal reveal-delay-1 mb-12">
-          <AIBillingAgent
-            mode="dashboard"
-            context={{ stats, invoices }}
-            onApplyDraft={openAiDraftInBuilder}
-            applyDraftLabel="Open In Builder"
-          />
+          {isPro ? (
+            <AIBillingAgent
+              mode="dashboard"
+              context={{ stats, invoices }}
+              onApplyDraft={openAiDraftInBuilder}
+              applyDraftLabel="Open In Builder"
+            />
+          ) : (
+            <div className="premium-panel border-yellow-400/20 bg-yellow-400/[0.04] p-5 sm:p-8">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Pro automation</p>
+                  <h2 className="mt-2 text-2xl font-black text-white">AI billing agent unlocks after payment</h2>
+                  <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400">
+                    Free users can create basic invoices. Pro users get AI invoice drafting, total checks, overdue status help, and next billing actions.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/payment')}
+                  className="btn btn-primary shrink-0 px-6 py-3 text-xs"
+                >
+                  Upgrade Pro
+                </button>
+              </div>
+            </div>
+          )}
         </section>
 
         <section className="reveal reveal-delay-1 mb-12 grid gap-8 lg:grid-cols-[2fr_1fr] lg:gap-10">
