@@ -91,6 +91,11 @@ const workflow = [
   },
   {
     step: '03',
+    title: 'Team up for bigger work',
+    description: 'Bring another freelancer into a project, split delivery tasks, and let AI track next actions and risk.'
+  },
+  {
+    step: '04',
     title: 'Invoice and collect payment',
     description: 'Convert accepted work into invoices, share public payment links, and follow up on pending revenue.'
   }
@@ -399,8 +404,8 @@ export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
   useDocumentMeta(
-    'Get Clients and Get Paid Faster | ClientFlow AI',
-    'ClientFlow AI helps freelancers find leads, follow up, send proposals, create invoices, and collect Razorpay or UPI payments from one simple dashboard.'
+    'Freelancer Business Workspace | ClientFlow AI',
+    'ClientFlow AI helps freelancers find clients, bring another freelancer into big projects, split delivery work with AI, then invoice and collect Razorpay or UPI payments.'
   );
 
   const handleSubscribe = (plan) => {
@@ -435,32 +440,36 @@ export default function Home() {
               <div className="reveal premium-eyebrow w-full max-w-full flex-wrap sm:w-auto">
                 <span className="pulse-dot h-2 w-2 rounded-full bg-emerald-400 text-emerald-400" />
                 <p className="max-w-[16rem] break-words text-[10px] font-black uppercase leading-relaxed tracking-[0.14em] text-emerald-300 sm:max-w-none sm:text-[11px] sm:tracking-[0.22em]">
-                  Freelancer workspace
+                  Freelancer business workspace
                 </p>
               </div>
 
               <h1 className="balance-copy reveal reveal-delay-1 mt-6 max-w-4xl break-words text-4xl font-bold tracking-tight leading-tight text-white sm:mt-8 sm:text-5xl md:text-6xl">
-                Get clients and <span className="animated-gradient-text">get paid faster</span>.
+                Find clients, team up, and <span className="animated-gradient-text">get paid</span>.
               </h1>
 
               <p className="reveal reveal-delay-3 mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-300 sm:mt-6 sm:text-lg md:text-xl">
-                One simple dashboard to find leads, follow up, send proposals, create invoices,
-                and collect Razorpay or UPI payments.
+                A freelancer business workspace to find clients, bring another freelancer into big projects,
+                split delivery work with AI, then invoice and collect payment.
               </p>
               <p className="hidden">
-                ClientFlow AI is a simple workspace for freelancers and businesses in India.
-                Find clients, create proposals, generate GST invoices, send payment links,
-                accept UPI and Razorpay payments, and manage recurring invoices easily.
+                ClientFlow AI is a freelancer business workspace. Find clients, bring another freelancer into big projects,
+                split delivery work with AI, create proposals, generate GST invoices, send payment links,
+                accept UPI and Razorpay payments, and manage recurring invoices.
               </p>
 
-              <div className="reveal reveal-delay-3 mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="reveal reveal-delay-3 mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="aligned-card premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Find</p>
                   <p className="mt-2 text-sm font-semibold text-white">Find better client leads</p>
                 </div>
                 <div className="aligned-card premium-panel px-4 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Follow up</p>
-                  <p className="mt-2 text-sm font-semibold text-white">Know who to message next</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Team</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Add freelancers for big work</p>
+                </div>
+                <div className="aligned-card premium-panel px-4 py-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Deliver</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Split tasks with AI</p>
                 </div>
                 <div className="aligned-card premium-panel px-4 py-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Collect</p>
@@ -507,12 +516,12 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => {
-                      trackCtaClick(loggedIn ? 'create_invoice' : 'see_pricing', 'home_hero', loggedIn ? '/create-invoice' : '#pricing');
-                      loggedIn ? navigate('/create-invoice') : jumpToSection('pricing');
+                      trackCtaClick(loggedIn ? 'open_team_workspace' : 'see_pricing', 'home_hero', loggedIn ? '/team-workspace' : '#pricing');
+                      loggedIn ? navigate('/team-workspace') : jumpToSection('pricing');
                     }}
                     className="btn btn-dark w-full px-10 py-5 text-lg font-black transition-all hover:-translate-y-0.5 sm:w-auto"
                   >
-                    {loggedIn ? 'Create Deal' : 'See Pricing'}
+                    {loggedIn ? 'Team Workspace' : 'See Pricing'}
                   </button>
                 </div>
 
@@ -528,6 +537,7 @@ export default function Home() {
               <div className="reveal reveal-delay-3 mt-8 flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500 sm:text-xs sm:tracking-[0.2em]">
                 <span className="rounded-full border border-white/10 px-3 py-2">No client login required</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">India-first workspace</span>
+                <span className="rounded-full border border-white/10 px-3 py-2">Freelancer team projects</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">Daily AI work plan</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">GST-ready invoice fields</span>
               </div>

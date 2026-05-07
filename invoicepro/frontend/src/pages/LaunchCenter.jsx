@@ -21,8 +21,8 @@ const CheckPill = ({ ready }) => (
 const recentUpdates = [
   {
     label: 'Homepage',
-    title: 'Clear product message',
-    detail: 'Changed the public promise to: Get clients and get paid faster.'
+    title: 'Clear product positioning',
+    detail: 'Positioned the product as a freelancer business workspace to find clients, team up on bigger projects, deliver with AI, then invoice and collect.'
   },
   {
     label: 'Dashboard',
@@ -246,10 +246,11 @@ export default function LaunchCenter() {
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Company Launch Center</p>
             </div>
             <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Make ClientFlow AI ready to sell, collect, and retain.
+              Make ClientFlow AI ready to find clients, team up, deliver, and collect.
             </h1>
             <p className="mt-5 max-w-2xl text-base sm:text-lg font-medium leading-relaxed text-zinc-400">
-              One operating screen for the business setup, payment engine, AI layer, client billing loop, and launch blockers.
+              A freelancer business workspace to find clients, bring another freelancer into bigger projects,
+              split delivery work with AI, then invoice and collect payment.
             </p>
           </div>
 
