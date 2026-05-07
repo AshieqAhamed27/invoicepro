@@ -149,6 +149,25 @@ select {
     font: inherit;
 }
 
+select {
+    color-scheme: dark;
+}
+
+select option,
+select optgroup {
+    background-color: #0f172a;
+    color: #f7f8fb;
+}
+
+select option:checked {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+select option:disabled {
+    color: #8e96a8;
+}
+
 ::selection {
     @apply bg-emerald-300 text-black;
 }
