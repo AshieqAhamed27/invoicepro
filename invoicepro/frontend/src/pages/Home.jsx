@@ -180,6 +180,33 @@ const automationPreview = [
   }
 ];
 
+const teamWorkspaceHighlights = [
+  {
+    title: 'Invite another freelancer',
+    description: 'Add a designer, developer, writer, marketer, or assistant when a project is too big for one person.'
+  },
+  {
+    title: 'Split roles and tasks',
+    description: 'Define who owns strategy, design, development, content, review, delivery, and client updates.'
+  },
+  {
+    title: 'AI delivery plan',
+    description: 'AI creates a next action, milestone plan, role split, and risk notes so work does not become messy.'
+  },
+  {
+    title: 'Bigger project confidence',
+    description: 'Freelancers can say yes to larger client work because the workspace keeps collaboration organized.'
+  }
+];
+
+const teamWorkspaceFlow = [
+  ['01', 'Create project', 'Add client name, budget, deadline, and project brief.'],
+  ['02', 'Add freelancers', 'Invite people by role, skill, contact, rate, and availability.'],
+  ['03', 'Assign tasks', 'Create tasks with owners, priority, due date, and status.'],
+  ['04', 'Let AI plan', 'Generate delivery plan, risk level, role split, and milestones.'],
+  ['05', 'Invoice after delivery', 'Use the same system to collect payment when the project is ready.']
+];
+
 const availabilityHighlights = [
   {
     title: 'India-first setup',
@@ -797,6 +824,65 @@ export default function Home() {
               <p className="mt-3 text-base font-bold leading-relaxed text-white sm:text-lg">
                 Find leads. Follow up. Send invoices. Get paid faster.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="scroll-reveal border-y border-white/5 bg-emerald-400/[0.035] py-16 sm:py-20">
+          <div className="container-custom">
+            <div className="mb-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">New Pro feature</p>
+                <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Take bigger projects with other freelancers.
+                </h2>
+              </div>
+              <p className="max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base lg:ml-auto">
+                ClientFlow AI is not only for solo invoices. The Team Workspace helps a freelancer bring another freelancer into a big client project, split the work, and keep delivery moving with AI.
+              </p>
+            </div>
+
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+              <div className="grid gap-4 md:grid-cols-2">
+                {teamWorkspaceHighlights.map((item, index) => (
+                  <div
+                    key={item.title}
+                    className="rounded-[2rem] border border-white/8 bg-zinc-950/80 p-6 transition-all hover:-translate-y-1 hover:border-emerald-400/25"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-xs font-black text-emerald-200">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <h3 className="mt-5 text-xl font-black text-white">{item.title}</h3>
+                    <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+
+              <aside className="rounded-[2rem] border border-yellow-400/20 bg-yellow-400/10 p-5 sm:p-6">
+                <div className="rounded-[1.5rem] border border-white/8 bg-zinc-950/90 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Team delivery flow</p>
+                  <h3 className="mt-3 text-2xl font-black tracking-tight text-white">
+                    From collaborator to invoice
+                  </h3>
+                  <div className="mt-6 space-y-3">
+                    {teamWorkspaceFlow.map(([step, title, detail]) => (
+                      <div key={step} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">{step} / {title}</p>
+                        <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => {
+                      trackCtaClick('open_team_workspace', 'home_team_workspace', loggedIn ? '/team-workspace' : '/signup');
+                      navigate(loggedIn ? '/team-workspace' : '/signup');
+                    }}
+                    className="mt-6 w-full rounded-2xl bg-yellow-400 px-6 py-4 text-sm font-black text-black transition-all hover:bg-yellow-300 active:scale-95"
+                  >
+                    {loggedIn ? 'Open Team Workspace' : 'Start Team Workspace'}
+                  </button>
+                </div>
+              </aside>
             </div>
           </div>
         </section>

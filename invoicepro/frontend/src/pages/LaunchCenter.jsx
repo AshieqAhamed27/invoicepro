@@ -40,6 +40,11 @@ const recentUpdates = [
     detail: 'Added a close-ready workspace that creates trust packs, buyer FAQs, objection replies, and next-step messages before invoicing.'
   },
   {
+    label: 'Team Work',
+    title: 'Freelancer Team Workspace',
+    detail: 'Added a Pro workspace where users can add another freelancer, split roles, assign tasks, and generate an AI delivery plan for bigger projects.'
+  },
+  {
     label: 'AI Sales',
     title: 'SDR and sales automation agent',
     detail: 'Added a daily sales action screen that ranks lead follow-ups, proposal follow-ups, and payment collection tasks.'
@@ -181,6 +186,15 @@ export default function LaunchCenter() {
       action: 'Open an unpaid invoice and click Create Razorpay Link before sharing it with a client.',
       doneText: `${stats.paymentLinks || 0} invoice payment link${Number(stats.paymentLinks || 0) === 1 ? '' : 's'} created.`,
       path: '/dashboard'
+    },
+    {
+      id: 'team-workspace',
+      category: 'Product Ops',
+      label: 'Team Workspace for bigger projects',
+      ready: true,
+      action: 'Add the Team Workspace route to help Pro users collaborate with other freelancers.',
+      doneText: 'Team Workspace is available for Pro users to split roles, tasks, risks, and delivery actions.',
+      path: '/team-workspace'
     },
     {
       id: 'pro-plan',
@@ -329,8 +343,9 @@ export default function LaunchCenter() {
               {[
                 { step: '01', title: 'Convert visitor', detail: 'Landing page sends them to signup or pricing.' },
                 { step: '02', title: 'Close the deal', detail: 'User removes buyer doubt with a proposal, trust pack, and clear next payment step.' },
-                { step: '03', title: 'Collect payment', detail: 'Razorpay, UPI, email reminders, and public invoice links move cash.' },
-                { step: '04', title: 'Retain customer', detail: 'AI insights and recurring invoices make Pro worth keeping.' }
+                { step: '03', title: 'Deliver with team', detail: 'For bigger projects, users add collaborators, split tasks, and let AI plan delivery risk.' },
+                { step: '04', title: 'Collect payment', detail: 'Razorpay, UPI, email reminders, and public invoice links move cash.' },
+                { step: '05', title: 'Retain customer', detail: 'AI insights, team delivery rooms, and recurring invoices make Pro worth keeping.' }
               ].map((item) => (
                 <div key={item.step} className="rounded-[1.75rem] border border-white/8 bg-black/20 p-6">
                   <p className="text-3xl font-black text-white/15">{item.step}</p>
