@@ -30,6 +30,7 @@ const SalesAgent = lazy(() => import('./pages/SalesAgent'));
 const OutboundAutopilot = lazy(() => import('./pages/OutboundAutopilot'));
 const ProposalWriter = lazy(() => import('./pages/ProposalWriter'));
 const DealClosureRoom = lazy(() => import('./pages/DealClosureRoom'));
+const TeamWorkspace = lazy(() => import('./pages/TeamWorkspace'));
 const LeadPipeline = lazy(() => import('./pages/LeadPipeline'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
@@ -135,7 +136,8 @@ const appRoutePrefixes = [
   '/recurring',
   '/sales-agent',
   '/settings',
-  '/signup'
+  '/signup',
+  '/team-workspace'
 ];
 
 const WhatsAppFloatingButton = () => {
@@ -372,6 +374,19 @@ export default function App() {
               <ProRoute title="AI Deal Closure Room unlocks after Pro payment">
                 <Suspense fallback={<RouteLoader />}>
                   <DealClosureRoom />
+                </Suspense>
+              </ProRoute>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/team-workspace"
+          element={
+            <PrivateRoute>
+              <ProRoute title="Team Workspace unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <TeamWorkspace />
                 </Suspense>
               </ProRoute>
             </PrivateRoute>

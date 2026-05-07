@@ -34,6 +34,10 @@ const trustSignals = [
     description: 'Build a trust pack, buyer FAQ, objection replies, and close message before you ask for payment.'
   },
   {
+    title: 'Freelancer team workspace',
+    description: 'Bring another freelancer into a big project, split work, assign tasks, and let AI plan delivery.'
+  },
+  {
     title: 'Razorpay and UPI collection',
     description: 'Use a recognizable checkout flow with Razorpay and provide UPI-ready payment details.'
   },
@@ -112,6 +116,10 @@ const businessOutcomes = [
   {
     title: 'Build repeat revenue',
     description: 'Manage monthly clients, repeat invoices, and retainer work in the same place.'
+  },
+  {
+    title: 'Deliver bigger projects',
+    description: 'Invite another freelancer, assign roles, track tasks, and use AI to reduce delivery risk.'
   }
 ];
 
@@ -151,6 +159,12 @@ const automationPreview = [
     title: 'Remove client buying doubt',
     description: 'Creates a trust pack, buyer FAQ, objection replies, close score, and next-step message before invoicing.',
     impact: 'Higher confidence'
+  },
+  {
+    category: 'Team',
+    title: 'Split big work between freelancers',
+    description: 'Turns a larger client project into collaborator roles, owned tasks, risks, and next delivery action.',
+    impact: 'Bigger projects'
   },
   {
     category: 'Retain',
@@ -304,7 +318,7 @@ const plans = [
     price: 'Rs 499',
     suffix: '/ month',
     description: 'For freelancers who want one place to find clients, close deals, collect payment, and follow up.',
-    features: ['Unlimited invoices', 'AI client finder, sales agent, proposal writer, and deal room', 'Daily AI business plan', 'Razorpay, UPI, and WhatsApp collection flow'],
+    features: ['Unlimited invoices', 'AI client finder, sales agent, proposal writer, deal room, and team workspace', 'Daily AI business plan', 'Razorpay, UPI, and WhatsApp collection flow'],
     cta: 'Upgrade Monthly',
     featured: false,
     action: 'monthly'
@@ -314,7 +328,7 @@ const plans = [
     price: 'Rs 4,999',
     suffix: '/ year',
     description: 'For freelancers and agencies building a repeatable client pipeline.',
-    features: ['Everything in Monthly', 'Recurring invoices', 'AI deal closing and daily work plan', 'Priority support'],
+    features: ['Everything in Monthly', 'Recurring invoices', 'AI team workspace for bigger projects', 'Priority support'],
     cta: 'Save With Annual',
     featured: true,
     action: 'yearly'

@@ -64,6 +64,14 @@ const productSettings = [
     requiresPro: true
   },
   {
+    label: 'Team Work',
+    title: 'Freelancer Team Workspace',
+    detail: 'Add another freelancer, split roles, assign tasks, and use AI to plan delivery for bigger projects.',
+    status: 'Pro',
+    to: '/team-workspace',
+    requiresPro: true
+  },
+  {
     label: 'Recurring Revenue',
     title: 'Monthly Client System',
     detail: 'Manage repeat billing ideas and recurring client opportunities from one place.',
@@ -104,6 +112,11 @@ const automationSettings = [
   {
     title: 'Deal Closure Room',
     detail: 'Turns a warm client into a trust pack, objection replies, buyer FAQ, and close-ready next action.',
+    state: 'Enabled'
+  },
+  {
+    title: 'Team Workspace',
+    detail: 'Splits big projects by collaborator role, task owner, deadline risk, and next delivery action.',
     state: 'Enabled'
   },
   {

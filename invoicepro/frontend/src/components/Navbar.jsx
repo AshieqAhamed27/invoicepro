@@ -13,6 +13,7 @@ const growthLinks = [
 const billingLinks = [
   { to: '/proposal-writer', label: 'Proposal/RFP', detail: 'Write client-ready proposals', requiresPro: true },
   { to: '/deal-room', label: 'Deal Room', detail: 'Trust pack and close plan', requiresPro: true },
+  { to: '/team-workspace', label: 'Team Room', detail: 'Collaborate with freelancers', requiresPro: true },
   { to: '/create-invoice', label: 'Create Deal', detail: 'Proposal or invoice' },
   { to: '/clients', label: 'Clients', detail: 'Client records' },
   { to: '/recurring', label: 'Recurring', detail: 'Monthly revenue', requiresPro: true }
@@ -204,7 +205,7 @@ export default function Navbar() {
                 Close
               </button>
             </div>
-            <div className="mt-3 grid gap-3 md:grid-cols-5">
+            <div className="mt-3 grid gap-3 md:grid-cols-3 xl:grid-cols-6">
               {desktopPanel.links.map((link) => (
                 <NavLink
                   key={link.to}
