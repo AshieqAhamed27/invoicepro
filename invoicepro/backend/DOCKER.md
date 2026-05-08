@@ -15,6 +15,7 @@ http://127.0.0.1:5000/api/health
 ```
 
 The root `docker-compose.yml` also mounts the host Docker socket so the local Code Arena can run snippets inside child containers.
+It also mounts a named Docker volume at `/runner-workspaces`; the backend writes temporary code there, and the sandbox containers read the same volume.
 
 ## Production Notes
 
@@ -36,6 +37,8 @@ CODE_RUNNER_ENABLED=true
 CODE_RUNNER_TIMEOUT_MS=5000
 CODE_RUNNER_MEMORY=128m
 CODE_RUNNER_CPUS=0.5
+CODE_RUNNER_SHARED_VOLUME=clientflow-code-runner-workspaces
+CODE_RUNNER_WORKDIR=/runner-workspaces
 ```
 
 Security limits currently used by the runner:

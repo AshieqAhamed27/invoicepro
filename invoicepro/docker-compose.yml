@@ -9,10 +9,13 @@ services:
     environment:
       PORT: 5000
       CODE_RUNNER_ENABLED: "true"
+      CODE_RUNNER_SHARED_VOLUME: clientflow-code-runner-workspaces
+      CODE_RUNNER_WORKDIR: /runner-workspaces
     ports:
       - "5000:5000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - code-runner-workspaces:/runner-workspaces
     restart: unless-stopped
     healthcheck:
       test:
@@ -26,3 +29,7 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s
+
+volumes:
+  code-runner-workspaces:
+    name: clientflow-code-runner-workspaces

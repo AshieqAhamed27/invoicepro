@@ -23,49 +23,49 @@ const getLanguageConfig = (language = '') => {
             language: 'javascript',
             fileName: 'main.js',
             image: process.env.CODE_RUNNER_NODE_IMAGE || 'node:20-alpine',
-            command: ['node', '/workspace/main.js']
+            command: (filePath) => ['node', filePath]
         },
         js: {
             language: 'javascript',
             fileName: 'main.js',
             image: process.env.CODE_RUNNER_NODE_IMAGE || 'node:20-alpine',
-            command: ['node', '/workspace/main.js']
+            command: (filePath) => ['node', filePath]
         },
         node: {
             language: 'javascript',
             fileName: 'main.js',
             image: process.env.CODE_RUNNER_NODE_IMAGE || 'node:20-alpine',
-            command: ['node', '/workspace/main.js']
+            command: (filePath) => ['node', filePath]
         },
         python: {
             language: 'python',
             fileName: 'main.py',
             image: process.env.CODE_RUNNER_PYTHON_IMAGE || 'python:3.12-alpine',
-            command: ['python', '/workspace/main.py']
+            command: (filePath) => ['python', filePath]
         },
         py: {
             language: 'python',
             fileName: 'main.py',
             image: process.env.CODE_RUNNER_PYTHON_IMAGE || 'python:3.12-alpine',
-            command: ['python', '/workspace/main.py']
+            command: (filePath) => ['python', filePath]
         },
         bash: {
             language: 'shell',
             fileName: 'main.sh',
             image: process.env.CODE_RUNNER_SHELL_IMAGE || 'alpine:3.20',
-            command: ['sh', '/workspace/main.sh']
+            command: (filePath) => ['sh', filePath]
         },
         shell: {
             language: 'shell',
             fileName: 'main.sh',
             image: process.env.CODE_RUNNER_SHELL_IMAGE || 'alpine:3.20',
-            command: ['sh', '/workspace/main.sh']
+            command: (filePath) => ['sh', filePath]
         },
         sh: {
             language: 'shell',
             fileName: 'main.sh',
             image: process.env.CODE_RUNNER_SHELL_IMAGE || 'alpine:3.20',
-            command: ['sh', '/workspace/main.sh']
+            command: (filePath) => ['sh', filePath]
         }
     };
 
@@ -117,13 +117,29 @@ const runCodeInDocker = async({ code, language, stdin = '' }) => {
         throw makeRunnerError(`Code is too large. Limit is ${maxCodeBytes} bytes.`, 413, 'CODE_TOO_LARGE');
     }
 
-    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), `clientflow-run-${crypto.randomBytes(4).toString('hex')}-`));
+    const sharedVolume = String(process.env.CODE_RUNNER_SHARED_VOLUME || '').trim();
+    const sharedWorkdir = String(process.env.CODE_RUNNER_WORKDIR || '/runner-workspaces').replace(/\/+$/, '');
+    const runId = `clientflow-run-${crypto.randomBytes(8).toString('hex')}`;
+    const tempDir = sharedVolume
+        ? path.join(sharedWorkdir, runId)
+        : await fs.mkdtemp(path.join(os.tmpdir(), `clientflow-run-${crypto.randomBytes(4).toString('hex')}-`));
     const filePath = path.join(tempDir, config.fileName);
+    const containerBaseDir = sharedVolume ? sharedWorkdir : '/workspace';
+    const containerFilePath = sharedVolume
+        ? path.posix.join(containerBaseDir, runId, config.fileName)
+        : path.posix.join(containerBaseDir, config.fileName);
+    const containerWorkdir = sharedVolume ? path.posix.join(containerBaseDir, runId) : containerBaseDir;
+    const volumeMount = sharedVolume
+        ? `${sharedVolume}:${containerBaseDir}:ro`
+        : `${tempDir}:${containerBaseDir}:ro`;
     const timeoutMs = getNumberEnv('CODE_RUNNER_TIMEOUT_MS', DEFAULT_TIMEOUT_MS, 1000, 15000);
     const maxOutputBytes = getNumberEnv('CODE_RUNNER_MAX_OUTPUT_BYTES', DEFAULT_MAX_OUTPUT_BYTES, 1000, 50000);
     const startedAt = Date.now();
 
     try {
+        if (sharedVolume) {
+            await fs.mkdir(tempDir, { recursive: true });
+        }
         await fs.writeFile(filePath, source, { mode: 0o644 });
 
         const args = [
@@ -145,13 +161,13 @@ const runCodeInDocker = async({ code, language, stdin = '' }) => {
             '--user',
             '65534:65534',
             '--workdir',
-            '/workspace',
+            containerWorkdir,
             '--tmpfs',
             '/tmp:rw,nosuid,nodev,size=16m',
             '-v',
-            `${tempDir}:/workspace:ro`,
+            volumeMount,
             config.image,
-            ...config.command
+            ...config.command(containerFilePath)
         ];
 
         return await new Promise((resolve, reject) => {
