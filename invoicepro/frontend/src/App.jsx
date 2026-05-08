@@ -31,6 +31,8 @@ const OutboundAutopilot = lazy(() => import('./pages/OutboundAutopilot'));
 const ProposalWriter = lazy(() => import('./pages/ProposalWriter'));
 const DealClosureRoom = lazy(() => import('./pages/DealClosureRoom'));
 const TeamWorkspace = lazy(() => import('./pages/TeamWorkspace'));
+const CodeArena = lazy(() => import('./pages/CodeArena'));
+const OSWorkspaces = lazy(() => import('./pages/OSWorkspaces'));
 const TeamInvite = lazy(() => import('./pages/TeamInvite'));
 const LeadPipeline = lazy(() => import('./pages/LeadPipeline'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
@@ -121,6 +123,7 @@ const appRoutePrefixes = [
   '/admin',
   '/clients',
   '/client-finder',
+  '/code-arena',
   '/contact',
   '/create-invoice',
   '/dashboard',
@@ -130,6 +133,7 @@ const appRoutePrefixes = [
   '/leads',
   '/login',
   '/outbound-autopilot',
+  '/os-workspaces',
   '/payment',
   '/proposal-writer',
   '/public/invoice',
@@ -388,6 +392,28 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <TeamWorkspace />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/code-arena"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <CodeArena />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/os-workspaces"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <OSWorkspaces />
               </Suspense>
             </PrivateRoute>
           }

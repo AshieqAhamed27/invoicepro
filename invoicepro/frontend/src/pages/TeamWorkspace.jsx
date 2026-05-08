@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getToken, getUser } from '../utils/auth';
@@ -1359,10 +1360,10 @@ export default function TeamWorkspace() {
                   <div className="mt-5 rounded-3xl border border-cyan-400/15 bg-cyan-400/[0.04] p-4 sm:p-5">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-cyan-300">Code Arena</p>
-                        <h4 className="mt-1 text-xl font-black text-white">Programming and OS setup in one delivery room</h4>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-cyan-300">Development tools</p>
+                        <h4 className="mt-1 text-xl font-black text-white">Open coding and OS setup in separate pages</h4>
                         <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-zinc-500">
-                          Use Programming for code, snippets, and Docker output. Use OS / Environment for Linux, Windows, mobile, or server setup instructions.
+                          Team Workspace now stays focused on projects, people, tasks, links, and chat. Use the dedicated pages when the team needs to write code or document setup.
                         </p>
                       </div>
                       <span className="w-fit rounded-full border border-cyan-300/15 bg-cyan-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-200">
@@ -1370,365 +1371,54 @@ export default function TeamWorkspace() {
                       </span>
                     </div>
 
-                    <div className="mt-4 grid gap-3 lg:grid-cols-3">
-                      {[
-                        ['Programming', `${codeSnippets.length} snippet${codeSnippets.length === 1 ? '' : 's'}`, 'Write, review, and run JavaScript, Python, or Shell snippets.'],
-                        ['OS / Environment', `${codeEnvironments.length} workspace${codeEnvironments.length === 1 ? '' : 's'}`, 'Keep Linux, Windows, Android, iOS, and server setup clear for the team.'],
-                        ['Sandbox output', `${codeRuns.length} run${codeRuns.length === 1 ? '' : 's'}`, runnerStatus?.enabled ? 'Docker execution is enabled for this backend.' : 'Enable Docker runner when you want real code execution.']
-                      ].map(([label, value, note]) => (
-                        <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                          <p className="mt-2 text-lg font-black text-white">{value}</p>
-                          <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">{note}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-4 rounded-2xl border border-white/8 bg-black/20 p-4">
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="text-xs font-black text-white">
-                            {runnerStatus?.enabled ? 'Docker sandbox execution is enabled' : 'Docker sandbox execution is off'}
-                          </p>
-                          <p className="mt-1 text-xs font-medium leading-relaxed text-zinc-500">
-                            {runnerStatus?.note || 'Use this arena to share code now. Connect a Docker runner when you want real code execution.'}
-                          </p>
-                        </div>
-                        <span className={`w-fit rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
-                          runnerStatus?.enabled
-                            ? 'border border-emerald-300/15 bg-emerald-300/10 text-emerald-200'
-                            : 'border border-amber-300/15 bg-amber-300/10 text-amber-200'
-                        }`}>
-                          {runnerStatus?.mode || 'disabled'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-                      <section className="rounded-3xl border border-sky-300/15 bg-sky-300/[0.04] p-4">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                          <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Programming</p>
-                            <h5 className="mt-1 text-lg font-black text-white">Code snippets and Docker runs</h5>
-                            <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                              Save small scripts, API fixes, configs, or patches, then run supported snippets in Docker.
-                            </p>
-                          </div>
-                          <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
-                            JS / Python / Shell
-                          </span>
-                        </div>
-
-                        <div className="mt-4 space-y-3">
-                          {codeSnippets.length ? (
-                            codeSnippets.slice(-4).map((snippet) => {
-                              const snippetLanguage = String(snippet.language || '').toLowerCase();
-                              const isRunnable = runnableLanguages.includes(snippetLanguage);
-                              const canRun = Boolean(runnerStatus?.enabled && isRunnable && canEditActiveProject);
-
-                              return (
-                                <div key={snippet._id || snippet.title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                    <div>
-                                      <p className="text-sm font-black text-white">{snippet.title}</p>
-                                      <p className="mt-1 text-xs font-medium text-zinc-500">{snippet.filePath || snippet.language}</p>
-                                    </div>
-                                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
-                                      {statusLabel(snippet.status)}
-                                    </span>
-                                  </div>
-                                  <pre className="mt-3 max-h-44 overflow-auto rounded-xl border border-white/8 bg-black/40 p-3 text-[11px] font-semibold leading-relaxed text-zinc-300">{snippet.code}</pre>
-                                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                    <p className="text-[11px] font-semibold text-zinc-500">
-                                      {isRunnable ? `Runnable: ${statusLabel(snippetLanguage)}` : 'Execution supports JavaScript, Python, and Shell for now.'}
-                                    </p>
-                                    <button
-                                      type="button"
-                                      disabled={!canRun || runningSnippetId === String(snippet._id)}
-                                      onClick={() => runSnippetInSandbox(snippet)}
-                                      className="btn btn-primary px-4 py-2 text-[10px] disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                      {runningSnippetId === String(snippet._id) ? 'Running...' : 'Run in Docker'}
-                                    </button>
-                                  </div>
-                                  {snippet.notes && (
-                                    <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">{snippet.notes}</p>
-                                  )}
-                                </div>
-                              );
-                            })
-                          ) : (
-                            <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
-                              <p className="text-sm font-black text-white">No programming snippet yet</p>
-                              <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                                Add the first script, config, API route, or code patch for this project.
-                              </p>
-                            </div>
-                          )}
-
-                          {canEditActiveProject && (
-                            <>
-                              <textarea
-                                value={sandboxInput}
-                                onChange={(event) => setSandboxInput(event.target.value)}
-                                placeholder="Optional stdin input for sandbox runs"
-                                rows="2"
-                                className="input min-h-[70px] resize-none py-3 text-sm"
-                              />
-
-                              <form onSubmit={addCodeSnippet} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                                <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-sky-300">Add programming snippet</p>
-                                <div className="grid gap-3">
-                                  <input
-                                    value={snippetForm.title}
-                                    onChange={(event) => setSnippetForm((prev) => ({ ...prev, title: event.target.value }))}
-                                    placeholder="Login fix, Dockerfile, API route..."
-                                    className="input py-3 text-sm"
-                                  />
-                                  <div className="grid gap-3 sm:grid-cols-2">
-                                    <input
-                                      value={snippetForm.filePath}
-                                      onChange={(event) => setSnippetForm((prev) => ({ ...prev, filePath: event.target.value }))}
-                                      placeholder="src/App.jsx"
-                                      className="input py-3 text-sm"
-                                    />
-                                    <select
-                                      value={snippetForm.language}
-                                      onChange={(event) => setSnippetForm((prev) => ({ ...prev, language: event.target.value }))}
-                                      className="input py-3 text-sm"
-                                    >
-                                      {runnableLanguages.map((language) => (
-                                        <option key={language} value={language}>{statusLabel(language)}</option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                  <div className="grid gap-3 sm:grid-cols-2">
-                                    <select
-                                      value={snippetForm.groupName}
-                                      onChange={(event) => setSnippetForm((prev) => ({ ...prev, groupName: event.target.value }))}
-                                      className="input py-3 text-sm"
-                                    >
-                                      <option value="">All groups</option>
-                                      {activeGroupNames.map((groupName) => (
-                                        <option key={groupName} value={groupName}>{groupName}</option>
-                                      ))}
-                                    </select>
-                                    <select
-                                      value={snippetForm.status}
-                                      onChange={(event) => setSnippetForm((prev) => ({ ...prev, status: event.target.value }))}
-                                      className="input py-3 text-sm"
-                                    >
-                                      <option value="draft">Draft</option>
-                                      <option value="review">Review</option>
-                                      <option value="approved">Approved</option>
-                                    </select>
-                                  </div>
-                                  <textarea
-                                    value={snippetForm.code}
-                                    onChange={(event) => setSnippetForm((prev) => ({ ...prev, code: event.target.value }))}
-                                    placeholder="Paste code, config, command output, or patch here"
-                                    rows="8"
-                                    className="input min-h-[190px] resize-y py-3 font-mono text-xs"
-                                  />
-                                  <textarea
-                                    value={snippetForm.notes}
-                                    onChange={(event) => setSnippetForm((prev) => ({ ...prev, notes: event.target.value }))}
-                                    placeholder="What should reviewers check?"
-                                    rows="3"
-                                    className="input min-h-[88px] resize-none py-3 text-sm"
-                                  />
-                                  <button type="submit" disabled={snippetSaving} className="btn btn-primary py-3 text-xs">
-                                    {snippetSaving ? 'Adding...' : 'Add Snippet'}
-                                  </button>
-                                </div>
-                              </form>
-                            </>
-                          )}
-
+                    <div className="mt-5 grid gap-4 md:grid-cols-2">
+                      <Link
+                        to="/code-arena"
+                        className="group rounded-3xl border border-sky-300/15 bg-sky-300/[0.05] p-5 transition-all hover:-translate-y-1 hover:border-sky-300/35 hover:bg-sky-300/[0.08]"
+                      >
+                        <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Programming page</p>
+                        <h5 className="mt-2 text-lg font-black text-white">Code Arena</h5>
+                        <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
+                          Add code snippets, run JavaScript/Python/Shell in Docker, and review latest outputs for this project.
+                        </p>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
                           <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Latest sandbox output</p>
-                            {codeRuns.length ? (
-                              <div className="mt-3 space-y-3">
-                                {codeRuns.slice(-3).reverse().map((run) => (
-                                  <div key={run._id || `${run.title}-${run.createdAt}`} className="rounded-xl border border-white/8 bg-white/[0.03] p-3">
-                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                      <div>
-                                        <p className="text-xs font-black text-white">{run.title || 'Sandbox run'}</p>
-                                        <p className="mt-1 text-[11px] font-medium text-zinc-500">
-                                          {statusLabel(run.status)} - exit {run.exitCode ?? 'n/a'} - {run.durationMs || 0}ms
-                                        </p>
-                                      </div>
-                                      <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
-                                        {run.language || 'code'}
-                                      </span>
-                                    </div>
-                                    {run.stdout && (
-                                      <pre className="mt-3 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg bg-black/40 p-3 text-[11px] font-semibold leading-relaxed text-emerald-200">{run.stdout}</pre>
-                                    )}
-                                    {run.stderr && (
-                                      <pre className="mt-3 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg bg-black/40 p-3 text-[11px] font-semibold leading-relaxed text-rose-200">{run.stderr}</pre>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">
-                                Run a JavaScript, Python, or Shell snippet after Docker sandbox is enabled.
-                              </p>
-                            )}
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Snippets</p>
+                            <p className="mt-1 text-2xl font-black text-white">{codeSnippets.length}</p>
+                          </div>
+                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Runs</p>
+                            <p className="mt-1 text-2xl font-black text-white">{codeRuns.length}</p>
                           </div>
                         </div>
-                      </section>
+                        <p className="mt-4 text-xs font-black uppercase tracking-widest text-sky-200 group-hover:text-white">
+                          Open Programming
+                        </p>
+                      </Link>
 
-                      <section className="rounded-3xl border border-emerald-300/15 bg-emerald-300/[0.04] p-4">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                          <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">OS / Environment</p>
-                            <h5 className="mt-1 text-lg font-black text-white">Setup instructions for every OS</h5>
-                            <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                              Add the exact environment each freelancer needs before they start work.
-                            </p>
+                      <Link
+                        to="/os-workspaces"
+                        className="group rounded-3xl border border-emerald-300/15 bg-emerald-300/[0.05] p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/35 hover:bg-emerald-300/[0.08]"
+                      >
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">OS setup page</p>
+                        <h5 className="mt-2 text-lg font-black text-white">OS / Environment</h5>
+                        <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
+                          Add Linux, Windows, macOS, Android, iOS, or server instructions so each freelancer can start correctly.
+                        </p>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Workspaces</p>
+                            <p className="mt-1 text-2xl font-black text-white">{codeEnvironments.length}</p>
                           </div>
-                          <span className="rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-200">
-                            Linux / Mobile / Server
-                          </span>
+                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Project</p>
+                            <p className="mt-1 truncate text-sm font-black text-white">{activeProject.title}</p>
+                          </div>
                         </div>
-
-                        <div className="mt-4 space-y-3">
-                          {codeEnvironments.length ? (
-                            codeEnvironments.map((environment) => (
-                              <div key={environment._id || environment.name} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                  <div>
-                                    <p className="text-sm font-black text-white">{environment.name}</p>
-                                    <p className="mt-1 text-xs font-medium text-zinc-500">
-                                      {statusLabel(environment.os)} {environment.runtime ? `- ${environment.runtime}` : ''} {environment.branch ? `- ${environment.branch}` : ''}
-                                    </p>
-                                  </div>
-                                  <span className="rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-200">
-                                    {environment.groupName || 'All team'}
-                                  </span>
-                                </div>
-                                {environment.repositoryUrl && (
-                                  <p className="mt-3 break-all text-xs font-medium text-zinc-400">{environment.repositoryUrl}</p>
-                                )}
-                                <div className="mt-3 grid gap-3">
-                                  {[
-                                    ['Setup', environment.setupCommands],
-                                    ['Run', environment.runCommands],
-                                    ['Test', environment.testCommands]
-                                  ].map(([label, commands]) => (
-                                    <div key={label} className="rounded-xl border border-white/8 bg-white/[0.03] p-3">
-                                      <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                                      {commands?.length ? (
-                                        <pre className="whitespace-pre-wrap break-words text-[11px] font-semibold leading-relaxed text-zinc-300">{commands.join('\n')}</pre>
-                                      ) : (
-                                        <p className="text-[11px] font-medium text-zinc-600">Not added</p>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                                {environment.notes && (
-                                  <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">{environment.notes}</p>
-                                )}
-                              </div>
-                            ))
-                          ) : (
-                            <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
-                              <p className="text-sm font-black text-white">No OS workspace yet</p>
-                              <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                                Add Linux/server setup for backend work or Android/iOS setup for app projects.
-                              </p>
-                            </div>
-                          )}
-
-                          {canEditActiveProject && (
-                            <form onSubmit={addCodeEnvironment} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-emerald-300">Add OS workspace</p>
-                              <div className="grid gap-3">
-                                <input
-                                  value={environmentForm.name}
-                                  onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, name: event.target.value }))}
-                                  placeholder="Linux backend, Android app, Windows desktop..."
-                                  className="input py-3 text-sm"
-                                />
-                                <div className="grid gap-3 sm:grid-cols-2">
-                                  <select
-                                    value={environmentForm.os}
-                                    onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, os: event.target.value }))}
-                                    className="input py-3 text-sm"
-                                  >
-                                    {codeOsOptions.map((os) => (
-                                      <option key={os} value={os}>{statusLabel(os)}</option>
-                                    ))}
-                                  </select>
-                                  <input
-                                    value={environmentForm.runtime}
-                                    onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, runtime: event.target.value }))}
-                                    placeholder="Node 20, Python 3.12, Java..."
-                                    className="input py-3 text-sm"
-                                  />
-                                </div>
-                                <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_130px]">
-                                  <input
-                                    value={environmentForm.repositoryUrl}
-                                    onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, repositoryUrl: event.target.value }))}
-                                    placeholder="Repository URL"
-                                    className="input py-3 text-sm"
-                                  />
-                                  <input
-                                    value={environmentForm.branch}
-                                    onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, branch: event.target.value }))}
-                                    placeholder="Branch"
-                                    className="input py-3 text-sm"
-                                  />
-                                </div>
-                                <select
-                                  value={environmentForm.groupName}
-                                  onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, groupName: event.target.value }))}
-                                  className="input py-3 text-sm"
-                                >
-                                  <option value="">All groups</option>
-                                  {activeGroupNames.map((groupName) => (
-                                    <option key={groupName} value={groupName}>{groupName}</option>
-                                  ))}
-                                </select>
-                                <textarea
-                                  value={environmentForm.setupCommands}
-                                  onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, setupCommands: event.target.value }))}
-                                  placeholder="Setup commands, one per line"
-                                  rows="3"
-                                  className="input min-h-[88px] resize-none py-3 text-sm"
-                                />
-                                <textarea
-                                  value={environmentForm.runCommands}
-                                  onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, runCommands: event.target.value }))}
-                                  placeholder="Run commands, one per line"
-                                  rows="3"
-                                  className="input min-h-[88px] resize-none py-3 text-sm"
-                                />
-                                <textarea
-                                  value={environmentForm.testCommands}
-                                  onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, testCommands: event.target.value }))}
-                                  placeholder="Test commands, one per line"
-                                  rows="3"
-                                  className="input min-h-[88px] resize-none py-3 text-sm"
-                                />
-                                <textarea
-                                  value={environmentForm.notes}
-                                  onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, notes: event.target.value }))}
-                                  placeholder="OS notes, secrets needed, output expectation..."
-                                  rows="3"
-                                  className="input min-h-[88px] resize-none py-3 text-sm"
-                                />
-                                <button type="submit" disabled={environmentSaving} className="btn btn-primary py-3 text-xs">
-                                  {environmentSaving ? 'Adding...' : 'Add Workspace'}
-                                </button>
-                              </div>
-                            </form>
-                          )}
-                        </div>
-                      </section>
+                        <p className="mt-4 text-xs font-black uppercase tracking-widest text-emerald-200 group-hover:text-white">
+                          Open OS Setup
+                        </p>
+                      </Link>
                     </div>
                   </div>
 
