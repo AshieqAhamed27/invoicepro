@@ -20,6 +20,11 @@ const CheckPill = ({ ready }) => (
 
 const recentUpdates = [
   {
+    label: 'Team Work',
+    title: 'Project Maintenance Hub',
+    detail: 'Added GitHub-style issues, release notes, project docs, and an AI maintainer so freelancers can manage long-term client projects.'
+  },
+  {
     label: 'Homepage',
     title: 'Clear product positioning',
     detail: 'Positioned the product as a freelancer business workspace to find clients, team up on bigger projects, deliver with AI, then invoice and collect.'
@@ -42,7 +47,7 @@ const recentUpdates = [
   {
     label: 'Team Work',
     title: 'Freelancer Team Workspace',
-    detail: 'Added a Pro workspace where users can add another freelancer, split roles, assign tasks, and generate an AI delivery plan for bigger projects.'
+    detail: 'Added a Pro workspace where users can add another freelancer, split roles, assign tasks, generate an AI delivery plan, and maintain the project after handover.'
   },
   {
     label: 'AI Sales',
@@ -193,7 +198,7 @@ export default function LaunchCenter() {
       label: 'Team Workspace for bigger projects',
       ready: true,
       action: 'Add the Team Workspace route to help Pro users collaborate with other freelancers.',
-      doneText: 'Team Workspace is available for Pro users to split roles, tasks, risks, and delivery actions.',
+      doneText: 'Team Workspace is available for Pro users to split roles, track issues, plan releases, save docs, and manage delivery actions.',
       path: '/team-workspace'
     },
     {

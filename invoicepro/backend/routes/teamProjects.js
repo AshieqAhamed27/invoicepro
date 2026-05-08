@@ -16,6 +16,10 @@ const PRIORITIES = ['low', 'normal', 'high'];
 const AVAILABILITY = ['low', 'medium', 'high'];
 const CURRENCIES = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'];
 const RESOURCE_TYPES = ['repository', 'preview', 'design', 'document', 'other'];
+const ISSUE_TYPES = ['bug', 'feature', 'task', 'client_request'];
+const ISSUE_STATUSES = ['open', 'in_progress', 'review', 'done'];
+const RELEASE_STATUSES = ['planned', 'in_progress', 'shipped'];
+const WIKI_CATEGORIES = ['setup', 'client', 'delivery', 'qa', 'handover', 'other'];
 const CODE_OS_OPTIONS = ['linux', 'windows', 'macos', 'android', 'ios', 'server', 'other'];
 const CODE_SNIPPET_STATUSES = ['draft', 'review', 'approved'];
 const MEMBER_ROLES = ['owner', 'editor', 'viewer'];
@@ -166,11 +170,15 @@ const getProjectCollabSnapshot = (project) => {
         status: plain.status,
         tasks: plain.tasks || [],
         resources: plain.resources || [],
+        maintenanceIssues: plain.maintenanceIssues || [],
+        releases: plain.releases || [],
+        wikiPages: plain.wikiPages || [],
         codeEnvironments: plain.codeEnvironments || [],
         codeSnippets: plain.codeSnippets || [],
         codeRuns: plain.codeRuns || [],
         aiPlan: plain.aiPlan || {},
         developerAgent: plain.developerAgent || {},
+        maintenanceAgent: plain.maintenanceAgent || {},
         updatedAt: plain.updatedAt
     };
 };
@@ -255,6 +263,43 @@ const normalizeResources = (items = []) =>
         }))
         .filter((item) => item.label && /^https?:\/\//i.test(item.url));
 
+const normalizeMaintenanceIssues = (items = []) =>
+    (Array.isArray(items) ? items : [])
+        .map((item) => ({
+            title: cleanString(item.title),
+            type: ISSUE_TYPES.includes(item.type) ? item.type : 'task',
+            status: ISSUE_STATUSES.includes(item.status) ? item.status : 'open',
+            priority: PRIORITIES.includes(item.priority) ? item.priority : 'normal',
+            owner: cleanString(item.owner),
+            groupName: cleanString(item.groupName),
+            dueDate: normalizeDate(item.dueDate),
+            notes: cleanString(item.notes),
+            createdBy: cleanString(item.createdBy)
+        }))
+        .filter((item) => item.title);
+
+const normalizeReleases = (items = []) =>
+    (Array.isArray(items) ? items : [])
+        .map((item) => ({
+            version: cleanString(item.version),
+            title: cleanString(item.title),
+            status: RELEASE_STATUSES.includes(item.status) ? item.status : 'planned',
+            targetDate: normalizeDate(item.targetDate),
+            summary: cleanString(item.summary),
+            createdBy: cleanString(item.createdBy)
+        }))
+        .filter((item) => item.version && item.title);
+
+const normalizeWikiPages = (items = []) =>
+    (Array.isArray(items) ? items : [])
+        .map((item) => ({
+            title: cleanString(item.title),
+            category: WIKI_CATEGORIES.includes(item.category) ? item.category : 'other',
+            content: String(item.content || '').trim().slice(0, 8000),
+            updatedBy: cleanString(item.updatedBy)
+        }))
+        .filter((item) => item.title && item.content);
+
 const normalizeCommandList = (value) => {
     if (Array.isArray(value)) {
         return value.map(cleanString).filter(Boolean).slice(0, 20);
@@ -310,6 +355,9 @@ const normalizeProjectPayload = (body = {}) => ({
     collaborators: normalizeCollaborators(body.collaborators),
     tasks: normalizeTasks(body.tasks),
     resources: normalizeResources(body.resources),
+    maintenanceIssues: normalizeMaintenanceIssues(body.maintenanceIssues),
+    releases: normalizeReleases(body.releases),
+    wikiPages: normalizeWikiPages(body.wikiPages),
     codeEnvironments: normalizeCodeEnvironments(body.codeEnvironments),
     codeSnippets: normalizeCodeSnippets(body.codeSnippets)
 });
@@ -328,6 +376,9 @@ const normalizeProjectUpdates = (body = {}) => {
     if (Object.prototype.hasOwnProperty.call(body, 'collaborators')) updates.collaborators = normalizeCollaborators(body.collaborators);
     if (Object.prototype.hasOwnProperty.call(body, 'tasks')) updates.tasks = normalizeTasks(body.tasks);
     if (Object.prototype.hasOwnProperty.call(body, 'resources')) updates.resources = normalizeResources(body.resources);
+    if (Object.prototype.hasOwnProperty.call(body, 'maintenanceIssues')) updates.maintenanceIssues = normalizeMaintenanceIssues(body.maintenanceIssues);
+    if (Object.prototype.hasOwnProperty.call(body, 'releases')) updates.releases = normalizeReleases(body.releases);
+    if (Object.prototype.hasOwnProperty.call(body, 'wikiPages')) updates.wikiPages = normalizeWikiPages(body.wikiPages);
     if (Object.prototype.hasOwnProperty.call(body, 'codeEnvironments')) updates.codeEnvironments = normalizeCodeEnvironments(body.codeEnvironments);
     if (Object.prototype.hasOwnProperty.call(body, 'codeSnippets')) updates.codeSnippets = normalizeCodeSnippets(body.codeSnippets);
 
@@ -463,7 +514,7 @@ const buildDeveloperAgentPlan = (project = {}) => {
     ];
 
     return {
-        summary: `${project.title || 'This project'} has ${resources.length} shared build link${resources.length === 1 ? '' : 's'}, ${codeEnvironments.length} code arena environment${codeEnvironments.length === 1 ? '' : 's'}, ${codeSnippets.length} snippet${codeSnippets.length === 1 ? '' : 's'}, and ${openTasks.length} open development task${openTasks.length === 1 ? '' : 's'}.`,
+        summary: `${project.title || 'This project'} has ${resources.length} shared build link${resources.length === 1 ? '' : 's'}, ${codeEnvironments.length} technical environment${codeEnvironments.length === 1 ? '' : 's'}, ${codeSnippets.length} saved note${codeSnippets.length === 1 ? '' : 's'}, and ${openTasks.length} open development task${openTasks.length === 1 ? '' : 's'}.`,
         nextSteps,
         codeChecklist: [
             'Confirm the task owner before changing shared files.',
@@ -484,6 +535,60 @@ const buildDeveloperAgentPlan = (project = {}) => {
     };
 };
 
+const buildMaintenanceAgentPlan = (project = {}) => {
+    const issues = project.maintenanceIssues || [];
+    const releases = project.releases || [];
+    const wikiPages = project.wikiPages || [];
+    const openIssues = issues.filter((issue) => issue.status !== 'done');
+    const highPriorityIssues = openIssues.filter((issue) => issue.priority === 'high');
+    const reviewIssues = openIssues.filter((issue) => issue.status === 'review');
+    const plannedRelease = releases.find((release) => release.status !== 'shipped');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const overdueIssues = openIssues.filter((issue) => {
+        if (!issue.dueDate) return false;
+        const dueDate = new Date(issue.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate < today;
+    });
+
+    let healthScore = 88;
+    healthScore -= Math.min(openIssues.length * 5, 30);
+    healthScore -= Math.min(highPriorityIssues.length * 10, 30);
+    healthScore -= Math.min(overdueIssues.length * 12, 36);
+    healthScore += Math.min(wikiPages.length * 4, 12);
+    healthScore = Math.max(15, Math.min(100, healthScore));
+
+    const nextIssue = overdueIssues[0] || highPriorityIssues[0] || reviewIssues[0] || openIssues[0];
+    const nextAction = nextIssue
+        ? `${nextIssue.owner || 'Assign an owner'} should move "${nextIssue.title}" to the next status.`
+        : plannedRelease
+            ? `Prepare ${plannedRelease.version} - ${plannedRelease.title} for release.`
+            : 'Create the next improvement issue or release plan so the project keeps moving.';
+
+    const riskNotes = [
+        overdueIssues.length ? `${overdueIssues.length} issue${overdueIssues.length === 1 ? '' : 's'} are overdue.` : '',
+        highPriorityIssues.length ? `${highPriorityIssues.length} high priority issue${highPriorityIssues.length === 1 ? '' : 's'} need attention.` : '',
+        !wikiPages.length ? 'Add setup, QA, and handover notes so future freelancers can maintain this project.' : '',
+        !releases.length ? 'Create release notes so clients can see what changed over time.' : ''
+    ].filter(Boolean);
+
+    return {
+        summary: `${project.title || 'This project'} has ${openIssues.length} open issue${openIssues.length === 1 ? '' : 's'}, ${releases.length} release plan${releases.length === 1 ? '' : 's'}, and ${wikiPages.length} project doc${wikiPages.length === 1 ? '' : 's'}.`,
+        healthScore,
+        nextAction,
+        releaseChecklist: [
+            'Confirm all high priority issues are done or moved out of this release.',
+            'Test the live preview on desktop and mobile before shipping.',
+            'Write a short release note explaining what changed for the client.',
+            'Add any setup or handover lesson into project docs.',
+            'Move the project to review before creating the final invoice.'
+        ],
+        riskNotes: riskNotes.length ? riskNotes : ['No major maintenance risk detected. Keep issues, release notes, and docs updated.'],
+        generatedAt: new Date()
+    };
+};
+
 const buildSummary = (projects = []) => ({
     total: projects.length,
     active: projects.filter((project) => project.status === 'active').length,
@@ -493,6 +598,11 @@ const buildSummary = (projects = []) => ({
     groups: projects.reduce((sum, project) => sum + (project.groups?.length || 0), 0),
     collaborators: projects.reduce((sum, project) => sum + (project.collaborators?.length || 0), 0),
     messages: projects.reduce((sum, project) => sum + (project.messages?.length || 0), 0),
+    openIssues: projects.reduce(
+        (sum, project) => sum + (project.maintenanceIssues || []).filter((issue) => issue.status !== 'done').length,
+        0
+    ),
+    releases: projects.reduce((sum, project) => sum + (project.releases?.length || 0), 0),
     openTasks: projects.reduce(
         (sum, project) => sum + (project.tasks || []).filter((task) => task.status !== 'done').length,
         0
@@ -939,6 +1049,236 @@ router.post('/:id/resources', protect, async(req, res) => {
         });
     } catch (err) {
         console.error('CREATE TEAM RESOURCE ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/issues', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can add issues.' });
+        }
+
+        const issue = normalizeMaintenanceIssues([{
+            ...req.body,
+            createdBy: req.user?.name || req.user?.email || 'Team member'
+        }])[0];
+
+        if (!issue) {
+            return res.status(400).json({ message: 'Issue title is required.' });
+        }
+
+        project.maintenanceIssues.push(issue);
+        await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
+
+        res.status(201).json({
+            project: serializeProjectForUser(project, req.user),
+            issue: project.maintenanceIssues[project.maintenanceIssues.length - 1]
+        });
+    } catch (err) {
+        console.error('CREATE TEAM ISSUE ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.patch('/:id/issues/:issueId', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id) || !isValidObjectId(req.params.issueId)) {
+            return rejectInvalidObjectId(res, 'team issue');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can update issues.' });
+        }
+
+        const issue = project.maintenanceIssues.id(req.params.issueId);
+        if (!issue) {
+            return res.status(404).json({ message: 'Issue not found.' });
+        }
+
+        if (Object.prototype.hasOwnProperty.call(req.body, 'title')) issue.title = cleanString(req.body.title) || issue.title;
+        if (Object.prototype.hasOwnProperty.call(req.body, 'type')) issue.type = ISSUE_TYPES.includes(req.body.type) ? req.body.type : issue.type;
+        if (Object.prototype.hasOwnProperty.call(req.body, 'status')) issue.status = ISSUE_STATUSES.includes(req.body.status) ? req.body.status : issue.status;
+        if (Object.prototype.hasOwnProperty.call(req.body, 'priority')) issue.priority = PRIORITIES.includes(req.body.priority) ? req.body.priority : issue.priority;
+        if (Object.prototype.hasOwnProperty.call(req.body, 'owner')) issue.owner = cleanString(req.body.owner);
+        if (Object.prototype.hasOwnProperty.call(req.body, 'groupName')) issue.groupName = cleanString(req.body.groupName);
+        if (Object.prototype.hasOwnProperty.call(req.body, 'dueDate')) issue.dueDate = normalizeDate(req.body.dueDate);
+        if (Object.prototype.hasOwnProperty.call(req.body, 'notes')) issue.notes = cleanString(req.body.notes);
+
+        await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
+
+        res.json({
+            project: serializeProjectForUser(project, req.user),
+            issue
+        });
+    } catch (err) {
+        console.error('UPDATE TEAM ISSUE ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/releases', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can add releases.' });
+        }
+
+        const release = normalizeReleases([{
+            ...req.body,
+            createdBy: req.user?.name || req.user?.email || 'Team member'
+        }])[0];
+
+        if (!release) {
+            return res.status(400).json({ message: 'Version and title are required.' });
+        }
+
+        project.releases.push(release);
+        await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
+
+        res.status(201).json({
+            project: serializeProjectForUser(project, req.user),
+            release: project.releases[project.releases.length - 1]
+        });
+    } catch (err) {
+        console.error('CREATE TEAM RELEASE ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.patch('/:id/releases/:releaseId', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id) || !isValidObjectId(req.params.releaseId)) {
+            return rejectInvalidObjectId(res, 'team release');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can update releases.' });
+        }
+
+        const release = project.releases.id(req.params.releaseId);
+        if (!release) {
+            return res.status(404).json({ message: 'Release not found.' });
+        }
+
+        if (Object.prototype.hasOwnProperty.call(req.body, 'version')) release.version = cleanString(req.body.version) || release.version;
+        if (Object.prototype.hasOwnProperty.call(req.body, 'title')) release.title = cleanString(req.body.title) || release.title;
+        if (Object.prototype.hasOwnProperty.call(req.body, 'status')) release.status = RELEASE_STATUSES.includes(req.body.status) ? req.body.status : release.status;
+        if (Object.prototype.hasOwnProperty.call(req.body, 'targetDate')) release.targetDate = normalizeDate(req.body.targetDate);
+        if (Object.prototype.hasOwnProperty.call(req.body, 'summary')) release.summary = cleanString(req.body.summary);
+
+        await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
+
+        res.json({
+            project: serializeProjectForUser(project, req.user),
+            release
+        });
+    } catch (err) {
+        console.error('UPDATE TEAM RELEASE ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/wiki-pages', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can add project docs.' });
+        }
+
+        const page = normalizeWikiPages([{
+            ...req.body,
+            updatedBy: req.user?.name || req.user?.email || 'Team member'
+        }])[0];
+
+        if (!page) {
+            return res.status(400).json({ message: 'Doc title and content are required.' });
+        }
+
+        project.wikiPages.push(page);
+        await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
+
+        res.status(201).json({
+            project: serializeProjectForUser(project, req.user),
+            page: project.wikiPages[project.wikiPages.length - 1]
+        });
+    } catch (err) {
+        console.error('CREATE TEAM WIKI ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/maintenance-agent', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!accessRole) {
+            return res.status(403).json({ message: 'You are not a member of this project.' });
+        }
+
+        project.maintenanceAgent = buildMaintenanceAgentPlan(project.toObject());
+        await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
+
+        res.json({
+            project: serializeProjectForUser(project, req.user),
+            maintenanceAgent: project.maintenanceAgent
+        });
+    } catch (err) {
+        console.error('TEAM MAINTENANCE AGENT ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
 });

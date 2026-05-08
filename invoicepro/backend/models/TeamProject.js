@@ -136,6 +136,117 @@ const resourceSchema = new mongoose.Schema({
     }
 }, { _id: true });
 
+const maintenanceIssueSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    type: {
+        type: String,
+        enum: ['bug', 'feature', 'task', 'client_request'],
+        default: 'task'
+    },
+    status: {
+        type: String,
+        enum: ['open', 'in_progress', 'review', 'done'],
+        default: 'open'
+    },
+    priority: {
+        type: String,
+        enum: ['low', 'normal', 'high'],
+        default: 'normal'
+    },
+    owner: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    groupName: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    dueDate: {
+        type: Date,
+        default: null
+    },
+    notes: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    createdBy: {
+        type: String,
+        default: '',
+        trim: true
+    }
+}, {
+    _id: true,
+    timestamps: true
+});
+
+const releaseSchema = new mongoose.Schema({
+    version: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    status: {
+        type: String,
+        enum: ['planned', 'in_progress', 'shipped'],
+        default: 'planned'
+    },
+    targetDate: {
+        type: Date,
+        default: null
+    },
+    summary: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    createdBy: {
+        type: String,
+        default: '',
+        trim: true
+    }
+}, {
+    _id: true,
+    timestamps: true
+});
+
+const wikiPageSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    category: {
+        type: String,
+        enum: ['setup', 'client', 'delivery', 'qa', 'handover', 'other'],
+        default: 'other'
+    },
+    content: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    updatedBy: {
+        type: String,
+        default: '',
+        trim: true
+    }
+}, {
+    _id: true,
+    timestamps: true
+});
+
 const codeEnvironmentSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -434,6 +545,9 @@ const teamProjectSchema = new mongoose.Schema({
     collaborators: [collaboratorSchema],
     tasks: [taskSchema],
     resources: [resourceSchema],
+    maintenanceIssues: [maintenanceIssueSchema],
+    releases: [releaseSchema],
+    wikiPages: [wikiPageSchema],
     codeEnvironments: [codeEnvironmentSchema],
     codeSnippets: [codeSnippetSchema],
     codeRuns: [codeRunSchema],
@@ -516,6 +630,28 @@ const teamProjectSchema = new mongoose.Schema({
         codeChecklist: [String],
         outputChecklist: [String],
         blockers: [String],
+        generatedAt: {
+            type: Date,
+            default: null
+        }
+    },
+    maintenanceAgent: {
+        summary: {
+            type: String,
+            default: ''
+        },
+        healthScore: {
+            type: Number,
+            default: 75,
+            min: 0,
+            max: 100
+        },
+        nextAction: {
+            type: String,
+            default: ''
+        },
+        releaseChecklist: [String],
+        riskNotes: [String],
         generatedAt: {
             type: Date,
             default: null

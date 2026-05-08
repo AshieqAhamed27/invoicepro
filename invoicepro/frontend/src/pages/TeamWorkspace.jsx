@@ -8,7 +8,10 @@ const currencyOptions = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD']
 const projectStatuses = ['planning', 'active', 'review', 'completed', 'paused'];
 const taskStatuses = ['todo', 'doing', 'done', 'blocked'];
 const priorities = ['low', 'normal', 'high'];
-const runnableLanguages = ['javascript', 'python', 'shell'];
+const issueTypes = ['bug', 'feature', 'task', 'client_request'];
+const issueStatuses = ['open', 'in_progress', 'review', 'done'];
+const releaseStatuses = ['planned', 'in_progress', 'shipped'];
+const wikiCategories = ['setup', 'client', 'delivery', 'qa', 'handover', 'other'];
 
 const blankGroup = {
   name: '',
@@ -35,6 +38,31 @@ const blankTask = {
   status: 'todo',
   dueDate: '',
   notes: ''
+};
+
+const blankIssue = {
+  title: '',
+  type: 'task',
+  priority: 'normal',
+  status: 'open',
+  owner: '',
+  groupName: '',
+  dueDate: '',
+  notes: ''
+};
+
+const blankRelease = {
+  version: '',
+  title: '',
+  status: 'planned',
+  targetDate: '',
+  summary: ''
+};
+
+const blankWikiPage = {
+  title: '',
+  category: 'setup',
+  content: ''
 };
 
 const formatCurrency = (amount, currency = 'INR') => {
@@ -73,6 +101,12 @@ const buildProjectSummary = (projects = []) => ({
   groups: projects.reduce((sum, project) => sum + (project.groups?.length || 0), 0),
   collaborators: projects.reduce((sum, project) => sum + (project.collaborators?.length || 0), 0),
   messages: projects.reduce((sum, project) => sum + (project.messages?.length || 0), 0),
+  openIssues: projects.reduce(
+    (sum, project) => sum + (project.maintenanceIssues || []).filter((issue) => issue.status !== 'done').length,
+    0
+  ),
+  releases: projects.reduce((sum, project) => sum + (project.releases?.length || 0), 0),
+  docs: projects.reduce((sum, project) => sum + (project.wikiPages?.length || 0), 0),
   openTasks: projects.reduce(
     (sum, project) => sum + (project.tasks || []).filter((task) => task.status !== 'done').length,
     0
@@ -98,6 +132,10 @@ export default function TeamWorkspace() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [resourceSaving, setResourceSaving] = useState(false);
   const [devAgentLoading, setDevAgentLoading] = useState(false);
+  const [issueSaving, setIssueSaving] = useState(false);
+  const [releaseSaving, setReleaseSaving] = useState(false);
+  const [wikiSaving, setWikiSaving] = useState(false);
+  const [maintenanceAgentLoading, setMaintenanceAgentLoading] = useState(false);
   const [lastInvite, setLastInvite] = useState(null);
   const [inviteForm, setInviteForm] = useState({
     email: '',
@@ -110,6 +148,9 @@ export default function TeamWorkspace() {
     url: '',
     notes: ''
   });
+  const [issueForm, setIssueForm] = useState({ ...blankIssue });
+  const [releaseForm, setReleaseForm] = useState({ ...blankRelease });
+  const [wikiForm, setWikiForm] = useState({ ...blankWikiPage });
   const [form, setForm] = useState({
     title: '',
     clientName: '',
@@ -157,6 +198,11 @@ export default function TeamWorkspace() {
   const latestMessages = visibleMessages.slice(-40);
   const sharedResources = activeProject?.resources || [];
   const developerAgent = activeProject?.developerAgent || {};
+  const maintenanceIssues = activeProject?.maintenanceIssues || [];
+  const openMaintenanceIssues = maintenanceIssues.filter((issue) => issue.status !== 'done');
+  const releases = activeProject?.releases || [];
+  const wikiPages = activeProject?.wikiPages || [];
+  const maintenanceAgent = activeProject?.maintenanceAgent || {};
 
   const visibleTasks = useMemo(() => {
     const tasks = activeProject?.tasks || [];
@@ -207,6 +253,9 @@ export default function TeamWorkspace() {
     setLastInvite(null);
     setInviteForm((prev) => ({ ...prev, groupName: '' }));
     setResourceForm({ label: '', type: 'repository', url: '', notes: '' });
+    setIssueForm({ ...blankIssue });
+    setReleaseForm({ ...blankRelease });
+    setWikiForm({ ...blankWikiPage });
     setUnreadMessages(0);
   }, [activeProject?._id]);
 
@@ -315,8 +364,12 @@ export default function TeamWorkspace() {
                   status: payload.status || project.status,
                   tasks: payload.tasks || project.tasks,
                   resources: payload.resources || project.resources,
+                  maintenanceIssues: payload.maintenanceIssues || project.maintenanceIssues,
+                  releases: payload.releases || project.releases,
+                  wikiPages: payload.wikiPages || project.wikiPages,
                   aiPlan: payload.aiPlan || project.aiPlan,
                   developerAgent: payload.developerAgent || project.developerAgent,
+                  maintenanceAgent: payload.maintenanceAgent || project.maintenanceAgent,
                   updatedAt: payload.updatedAt || project.updatedAt
                 }
               : project
@@ -640,6 +693,141 @@ export default function TeamWorkspace() {
     }
   };
 
+  const addMaintenanceIssue = async (event) => {
+    event.preventDefault();
+
+    if (!activeProject?._id || !canEditActiveProject) {
+      alert('Only project owners and editors can add issues.');
+      return;
+    }
+
+    if (!issueForm.title.trim()) {
+      alert('Add an issue title first.');
+      return;
+    }
+
+    try {
+      setIssueSaving(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/issues`, issueForm);
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+      setIssueForm({ ...blankIssue });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to add issue.');
+    } finally {
+      setIssueSaving(false);
+    }
+  };
+
+  const updateMaintenanceIssue = async (issue, updates) => {
+    if (!activeProject?._id || !issue?._id || !canEditActiveProject) return;
+
+    try {
+      const res = await api.patch(`/team-projects/${activeProject._id}/issues/${issue._id}`, updates);
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to update issue.');
+    }
+  };
+
+  const addRelease = async (event) => {
+    event.preventDefault();
+
+    if (!activeProject?._id || !canEditActiveProject) {
+      alert('Only project owners and editors can add releases.');
+      return;
+    }
+
+    if (!releaseForm.version.trim() || !releaseForm.title.trim()) {
+      alert('Add a version and release title first.');
+      return;
+    }
+
+    try {
+      setReleaseSaving(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/releases`, releaseForm);
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+      setReleaseForm({ ...blankRelease });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to add release.');
+    } finally {
+      setReleaseSaving(false);
+    }
+  };
+
+  const updateRelease = async (release, updates) => {
+    if (!activeProject?._id || !release?._id || !canEditActiveProject) return;
+
+    try {
+      const res = await api.patch(`/team-projects/${activeProject._id}/releases/${release._id}`, updates);
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to update release.');
+    }
+  };
+
+  const addWikiPage = async (event) => {
+    event.preventDefault();
+
+    if (!activeProject?._id || !canEditActiveProject) {
+      alert('Only project owners and editors can add docs.');
+      return;
+    }
+
+    if (!wikiForm.title.trim() || !wikiForm.content.trim()) {
+      alert('Add a doc title and content first.');
+      return;
+    }
+
+    try {
+      setWikiSaving(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/wiki-pages`, wikiForm);
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+      setWikiForm({ ...blankWikiPage });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to add project doc.');
+    } finally {
+      setWikiSaving(false);
+    }
+  };
+
+  const generateMaintenanceAgent = async () => {
+    if (!activeProject?._id) return;
+
+    try {
+      setMaintenanceAgentLoading(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/maintenance-agent`);
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'AI maintainer failed.');
+    } finally {
+      setMaintenanceAgentLoading(false);
+    }
+  };
+
   const copyTeamBrief = async (project) => {
     const plan = project.aiPlan || {};
     const text = [
@@ -659,6 +847,19 @@ export default function TeamWorkspace() {
       '',
       'Tasks:',
       ...(project.tasks || []).map((task) => `- ${task.title} | ${task.groupName || 'No group'} | ${task.owner || 'Unassigned'} | ${task.status}`),
+      '',
+      'Open issues:',
+      ...((project.maintenanceIssues || [])
+        .filter((issue) => issue.status !== 'done')
+        .map((issue) => `- ${issue.title} | ${issue.type || 'task'} | ${issue.priority || 'normal'} | ${issue.status || 'open'}`)),
+      '',
+      'Releases:',
+      ...((project.releases || []).map((release) =>
+        `- ${release.version}: ${release.title} | ${release.status || 'planned'}`
+      )),
+      '',
+      'Project docs:',
+      ...((project.wikiPages || []).map((page) => `- ${page.title} | ${page.category || 'other'}`)),
       '',
       'Recent chat:',
       ...((project.messages || []).slice(-5).map((item) =>
@@ -703,12 +904,14 @@ export default function TeamWorkspace() {
           </div>
         </section>
 
-        <section className="reveal reveal-delay-1 mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+        <section className="reveal reveal-delay-1 mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-8">
           {[
             ['Projects', summary.total || 0],
             ['Active', summary.active || 0],
             ['Groups', summary.groups || 0],
             ['Open tasks', summary.openTasks || 0],
+            ['Open issues', summary.openIssues || 0],
+            ['Releases', summary.releases || 0],
             ['Collaborators', summary.collaborators || 0],
             ['Messages', summary.messages || 0]
           ].map(([label, value]) => (
@@ -765,7 +968,7 @@ export default function TeamWorkspace() {
                         </div>
                       </div>
 
-                      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
                         <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Deadline</p>
                           <p className="mt-1 text-sm font-black text-white">{formatDate(project.deadline)}</p>
@@ -781,6 +984,16 @@ export default function TeamWorkspace() {
                         <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Tasks</p>
                           <p className="mt-1 text-sm font-black text-white">{doneTasks}/{totalTasks} done</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Issues</p>
+                          <p className="mt-1 text-sm font-black text-white">
+                            {(project.maintenanceIssues || []).filter((issue) => issue.status !== 'done').length} open
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Releases</p>
+                          <p className="mt-1 text-sm font-black text-white">{project.releases?.length || 0} versions</p>
                         </div>
                         <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Chat</p>
@@ -1166,6 +1379,350 @@ export default function TeamWorkspace() {
                         </div>
                       </div>
                     )}
+                  </div>
+                </div>
+
+                <div className="mt-8 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-4 sm:p-5">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Project maintenance hub</p>
+                      <h3 className="mt-1 text-xl font-black text-white">Issues, releases, docs, and AI maintainer</h3>
+                      <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-zinc-500">
+                        Use this like a simple GitHub-style project room: track bugs and improvements, plan versions, save project docs, and keep long-term maintenance clear for every freelancer.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={generateMaintenanceAgent}
+                      disabled={maintenanceAgentLoading}
+                      className="btn btn-secondary px-5 py-3 text-xs"
+                    >
+                      {maintenanceAgentLoading ? 'Checking...' : 'Ask AI Maintainer'}
+                    </button>
+                  </div>
+
+                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    {[
+                      ['Open issues', openMaintenanceIssues.length],
+                      ['High priority', maintenanceIssues.filter((issue) => issue.status !== 'done' && issue.priority === 'high').length],
+                      ['Releases', releases.length],
+                      ['Project docs', wikiPages.length]
+                    ].map(([label, value]) => (
+                      <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                        <p className="mt-1 text-2xl font-black text-white">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">AI maintainer</p>
+                        <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">
+                          {maintenanceAgent.summary || 'Ask AI Maintainer to review open issues, release plans, and project docs.'}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Health score</p>
+                        <p className={`mt-1 text-2xl font-black ${
+                          Number(maintenanceAgent.healthScore || 75) >= 80
+                            ? 'text-emerald-300'
+                            : Number(maintenanceAgent.healthScore || 75) >= 55
+                              ? 'text-yellow-300'
+                              : 'text-red-300'
+                        }`}>
+                          {Number(maintenanceAgent.healthScore || 75)}/100
+                        </p>
+                      </div>
+                    </div>
+                    {maintenanceAgent.nextAction && (
+                      <p className="mt-4 rounded-2xl border border-sky-300/15 bg-sky-300/10 p-4 text-sm font-black leading-relaxed text-sky-100">
+                        {maintenanceAgent.nextAction}
+                      </p>
+                    )}
+                    {(maintenanceAgent.releaseChecklist?.length || maintenanceAgent.riskNotes?.length) && (
+                      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                        <div>
+                          <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Release checklist</p>
+                          <div className="space-y-2">
+                            {(maintenanceAgent.releaseChecklist || []).map((item) => (
+                              <p key={item} className="rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-semibold leading-relaxed text-zinc-300">{item}</p>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Risk notes</p>
+                          <div className="space-y-2">
+                            {(maintenanceAgent.riskNotes || []).map((item) => (
+                              <p key={item} className="rounded-xl border border-yellow-300/15 bg-yellow-300/10 p-3 text-xs font-semibold leading-relaxed text-yellow-100">{item}</p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+                    <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Issues</p>
+                          <h4 className="mt-1 text-lg font-black text-white">Bugs, improvements, and client requests</h4>
+                        </div>
+                        <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-200">
+                          {openMaintenanceIssues.length} open
+                        </span>
+                      </div>
+
+                      <div className="mt-4 max-h-[420px] space-y-3 overflow-y-auto pr-1">
+                        {maintenanceIssues.length ? (
+                          maintenanceIssues.map((issue) => (
+                            <div key={issue._id || issue.title} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                                <div className="min-w-0">
+                                  <p className="font-black text-white">{issue.title}</p>
+                                  <p className="mt-1 text-xs font-medium text-zinc-500">
+                                    {statusLabel(issue.type)} - {statusLabel(issue.priority)} priority - {issue.owner || 'Unassigned'} - {formatDate(issue.dueDate)}
+                                  </p>
+                                  {issue.notes && (
+                                    <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-400">{issue.notes}</p>
+                                  )}
+                                </div>
+                                <select
+                                  value={issue.status || 'open'}
+                                  onChange={(event) => updateMaintenanceIssue(issue, { status: event.target.value })}
+                                  disabled={!canEditActiveProject}
+                                  className="input py-2 text-xs lg:w-36"
+                                >
+                                  {issueStatuses.map((status) => (
+                                    <option key={status} value={status}>{statusLabel(status)}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
+                            <p className="text-sm font-black text-white">No maintenance issues yet</p>
+                            <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
+                              Add bugs, requested changes, future improvements, or QA work here.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {canEditActiveProject && (
+                        <form onSubmit={addMaintenanceIssue} className="mt-4 grid gap-3">
+                          <input
+                            value={issueForm.title}
+                            onChange={(event) => setIssueForm((prev) => ({ ...prev, title: event.target.value }))}
+                            placeholder="Issue title, bug, improvement, or client request"
+                            className="input py-3 text-sm"
+                          />
+                          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                            <select
+                              value={issueForm.type}
+                              onChange={(event) => setIssueForm((prev) => ({ ...prev, type: event.target.value }))}
+                              className="input py-3 text-sm"
+                            >
+                              {issueTypes.map((type) => (
+                                <option key={type} value={type}>{statusLabel(type)}</option>
+                              ))}
+                            </select>
+                            <select
+                              value={issueForm.priority}
+                              onChange={(event) => setIssueForm((prev) => ({ ...prev, priority: event.target.value }))}
+                              className="input py-3 text-sm"
+                            >
+                              {priorities.map((priority) => (
+                                <option key={priority} value={priority}>{statusLabel(priority)}</option>
+                              ))}
+                            </select>
+                            <select
+                              value={issueForm.groupName}
+                              onChange={(event) => setIssueForm((prev) => ({ ...prev, groupName: event.target.value }))}
+                              className="input py-3 text-sm"
+                            >
+                              <option value="">No group</option>
+                              {activeGroupNames.map((groupName) => (
+                                <option key={groupName} value={groupName}>{groupName}</option>
+                              ))}
+                            </select>
+                            <input
+                              type="date"
+                              value={issueForm.dueDate}
+                              onChange={(event) => setIssueForm((prev) => ({ ...prev, dueDate: event.target.value }))}
+                              className="input py-3 text-sm"
+                            />
+                          </div>
+                          <input
+                            value={issueForm.owner}
+                            onChange={(event) => setIssueForm((prev) => ({ ...prev, owner: event.target.value }))}
+                            placeholder="Owner name or email"
+                            className="input py-3 text-sm"
+                          />
+                          <textarea
+                            value={issueForm.notes}
+                            onChange={(event) => setIssueForm((prev) => ({ ...prev, notes: event.target.value }))}
+                            placeholder="What needs to be fixed or improved?"
+                            rows="3"
+                            className="input min-h-[88px] resize-none py-3 text-sm"
+                          />
+                          <button type="submit" disabled={issueSaving} className="btn btn-primary py-3 text-xs">
+                            {issueSaving ? 'Adding...' : 'Add Issue'}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+
+                    <div className="grid gap-5">
+                      <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Releases</p>
+                        <h4 className="mt-1 text-lg font-black text-white">Version plan and client changelog</h4>
+
+                        <div className="mt-4 space-y-3">
+                          {releases.length ? (
+                            releases.map((release) => (
+                              <div key={release._id || release.version} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                  <div>
+                                    <p className="text-sm font-black text-white">{release.version} - {release.title}</p>
+                                    <p className="mt-1 text-xs font-medium text-zinc-500">{formatDate(release.targetDate)}</p>
+                                  </div>
+                                  <select
+                                    value={release.status || 'planned'}
+                                    onChange={(event) => updateRelease(release, { status: event.target.value })}
+                                    disabled={!canEditActiveProject}
+                                    className="input py-2 text-xs sm:w-36"
+                                  >
+                                    {releaseStatuses.map((status) => (
+                                      <option key={status} value={status}>{statusLabel(status)}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                                {release.summary && (
+                                  <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-400">{release.summary}</p>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center">
+                              <p className="text-sm font-black text-white">No releases yet</p>
+                              <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
+                                Plan versions so clients know what changed and what is shipping next.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {canEditActiveProject && (
+                          <form onSubmit={addRelease} className="mt-4 grid gap-3">
+                            <div className="grid gap-3 sm:grid-cols-[110px_minmax(0,1fr)]">
+                              <input
+                                value={releaseForm.version}
+                                onChange={(event) => setReleaseForm((prev) => ({ ...prev, version: event.target.value }))}
+                                placeholder="v1.1"
+                                className="input py-3 text-sm"
+                              />
+                              <input
+                                value={releaseForm.title}
+                                onChange={(event) => setReleaseForm((prev) => ({ ...prev, title: event.target.value }))}
+                                placeholder="Release title"
+                                className="input py-3 text-sm"
+                              />
+                            </div>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <select
+                                value={releaseForm.status}
+                                onChange={(event) => setReleaseForm((prev) => ({ ...prev, status: event.target.value }))}
+                                className="input py-3 text-sm"
+                              >
+                                {releaseStatuses.map((status) => (
+                                  <option key={status} value={status}>{statusLabel(status)}</option>
+                                ))}
+                              </select>
+                              <input
+                                type="date"
+                                value={releaseForm.targetDate}
+                                onChange={(event) => setReleaseForm((prev) => ({ ...prev, targetDate: event.target.value }))}
+                                className="input py-3 text-sm"
+                              />
+                            </div>
+                            <textarea
+                              value={releaseForm.summary}
+                              onChange={(event) => setReleaseForm((prev) => ({ ...prev, summary: event.target.value }))}
+                              placeholder="What will change in this release?"
+                              rows="3"
+                              className="input min-h-[88px] resize-none py-3 text-sm"
+                            />
+                            <button type="submit" disabled={releaseSaving} className="btn btn-primary py-3 text-xs">
+                              {releaseSaving ? 'Adding...' : 'Add Release'}
+                            </button>
+                          </form>
+                        )}
+                      </div>
+
+                      <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Project docs</p>
+                        <h4 className="mt-1 text-lg font-black text-white">Setup, QA, and handover notes</h4>
+
+                        <div className="mt-4 space-y-3">
+                          {wikiPages.length ? (
+                            wikiPages.slice(-4).map((page) => (
+                              <div key={page._id || page.title} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="text-sm font-black text-white">{page.title}</p>
+                                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
+                                    {statusLabel(page.category || 'other')}
+                                  </span>
+                                </div>
+                                <p className="mt-3 line-clamp-4 whitespace-pre-line text-xs font-medium leading-relaxed text-zinc-400">
+                                  {page.content}
+                                </p>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center">
+                              <p className="text-sm font-black text-white">No docs yet</p>
+                              <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
+                                Save setup steps, client rules, QA checklist, and handover notes.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {canEditActiveProject && (
+                          <form onSubmit={addWikiPage} className="mt-4 grid gap-3">
+                            <input
+                              value={wikiForm.title}
+                              onChange={(event) => setWikiForm((prev) => ({ ...prev, title: event.target.value }))}
+                              placeholder="Doc title"
+                              className="input py-3 text-sm"
+                            />
+                            <select
+                              value={wikiForm.category}
+                              onChange={(event) => setWikiForm((prev) => ({ ...prev, category: event.target.value }))}
+                              className="input py-3 text-sm"
+                            >
+                              {wikiCategories.map((category) => (
+                                <option key={category} value={category}>{statusLabel(category)}</option>
+                              ))}
+                            </select>
+                            <textarea
+                              value={wikiForm.content}
+                              onChange={(event) => setWikiForm((prev) => ({ ...prev, content: event.target.value }))}
+                              placeholder="Write setup steps, QA checklist, client rule, or handover note"
+                              rows="5"
+                              className="input min-h-[120px] resize-none py-3 text-sm"
+                            />
+                            <button type="submit" disabled={wikiSaving} className="btn btn-primary py-3 text-xs">
+                              {wikiSaving ? 'Saving...' : 'Save Doc'}
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 

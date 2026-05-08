@@ -199,6 +199,10 @@ const teamWorkspaceHighlights = [
     description: 'AI creates a next action, milestone plan, role split, and risk notes so work does not become messy.'
   },
   {
+    title: 'Long-term project maintenance',
+    description: 'Track issues, releases, and project docs so the same project can be maintained after delivery.'
+  },
+  {
     title: 'Bigger project confidence',
     description: 'Freelancers can say yes to larger client work because the workspace keeps collaboration organized.'
   }
@@ -209,7 +213,8 @@ const teamWorkspaceFlow = [
   ['02', 'Add freelancers', 'Invite people by role, skill, contact, rate, and availability.'],
   ['03', 'Assign tasks', 'Create tasks with owners, priority, due date, and status.'],
   ['04', 'Let AI plan', 'Generate delivery plan, risk level, role split, and milestones.'],
-  ['05', 'Invoice after delivery', 'Use the same system to collect payment when the project is ready.']
+  ['05', 'Maintain the project', 'Track issues, release notes, and handover docs for long-term work.'],
+  ['06', 'Invoice after delivery', 'Use the same system to collect payment when the project is ready.']
 ];
 
 const availabilityHighlights = [
