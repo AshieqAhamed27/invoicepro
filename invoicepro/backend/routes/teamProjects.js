@@ -45,6 +45,16 @@ const getDaysUntil = (value) => {
     return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
 };
 
+const normalizeGroups = (items = []) =>
+    (Array.isArray(items) ? items : [])
+        .map((item) => ({
+            name: cleanString(item.name),
+            focus: cleanString(item.focus),
+            lead: cleanString(item.lead),
+            status: TEAM_PROJECT_STATUSES.includes(item.status) ? item.status : 'planning'
+        }))
+        .filter((item) => item.name);
+
 const normalizeCollaborators = (items = []) =>
     (Array.isArray(items) ? items : [])
         .map((item) => ({
@@ -52,6 +62,7 @@ const normalizeCollaborators = (items = []) =>
             email: cleanString(item.email).toLowerCase(),
             role: cleanString(item.role) || 'Contributor',
             skill: cleanString(item.skill),
+            groupName: cleanString(item.groupName),
             availability: AVAILABILITY.includes(item.availability) ? item.availability : 'medium',
             rate: normalizeNumber(item.rate),
             status: ['invited', 'active', 'paused'].includes(item.status) ? item.status : 'invited'
@@ -63,6 +74,7 @@ const normalizeTasks = (items = []) =>
         .map((item) => ({
             title: cleanString(item.title),
             owner: cleanString(item.owner),
+            groupName: cleanString(item.groupName),
             priority: PRIORITIES.includes(item.priority) ? item.priority : 'normal',
             status: TASK_STATUSES.includes(item.status) ? item.status : 'todo',
             dueDate: normalizeDate(item.dueDate),
@@ -78,6 +90,7 @@ const normalizeProjectPayload = (body = {}) => ({
     deadline: normalizeDate(body.deadline),
     status: TEAM_PROJECT_STATUSES.includes(body.status) ? body.status : 'planning',
     projectBrief: cleanString(body.projectBrief),
+    groups: normalizeGroups(body.groups),
     collaborators: normalizeCollaborators(body.collaborators),
     tasks: normalizeTasks(body.tasks)
 });
@@ -92,6 +105,7 @@ const normalizeProjectUpdates = (body = {}) => {
     if (Object.prototype.hasOwnProperty.call(body, 'deadline')) updates.deadline = normalizeDate(body.deadline);
     if (Object.prototype.hasOwnProperty.call(body, 'status')) updates.status = TEAM_PROJECT_STATUSES.includes(body.status) ? body.status : 'planning';
     if (Object.prototype.hasOwnProperty.call(body, 'projectBrief')) updates.projectBrief = cleanString(body.projectBrief);
+    if (Object.prototype.hasOwnProperty.call(body, 'groups')) updates.groups = normalizeGroups(body.groups);
     if (Object.prototype.hasOwnProperty.call(body, 'collaborators')) updates.collaborators = normalizeCollaborators(body.collaborators);
     if (Object.prototype.hasOwnProperty.call(body, 'tasks')) updates.tasks = normalizeTasks(body.tasks);
 
@@ -112,6 +126,7 @@ const getDefaultMilestones = (project = {}) => {
 };
 
 const buildTeamAiPlan = (project = {}) => {
+    const groups = project.groups || [];
     const collaborators = project.collaborators || [];
     const tasks = project.tasks || [];
     const activeTasks = tasks.filter((task) => task.status !== 'done');
@@ -122,6 +137,7 @@ const buildTeamAiPlan = (project = {}) => {
 
     if (!collaborators.length) risks.push('Add at least one collaborator so responsibility is not stuck with one person.');
     if (!tasks.length) risks.push('Add delivery tasks so the team knows what to finish first.');
+    if (collaborators.length >= 3 && !groups.length) risks.push('Create groups so a larger freelancer team has clear ownership.');
     if (!project.deadline) risks.push('Set a deadline so AI can sequence work and review dates.');
     if (daysUntilDeadline !== null && daysUntilDeadline < 0) risks.push('Deadline is already overdue. Move the project to recovery mode.');
     if (daysUntilDeadline !== null && daysUntilDeadline <= 3 && activeTasks.length) risks.push('Deadline is close while tasks are still open.');
@@ -140,13 +156,41 @@ const buildTeamAiPlan = (project = {}) => {
         return {
             name: person.name,
             role: person.role || 'Contributor',
-            focus: focusTask?.title || person.skill || 'Support project delivery and daily progress updates'
+            focus: `${person.groupName ? `${person.groupName}: ` : ''}${focusTask?.title || person.skill || 'Support project delivery and daily progress updates'}`
+        };
+    });
+
+    const groupPlan = (groups.length ? groups : [{
+        name: 'Core Team',
+        focus: project.projectBrief || 'Project delivery',
+        lead: collaborators[0]?.name || '',
+        status: project.status || 'planning'
+    }]).map((group) => {
+        const groupCollaborators = collaborators.filter((person) => person.groupName === group.name);
+        const groupTasks = tasks.filter((task) => task.groupName === group.name);
+        const openGroupTasks = groupTasks.filter((task) => task.status !== 'done');
+        const blockedGroupTasks = groupTasks.filter((task) => task.status === 'blocked');
+        const nextGroupTask = blockedGroupTasks[0] || openGroupTasks.find((task) => task.priority === 'high') || openGroupTasks[0];
+
+        return {
+            name: group.name,
+            focus: group.focus || groupTasks[0]?.title || 'Project delivery',
+            nextAction: nextGroupTask
+                ? `${nextGroupTask.owner || group.lead || group.name} should move "${nextGroupTask.title}" forward.`
+                : groupCollaborators.length
+                    ? `${group.lead || groupCollaborators[0].name} should confirm the next deliverable for ${group.name}.`
+                    : `Add members or tasks to ${group.name}.`,
+            risk: blockedGroupTasks.length
+                ? 'high'
+                : !groupCollaborators.length || !groupTasks.length
+                    ? 'medium'
+                    : 'low'
         };
     });
 
     const milestonePlan = tasks.length
         ? tasks.slice(0, 6).map((task) => ({
-            title: task.title,
+            title: task.groupName ? `${task.groupName}: ${task.title}` : task.title,
             owner: task.owner || collaborators[0]?.name || 'Unassigned',
             dueHint: task.dueDate ? formatDate(task.dueDate) : task.priority === 'high' ? 'Do first' : 'Schedule next'
         }))
@@ -159,7 +203,7 @@ const buildTeamAiPlan = (project = {}) => {
             ? 'Run a short team review, confirm handover quality, then prepare the final invoice.'
             : 'Add the first collaborator and assign delivery ownership.';
 
-    const summary = `${project.title || 'This project'} has ${collaborators.length} collaborator${collaborators.length === 1 ? '' : 's'}, ${tasks.length} task${tasks.length === 1 ? '' : 's'}, and deadline ${formatDate(project.deadline)}.`;
+    const summary = `${project.title || 'This project'} has ${groups.length} group${groups.length === 1 ? '' : 's'}, ${collaborators.length} collaborator${collaborators.length === 1 ? '' : 's'}, ${tasks.length} task${tasks.length === 1 ? '' : 's'}, and deadline ${formatDate(project.deadline)}.`;
 
     return {
         summary,
@@ -167,6 +211,7 @@ const buildTeamAiPlan = (project = {}) => {
         riskLevel,
         roleSplit,
         milestonePlan,
+        groupPlan,
         risks: risks.length ? risks : ['No major delivery risk detected right now. Keep daily updates visible.'],
         generatedAt: new Date()
     };
@@ -178,6 +223,7 @@ const buildSummary = (projects = []) => ({
     planning: projects.filter((project) => project.status === 'planning').length,
     review: projects.filter((project) => project.status === 'review').length,
     completed: projects.filter((project) => project.status === 'completed').length,
+    groups: projects.reduce((sum, project) => sum + (project.groups?.length || 0), 0),
     collaborators: projects.reduce((sum, project) => sum + (project.collaborators?.length || 0), 0),
     openTasks: projects.reduce(
         (sum, project) => sum + (project.tasks || []).filter((task) => task.status !== 'done').length,

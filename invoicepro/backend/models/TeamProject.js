@@ -1,5 +1,28 @@
 const mongoose = require('mongoose');
 
+const groupSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    focus: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    lead: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    status: {
+        type: String,
+        enum: ['planning', 'active', 'review', 'completed', 'paused'],
+        default: 'planning'
+    }
+}, { _id: true });
+
 const collaboratorSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -18,6 +41,11 @@ const collaboratorSchema = new mongoose.Schema({
         trim: true
     },
     skill: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    groupName: {
         type: String,
         default: '',
         trim: true
@@ -46,6 +74,11 @@ const taskSchema = new mongoose.Schema({
         trim: true
     },
     owner: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    groupName: {
         type: String,
         default: '',
         trim: true
@@ -111,6 +144,7 @@ const teamProjectSchema = new mongoose.Schema({
         default: '',
         trim: true
     },
+    groups: [groupSchema],
     collaborators: [collaboratorSchema],
     tasks: [taskSchema],
     aiPlan: {
@@ -153,6 +187,25 @@ const teamProjectSchema = new mongoose.Schema({
             dueHint: {
                 type: String,
                 default: ''
+            }
+        }],
+        groupPlan: [{
+            name: {
+                type: String,
+                default: ''
+            },
+            focus: {
+                type: String,
+                default: ''
+            },
+            nextAction: {
+                type: String,
+                default: ''
+            },
+            risk: {
+                type: String,
+                enum: ['low', 'medium', 'high'],
+                default: 'medium'
             }
         }],
         risks: [String],

@@ -7,11 +7,19 @@ const projectStatuses = ['planning', 'active', 'review', 'completed', 'paused'];
 const taskStatuses = ['todo', 'doing', 'done', 'blocked'];
 const priorities = ['low', 'normal', 'high'];
 
+const blankGroup = {
+  name: '',
+  focus: '',
+  lead: '',
+  status: 'planning'
+};
+
 const blankCollaborator = {
   name: '',
   email: '',
   role: '',
   skill: '',
+  groupName: '',
   availability: 'medium',
   rate: ''
 };
@@ -19,6 +27,7 @@ const blankCollaborator = {
 const blankTask = {
   title: '',
   owner: '',
+  groupName: '',
   priority: 'normal',
   status: 'todo',
   dueDate: '',
@@ -48,6 +57,7 @@ const buildProjectSummary = (projects = []) => ({
   planning: projects.filter((project) => project.status === 'planning').length,
   review: projects.filter((project) => project.status === 'review').length,
   completed: projects.filter((project) => project.status === 'completed').length,
+  groups: projects.reduce((sum, project) => sum + (project.groups?.length || 0), 0),
   collaborators: projects.reduce((sum, project) => sum + (project.collaborators?.length || 0), 0),
   openTasks: projects.reduce(
     (sum, project) => sum + (project.tasks || []).filter((task) => task.status !== 'done').length,
@@ -69,6 +79,7 @@ export default function TeamWorkspace() {
     currency: 'INR',
     deadline: '',
     projectBrief: '',
+    groups: [{ ...blankGroup }],
     collaborators: [{ ...blankCollaborator }],
     tasks: [{ ...blankTask }]
   });
@@ -76,6 +87,11 @@ export default function TeamWorkspace() {
   const activeProject = useMemo(
     () => projects.find((project) => project._id === activeProjectId) || projects[0] || null,
     [activeProjectId, projects]
+  );
+
+  const formGroupNames = useMemo(
+    () => form.groups.map((group) => group.name.trim()).filter(Boolean),
+    [form.groups]
   );
 
   const fetchProjects = async () => {
@@ -103,6 +119,15 @@ export default function TeamWorkspace() {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const updateGroup = (index, field, value) => {
+    setForm((prev) => ({
+      ...prev,
+      groups: prev.groups.map((group, currentIndex) =>
+        currentIndex === index ? { ...group, [field]: value } : group
+      )
+    }));
+  };
+
   const updateCollaborator = (index, field, value) => {
     setForm((prev) => ({
       ...prev,
@@ -127,6 +152,15 @@ export default function TeamWorkspace() {
       collaborators: prev.collaborators.length === 1
         ? [{ ...blankCollaborator }]
         : prev.collaborators.filter((_, currentIndex) => currentIndex !== index)
+    }));
+  };
+
+  const removeGroup = (index) => {
+    setForm((prev) => ({
+      ...prev,
+      groups: prev.groups.length === 1
+        ? [{ ...blankGroup }]
+        : prev.groups.filter((_, currentIndex) => currentIndex !== index)
     }));
   };
 
@@ -158,6 +192,7 @@ export default function TeamWorkspace() {
         currency: 'INR',
         deadline: '',
         projectBrief: '',
+        groups: [{ ...blankGroup }],
         collaborators: [{ ...blankCollaborator }],
         tasks: [{ ...blankTask }]
       });
@@ -223,11 +258,14 @@ export default function TeamWorkspace() {
       `AI Summary: ${plan.summary || 'No AI plan yet'}`,
       `Next Action: ${plan.nextAction || 'Generate AI plan first'}`,
       '',
+      'Groups:',
+      ...(project.groups || []).map((group) => `- ${group.name}: ${group.focus || 'focus not set'}${group.lead ? ` | Lead: ${group.lead}` : ''}`),
+      '',
       'Collaborators:',
-      ...(project.collaborators || []).map((person) => `- ${person.name}: ${person.role || 'Contributor'} (${person.skill || 'skill not set'})`),
+      ...(project.collaborators || []).map((person) => `- ${person.name}: ${person.role || 'Contributor'} (${person.skill || 'skill not set'})${person.groupName ? ` | Group: ${person.groupName}` : ''}`),
       '',
       'Tasks:',
-      ...(project.tasks || []).map((task) => `- ${task.title} | ${task.owner || 'Unassigned'} | ${task.status}`)
+      ...(project.tasks || []).map((task) => `- ${task.title} | ${task.groupName || 'No group'} | ${task.owner || 'Unassigned'} | ${task.status}`)
     ].join('\n');
 
     try {
@@ -267,10 +305,11 @@ export default function TeamWorkspace() {
           </div>
         </section>
 
-        <section className="reveal reveal-delay-1 mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <section className="reveal reveal-delay-1 mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
           {[
             ['Projects', summary.total || 0],
             ['Active', summary.active || 0],
+            ['Groups', summary.groups || 0],
             ['Open tasks', summary.openTasks || 0],
             ['Collaborators', summary.collaborators || 0],
             ['In review', summary.review || 0]
@@ -325,10 +364,14 @@ export default function TeamWorkspace() {
                         </div>
                       </div>
 
-                      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Deadline</p>
                           <p className="mt-1 text-sm font-black text-white">{formatDate(project.deadline)}</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Groups</p>
+                          <p className="mt-1 text-sm font-black text-white">{project.groups?.length || 0} groups</p>
                         </div>
                         <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Team</p>
@@ -413,6 +456,38 @@ export default function TeamWorkspace() {
                   </div>
                 </div>
 
+                <div className="mt-8">
+                  <h3 className="mb-4 text-lg font-black text-white">Groups</h3>
+                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    {(activeProject.aiPlan?.groupPlan?.length ? activeProject.aiPlan.groupPlan : activeProject.groups || []).map((group, index) => (
+                      <div key={`${group.name}-${index}`} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-black text-white">{group.name}</p>
+                            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-emerald-300">
+                              {group.focus || 'Project delivery'}
+                            </p>
+                          </div>
+                          {group.risk && (
+                            <span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-widest ${
+                              group.risk === 'high'
+                                ? 'bg-red-400/10 text-red-300'
+                                : group.risk === 'low'
+                                  ? 'bg-emerald-400/10 text-emerald-300'
+                                  : 'bg-yellow-400/10 text-yellow-300'
+                            }`}>
+                              {group.risk}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">
+                          {group.nextAction || `Lead: ${group.lead || 'Not assigned yet'}`}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="mt-8 grid gap-6 lg:grid-cols-2">
                   <div>
                     <h3 className="mb-4 text-lg font-black text-white">Role split</h3>
@@ -451,7 +526,7 @@ export default function TeamWorkspace() {
                           <div>
                             <p className="font-black text-white">{task.title}</p>
                             <p className="mt-1 text-xs font-medium text-zinc-500">
-                              {task.owner || 'Unassigned'} - {statusLabel(task.priority)} priority - {formatDate(task.dueDate)}
+                              {task.groupName || 'No group'} - {task.owner || 'Unassigned'} - {statusLabel(task.priority)} priority - {formatDate(task.dueDate)}
                             </p>
                           </div>
                           <select
@@ -542,6 +617,63 @@ export default function TeamWorkspace() {
 
               <div className="mt-8">
                 <div className="mb-4 flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-white">Groups</h3>
+                  <button
+                    type="button"
+                    onClick={() => updateField('groups', [...form.groups, { ...blankGroup }])}
+                    className="rounded-xl border border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {form.groups.map((group, index) => (
+                    <div key={index} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <div className="grid gap-3">
+                        <input
+                          value={group.name}
+                          onChange={(event) => updateGroup(index, 'name', event.target.value)}
+                          placeholder="Group name, e.g. Design Team"
+                          className="input py-3 text-sm"
+                        />
+                        <input
+                          value={group.focus}
+                          onChange={(event) => updateGroup(index, 'focus', event.target.value)}
+                          placeholder="Group focus"
+                          className="input py-3 text-sm"
+                        />
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <input
+                            value={group.lead}
+                            onChange={(event) => updateGroup(index, 'lead', event.target.value)}
+                            placeholder="Group lead"
+                            className="input py-3 text-sm"
+                          />
+                          <select
+                            value={group.status}
+                            onChange={(event) => updateGroup(index, 'status', event.target.value)}
+                            className="input py-3 text-sm"
+                          >
+                            {projectStatuses.map((status) => (
+                              <option key={status} value={status}>{statusLabel(status)}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeGroup(index)}
+                          className="rounded-xl border border-red-400/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 hover:bg-red-400/10"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <div className="mb-4 flex items-center justify-between gap-3">
                   <h3 className="text-sm font-black uppercase tracking-widest text-white">Collaborators</h3>
                   <button
                     type="button"
@@ -581,6 +713,16 @@ export default function TeamWorkspace() {
                             className="input py-3 text-sm"
                           />
                         </div>
+                        <select
+                          value={person.groupName}
+                          onChange={(event) => updateCollaborator(index, 'groupName', event.target.value)}
+                          className="input py-3 text-sm"
+                        >
+                          <option value="">No group selected</option>
+                          {formGroupNames.map((groupName) => (
+                            <option key={groupName} value={groupName}>{groupName}</option>
+                          ))}
+                        </select>
                         <button
                           type="button"
                           onClick={() => removeCollaborator(index)}
@@ -621,6 +763,16 @@ export default function TeamWorkspace() {
                           placeholder="Owner name"
                           className="input py-3 text-sm"
                         />
+                        <select
+                          value={task.groupName}
+                          onChange={(event) => updateTask(index, 'groupName', event.target.value)}
+                          className="input py-3 text-sm"
+                        >
+                          <option value="">No group selected</option>
+                          {formGroupNames.map((groupName) => (
+                            <option key={groupName} value={groupName}>{groupName}</option>
+                          ))}
+                        </select>
                         <div className="grid gap-3 sm:grid-cols-2">
                           <select
                             value={task.priority}
