@@ -9,6 +9,7 @@ const projectStatuses = ['planning', 'active', 'review', 'completed', 'paused'];
 const taskStatuses = ['todo', 'doing', 'done', 'blocked'];
 const priorities = ['low', 'normal', 'high'];
 const codeOsOptions = ['linux', 'windows', 'macos', 'android', 'ios', 'server', 'other'];
+const runnableLanguages = ['javascript', 'python', 'shell'];
 
 const blankGroup = {
   name: '',
@@ -99,6 +100,9 @@ export default function TeamWorkspace() {
   const [resourceSaving, setResourceSaving] = useState(false);
   const [environmentSaving, setEnvironmentSaving] = useState(false);
   const [snippetSaving, setSnippetSaving] = useState(false);
+  const [runnerStatus, setRunnerStatus] = useState(null);
+  const [runningSnippetId, setRunningSnippetId] = useState('');
+  const [sandboxInput, setSandboxInput] = useState('');
   const [devAgentLoading, setDevAgentLoading] = useState(false);
   const [lastInvite, setLastInvite] = useState(null);
   const [inviteForm, setInviteForm] = useState({
@@ -181,6 +185,7 @@ export default function TeamWorkspace() {
   const sharedResources = activeProject?.resources || [];
   const codeEnvironments = activeProject?.codeEnvironments || [];
   const codeSnippets = activeProject?.codeSnippets || [];
+  const codeRuns = activeProject?.codeRuns || [];
   const developerAgent = activeProject?.developerAgent || {};
 
   const visibleTasks = useMemo(() => {
@@ -222,8 +227,22 @@ export default function TeamWorkspace() {
     }
   };
 
+  const loadRunnerStatus = async () => {
+    try {
+      const res = await api.get('/team-projects/code-runner/status');
+      setRunnerStatus(res.data?.runner || null);
+    } catch {
+      setRunnerStatus({
+        enabled: false,
+        mode: 'unavailable',
+        note: 'Code runner status is unavailable right now.'
+      });
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
+    loadRunnerStatus();
   }, []);
 
   useEffect(() => {
@@ -253,6 +272,7 @@ export default function TeamWorkspace() {
       groupName: '',
       status: 'draft'
     });
+    setSandboxInput('');
     setUnreadMessages(0);
   }, [activeProject?._id]);
 
@@ -365,6 +385,22 @@ export default function TeamWorkspace() {
       }
     });
 
+    source.addEventListener('code_run', (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        if (!payload.projectId || !payload.run?._id) return;
+
+        setProjects((prev) => prev.map((project) => {
+          if (project._id !== payload.projectId) return project;
+          const runs = project.codeRuns || [];
+          if (runs.some((item) => String(item._id) === String(payload.run._id))) return project;
+          return { ...project, codeRuns: [...runs, payload.run] };
+        }));
+      } catch {
+        // Ignore malformed stream packets.
+      }
+    });
+
     source.addEventListener('developer_agent', (event) => {
       try {
         const payload = JSON.parse(event.data || '{}');
@@ -395,6 +431,7 @@ export default function TeamWorkspace() {
                   resources: payload.resources || project.resources,
                   codeEnvironments: payload.codeEnvironments || project.codeEnvironments,
                   codeSnippets: payload.codeSnippets || project.codeSnippets,
+                  codeRuns: payload.codeRuns || project.codeRuns,
                   aiPlan: payload.aiPlan || project.aiPlan,
                   developerAgent: payload.developerAgent || project.developerAgent,
                   updatedAt: payload.updatedAt || project.updatedAt
@@ -772,6 +809,39 @@ export default function TeamWorkspace() {
       alert(err?.response?.data?.message || 'Failed to add code snippet.');
     } finally {
       setSnippetSaving(false);
+    }
+  };
+
+  const runSnippetInSandbox = async (snippet) => {
+    if (!activeProject?._id || !snippet?._id) return;
+
+    if (!canEditActiveProject) {
+      alert('Only project owners and editors can run sandbox code.');
+      return;
+    }
+
+    if (!runnerStatus?.enabled) {
+      alert(runnerStatus?.note || 'Docker sandbox is not enabled on this backend yet.');
+      return;
+    }
+
+    try {
+      setRunningSnippetId(String(snippet._id));
+      const res = await api.post(`/team-projects/${activeProject._id}/code-snippets/${snippet._id}/run`, {
+        language: snippet.language,
+        stdin: sandboxInput
+      });
+      if (res.data?.runner) {
+        setRunnerStatus(res.data.runner);
+      }
+      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
+    } catch (err) {
+      if (err?.response?.data?.runner) {
+        setRunnerStatus(err.response.data.runner);
+      }
+      alert(err?.response?.data?.message || 'Docker sandbox run failed.');
+    } finally {
+      setRunningSnippetId('');
     }
   };
 
@@ -1296,8 +1366,27 @@ export default function TeamWorkspace() {
                         </p>
                       </div>
                       <span className="rounded-full border border-cyan-300/15 bg-cyan-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-200">
-                        Safe MVP
+                        {runnerStatus?.enabled ? 'Docker ready' : 'Safe MVP'}
                       </span>
+                    </div>
+                    <div className="mt-4 rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-xs font-black text-white">
+                            {runnerStatus?.enabled ? 'Docker sandbox execution is enabled' : 'Docker sandbox execution is off'}
+                          </p>
+                          <p className="mt-1 text-xs font-medium leading-relaxed text-zinc-500">
+                            {runnerStatus?.note || 'Use this arena to share code now. Connect a Docker runner when you want real code execution.'}
+                          </p>
+                        </div>
+                        <span className={`w-fit rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
+                          runnerStatus?.enabled
+                            ? 'border border-emerald-300/15 bg-emerald-300/10 text-emerald-200'
+                            : 'border border-amber-300/15 bg-amber-300/10 text-amber-200'
+                        }`}>
+                          {runnerStatus?.mode || 'disabled'}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="mt-5 grid gap-4 xl:grid-cols-2">
@@ -1354,23 +1443,42 @@ export default function TeamWorkspace() {
                       <div className="space-y-3">
                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Code snippets</p>
                         {codeSnippets.length ? (
-                          codeSnippets.slice(-4).map((snippet) => (
-                            <div key={snippet._id || snippet.title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                  <p className="text-sm font-black text-white">{snippet.title}</p>
-                                  <p className="mt-1 text-xs font-medium text-zinc-500">{snippet.filePath || snippet.language}</p>
+                          codeSnippets.slice(-4).map((snippet) => {
+                            const snippetLanguage = String(snippet.language || '').toLowerCase();
+                            const isRunnable = runnableLanguages.includes(snippetLanguage);
+                            const canRun = Boolean(runnerStatus?.enabled && isRunnable && canEditActiveProject);
+
+                            return (
+                              <div key={snippet._id || snippet.title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                  <div>
+                                    <p className="text-sm font-black text-white">{snippet.title}</p>
+                                    <p className="mt-1 text-xs font-medium text-zinc-500">{snippet.filePath || snippet.language}</p>
+                                  </div>
+                                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
+                                    {statusLabel(snippet.status)}
+                                  </span>
                                 </div>
-                                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
-                                  {statusLabel(snippet.status)}
-                                </span>
+                                <pre className="mt-3 max-h-44 overflow-auto rounded-xl border border-white/8 bg-black/40 p-3 text-[11px] font-semibold leading-relaxed text-zinc-300">{snippet.code}</pre>
+                                <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                  <p className="text-[11px] font-semibold text-zinc-500">
+                                    {isRunnable ? `Runnable: ${statusLabel(snippetLanguage)}` : 'Execution supports JavaScript, Python, and Shell for now.'}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    disabled={!canRun || runningSnippetId === String(snippet._id)}
+                                    onClick={() => runSnippetInSandbox(snippet)}
+                                    className="btn btn-primary px-4 py-2 text-[10px] disabled:cursor-not-allowed disabled:opacity-50"
+                                  >
+                                    {runningSnippetId === String(snippet._id) ? 'Running...' : 'Run in Docker'}
+                                  </button>
+                                </div>
+                                {snippet.notes && (
+                                  <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">{snippet.notes}</p>
+                                )}
                               </div>
-                              <pre className="mt-3 max-h-44 overflow-auto rounded-xl border border-white/8 bg-black/40 p-3 text-[11px] font-semibold leading-relaxed text-zinc-300">{snippet.code}</pre>
-                              {snippet.notes && (
-                                <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">{snippet.notes}</p>
-                              )}
-                            </div>
-                          ))
+                            );
+                          })
                         ) : (
                           <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
                             <p className="text-sm font-black text-white">No code snippet yet</p>
@@ -1379,6 +1487,49 @@ export default function TeamWorkspace() {
                             </p>
                           </div>
                         )}
+
+                        {canEditActiveProject && (
+                          <textarea
+                            value={sandboxInput}
+                            onChange={(event) => setSandboxInput(event.target.value)}
+                            placeholder="Optional stdin input for sandbox runs"
+                            rows="2"
+                            className="input min-h-[70px] resize-none py-3 text-sm"
+                          />
+                        )}
+
+                        <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Latest sandbox output</p>
+                          {codeRuns.length ? (
+                            <div className="mt-3 space-y-3">
+                              {codeRuns.slice(-3).reverse().map((run) => (
+                                <div key={run._id || `${run.title}-${run.createdAt}`} className="rounded-xl border border-white/8 bg-white/[0.03] p-3">
+                                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                      <p className="text-xs font-black text-white">{run.title || 'Sandbox run'}</p>
+                                      <p className="mt-1 text-[11px] font-medium text-zinc-500">
+                                        {statusLabel(run.status)} - exit {run.exitCode ?? 'n/a'} - {run.durationMs || 0}ms
+                                      </p>
+                                    </div>
+                                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
+                                      {run.language || 'code'}
+                                    </span>
+                                  </div>
+                                  {run.stdout && (
+                                    <pre className="mt-3 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg bg-black/40 p-3 text-[11px] font-semibold leading-relaxed text-emerald-200">{run.stdout}</pre>
+                                  )}
+                                  {run.stderr && (
+                                    <pre className="mt-3 max-h-36 overflow-auto whitespace-pre-wrap rounded-lg bg-black/40 p-3 text-[11px] font-semibold leading-relaxed text-rose-200">{run.stderr}</pre>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">
+                              Run a JavaScript, Python, or Shell snippet after Docker sandbox is enabled.
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -1484,12 +1635,15 @@ export default function TeamWorkspace() {
                                 placeholder="src/App.jsx"
                                 className="input py-3 text-sm"
                               />
-                              <input
+                              <select
                                 value={snippetForm.language}
                                 onChange={(event) => setSnippetForm((prev) => ({ ...prev, language: event.target.value }))}
-                                placeholder="javascript"
                                 className="input py-3 text-sm"
-                              />
+                              >
+                                {runnableLanguages.map((language) => (
+                                  <option key={language} value={language}>{statusLabel(language)}</option>
+                                ))}
+                              </select>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2">
                               <select

@@ -112,7 +112,8 @@ app.get('/api', (req, res) => {
             clients: '/api/clients',
             leads: '/api/leads',
             businessGoal: '/api/business-goal',
-            teamProjects: '/api/team-projects'
+            teamProjects: '/api/team-projects',
+            codeRunnerStatus: '/api/team-projects/code-runner/status'
         }
     });
 });

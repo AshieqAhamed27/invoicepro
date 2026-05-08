@@ -232,6 +232,58 @@ const codeSnippetSchema = new mongoose.Schema({
     }
 }, { _id: true });
 
+const codeRunSchema = new mongoose.Schema({
+    snippetId: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: null
+    },
+    title: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    language: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    image: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    status: {
+        type: String,
+        enum: ['completed', 'failed', 'timeout', 'error'],
+        default: 'completed'
+    },
+    stdout: {
+        type: String,
+        default: ''
+    },
+    stderr: {
+        type: String,
+        default: ''
+    },
+    exitCode: {
+        type: Number,
+        default: null
+    },
+    durationMs: {
+        type: Number,
+        default: 0
+    },
+    createdBy: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+}, { _id: true });
+
 const messageSchema = new mongoose.Schema({
     groupName: {
         type: String,
@@ -384,6 +436,7 @@ const teamProjectSchema = new mongoose.Schema({
     resources: [resourceSchema],
     codeEnvironments: [codeEnvironmentSchema],
     codeSnippets: [codeSnippetSchema],
+    codeRuns: [codeRunSchema],
     messages: [messageSchema],
     members: [memberSchema],
     inviteTokens: [inviteSchema],

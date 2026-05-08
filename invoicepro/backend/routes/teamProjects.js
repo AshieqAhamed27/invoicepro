@@ -6,6 +6,7 @@ const User = require('../models/User');
 const { protect, requirePro, hasPaidPlan } = require('../middleware/auth');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 const { getJwtSecret } = require('../utils/env');
+const { getCodeRunnerStatus, runCodeInDocker } = require('../utils/dockerSandbox');
 
 const router = express.Router();
 
@@ -167,6 +168,7 @@ const getProjectCollabSnapshot = (project) => {
         resources: plain.resources || [],
         codeEnvironments: plain.codeEnvironments || [],
         codeSnippets: plain.codeSnippets || [],
+        codeRuns: plain.codeRuns || [],
         aiPlan: plain.aiPlan || {},
         developerAgent: plain.developerAgent || {},
         updatedAt: plain.updatedAt
@@ -518,6 +520,10 @@ router.get('/', protect, async(req, res) => {
         console.error('GET TEAM PROJECTS ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
+});
+
+router.get('/code-runner/status', protect, async(req, res) => {
+    res.json({ runner: getCodeRunnerStatus() });
 });
 
 router.get('/:id/events', async(req, res) => {
@@ -1020,6 +1026,80 @@ router.post('/:id/code-snippets', protect, async(req, res) => {
     } catch (err) {
         console.error('CREATE CODE SNIPPET ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/code-snippets/:snippetId/run', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id) || !isValidObjectId(req.params.snippetId)) {
+            return rejectInvalidObjectId(res, 'code snippet');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can run sandbox code.' });
+        }
+
+        const snippet = project.codeSnippets.id(req.params.snippetId);
+        if (!snippet) {
+            return res.status(404).json({ message: 'Code snippet not found.' });
+        }
+
+        const runner = getCodeRunnerStatus();
+        if (!runner.enabled) {
+            return res.status(503).json({
+                message: runner.note,
+                runner
+            });
+        }
+
+        const result = await runCodeInDocker({
+            code: snippet.code,
+            language: cleanString(req.body.language) || snippet.language,
+            stdin: req.body.stdin
+        });
+
+        project.codeRuns.push({
+            snippetId: snippet._id,
+            title: snippet.title,
+            language: result.language,
+            image: result.image,
+            status: result.status === 'completed' ? 'completed' : result.status === 'timeout' ? 'timeout' : 'failed',
+            stdout: result.stdout,
+            stderr: result.stderr,
+            exitCode: result.exitCode,
+            durationMs: result.durationMs,
+            createdBy: req.user?.name || req.user?.email || 'Team member'
+        });
+
+        if (project.codeRuns.length > 30) {
+            project.codeRuns = project.codeRuns.slice(-30);
+        }
+
+        await project.save();
+        const savedRun = project.codeRuns[project.codeRuns.length - 1];
+        broadcastProjectEvent(project._id, 'code_run', {
+            projectId: String(project._id),
+            run: savedRun
+        });
+
+        res.status(201).json({
+            project: serializeProjectForUser(project, req.user),
+            run: savedRun,
+            runner
+        });
+    } catch (err) {
+        console.error('RUN CODE SNIPPET ERROR:', err);
+        const status = err.status || 500;
+        res.status(status).json({
+            message: err.message || 'Code runner failed.',
+            runner: getCodeRunnerStatus()
+        });
     }
 });
 
