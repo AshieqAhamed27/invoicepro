@@ -926,7 +926,7 @@ export default function TeamWorkspace() {
           ))}
         </section>
 
-        <div className="grid gap-8 2xl:grid-cols-[minmax(0,1fr)_420px] 2xl:gap-10">
+        <div className="grid gap-8">
           <section className="reveal reveal-delay-1 space-y-8">
             {loading ? (
               <div className="premium-panel p-8">
@@ -972,7 +972,7 @@ export default function TeamWorkspace() {
                         </div>
                       </div>
 
-                      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
+                      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
                         <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Deadline</p>
                           <p className="mt-1 text-sm font-black text-white">{formatDate(project.deadline)}</p>
@@ -1062,8 +1062,8 @@ export default function TeamWorkspace() {
                   </div>
                 </div>
 
-                <div className="grid gap-5 lg:grid-cols-3">
-                  <div className="rounded-3xl border border-white/8 bg-black/20 p-5 lg:col-span-2">
+                <div className="grid gap-5 xl:grid-cols-3">
+                  <div className="rounded-3xl border border-white/8 bg-black/20 p-5 xl:col-span-2">
                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Next action</p>
                     <p className="mt-3 text-lg font-black leading-relaxed text-white">
                       {activeProject.aiPlan?.nextAction || 'Add collaborators and tasks, then generate the AI plan.'}
@@ -1131,7 +1131,7 @@ export default function TeamWorkspace() {
 
                   {canInviteActiveProject ? (
                     <>
-                      <form onSubmit={createInvite} className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_140px_160px_120px]">
+                      <form onSubmit={createInvite} className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_140px_160px_120px]">
                         <input
                           type="email"
                           value={inviteForm.email}
@@ -1266,7 +1266,7 @@ export default function TeamWorkspace() {
                     </button>
                   </div>
 
-                  <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+                  <div className="mt-5 grid gap-4 2xl:grid-cols-[minmax(0,1fr)_340px]">
                     <div className="space-y-3">
                       {sharedResources.length ? (
                         sharedResources.map((resource) => (
@@ -1364,7 +1364,7 @@ export default function TeamWorkspace() {
                       </div>
                     </div>
                     {(developerAgent.nextSteps?.length || developerAgent.codeChecklist?.length) && (
-                      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                      <div className="mt-4 grid gap-4 xl:grid-cols-2">
                         <div>
                           <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Next development steps</p>
                           <div className="space-y-2">
@@ -1446,7 +1446,7 @@ export default function TeamWorkspace() {
                       </p>
                     )}
                     {(maintenanceAgent.releaseChecklist?.length || maintenanceAgent.riskNotes?.length) && (
-                      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                      <div className="mt-4 grid gap-4 xl:grid-cols-2">
                         <div>
                           <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Release checklist</p>
                           <div className="space-y-2">
@@ -1467,7 +1467,7 @@ export default function TeamWorkspace() {
                     )}
                   </div>
 
-                  <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+                  <div className="mt-5 grid gap-5">
                     <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -1580,7 +1580,7 @@ export default function TeamWorkspace() {
                       )}
                     </div>
 
-                    <div className="grid gap-5">
+                    <div className="grid gap-5 xl:grid-cols-2">
                       <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Releases</p>
                         <h4 className="mt-1 text-lg font-black text-white">Version plan and client changelog</h4>
@@ -1817,7 +1817,7 @@ export default function TeamWorkspace() {
                   </form>
                 </div>
 
-                <div className="mt-8 grid gap-6 lg:grid-cols-2">
+                <div className="mt-8 grid gap-6 xl:grid-cols-2">
                   <div>
                     <h3 className="mb-4 text-lg font-black text-white">Role split</h3>
                     <div className="space-y-3">
@@ -1846,7 +1846,7 @@ export default function TeamWorkspace() {
                   </div>
                 </div>
 
-                <div className="mt-8 grid gap-6 2xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+                <div className="mt-8 grid gap-6">
                   <div>
                     <h3 className="mb-4 text-lg font-black text-white">Project tasks</h3>
                     <div className="space-y-3">
@@ -1903,13 +1903,13 @@ export default function TeamWorkspace() {
             )}
           </section>
 
-          <aside className="reveal reveal-delay-2 sticky-wide h-fit">
+          <section className="reveal reveal-delay-2">
             {canCreateProjects ? (
               <form onSubmit={handleSubmit} className="premium-panel p-5 sm:p-8">
                 <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Create team project</p>
                 <h2 className="mt-2 text-2xl font-black text-white">New collaboration room</h2>
 
-              <div className="mt-6 space-y-4">
+              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <input
                   value={form.title}
                   onChange={(event) => updateField('title', event.target.value)}
@@ -1922,7 +1922,7 @@ export default function TeamWorkspace() {
                   placeholder="Client name"
                   className="input py-4"
                 />
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2 xl:col-span-2">
                   <input
                     type="number"
                     min="0"
@@ -1952,7 +1952,7 @@ export default function TeamWorkspace() {
                   onChange={(event) => updateField('projectBrief', event.target.value)}
                   placeholder="Brief: what should the team deliver?"
                   rows="4"
-                  className="input min-h-[120px] resize-none py-4"
+                  className="input min-h-[120px] resize-none py-4 md:col-span-2 xl:col-span-4"
                 />
               </div>
 
@@ -1967,7 +1967,7 @@ export default function TeamWorkspace() {
                     Add
                   </button>
                 </div>
-                <div className="space-y-4">
+                <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
                   {form.groups.map((group, index) => (
                     <div key={index} className="rounded-2xl border border-white/8 bg-black/20 p-4">
                       <div className="grid gap-3">
@@ -2024,7 +2024,7 @@ export default function TeamWorkspace() {
                     Add
                   </button>
                 </div>
-                <div className="space-y-4">
+                <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
                   {form.collaborators.map((person, index) => (
                     <div key={index} className="rounded-2xl border border-white/8 bg-black/20 p-4">
                       <div className="grid gap-3">
@@ -2088,7 +2088,7 @@ export default function TeamWorkspace() {
                     Add
                   </button>
                 </div>
-                <div className="space-y-4">
+                <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
                   {form.tasks.map((task, index) => (
                     <div key={index} className="rounded-2xl border border-white/8 bg-black/20 p-4">
                       <div className="grid gap-3">
@@ -2173,7 +2173,7 @@ export default function TeamWorkspace() {
                 </div>
               </div>
             )}
-          </aside>
+          </section>
         </div>
       </main>
 
