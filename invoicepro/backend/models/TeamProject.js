@@ -136,6 +136,102 @@ const resourceSchema = new mongoose.Schema({
     }
 }, { _id: true });
 
+const codeEnvironmentSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    os: {
+        type: String,
+        enum: ['linux', 'windows', 'macos', 'android', 'ios', 'server', 'other'],
+        default: 'linux'
+    },
+    runtime: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    repositoryUrl: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    branch: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    setupCommands: [String],
+    runCommands: [String],
+    testCommands: [String],
+    notes: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    owner: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    groupName: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+}, { _id: true });
+
+const codeSnippetSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    filePath: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    language: {
+        type: String,
+        default: 'text',
+        trim: true
+    },
+    code: {
+        type: String,
+        required: true
+    },
+    notes: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    owner: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    groupName: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    status: {
+        type: String,
+        enum: ['draft', 'review', 'approved'],
+        default: 'draft'
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+}, { _id: true });
+
 const messageSchema = new mongoose.Schema({
     groupName: {
         type: String,
@@ -286,6 +382,8 @@ const teamProjectSchema = new mongoose.Schema({
     collaborators: [collaboratorSchema],
     tasks: [taskSchema],
     resources: [resourceSchema],
+    codeEnvironments: [codeEnvironmentSchema],
+    codeSnippets: [codeSnippetSchema],
     messages: [messageSchema],
     members: [memberSchema],
     inviteTokens: [inviteSchema],

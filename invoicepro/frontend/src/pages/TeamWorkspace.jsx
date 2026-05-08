@@ -8,6 +8,7 @@ const currencyOptions = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD']
 const projectStatuses = ['planning', 'active', 'review', 'completed', 'paused'];
 const taskStatuses = ['todo', 'doing', 'done', 'blocked'];
 const priorities = ['low', 'normal', 'high'];
+const codeOsOptions = ['linux', 'windows', 'macos', 'android', 'ios', 'server', 'other'];
 
 const blankGroup = {
   name: '',
@@ -96,6 +97,8 @@ export default function TeamWorkspace() {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [resourceSaving, setResourceSaving] = useState(false);
+  const [environmentSaving, setEnvironmentSaving] = useState(false);
+  const [snippetSaving, setSnippetSaving] = useState(false);
   const [devAgentLoading, setDevAgentLoading] = useState(false);
   const [lastInvite, setLastInvite] = useState(null);
   const [inviteForm, setInviteForm] = useState({
@@ -108,6 +111,27 @@ export default function TeamWorkspace() {
     type: 'repository',
     url: '',
     notes: ''
+  });
+  const [environmentForm, setEnvironmentForm] = useState({
+    name: '',
+    os: 'linux',
+    runtime: '',
+    repositoryUrl: '',
+    branch: '',
+    setupCommands: '',
+    runCommands: '',
+    testCommands: '',
+    notes: '',
+    groupName: ''
+  });
+  const [snippetForm, setSnippetForm] = useState({
+    title: '',
+    filePath: '',
+    language: 'javascript',
+    code: '',
+    notes: '',
+    groupName: '',
+    status: 'draft'
   });
   const [form, setForm] = useState({
     title: '',
@@ -155,6 +179,8 @@ export default function TeamWorkspace() {
   const canInviteActiveProject = Boolean(activeProject?.canInvite);
   const latestMessages = visibleMessages.slice(-40);
   const sharedResources = activeProject?.resources || [];
+  const codeEnvironments = activeProject?.codeEnvironments || [];
+  const codeSnippets = activeProject?.codeSnippets || [];
   const developerAgent = activeProject?.developerAgent || {};
 
   const visibleTasks = useMemo(() => {
@@ -206,6 +232,27 @@ export default function TeamWorkspace() {
     setLastInvite(null);
     setInviteForm((prev) => ({ ...prev, groupName: '' }));
     setResourceForm({ label: '', type: 'repository', url: '', notes: '' });
+    setEnvironmentForm({
+      name: '',
+      os: 'linux',
+      runtime: '',
+      repositoryUrl: '',
+      branch: '',
+      setupCommands: '',
+      runCommands: '',
+      testCommands: '',
+      notes: '',
+      groupName: ''
+    });
+    setSnippetForm({
+      title: '',
+      filePath: '',
+      language: 'javascript',
+      code: '',
+      notes: '',
+      groupName: '',
+      status: 'draft'
+    });
     setUnreadMessages(0);
   }, [activeProject?._id]);
 
@@ -286,6 +333,38 @@ export default function TeamWorkspace() {
       }
     });
 
+    source.addEventListener('code_environment', (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        if (!payload.projectId || !payload.environment?._id) return;
+
+        setProjects((prev) => prev.map((project) => {
+          if (project._id !== payload.projectId) return project;
+          const environments = project.codeEnvironments || [];
+          if (environments.some((item) => String(item._id) === String(payload.environment._id))) return project;
+          return { ...project, codeEnvironments: [...environments, payload.environment] };
+        }));
+      } catch {
+        // Ignore malformed stream packets.
+      }
+    });
+
+    source.addEventListener('code_snippet', (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        if (!payload.projectId || !payload.snippet?._id) return;
+
+        setProjects((prev) => prev.map((project) => {
+          if (project._id !== payload.projectId) return project;
+          const snippets = project.codeSnippets || [];
+          if (snippets.some((item) => String(item._id) === String(payload.snippet._id))) return project;
+          return { ...project, codeSnippets: [...snippets, payload.snippet] };
+        }));
+      } catch {
+        // Ignore malformed stream packets.
+      }
+    });
+
     source.addEventListener('developer_agent', (event) => {
       try {
         const payload = JSON.parse(event.data || '{}');
@@ -314,6 +393,8 @@ export default function TeamWorkspace() {
                   status: payload.status || project.status,
                   tasks: payload.tasks || project.tasks,
                   resources: payload.resources || project.resources,
+                  codeEnvironments: payload.codeEnvironments || project.codeEnvironments,
+                  codeSnippets: payload.codeSnippets || project.codeSnippets,
                   aiPlan: payload.aiPlan || project.aiPlan,
                   developerAgent: payload.developerAgent || project.developerAgent,
                   updatedAt: payload.updatedAt || project.updatedAt
@@ -622,6 +703,75 @@ export default function TeamWorkspace() {
       alert(err?.response?.data?.message || 'Failed to add build link.');
     } finally {
       setResourceSaving(false);
+    }
+  };
+
+  const addCodeEnvironment = async (event) => {
+    event.preventDefault();
+
+    if (!activeProject?._id || !canEditActiveProject) {
+      alert('Only project owners and editors can add Code Arena environments.');
+      return;
+    }
+
+    if (!environmentForm.name.trim()) {
+      alert('Add an environment name first.');
+      return;
+    }
+
+    try {
+      setEnvironmentSaving(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/code-environments`, environmentForm);
+      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
+      setEnvironmentForm({
+        name: '',
+        os: 'linux',
+        runtime: '',
+        repositoryUrl: '',
+        branch: '',
+        setupCommands: '',
+        runCommands: '',
+        testCommands: '',
+        notes: '',
+        groupName: ''
+      });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to add Code Arena environment.');
+    } finally {
+      setEnvironmentSaving(false);
+    }
+  };
+
+  const addCodeSnippet = async (event) => {
+    event.preventDefault();
+
+    if (!activeProject?._id || !canEditActiveProject) {
+      alert('Only project owners and editors can add code snippets.');
+      return;
+    }
+
+    if (!snippetForm.title.trim() || !snippetForm.code.trim()) {
+      alert('Add snippet title and code first.');
+      return;
+    }
+
+    try {
+      setSnippetSaving(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/code-snippets`, snippetForm);
+      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
+      setSnippetForm({
+        title: '',
+        filePath: '',
+        language: 'javascript',
+        code: '',
+        notes: '',
+        groupName: '',
+        status: 'draft'
+      });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to add code snippet.');
+    } finally {
+      setSnippetSaving(false);
     }
   };
 
@@ -1134,6 +1284,255 @@ export default function TeamWorkspace() {
                         </div>
                       )}
                     </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl border border-cyan-400/15 bg-cyan-400/[0.04] p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-cyan-300">Code Arena</p>
+                        <h4 className="mt-1 text-lg font-black text-white">OS workspaces, commands, snippets, and outputs</h4>
+                        <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
+                          Share Linux, Windows, macOS, Android, iOS, or server setup instructions so every freelancer works from the same environment.
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-cyan-300/15 bg-cyan-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-200">
+                        Safe MVP
+                      </span>
+                    </div>
+
+                    <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">OS environments</p>
+                        {codeEnvironments.length ? (
+                          codeEnvironments.map((environment) => (
+                            <div key={environment._id || environment.name} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                  <p className="text-sm font-black text-white">{environment.name}</p>
+                                  <p className="mt-1 text-xs font-medium text-zinc-500">
+                                    {statusLabel(environment.os)} {environment.runtime ? `- ${environment.runtime}` : ''} {environment.branch ? `- ${environment.branch}` : ''}
+                                  </p>
+                                </div>
+                                <span className="rounded-full border border-cyan-300/15 bg-cyan-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-cyan-200">
+                                  {environment.groupName || 'All team'}
+                                </span>
+                              </div>
+                              {environment.repositoryUrl && (
+                                <p className="mt-3 break-all text-xs font-medium text-zinc-400">{environment.repositoryUrl}</p>
+                              )}
+                              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                                {[
+                                  ['Setup', environment.setupCommands],
+                                  ['Run', environment.runCommands],
+                                  ['Test', environment.testCommands]
+                                ].map(([label, commands]) => (
+                                  <div key={label} className="rounded-xl border border-white/8 bg-white/[0.03] p-3">
+                                    <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                                    {commands?.length ? (
+                                      <pre className="whitespace-pre-wrap break-words text-[11px] font-semibold leading-relaxed text-zinc-300">{commands.join('\n')}</pre>
+                                    ) : (
+                                      <p className="text-[11px] font-medium text-zinc-600">Not added</p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                              {environment.notes && (
+                                <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">{environment.notes}</p>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
+                            <p className="text-sm font-black text-white">No OS workspace yet</p>
+                            <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
+                              Add Linux/server setup for backend work or Android/iOS setup for app projects.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Code snippets</p>
+                        {codeSnippets.length ? (
+                          codeSnippets.slice(-4).map((snippet) => (
+                            <div key={snippet._id || snippet.title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                  <p className="text-sm font-black text-white">{snippet.title}</p>
+                                  <p className="mt-1 text-xs font-medium text-zinc-500">{snippet.filePath || snippet.language}</p>
+                                </div>
+                                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
+                                  {statusLabel(snippet.status)}
+                                </span>
+                              </div>
+                              <pre className="mt-3 max-h-44 overflow-auto rounded-xl border border-white/8 bg-black/40 p-3 text-[11px] font-semibold leading-relaxed text-zinc-300">{snippet.code}</pre>
+                              {snippet.notes && (
+                                <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">{snippet.notes}</p>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
+                            <p className="text-sm font-black text-white">No code snippet yet</p>
+                            <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
+                              Share important code, config, scripts, or review patches here.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {canEditActiveProject && (
+                      <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                        <form onSubmit={addCodeEnvironment} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Add OS workspace</p>
+                          <div className="grid gap-3">
+                            <input
+                              value={environmentForm.name}
+                              onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, name: event.target.value }))}
+                              placeholder="Linux backend, Android app, Windows desktop..."
+                              className="input py-3 text-sm"
+                            />
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <select
+                                value={environmentForm.os}
+                                onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, os: event.target.value }))}
+                                className="input py-3 text-sm"
+                              >
+                                {codeOsOptions.map((os) => (
+                                  <option key={os} value={os}>{statusLabel(os)}</option>
+                                ))}
+                              </select>
+                              <input
+                                value={environmentForm.runtime}
+                                onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, runtime: event.target.value }))}
+                                placeholder="Node 20, Python 3.12, Java..."
+                                className="input py-3 text-sm"
+                              />
+                            </div>
+                            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_130px]">
+                              <input
+                                value={environmentForm.repositoryUrl}
+                                onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, repositoryUrl: event.target.value }))}
+                                placeholder="Repository URL"
+                                className="input py-3 text-sm"
+                              />
+                              <input
+                                value={environmentForm.branch}
+                                onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, branch: event.target.value }))}
+                                placeholder="Branch"
+                                className="input py-3 text-sm"
+                              />
+                            </div>
+                            <select
+                              value={environmentForm.groupName}
+                              onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, groupName: event.target.value }))}
+                              className="input py-3 text-sm"
+                            >
+                              <option value="">All groups</option>
+                              {activeGroupNames.map((groupName) => (
+                                <option key={groupName} value={groupName}>{groupName}</option>
+                              ))}
+                            </select>
+                            <textarea
+                              value={environmentForm.setupCommands}
+                              onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, setupCommands: event.target.value }))}
+                              placeholder="Setup commands, one per line"
+                              rows="3"
+                              className="input min-h-[88px] resize-none py-3 text-sm"
+                            />
+                            <textarea
+                              value={environmentForm.runCommands}
+                              onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, runCommands: event.target.value }))}
+                              placeholder="Run commands, one per line"
+                              rows="3"
+                              className="input min-h-[88px] resize-none py-3 text-sm"
+                            />
+                            <textarea
+                              value={environmentForm.testCommands}
+                              onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, testCommands: event.target.value }))}
+                              placeholder="Test commands, one per line"
+                              rows="3"
+                              className="input min-h-[88px] resize-none py-3 text-sm"
+                            />
+                            <textarea
+                              value={environmentForm.notes}
+                              onChange={(event) => setEnvironmentForm((prev) => ({ ...prev, notes: event.target.value }))}
+                              placeholder="OS notes, secrets needed, output expectation..."
+                              rows="3"
+                              className="input min-h-[88px] resize-none py-3 text-sm"
+                            />
+                            <button type="submit" disabled={environmentSaving} className="btn btn-primary py-3 text-xs">
+                              {environmentSaving ? 'Adding...' : 'Add Workspace'}
+                            </button>
+                          </div>
+                        </form>
+
+                        <form onSubmit={addCodeSnippet} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Add code snippet</p>
+                          <div className="grid gap-3">
+                            <input
+                              value={snippetForm.title}
+                              onChange={(event) => setSnippetForm((prev) => ({ ...prev, title: event.target.value }))}
+                              placeholder="Login fix, Dockerfile, API route..."
+                              className="input py-3 text-sm"
+                            />
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <input
+                                value={snippetForm.filePath}
+                                onChange={(event) => setSnippetForm((prev) => ({ ...prev, filePath: event.target.value }))}
+                                placeholder="src/App.jsx"
+                                className="input py-3 text-sm"
+                              />
+                              <input
+                                value={snippetForm.language}
+                                onChange={(event) => setSnippetForm((prev) => ({ ...prev, language: event.target.value }))}
+                                placeholder="javascript"
+                                className="input py-3 text-sm"
+                              />
+                            </div>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <select
+                                value={snippetForm.groupName}
+                                onChange={(event) => setSnippetForm((prev) => ({ ...prev, groupName: event.target.value }))}
+                                className="input py-3 text-sm"
+                              >
+                                <option value="">All groups</option>
+                                {activeGroupNames.map((groupName) => (
+                                  <option key={groupName} value={groupName}>{groupName}</option>
+                                ))}
+                              </select>
+                              <select
+                                value={snippetForm.status}
+                                onChange={(event) => setSnippetForm((prev) => ({ ...prev, status: event.target.value }))}
+                                className="input py-3 text-sm"
+                              >
+                                <option value="draft">Draft</option>
+                                <option value="review">Review</option>
+                                <option value="approved">Approved</option>
+                              </select>
+                            </div>
+                            <textarea
+                              value={snippetForm.code}
+                              onChange={(event) => setSnippetForm((prev) => ({ ...prev, code: event.target.value }))}
+                              placeholder="Paste code, config, command output, or patch here"
+                              rows="8"
+                              className="input min-h-[190px] resize-y py-3 font-mono text-xs"
+                            />
+                            <textarea
+                              value={snippetForm.notes}
+                              onChange={(event) => setSnippetForm((prev) => ({ ...prev, notes: event.target.value }))}
+                              placeholder="What should reviewers check?"
+                              rows="3"
+                              className="input min-h-[88px] resize-none py-3 text-sm"
+                            />
+                            <button type="submit" disabled={snippetSaving} className="btn btn-primary py-3 text-xs">
+                              {snippetSaving ? 'Adding...' : 'Add Snippet'}
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.03] p-4">

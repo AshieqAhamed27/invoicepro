@@ -15,6 +15,8 @@ const PRIORITIES = ['low', 'normal', 'high'];
 const AVAILABILITY = ['low', 'medium', 'high'];
 const CURRENCIES = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'];
 const RESOURCE_TYPES = ['repository', 'preview', 'design', 'document', 'other'];
+const CODE_OS_OPTIONS = ['linux', 'windows', 'macos', 'android', 'ios', 'server', 'other'];
+const CODE_SNIPPET_STATUSES = ['draft', 'review', 'approved'];
 const MEMBER_ROLES = ['owner', 'editor', 'viewer'];
 const INVITE_ROLES = ['editor', 'viewer'];
 const projectEventClients = new Map();
@@ -163,6 +165,8 @@ const getProjectCollabSnapshot = (project) => {
         status: plain.status,
         tasks: plain.tasks || [],
         resources: plain.resources || [],
+        codeEnvironments: plain.codeEnvironments || [],
+        codeSnippets: plain.codeSnippets || [],
         aiPlan: plain.aiPlan || {},
         developerAgent: plain.developerAgent || {},
         updatedAt: plain.updatedAt
@@ -249,6 +253,49 @@ const normalizeResources = (items = []) =>
         }))
         .filter((item) => item.label && /^https?:\/\//i.test(item.url));
 
+const normalizeCommandList = (value) => {
+    if (Array.isArray(value)) {
+        return value.map(cleanString).filter(Boolean).slice(0, 20);
+    }
+
+    return String(value || '')
+        .split(/\r?\n/)
+        .map(cleanString)
+        .filter(Boolean)
+        .slice(0, 20);
+};
+
+const normalizeCodeEnvironments = (items = []) =>
+    (Array.isArray(items) ? items : [])
+        .map((item) => ({
+            name: cleanString(item.name),
+            os: CODE_OS_OPTIONS.includes(item.os) ? item.os : 'linux',
+            runtime: cleanString(item.runtime),
+            repositoryUrl: cleanString(item.repositoryUrl),
+            branch: cleanString(item.branch),
+            setupCommands: normalizeCommandList(item.setupCommands),
+            runCommands: normalizeCommandList(item.runCommands),
+            testCommands: normalizeCommandList(item.testCommands),
+            notes: cleanString(item.notes),
+            owner: cleanString(item.owner),
+            groupName: cleanString(item.groupName)
+        }))
+        .filter((item) => item.name);
+
+const normalizeCodeSnippets = (items = []) =>
+    (Array.isArray(items) ? items : [])
+        .map((item) => ({
+            title: cleanString(item.title),
+            filePath: cleanString(item.filePath),
+            language: cleanString(item.language) || 'text',
+            code: String(item.code || '').trim().slice(0, 12000),
+            notes: cleanString(item.notes),
+            owner: cleanString(item.owner),
+            groupName: cleanString(item.groupName),
+            status: CODE_SNIPPET_STATUSES.includes(item.status) ? item.status : 'draft'
+        }))
+        .filter((item) => item.title && item.code);
+
 const normalizeProjectPayload = (body = {}) => ({
     title: cleanString(body.title),
     clientName: cleanString(body.clientName),
@@ -260,7 +307,9 @@ const normalizeProjectPayload = (body = {}) => ({
     groups: normalizeGroups(body.groups),
     collaborators: normalizeCollaborators(body.collaborators),
     tasks: normalizeTasks(body.tasks),
-    resources: normalizeResources(body.resources)
+    resources: normalizeResources(body.resources),
+    codeEnvironments: normalizeCodeEnvironments(body.codeEnvironments),
+    codeSnippets: normalizeCodeSnippets(body.codeSnippets)
 });
 
 const normalizeProjectUpdates = (body = {}) => {
@@ -277,6 +326,8 @@ const normalizeProjectUpdates = (body = {}) => {
     if (Object.prototype.hasOwnProperty.call(body, 'collaborators')) updates.collaborators = normalizeCollaborators(body.collaborators);
     if (Object.prototype.hasOwnProperty.call(body, 'tasks')) updates.tasks = normalizeTasks(body.tasks);
     if (Object.prototype.hasOwnProperty.call(body, 'resources')) updates.resources = normalizeResources(body.resources);
+    if (Object.prototype.hasOwnProperty.call(body, 'codeEnvironments')) updates.codeEnvironments = normalizeCodeEnvironments(body.codeEnvironments);
+    if (Object.prototype.hasOwnProperty.call(body, 'codeSnippets')) updates.codeSnippets = normalizeCodeSnippets(body.codeSnippets);
 
     return updates;
 };
@@ -389,15 +440,19 @@ const buildTeamAiPlan = (project = {}) => {
 const buildDeveloperAgentPlan = (project = {}) => {
     const tasks = project.tasks || [];
     const resources = project.resources || [];
+    const codeEnvironments = project.codeEnvironments || [];
+    const codeSnippets = project.codeSnippets || [];
     const openTasks = tasks.filter((task) => task.status !== 'done');
     const blockedTasks = tasks.filter((task) => task.status === 'blocked');
     const repository = resources.find((item) => item.type === 'repository');
     const preview = resources.find((item) => item.type === 'preview');
     const design = resources.find((item) => item.type === 'design');
+    const linuxEnv = codeEnvironments.find((item) => item.os === 'linux' || item.os === 'server');
     const nextTask = blockedTasks[0] || openTasks.find((task) => task.priority === 'high') || openTasks[0];
 
     const nextSteps = [
         repository ? 'Pull the latest code and confirm the main branch before starting work.' : 'Add the GitHub/GitLab repository link so every collaborator can inspect the code.',
+        linuxEnv ? `Use the ${linuxEnv.name} ${linuxEnv.os} environment for server/Linux work.` : 'Add at least one Linux/server environment if the project needs deployment, CLI, or backend work.',
         design ? 'Compare the current output with the design/reference link before marking UI tasks done.' : 'Add a design, requirement, or reference link if the UI needs visual approval.',
         preview ? 'Open the live preview and verify the latest output on desktop and mobile.' : 'Add a live preview/deployment link so the team can test output without asking for screenshots.',
         nextTask
@@ -406,7 +461,7 @@ const buildDeveloperAgentPlan = (project = {}) => {
     ];
 
     return {
-        summary: `${project.title || 'This project'} has ${resources.length} shared build link${resources.length === 1 ? '' : 's'} and ${openTasks.length} open development task${openTasks.length === 1 ? '' : 's'}.`,
+        summary: `${project.title || 'This project'} has ${resources.length} shared build link${resources.length === 1 ? '' : 's'}, ${codeEnvironments.length} code arena environment${codeEnvironments.length === 1 ? '' : 's'}, ${codeSnippets.length} snippet${codeSnippets.length === 1 ? '' : 's'}, and ${openTasks.length} open development task${openTasks.length === 1 ? '' : 's'}.`,
         nextSteps,
         codeChecklist: [
             'Confirm the task owner before changing shared files.',
@@ -878,6 +933,92 @@ router.post('/:id/resources', protect, async(req, res) => {
         });
     } catch (err) {
         console.error('CREATE TEAM RESOURCE ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/code-environments', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can add Code Arena environments.' });
+        }
+
+        const environment = normalizeCodeEnvironments([{
+            ...req.body,
+            owner: req.user?.name || req.user?.email || 'Team member'
+        }])[0];
+
+        if (!environment) {
+            return res.status(400).json({ message: 'Environment name is required.' });
+        }
+
+        project.codeEnvironments.push(environment);
+        await project.save();
+        const savedEnvironment = project.codeEnvironments[project.codeEnvironments.length - 1];
+        broadcastProjectEvent(project._id, 'code_environment', {
+            projectId: String(project._id),
+            environment: savedEnvironment
+        });
+
+        res.status(201).json({
+            project: serializeProjectForUser(project, req.user),
+            environment: savedEnvironment
+        });
+    } catch (err) {
+        console.error('CREATE CODE ENVIRONMENT ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/code-snippets', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can add code snippets.' });
+        }
+
+        const snippet = normalizeCodeSnippets([{
+            ...req.body,
+            owner: req.user?.name || req.user?.email || 'Team member'
+        }])[0];
+
+        if (!snippet) {
+            return res.status(400).json({ message: 'Snippet title and code are required.' });
+        }
+
+        project.codeSnippets.push(snippet);
+        await project.save();
+        const savedSnippet = project.codeSnippets[project.codeSnippets.length - 1];
+        broadcastProjectEvent(project._id, 'code_snippet', {
+            projectId: String(project._id),
+            snippet: savedSnippet
+        });
+
+        res.status(201).json({
+            project: serializeProjectForUser(project, req.user),
+            snippet: savedSnippet
+        });
+    } catch (err) {
+        console.error('CREATE CODE SNIPPET ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
