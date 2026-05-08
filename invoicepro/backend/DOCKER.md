@@ -14,6 +14,8 @@ Backend will run at:
 http://127.0.0.1:5000/api/health
 ```
 
+The root `docker-compose.yml` also mounts the host Docker socket so the local Code Arena can run snippets inside child containers.
+
 ## Production Notes
 
 - Keep frontend on Vercel.
