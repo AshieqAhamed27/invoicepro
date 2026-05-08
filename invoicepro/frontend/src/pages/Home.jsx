@@ -247,7 +247,7 @@ export default function Home() {
               </p>
               <button
                 type="button"
-                onClick={() => goToApp('/dashboard', 'workflow_start')}
+                onClick={() => goToApp('/money-gps', 'workflow_start')}
                 className="mt-6 btn btn-primary px-6 py-3 text-sm"
               >
                 Open Money GPS
