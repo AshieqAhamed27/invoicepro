@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
+import { getUser } from '../utils/auth';
 
 const currencyOptions = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'];
 const projectStatuses = ['planning', 'active', 'review', 'completed', 'paused'];
@@ -48,6 +49,16 @@ const formatDate = (date) => {
   });
 };
 
+const formatMessageTime = (date) => {
+  if (!date) return '';
+  return new Date(date).toLocaleString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
 const statusLabel = (value = '') =>
   String(value).replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 
@@ -59,6 +70,7 @@ const buildProjectSummary = (projects = []) => ({
   completed: projects.filter((project) => project.status === 'completed').length,
   groups: projects.reduce((sum, project) => sum + (project.groups?.length || 0), 0),
   collaborators: projects.reduce((sum, project) => sum + (project.collaborators?.length || 0), 0),
+  messages: projects.reduce((sum, project) => sum + (project.messages?.length || 0), 0),
   openTasks: projects.reduce(
     (sum, project) => sum + (project.tasks || []).filter((task) => task.status !== 'done').length,
     0
@@ -66,12 +78,16 @@ const buildProjectSummary = (projects = []) => ({
 });
 
 export default function TeamWorkspace() {
+  const currentUser = getUser() || {};
   const [projects, setProjects] = useState([]);
   const [summary, setSummary] = useState({});
   const [activeProjectId, setActiveProjectId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [planLoading, setPlanLoading] = useState('');
+  const [chatGroup, setChatGroup] = useState('');
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatSending, setChatSending] = useState(false);
   const [form, setForm] = useState({
     title: '',
     clientName: '',
@@ -94,6 +110,18 @@ export default function TeamWorkspace() {
     [form.groups]
   );
 
+  const activeGroupNames = useMemo(
+    () => (activeProject?.groups || []).map((group) => group.name).filter(Boolean),
+    [activeProject]
+  );
+
+  const visibleMessages = useMemo(() => {
+    const messages = activeProject?.messages || [];
+    if (!chatGroup) return messages;
+
+    return messages.filter((item) => (item.groupName || '') === chatGroup);
+  }, [activeProject, chatGroup]);
+
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -114,6 +142,11 @@ export default function TeamWorkspace() {
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  useEffect(() => {
+    setChatGroup('');
+    setChatMessage('');
+  }, [activeProject?._id]);
 
   const updateField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -247,6 +280,35 @@ export default function TeamWorkspace() {
     }
   };
 
+  const sendGroupMessage = async (event) => {
+    event.preventDefault();
+
+    if (!activeProject?._id || !chatMessage.trim()) {
+      return;
+    }
+
+    try {
+      setChatSending(true);
+      const senderName = currentUser.name || currentUser.email || 'Project owner';
+      const res = await api.post(`/team-projects/${activeProject._id}/messages`, {
+        groupName: chatGroup,
+        senderName,
+        message: chatMessage
+      });
+
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+      setChatMessage('');
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to send message.');
+    } finally {
+      setChatSending(false);
+    }
+  };
+
   const copyTeamBrief = async (project) => {
     const plan = project.aiPlan || {};
     const text = [
@@ -265,7 +327,12 @@ export default function TeamWorkspace() {
       ...(project.collaborators || []).map((person) => `- ${person.name}: ${person.role || 'Contributor'} (${person.skill || 'skill not set'})${person.groupName ? ` | Group: ${person.groupName}` : ''}`),
       '',
       'Tasks:',
-      ...(project.tasks || []).map((task) => `- ${task.title} | ${task.groupName || 'No group'} | ${task.owner || 'Unassigned'} | ${task.status}`)
+      ...(project.tasks || []).map((task) => `- ${task.title} | ${task.groupName || 'No group'} | ${task.owner || 'Unassigned'} | ${task.status}`),
+      '',
+      'Recent chat:',
+      ...((project.messages || []).slice(-5).map((item) =>
+        `- ${item.senderName || 'Team'}${item.groupName ? ` (${item.groupName})` : ''}: ${item.message}`
+      ))
     ].join('\n');
 
     try {
@@ -312,7 +379,7 @@ export default function TeamWorkspace() {
             ['Groups', summary.groups || 0],
             ['Open tasks', summary.openTasks || 0],
             ['Collaborators', summary.collaborators || 0],
-            ['In review', summary.review || 0]
+            ['Messages', summary.messages || 0]
           ].map(([label, value]) => (
             <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
@@ -364,7 +431,7 @@ export default function TeamWorkspace() {
                         </div>
                       </div>
 
-                      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                         <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Deadline</p>
                           <p className="mt-1 text-sm font-black text-white">{formatDate(project.deadline)}</p>
@@ -380,6 +447,10 @@ export default function TeamWorkspace() {
                         <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
                           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Tasks</p>
                           <p className="mt-1 text-sm font-black text-white">{doneTasks}/{totalTasks} done</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Chat</p>
+                          <p className="mt-1 text-sm font-black text-white">{project.messages?.length || 0} updates</p>
                         </div>
                       </div>
                     </button>
@@ -486,6 +557,76 @@ export default function TeamWorkspace() {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                <div className="mt-8 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-4 sm:p-5">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Group chat</p>
+                      <h3 className="mt-1 text-xl font-black text-white">Keep team updates inside the project</h3>
+                      <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
+                        Send updates to the whole project or filter the conversation by group.
+                      </p>
+                    </div>
+                    <select
+                      value={chatGroup}
+                      onChange={(event) => setChatGroup(event.target.value)}
+                      className="input w-full py-3 text-xs lg:w-56"
+                    >
+                      <option value="">All project chat</option>
+                      {activeGroupNames.map((groupName) => (
+                        <option key={groupName} value={groupName}>{groupName}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mt-5 max-h-[360px] space-y-3 overflow-y-auto rounded-2xl border border-white/8 bg-black/20 p-3 sm:p-4">
+                    {visibleMessages.length ? (
+                      visibleMessages.slice(-40).map((item) => (
+                        <div key={item._id || `${item.senderName}-${item.createdAt}`} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-black text-white">{item.senderName || 'Team member'}</p>
+                              <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
+                                {item.groupName || 'All project'}
+                              </span>
+                            </div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                              {formatMessageTime(item.createdAt)}
+                            </p>
+                          </div>
+                          <p className="mt-3 whitespace-pre-line text-sm font-medium leading-relaxed text-zinc-300">
+                            {item.message}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
+                        <p className="text-sm font-black text-white">No messages yet</p>
+                        <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
+                          Share the first project update, blocker, or handover note for this team.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <form onSubmit={sendGroupMessage} className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_130px]">
+                    <textarea
+                      value={chatMessage}
+                      onChange={(event) => setChatMessage(event.target.value)}
+                      placeholder={chatGroup ? `Message ${chatGroup}` : 'Write a project update for the team'}
+                      rows="3"
+                      maxLength="1200"
+                      className="input min-h-[96px] resize-none py-4 text-sm"
+                    />
+                    <button
+                      type="submit"
+                      disabled={chatSending || !chatMessage.trim()}
+                      className="btn btn-primary h-full min-h-[56px] self-stretch px-5 py-4 text-xs disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {chatSending ? 'Sending...' : 'Send Update'}
+                    </button>
+                  </form>
                 </div>
 
                 <div className="mt-8 grid gap-6 lg:grid-cols-2">

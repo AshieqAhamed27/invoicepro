@@ -104,6 +104,28 @@ const taskSchema = new mongoose.Schema({
     }
 }, { _id: true });
 
+const messageSchema = new mongoose.Schema({
+    groupName: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    senderName: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    message: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+}, { _id: true });
+
 const teamProjectSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -147,6 +169,7 @@ const teamProjectSchema = new mongoose.Schema({
     groups: [groupSchema],
     collaborators: [collaboratorSchema],
     tasks: [taskSchema],
+    messages: [messageSchema],
     aiPlan: {
         summary: {
             type: String,

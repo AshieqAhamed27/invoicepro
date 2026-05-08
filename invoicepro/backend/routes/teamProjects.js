@@ -225,6 +225,7 @@ const buildSummary = (projects = []) => ({
     completed: projects.filter((project) => project.status === 'completed').length,
     groups: projects.reduce((sum, project) => sum + (project.groups?.length || 0), 0),
     collaborators: projects.reduce((sum, project) => sum + (project.collaborators?.length || 0), 0),
+    messages: projects.reduce((sum, project) => sum + (project.messages?.length || 0), 0),
     openTasks: projects.reduce(
         (sum, project) => sum + (project.tasks || []).filter((task) => task.status !== 'done').length,
         0
@@ -293,6 +294,54 @@ router.patch('/:id', protect, requirePro, async(req, res) => {
         res.json({ project });
     } catch (err) {
         console.error('UPDATE TEAM PROJECT ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/messages', protect, requirePro, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const message = cleanString(req.body.message).slice(0, 1200);
+        const groupName = cleanString(req.body.groupName);
+        const senderName = cleanString(req.body.senderName)
+            || req.user?.name
+            || req.user?.email
+            || 'Project owner';
+
+        if (!message) {
+            return res.status(400).json({ message: 'Message is required.' });
+        }
+
+        const project = await TeamProject.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        project.messages.push({
+            groupName,
+            senderName,
+            message
+        });
+
+        if (project.messages.length > 250) {
+            project.messages = project.messages.slice(-250);
+        }
+
+        await project.save();
+
+        res.status(201).json({
+            project,
+            message: project.messages[project.messages.length - 1]
+        });
+    } catch (err) {
+        console.error('TEAM PROJECT MESSAGE ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
