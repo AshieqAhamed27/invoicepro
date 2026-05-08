@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
-import { getUser } from '../utils/auth';
+import { getToken, getUser } from '../utils/auth';
 import { openWhatsAppShare } from '../utils/whatsapp';
 
 const currencyOptions = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'];
@@ -80,6 +80,7 @@ const buildProjectSummary = (projects = []) => ({
 
 export default function TeamWorkspace() {
   const currentUser = getUser() || {};
+  const chatOpenRef = useRef(false);
   const [projects, setProjects] = useState([]);
   const [summary, setSummary] = useState({});
   const [canCreateProjects, setCanCreateProjects] = useState(false);
@@ -90,12 +91,23 @@ export default function TeamWorkspace() {
   const [chatGroup, setChatGroup] = useState('');
   const [chatMessage, setChatMessage] = useState('');
   const [chatSending, setChatSending] = useState(false);
+  const [chatLiveStatus, setChatLiveStatus] = useState('offline');
+  const [chatOpen, setChatOpen] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [resourceSaving, setResourceSaving] = useState(false);
+  const [devAgentLoading, setDevAgentLoading] = useState(false);
   const [lastInvite, setLastInvite] = useState(null);
   const [inviteForm, setInviteForm] = useState({
     email: '',
     role: 'viewer',
     groupName: ''
+  });
+  const [resourceForm, setResourceForm] = useState({
+    label: '',
+    type: 'repository',
+    url: '',
+    notes: ''
   });
   const [form, setForm] = useState({
     title: '',
@@ -141,6 +153,9 @@ export default function TeamWorkspace() {
 
   const canEditActiveProject = Boolean(activeProject?.canEdit || ['owner', 'editor'].includes(activeProject?.accessRole));
   const canInviteActiveProject = Boolean(activeProject?.canInvite);
+  const latestMessages = visibleMessages.slice(-40);
+  const sharedResources = activeProject?.resources || [];
+  const developerAgent = activeProject?.developerAgent || {};
 
   const visibleTasks = useMemo(() => {
     const tasks = activeProject?.tasks || [];
@@ -190,7 +205,167 @@ export default function TeamWorkspace() {
     setChatMessage('');
     setLastInvite(null);
     setInviteForm((prev) => ({ ...prev, groupName: '' }));
+    setResourceForm({ label: '', type: 'repository', url: '', notes: '' });
+    setUnreadMessages(0);
   }, [activeProject?._id]);
+
+  useEffect(() => {
+    if (!activeProject?._id || typeof EventSource === 'undefined') {
+      setChatLiveStatus('offline');
+      return undefined;
+    }
+
+    const token = getToken();
+    if (!token) {
+      setChatLiveStatus('offline');
+      return undefined;
+    }
+
+    const baseURL = String(api.defaults.baseURL || '').replace(/\/+$/, '');
+    const streamUrl = `${baseURL}/team-projects/${activeProject._id}/events?token=${encodeURIComponent(token)}`;
+    let isClosed = false;
+    const source = new EventSource(streamUrl);
+
+    setChatLiveStatus('connecting');
+
+    source.addEventListener('connected', () => {
+      if (!isClosed) setChatLiveStatus('live');
+    });
+
+    source.addEventListener('message', (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        const incomingMessage = payload.message;
+        const projectId = payload.projectId;
+
+        if (!projectId || !incomingMessage?._id) return;
+
+        setProjects((prev) => {
+          let changed = false;
+          const next = prev.map((project) => {
+            if (project._id !== projectId) return project;
+
+            const currentMessages = project.messages || [];
+            const alreadyExists = currentMessages.some((item) => String(item._id) === String(incomingMessage._id));
+            if (alreadyExists) return project;
+
+            changed = true;
+            return {
+              ...project,
+              messages: [...currentMessages, incomingMessage]
+            };
+          });
+
+          if (changed) {
+            setSummary(buildProjectSummary(next));
+            if (!chatOpenRef.current) {
+              setUnreadMessages((count) => count + 1);
+            }
+          }
+
+          return next;
+        });
+      } catch {
+        // Ignore malformed stream packets.
+      }
+    });
+
+    source.addEventListener('resource', (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        if (!payload.projectId || !payload.resource?._id) return;
+
+        setProjects((prev) => prev.map((project) => {
+          if (project._id !== payload.projectId) return project;
+          const resources = project.resources || [];
+          if (resources.some((item) => String(item._id) === String(payload.resource._id))) return project;
+          return { ...project, resources: [...resources, payload.resource] };
+        }));
+      } catch {
+        // Ignore malformed stream packets.
+      }
+    });
+
+    source.addEventListener('developer_agent', (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        if (!payload.projectId) return;
+
+        setProjects((prev) => prev.map((project) =>
+          project._id === payload.projectId
+            ? { ...project, developerAgent: payload.developerAgent || {} }
+            : project
+        ));
+      } catch {
+        // Ignore malformed stream packets.
+      }
+    });
+
+    source.addEventListener('project_update', (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        if (!payload.projectId) return;
+
+        setProjects((prev) => {
+          const next = prev.map((project) =>
+            project._id === payload.projectId
+              ? {
+                  ...project,
+                  status: payload.status || project.status,
+                  tasks: payload.tasks || project.tasks,
+                  resources: payload.resources || project.resources,
+                  aiPlan: payload.aiPlan || project.aiPlan,
+                  developerAgent: payload.developerAgent || project.developerAgent,
+                  updatedAt: payload.updatedAt || project.updatedAt
+                }
+              : project
+          );
+          setSummary(buildProjectSummary(next));
+          return next;
+        });
+      } catch {
+        // Ignore malformed stream packets.
+      }
+    });
+
+    source.addEventListener('access_removed', (event) => {
+      try {
+        const payload = JSON.parse(event.data || '{}');
+        const projectId = payload.projectId || activeProject._id;
+
+        setProjects((prev) => {
+          const next = prev.filter((project) => project._id !== projectId);
+          setSummary(buildProjectSummary(next));
+          return next;
+        });
+        setActiveProjectId('');
+        setChatLiveStatus('offline');
+        isClosed = true;
+        source.close();
+        alert(payload.message || 'Your access to this project was removed.');
+      } catch {
+        isClosed = true;
+        source.close();
+      }
+    });
+
+    source.onerror = () => {
+      if (!isClosed) setChatLiveStatus('reconnecting');
+    };
+
+    return () => {
+      isClosed = true;
+      source.close();
+      setChatLiveStatus('offline');
+    };
+  }, [activeProject?._id]);
+
+  useEffect(() => {
+    chatOpenRef.current = chatOpen;
+    if (chatOpen) {
+      setUnreadMessages(0);
+    }
+  }, [chatOpen, activeProject?._id]);
 
   const updateField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -422,6 +597,45 @@ export default function TeamWorkspace() {
       });
     } catch (err) {
       alert(err?.response?.data?.message || 'Failed to update member access.');
+    }
+  };
+
+  const addBuildResource = async (event) => {
+    event.preventDefault();
+
+    if (!activeProject?._id || !canEditActiveProject) {
+      alert('Only project owners and editors can add code/output links.');
+      return;
+    }
+
+    if (!resourceForm.label.trim() || !resourceForm.url.trim()) {
+      alert('Add a label and link first.');
+      return;
+    }
+
+    try {
+      setResourceSaving(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/resources`, resourceForm);
+      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
+      setResourceForm({ label: '', type: 'repository', url: '', notes: '' });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to add build link.');
+    } finally {
+      setResourceSaving(false);
+    }
+  };
+
+  const generateDeveloperAgent = async () => {
+    if (!activeProject?._id) return;
+
+    try {
+      setDevAgentLoading(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/dev-agent`);
+      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
+    } catch (err) {
+      alert(err?.response?.data?.message || 'AI developer helper failed.');
+    } finally {
+      setDevAgentLoading(false);
     }
   };
 
@@ -815,7 +1029,146 @@ export default function TeamWorkspace() {
                   )}
                 </div>
 
-                <div className="mt-8 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-4 sm:p-5">
+                <div className="mt-8 rounded-3xl border border-violet-400/15 bg-violet-400/[0.04] p-4 sm:p-5">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-violet-300">Build & output</p>
+                      <h3 className="mt-1 text-xl font-black text-white">Shared code, preview, design, and delivery links</h3>
+                      <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
+                        Everyone in this project can see the same code links and output. Owners and editors can add new links.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={generateDeveloperAgent}
+                      disabled={devAgentLoading}
+                      className="btn btn-secondary px-5 py-3 text-xs"
+                    >
+                      {devAgentLoading ? 'Thinking...' : 'Ask Dev AI'}
+                    </button>
+                  </div>
+
+                  <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+                    <div className="space-y-3">
+                      {sharedResources.length ? (
+                        sharedResources.map((resource) => (
+                          <a
+                            key={resource._id || resource.url}
+                            href={resource.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block rounded-2xl border border-white/8 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-violet-300/25"
+                          >
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-black text-white">{resource.label}</p>
+                                <p className="mt-1 break-all text-xs font-medium text-zinc-500">{resource.url}</p>
+                              </div>
+                              <span className="rounded-full border border-violet-300/15 bg-violet-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-violet-200">
+                                {statusLabel(resource.type || 'other')}
+                              </span>
+                            </div>
+                            {resource.notes && (
+                              <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-400">{resource.notes}</p>
+                            )}
+                          </a>
+                        ))
+                      ) : (
+                        <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
+                          <p className="text-sm font-black text-white">No code or output links yet</p>
+                          <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
+                            Add repository, live preview, design, or requirement links so the whole team works from one place.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                      {canEditActiveProject ? (
+                        <form onSubmit={addBuildResource} className="space-y-3">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Add shared link</p>
+                          <input
+                            value={resourceForm.label}
+                            onChange={(event) => setResourceForm((prev) => ({ ...prev, label: event.target.value }))}
+                            placeholder="GitHub repo, live preview, Figma..."
+                            className="input py-3 text-sm"
+                          />
+                          <select
+                            value={resourceForm.type}
+                            onChange={(event) => setResourceForm((prev) => ({ ...prev, type: event.target.value }))}
+                            className="input py-3 text-sm"
+                          >
+                            <option value="repository">Repository</option>
+                            <option value="preview">Live preview</option>
+                            <option value="design">Design</option>
+                            <option value="document">Document</option>
+                            <option value="other">Other</option>
+                          </select>
+                          <input
+                            value={resourceForm.url}
+                            onChange={(event) => setResourceForm((prev) => ({ ...prev, url: event.target.value }))}
+                            placeholder="https://..."
+                            className="input py-3 text-sm"
+                          />
+                          <textarea
+                            value={resourceForm.notes}
+                            onChange={(event) => setResourceForm((prev) => ({ ...prev, notes: event.target.value }))}
+                            placeholder="What should the team check here?"
+                            rows="3"
+                            className="input min-h-[88px] resize-none py-3 text-sm"
+                          />
+                          <button
+                            type="submit"
+                            disabled={resourceSaving}
+                            className="btn btn-primary w-full py-3 text-xs"
+                          >
+                            {resourceSaving ? 'Adding...' : 'Add Link'}
+                          </button>
+                        </form>
+                      ) : (
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Viewer mode</p>
+                          <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
+                            You can view build links and chat with the team. Ask the owner to make you an editor if you need to add links or update work.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-violet-300">AI developer helper</p>
+                        <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">
+                          {developerAgent.summary || 'Ask Dev AI to prepare next development steps from tasks and shared links.'}
+                        </p>
+                      </div>
+                    </div>
+                    {(developerAgent.nextSteps?.length || developerAgent.codeChecklist?.length) && (
+                      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                        <div>
+                          <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Next development steps</p>
+                          <div className="space-y-2">
+                            {(developerAgent.nextSteps || []).map((item) => (
+                              <p key={item} className="rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-semibold leading-relaxed text-zinc-300">{item}</p>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Code review checklist</p>
+                          <div className="space-y-2">
+                            {(developerAgent.codeChecklist || []).map((item) => (
+                              <p key={item} className="rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-semibold leading-relaxed text-zinc-300">{item}</p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="hidden">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Group chat</p>
@@ -824,16 +1177,33 @@ export default function TeamWorkspace() {
                         Send updates to the whole project or filter the conversation by group.
                       </p>
                     </div>
-                    <select
-                      value={chatGroup}
-                      onChange={(event) => setChatGroup(event.target.value)}
-                      className="input w-full py-3 text-xs lg:w-56"
-                    >
-                      <option value="">All project chat</option>
-                      {activeGroupNames.map((groupName) => (
-                        <option key={groupName} value={groupName}>{groupName}</option>
-                      ))}
-                    </select>
+                    <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+                      <span className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-widest ${
+                        chatLiveStatus === 'live'
+                          ? 'border-emerald-300/20 bg-emerald-300/10 text-emerald-200'
+                          : chatLiveStatus === 'connecting' || chatLiveStatus === 'reconnecting'
+                            ? 'border-yellow-300/20 bg-yellow-300/10 text-yellow-200'
+                            : 'border-white/10 bg-white/[0.04] text-zinc-400'
+                      }`}>
+                        {chatLiveStatus === 'live'
+                          ? 'Live'
+                          : chatLiveStatus === 'connecting'
+                            ? 'Connecting'
+                            : chatLiveStatus === 'reconnecting'
+                              ? 'Reconnecting'
+                              : 'Offline'}
+                      </span>
+                      <select
+                        value={chatGroup}
+                        onChange={(event) => setChatGroup(event.target.value)}
+                        className="input w-full py-3 text-xs lg:w-56"
+                      >
+                        <option value="">All project chat</option>
+                        {activeGroupNames.map((groupName) => (
+                          <option key={groupName} value={groupName}>{groupName}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div className="mt-5 max-h-[360px] space-y-3 overflow-y-auto rounded-2xl border border-white/8 bg-black/20 p-3 sm:p-4">
@@ -1244,6 +1614,119 @@ export default function TeamWorkspace() {
           </aside>
         </div>
       </main>
+
+      {activeProject && (
+        <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-50 print:hidden sm:right-6">
+          {chatOpen && (
+            <div className="mb-4 w-[calc(100vw-2rem)] max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/50 backdrop-blur-2xl">
+              <div className="border-b border-white/10 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Project chat</p>
+                    <h3 className="mt-1 text-lg font-black text-white">{activeProject.title}</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setChatOpen(false)}
+                    className="rounded-xl border border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:bg-white/10 hover:text-white"
+                  >
+                    Close
+                  </button>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <span className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-widest ${
+                    chatLiveStatus === 'live'
+                      ? 'border-emerald-300/20 bg-emerald-300/10 text-emerald-200'
+                      : chatLiveStatus === 'connecting' || chatLiveStatus === 'reconnecting'
+                        ? 'border-yellow-300/20 bg-yellow-300/10 text-yellow-200'
+                        : 'border-white/10 bg-white/[0.04] text-zinc-400'
+                  }`}>
+                    {chatLiveStatus === 'live'
+                      ? 'Live'
+                      : chatLiveStatus === 'connecting'
+                        ? 'Connecting'
+                        : chatLiveStatus === 'reconnecting'
+                          ? 'Reconnecting'
+                          : 'Offline'}
+                  </span>
+                  <select
+                    value={chatGroup}
+                    onChange={(event) => setChatGroup(event.target.value)}
+                    className="input flex-1 py-2 text-xs"
+                  >
+                    <option value="">All project chat</option>
+                    {activeGroupNames.map((groupName) => (
+                      <option key={groupName} value={groupName}>{groupName}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="max-h-[52vh] space-y-3 overflow-y-auto p-4">
+                {latestMessages.length ? (
+                  latestMessages.map((item) => (
+                    <div key={item._id || `${item.senderName}-${item.createdAt}`} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-black text-white">{item.senderName || 'Team member'}</p>
+                          <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
+                            {item.groupName || 'All'}
+                          </span>
+                        </div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                          {formatMessageTime(item.createdAt)}
+                        </p>
+                      </div>
+                      <p className="mt-3 whitespace-pre-line text-sm font-medium leading-relaxed text-zinc-300">{item.message}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
+                    <p className="text-sm font-black text-white">No messages yet</p>
+                    <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
+                      Send the first update for this project.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <form onSubmit={sendGroupMessage} className="border-t border-white/10 p-4">
+                <textarea
+                  value={chatMessage}
+                  onChange={(event) => setChatMessage(event.target.value)}
+                  placeholder={chatGroup ? `Message ${chatGroup}` : 'Write a team update'}
+                  rows="3"
+                  maxLength="1200"
+                  className="input min-h-[90px] resize-none py-3 text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={chatSending || !chatMessage.trim()}
+                  className="btn btn-primary mt-3 w-full py-3 text-xs disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {chatSending ? 'Sending...' : 'Send Message'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setChatOpen((value) => !value)}
+            className="relative ml-auto flex h-14 w-14 items-center justify-center rounded-full border border-sky-300/20 bg-sky-400 text-slate-950 shadow-2xl shadow-sky-900/40 transition hover:-translate-y-1 hover:bg-sky-300"
+            aria-label="Open project chat"
+          >
+            <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8M8 14h5m8-2a9 9 0 11-3.6-7.2L21 3v5h-5" />
+            </svg>
+            {unreadMessages > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-[#090d14] bg-red-500 px-1.5 text-[10px] font-black text-white">
+                {unreadMessages > 9 ? '9+' : unreadMessages}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

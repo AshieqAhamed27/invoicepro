@@ -1,8 +1,11 @@
 const express = require('express');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const TeamProject = require('../models/TeamProject');
+const User = require('../models/User');
 const { protect, requirePro, hasPaidPlan } = require('../middleware/auth');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
+const { getJwtSecret } = require('../utils/env');
 
 const router = express.Router();
 
@@ -11,12 +14,75 @@ const TASK_STATUSES = ['todo', 'doing', 'done', 'blocked'];
 const PRIORITIES = ['low', 'normal', 'high'];
 const AVAILABILITY = ['low', 'medium', 'high'];
 const CURRENCIES = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'];
+const RESOURCE_TYPES = ['repository', 'preview', 'design', 'document', 'other'];
 const MEMBER_ROLES = ['owner', 'editor', 'viewer'];
 const INVITE_ROLES = ['editor', 'viewer'];
+const projectEventClients = new Map();
 
 const cleanString = (value) => String(value || '').trim();
 
 const normalizeEmail = (value) => cleanString(value).toLowerCase();
+
+const getTokenFromRequest = (req) => {
+    const authHeader = req.headers.authorization || '';
+    if (authHeader.startsWith('Bearer ')) {
+        return authHeader.split(' ')[1];
+    }
+
+    return cleanString(req.query.token);
+};
+
+const getUserFromEventRequest = async(req) => {
+    const token = getTokenFromRequest(req);
+    if (!token) return null;
+
+    const decoded = jwt.verify(token, getJwtSecret());
+    return User.findById(decoded.id).select('-password');
+};
+
+const sendProjectEvent = (res, event, payload) => {
+    res.write(`event: ${event}\n`);
+    res.write(`data: ${JSON.stringify(payload)}\n\n`);
+};
+
+const broadcastProjectEvent = (projectId, event, payload) => {
+    const clients = projectEventClients.get(String(projectId));
+    if (!clients?.size) return;
+
+    for (const [res] of clients) {
+        try {
+            sendProjectEvent(res, event, payload);
+        } catch {
+            clients.delete(res);
+        }
+    }
+
+    if (!clients.size) {
+        projectEventClients.delete(String(projectId));
+    }
+};
+
+const closeProjectUserStreams = (projectId, userId, event, payload) => {
+    const clients = projectEventClients.get(String(projectId));
+    if (!clients?.size || !userId) return;
+
+    for (const [res, clientUserId] of clients) {
+        if (String(clientUserId) !== String(userId)) continue;
+
+        try {
+            if (event) sendProjectEvent(res, event, payload);
+            res.end();
+        } catch {
+            // Stream is already gone.
+        }
+
+        clients.delete(res);
+    }
+
+    if (!clients.size) {
+        projectEventClients.delete(String(projectId));
+    }
+};
 
 const createInviteToken = () => crypto.randomBytes(32).toString('hex');
 
@@ -89,6 +155,20 @@ const serializeProjectForUser = (project, user) => {
 const serializeProjectsForUser = (projects, user) =>
     projects.map((project) => serializeProjectForUser(project, user));
 
+const getProjectCollabSnapshot = (project) => {
+    const plain = typeof project.toObject === 'function' ? project.toObject() : project;
+
+    return {
+        projectId: String(plain._id),
+        status: plain.status,
+        tasks: plain.tasks || [],
+        resources: plain.resources || [],
+        aiPlan: plain.aiPlan || {},
+        developerAgent: plain.developerAgent || {},
+        updatedAt: plain.updatedAt
+    };
+};
+
 const normalizeNumber = (value) => {
     const parsed = Number(value || 0);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
@@ -158,6 +238,17 @@ const normalizeTasks = (items = []) =>
         }))
         .filter((item) => item.title);
 
+const normalizeResources = (items = []) =>
+    (Array.isArray(items) ? items : [])
+        .map((item) => ({
+            label: cleanString(item.label),
+            type: RESOURCE_TYPES.includes(item.type) ? item.type : 'other',
+            url: cleanString(item.url),
+            notes: cleanString(item.notes),
+            addedBy: cleanString(item.addedBy)
+        }))
+        .filter((item) => item.label && /^https?:\/\//i.test(item.url));
+
 const normalizeProjectPayload = (body = {}) => ({
     title: cleanString(body.title),
     clientName: cleanString(body.clientName),
@@ -168,7 +259,8 @@ const normalizeProjectPayload = (body = {}) => ({
     projectBrief: cleanString(body.projectBrief),
     groups: normalizeGroups(body.groups),
     collaborators: normalizeCollaborators(body.collaborators),
-    tasks: normalizeTasks(body.tasks)
+    tasks: normalizeTasks(body.tasks),
+    resources: normalizeResources(body.resources)
 });
 
 const normalizeProjectUpdates = (body = {}) => {
@@ -184,6 +276,7 @@ const normalizeProjectUpdates = (body = {}) => {
     if (Object.prototype.hasOwnProperty.call(body, 'groups')) updates.groups = normalizeGroups(body.groups);
     if (Object.prototype.hasOwnProperty.call(body, 'collaborators')) updates.collaborators = normalizeCollaborators(body.collaborators);
     if (Object.prototype.hasOwnProperty.call(body, 'tasks')) updates.tasks = normalizeTasks(body.tasks);
+    if (Object.prototype.hasOwnProperty.call(body, 'resources')) updates.resources = normalizeResources(body.resources);
 
     return updates;
 };
@@ -293,6 +386,47 @@ const buildTeamAiPlan = (project = {}) => {
     };
 };
 
+const buildDeveloperAgentPlan = (project = {}) => {
+    const tasks = project.tasks || [];
+    const resources = project.resources || [];
+    const openTasks = tasks.filter((task) => task.status !== 'done');
+    const blockedTasks = tasks.filter((task) => task.status === 'blocked');
+    const repository = resources.find((item) => item.type === 'repository');
+    const preview = resources.find((item) => item.type === 'preview');
+    const design = resources.find((item) => item.type === 'design');
+    const nextTask = blockedTasks[0] || openTasks.find((task) => task.priority === 'high') || openTasks[0];
+
+    const nextSteps = [
+        repository ? 'Pull the latest code and confirm the main branch before starting work.' : 'Add the GitHub/GitLab repository link so every collaborator can inspect the code.',
+        design ? 'Compare the current output with the design/reference link before marking UI tasks done.' : 'Add a design, requirement, or reference link if the UI needs visual approval.',
+        preview ? 'Open the live preview and verify the latest output on desktop and mobile.' : 'Add a live preview/deployment link so the team can test output without asking for screenshots.',
+        nextTask
+            ? `${nextTask.owner || 'Assigned developer'} should work on "${nextTask.title}" next.`
+            : 'Create the next development task before the team starts work.'
+    ];
+
+    return {
+        summary: `${project.title || 'This project'} has ${resources.length} shared build link${resources.length === 1 ? '' : 's'} and ${openTasks.length} open development task${openTasks.length === 1 ? '' : 's'}.`,
+        nextSteps,
+        codeChecklist: [
+            'Confirm the task owner before changing shared files.',
+            'Test the affected page or API before marking the task done.',
+            'Share the preview/output link in the project room after every major update.',
+            'Write a short chat update explaining what changed and what still needs review.'
+        ],
+        outputChecklist: [
+            'Check mobile layout first because most freelancers open from phone.',
+            'Verify buttons, forms, and links work on the live preview.',
+            'Compare output with client requirements before final handoff.',
+            'Move completed work to review before invoicing the client.'
+        ],
+        blockers: blockedTasks.length
+            ? blockedTasks.map((task) => `${task.title} is blocked${task.owner ? ` for ${task.owner}` : ''}.`)
+            : ['No blocked development tasks detected.'],
+        generatedAt: new Date()
+    };
+};
+
 const buildSummary = (projects = []) => ({
     total: projects.length,
     active: projects.filter((project) => project.status === 'active').length,
@@ -327,6 +461,74 @@ router.get('/', protect, async(req, res) => {
         });
     } catch (err) {
         console.error('GET TEAM PROJECTS ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.get('/:id/events', async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const user = await getUserFromEventRequest(req);
+        if (!user) {
+            return res.status(401).json({ message: 'Not authorized. No token.' });
+        }
+
+        const project = await TeamProject.findById(req.params.id).lean();
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, user._id);
+        if (!accessRole) {
+            return res.status(403).json({ message: 'You are not a member of this project.' });
+        }
+
+        const projectId = String(project._id);
+
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache, no-transform');
+        res.setHeader('Connection', 'keep-alive');
+        res.setHeader('X-Accel-Buffering', 'no');
+        if (typeof res.flushHeaders === 'function') {
+            res.flushHeaders();
+        }
+
+        if (!projectEventClients.has(projectId)) {
+            projectEventClients.set(projectId, new Map());
+        }
+
+        projectEventClients.get(projectId).set(res, String(user._id));
+        sendProjectEvent(res, 'connected', {
+            projectId,
+            connectedAt: new Date().toISOString()
+        });
+
+        const heartbeat = setInterval(() => {
+            sendProjectEvent(res, 'ping', { at: new Date().toISOString() });
+        }, 25000);
+
+        req.on('close', () => {
+            clearInterval(heartbeat);
+            const clients = projectEventClients.get(projectId);
+            if (clients) {
+                clients.delete(res);
+                if (!clients.size) projectEventClients.delete(projectId);
+            }
+        });
+    } catch (err) {
+        const isJwtError = ['JsonWebTokenError', 'TokenExpiredError'].includes(err?.name);
+        if (isJwtError) {
+            return res.status(401).json({
+                message: err.name === 'TokenExpiredError'
+                    ? 'Session expired. Please login again.'
+                    : 'Token invalid. Please login again.'
+            });
+        }
+
+        console.error('TEAM PROJECT EVENTS ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
@@ -473,6 +675,12 @@ router.post('/invites/:token/accept', protect, async(req, res) => {
         });
 
         await project.save();
+        const joinedMessage = project.messages[project.messages.length - 1];
+        broadcastProjectEvent(project._id, 'message', {
+            projectId: String(project._id),
+            message: joinedMessage,
+            messageCount: project.messages.length
+        });
 
         res.json({
             message: 'Invite accepted.',
@@ -508,6 +716,7 @@ router.patch('/:id', protect, async(req, res) => {
 
         Object.assign(project, payload);
         await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
         res.json({ project: serializeProjectForUser(project, req.user) });
     } catch (err) {
@@ -601,6 +810,8 @@ router.patch('/:id/members/:memberId', protect, requirePro, async(req, res) => {
             return res.status(400).json({ message: 'Owner permission cannot be changed here.' });
         }
 
+        const removingUserId = req.body.status === 'removed' ? member.user : null;
+
         if (Object.prototype.hasOwnProperty.call(req.body, 'role')) {
             member.role = INVITE_ROLES.includes(req.body.role) ? req.body.role : member.role;
         }
@@ -614,10 +825,59 @@ router.patch('/:id/members/:memberId', protect, requirePro, async(req, res) => {
         }
 
         await project.save();
+        if (removingUserId) {
+            closeProjectUserStreams(project._id, removingUserId, 'access_removed', {
+                projectId: String(project._id),
+                message: 'Your access to this project was removed.'
+            });
+        }
 
         res.json({ project: serializeProjectForUser(project, req.user) });
     } catch (err) {
         console.error('UPDATE TEAM MEMBER ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/resources', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can add build links.' });
+        }
+
+        const resource = normalizeResources([{
+            ...req.body,
+            addedBy: req.user?.name || req.user?.email || 'Team member'
+        }])[0];
+
+        if (!resource) {
+            return res.status(400).json({ message: 'Add a valid label and https:// link.' });
+        }
+
+        project.resources.push(resource);
+        await project.save();
+        const savedResource = project.resources[project.resources.length - 1];
+        broadcastProjectEvent(project._id, 'resource', {
+            projectId: String(project._id),
+            resource: savedResource
+        });
+
+        res.status(201).json({
+            project: serializeProjectForUser(project, req.user),
+            resource: savedResource
+        });
+    } catch (err) {
+        console.error('CREATE TEAM RESOURCE ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
@@ -661,10 +921,16 @@ router.post('/:id/messages', protect, async(req, res) => {
         }
 
         await project.save();
+        const savedMessage = project.messages[project.messages.length - 1];
+        broadcastProjectEvent(project._id, 'message', {
+            projectId: String(project._id),
+            message: savedMessage,
+            messageCount: project.messages.length
+        });
 
         res.status(201).json({
             project: serializeProjectForUser(project, req.user),
-            message: project.messages[project.messages.length - 1]
+            message: savedMessage
         });
     } catch (err) {
         console.error('TEAM PROJECT MESSAGE ERROR:', err);
@@ -691,6 +957,7 @@ router.post('/:id/ai-plan', protect, async(req, res) => {
 
         project.aiPlan = buildTeamAiPlan(project.toObject());
         await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
         res.json({
             project: serializeProjectForUser(project, req.user),
@@ -698,6 +965,40 @@ router.post('/:id/ai-plan', protect, async(req, res) => {
         });
     } catch (err) {
         console.error('TEAM AI PLAN ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/dev-agent', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!accessRole) {
+            return res.status(403).json({ message: 'You are not a member of this project.' });
+        }
+
+        project.developerAgent = buildDeveloperAgentPlan(project.toObject());
+        await project.save();
+        broadcastProjectEvent(project._id, 'developer_agent', {
+            projectId: String(project._id),
+            developerAgent: project.developerAgent
+        });
+
+        res.json({
+            project: serializeProjectForUser(project, req.user),
+            developerAgent: project.developerAgent
+        });
+    } catch (err) {
+        console.error('TEAM DEV AGENT ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
 });

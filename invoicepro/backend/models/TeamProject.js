@@ -104,6 +104,38 @@ const taskSchema = new mongoose.Schema({
     }
 }, { _id: true });
 
+const resourceSchema = new mongoose.Schema({
+    label: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    type: {
+        type: String,
+        enum: ['repository', 'preview', 'design', 'document', 'other'],
+        default: 'other'
+    },
+    url: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    notes: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    addedBy: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+}, { _id: true });
+
 const messageSchema = new mongoose.Schema({
     groupName: {
         type: String,
@@ -253,6 +285,7 @@ const teamProjectSchema = new mongoose.Schema({
     groups: [groupSchema],
     collaborators: [collaboratorSchema],
     tasks: [taskSchema],
+    resources: [resourceSchema],
     messages: [messageSchema],
     members: [memberSchema],
     inviteTokens: [inviteSchema],
@@ -318,6 +351,20 @@ const teamProjectSchema = new mongoose.Schema({
             }
         }],
         risks: [String],
+        generatedAt: {
+            type: Date,
+            default: null
+        }
+    },
+    developerAgent: {
+        summary: {
+            type: String,
+            default: ''
+        },
+        nextSteps: [String],
+        codeChecklist: [String],
+        outputChecklist: [String],
+        blockers: [String],
         generatedAt: {
             type: Date,
             default: null
