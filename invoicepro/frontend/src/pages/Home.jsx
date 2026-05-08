@@ -136,7 +136,7 @@ export default function Home() {
       <main>
         <section className="relative overflow-hidden border-b border-white/5">
           <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-yellow-400/10 via-sky-500/5 to-transparent" />
-          <div className="container-custom relative grid gap-10 py-14 sm:py-16 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-center lg:py-24">
+          <div className="container-custom responsive-split-even relative py-14 sm:py-16 lg:py-24">
             <div>
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-yellow-300/20 bg-yellow-300/10 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
@@ -236,7 +236,7 @@ export default function Home() {
         </section>
 
         <section className="py-14 sm:py-16">
-          <div className="container-custom grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+          <div className="container-custom responsive-heading-grid">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Simple workflow</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
@@ -267,7 +267,7 @@ export default function Home() {
         </section>
 
         <section className="border-y border-white/5 bg-yellow-400/[0.045] py-14 sm:py-16">
-          <div className="container-custom grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div className="container-custom responsive-heading-grid">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Why users pay</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
@@ -286,7 +286,7 @@ export default function Home() {
 
         <section id="trust" className="py-14 sm:py-16">
           <div className="container-custom">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {trustBadges.map(([label, value]) => (
                 <div key={label} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{label}</p>
@@ -309,7 +309,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="mt-8 grid gap-5 lg:grid-cols-3">
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
               {plans.map((plan) => (
                 <div
                   key={plan.id}
@@ -350,7 +350,7 @@ export default function Home() {
         </section>
 
         <section id="faq" className="py-14 sm:py-16">
-          <div className="container-custom grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="container-custom responsive-heading-grid">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">FAQ</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">

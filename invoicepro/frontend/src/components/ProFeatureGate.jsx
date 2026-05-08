@@ -20,7 +20,7 @@ export default function ProFeatureGate({
     <div className="premium-page min-h-screen text-white">
       <Navbar />
       <main className="container-custom flex min-h-[calc(100vh-5rem)] items-center py-10 sm:py-16">
-        <section className="mx-auto grid w-full max-w-5xl gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-stretch">
+        <section className="mx-auto grid w-full max-w-5xl gap-8 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-stretch">
           <div className="premium-panel p-6 sm:p-10">
             <div className="mb-5 inline-flex rounded-full border border-yellow-300/20 bg-yellow-300/10 px-3 py-1">
               <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">Pro Only</span>

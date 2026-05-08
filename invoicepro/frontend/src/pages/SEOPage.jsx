@@ -147,7 +147,7 @@ export default function SEOPage({ pageKey }) {
 
       <main>
         <section className="border-b border-white/5 py-14 sm:py-20 lg:py-24">
-          <div className="container-custom grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className="container-custom responsive-heading-grid">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-yellow-400/15 bg-yellow-400/8 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
@@ -240,7 +240,7 @@ export default function SEOPage({ pageKey }) {
         </section>
 
         <section className="border-y border-white/5 bg-zinc-950/55 py-16 sm:py-20">
-          <div className="container-custom grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="container-custom responsive-heading-grid">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">FAQ</p>
               <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">

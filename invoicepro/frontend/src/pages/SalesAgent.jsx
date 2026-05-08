@@ -85,7 +85,7 @@ export default function SalesAgent() {
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
-        <section className="reveal mb-10 grid gap-8 xl:grid-cols-[minmax(0,1fr)_390px] xl:items-end">
+        <section className="reveal responsive-heading-grid mb-10">
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
@@ -160,7 +160,7 @@ export default function SalesAgent() {
               ))}
             </section>
 
-            <section className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <section className="grid gap-8 2xl:grid-cols-[minmax(0,1fr)_360px]">
               <div className="premium-panel p-5 sm:p-8">
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>

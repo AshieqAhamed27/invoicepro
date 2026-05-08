@@ -169,7 +169,7 @@ export default function ProposalWriter() {
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
-        <section className="reveal mb-10 grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-end">
+        <section className="reveal responsive-heading-grid mb-10">
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1">
               <span className="h-2 w-2 rounded-full bg-sky-300" />
@@ -191,8 +191,8 @@ export default function ProposalWriter() {
           </div>
         </section>
 
-        <section className="grid gap-8 xl:grid-cols-[430px_minmax(0,1fr)]">
-          <div className="reveal reveal-delay-1 premium-panel p-5 sm:p-8 xl:sticky xl:top-28 xl:h-fit">
+        <section className="grid gap-8 2xl:grid-cols-[400px_minmax(0,1fr)]">
+          <div className="reveal reveal-delay-1 premium-panel sticky-wide p-5 sm:p-8 2xl:h-fit">
             <div className="mb-8">
               <h2 className="text-2xl font-black text-white">Proposal Inputs</h2>
               <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">Use real client details for better output</p>

@@ -578,7 +578,7 @@ export default function BusinessAutomationCenter({
   return (
     <section className="reveal reveal-delay-1 mb-12 overflow-hidden rounded-[2rem] border border-sky-400/20 bg-sky-400/[0.035] shadow-2xl shadow-black/20">
       <div className="border-b border-white/10 p-5 sm:p-8 lg:p-10">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-end">
+        <div className="responsive-heading-grid">
           <div>
             <div className="inline-flex flex-wrap items-center gap-2 rounded-lg border border-sky-400/20 bg-sky-400/10 px-3 py-1.5">
               <span className="h-2 w-2 rounded-full bg-sky-300" />

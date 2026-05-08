@@ -243,7 +243,7 @@ export default function MoneyGPS() {
             <div className="mt-6 h-52 animate-pulse rounded-3xl bg-white/5" />
           </section>
         ) : (
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="responsive-split">
             <section className="premium-panel p-5 sm:p-8">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>

@@ -573,7 +573,7 @@ export default function ClientFinder() {
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
-        <section className="reveal mb-10 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-end">
+        <section className="reveal responsive-heading-grid mb-10">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -603,10 +603,10 @@ export default function ClientFinder() {
           </div>
         </section>
 
-        <div className={plan ? 'grid gap-8' : 'grid gap-8 xl:grid-cols-[420px_minmax(0,1fr)]'}>
+        <div className={plan ? 'grid gap-8' : 'grid gap-8 2xl:grid-cols-[400px_minmax(0,1fr)]'}>
           <form
             onSubmit={generatePlan}
-            className={`reveal reveal-delay-1 h-fit rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7 ${plan ? '' : 'xl:sticky xl:top-28'}`}
+            className={`reveal reveal-delay-1 h-fit rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7 ${plan ? '' : 'sticky-wide'}`}
           >
             <div className="mb-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Freelancer Profile</p>
@@ -622,7 +622,7 @@ export default function ClientFinder() {
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Client Reach</span>
                   <span className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{form.currency}</span>
                 </div>
-                <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
                   {marketPresets.map((preset) => (
                     <button
                       key={preset.id}
@@ -661,7 +661,7 @@ export default function ClientFinder() {
                 />
               </label>
 
-              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2 xl:grid-cols-1'}>
+              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2 2xl:grid-cols-1'}>
                 <label className="grid gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Target Market</span>
                   <input
@@ -683,7 +683,7 @@ export default function ClientFinder() {
                 </label>
               </div>
 
-              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2 xl:grid-cols-1'}>
+              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2 2xl:grid-cols-1'}>
                 <label className="grid gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Project Price</span>
                   <input

@@ -841,7 +841,7 @@ export default function InvoiceView() {
           </div>
         </section>
 
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-10">
+        <div className="grid gap-8 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:gap-10">
           <section className="reveal reveal-delay-1 premium-panel p-3 md:p-6 relative overflow-hidden">
             <div id="invoice" className="invoice-document overflow-hidden rounded-lg bg-white text-slate-950 shadow-2xl">
               <div className="bg-slate-950 px-6 py-7 text-white md:px-10">
@@ -962,7 +962,7 @@ export default function InvoiceView() {
                   </div>
                 </div>
 
-                <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
+                <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-5">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                       {meta.isProposal ? 'Approval Note' : 'Payment Note'}
@@ -1023,7 +1023,7 @@ export default function InvoiceView() {
             </div>
           </section>
 
-          <aside className="reveal reveal-delay-2 space-y-6 xl:sticky xl:top-28 h-fit">
+          <aside className="reveal reveal-delay-2 sticky-wide h-fit space-y-6">
             <div className="premium-panel p-5 sm:p-8">
               <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-8">
                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Client Delivery</p>

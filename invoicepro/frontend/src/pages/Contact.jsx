@@ -28,7 +28,7 @@ export default function Contact() {
       <Navbar />
 
       <main className="container-custom py-10 sm:py-14 md:py-20">
-        <section className="grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-start">
+        <section className="responsive-heading-grid">
           <div className="max-w-3xl">
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Contact</p>
             <h1 className="mt-4 max-w-[11ch] break-words text-[2.5rem] font-black tracking-tight leading-[0.97] text-white sm:max-w-none sm:text-5xl md:text-6xl">

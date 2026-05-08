@@ -111,7 +111,7 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
         </div>
       </div>
 
-      <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">

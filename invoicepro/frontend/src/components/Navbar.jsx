@@ -49,7 +49,7 @@ export default function Navbar() {
           <BrandLogo markClassName="transition-transform duration-300 group-hover:scale-110" />
         </NavLink>
 
-        <div className="hidden items-center gap-2 text-sm lg:flex">
+        <div className="hidden items-center gap-1 text-sm xl:flex">
           {!loggedIn ? (
             <>
               <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
@@ -115,7 +115,7 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
-          className="btn btn-secondary shrink-0 px-3 py-2 lg:hidden"
+          className="btn btn-secondary shrink-0 px-3 py-2 xl:hidden"
           aria-expanded={menuOpen}
           aria-label="Toggle navigation menu"
         >
@@ -124,7 +124,7 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="animate-menu-drop mx-3 mt-3 max-h-[calc(100vh-5.75rem)] overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:mx-4 lg:hidden">
+        <div className="animate-menu-drop mx-3 mt-3 max-h-[calc(100vh-5.75rem)] overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:mx-4 xl:hidden">
           <div className="flex flex-col gap-5 px-4 py-4 text-base sm:px-6 sm:py-6">
             <div className="grid gap-2">
               <p className="px-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Main</p>

@@ -262,7 +262,7 @@ export default function Settings() {
 
         <form
           onSubmit={handleSubmit}
-          className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-10"
+          className="grid gap-8 2xl:grid-cols-[minmax(0,1fr)_340px] 2xl:gap-10"
         >
           <div className="reveal reveal-delay-1 space-y-8">
             <section id="business-profile" className="premium-panel p-5 sm:p-8 relative overflow-hidden group scroll-mt-28">
@@ -441,7 +441,7 @@ export default function Settings() {
             </section>
           </div>
 
-          <aside className="reveal reveal-delay-2 space-y-6 xl:sticky xl:top-28 h-fit">
+          <aside className="reveal reveal-delay-2 sticky-wide h-fit space-y-6">
             <div className="premium-panel p-5">
               <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Settings Menu</p>
               <div className="grid gap-2">

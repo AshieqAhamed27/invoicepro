@@ -889,7 +889,7 @@ export default function TeamWorkspace() {
             <span className="h-px w-8 bg-yellow-400" />
             <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Team Workspace</p>
           </div>
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
+          <div className="responsive-heading-grid">
             <div>
               <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
                 Work with other freelancers on bigger client projects
@@ -908,7 +908,7 @@ export default function TeamWorkspace() {
           </div>
         </section>
 
-        <section className="reveal reveal-delay-1 mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-8">
+        <section className="reveal reveal-delay-1 mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
           {[
             ['Projects', summary.total || 0],
             ['Active', summary.active || 0],
@@ -926,7 +926,7 @@ export default function TeamWorkspace() {
           ))}
         </section>
 
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_420px] xl:gap-10">
+        <div className="grid gap-8 2xl:grid-cols-[minmax(0,1fr)_420px] 2xl:gap-10">
           <section className="reveal reveal-delay-1 space-y-8">
             {loading ? (
               <div className="premium-panel p-8">
@@ -1266,7 +1266,7 @@ export default function TeamWorkspace() {
                     </button>
                   </div>
 
-                  <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+                  <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
                     <div className="space-y-3">
                       {sharedResources.length ? (
                         sharedResources.map((resource) => (
@@ -1467,7 +1467,7 @@ export default function TeamWorkspace() {
                     )}
                   </div>
 
-                  <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+                  <div className="mt-5 grid gap-5 2xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
                     <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -1846,7 +1846,7 @@ export default function TeamWorkspace() {
                   </div>
                 </div>
 
-                <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+                <div className="mt-8 grid gap-6 2xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
                   <div>
                     <h3 className="mb-4 text-lg font-black text-white">Project tasks</h3>
                     <div className="space-y-3">
@@ -1903,7 +1903,7 @@ export default function TeamWorkspace() {
             )}
           </section>
 
-          <aside className="reveal reveal-delay-2 xl:sticky xl:top-28 h-fit">
+          <aside className="reveal reveal-delay-2 sticky-wide h-fit">
             {canCreateProjects ? (
               <form onSubmit={handleSubmit} className="premium-panel p-5 sm:p-8">
                 <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Create team project</p>

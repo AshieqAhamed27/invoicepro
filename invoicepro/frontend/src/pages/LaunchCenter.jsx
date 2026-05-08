@@ -244,7 +244,7 @@ export default function LaunchCenter() {
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
-        <section className="reveal mb-12 grid gap-8 lg:grid-cols-[1fr_360px] lg:items-end">
+        <section className="reveal responsive-heading-grid mb-12">
           <div className="min-w-0">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/10 px-3 py-1">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
@@ -288,7 +288,7 @@ export default function LaunchCenter() {
           ))}
         </section>
 
-        <section className="reveal reveal-delay-2 mb-12 grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="reveal reveal-delay-2 responsive-heading-grid mb-12">
           <div className="premium-panel p-5 sm:p-8">
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>

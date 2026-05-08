@@ -199,6 +199,59 @@ select option:disabled {
     .container-custom {
         @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
     }
+    /* Responsive layout helpers */
+    .responsive-split,
+    .responsive-split-even,
+    .responsive-heading-grid {
+        display: grid;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    .responsive-split > *,
+    .responsive-split-even > *,
+    .responsive-heading-grid > * {
+        min-width: 0;
+    }
+    .responsive-card-grid {
+        @apply grid gap-4 sm:grid-cols-2 xl:grid-cols-3;
+    }
+    .sticky-wide {
+        position: static;
+        top: auto;
+    }
+    @media (min-width: 1280px) {
+        .responsive-split-even,
+        .responsive-heading-grid {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 2.5rem;
+        }
+        .responsive-heading-grid {
+            align-items: center;
+        }
+    }
+    @media (min-width: 1536px) {
+        .responsive-split {
+            grid-template-columns: minmax(0, 1fr) minmax(340px, 0.42fr);
+            gap: 2.5rem;
+        }
+        .sticky-wide {
+            position: sticky;
+            top: 7rem;
+        }
+    }
+    @media (max-width: 767px) {
+        .premium-page :where(h1) {
+            font-size: clamp(2.25rem, 11vw, 3.25rem);
+            line-height: 1.04;
+        }
+        .premium-page :where(h2) {
+            font-size: clamp(1.6rem, 8vw, 2.3rem);
+            line-height: 1.12;
+        }
+        .premium-page :where(.premium-panel, .rounded-\[2rem\], .rounded-\[1\.75rem\]) {
+            border-radius: 1.25rem;
+        }
+    }
     /* Buttons */
     .btn {
         @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-center text-sm font-semibold transition;
