@@ -24,6 +24,7 @@ const DigitalDeliveryPolicy = lazy(() => import('./pages/DigitalDeliveryPolicy')
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const MoneyGPS = lazy(() => import('./pages/MoneyGPS'));
 const LaunchCenter = lazy(() => import('./pages/LaunchCenter'));
 const ClientFinder = lazy(() => import('./pages/ClientFinder'));
 const SalesAgent = lazy(() => import('./pages/SalesAgent'));
@@ -129,6 +130,7 @@ const appRoutePrefixes = [
   '/launch',
   '/leads',
   '/login',
+  '/money-gps',
   '/outbound-autopilot',
   '/payment',
   '/proposal-writer',
@@ -301,6 +303,17 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <Dashboard />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/money-gps"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <MoneyGPS />
               </Suspense>
             </PrivateRoute>
           }

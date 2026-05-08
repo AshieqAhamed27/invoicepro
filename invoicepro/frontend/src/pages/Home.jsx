@@ -14,31 +14,31 @@ import {
 
 const coreValue = [
   {
-    title: 'Find clients',
-    text: 'Use AI to turn your skill into lead ideas, search links, outreach messages, and saved client opportunities.'
+    title: 'Money GPS',
+    text: 'The app checks leads, proposals, projects, and invoices, then shows the single best money action for today.'
   },
   {
-    title: 'Manage projects',
-    text: 'Create proposals, invite another freelancer, split tasks, track issues, save docs, and keep delivery clear.'
+    title: 'Client work system',
+    text: 'Find clients, create proposals, manage project tasks, track issues, save docs, and prepare invoices.'
   },
   {
-    title: 'Get paid',
-    text: 'Create invoices, share Razorpay or UPI-ready payment links, and track paid, pending, and overdue money.'
+    title: 'Payment collection',
+    text: 'Share Razorpay or UPI-ready payment links and keep paid, pending, and overdue money visible.'
   }
 ];
 
 const productFlow = [
-  ['01', 'Lead', 'Find the right type of client and prepare the first message.'],
-  ['02', 'Proposal', 'Write scope, timeline, price, and follow-up message.'],
+  ['01', 'Money GPS', 'Open one screen and see the best action to move revenue today.'],
+  ['02', 'Client', 'Find the right type of client and prepare the first message.'],
   ['03', 'Project', 'Assign work, track issues, plan releases, and save handover notes.'],
   ['04', 'Payment', 'Send invoice, share payment link, and follow pending revenue.']
 ];
 
 const whyPay = [
+  'It removes confusion by showing one best action instead of many separate tools.',
   'It helps freelancers earn more by finding and following up with clients.',
-  'It helps solo freelancers take bigger projects with another freelancer.',
-  'It keeps long-term client work organized with issues, releases, and docs.',
-  'It protects cashflow by showing what payment or proposal needs action today.'
+  'It protects cashflow by showing what payment, proposal, or project needs action today.',
+  'It helps solo freelancers manage bigger and longer client projects.'
 ];
 
 const previewRows = [
@@ -69,7 +69,7 @@ const plans = [
     name: 'Pro Monthly',
     price: 'Rs 499',
     note: 'For active freelancers',
-    features: ['Unlimited invoices', 'AI client finder and proposal writer', 'Team workspace and project maintenance'],
+    features: ['Money GPS', 'Unlimited invoices', 'AI client finder and project workspace'],
     cta: 'Start Pro'
   },
   {
@@ -85,11 +85,11 @@ const plans = [
 const faqs = [
   {
     question: 'Is this only for invoice creation?',
-    answer: 'No. Invoices are only one part. ClientFlow AI also helps with client finding, proposals, project delivery, team work, issues, releases, docs, and payment follow-up.'
+    answer: 'No. Invoices are only one part. The main feature is Money GPS: one screen that tells freelancers which client, project, proposal, or payment needs action today.'
   },
   {
     question: 'Why would freelancers pay for it?',
-    answer: 'Because the product helps them manage the full money flow: get client opportunities, close work, deliver projects, and collect payment faster.'
+    answer: 'Because the product helps them avoid missed money actions: warm leads, accepted proposals, blocked projects, and pending invoices.'
   },
   {
     question: 'Can I use it without a domain?',
@@ -107,7 +107,7 @@ export default function Home() {
 
   useDocumentMeta({
     title: `${COMPANY_NAME} - Find clients, manage projects, get paid`,
-    description: 'ClientFlow AI helps freelancers find clients, manage delivery, create invoices, and collect payment from one workspace.'
+    description: 'ClientFlow AI gives freelancers one best money action across leads, projects, proposals, invoices, and payments.'
   });
 
   const goToApp = (target, label) => {
@@ -141,37 +141,37 @@ export default function Home() {
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-yellow-300/20 bg-yellow-300/10 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
                 <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">
-                  Freelancer business workspace
+                  Money GPS for freelancers
                 </span>
               </div>
 
               <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Find clients. Manage projects. Get paid.
+                One best action to win clients and collect money.
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 sm:text-lg">
-                ClientFlow AI helps freelancers turn leads into proposals, projects, invoices, and payments without jumping between many tools.
+                ClientFlow AI checks your leads, projects, proposals, and invoices, then tells you exactly what to do today to move money forward.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
-                  onClick={() => goToApp('/dashboard', loggedIn ? 'open_dashboard' : 'start_free')}
+                  onClick={() => goToApp('/money-gps', loggedIn ? 'open_money_gps' : 'start_free')}
                   className="btn btn-primary px-7 py-4 text-sm"
                 >
-                  {loggedIn ? 'Open Dashboard' : 'Create Free Account'}
+                  {loggedIn ? 'Open Money GPS' : 'Create Free Account'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => goToApp('/client-finder', 'open_client_finder')}
+                  onClick={() => goToApp('/dashboard', 'open_dashboard')}
                   className="btn btn-secondary px-7 py-4 text-sm"
                 >
-                  Try AI Client Finder
+                  View Dashboard
                 </button>
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {['Lead to proposal', 'Project to invoice', 'Payment follow-up'].map((item) => (
+                {['One best action', 'Ready message', 'Cashflow focus'].map((item) => (
                   <div key={item} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-black uppercase tracking-widest text-zinc-300">{item}</p>
                   </div>
@@ -189,9 +189,9 @@ export default function Home() {
                 </div>
 
                 <div className="mt-6 rounded-2xl border border-yellow-300/20 bg-yellow-300/10 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Today&apos;s business action</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Money GPS action</p>
                   <p className="mt-2 text-xl font-black leading-tight text-white">
-                    Follow up the pending invoice, then message the warm proposal lead.
+                    Collect the pending invoice before starting new outreach.
                   </p>
                 </div>
 
@@ -220,7 +220,7 @@ export default function Home() {
             <div className="max-w-2xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">What it does</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                One workspace for the full freelancer business flow.
+                One product, one clear purpose: move money forward.
               </h2>
             </div>
 
@@ -240,17 +240,17 @@ export default function Home() {
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Simple workflow</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                From first client message to final payment.
+                From confusion to one next action.
               </h2>
               <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-                The product is not trying to be everything. It focuses on the work that directly helps a freelancer earn and collect money.
+                Instead of showing many tools first, ClientFlow AI starts with the most useful question: what should you do now to earn, deliver, or collect?
               </p>
               <button
                 type="button"
                 onClick={() => goToApp('/dashboard', 'workflow_start')}
                 className="mt-6 btn btn-primary px-6 py-3 text-sm"
               >
-                Start Workflow
+                Open Money GPS
               </button>
             </div>
 
@@ -271,7 +271,7 @@ export default function Home() {
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Why users pay</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Because it helps them make money, not just create invoices.
+                Because it tells them what to do next.
               </h2>
             </div>
             <div className="grid gap-3">
@@ -305,7 +305,7 @@ export default function Home() {
                 Start free. Upgrade when ClientFlow helps your business.
               </h2>
               <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">
-                Keep the free plan for testing. Use Pro when you want AI agents, unlimited invoices, team projects, and project maintenance.
+                Keep the free plan for testing. Use Pro when you want Money GPS, unlimited invoices, client finding, and project workspace.
               </p>
             </div>
 
@@ -374,15 +374,15 @@ export default function Home() {
               Build a cleaner freelancer business today.
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-              Start with one lead, one proposal, one project, or one invoice. ClientFlow AI keeps the next money action visible.
+              Start with one lead, one project, or one invoice. ClientFlow AI keeps the next money action visible.
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
               <button
                 type="button"
-                onClick={() => goToApp('/dashboard', 'final_start')}
+                onClick={() => goToApp('/money-gps', 'final_start')}
                 className="btn btn-primary px-7 py-4 text-sm"
               >
-                {loggedIn ? 'Open Dashboard' : 'Create Free Account'}
+                {loggedIn ? 'Open Money GPS' : 'Create Free Account'}
               </button>
               <Link to="/contact" className="btn btn-secondary px-7 py-4 text-sm">
                 Contact Support
