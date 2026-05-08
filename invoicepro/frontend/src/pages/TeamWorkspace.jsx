@@ -822,7 +822,11 @@ export default function TeamWorkspace() {
         return next;
       });
     } catch (err) {
-      alert(err?.response?.data?.message || 'AI maintainer failed.');
+      if (err?.response?.status === 404) {
+        alert('AI Maintainer is in the latest code, but your live Render backend is not redeployed yet. Push the backend changes and redeploy Render, then refresh this page.');
+      } else {
+        alert(err?.response?.data?.message || 'AI maintainer failed.');
+      }
     } finally {
       setMaintenanceAgentLoading(false);
     }
