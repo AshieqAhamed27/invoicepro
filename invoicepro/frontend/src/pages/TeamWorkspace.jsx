@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getToken, getUser } from '../utils/auth';
@@ -9,7 +8,6 @@ const currencyOptions = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD']
 const projectStatuses = ['planning', 'active', 'review', 'completed', 'paused'];
 const taskStatuses = ['todo', 'doing', 'done', 'blocked'];
 const priorities = ['low', 'normal', 'high'];
-const codeOsOptions = ['linux', 'windows', 'macos', 'android', 'ios', 'server', 'other'];
 const runnableLanguages = ['javascript', 'python', 'shell'];
 
 const blankGroup = {
@@ -99,11 +97,6 @@ export default function TeamWorkspace() {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [resourceSaving, setResourceSaving] = useState(false);
-  const [environmentSaving, setEnvironmentSaving] = useState(false);
-  const [snippetSaving, setSnippetSaving] = useState(false);
-  const [runnerStatus, setRunnerStatus] = useState(null);
-  const [runningSnippetId, setRunningSnippetId] = useState('');
-  const [sandboxInput, setSandboxInput] = useState('');
   const [devAgentLoading, setDevAgentLoading] = useState(false);
   const [lastInvite, setLastInvite] = useState(null);
   const [inviteForm, setInviteForm] = useState({
@@ -116,27 +109,6 @@ export default function TeamWorkspace() {
     type: 'repository',
     url: '',
     notes: ''
-  });
-  const [environmentForm, setEnvironmentForm] = useState({
-    name: '',
-    os: 'linux',
-    runtime: '',
-    repositoryUrl: '',
-    branch: '',
-    setupCommands: '',
-    runCommands: '',
-    testCommands: '',
-    notes: '',
-    groupName: ''
-  });
-  const [snippetForm, setSnippetForm] = useState({
-    title: '',
-    filePath: '',
-    language: 'javascript',
-    code: '',
-    notes: '',
-    groupName: '',
-    status: 'draft'
   });
   const [form, setForm] = useState({
     title: '',
@@ -184,9 +156,6 @@ export default function TeamWorkspace() {
   const canInviteActiveProject = Boolean(activeProject?.canInvite);
   const latestMessages = visibleMessages.slice(-40);
   const sharedResources = activeProject?.resources || [];
-  const codeEnvironments = activeProject?.codeEnvironments || [];
-  const codeSnippets = activeProject?.codeSnippets || [];
-  const codeRuns = activeProject?.codeRuns || [];
   const developerAgent = activeProject?.developerAgent || {};
 
   const visibleTasks = useMemo(() => {
@@ -228,22 +197,8 @@ export default function TeamWorkspace() {
     }
   };
 
-  const loadRunnerStatus = async () => {
-    try {
-      const res = await api.get('/team-projects/code-runner/status');
-      setRunnerStatus(res.data?.runner || null);
-    } catch {
-      setRunnerStatus({
-        enabled: false,
-        mode: 'unavailable',
-        note: 'Code runner status is unavailable right now.'
-      });
-    }
-  };
-
   useEffect(() => {
     fetchProjects();
-    loadRunnerStatus();
   }, []);
 
   useEffect(() => {
@@ -252,28 +207,6 @@ export default function TeamWorkspace() {
     setLastInvite(null);
     setInviteForm((prev) => ({ ...prev, groupName: '' }));
     setResourceForm({ label: '', type: 'repository', url: '', notes: '' });
-    setEnvironmentForm({
-      name: '',
-      os: 'linux',
-      runtime: '',
-      repositoryUrl: '',
-      branch: '',
-      setupCommands: '',
-      runCommands: '',
-      testCommands: '',
-      notes: '',
-      groupName: ''
-    });
-    setSnippetForm({
-      title: '',
-      filePath: '',
-      language: 'javascript',
-      code: '',
-      notes: '',
-      groupName: '',
-      status: 'draft'
-    });
-    setSandboxInput('');
     setUnreadMessages(0);
   }, [activeProject?._id]);
 
@@ -354,54 +287,6 @@ export default function TeamWorkspace() {
       }
     });
 
-    source.addEventListener('code_environment', (event) => {
-      try {
-        const payload = JSON.parse(event.data || '{}');
-        if (!payload.projectId || !payload.environment?._id) return;
-
-        setProjects((prev) => prev.map((project) => {
-          if (project._id !== payload.projectId) return project;
-          const environments = project.codeEnvironments || [];
-          if (environments.some((item) => String(item._id) === String(payload.environment._id))) return project;
-          return { ...project, codeEnvironments: [...environments, payload.environment] };
-        }));
-      } catch {
-        // Ignore malformed stream packets.
-      }
-    });
-
-    source.addEventListener('code_snippet', (event) => {
-      try {
-        const payload = JSON.parse(event.data || '{}');
-        if (!payload.projectId || !payload.snippet?._id) return;
-
-        setProjects((prev) => prev.map((project) => {
-          if (project._id !== payload.projectId) return project;
-          const snippets = project.codeSnippets || [];
-          if (snippets.some((item) => String(item._id) === String(payload.snippet._id))) return project;
-          return { ...project, codeSnippets: [...snippets, payload.snippet] };
-        }));
-      } catch {
-        // Ignore malformed stream packets.
-      }
-    });
-
-    source.addEventListener('code_run', (event) => {
-      try {
-        const payload = JSON.parse(event.data || '{}');
-        if (!payload.projectId || !payload.run?._id) return;
-
-        setProjects((prev) => prev.map((project) => {
-          if (project._id !== payload.projectId) return project;
-          const runs = project.codeRuns || [];
-          if (runs.some((item) => String(item._id) === String(payload.run._id))) return project;
-          return { ...project, codeRuns: [...runs, payload.run] };
-        }));
-      } catch {
-        // Ignore malformed stream packets.
-      }
-    });
-
     source.addEventListener('developer_agent', (event) => {
       try {
         const payload = JSON.parse(event.data || '{}');
@@ -430,9 +315,6 @@ export default function TeamWorkspace() {
                   status: payload.status || project.status,
                   tasks: payload.tasks || project.tasks,
                   resources: payload.resources || project.resources,
-                  codeEnvironments: payload.codeEnvironments || project.codeEnvironments,
-                  codeSnippets: payload.codeSnippets || project.codeSnippets,
-                  codeRuns: payload.codeRuns || project.codeRuns,
                   aiPlan: payload.aiPlan || project.aiPlan,
                   developerAgent: payload.developerAgent || project.developerAgent,
                   updatedAt: payload.updatedAt || project.updatedAt
@@ -741,108 +623,6 @@ export default function TeamWorkspace() {
       alert(err?.response?.data?.message || 'Failed to add build link.');
     } finally {
       setResourceSaving(false);
-    }
-  };
-
-  const addCodeEnvironment = async (event) => {
-    event.preventDefault();
-
-    if (!activeProject?._id || !canEditActiveProject) {
-      alert('Only project owners and editors can add Code Arena environments.');
-      return;
-    }
-
-    if (!environmentForm.name.trim()) {
-      alert('Add an environment name first.');
-      return;
-    }
-
-    try {
-      setEnvironmentSaving(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/code-environments`, environmentForm);
-      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
-      setEnvironmentForm({
-        name: '',
-        os: 'linux',
-        runtime: '',
-        repositoryUrl: '',
-        branch: '',
-        setupCommands: '',
-        runCommands: '',
-        testCommands: '',
-        notes: '',
-        groupName: ''
-      });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to add Code Arena environment.');
-    } finally {
-      setEnvironmentSaving(false);
-    }
-  };
-
-  const addCodeSnippet = async (event) => {
-    event.preventDefault();
-
-    if (!activeProject?._id || !canEditActiveProject) {
-      alert('Only project owners and editors can add code snippets.');
-      return;
-    }
-
-    if (!snippetForm.title.trim() || !snippetForm.code.trim()) {
-      alert('Add snippet title and code first.');
-      return;
-    }
-
-    try {
-      setSnippetSaving(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/code-snippets`, snippetForm);
-      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
-      setSnippetForm({
-        title: '',
-        filePath: '',
-        language: 'javascript',
-        code: '',
-        notes: '',
-        groupName: '',
-        status: 'draft'
-      });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to add code snippet.');
-    } finally {
-      setSnippetSaving(false);
-    }
-  };
-
-  const runSnippetInSandbox = async (snippet) => {
-    if (!activeProject?._id || !snippet?._id) return;
-
-    if (!canEditActiveProject) {
-      alert('Only project owners and editors can run sandbox code.');
-      return;
-    }
-
-    if (!runnerStatus?.enabled) {
-      alert(runnerStatus?.note || 'Docker sandbox is not enabled on this backend yet.');
-      return;
-    }
-
-    try {
-      setRunningSnippetId(String(snippet._id));
-      const res = await api.post(`/team-projects/${activeProject._id}/code-snippets/${snippet._id}/run`, {
-        language: snippet.language,
-        stdin: sandboxInput
-      });
-      if (res.data?.runner) {
-        setRunnerStatus(res.data.runner);
-      }
-      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
-    } catch (err) {
-      if (err?.response?.data?.runner) {
-        setRunnerStatus(err.response.data.runner);
-      }
-      alert(err?.response?.data?.message || 'Docker sandbox run failed.');
-    } finally {
-      setRunningSnippetId('');
     }
   };
 
@@ -1354,71 +1134,6 @@ export default function TeamWorkspace() {
                           </p>
                         </div>
                       )}
-                    </div>
-                  </div>
-
-                  <div className="mt-5 rounded-3xl border border-cyan-400/15 bg-cyan-400/[0.04] p-4 sm:p-5">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-cyan-300">Development tools</p>
-                        <h4 className="mt-1 text-xl font-black text-white">Open coding and OS setup in separate pages</h4>
-                        <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-zinc-500">
-                          Team Workspace now stays focused on projects, people, tasks, links, and chat. Use the dedicated pages when the team needs to write code or document setup.
-                        </p>
-                      </div>
-                      <span className="w-fit rounded-full border border-cyan-300/15 bg-cyan-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-cyan-200">
-                        {runnerStatus?.enabled ? 'Docker ready' : 'Safe MVP'}
-                      </span>
-                    </div>
-
-                    <div className="mt-5 grid gap-4 md:grid-cols-2">
-                      <Link
-                        to="/code-arena"
-                        className="group rounded-3xl border border-sky-300/15 bg-sky-300/[0.05] p-5 transition-all hover:-translate-y-1 hover:border-sky-300/35 hover:bg-sky-300/[0.08]"
-                      >
-                        <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Programming page</p>
-                        <h5 className="mt-2 text-lg font-black text-white">Code Arena</h5>
-                        <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
-                          Add code snippets, run JavaScript/Python/Shell in Docker, and review latest outputs for this project.
-                        </p>
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Snippets</p>
-                            <p className="mt-1 text-2xl font-black text-white">{codeSnippets.length}</p>
-                          </div>
-                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Runs</p>
-                            <p className="mt-1 text-2xl font-black text-white">{codeRuns.length}</p>
-                          </div>
-                        </div>
-                        <p className="mt-4 text-xs font-black uppercase tracking-widest text-sky-200 group-hover:text-white">
-                          Open Programming
-                        </p>
-                      </Link>
-
-                      <Link
-                        to="/os-workspaces"
-                        className="group rounded-3xl border border-emerald-300/15 bg-emerald-300/[0.05] p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/35 hover:bg-emerald-300/[0.08]"
-                      >
-                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">OS setup page</p>
-                        <h5 className="mt-2 text-lg font-black text-white">OS / Environment</h5>
-                        <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
-                          Add Linux, Windows, macOS, Android, iOS, or server instructions so each freelancer can start correctly.
-                        </p>
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Workspaces</p>
-                            <p className="mt-1 text-2xl font-black text-white">{codeEnvironments.length}</p>
-                          </div>
-                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Project</p>
-                            <p className="mt-1 truncate text-sm font-black text-white">{activeProject.title}</p>
-                          </div>
-                        </div>
-                        <p className="mt-4 text-xs font-black uppercase tracking-widest text-emerald-200 group-hover:text-white">
-                          Open OS Setup
-                        </p>
-                      </Link>
                     </div>
                   </div>
 

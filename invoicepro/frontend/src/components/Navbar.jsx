@@ -14,8 +14,6 @@ const billingLinks = [
   { to: '/proposal-writer', label: 'Proposal/RFP', detail: 'Write client-ready proposals', requiresPro: true },
   { to: '/deal-room', label: 'Deal Room', detail: 'Trust pack and close plan', requiresPro: true },
   { to: '/team-workspace', label: 'Team Room', detail: 'Collaborate with freelancers' },
-  { to: '/code-arena', label: 'Code Arena', detail: 'Programming and Docker runs' },
-  { to: '/os-workspaces', label: 'OS Setup', detail: 'Linux, mobile, server setup' },
   { to: '/create-invoice', label: 'Create Deal', detail: 'Proposal or invoice' },
   { to: '/clients', label: 'Clients', detail: 'Client records' },
   { to: '/recurring', label: 'Recurring', detail: 'Monthly revenue', requiresPro: true }
