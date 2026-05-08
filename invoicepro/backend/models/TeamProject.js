@@ -126,6 +126,90 @@ const messageSchema = new mongoose.Schema({
     }
 }, { _id: true });
 
+const memberSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    name: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    email: {
+        type: String,
+        default: '',
+        lowercase: true,
+        trim: true
+    },
+    role: {
+        type: String,
+        enum: ['owner', 'editor', 'viewer'],
+        default: 'viewer'
+    },
+    groupName: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    status: {
+        type: String,
+        enum: ['invited', 'active', 'removed'],
+        default: 'active'
+    },
+    joinedAt: {
+        type: Date,
+        default: Date.now
+    }
+}, { _id: true });
+
+const inviteSchema = new mongoose.Schema({
+    tokenHash: {
+        type: String,
+        required: true,
+        index: true
+    },
+    email: {
+        type: String,
+        default: '',
+        lowercase: true,
+        trim: true
+    },
+    role: {
+        type: String,
+        enum: ['editor', 'viewer'],
+        default: 'viewer'
+    },
+    groupName: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    expiresAt: {
+        type: Date,
+        required: true
+    },
+    acceptedAt: {
+        type: Date,
+        default: null
+    },
+    acceptedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    revokedAt: {
+        type: Date,
+        default: null
+    }
+}, { _id: true });
+
 const teamProjectSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -170,6 +254,8 @@ const teamProjectSchema = new mongoose.Schema({
     collaborators: [collaboratorSchema],
     tasks: [taskSchema],
     messages: [messageSchema],
+    members: [memberSchema],
+    inviteTokens: [inviteSchema],
     aiPlan: {
         summary: {
             type: String,
@@ -243,5 +329,7 @@ const teamProjectSchema = new mongoose.Schema({
 
 teamProjectSchema.index({ user: 1, status: 1, updatedAt: -1 });
 teamProjectSchema.index({ user: 1, deadline: 1 });
+teamProjectSchema.index({ 'members.user': 1, updatedAt: -1 });
+teamProjectSchema.index({ 'inviteTokens.tokenHash': 1 });
 
 module.exports = mongoose.model('TeamProject', teamProjectSchema);

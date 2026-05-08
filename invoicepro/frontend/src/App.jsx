@@ -31,6 +31,7 @@ const OutboundAutopilot = lazy(() => import('./pages/OutboundAutopilot'));
 const ProposalWriter = lazy(() => import('./pages/ProposalWriter'));
 const DealClosureRoom = lazy(() => import('./pages/DealClosureRoom'));
 const TeamWorkspace = lazy(() => import('./pages/TeamWorkspace'));
+const TeamInvite = lazy(() => import('./pages/TeamInvite'));
 const LeadPipeline = lazy(() => import('./pages/LeadPipeline'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
@@ -137,6 +138,7 @@ const appRoutePrefixes = [
   '/sales-agent',
   '/settings',
   '/signup',
+  '/team-invite',
   '/team-workspace'
 ];
 
@@ -384,12 +386,19 @@ export default function App() {
           path="/team-workspace"
           element={
             <PrivateRoute>
-              <ProRoute title="Team Workspace unlocks after Pro payment">
-                <Suspense fallback={<RouteLoader />}>
-                  <TeamWorkspace />
-                </Suspense>
-              </ProRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <TeamWorkspace />
+              </Suspense>
             </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/team-invite/:token"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <TeamInvite />
+            </Suspense>
           }
         />
 

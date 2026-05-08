@@ -13,7 +13,7 @@ const growthLinks = [
 const billingLinks = [
   { to: '/proposal-writer', label: 'Proposal/RFP', detail: 'Write client-ready proposals', requiresPro: true },
   { to: '/deal-room', label: 'Deal Room', detail: 'Trust pack and close plan', requiresPro: true },
-  { to: '/team-workspace', label: 'Team Room', detail: 'Collaborate with freelancers', requiresPro: true },
+  { to: '/team-workspace', label: 'Team Room', detail: 'Collaborate with freelancers' },
   { to: '/create-invoice', label: 'Create Deal', detail: 'Proposal or invoice' },
   { to: '/clients', label: 'Clients', detail: 'Client records' },
   { to: '/recurring', label: 'Recurring', detail: 'Monthly revenue', requiresPro: true }

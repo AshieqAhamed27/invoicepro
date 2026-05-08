@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
+import { openWhatsAppShare } from '../utils/whatsapp';
 
 const currencyOptions = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'];
 const projectStatuses = ['planning', 'active', 'review', 'completed', 'paused'];
@@ -81,6 +82,7 @@ export default function TeamWorkspace() {
   const currentUser = getUser() || {};
   const [projects, setProjects] = useState([]);
   const [summary, setSummary] = useState({});
+  const [canCreateProjects, setCanCreateProjects] = useState(false);
   const [activeProjectId, setActiveProjectId] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -88,6 +90,13 @@ export default function TeamWorkspace() {
   const [chatGroup, setChatGroup] = useState('');
   const [chatMessage, setChatMessage] = useState('');
   const [chatSending, setChatSending] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [lastInvite, setLastInvite] = useState(null);
+  const [inviteForm, setInviteForm] = useState({
+    email: '',
+    role: 'viewer',
+    groupName: ''
+  });
   const [form, setForm] = useState({
     title: '',
     clientName: '',
@@ -122,6 +131,38 @@ export default function TeamWorkspace() {
     return messages.filter((item) => (item.groupName || '') === chatGroup);
   }, [activeProject, chatGroup]);
 
+  const activeMember = useMemo(() => {
+    if (!activeProject) return null;
+    return (activeProject.members || []).find((member) =>
+      String(member.user || '') === String(currentUser.id || currentUser._id || '') ||
+      String(member.email || '').toLowerCase() === String(currentUser.email || '').toLowerCase()
+    ) || null;
+  }, [activeProject, currentUser.email, currentUser.id, currentUser._id]);
+
+  const canEditActiveProject = Boolean(activeProject?.canEdit || ['owner', 'editor'].includes(activeProject?.accessRole));
+  const canInviteActiveProject = Boolean(activeProject?.canInvite);
+
+  const visibleTasks = useMemo(() => {
+    const tasks = activeProject?.tasks || [];
+    if (!activeProject || canEditActiveProject) return tasks;
+
+    const memberName = String(activeMember?.name || currentUser.name || '').toLowerCase();
+    const memberEmail = String(activeMember?.email || currentUser.email || '').toLowerCase();
+    const memberGroup = String(activeMember?.groupName || '').toLowerCase();
+    const assignedTasks = tasks.filter((task) => {
+      const owner = String(task.owner || '').toLowerCase();
+      const groupName = String(task.groupName || '').toLowerCase();
+
+      return (
+        (memberName && owner === memberName) ||
+        (memberEmail && owner === memberEmail) ||
+        (memberGroup && groupName === memberGroup)
+      );
+    });
+
+    return assignedTasks.length ? assignedTasks : tasks;
+  }, [activeProject, activeMember, canEditActiveProject, currentUser.email, currentUser.name]);
+
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -129,6 +170,7 @@ export default function TeamWorkspace() {
       const nextProjects = res.data?.projects || [];
       setProjects(nextProjects);
       setSummary(res.data?.summary || {});
+      setCanCreateProjects(Boolean(res.data?.canCreateProjects));
       if (!activeProjectId && nextProjects[0]?._id) {
         setActiveProjectId(nextProjects[0]._id);
       }
@@ -146,6 +188,8 @@ export default function TeamWorkspace() {
   useEffect(() => {
     setChatGroup('');
     setChatMessage('');
+    setLastInvite(null);
+    setInviteForm((prev) => ({ ...prev, groupName: '' }));
   }, [activeProject?._id]);
 
   const updateField = (field, value) => {
@@ -239,6 +283,11 @@ export default function TeamWorkspace() {
   };
 
   const updateProjectStatus = async (project, status) => {
+    if (!project?.canEdit) {
+      alert('Only project owners and editors can update status.');
+      return;
+    }
+
     try {
       const res = await api.patch(`/team-projects/${project._id}`, { status });
       setProjects((prev) => {
@@ -252,6 +301,11 @@ export default function TeamWorkspace() {
   };
 
   const updateProjectTasks = async (project, nextTasks) => {
+    if (!project?.canEdit) {
+      alert('Only project owners and editors can update tasks.');
+      return;
+    }
+
     try {
       const res = await api.patch(`/team-projects/${project._id}`, { tasks: nextTasks });
       setProjects((prev) => {
@@ -265,6 +319,11 @@ export default function TeamWorkspace() {
   };
 
   const generateAiPlan = async (projectId) => {
+    if (!canEditActiveProject) {
+      alert('Only project owners and editors can generate the AI plan.');
+      return;
+    }
+
     try {
       setPlanLoading(projectId);
       const res = await api.post(`/team-projects/${projectId}/ai-plan`);
@@ -306,6 +365,63 @@ export default function TeamWorkspace() {
       alert(err?.response?.data?.message || 'Failed to send message.');
     } finally {
       setChatSending(false);
+    }
+  };
+
+  const createInvite = async (event) => {
+    event.preventDefault();
+
+    if (!activeProject?._id || !canInviteActiveProject) {
+      alert('Only the paid project owner can create invite links.');
+      return;
+    }
+
+    try {
+      setInviteLoading(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/invites`, inviteForm);
+      setLastInvite(res.data?.invite || null);
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to create invite.');
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const copyInviteLink = async () => {
+    if (!lastInvite?.inviteUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(lastInvite.inviteUrl);
+      alert('Invite link copied.');
+    } catch {
+      window.prompt('Copy invite link:', lastInvite.inviteUrl);
+    }
+  };
+
+  const shareInviteOnWhatsApp = () => {
+    if (!lastInvite?.whatsappText) return;
+    openWhatsAppShare(lastInvite.whatsappText);
+  };
+
+  const updateMemberAccess = async (member, updates) => {
+    if (!activeProject?._id || !member?._id || !canInviteActiveProject) {
+      return;
+    }
+
+    try {
+      const res = await api.patch(`/team-projects/${activeProject._id}/members/${member._id}`, updates);
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to update member access.');
     }
   };
 
@@ -351,7 +467,7 @@ export default function TeamWorkspace() {
         <section className="reveal mb-10">
           <div className="mb-4 flex items-center gap-2">
             <span className="h-px w-8 bg-yellow-400" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Pro Team Workspace</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Team Workspace</p>
           </div>
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
             <div>
@@ -359,7 +475,7 @@ export default function TeamWorkspace() {
                 Work with other freelancers on bigger client projects
               </h1>
               <p className="mt-4 max-w-3xl text-base font-medium leading-relaxed text-zinc-400 sm:text-lg">
-                Add collaborators, assign roles, split tasks, track project risk, and let AI prepare the daily delivery plan before you invoice the client.
+                Invite freelancers with a link, assign roles, split tasks, chat by group, and let AI prepare the daily delivery plan before you invoice the client.
               </p>
             </div>
 
@@ -422,6 +538,9 @@ export default function TeamWorkspace() {
                           </p>
                         </div>
                         <div className="flex shrink-0 flex-wrap gap-2">
+                          <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-200">
+                            {statusLabel(project.accessRole || 'member')}
+                          </span>
                           <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-300">
                             {statusLabel(project.status)}
                           </span>
@@ -460,9 +579,13 @@ export default function TeamWorkspace() {
             ) : (
               <div className="premium-panel p-8 text-center">
                 <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">No team project yet</p>
-                <h2 className="mt-3 text-3xl font-black text-white">Create your first delivery room</h2>
+                <h2 className="mt-3 text-3xl font-black text-white">
+                  {canCreateProjects ? 'Create your first delivery room' : 'No shared project found'}
+                </h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm font-medium leading-relaxed text-zinc-500">
-                  Use it when a project is too big for one freelancer and you need a designer, developer, writer, marketer, or assistant to help.
+                  {canCreateProjects
+                    ? 'Use it when a project is too big for one freelancer and you need a designer, developer, writer, marketer, or assistant to help.'
+                    : 'Ask the project owner to send you a ClientFlow AI team invite link. After you accept it, only that shared project will appear here.'}
                 </p>
               </div>
             )}
@@ -482,6 +605,7 @@ export default function TeamWorkspace() {
                     <select
                       value={activeProject.status}
                       onChange={(event) => updateProjectStatus(activeProject, event.target.value)}
+                      disabled={!canEditActiveProject}
                       className="input py-3 text-xs"
                     >
                       {projectStatuses.map((status) => (
@@ -491,7 +615,7 @@ export default function TeamWorkspace() {
                     <button
                       type="button"
                       onClick={() => generateAiPlan(activeProject._id)}
-                      disabled={planLoading === activeProject._id}
+                      disabled={planLoading === activeProject._id || !canEditActiveProject}
                       className="btn btn-primary px-5 py-3 text-xs"
                     >
                       {planLoading === activeProject._id ? 'Planning...' : 'Generate AI Plan'}
@@ -557,6 +681,138 @@ export default function TeamWorkspace() {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                <div className="mt-8 rounded-3xl border border-emerald-400/15 bg-emerald-400/[0.04] p-4 sm:p-5">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Invite freelancers</p>
+                      <h3 className="mt-1 text-xl font-black text-white">Bring another freelancer into this project</h3>
+                      <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
+                        Share a secure link by WhatsApp or email. They sign up or login, then join only this project with the permission you choose.
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                      Your role: {statusLabel(activeProject.accessRole || 'member')}
+                    </span>
+                  </div>
+
+                  {canInviteActiveProject ? (
+                    <>
+                      <form onSubmit={createInvite} className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_140px_160px_120px]">
+                        <input
+                          type="email"
+                          value={inviteForm.email}
+                          onChange={(event) => setInviteForm((prev) => ({ ...prev, email: event.target.value }))}
+                          placeholder="Freelancer email optional"
+                          className="input py-3 text-sm"
+                        />
+                        <select
+                          value={inviteForm.role}
+                          onChange={(event) => setInviteForm((prev) => ({ ...prev, role: event.target.value }))}
+                          className="input py-3 text-sm"
+                        >
+                          <option value="viewer">Viewer</option>
+                          <option value="editor">Editor</option>
+                        </select>
+                        <select
+                          value={inviteForm.groupName}
+                          onChange={(event) => setInviteForm((prev) => ({ ...prev, groupName: event.target.value }))}
+                          className="input py-3 text-sm"
+                        >
+                          <option value="">No group</option>
+                          {activeGroupNames.map((groupName) => (
+                            <option key={groupName} value={groupName}>{groupName}</option>
+                          ))}
+                        </select>
+                        <button
+                          type="submit"
+                          disabled={inviteLoading}
+                          className="btn btn-primary px-4 py-3 text-xs"
+                        >
+                          {inviteLoading ? 'Creating...' : 'Create Link'}
+                        </button>
+                      </form>
+
+                      {lastInvite?.inviteUrl && (
+                        <div className="mt-4 rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Invite link</p>
+                          <p className="mt-2 break-all text-sm font-semibold leading-relaxed text-zinc-300">
+                            {lastInvite.inviteUrl}
+                          </p>
+                          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                            <button type="button" onClick={copyInviteLink} className="btn btn-secondary px-4 py-3 text-xs">
+                              Copy Link
+                            </button>
+                            <button type="button" onClick={shareInviteOnWhatsApp} className="btn btn-secondary px-4 py-3 text-xs">
+                              Share WhatsApp
+                            </button>
+                            <a
+                              href={`mailto:${encodeURIComponent(lastInvite.email || '')}?subject=${encodeURIComponent(lastInvite.emailSubject || 'Join project')}&body=${encodeURIComponent(lastInvite.emailBody || lastInvite.inviteUrl)}`}
+                              className="btn btn-secondary px-4 py-3 text-center text-xs"
+                            >
+                              Open Email
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="mt-5">
+                        <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Project members</p>
+                        <div className="grid gap-3">
+                          {(activeProject.members || []).filter((member) => member.status !== 'removed').map((member) => (
+                            <div key={member._id || member.email} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-black text-white">{member.name || member.email || 'Team member'}</p>
+                                  <p className="mt-1 text-xs font-medium text-zinc-500">
+                                    {member.email || 'No email'} {member.groupName ? `- ${member.groupName}` : ''}
+                                  </p>
+                                </div>
+                                {member.role === 'owner' ? (
+                                  <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-200">
+                                    Owner
+                                  </span>
+                                ) : (
+                                  <div className="grid gap-2 sm:grid-cols-[120px_150px_90px]">
+                                    <select
+                                      value={member.role || 'viewer'}
+                                      onChange={(event) => updateMemberAccess(member, { role: event.target.value })}
+                                      className="input py-2 text-xs"
+                                    >
+                                      <option value="viewer">Viewer</option>
+                                      <option value="editor">Editor</option>
+                                    </select>
+                                    <select
+                                      value={member.groupName || ''}
+                                      onChange={(event) => updateMemberAccess(member, { groupName: event.target.value })}
+                                      className="input py-2 text-xs"
+                                    >
+                                      <option value="">No group</option>
+                                      {activeGroupNames.map((groupName) => (
+                                        <option key={groupName} value={groupName}>{groupName}</option>
+                                      ))}
+                                    </select>
+                                    <button
+                                      type="button"
+                                      onClick={() => updateMemberAccess(member, { status: 'removed' })}
+                                      className="rounded-xl border border-red-400/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 hover:bg-red-400/10"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mt-5 rounded-2xl border border-white/8 bg-black/20 p-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                      Only the paid project owner can create invite links. Editors and viewers can work inside the project, update allowed tasks, and use group chat.
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-8 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-4 sm:p-5">
@@ -662,7 +918,7 @@ export default function TeamWorkspace() {
                   <div>
                     <h3 className="mb-4 text-lg font-black text-white">Project tasks</h3>
                     <div className="space-y-3">
-                      {(activeProject.tasks || []).map((task, index) => (
+                      {visibleTasks.map((task, index) => (
                         <div key={task._id || index} className="grid gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4 sm:grid-cols-[minmax(0,1fr)_150px]">
                           <div>
                             <p className="font-black text-white">{task.title}</p>
@@ -674,10 +930,13 @@ export default function TeamWorkspace() {
                             value={task.status}
                             onChange={(event) => {
                               const nextTasks = (activeProject.tasks || []).map((item, currentIndex) =>
-                                currentIndex === index ? { ...item, status: event.target.value } : item
+                                (task._id && item._id === task._id) || (!task._id && currentIndex === index)
+                                  ? { ...item, status: event.target.value }
+                                  : item
                               );
                               updateProjectTasks(activeProject, nextTasks);
                             }}
+                            disabled={!canEditActiveProject}
                             className="input py-3 text-xs"
                           >
                             {taskStatuses.map((status) => (
@@ -686,6 +945,14 @@ export default function TeamWorkspace() {
                           </select>
                         </div>
                       ))}
+                      {!visibleTasks.length && (
+                        <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
+                          <p className="text-sm font-black text-white">No assigned tasks yet</p>
+                          <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
+                            Ask the project owner to assign tasks by your name or group.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -705,9 +972,10 @@ export default function TeamWorkspace() {
           </section>
 
           <aside className="reveal reveal-delay-2 xl:sticky xl:top-28 h-fit">
-            <form onSubmit={handleSubmit} className="premium-panel p-5 sm:p-8">
-              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Create team project</p>
-              <h2 className="mt-2 text-2xl font-black text-white">New collaboration room</h2>
+            {canCreateProjects ? (
+              <form onSubmit={handleSubmit} className="premium-panel p-5 sm:p-8">
+                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Create team project</p>
+                <h2 className="mt-2 text-2xl font-black text-white">New collaboration room</h2>
 
               <div className="mt-6 space-y-4">
                 <input
@@ -951,7 +1219,28 @@ export default function TeamWorkspace() {
               >
                 {saving ? 'Creating...' : 'Create Team Workspace'}
               </button>
-            </form>
+              </form>
+            ) : (
+              <div className="premium-panel p-5 sm:p-8">
+                <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Joined workspace</p>
+                <h2 className="mt-2 text-2xl font-black text-white">You are a project member</h2>
+                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-500">
+                  You can open projects shared with you, see assigned work, and send group chat updates. Creating new team workspaces and invite links is available for the paid project owner.
+                </p>
+                <div className="mt-5 grid gap-3">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Your access</p>
+                    <p className="mt-1 text-lg font-black text-white">
+                      {statusLabel(activeProject?.accessRole || 'Member')}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Assigned tasks</p>
+                    <p className="mt-1 text-lg font-black text-white">{visibleTasks.length}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </aside>
         </div>
       </main>

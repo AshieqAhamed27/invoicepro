@@ -1,6 +1,7 @@
 const express = require('express');
+const crypto = require('crypto');
 const TeamProject = require('../models/TeamProject');
-const { protect, requirePro } = require('../middleware/auth');
+const { protect, requirePro, hasPaidPlan } = require('../middleware/auth');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 
 const router = express.Router();
@@ -10,8 +11,83 @@ const TASK_STATUSES = ['todo', 'doing', 'done', 'blocked'];
 const PRIORITIES = ['low', 'normal', 'high'];
 const AVAILABILITY = ['low', 'medium', 'high'];
 const CURRENCIES = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'];
+const MEMBER_ROLES = ['owner', 'editor', 'viewer'];
+const INVITE_ROLES = ['editor', 'viewer'];
 
 const cleanString = (value) => String(value || '').trim();
+
+const normalizeEmail = (value) => cleanString(value).toLowerCase();
+
+const createInviteToken = () => crypto.randomBytes(32).toString('hex');
+
+const hashInviteToken = (token) =>
+    crypto.createHash('sha256').update(String(token || '')).digest('hex');
+
+const getFrontendUrl = (req) => {
+    const origin = req.get('origin');
+    if (origin) return String(origin).replace(/\/+$/, '');
+
+    const configured = cleanString(process.env.FRONTEND_URL).replace(/\/+$/, '');
+    if (configured) return configured;
+
+    return `${req.protocol}://${req.get('host')}`;
+};
+
+const getInviteUrl = (req, token) => `${getFrontendUrl(req)}/team-invite/${token}`;
+
+const getMemberRole = (project, userId) => {
+    if (!project || !userId) return null;
+    if (String(project.user) === String(userId)) return 'owner';
+
+    const member = (project.members || []).find((item) =>
+        item.status === 'active' && item.user && String(item.user) === String(userId)
+    );
+
+    return member?.role || null;
+};
+
+const canEditProject = (role) => role === 'owner' || role === 'editor';
+
+const serializeProjectForUser = (project, user) => {
+    const plain = typeof project.toObject === 'function' ? project.toObject() : project;
+    const accessRole = getMemberRole(plain, user?._id);
+    const inviteTokens = plain.inviteTokens || [];
+    const members = [...(plain.members || [])];
+    const activeInvites = inviteTokens.filter((invite) =>
+        !invite.revokedAt && !invite.acceptedAt && new Date(invite.expiresAt) > new Date()
+    );
+
+    if (accessRole === 'owner' && !members.some((member) => member.user && String(member.user) === String(user?._id))) {
+        members.unshift({
+            user: user?._id,
+            name: user?.name || 'Project owner',
+            email: user?.email || '',
+            role: 'owner',
+            groupName: '',
+            status: 'active',
+            joinedAt: plain.createdAt
+        });
+    }
+
+    return {
+        ...plain,
+        members,
+        inviteTokens: undefined,
+        accessRole,
+        canEdit: canEditProject(accessRole),
+        canInvite: accessRole === 'owner' && hasPaidPlan(user),
+        activeInvites: activeInvites.map((invite) => ({
+            id: invite._id,
+            email: invite.email,
+            role: invite.role,
+            groupName: invite.groupName,
+            expiresAt: invite.expiresAt
+        }))
+    };
+};
+
+const serializeProjectsForUser = (projects, user) =>
+    projects.map((project) => serializeProjectForUser(project, user));
 
 const normalizeNumber = (value) => {
     const parsed = Number(value || 0);
@@ -232,15 +308,22 @@ const buildSummary = (projects = []) => ({
     )
 });
 
-router.get('/', protect, requirePro, async(req, res) => {
+router.get('/', protect, async(req, res) => {
     try {
-        const projects = await TeamProject.find({ user: req.user._id })
+        const projects = await TeamProject.find({
+            $or: [
+                { user: req.user._id },
+                { members: { $elemMatch: { user: req.user._id, status: 'active' } } }
+            ]
+        })
             .sort({ updatedAt: -1 })
             .lean();
+        const visibleProjects = serializeProjectsForUser(projects, req.user);
 
         res.json({
-            projects,
-            summary: buildSummary(projects)
+            projects: visibleProjects,
+            summary: buildSummary(visibleProjects),
+            canCreateProjects: hasPaidPlan(req.user)
         });
     } catch (err) {
         console.error('GET TEAM PROJECTS ERROR:', err);
@@ -260,17 +343,148 @@ router.post('/', protect, requirePro, async(req, res) => {
         const project = await TeamProject.create({
             ...payload,
             user: req.user._id,
+            members: [{
+                user: req.user._id,
+                name: req.user.name,
+                email: req.user.email,
+                role: 'owner',
+                status: 'active',
+                joinedAt: new Date()
+            }],
             aiPlan
         });
 
-        res.status(201).json({ project });
+        res.status(201).json({ project: serializeProjectForUser(project, req.user) });
     } catch (err) {
         console.error('CREATE TEAM PROJECT ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
 
-router.patch('/:id', protect, requirePro, async(req, res) => {
+router.get('/invites/:token', async(req, res) => {
+    try {
+        const tokenHash = hashInviteToken(req.params.token);
+        const project = await TeamProject.findOne({
+            inviteTokens: {
+                $elemMatch: {
+                    tokenHash,
+                    revokedAt: null,
+                    acceptedAt: null,
+                    expiresAt: { $gt: new Date() }
+                }
+            }
+        })
+            .populate('user', 'name email companyName')
+            .lean();
+
+        if (!project) {
+            return res.status(404).json({ message: 'Invite link is invalid or expired.' });
+        }
+
+        const invite = (project.inviteTokens || []).find((item) =>
+            item.tokenHash === tokenHash && !item.revokedAt && !item.acceptedAt && new Date(item.expiresAt) > new Date()
+        );
+
+        res.json({
+            invite: {
+                email: invite.email,
+                role: invite.role,
+                groupName: invite.groupName,
+                expiresAt: invite.expiresAt
+            },
+            project: {
+                title: project.title,
+                clientName: project.clientName,
+                deadline: project.deadline,
+                groupNames: (project.groups || []).map((group) => group.name).filter(Boolean),
+                ownerName: project.user?.companyName || project.user?.name || 'Project owner'
+            }
+        });
+    } catch (err) {
+        console.error('GET TEAM INVITE ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/invites/:token/accept', protect, async(req, res) => {
+    try {
+        const tokenHash = hashInviteToken(req.params.token);
+        const project = await TeamProject.findOne({
+            inviteTokens: {
+                $elemMatch: {
+                    tokenHash,
+                    revokedAt: null,
+                    acceptedAt: null,
+                    expiresAt: { $gt: new Date() }
+                }
+            }
+        });
+
+        if (!project) {
+            return res.status(404).json({ message: 'Invite link is invalid or expired.' });
+        }
+
+        const invite = project.inviteTokens.find((item) =>
+            item.tokenHash === tokenHash && !item.revokedAt && !item.acceptedAt && new Date(item.expiresAt) > new Date()
+        );
+
+        if (!invite) {
+            return res.status(404).json({ message: 'Invite link is invalid or expired.' });
+        }
+
+        if (invite.email && invite.email !== normalizeEmail(req.user.email)) {
+            return res.status(403).json({
+                message: `This invite was sent to ${invite.email}. Please login with that email.`
+            });
+        }
+
+        const existingMember = project.members.find((member) =>
+            member.user && String(member.user) === String(req.user._id)
+        );
+
+        if (existingMember) {
+            existingMember.name = req.user.name || existingMember.name;
+            existingMember.email = normalizeEmail(req.user.email);
+            existingMember.role = MEMBER_ROLES.includes(existingMember.role) && existingMember.role === 'owner'
+                ? 'owner'
+                : invite.role;
+            existingMember.groupName = invite.groupName || existingMember.groupName;
+            existingMember.status = 'active';
+            existingMember.joinedAt = existingMember.joinedAt || new Date();
+        } else {
+            project.members.push({
+                user: req.user._id,
+                name: req.user.name,
+                email: normalizeEmail(req.user.email),
+                role: invite.role,
+                groupName: invite.groupName,
+                status: 'active',
+                joinedAt: new Date()
+            });
+        }
+
+        invite.acceptedAt = new Date();
+        invite.acceptedBy = req.user._id;
+
+        project.messages.push({
+            groupName: invite.groupName,
+            senderName: 'ClientFlow AI',
+            message: `${req.user.name || req.user.email} joined the project as ${invite.role}.`
+        });
+
+        await project.save();
+
+        res.json({
+            message: 'Invite accepted.',
+            project: serializeProjectForUser(project, req.user)
+        });
+    } catch (err) {
+        console.error('ACCEPT TEAM INVITE ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.patch('/:id', protect, async(req, res) => {
     try {
         if (!isValidObjectId(req.params.id)) {
             return rejectInvalidObjectId(res, 'team project');
@@ -281,24 +495,134 @@ router.patch('/:id', protect, requirePro, async(req, res) => {
             return res.status(400).json({ message: 'Project title is required.' });
         }
 
-        const project = await TeamProject.findOneAndUpdate(
-            { _id: req.params.id, user: req.user._id },
-            payload,
-            { new: true, runValidators: true }
-        );
+        const project = await TeamProject.findById(req.params.id);
 
         if (!project) {
             return res.status(404).json({ message: 'Team project not found.' });
         }
 
-        res.json({ project });
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'You only have viewer access for this project.' });
+        }
+
+        Object.assign(project, payload);
+        await project.save();
+
+        res.json({ project: serializeProjectForUser(project, req.user) });
     } catch (err) {
         console.error('UPDATE TEAM PROJECT ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
     }
 });
 
-router.post('/:id/messages', protect, requirePro, async(req, res) => {
+router.post('/:id/invites', protect, requirePro, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const email = normalizeEmail(req.body.email);
+        const role = INVITE_ROLES.includes(req.body.role) ? req.body.role : 'viewer';
+        const groupName = cleanString(req.body.groupName);
+        const token = createInviteToken();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        project.inviteTokens.push({
+            tokenHash: hashInviteToken(token),
+            email,
+            role,
+            groupName,
+            createdBy: req.user._id,
+            expiresAt
+        });
+
+        await project.save();
+
+        const inviteUrl = getInviteUrl(req, token);
+        const shareText = [
+            `You are invited to join "${project.title}" on ClientFlow AI.`,
+            role === 'editor'
+                ? 'You can view tasks, update work, and send team chat messages.'
+                : 'You can view assigned work and send team chat messages.',
+            groupName ? `Group: ${groupName}` : '',
+            inviteUrl
+        ].filter(Boolean).join('\n');
+
+        res.status(201).json({
+            invite: {
+                email,
+                role,
+                groupName,
+                expiresAt,
+                inviteUrl,
+                whatsappText: shareText,
+                emailSubject: `Join ${project.title} on ClientFlow AI`,
+                emailBody: shareText
+            },
+            project: serializeProjectForUser(project, req.user)
+        });
+    } catch (err) {
+        console.error('CREATE TEAM INVITE ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.patch('/:id/members/:memberId', protect, requirePro, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id) || !isValidObjectId(req.params.memberId)) {
+            return rejectInvalidObjectId(res, 'team member');
+        }
+
+        const project = await TeamProject.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const member = project.members.id(req.params.memberId);
+        if (!member) {
+            return res.status(404).json({ message: 'Team member not found.' });
+        }
+
+        if (member.role === 'owner') {
+            return res.status(400).json({ message: 'Owner permission cannot be changed here.' });
+        }
+
+        if (Object.prototype.hasOwnProperty.call(req.body, 'role')) {
+            member.role = INVITE_ROLES.includes(req.body.role) ? req.body.role : member.role;
+        }
+
+        if (Object.prototype.hasOwnProperty.call(req.body, 'groupName')) {
+            member.groupName = cleanString(req.body.groupName);
+        }
+
+        if (Object.prototype.hasOwnProperty.call(req.body, 'status')) {
+            member.status = ['active', 'removed'].includes(req.body.status) ? req.body.status : member.status;
+        }
+
+        await project.save();
+
+        res.json({ project: serializeProjectForUser(project, req.user) });
+    } catch (err) {
+        console.error('UPDATE TEAM MEMBER ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
+router.post('/:id/messages', protect, async(req, res) => {
     try {
         if (!isValidObjectId(req.params.id)) {
             return rejectInvalidObjectId(res, 'team project');
@@ -315,13 +639,15 @@ router.post('/:id/messages', protect, requirePro, async(req, res) => {
             return res.status(400).json({ message: 'Message is required.' });
         }
 
-        const project = await TeamProject.findOne({
-            _id: req.params.id,
-            user: req.user._id
-        });
+        const project = await TeamProject.findById(req.params.id);
 
         if (!project) {
             return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!accessRole) {
+            return res.status(403).json({ message: 'You are not a member of this project.' });
         }
 
         project.messages.push({
@@ -337,7 +663,7 @@ router.post('/:id/messages', protect, requirePro, async(req, res) => {
         await project.save();
 
         res.status(201).json({
-            project,
+            project: serializeProjectForUser(project, req.user),
             message: project.messages[project.messages.length - 1]
         });
     } catch (err) {
@@ -346,25 +672,30 @@ router.post('/:id/messages', protect, requirePro, async(req, res) => {
     }
 });
 
-router.post('/:id/ai-plan', protect, requirePro, async(req, res) => {
+router.post('/:id/ai-plan', protect, async(req, res) => {
     try {
         if (!isValidObjectId(req.params.id)) {
             return rejectInvalidObjectId(res, 'team project');
         }
 
-        const project = await TeamProject.findOne({
-            _id: req.params.id,
-            user: req.user._id
-        });
+        const project = await TeamProject.findById(req.params.id);
 
         if (!project) {
             return res.status(404).json({ message: 'Team project not found.' });
         }
 
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can generate the AI plan.' });
+        }
+
         project.aiPlan = buildTeamAiPlan(project.toObject());
         await project.save();
 
-        res.json({ project, aiPlan: project.aiPlan });
+        res.json({
+            project: serializeProjectForUser(project, req.user),
+            aiPlan: project.aiPlan
+        });
     } catch (err) {
         console.error('TEAM AI PLAN ERROR:', err);
         res.status(500).json({ message: 'Server error.' });
