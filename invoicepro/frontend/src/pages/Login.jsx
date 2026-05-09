@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { resolvePostLoginRedirect, setAuth } from '../utils/auth';
-import { jwtDecode } from 'jwt-decode';
 import Navbar from '../components/Navbar';
 import { SUPPORT_EMAIL } from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
@@ -35,12 +34,9 @@ export default function Login() {
   }, [location.search]);
 
   const handleGoogleLogin = async (response) => {
-    const decoded = jwtDecode(response.credential);
-
     try {
       const res = await api.post('/auth/google', {
-        name: decoded.name,
-        email: decoded.email
+        credential: response.credential
       });
 
       setAuth(res.data.token, res.data.user);

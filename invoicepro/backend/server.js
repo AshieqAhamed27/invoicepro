@@ -2,6 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const {
+    createRateLimiter,
+    getSecurityConfig,
+    rejectUnsafeMongoKeys,
+    securityHeaders
+} = require('./middleware/security');
 
 const {
     getAllowedOrigins,
@@ -29,6 +35,10 @@ const businessGoalRoutes = require('./routes/businessGoal');
 const teamProjectRoutes = require('./routes/teamProjects');
 
 const app = express();
+const securityConfig = getSecurityConfig();
+
+app.disable('x-powered-by');
+app.set('trust proxy', 1);
 
 // ✅ CONNECT DATABASE
 const connectDatabase = async() => {
@@ -60,6 +70,14 @@ const startServer = async(options = {}) => {
 };
 
 // ✅ MIDDLEWARE
+app.use(securityHeaders);
+app.use(createRateLimiter({
+    windowMs: securityConfig.generalWindowMs,
+    max: securityConfig.generalMax,
+    keyPrefix: 'api',
+    message: 'Too many requests. Please slow down and try again.'
+}));
+
 app.use(
     cors({
         exposedHeaders: ['request-id', 'x-request-id', 'x-rtb-fingerprint-id'],
@@ -90,6 +108,38 @@ app.use(express.json({
 }));
 
 // ✅ ROUTES
+app.use(rejectUnsafeMongoKeys);
+app.use('/api/auth/login', createRateLimiter({
+    windowMs: securityConfig.authWindowMs,
+    max: securityConfig.authMax,
+    keyPrefix: 'auth-login',
+    message: 'Too many login attempts. Please wait and try again.'
+}));
+app.use('/api/auth/signup', createRateLimiter({
+    windowMs: securityConfig.authWindowMs,
+    max: securityConfig.authMax,
+    keyPrefix: 'auth-signup',
+    message: 'Too many signup attempts. Please wait and try again.'
+}));
+app.use('/api/auth/google', createRateLimiter({
+    windowMs: securityConfig.authWindowMs,
+    max: securityConfig.authMax,
+    keyPrefix: 'auth-google',
+    message: 'Too many Google login attempts. Please wait and try again.'
+}));
+app.use('/api/ai', createRateLimiter({
+    windowMs: securityConfig.aiWindowMs,
+    max: securityConfig.aiMax,
+    keyPrefix: 'ai',
+    message: 'Too many AI requests. Please wait and try again.'
+}));
+app.use('/api/payment', createRateLimiter({
+    windowMs: securityConfig.paymentWindowMs,
+    max: securityConfig.paymentMax,
+    keyPrefix: 'payment',
+    message: 'Too many payment requests. Please wait and try again.',
+    skip: (req) => req.path === '/webhook'
+}));
 app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payment', paymentRoutes);
@@ -169,8 +219,15 @@ app.use((err, req, res, next) => {
     if (err.context) {
         console.error('Error context:', err.context);
     }
-    res.status(err.status || 500).json({
-        message: err.message || 'Server error'
+    const status = err.status || 500;
+    const isProduction = process.env.NODE_ENV === 'production';
+    const message = !isProduction || status < 500
+        ? (err.message || 'Server error')
+        : 'Server error';
+
+    res.status(status).json({
+        message,
+        requestId: req.requestId
     });
 });
 

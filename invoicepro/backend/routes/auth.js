@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const https = require('https');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 const { getJwtSecret } = require('../utils/env');
@@ -8,6 +9,65 @@ const {
 } = require('../middleware/auth');
 
 const router = express.Router();
+
+const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
+
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ''));
+
+const verifyGoogleCredential = (credential) => {
+    return new Promise((resolve, reject) => {
+        const clientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID;
+        const token = String(credential || '').trim();
+
+        if (!clientId) {
+            return reject(new Error('Google login is not configured on the backend.'));
+        }
+
+        if (!token) {
+            return reject(new Error('Missing Google credential.'));
+        }
+
+        const url = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`;
+        const req = https.get(url, { timeout: 8000 }, (googleRes) => {
+            let body = '';
+
+            googleRes.on('data', (chunk) => {
+                body += chunk;
+            });
+
+            googleRes.on('end', () => {
+                let payload = {};
+                try {
+                    payload = body ? JSON.parse(body) : {};
+                } catch {
+                    return reject(new Error('Invalid Google verification response.'));
+                }
+
+                if (googleRes.statusCode < 200 || googleRes.statusCode >= 300) {
+                    return reject(new Error(payload.error_description || 'Google credential verification failed.'));
+                }
+
+                if (payload.aud !== clientId) {
+                    return reject(new Error('Google credential audience mismatch.'));
+                }
+
+                if (!payload.email || payload.email_verified !== 'true') {
+                    return reject(new Error('Google account email is not verified.'));
+                }
+
+                resolve({
+                    name: payload.name || payload.email.split('@')[0],
+                    email: normalizeEmail(payload.email)
+                });
+            });
+        });
+
+        req.on('timeout', () => {
+            req.destroy(new Error('Google verification timed out.'));
+        });
+        req.on('error', reject);
+    });
+};
 
 const isLocalNetworkHostname = (hostname) => {
     const host = String(hostname || '').toLowerCase();
@@ -98,9 +158,10 @@ router.post(
                 password,
                 companyName
             } = req.body;
+            const normalizedEmail = normalizeEmail(email);
 
             if (!name ||
-                !email ||
+                !normalizedEmail ||
                 !password
             ) {
                 return res
@@ -110,9 +171,21 @@ router.post(
                     });
             }
 
+            if (!isValidEmail(normalizedEmail)) {
+                return res.status(400).json({
+                    message: 'Please provide a valid email address.'
+                });
+            }
+
+            if (String(password).length < 8) {
+                return res.status(400).json({
+                    message: 'Password must be at least 8 characters.'
+                });
+            }
+
             const existingUser =
                 await User.findOne({
-                    email
+                    email: normalizedEmail
                 });
 
             if (existingUser) {
@@ -126,7 +199,7 @@ router.post(
             const user =
                 await User.create({
                     name,
-                    email,
+                    email: normalizedEmail,
                     password,
                     companyName
                 });
@@ -163,8 +236,9 @@ router.post(
                 email,
                 password
             } = req.body;
+            const normalizedEmail = normalizeEmail(email);
 
-            if (!email ||
+            if (!normalizedEmail ||
                 !password
             ) {
                 return res
@@ -176,14 +250,14 @@ router.post(
 
             const user =
                 await User.findOne({
-                    email
+                    email: normalizedEmail
                 });
 
             if (!user) {
                 return res
                     .status(401)
                     .json({
-                        message: 'User not found'
+                        message: 'Invalid email or password.'
                     });
             }
 
@@ -196,7 +270,7 @@ router.post(
                 return res
                     .status(401)
                     .json({
-                        message: 'Invalid password'
+                        message: 'Invalid email or password.'
                     });
             }
 
@@ -228,21 +302,19 @@ router.post(
     '/google',
     async(req, res) => {
         try {
-            const {
-                name,
-                email
-            } = req.body;
+            const { credential } = req.body;
+            const verifiedProfile = await verifyGoogleCredential(credential);
 
             let user =
                 await User.findOne({
-                    email
+                    email: verifiedProfile.email
                 });
 
             if (!user) {
                 user =
                     await User.create({
-                        name,
-                        email,
+                        name: verifiedProfile.name,
+                        email: verifiedProfile.email,
                         password: Math.random()
                             .toString(36)
                     });
@@ -255,7 +327,8 @@ router.post(
                 user: serializeUser(user)
             });
 
-        } catch {
+        } catch (err) {
+            console.error('GOOGLE LOGIN ERROR:', err.message);
             res.status(500).json({
                 message: 'Google login failed'
             });
