@@ -6,6 +6,7 @@ import BrandLogo from '../components/BrandLogo';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { COMPANY_NAME, UDYAM_REGISTRATION_NUMBER } from '../utils/company';
 import { trackCtaClick } from '../utils/analytics';
+import { isLoggedIn } from '../utils/auth';
 
 const verticals = {
   freelancers: {
@@ -18,6 +19,7 @@ const verticals = {
     audience: 'Solo freelancers',
     promise: 'Stable freelance income plan',
     primaryCta: 'Start Free as Freelancer',
+    appPath: '/money-gps',
     secondaryCta: 'See Growth Plan',
     secondaryPath: '/growth-plan',
     problems: [
@@ -55,6 +57,7 @@ const verticals = {
     audience: 'Freelance developers',
     promise: 'From client request to paid release',
     primaryCta: 'Start as Developer',
+    appPath: '/team-workspace',
     secondaryCta: 'Open Client Work Ledger',
     secondaryPath: '/team-workspace',
     problems: [
@@ -92,6 +95,7 @@ const verticals = {
     audience: 'Freelance designers',
     promise: 'Cleaner approvals and faster payment',
     primaryCta: 'Start as Designer',
+    appPath: '/create-invoice?type=proposal',
     secondaryCta: 'Create Proposal',
     secondaryPath: '/create-invoice?type=proposal',
     problems: [
@@ -129,6 +133,7 @@ const verticals = {
     audience: 'Small agencies',
     promise: 'Team delivery plus payment control',
     primaryCta: 'Start Agency Workspace',
+    appPath: '/team-workspace',
     secondaryCta: 'Open Team Workspace',
     secondaryPath: '/team-workspace',
     problems: [
@@ -166,6 +171,7 @@ const verticals = {
     audience: 'Consultants',
     promise: 'Proposal to retainer workflow',
     primaryCta: 'Start as Consultant',
+    appPath: '/proposal-writer',
     secondaryCta: 'Use Proposal Writer',
     secondaryPath: '/proposal-writer',
     problems: [
@@ -199,13 +205,19 @@ export const verticalPagePaths = Object.values(verticals).map((page) => page.pat
 
 export default function VerticalLanding({ pageKey }) {
   const page = verticals[pageKey];
+  const loggedIn = isLoggedIn();
 
   if (!page) return <Navigate to="/" replace />;
 
   useDocumentMeta(page.title, page.description, { path: page.path });
 
-  const trackPrimary = () => trackCtaClick(page.primaryCta, page.path, '/signup');
-  const trackSecondary = () => trackCtaClick(page.secondaryCta, page.path, page.secondaryPath);
+  const primaryPath = loggedIn ? page.appPath : '/signup';
+  const secondaryPath = loggedIn ? page.secondaryPath : '/signup';
+  const bottomPath = loggedIn ? page.appPath : '/signup';
+  const bottomLabel = loggedIn ? 'Open Workspace' : 'Create Free Account';
+
+  const trackPrimary = () => trackCtaClick(page.primaryCta, page.path, primaryPath);
+  const trackSecondary = () => trackCtaClick(page.secondaryCta, page.path, secondaryPath);
 
   return (
     <div className="premium-page min-h-screen text-white">
@@ -235,14 +247,14 @@ export default function VerticalLanding({ pageKey }) {
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/signup"
+                  to={primaryPath}
                   onClick={trackPrimary}
                   className="btn btn-primary px-7 py-4 text-center text-sm"
                 >
                   {page.primaryCta}
                 </Link>
                 <Link
-                  to={page.secondaryPath}
+                  to={secondaryPath}
                   onClick={trackSecondary}
                   className="btn btn-secondary px-7 py-4 text-center text-sm"
                 >
@@ -350,11 +362,11 @@ export default function VerticalLanding({ pageKey }) {
               and international invoice support. Udyam No: {UDYAM_REGISTRATION_NUMBER}.
             </p>
             <Link
-              to="/signup"
-              onClick={() => trackCtaClick('vertical_bottom_signup', page.path, '/signup')}
+              to={bottomPath}
+              onClick={() => trackCtaClick('vertical_bottom_cta', page.path, bottomPath)}
               className="btn btn-primary mt-7 inline-flex px-7 py-4 text-sm"
             >
-              Create Free Account
+              {bottomLabel}
             </Link>
           </div>
         </section>
