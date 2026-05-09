@@ -69,7 +69,7 @@ const plans = [
     name: 'Pro Monthly',
     price: 'Rs 499',
     note: 'For active freelancers',
-    features: ['Money GPS', 'Unlimited invoices', 'AI client finder and project workspace'],
+    features: ['Money GPS', 'AI Client Coach', 'Unlimited invoices and project workspace'],
     cta: 'Start Pro'
   },
   {

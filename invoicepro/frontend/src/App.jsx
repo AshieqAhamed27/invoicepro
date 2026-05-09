@@ -25,6 +25,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const MoneyGPS = lazy(() => import('./pages/MoneyGPS'));
+const ClientCoach = lazy(() => import('./pages/ClientCoach'));
 const LaunchCenter = lazy(() => import('./pages/LaunchCenter'));
 const ClientFinder = lazy(() => import('./pages/ClientFinder'));
 const SalesAgent = lazy(() => import('./pages/SalesAgent'));
@@ -120,6 +121,7 @@ const ProRoute = ({ children, title }) => {
 const supportMessage = 'Hi I am interested in ClientFlow AI';
 const appRoutePrefixes = [
   '/admin',
+  '/ai-coach',
   '/clients',
   '/client-finder',
   '/contact',
@@ -315,6 +317,19 @@ export default function App() {
               <Suspense fallback={<RouteLoader />}>
                 <MoneyGPS />
               </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/ai-coach"
+          element={
+            <PrivateRoute>
+              <ProRoute title="AI Client Coach unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <ClientCoach />
+                </Suspense>
+              </ProRoute>
             </PrivateRoute>
           }
         />

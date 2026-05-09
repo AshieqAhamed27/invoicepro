@@ -24,6 +24,14 @@ const productSettings = [
     to: '/payment'
   },
   {
+    label: 'AI Coach',
+    title: 'AI Client Coach',
+    detail: 'Guides freelancers on finding clients, talking to them, closing the deal, and collecting payment.',
+    status: 'Pro',
+    to: '/ai-coach',
+    requiresPro: true
+  },
+  {
     label: 'Client Growth',
     title: 'Client Finder + Lead Pipeline',
     detail: 'Find real prospects, save leads, prepare follow-ups, and convert accepted work into invoices.',
@@ -107,6 +115,11 @@ const automationSettings = [
   {
     title: 'AI Sales Agent',
     detail: 'Daily SDR plan chooses who to message, what proposal to push, and which invoice to collect.',
+    state: 'Enabled'
+  },
+  {
+    title: 'AI Client Coach',
+    detail: 'Creates client-finding steps, talk scripts, objection replies, closing actions, and payment messages.',
     state: 'Enabled'
   },
   {
