@@ -14,24 +14,24 @@ import {
 
 const coreValue = [
   {
-    title: 'Money GPS',
-    text: 'The app checks leads, proposals, projects, and invoices, then shows the single best money action for today.'
+    title: 'Daily Money Action',
+    text: 'Every day, ClientFlow AI tells the freelancer the highest-value action: message a lead, send a proposal, move a project, or collect payment.'
   },
   {
-    title: 'Growth Plan',
-    text: 'Freelancers set a monthly income target and get the leads, proposals, prices, and daily work needed to reach it.'
+    title: 'Income Stability Plan',
+    text: 'Users set a monthly target and see how many leads, proposals, projects, retainers, and collections are needed to reach it.'
   },
   {
-    title: 'Client work system',
-    text: 'Find clients, create proposals, manage project tasks, track issues, save docs, and prepare invoices.'
+    title: 'Client Closing System',
+    text: 'AI helps package the service, write outreach, handle objections, create proposals, and move serious leads toward payment.'
   },
   {
-    title: 'Client Work Ledger',
-    text: 'A GitHub/GitLab-inspired project history for freelancers: issues, client requests, releases, docs, approvals, and handover notes.'
+    title: 'Delivery Control Room',
+    text: 'Manage tasks, client requests, GitHub sync, releases, docs, team updates, and handover notes in one project workspace.'
   },
   {
-    title: 'Payment collection',
-    text: 'Create INR or foreign-currency invoices, share Razorpay or UPI-ready links, and keep paid, pending, and overdue money visible.'
+    title: 'Cashflow Protection',
+    text: 'Track INR or foreign-currency invoices, payment links, overdue money, accepted proposals, and pending follow-ups before cash gets missed.'
   }
 ];
 
@@ -44,11 +44,19 @@ const productFlow = [
 ];
 
 const whyPay = [
-  'It removes confusion by showing one best action instead of many separate tools.',
-  'It helps freelancers earn more by finding and following up with clients.',
-  'It gives a stability plan so freelancers can build income instead of returning to a 9-to-5 job.',
-  'It protects cashflow by showing what payment, proposal, or project needs action today.',
-  'It helps solo freelancers manage bigger and longer client projects.'
+  'Users are not paying only for invoices. They are paying for a system that keeps client acquisition, delivery, and payment collection moving.',
+  'It reduces missed opportunities by showing who to message, what proposal to send, and which payment to collect today.',
+  'It helps freelancers build stable monthly income with lead targets, proposal targets, pricing guidance, and retainer ideas.',
+  'It gives freelancers confidence to take bigger projects by adding teammates, GitHub sync, shared docs, issues, and release tracking.',
+  'It protects cashflow by connecting accepted proposals, active projects, pending invoices, and follow-up actions in one place.'
+];
+
+const valueStack = [
+  ['Find', 'AI helps identify client types, lead sources, outreach angles, and first messages.'],
+  ['Close', 'Proposal, pricing, objection handling, and deal-room workflows help move conversations to paid work.'],
+  ['Deliver', 'Team Work, GitHub sync, issues, releases, docs, and project updates keep client delivery organized.'],
+  ['Collect', 'Invoices, payment links, WhatsApp sharing, international currencies, and payment status protect cashflow.'],
+  ['Grow', 'Money GPS and Growth Plan turn monthly income goals into daily business actions.']
 ];
 
 const verticalUseCases = [
@@ -80,23 +88,23 @@ const plans = [
     name: 'Free',
     price: 'Rs 0',
     note: 'Start and test the workflow',
-    features: ['Create limited invoices', 'Public invoice page', 'Basic client workflow'],
+    features: ['Test the business workspace', 'Create limited invoices', 'See the client-to-payment workflow'],
     cta: 'Create Free Account'
   },
   {
     id: 'monthly',
     name: 'Pro Monthly',
     price: 'Rs 499',
-    note: 'For active freelancers',
-    features: ['Money GPS', 'Freelancer Growth Plan', 'Unlimited local and international invoices'],
+    note: 'For active freelancers who want steady work',
+    features: ['Money GPS daily action', 'AI client coach and proposal writer', 'Team Work with GitHub sync'],
     cta: 'Start Pro'
   },
   {
     id: 'yearly',
     name: 'Pro Yearly',
     price: 'Rs 4999',
-    note: 'Best for long-term business',
-    features: ['Everything in Pro monthly', 'Recurring client workflow', 'Price upgrade and retention agents'],
+    note: 'Best for serious freelance business building',
+    features: ['Everything in monthly Pro', 'Income stability and recurring client planning', 'Long-term project ledger and cashflow control'],
     cta: 'Choose Yearly'
   }
 ];
@@ -108,7 +116,7 @@ const faqs = [
   },
   {
     question: 'Why would freelancers pay for it?',
-    answer: 'Because the product helps them avoid missed money actions: warm leads, accepted proposals, blocked projects, and pending invoices.'
+    answer: 'Because the product helps them avoid missed money actions: warm leads, accepted proposals, blocked projects, pending invoices, retainer chances, and follow-ups that can turn into revenue.'
   },
   {
     question: 'How does it help me avoid going back to a job?',
@@ -232,14 +240,14 @@ export default function Home() {
               </div>
 
               <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Find clients. Manage projects.{' '}
+                Turn freelance work into a stable business.{' '}
                 <span className="bg-gradient-to-r from-yellow-200 via-emerald-200 to-sky-200 bg-clip-text text-transparent">
-                  Get paid worldwide.
+                  Find clients and get paid faster.
                 </span>
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 sm:text-lg">
-                ClientFlow AI helps freelancers build stable income, find clients, close work, and get paid.
+                ClientFlow AI helps freelancers find clients, close deals, manage delivery, collaborate on bigger projects, and collect local or international payments.
               </p>
 
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
@@ -372,7 +380,7 @@ export default function Home() {
             <div className="max-w-2xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">What it does</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                One product, one clear purpose: move money forward.
+                One product, one clear promise: help freelancers win, deliver, and collect.
               </h2>
             </div>
 
@@ -381,6 +389,41 @@ export default function Home() {
                 <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
                   <h3 className="text-xl font-black text-white">{item.title}</h3>
                   <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{item.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom responsive-heading-grid">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Why it is valuable</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Users pay for the business system, not just the invoice.
+              </h2>
+              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+                Invoices are the final step. The real value is helping freelancers know what to do before the invoice: find the right client, close the work, manage delivery, and collect without losing control.
+              </p>
+              <button
+                type="button"
+                onClick={() => goToApp('/payment', 'value_stack_start_trial')}
+                className="mt-6 btn btn-primary px-6 py-3 text-sm"
+              >
+                Start Free Trial
+              </button>
+            </div>
+
+            <div className="grid gap-3">
+              {valueStack.map(([title, detail]) => (
+                <div key={title} className="rounded-2xl border border-white/8 bg-black/25 p-4 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <h3 className="text-lg font-black text-white">{title}</h3>
+                    <span className="rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-200">
+                      Business step
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{detail}</p>
                 </div>
               ))}
             </div>

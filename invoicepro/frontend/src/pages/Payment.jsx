@@ -25,7 +25,7 @@ const planDetails = {
     amount: 499,
     currency: "INR",
     label: "Pro Monthly",
-    note: "Unlimited invoices, AI revenue coach, payment links, and recurring billing.",
+    note: "Daily money actions, AI client coach, proposals, Team Work, GitHub sync, and payment collection.",
     duration: "Billed every 30 days",
     amountSource: "fallback"
   },
@@ -33,7 +33,7 @@ const planDetails = {
     amount: 4999,
     currency: "INR",
     label: "Pro Annual",
-    note: "Best value with AI revenue coaching for repeat-billing businesses.",
+    note: "Best value for freelancers building stable income, repeat clients, and long-term cashflow.",
     duration: "Billed every 365 days",
     amountSource: "fallback"
   },
@@ -41,7 +41,7 @@ const planDetails = {
     amount: 999,
     currency: "INR",
     label: "Founder 90 Days",
-    note: "Early-user offer: 90 days of Pro access with one-time Razorpay payment.",
+    note: "Early-user offer: 90 days of the full client-to-cashflow workspace.",
     duration: "Valid for 90 days",
     amountSource: "fallback",
     checkoutType: "one_time"
@@ -75,6 +75,15 @@ const mapPlansById = (plans = []) =>
     }
     return acc;
   }, {});
+
+const proValueItems = [
+  'Money GPS: one best revenue action each day',
+  'AI Client Coach: find, talk, close, and collect',
+  'Proposal Writer and Deal Room for better conversion',
+  'Team Work with project ledger and GitHub sync',
+  'Unlimited INR and international invoices',
+  'Payment tracking, UPI/Razorpay links, and cashflow control'
+];
 
 export default function Payment() {
   const [plan, setPlan] = useState('monthly');
@@ -467,12 +476,11 @@ export default function Payment() {
                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Secure Checkout</p>
             </div>
             <h1 className="text-4xl font-bold sm:text-5xl xl:text-7xl tracking-tight text-white mb-6 leading-none">
-              Upgrade to <br /> <span className="text-zinc-600">Pro.</span>
+              Upgrade from invoice tool to <br /> <span className="text-zinc-600">business system.</span>
             </h1>
 
             <p className="max-w-xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed mb-8 sm:mb-10">
-              Start a real Razorpay subscription and unlock unlimited invoices, AI collection prompts,
-              payment links, and recurring billing for your business.
+              Pro helps freelancers find clients, close work, manage delivery, connect GitHub, send proposals and invoices, and protect cashflow.
             </p>
 
             <div className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
@@ -515,30 +523,12 @@ export default function Payment() {
                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8 text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                  <div className="flex items-center gap-4 group/item">
-                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                     <p className="group-hover:text-white transition-colors">Unlimited Invoices</p>
-                  </div>
-                  <div className="flex items-center gap-4 group/item">
-                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                     <p className="group-hover:text-white transition-colors">Recurring Billing</p>
-                  </div>
-                  <div className="flex items-center gap-4 group/item">
-                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                     <p className="group-hover:text-white transition-colors">Secure Razorpay Checkout</p>
-                  </div>
-                  <div className="flex items-center gap-4 group/item">
-                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                     <p className="group-hover:text-white transition-colors">AI Revenue Coach</p>
-                  </div>
-                  <div className="flex items-center gap-4 group/item">
-                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                     <p className="group-hover:text-white transition-colors">Reminder Copy Assistant</p>
-                  </div>
-                  <div className="flex items-center gap-4 group/item">
-                     <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                     <p className="group-hover:text-white transition-colors">{current.duration}</p>
-                  </div>
+                  {proValueItems.map((item) => (
+                    <div key={item} className="flex items-center gap-4 group/item">
+                       <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                       <p className="group-hover:text-white transition-colors">{item}</p>
+                    </div>
+                  ))}
                 </div>
             </div>
           </section>
