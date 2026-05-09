@@ -57,6 +57,7 @@ const previewRows = [
 const trustBadges = [
   ['Registered', UDYAM_REGISTRATION_NUMBER],
   ['Payments', 'Razorpay international + UPI'],
+  ['India-first', 'Alternative to U.S. or Canada-only client-flow tools'],
   ['Support', SUPPORT_EMAIL],
   ['Built for', 'Freelancers and small teams']
 ];
@@ -222,7 +223,11 @@ export default function Home() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 sm:text-lg">
-                ClientFlow AI helps freelancers turn leads into deals, organize client work, create proposals and invoices, then collect payments from India or international clients.
+                ClientFlow AI helps freelancers build stable income, find clients, close work, and get paid.
+              </p>
+
+              <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                India-first positioning for freelancers who need an alternative to U.S. or Canada-only client-flow tools, with local and international payment workflows.
               </p>
 
               {loggedIn && (
@@ -417,7 +422,7 @@ export default function Home() {
 
         <section id="trust" className="py-14 sm:py-16">
           <div className="container-custom">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
               {trustBadges.map(([label, value]) => (
                 <div key={label} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{label}</p>
