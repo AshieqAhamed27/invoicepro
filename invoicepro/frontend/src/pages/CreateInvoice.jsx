@@ -27,6 +27,8 @@ const formatCurrency = (amount, currency = 'INR') =>
     maximumFractionDigits: 2
   })}`;
 
+const isInternationalCurrency = (currency = 'INR') => currency && currency !== 'INR';
+
 const normalizeDraftDate = (value) => {
   if (!value) return '';
 
@@ -80,6 +82,17 @@ export default function CreateInvoice() {
   const isProposal = documentType === 'proposal';
   const dateFieldName = isProposal ? 'validUntil' : 'dueDate';
   const dateFieldValue = isProposal ? form.validUntil : form.dueDate;
+  const isInternationalInvoice = !isProposal && isInternationalCurrency(form.currency);
+  const paymentModeTitle = isProposal
+    ? 'Proposal only'
+    : isInternationalInvoice
+      ? 'International collection ready'
+      : 'India collection ready';
+  const paymentModeDetail = isProposal
+    ? 'Convert the accepted proposal into an invoice before collecting payment.'
+    : isInternationalInvoice
+      ? 'ClientFlow AI will create a Razorpay payment link in this currency. Your client can pay with enabled international cards, global bank transfers, or supported local payment methods.'
+      : 'Use Razorpay for cards/netbanking and UPI for Indian clients. UPI fields are shown only for INR invoices.';
 
   useEffect(() => {
     fetchClients();
@@ -692,6 +705,39 @@ export default function CreateInvoice() {
                         />
                     </div>
                 </div>
+
+                {!isProposal && (
+                  <div className={`sm:col-span-2 rounded-[1.5rem] border p-5 ${
+                    isInternationalInvoice
+                      ? 'border-sky-300/20 bg-sky-300/[0.06]'
+                      : 'border-emerald-300/20 bg-emerald-300/[0.06]'
+                  }`}>
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div>
+                        <p className={`text-[10px] font-black uppercase tracking-widest ${
+                          isInternationalInvoice ? 'text-sky-200' : 'text-emerald-200'
+                        }`}>
+                          {paymentModeTitle}
+                        </p>
+                        <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-300">
+                          {paymentModeDetail}
+                        </p>
+                      </div>
+                      <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[24rem]">
+                        {[
+                          ['Currency', form.currency],
+                          ['Client pays', isInternationalInvoice ? 'Global methods' : 'Razorpay / UPI'],
+                          ['Status', 'Webhook verified']
+                        ].map(([label, value]) => (
+                          <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-3">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                            <p className="mt-1 text-xs font-black text-white">{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           </div>

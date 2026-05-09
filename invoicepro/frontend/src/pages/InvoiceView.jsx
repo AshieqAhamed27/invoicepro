@@ -262,6 +262,7 @@ export default function InvoiceView() {
   const total = Number(invoice.amount || 0);
   const tax = Math.max(0, total - subtotal);
   const finalUpi = invoice.currency === 'INR' ? (invoice.upiId || businessUpi || '') : '';
+  const isInternationalInvoice = !meta.isProposal && invoice.currency !== 'INR';
   const publicDocumentUrl = `${window.location.origin}/public/invoice/${invoice._id}`;
   const razorpayPaymentUrl = firstText(invoice.paymentLink?.shortUrl);
   const paymentShareUrl = razorpayPaymentUrl || publicDocumentUrl;
@@ -306,6 +307,12 @@ export default function InvoiceView() {
     : canCollectPayment
       ? (hasRazorpayPaymentLink ? 'Razorpay QR' : 'Payment QR')
       : 'Receipt QR';
+  const paymentRouteLabel = isInternationalInvoice
+    ? 'International checkout'
+    : 'India checkout';
+  const paymentRouteDetail = isInternationalInvoice
+    ? 'This invoice is ready for foreign clients. Create or share the Razorpay link so they can pay using enabled international cards, global bank transfers, or supported local methods.'
+    : 'This invoice supports Razorpay and INR UPI collection. Share the payment link or QR where your client replies fastest.';
 
   const statusClass = !meta.isProposal
     ? meta.status === 'paid'
@@ -771,6 +778,30 @@ export default function InvoiceView() {
                     ? 'Share this public proposal link with your client for review and approval.'
                     : 'This invoice is already paid. Use the public link to view or share the receipt.'}
               </p>
+
+              {canCollectPayment && (
+                <div className={`mt-4 rounded-2xl border p-4 ${
+                  isInternationalInvoice
+                    ? 'border-sky-300/20 bg-sky-300/[0.06]'
+                    : 'border-emerald-300/20 bg-emerald-300/[0.06]'
+                }`}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className={`text-[10px] font-black uppercase tracking-widest ${
+                        isInternationalInvoice ? 'text-sky-200' : 'text-emerald-200'
+                      }`}>
+                        {paymentRouteLabel}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-400">
+                        {paymentRouteDetail}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                      {invoice.currency || 'INR'}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
                 {canCollectPayment ? (

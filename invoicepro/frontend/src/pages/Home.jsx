@@ -23,7 +23,7 @@ const coreValue = [
   },
   {
     title: 'Payment collection',
-    text: 'Share Razorpay or UPI-ready payment links and keep paid, pending, and overdue money visible.'
+    text: 'Create INR or foreign-currency invoices, share Razorpay or UPI-ready links, and keep paid, pending, and overdue money visible.'
   }
 ];
 
@@ -31,7 +31,7 @@ const productFlow = [
   ['01', 'Money GPS', 'Open one screen and see the best action to move revenue today.'],
   ['02', 'Client', 'Find the right type of client and prepare the first message.'],
   ['03', 'Project', 'Assign work, track issues, plan releases, and save handover notes.'],
-  ['04', 'Payment', 'Send invoice, share payment link, and follow pending revenue.']
+  ['04', 'Payment', 'Send INR or international invoices, share payment link, and follow pending revenue.']
 ];
 
 const whyPay = [
@@ -50,7 +50,7 @@ const previewRows = [
 
 const trustBadges = [
   ['Registered', UDYAM_REGISTRATION_NUMBER],
-  ['Payments', 'Razorpay + UPI flow'],
+  ['Payments', 'Razorpay international + UPI'],
   ['Support', SUPPORT_EMAIL],
   ['Built for', 'Freelancers and small teams']
 ];
@@ -69,7 +69,7 @@ const plans = [
     name: 'Pro Monthly',
     price: 'Rs 499',
     note: 'For active freelancers',
-    features: ['Money GPS', 'AI Client Coach', 'Unlimited invoices and project workspace'],
+    features: ['Money GPS', 'AI Client Coach', 'Unlimited local and international invoices'],
     cta: 'Start Pro'
   },
   {
@@ -94,6 +94,10 @@ const faqs = [
   {
     question: 'Can I use it without a domain?',
     answer: 'Yes. You can use the core app, invoices, Razorpay or UPI links, and WhatsApp sharing without buying a domain.'
+  },
+  {
+    question: 'Can foreign clients pay?',
+    answer: 'Yes, when Razorpay international payments are enabled on the seller account. Users can create invoices in USD, EUR, GBP, AED, SGD, AUD, or CAD and collect through Razorpay payment links.'
   },
   {
     question: 'Who is this best for?',
@@ -171,7 +175,7 @@ export default function Home() {
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {['One best action', 'Ready message', 'Cashflow focus'].map((item) => (
+                {['One best action', 'Global invoices', 'Cashflow focus'].map((item) => (
                   <div key={item} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-black uppercase tracking-widest text-zinc-300">{item}</p>
                   </div>

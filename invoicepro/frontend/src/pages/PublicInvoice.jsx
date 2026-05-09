@@ -288,6 +288,7 @@ export default function PublicInvoice() {
   const companyUpi = invoice.currency === 'INR'
     ? firstText(invoice.upiId, business.upiId, invoice.user?.upiId)
     : '';
+  const isInternationalInvoice = !invoiceMeta.isProposal && invoice.currency !== 'INR';
 
   const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && invoice.currency === 'INR' && companyUpi
     ? `upi://pay?pa=${companyUpi}&pn=${encodeURIComponent(companyName)}&am=${total.toFixed(2)}&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}`
@@ -422,11 +423,15 @@ export default function PublicInvoice() {
                   </div>
                   <div className="text-center sm:text-left">
                     <p className="text-sm font-bold text-gray-900 mb-1">
-                      {razorpayPaymentUrl ? 'Scan to pay with Razorpay' : 'Scan to pay instantly'}
+                      {razorpayPaymentUrl
+                        ? isInternationalInvoice ? 'International checkout ready' : 'Scan to pay with Razorpay'
+                        : 'Scan to pay instantly'}
                     </p>
                     <p className="text-xs text-gray-500 mb-4 leading-relaxed">
                       {razorpayPaymentUrl
-                        ? 'Use this secure Razorpay hosted link to pay by card, UPI, netbanking, or supported international methods.'
+                        ? isInternationalInvoice
+                          ? 'Use this secure Razorpay link to pay with enabled international cards, bank transfers, or supported local payment methods.'
+                          : 'Use this secure Razorpay hosted link to pay by card, UPI, netbanking, or supported international methods.'
                         : 'Use any UPI app like GPay, PhonePe, or Paytm to scan and pay the total amount.'}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
