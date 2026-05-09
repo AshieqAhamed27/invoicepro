@@ -160,6 +160,26 @@ export default function Home() {
                 ClientFlow AI helps freelancers turn leads into deals, organize client work, create proposals and invoices, then collect payments from India or international clients.
               </p>
 
+              <div className="mt-6 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.08] p-4 sm:max-w-2xl sm:p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+                      Try Pro free
+                    </p>
+                    <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">
+                      Start the 7-day free trial and test Money GPS, AI client coach, proposals, team workspace, and unlimited invoices.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => goToApp('/payment', 'hero_start_free_trial')}
+                    className="shrink-0 rounded-2xl bg-emerald-300 px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-emerald-200 active:scale-95"
+                  >
+                    Start Free Trial
+                  </button>
+                </div>
+              </div>
+
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
