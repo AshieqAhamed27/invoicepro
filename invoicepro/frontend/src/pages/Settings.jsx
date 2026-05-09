@@ -81,8 +81,8 @@ const productSettings = [
   },
   {
     label: 'Team Work',
-    title: 'Freelancer Team Workspace',
-    detail: 'Add another freelancer, split roles, assign tasks, and use AI to plan delivery for bigger projects.',
+    title: 'Client Work Ledger',
+    detail: 'GitHub/GitLab-inspired client delivery history for freelancers: tasks, issues, releases, docs, approvals, and handover notes.',
     status: 'Pro',
     to: '/team-workspace',
     requiresPro: true
@@ -142,7 +142,7 @@ const automationSettings = [
   },
   {
     title: 'Team Workspace',
-    detail: 'Splits big projects by collaborator role, task owner, deadline risk, and next delivery action.',
+    detail: 'Keeps a client work ledger with collaborator roles, tasks, issues, release notes, docs, handover notes, and delivery risk.',
     state: 'Enabled'
   },
   {

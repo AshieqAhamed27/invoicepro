@@ -1389,10 +1389,10 @@ export default function TeamWorkspace() {
                 <div className="mt-8 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-4 sm:p-5">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Project maintenance hub</p>
-                      <h3 className="mt-1 text-xl font-black text-white">Issues, releases, docs, and AI maintainer</h3>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Client Work Ledger</p>
+                      <h3 className="mt-1 text-xl font-black text-white">Issues, releases, docs, approvals, and AI maintainer</h3>
                       <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-zinc-500">
-                        Use this like a simple GitHub-style project room: track bugs and improvements, plan versions, save project docs, and keep long-term maintenance clear for every freelancer.
+                        Use this like a GitHub/GitLab-inspired delivery history for freelancers: track client requests, bugs, improvements, versions, project docs, and handover notes without becoming a code-hosting tool.
                       </p>
                     </div>
                     <button

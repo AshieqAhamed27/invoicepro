@@ -20,6 +20,11 @@ const CheckPill = ({ ready }) => (
 
 const recentUpdates = [
   {
+    label: 'Client Work Ledger',
+    title: 'GitHub-style workflow for freelancers',
+    detail: 'Positioned the project system as a client delivery ledger for issues, client requests, release notes, docs, approvals, and handover history instead of a code-hosting clone.'
+  },
+  {
     label: 'Growth Plan',
     title: 'Freelancer Stability System',
     detail: 'Added a Pro growth plan that calculates job escape score, income target actions, price upgrades, recurring client chances, and retention messages.'
@@ -354,7 +359,7 @@ export default function LaunchCenter() {
               {[
                 { step: '01', title: 'Convert visitor', detail: 'Landing page sends them to signup or pricing.' },
                 { step: '02', title: 'Close the deal', detail: 'User removes buyer doubt with a proposal, trust pack, and clear next payment step.' },
-                { step: '03', title: 'Deliver with team', detail: 'For bigger projects, users add collaborators, split tasks, and let AI plan delivery risk.' },
+                { step: '03', title: 'Deliver with ledger', detail: 'For bigger projects, users add collaborators, track issues, plan releases, save docs, and keep handover history clear.' },
                 { step: '04', title: 'Collect payment', detail: 'Razorpay, UPI, email reminders, and public invoice links move cash.' },
                 { step: '05', title: 'Retain customer', detail: 'AI insights, team delivery rooms, and recurring invoices make Pro worth keeping.' }
               ].map((item) => (

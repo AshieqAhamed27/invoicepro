@@ -8,7 +8,7 @@ const appLinks = [
   { to: '/growth-plan', label: 'Growth', detail: 'Stability and daily plan', requiresPro: true },
   { to: '/ai-coach', label: 'AI Coach', detail: 'Find, talk, close, collect', requiresPro: true },
   { to: '/client-finder', label: 'Find Clients', detail: 'Find client opportunities', requiresPro: true },
-  { to: '/team-workspace', label: 'Projects', detail: 'Team, issues, releases' },
+  { to: '/team-workspace', label: 'Ledger', detail: 'Issues, releases, docs' },
   { to: '/create-invoice', label: 'Invoice', detail: 'Proposal or invoice' }
 ];
 

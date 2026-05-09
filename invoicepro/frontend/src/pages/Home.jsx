@@ -26,6 +26,10 @@ const coreValue = [
     text: 'Find clients, create proposals, manage project tasks, track issues, save docs, and prepare invoices.'
   },
   {
+    title: 'Client Work Ledger',
+    text: 'A GitHub/GitLab-inspired project history for freelancers: issues, client requests, releases, docs, approvals, and handover notes.'
+  },
+  {
     title: 'Payment collection',
     text: 'Create INR or foreign-currency invoices, share Razorpay or UPI-ready links, and keep paid, pending, and overdue money visible.'
   }
@@ -35,7 +39,7 @@ const productFlow = [
   ['01', 'Money GPS', 'Open one screen and see the best action to move revenue today.'],
   ['02', 'Growth Plan', 'Know how many leads, proposals, and clients are needed to hit the monthly income target.'],
   ['03', 'Client', 'Find the right type of client and prepare the first message.'],
-  ['04', 'Project', 'Assign work, track issues, plan releases, and save handover notes.'],
+  ['04', 'Work Ledger', 'Track client requests, project issues, releases, docs, approvals, and handover history.'],
   ['05', 'Payment', 'Send INR or international invoices, share payment link, and follow pending revenue.']
 ];
 
@@ -113,6 +117,10 @@ const faqs = [
   {
     question: 'Who is this best for?',
     answer: 'Freelancers, small agencies, developers, designers, marketers, consultants, and service businesses that need one place to manage client work and payments.'
+  },
+  {
+    question: 'Is this like GitHub or GitLab?',
+    answer: 'Not exactly. GitHub and GitLab are mainly for code. ClientFlow AI has a Client Work Ledger for freelancers to track client requests, issues, releases, approvals, docs, handover notes, invoices, and payments in one business workflow.'
   }
 ];
 
@@ -360,7 +368,7 @@ export default function Home() {
               </h2>
             </div>
 
-            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
               {coreValue.map((item) => (
                 <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
                   <h3 className="text-xl font-black text-white">{item.title}</h3>
