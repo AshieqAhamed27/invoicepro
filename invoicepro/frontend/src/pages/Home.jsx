@@ -111,7 +111,7 @@ export default function Home() {
 
   useDocumentMeta({
     title: `${COMPANY_NAME} - Find clients, manage projects, get paid`,
-    description: 'ClientFlow AI gives freelancers one best money action across leads, projects, proposals, invoices, and payments.'
+    description: 'ClientFlow AI helps freelancers find clients, manage project delivery, send invoices, and collect local or international payments.'
   });
 
   const goToApp = (target, label) => {
@@ -145,16 +145,19 @@ export default function Home() {
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-yellow-300/20 bg-yellow-300/10 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
                 <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">
-                  Money GPS for freelancers
+                  AI business workspace for freelancers
                 </span>
               </div>
 
               <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                One best action to win clients and collect money.
+                Find clients. Manage projects.{' '}
+                <span className="bg-gradient-to-r from-yellow-200 via-emerald-200 to-sky-200 bg-clip-text text-transparent">
+                  Get paid worldwide.
+                </span>
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 sm:text-lg">
-                ClientFlow AI checks your leads, projects, proposals, and invoices, then tells you exactly what to do today to move money forward.
+                ClientFlow AI helps freelancers turn leads into deals, organize client work, create proposals and invoices, then collect payments from India or international clients.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -175,7 +178,7 @@ export default function Home() {
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {['One best action', 'Global invoices', 'Cashflow focus'].map((item) => (
+                {['Find clients', 'Manage delivery', 'Collect payments'].map((item) => (
                   <div key={item} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-black uppercase tracking-widest text-zinc-300">{item}</p>
                   </div>
