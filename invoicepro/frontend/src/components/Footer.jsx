@@ -13,7 +13,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#07090d]/90 pt-16 pb-28 sm:py-20">
       <div className="container-custom">
-        <div className="mb-16 grid grid-cols-1 gap-10 rounded-lg border border-white/10 bg-white/[0.035] p-6 text-sm shadow-2xl shadow-black/20 sm:grid-cols-2 sm:p-8 md:mb-12 md:grid-cols-4 md:gap-12 lg:p-10">
+        <div className="mb-16 grid grid-cols-1 gap-10 rounded-lg border border-white/10 bg-white/[0.035] p-6 text-sm shadow-2xl shadow-black/20 sm:grid-cols-2 sm:p-8 md:mb-12 md:grid-cols-3 md:gap-12 xl:grid-cols-5 lg:p-10">
           <div className="col-span-1">
             <div className="mb-6">
               <BrandLogo showText={true} />
@@ -66,6 +66,17 @@ export default function Footer() {
                 Payment Reminders
               </Link>
               <Link className="transition-colors hover:text-yellow-300" to="/contact">Contact Support</Link>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Use Cases</h3>
+            <div className="grid gap-4 font-medium text-zinc-400">
+              <Link className="transition-colors hover:text-yellow-300" to="/freelancers">For Freelancers</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/developers">For Developers</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/designers">For Designers</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/agencies">For Agencies</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/consultants">For Consultants</Link>
             </div>
           </div>
 

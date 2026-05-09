@@ -47,6 +47,7 @@ const Clients = lazy(() => import('./pages/Clients'));
 const Recurring = lazy(() => import('./pages/Recurring'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const SEOPage = lazy(() => import('./pages/SEOPage'));
+const VerticalLanding = lazy(() => import('./pages/VerticalLanding'));
 const InvoiceGenerator = lazy(() => import('./pages/InvoiceGenerator'));
 const HowToCreateInvoiceIndia = lazy(() => import('./pages/blog/HowToCreateInvoiceIndia'));
 const GSTInvoiceFormatIndia = lazy(() => import('./pages/blog/GSTInvoiceFormatIndia'));
@@ -609,6 +610,47 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <SEOPage pageKey="razorpay-invoice-payment-tracking" />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/freelancers"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <VerticalLanding pageKey="freelancers" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/developers"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <VerticalLanding pageKey="developers" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/designers"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <VerticalLanding pageKey="designers" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/agencies"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <VerticalLanding pageKey="agencies" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/consultants"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <VerticalLanding pageKey="consultants" />
             </Suspense>
           }
         />

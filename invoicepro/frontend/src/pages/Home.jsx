@@ -51,6 +51,14 @@ const whyPay = [
   'It helps solo freelancers manage bigger and longer client projects.'
 ];
 
+const verticalUseCases = [
+  ['Freelancers', '/freelancers', 'Build stable income, find clients, close work, and get paid.'],
+  ['Developers', '/developers', 'Track client requests, issues, releases, handover, invoices, and payments.'],
+  ['Designers', '/designers', 'Manage proposals, revisions, approvals, delivery notes, and final payment.'],
+  ['Agencies', '/agencies', 'Invite collaborators, split delivery, maintain project history, and collect retainers.'],
+  ['Consultants', '/consultants', 'Turn conversations into proposals, retainers, invoices, and repeat clients.']
+];
+
 const previewRows = [
   ['Today', 'Message 3 warm leads', 'Sales action'],
   ['Project', 'Fix mobile navbar issue', 'High priority'],
@@ -374,6 +382,34 @@ export default function Home() {
                   <h3 className="text-xl font-black text-white">{item.title}</h3>
                   <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{item.text}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mb-8 max-w-2xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Use cases</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Same product, specific workflow for different service businesses.
+              </h2>
+              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+                Each page explains the exact problem ClientFlow AI solves for that type of user.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              {verticalUseCases.map(([label, path, text]) => (
+                <Link
+                  key={path}
+                  to={path}
+                  className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25 hover:bg-sky-300/[0.06]"
+                >
+                  <p className="text-lg font-black text-white">For {label}</p>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{text}</p>
+                  <p className="mt-5 text-[10px] font-black uppercase tracking-widest text-sky-300">View page</p>
+                </Link>
               ))}
             </div>
           </div>
