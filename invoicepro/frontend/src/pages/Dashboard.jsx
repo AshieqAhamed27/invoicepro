@@ -1209,7 +1209,7 @@ export default function Dashboard() {
 
         {showDemoMode && (
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-yellow-400/20 bg-yellow-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
-            <div className="mb-8 grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-end">
+            <div className="mb-8 grid gap-5">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Demo Mode</p>
                 <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
@@ -1398,7 +1398,7 @@ export default function Dashboard() {
 
         {!dashboardError && !loading && (
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-sky-400/20 bg-sky-400/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
-            <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_360px] 2xl:items-stretch">
+            <div className="grid gap-6">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">
@@ -1563,7 +1563,7 @@ export default function Dashboard() {
 
         {!dashboardError && !loading && (
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
-            <div className="mb-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-end">
+            <div className="mb-8 grid gap-6">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">
                   Business Operating System
@@ -1636,7 +1636,7 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <div className="mt-8 grid gap-4 2xl:grid-cols-[360px_minmax(0,1fr)]">
+            <div className="mt-8 grid gap-4">
               <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
                 <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Today's Focus</p>
                 <h3 className="mt-2 text-xl font-black text-white">{nextMoneyActions[0]?.title}</h3>
@@ -1678,7 +1678,7 @@ export default function Dashboard() {
 
         {!dashboardError && !loading && (
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-yellow-400/20 bg-yellow-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
-            <div className="mb-8 grid gap-6 2xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] 2xl:items-start">
+            <div className="mb-8 grid gap-6">
               <div>
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">
@@ -1825,7 +1825,7 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <div className="mt-6 grid gap-6 2xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <div className="mt-6 grid gap-6">
               <div className="rounded-2xl border border-white/10 bg-black/25 p-5 sm:p-6">
                 <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Suggested Packages</p>
                 <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
@@ -1958,7 +1958,7 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-6 2xl:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="mt-6 grid gap-6">
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5 sm:p-6">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
@@ -2088,7 +2088,7 @@ export default function Dashboard() {
           )}
         </section>
 
-        <section className="reveal reveal-delay-1 mb-12 grid gap-8 2xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] 2xl:gap-10">
+        <section className="reveal reveal-delay-1 mb-12 grid gap-8">
           <div className="premium-panel p-5 sm:p-8 lg:p-10 relative overflow-hidden">
             <div className="mb-8 sm:mb-12 flex justify-between items-center gap-4">
               <div>

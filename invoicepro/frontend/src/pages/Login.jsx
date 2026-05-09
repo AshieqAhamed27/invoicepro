@@ -122,7 +122,7 @@ export default function Login() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom grid items-start gap-8 py-8 sm:gap-10 sm:py-12 xl:min-h-[calc(100vh-120px)] xl:grid-cols-[minmax(0,1fr)_420px] xl:items-center xl:gap-16">
+      <main className="container-custom grid items-start gap-8 py-8 sm:gap-10 sm:py-12 xl:min-h-[calc(100vh-120px)] xl:grid-cols-2 xl:items-center xl:gap-12">
         <section className="hidden lg:block relative">
           <div className="absolute top-0 right-0 w-80 h-80 bg-yellow-400/10 blur-[120px]" />
           <div className="max-w-xl relative">

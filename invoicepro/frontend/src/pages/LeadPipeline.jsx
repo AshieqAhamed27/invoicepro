@@ -307,7 +307,7 @@ export default function LeadPipeline() {
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
-        <section className="reveal mb-10 grid gap-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
+        <section className="reveal mb-10 grid gap-6">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -345,7 +345,7 @@ export default function LeadPipeline() {
           ))}
         </section>
 
-        <section className="reveal reveal-delay-2 mb-8 grid gap-8 2xl:grid-cols-[minmax(0,1fr)_380px]">
+        <section className="reveal reveal-delay-2 mb-8 grid gap-8">
           <form onSubmit={createLead} className="premium-panel p-5 sm:p-8">
             <div className="mb-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Add Verified Lead</p>

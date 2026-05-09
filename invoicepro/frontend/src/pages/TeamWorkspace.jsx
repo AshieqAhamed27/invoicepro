@@ -1131,13 +1131,13 @@ export default function TeamWorkspace() {
 
                   {canInviteActiveProject ? (
                     <>
-                      <form onSubmit={createInvite} className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_140px_160px_120px]">
+                      <form onSubmit={createInvite} className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                         <input
                           type="email"
                           value={inviteForm.email}
                           onChange={(event) => setInviteForm((prev) => ({ ...prev, email: event.target.value }))}
                           placeholder="Freelancer email optional"
-                          className="input py-3 text-sm"
+                          className="input py-3 text-sm sm:col-span-2 xl:col-span-1"
                         />
                         <select
                           value={inviteForm.role}
@@ -1266,7 +1266,7 @@ export default function TeamWorkspace() {
                     </button>
                   </div>
 
-                  <div className="mt-5 grid gap-4 2xl:grid-cols-[minmax(0,1fr)_340px]">
+                  <div className="mt-5 grid gap-4">
                     <div className="space-y-3">
                       {sharedResources.length ? (
                         sharedResources.map((resource) => (

@@ -603,10 +603,10 @@ export default function ClientFinder() {
           </div>
         </section>
 
-        <div className={plan ? 'grid gap-8' : 'grid gap-8 2xl:grid-cols-[400px_minmax(0,1fr)]'}>
+        <div className="grid gap-8">
           <form
             onSubmit={generatePlan}
-            className={`reveal reveal-delay-1 h-fit rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7 ${plan ? '' : 'sticky-wide'}`}
+            className="reveal reveal-delay-1 h-fit rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7"
           >
             <div className="mb-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Freelancer Profile</p>
@@ -661,7 +661,7 @@ export default function ClientFinder() {
                 />
               </label>
 
-              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2 2xl:grid-cols-1'}>
+              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2'}>
                 <label className="grid gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Target Market</span>
                   <input
@@ -683,7 +683,7 @@ export default function ClientFinder() {
                 </label>
               </div>
 
-              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2 2xl:grid-cols-1'}>
+              <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2'}>
                 <label className="grid gap-2">
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Project Price</span>
                   <input

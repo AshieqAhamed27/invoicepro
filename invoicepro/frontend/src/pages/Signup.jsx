@@ -59,7 +59,7 @@ export default function Signup() {
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom grid items-start gap-8 py-8 sm:gap-10 sm:py-12 xl:min-h-[calc(100vh-120px)] xl:grid-cols-[minmax(0,1fr)_420px] xl:items-center xl:gap-16">
+      <main className="container-custom grid items-start gap-8 py-8 sm:gap-10 sm:py-12 xl:min-h-[calc(100vh-120px)] xl:grid-cols-2 xl:items-center xl:gap-12">
         <section className="hidden lg:block relative text-left">
            <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-emerald-500/10 blur-[140px] pointer-events-none" />
           

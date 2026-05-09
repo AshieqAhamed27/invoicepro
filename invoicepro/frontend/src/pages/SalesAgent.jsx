@@ -160,7 +160,7 @@ export default function SalesAgent() {
               ))}
             </section>
 
-            <section className="grid gap-8 2xl:grid-cols-[minmax(0,1fr)_360px]">
+            <section className="grid gap-8">
               <div className="premium-panel p-5 sm:p-8">
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>

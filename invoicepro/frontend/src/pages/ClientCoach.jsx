@@ -224,7 +224,7 @@ export default function ClientCoach() {
           </div>
         </section>
 
-        <section className="grid gap-8 2xl:grid-cols-[420px_minmax(0,1fr)]">
+        <section className="grid gap-8">
           <form onSubmit={generatePlan} className="reveal reveal-delay-1 premium-panel h-fit p-5 sm:p-7">
             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Coach setup</p>
             <h2 className="mt-2 text-2xl font-black text-white">Tell the coach what you sell</h2>
@@ -238,7 +238,7 @@ export default function ClientCoach() {
               </div>
             )}
 
-            <div className="mt-6 grid gap-4">
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <label className="grid gap-2">
                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Your service</span>
                 <input
@@ -324,7 +324,7 @@ export default function ClientCoach() {
                 </label>
               </div>
 
-              <label className="grid gap-2">
+              <label className="grid gap-2 md:col-span-2 xl:col-span-3">
                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Extra context</span>
                 <textarea
                   value={form.notes}
@@ -380,7 +380,7 @@ export default function ClientCoach() {
               </div>
             </section>
 
-            <section className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <section className="grid gap-8">
               <div className="premium-panel p-5 sm:p-8">
                 <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Copy-ready scripts</p>
                 <h2 className="mt-2 text-2xl font-black text-white">Say the right thing at each step</h2>
@@ -403,7 +403,7 @@ export default function ClientCoach() {
                 </div>
               </div>
 
-              <aside className="space-y-5">
+              <aside className="grid gap-5 xl:grid-cols-2">
                 <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-5">
                   <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Objection replies</p>
                   <div className="mt-4 space-y-3">

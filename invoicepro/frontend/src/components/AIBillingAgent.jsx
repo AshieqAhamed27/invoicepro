@@ -84,7 +84,7 @@ export default function AIBillingAgent({
         </div>
       </div>
 
-      <div className="grid gap-5 p-5 sm:p-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-5 p-5 sm:p-6">
         <div>
           <textarea
             value={message}

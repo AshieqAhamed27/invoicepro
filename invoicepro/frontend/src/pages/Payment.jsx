@@ -445,7 +445,7 @@ export default function Payment() {
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16 xl:py-20">
-        <div className="grid gap-8 2xl:grid-cols-[minmax(0,1fr)_400px] 2xl:gap-12">
+        <div className="grid gap-8">
           <section className="reveal">
             <div className="flex items-center gap-2 mb-4">
                <span className="h-px w-8 bg-yellow-400" />

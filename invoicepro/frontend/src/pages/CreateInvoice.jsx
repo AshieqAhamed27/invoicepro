@@ -460,7 +460,7 @@ export default function CreateInvoice() {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="grid min-w-0 gap-8 2xl:grid-cols-[minmax(0,1fr)_380px] 2xl:gap-10">
+        <form onSubmit={handleSubmit} className="grid min-w-0 gap-8">
           <div className="reveal reveal-delay-1 space-y-8">
             {/* Section: Client */}
             <section className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
@@ -697,7 +697,7 @@ export default function CreateInvoice() {
           </div>
 
           {/* SIDEBAR */}
-          <aside className="reveal reveal-delay-2 sticky-wide h-fit space-y-6">
+          <aside className="reveal reveal-delay-2 h-fit space-y-6">
             <div className="premium-panel p-5 sm:p-8">
                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-6">
                  <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">

@@ -300,8 +300,8 @@ export default function OutboundAutopilot() {
           </div>
         </section>
 
-        <section className="grid gap-8 2xl:grid-cols-[400px_minmax(0,1fr)]">
-          <div className="reveal reveal-delay-1 premium-panel sticky-wide p-5 sm:p-8 2xl:h-fit">
+        <section className="grid gap-8">
+          <div className="reveal reveal-delay-1 premium-panel p-5 sm:p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-black text-white">Campaign Setup</h2>
               <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">Required before generation</p>
