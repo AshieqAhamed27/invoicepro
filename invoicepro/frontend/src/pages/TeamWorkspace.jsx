@@ -926,6 +926,41 @@ export default function TeamWorkspace() {
           ))}
         </section>
 
+        <section className="reveal reveal-delay-2 mb-8 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-5 sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">GitHub-style project control</p>
+              <h2 className="mt-2 text-2xl font-black text-white">Client Work Ledger is inside every team project</h2>
+              <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-zinc-500">
+                Track client requests, bugs, improvements, releases, docs, approvals, resources, handover notes, and team updates without forcing freelancers to use a developer-only tool.
+              </p>
+            </div>
+            {activeProject && (
+              <button
+                type="button"
+                onClick={() => document.getElementById('client-work-ledger')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="btn btn-secondary px-5 py-3 text-xs"
+              >
+                Open Ledger
+              </button>
+            )}
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              ['Issues', 'Bugs, change requests, priority, owner, and status.'],
+              ['Releases', 'Version plans and client changelog for delivered work.'],
+              ['Project Docs', 'Setup, QA, requirements, approvals, and handover notes.'],
+              ['Resources', 'GitHub repo, live preview, Figma, requirement links, and files.']
+            ].map(([title, detail]) => (
+              <div key={title} className="rounded-2xl border border-white/8 bg-black/20 p-4 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                <p className="text-sm font-black text-white">{title}</p>
+                <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="grid gap-8">
           <section className="reveal reveal-delay-1 space-y-8">
             {loading ? (
@@ -1058,6 +1093,13 @@ export default function TeamWorkspace() {
                       className="btn btn-secondary px-5 py-3 text-xs"
                     >
                       Copy Brief
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('client-work-ledger')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                      className="btn btn-secondary px-5 py-3 text-xs"
+                    >
+                      Open Ledger
                     </button>
                   </div>
                 </div>
@@ -1386,7 +1428,7 @@ export default function TeamWorkspace() {
                   </div>
                 </div>
 
-                <div className="mt-8 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-4 sm:p-5">
+                <div id="client-work-ledger" className="scroll-mt-28 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-4 sm:p-5">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Client Work Ledger</p>
