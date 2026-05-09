@@ -143,9 +143,12 @@ export default function Home() {
   const planLabel = getPlanLabel(currentUser);
   const hasActivePro = hasProAccess(currentUser);
   const expiryState = getExpiryState(currentUser);
-  const showExpiryAlert = loggedIn && hasActivePro && (expiryState.expiringSoon || expiryState.expired);
+  const hasPlanWithExpiry = Boolean(currentUser?.plan && currentUser.plan !== 'free' && expiryState.expiresAt);
+  const showExpiryAlert = loggedIn && hasPlanWithExpiry && (expiryState.expiringSoon || expiryState.expired);
   const accountStatus = !loggedIn
     ? null
+    : showExpiryAlert && expiryState.expired
+      ? `${planLabel} expired`
     : hasActivePro
       ? `${planLabel} active`
       : 'Free version active';
@@ -154,7 +157,7 @@ export default function Home() {
     : showExpiryAlert
       ? expiryState.expired
         ? 'Your Pro access has expired. Renew now to keep AI tools, unlimited invoices, and team workspace active.'
-        : `AI reminder: your ${planLabel} expires in ${expiryState.daysLeft} day${expiryState.daysLeft === 1 ? '' : 's'}. Renew early so your workflow does not stop.`
+        : `Your ${planLabel} expires in ${expiryState.daysLeft} day${expiryState.daysLeft === 1 ? '' : 's'}. Renew early so your workflow does not stop.`
       : hasActivePro
         ? expiryState.expiresAt
           ? `Your ${planLabel} is active until ${formatDate(expiryState.expiresAt)}.`
@@ -225,7 +228,7 @@ export default function Home() {
                       <p className={`text-[10px] font-black uppercase tracking-[0.22em] ${
                         showExpiryAlert ? 'text-yellow-200' : hasActivePro ? 'text-emerald-200' : 'text-sky-200'
                       }`}>
-                        {showExpiryAlert ? 'AI expiry reminder' : 'Your plan status'}
+                        {showExpiryAlert ? 'Plan expiry alert' : 'Your plan status'}
                       </p>
                       <p className="mt-1 text-base font-black text-white">{accountStatus}</p>
                       <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">

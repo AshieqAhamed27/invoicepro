@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
-import { getUser } from '../utils/auth';
+import { getPlanLabel, getUser, hasProAccess } from '../utils/auth';
 import { COMPANY_SHORT_NAME, SUPPORT_EMAIL } from '../utils/company';
 import { trackEvent } from '../utils/analytics';
 
@@ -86,6 +86,7 @@ export default function Payment() {
   const [pricingBlocked, setPricingBlocked] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [accountUser, setAccountUser] = useState(() => getUser() || {});
 
   useEffect(() => {
     const selectedPlan = getSafePlan(localStorage.getItem("plan") || "monthly");
@@ -129,6 +130,7 @@ export default function Payment() {
         setSubscriptionStatus(res.data?.subscription || null);
         if (res.data?.user) {
           localStorage.setItem('user', JSON.stringify(res.data.user));
+          setAccountUser(res.data.user);
         }
       } catch {
         setSubscriptionStatus(null);
@@ -139,6 +141,16 @@ export default function Payment() {
   }, []);
 
   const current = serverPlanDetails[getSafePlan(plan)] || planDetails[getSafePlan(plan)];
+  const trialAlreadyUsed = Boolean(accountUser?.trialUsedAt);
+  const activePlanLabel = getPlanLabel(accountUser);
+  const trialDisabled = trialLoading || loading || hasProAccess(accountUser) || trialAlreadyUsed;
+  const trialButtonLabel = hasProAccess(accountUser)
+    ? `${activePlanLabel} Active`
+    : trialAlreadyUsed
+      ? 'Trial Already Used'
+      : trialLoading
+        ? 'Activating Trial...'
+        : 'Start 7-Day Free Trial';
   const selectPlan = (nextPlan) => {
     const safePlan = getSafePlan(nextPlan);
     localStorage.setItem("plan", safePlan);
@@ -151,12 +163,15 @@ export default function Payment() {
   };
 
   const handleTrialStart = async () => {
+    if (trialDisabled) return;
+
     try {
       setTrialLoading(true);
       const res = await api.post('/payment/trial/start');
 
       if (res.data?.user) {
         localStorage.setItem('user', JSON.stringify(res.data.user));
+        setAccountUser(res.data.user);
       }
 
       trackEvent('start_trial', {
@@ -585,10 +600,14 @@ export default function Payment() {
                <button
                  type="button"
                  onClick={handleTrialStart}
-                 disabled={trialLoading || loading}
-                 className="mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm font-black text-white transition-all hover:bg-white/[0.06] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                 disabled={trialDisabled}
+                 className={`mt-3 w-full rounded-2xl border border-white/10 px-5 py-4 text-sm font-black text-white transition-all ${
+                   trialDisabled
+                     ? 'cursor-not-allowed bg-white/[0.02] opacity-60'
+                     : 'bg-white/[0.03] hover:bg-white/[0.06] active:scale-[0.98]'
+                 }`}
                >
-                 {trialLoading ? 'Activating Trial...' : 'Start 7-Day Free Trial'}
+                 {trialButtonLabel}
                </button>
 
                {pricingWarning && (
