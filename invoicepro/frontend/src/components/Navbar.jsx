@@ -8,8 +8,16 @@ const appLinks = [
   { to: '/growth-plan', label: 'Growth', detail: 'Stability and daily plan', requiresPro: true },
   { to: '/ai-coach', label: 'AI Coach', detail: 'Find, talk, close, collect', requiresPro: true },
   { to: '/client-finder', label: 'Find Clients', detail: 'Find client opportunities', requiresPro: true },
-  { to: '/team-workspace', label: 'Ledger', detail: 'Issues, releases, docs' },
+  { to: '/team-workspace', label: 'Team Work', detail: 'Projects, chat, ledger' },
   { to: '/create-invoice', label: 'Invoice', detail: 'Proposal or invoice' }
+];
+
+const useCaseLinks = [
+  { to: '/freelancers', label: 'Freelancers', detail: 'Find clients and get paid' },
+  { to: '/developers', label: 'Developers', detail: 'Manage builds and releases' },
+  { to: '/designers', label: 'Designers', detail: 'Handle revisions and approvals' },
+  { to: '/agencies', label: 'Agencies', detail: 'Run teams and retainers' },
+  { to: '/consultants', label: 'Consultants', detail: 'Close retainers and invoices' }
 ];
 
 export default function Navbar() {
@@ -17,6 +25,7 @@ export default function Navbar() {
   const location = useLocation();
   const loggedIn = isLoggedIn();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [useCasesOpen, setUseCasesOpen] = useState(false);
 
   const user = getUser();
   const isAdmin = user?.role === 'admin';
@@ -35,9 +44,14 @@ export default function Navbar() {
       : 'text-zinc-400 border-transparent hover:text-white hover:bg-white/[0.06]';
 
   const closeMenu = () => setMenuOpen(false);
+  const closeAllMenus = () => {
+    setMenuOpen(false);
+    setUseCasesOpen(false);
+  };
 
   useEffect(() => {
     setMenuOpen(false);
+    setUseCasesOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -79,6 +93,39 @@ export default function Navbar() {
               <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Home
               </NavLink>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setUseCasesOpen((open) => !open)}
+                  className={`rounded-lg border px-3 py-2 font-semibold transition ${
+                    useCaseLinks.some((link) => location.pathname === link.to)
+                      ? 'border-white/15 bg-white/10 text-white'
+                      : 'border-transparent text-zinc-400 hover:bg-white/[0.06] hover:text-white'
+                  }`}
+                  aria-expanded={useCasesOpen}
+                >
+                  Use Cases
+                </button>
+                {useCasesOpen && (
+                  <div className="absolute left-0 top-full mt-3 w-72 rounded-2xl border border-white/10 bg-[#090d14] p-2 shadow-2xl shadow-black/40">
+                    {useCaseLinks.map((link) => (
+                      <NavLink
+                        key={link.to}
+                        to={link.to}
+                        onClick={closeAllMenus}
+                        className={(state) => `block rounded-xl px-4 py-3 transition ${
+                          state.isActive
+                            ? 'bg-white/10 text-white'
+                            : 'text-zinc-300 hover:bg-white/[0.06] hover:text-white'
+                        }`}
+                      >
+                        <span className="block text-sm font-black">{link.label}</span>
+                        <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
               <a href="/#pricing" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 hover:bg-white/[0.06] hover:text-white">
                 Pricing
               </a>
@@ -195,6 +242,15 @@ export default function Navbar() {
                 <span className="block text-sm font-black">Home</span>
                 <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Product overview</span>
               </NavLink>
+              <div className="grid gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
+                <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Use cases</p>
+                {useCaseLinks.map((link) => (
+                  <NavLink key={link.to} to={link.to} onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">{link.label}</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
+                  </NavLink>
+                ))}
+              </div>
               {!loggedIn ? (
                 <>
                   <a href="/#pricing" onClick={closeMenu} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white">
