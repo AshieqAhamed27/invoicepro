@@ -1051,15 +1051,34 @@ export default function TeamWorkspace() {
                 Track client requests, bugs, improvements, releases, docs, approvals, resources, handover notes, and team updates without forcing freelancers to use a developer-only tool.
               </p>
             </div>
-            {activeProject && (
+            <div className="flex flex-col gap-2 sm:flex-row">
+            {activeProject ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('github-setup')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="btn btn-primary px-5 py-3 text-xs"
+                >
+                  Connect GitHub
+                </button>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('client-work-ledger')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="btn btn-secondary px-5 py-3 text-xs"
+                >
+                  Open Ledger
+                </button>
+              </>
+            ) : (
               <button
                 type="button"
-                onClick={() => document.getElementById('client-work-ledger')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                className="btn btn-secondary px-5 py-3 text-xs"
+                onClick={() => document.getElementById('create-team-project')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="btn btn-primary px-5 py-3 text-xs"
               >
-                Open Ledger
+                Create Project First
               </button>
             )}
+            </div>
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -1071,6 +1090,41 @@ export default function TeamWorkspace() {
             ].map(([title, detail]) => (
               <div key={title} className="rounded-2xl border border-white/8 bg-black/20 p-4 transition-all hover:-translate-y-1 hover:border-sky-300/25">
                 <p className="text-sm font-black text-white">{title}</p>
+                <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="reveal reveal-delay-2 mb-8 rounded-3xl border border-emerald-400/15 bg-emerald-400/[0.04] p-5 sm:p-6">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Beginner setup</p>
+              <h2 className="mt-2 text-2xl font-black text-white">Connect GitHub in 3 simple steps</h2>
+              <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-zinc-500">
+                Use this only if your project has code. ClientFlow AI will show real commits, issues, pull requests, and branches inside the client project.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => document.getElementById(activeProject ? 'github-setup' : 'create-team-project')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="btn btn-primary px-5 py-3 text-xs"
+            >
+              {activeProject ? 'Open GitHub Setup' : 'Create Project First'}
+            </button>
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {[
+              ['1', 'Create or open a team project', 'GitHub is linked per client project, so each project can have its own repository.'],
+              ['2', 'Paste GitHub token', 'Paste the token in the GitHub setup box. The token is encrypted on the backend.'],
+              ['3', 'Load repo and link it', 'Choose a repository, then sync real commits, issues, pull requests, and branches.']
+            ].map(([step, title, detail]) => (
+              <div key={step} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-300 text-sm font-black text-slate-950">
+                  {step}
+                </div>
+                <p className="mt-3 text-sm font-black text-white">{title}</p>
                 <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{detail}</p>
               </div>
             ))}
@@ -1216,6 +1270,13 @@ export default function TeamWorkspace() {
                       className="btn btn-secondary px-5 py-3 text-xs"
                     >
                       Open Ledger
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('github-setup')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                      className="btn btn-secondary px-5 py-3 text-xs"
+                    >
+                      GitHub Setup
                     </button>
                   </div>
                 </div>
@@ -1424,10 +1485,10 @@ export default function TeamWorkspace() {
                     </button>
                   </div>
 
-                  <div className="mt-5 rounded-2xl border border-white/8 bg-black/20 p-4">
+                  <div id="github-setup" className="mt-5 scroll-mt-28 rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.04] p-4">
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Real GitHub integration</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Step-by-step GitHub setup</p>
                         <h4 className="mt-1 text-lg font-black text-white">
                           {githubRepo.fullName ? githubRepo.fullName : 'Connect a repository to this project'}
                         </h4>
