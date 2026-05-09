@@ -32,6 +32,14 @@ const productSettings = [
     requiresPro: true
   },
   {
+    label: 'Growth Plan',
+    title: 'Freelancer Stability System',
+    detail: 'Turns a monthly income goal into daily leads, proposals, price upgrades, recurring client offers, and retention messages.',
+    status: 'Pro',
+    to: '/growth-plan',
+    requiresPro: true
+  },
+  {
     label: 'Client Growth',
     title: 'Client Finder + Lead Pipeline',
     detail: 'Find real prospects, save leads, prepare follow-ups, and convert accepted work into invoices.',
@@ -100,6 +108,11 @@ const automationSettings = [
   {
     title: 'Today Business Action',
     detail: 'Dashboard prepares who to message, what to invoice, and which payment to collect next.',
+    state: 'Enabled'
+  },
+  {
+    title: 'Freelancer Growth Plan',
+    detail: 'Calculates stability score, monthly income path, daily lead target, price upgrade, recurring client chances, and retention prompts.',
     state: 'Enabled'
   },
   {

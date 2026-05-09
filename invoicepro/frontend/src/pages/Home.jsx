@@ -18,6 +18,10 @@ const coreValue = [
     text: 'The app checks leads, proposals, projects, and invoices, then shows the single best money action for today.'
   },
   {
+    title: 'Growth Plan',
+    text: 'Freelancers set a monthly income target and get the leads, proposals, prices, and daily work needed to reach it.'
+  },
+  {
     title: 'Client work system',
     text: 'Find clients, create proposals, manage project tasks, track issues, save docs, and prepare invoices.'
   },
@@ -29,14 +33,16 @@ const coreValue = [
 
 const productFlow = [
   ['01', 'Money GPS', 'Open one screen and see the best action to move revenue today.'],
-  ['02', 'Client', 'Find the right type of client and prepare the first message.'],
-  ['03', 'Project', 'Assign work, track issues, plan releases, and save handover notes.'],
-  ['04', 'Payment', 'Send INR or international invoices, share payment link, and follow pending revenue.']
+  ['02', 'Growth Plan', 'Know how many leads, proposals, and clients are needed to hit the monthly income target.'],
+  ['03', 'Client', 'Find the right type of client and prepare the first message.'],
+  ['04', 'Project', 'Assign work, track issues, plan releases, and save handover notes.'],
+  ['05', 'Payment', 'Send INR or international invoices, share payment link, and follow pending revenue.']
 ];
 
 const whyPay = [
   'It removes confusion by showing one best action instead of many separate tools.',
   'It helps freelancers earn more by finding and following up with clients.',
+  'It gives a stability plan so freelancers can build income instead of returning to a 9-to-5 job.',
   'It protects cashflow by showing what payment, proposal, or project needs action today.',
   'It helps solo freelancers manage bigger and longer client projects.'
 ];
@@ -69,7 +75,7 @@ const plans = [
     name: 'Pro Monthly',
     price: 'Rs 499',
     note: 'For active freelancers',
-    features: ['Money GPS', 'AI Client Coach', 'Unlimited local and international invoices'],
+    features: ['Money GPS', 'Freelancer Growth Plan', 'Unlimited local and international invoices'],
     cta: 'Start Pro'
   },
   {
@@ -77,7 +83,7 @@ const plans = [
     name: 'Pro Yearly',
     price: 'Rs 4999',
     note: 'Best for long-term business',
-    features: ['Everything in Pro monthly', 'Recurring client workflow', 'Better value for serious freelancers'],
+    features: ['Everything in Pro monthly', 'Recurring client workflow', 'Price upgrade and retention agents'],
     cta: 'Choose Yearly'
   }
 ];
@@ -90,6 +96,10 @@ const faqs = [
   {
     question: 'Why would freelancers pay for it?',
     answer: 'Because the product helps them avoid missed money actions: warm leads, accepted proposals, blocked projects, and pending invoices.'
+  },
+  {
+    question: 'How does it help me avoid going back to a job?',
+    answer: 'The Growth Plan turns your monthly income target into daily leads, proposals, prices, collection tasks, recurring client ideas, and retention messages. It does not guarantee income, but it keeps the right actions visible.'
   },
   {
     question: 'Can I use it without a domain?',
@@ -345,7 +355,7 @@ export default function Home() {
               </h2>
             </div>
 
-            <div className="mt-8 grid gap-5 md:grid-cols-3">
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {coreValue.map((item) => (
                 <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
                   <h3 className="text-xl font-black text-white">{item.title}</h3>

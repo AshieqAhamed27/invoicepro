@@ -20,6 +20,11 @@ const CheckPill = ({ ready }) => (
 
 const recentUpdates = [
   {
+    label: 'Growth Plan',
+    title: 'Freelancer Stability System',
+    detail: 'Added a Pro growth plan that calculates job escape score, income target actions, price upgrades, recurring client chances, and retention messages.'
+  },
+  {
     label: 'Team Work',
     title: 'Project Maintenance Hub',
     detail: 'Added GitHub-style issues, release notes, project docs, and an AI maintainer so freelancers can manage long-term client projects.'

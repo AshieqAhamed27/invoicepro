@@ -26,6 +26,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const MoneyGPS = lazy(() => import('./pages/MoneyGPS'));
+const GrowthPlan = lazy(() => import('./pages/GrowthPlan'));
 const ClientCoach = lazy(() => import('./pages/ClientCoach'));
 const LaunchCenter = lazy(() => import('./pages/LaunchCenter'));
 const ClientFinder = lazy(() => import('./pages/ClientFinder'));
@@ -129,6 +130,7 @@ const appRoutePrefixes = [
   '/create-invoice',
   '/dashboard',
   '/deal-room',
+  '/growth-plan',
   '/invoice/',
   '/launch',
   '/leads',
@@ -318,6 +320,19 @@ export default function App() {
               <Suspense fallback={<RouteLoader />}>
                 <MoneyGPS />
               </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/growth-plan"
+          element={
+            <PrivateRoute>
+              <ProRoute title="Freelancer Growth Plan unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <GrowthPlan />
+                </Suspense>
+              </ProRoute>
             </PrivateRoute>
           }
         />

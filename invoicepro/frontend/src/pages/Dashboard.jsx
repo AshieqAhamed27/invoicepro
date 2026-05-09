@@ -1557,6 +1557,13 @@ export default function Dashboard() {
               >
                 Build Offer
               </button>
+              <button
+                type="button"
+                onClick={() => navigate('/growth-plan')}
+                className="btn btn-secondary px-6 py-3 text-xs font-black uppercase tracking-widest"
+              >
+                Growth Plan
+              </button>
             </div>
           </section>
         )}

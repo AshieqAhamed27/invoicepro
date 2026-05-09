@@ -5,6 +5,7 @@ import BrandLogo from './BrandLogo';
 
 const appLinks = [
   { to: '/money-gps', label: 'Money GPS', detail: 'One best action today' },
+  { to: '/growth-plan', label: 'Growth', detail: 'Stability and daily plan', requiresPro: true },
   { to: '/ai-coach', label: 'AI Coach', detail: 'Find, talk, close, collect', requiresPro: true },
   { to: '/client-finder', label: 'Find Clients', detail: 'Find client opportunities', requiresPro: true },
   { to: '/team-workspace', label: 'Projects', detail: 'Team, issues, releases' },
@@ -32,11 +33,6 @@ export default function Navbar() {
     isActive
       ? 'text-white bg-white/10 border-white/15'
       : 'text-zinc-400 border-transparent hover:text-white hover:bg-white/[0.06]';
-
-  const mobileNavClass = ({ isActive }) =>
-    isActive
-      ? 'text-white bg-white/10'
-      : 'text-zinc-400 hover:text-white hover:bg-white/[0.06]';
 
   const closeMenu = () => setMenuOpen(false);
 
