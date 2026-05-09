@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel } from '../utils/auth';
 import BrandLogo from './BrandLogo';
 
@@ -13,6 +13,7 @@ const appLinks = [
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const loggedIn = isLoggedIn();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -39,15 +40,41 @@ export default function Navbar() {
 
   const closeMenu = () => setMenuOpen(false);
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [menuOpen]);
+
+  const mobileItemClass = (state) =>
+    `rounded-2xl border px-4 py-3 transition-all ${
+      state.isActive
+        ? 'border-white/15 bg-white/10 text-white'
+        : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white'
+    }`;
+
   return (
     <nav className="sticky top-0 z-50 px-3 pt-3 pb-0 sm:px-4 sm:pt-4">
-      <div className="container-custom flex h-14 items-center justify-between rounded-2xl border border-white/10 bg-[#090d14]/85 px-4 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:h-16 sm:px-6">
+      <div className="container-custom flex h-16 items-center justify-between rounded-[1.35rem] border border-white/10 bg-[#090d14]/90 px-3 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:h-16 sm:px-6">
         <NavLink
           to="/"
+          onClick={closeMenu}
           className="group flex min-w-0 items-center gap-3"
           aria-label="ClientFlow AI home"
         >
-          <BrandLogo markClassName="transition-transform duration-300 group-hover:scale-110" />
+          <BrandLogo
+            className="min-w-0"
+            markClassName="h-9 w-9 transition-transform duration-300 group-hover:scale-110 sm:h-11 sm:w-11"
+          />
         </NavLink>
 
         <div className="hidden items-center gap-1 text-sm xl:flex">
@@ -116,61 +143,110 @@ export default function Navbar() {
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
-          className="btn btn-secondary shrink-0 px-3 py-2 xl:hidden"
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition-all xl:hidden ${
+            menuOpen
+              ? 'border-yellow-300/30 bg-yellow-300/15 text-yellow-100'
+              : 'border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.08]'
+          }`}
           aria-expanded={menuOpen}
           aria-label="Toggle navigation menu"
         >
-          {menuOpen ? 'Close' : 'Menu'}
+          <span className="relative h-4 w-5">
+            <span className={`absolute left-0 top-0 h-0.5 w-5 rounded-full bg-current transition-all ${menuOpen ? 'translate-y-[7px] rotate-45' : ''}`} />
+            <span className={`absolute left-0 top-[7px] h-0.5 w-5 rounded-full bg-current transition-all ${menuOpen ? 'opacity-0' : 'opacity-100'}`} />
+            <span className={`absolute left-0 top-[14px] h-0.5 w-5 rounded-full bg-current transition-all ${menuOpen ? '-translate-y-[7px] -rotate-45' : ''}`} />
+          </span>
         </button>
       </div>
 
       {menuOpen && (
-        <div className="animate-menu-drop mx-3 mt-3 max-h-[calc(100vh-5.75rem)] overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:mx-4 xl:hidden">
-          <div className="flex flex-col gap-5 px-4 py-4 text-base sm:px-6 sm:py-6">
-            <div className="grid gap-2">
-              <p className="px-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Main</p>
-              <NavLink to="/" onClick={closeMenu} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
-                Home
+        <>
+          <button
+            type="button"
+            aria-label="Close navigation overlay"
+            className="fixed inset-0 top-20 z-40 bg-black/45 backdrop-blur-sm xl:hidden"
+            onClick={closeMenu}
+          />
+          <div className="animate-menu-drop fixed inset-x-3 top-[5.2rem] z-50 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-[1.75rem] border border-white/10 bg-[#090d14]/98 shadow-2xl shadow-black/45 backdrop-blur-2xl sm:inset-x-4 xl:hidden">
+          <div className="flex flex-col gap-5 p-4 text-base sm:p-6">
+            <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">
+                {loggedIn ? 'Signed in workspace' : 'ClientFlow AI'}
+              </p>
+              {loggedIn ? (
+                <>
+                  <p className="mt-2 text-lg font-black leading-tight text-white">{user?.name || 'Your account'}</p>
+                  <p className="mt-1 truncate text-xs font-semibold text-zinc-500">{user?.email}</p>
+                  <span className={`mt-3 inline-flex rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
+                    isPro
+                      ? 'border-emerald-300/20 bg-emerald-300/10 text-emerald-200'
+                      : 'border-yellow-300/20 bg-yellow-300/10 text-yellow-200'
+                  }`}>
+                    {isPro ? planLabel : 'Free plan'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <p className="mt-2 text-lg font-black leading-tight text-white">Find clients and get paid faster.</p>
+                  <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-500">Start free, then upgrade when Pro helps your business.</p>
+                </>
+              )}
+            </div>
+
+            <div className="grid gap-3">
+              <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Main</p>
+              <NavLink to="/" onClick={closeMenu} className={mobileItemClass}>
+                <span className="block text-sm font-black">Home</span>
+                <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Product overview</span>
               </NavLink>
               {!loggedIn ? (
                 <>
-                  <a href="/#pricing" onClick={closeMenu} className="rounded-lg px-3 py-2 text-zinc-400 hover:bg-white/5 hover:text-white">
-                    Pricing
+                  <a href="/#pricing" onClick={closeMenu} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white">
+                    <span className="block text-sm font-black">Pricing</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Free, monthly, yearly</span>
                   </a>
-                  <a href="/#faq" onClick={closeMenu} className="rounded-lg px-3 py-2 text-zinc-400 hover:bg-white/5 hover:text-white">
-                    FAQ
+                  <a href="/#faq" onClick={closeMenu} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white">
+                    <span className="block text-sm font-black">FAQ</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Common questions</span>
                   </a>
-                  <NavLink to="/contact" onClick={closeMenu} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
-                    Contact
+                  <NavLink to="/contact" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Contact</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Support and business details</span>
                   </NavLink>
                 </>
               ) : (
-                <NavLink to="/dashboard" onClick={closeMenu} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
-                  Dashboard
+                <NavLink to="/dashboard" onClick={closeMenu} className={mobileItemClass}>
+                  <span className="block text-sm font-black">Dashboard</span>
+                  <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Business overview</span>
                 </NavLink>
               )}
             </div>
 
             {loggedIn && (
-              <div className="grid gap-2">
-                <p className="px-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Core workflow</p>
+              <div className="grid gap-3">
+                <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Core workflow</p>
                 {appLinks.map((link) => (
-                  <NavLink key={link.to} to={link.to} onClick={closeMenu} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
+                  <NavLink key={link.to} to={link.to} onClick={closeMenu} className={mobileItemClass}>
                     <span className="flex items-center justify-between gap-3">
-                      <span>{link.label}</span>
-                      {link.requiresPro && !isPro && <span className="text-[10px] font-black uppercase text-yellow-300">Pro</span>}
+                      <span className="text-sm font-black">{link.label}</span>
+                      {link.requiresPro && !isPro && (
+                        <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-200">
+                          Pro
+                        </span>
+                      )}
                     </span>
-                    <span className="mt-0.5 block text-xs text-zinc-600">{link.detail}</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
                   </NavLink>
                 ))}
               </div>
             )}
 
-            <div className="grid gap-2 border-t border-white/5 pt-4">
+            <div className="grid gap-3 border-t border-white/5 pt-4">
               {!loggedIn ? (
                 <>
-                  <NavLink to="/login" onClick={closeMenu} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
-                    Login
+                  <NavLink to="/login" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Login</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Open your workspace</span>
                   </NavLink>
                   <button
                     type="button"
@@ -178,38 +254,52 @@ export default function Navbar() {
                       navigate('/signup');
                       closeMenu();
                     }}
-                    className="btn btn-primary w-full"
+                    className="rounded-2xl bg-yellow-300 px-5 py-4 text-sm font-black uppercase tracking-widest text-slate-950 shadow-xl shadow-yellow-950/20 transition active:scale-[0.98]"
                   >
-                    Start Free
+                    Create Free Account
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigate('/payment');
+                      closeMenu();
+                    }}
+                    className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-4 text-sm font-black uppercase tracking-widest text-emerald-200 transition active:scale-[0.98]"
+                  >
+                    Start Free Trial
                   </button>
                 </>
               ) : (
                 <>
                   {!isPro ? (
-                    <NavLink to="/payment" onClick={closeMenu} className="rounded-lg px-3 py-2 font-semibold text-yellow-300 hover:bg-yellow-400/10">
+                    <NavLink to="/payment" onClick={closeMenu} className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 font-black text-yellow-200 hover:bg-yellow-300/15">
                       Upgrade Pro
+                      <span className="mt-0.5 block text-xs font-semibold text-yellow-100/60">Unlock AI growth tools</span>
                     </NavLink>
                   ) : (
-                    <span className="rounded-lg px-3 py-2 text-xs font-black uppercase tracking-widest text-emerald-300">
-                      {planLabel}
-                    </span>
+                    <NavLink to="/payment" onClick={closeMenu} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 font-black text-emerald-200 hover:bg-emerald-300/15">
+                      Manage Plan
+                      <span className="mt-0.5 block text-xs font-semibold text-emerald-100/60">{planLabel}</span>
+                    </NavLink>
                   )}
-                  <NavLink to="/settings" onClick={closeMenu} className={(state) => `rounded-lg px-3 py-2 ${mobileNavClass(state)}`}>
-                    Settings
+                  <NavLink to="/settings" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Settings</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Profile, logo, payments</span>
                   </NavLink>
                   {isAdmin && (
-                    <NavLink to="/admin" onClick={closeMenu} className="rounded-lg px-3 py-2 text-yellow-300 hover:bg-yellow-400/10">
+                    <NavLink to="/admin" onClick={closeMenu} className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 font-black text-yellow-200 hover:bg-yellow-300/15">
                       Admin
                     </NavLink>
                   )}
-                  <button type="button" onClick={handleLogout} className="btn btn-dark w-full">
+                  <button type="button" onClick={handleLogout} className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-sm font-black uppercase tracking-widest text-zinc-300 transition active:scale-[0.98]">
                     Logout
                   </button>
                 </>
               )}
             </div>
           </div>
-        </div>
+          </div>
+        </>
       )}
     </nav>
   );
