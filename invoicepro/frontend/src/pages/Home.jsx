@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BrandLogo from '../components/BrandLogo';
-import { isLoggedIn } from '../utils/auth';
+import { formatDate, getPlanLabel, getUser, hasProAccess, isLoggedIn } from '../utils/auth';
 import { trackCtaClick } from '../utils/analytics';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import {
@@ -105,9 +105,61 @@ const faqs = [
   }
 ];
 
+const getExpiryState = (user) => {
+  if (!user?.planExpiresAt) {
+    return {
+      expiresAt: '',
+      daysLeft: null,
+      expired: false,
+      expiringSoon: false
+    };
+  }
+
+  const expiresAt = new Date(user.planExpiresAt);
+  if (Number.isNaN(expiresAt.getTime())) {
+    return {
+      expiresAt: '',
+      daysLeft: null,
+      expired: false,
+      expiringSoon: false
+    };
+  }
+
+  const diffMs = expiresAt.getTime() - Date.now();
+  const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  return {
+    expiresAt,
+    daysLeft,
+    expired: daysLeft <= 0,
+    expiringSoon: daysLeft > 0 && daysLeft <= 7
+  };
+};
+
 export default function Home() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
+  const currentUser = loggedIn ? getUser() : null;
+  const planLabel = getPlanLabel(currentUser);
+  const hasActivePro = hasProAccess(currentUser);
+  const expiryState = getExpiryState(currentUser);
+  const showExpiryAlert = loggedIn && hasActivePro && (expiryState.expiringSoon || expiryState.expired);
+  const accountStatus = !loggedIn
+    ? null
+    : hasActivePro
+      ? `${planLabel} active`
+      : 'Free version active';
+  const accountDetail = !loggedIn
+    ? ''
+    : showExpiryAlert
+      ? expiryState.expired
+        ? 'Your Pro access has expired. Renew now to keep AI tools, unlimited invoices, and team workspace active.'
+        : `AI reminder: your ${planLabel} expires in ${expiryState.daysLeft} day${expiryState.daysLeft === 1 ? '' : 's'}. Renew early so your workflow does not stop.`
+      : hasActivePro
+        ? expiryState.expiresAt
+          ? `Your ${planLabel} is active until ${formatDate(expiryState.expiresAt)}.`
+          : `Your ${planLabel} is active.`
+        : 'You are currently using the Free version. Start the 7-day trial to unlock Pro tools.';
 
   useDocumentMeta({
     title: `${COMPANY_NAME} - Find clients, manage projects, get paid`,
@@ -160,6 +212,44 @@ export default function Home() {
                 ClientFlow AI helps freelancers turn leads into deals, organize client work, create proposals and invoices, then collect payments from India or international clients.
               </p>
 
+              {loggedIn && (
+                <div className={`mt-6 rounded-[1.5rem] border p-4 sm:max-w-2xl sm:p-5 ${
+                  showExpiryAlert
+                    ? 'border-yellow-300/25 bg-yellow-300/[0.08]'
+                    : hasActivePro
+                      ? 'border-emerald-300/20 bg-emerald-300/[0.08]'
+                      : 'border-sky-300/20 bg-sky-300/[0.08]'
+                }`}>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className={`text-[10px] font-black uppercase tracking-[0.22em] ${
+                        showExpiryAlert ? 'text-yellow-200' : hasActivePro ? 'text-emerald-200' : 'text-sky-200'
+                      }`}>
+                        {showExpiryAlert ? 'AI expiry reminder' : 'Your plan status'}
+                      </p>
+                      <p className="mt-1 text-base font-black text-white">{accountStatus}</p>
+                      <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">
+                        {accountDetail}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => goToApp(hasActivePro && !showExpiryAlert ? '/dashboard' : '/payment', showExpiryAlert ? 'hero_renew_pro' : hasActivePro ? 'hero_open_dashboard_plan_status' : 'hero_start_trial_from_free_status')}
+                      className={`shrink-0 rounded-2xl px-5 py-3 text-xs font-black uppercase tracking-widest transition-all hover:-translate-y-0.5 active:scale-95 ${
+                        showExpiryAlert
+                          ? 'bg-yellow-300 text-slate-950 hover:bg-yellow-200'
+                          : hasActivePro
+                            ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
+                            : 'bg-sky-300 text-slate-950 hover:bg-sky-200'
+                      }`}
+                    >
+                      {showExpiryAlert ? 'Renew Pro' : hasActivePro ? 'Open App' : 'Start Trial'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!loggedIn && (
               <div className="mt-6 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.08] p-4 sm:max-w-2xl sm:p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
@@ -179,6 +269,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+              )}
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button
