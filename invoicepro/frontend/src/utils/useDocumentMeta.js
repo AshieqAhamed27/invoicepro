@@ -14,7 +14,32 @@ const setMeta = (selector, attribute, value) => {
   return tag;
 };
 
-export default function useDocumentMeta(title, description, options = {}) {
+const defaultTitle = 'ClientFlow AI | Client-to-Cash Platform for Freelancers';
+const defaultDescription = 'ClientFlow AI helps freelancers find clients, manage projects, create invoices, and collect payments.';
+
+const normalizeMetaArgs = (titleOrConfig, description, options = {}) => {
+  if (titleOrConfig && typeof titleOrConfig === 'object') {
+    const { title, description: configDescription, ...configOptions } = titleOrConfig;
+    return {
+      title: String(title || defaultTitle),
+      description: String(configDescription || defaultDescription),
+      options: {
+        ...configOptions,
+        ...(description && typeof description === 'object' ? description : {})
+      }
+    };
+  }
+
+  return {
+    title: String(titleOrConfig || defaultTitle),
+    description: String(description || defaultDescription),
+    options: options || {}
+  };
+};
+
+export default function useDocumentMeta(titleOrConfig, description, options = {}) {
+  const meta = normalizeMetaArgs(titleOrConfig, description, options);
+
   useEffect(() => {
     const previousTitle = document.title;
     const descriptionTag = document.querySelector('meta[name="description"]');
@@ -32,17 +57,17 @@ export default function useDocumentMeta(title, description, options = {}) {
     const previousOgUrl = ogUrlTag?.getAttribute('content') || '';
     const previousTwitterTitle = twitterTitleTag?.getAttribute('content') || '';
     const previousTwitterDescription = twitterDescriptionTag?.getAttribute('content') || '';
-    const canonicalUrl = options.canonical || absoluteUrl(options.path || window.location.pathname);
+    const canonicalUrl = meta.options.canonical || absoluteUrl(meta.options.path || window.location.pathname);
 
-    document.title = title;
+    document.title = meta.title;
 
-    setMeta('meta[name="description"]', 'content', description);
+    setMeta('meta[name="description"]', 'content', meta.description);
     setMeta('link[rel="canonical"]', 'href', canonicalUrl);
-    setMeta('meta[property="og:title"]', 'content', title);
-    setMeta('meta[property="og:description"]', 'content', description);
+    setMeta('meta[property="og:title"]', 'content', meta.title);
+    setMeta('meta[property="og:description"]', 'content', meta.description);
     setMeta('meta[property="og:url"]', 'content', canonicalUrl);
-    setMeta('meta[name="twitter:title"]', 'content', title);
-    setMeta('meta[name="twitter:description"]', 'content', description);
+    setMeta('meta[name="twitter:title"]', 'content', meta.title);
+    setMeta('meta[name="twitter:description"]', 'content', meta.description);
 
     return () => {
       document.title = previousTitle;
@@ -58,5 +83,5 @@ export default function useDocumentMeta(title, description, options = {}) {
       if (twitterTitleTag && previousTwitterTitle) twitterTitleTag.setAttribute('content', previousTwitterTitle);
       if (twitterDescriptionTag && previousTwitterDescription) twitterDescriptionTag.setAttribute('content', previousTwitterDescription);
     };
-  }, [title, description, options.canonical, options.path]);
+  }, [meta.title, meta.description, meta.options.canonical, meta.options.path]);
 }
