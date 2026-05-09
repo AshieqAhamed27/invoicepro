@@ -247,6 +247,86 @@ const wikiPageSchema = new mongoose.Schema({
     timestamps: true
 });
 
+const githubRepoSchema = new mongoose.Schema({
+    owner: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    name: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    fullName: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    htmlUrl: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    defaultBranch: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    private: {
+        type: Boolean,
+        default: false
+    },
+    language: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    linkedBy: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    linkedAt: {
+        type: Date,
+        default: null
+    },
+    lastSyncedAt: {
+        type: Date,
+        default: null
+    },
+    snapshot: {
+        repo: {
+            type: mongoose.Schema.Types.Mixed,
+            default: {}
+        },
+        counts: {
+            type: mongoose.Schema.Types.Mixed,
+            default: {}
+        },
+        issues: {
+            type: [mongoose.Schema.Types.Mixed],
+            default: []
+        },
+        pullRequests: {
+            type: [mongoose.Schema.Types.Mixed],
+            default: []
+        },
+        commits: {
+            type: [mongoose.Schema.Types.Mixed],
+            default: []
+        },
+        branches: {
+            type: [mongoose.Schema.Types.Mixed],
+            default: []
+        },
+        syncedAt: {
+            type: Date,
+            default: null
+        }
+    }
+}, { _id: false });
+
 const codeEnvironmentSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -548,6 +628,10 @@ const teamProjectSchema = new mongoose.Schema({
     maintenanceIssues: [maintenanceIssueSchema],
     releases: [releaseSchema],
     wikiPages: [wikiPageSchema],
+    githubRepo: {
+        type: githubRepoSchema,
+        default: () => ({})
+    },
     codeEnvironments: [codeEnvironmentSchema],
     codeSnippets: [codeSnippetSchema],
     codeRuns: [codeRunSchema],

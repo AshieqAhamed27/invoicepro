@@ -136,6 +136,14 @@ export default function TeamWorkspace() {
   const [releaseSaving, setReleaseSaving] = useState(false);
   const [wikiSaving, setWikiSaving] = useState(false);
   const [maintenanceAgentLoading, setMaintenanceAgentLoading] = useState(false);
+  const [githubStatus, setGithubStatus] = useState({ connected: false });
+  const [githubToken, setGithubToken] = useState('');
+  const [githubRepos, setGithubRepos] = useState([]);
+  const [githubRepoInput, setGithubRepoInput] = useState('');
+  const [githubConnecting, setGithubConnecting] = useState(false);
+  const [githubReposLoading, setGithubReposLoading] = useState(false);
+  const [githubLinking, setGithubLinking] = useState(false);
+  const [githubSyncing, setGithubSyncing] = useState(false);
   const [lastInvite, setLastInvite] = useState(null);
   const [inviteForm, setInviteForm] = useState({
     email: '',
@@ -203,6 +211,8 @@ export default function TeamWorkspace() {
   const releases = activeProject?.releases || [];
   const wikiPages = activeProject?.wikiPages || [];
   const maintenanceAgent = activeProject?.maintenanceAgent || {};
+  const githubRepo = activeProject?.githubRepo || {};
+  const githubSnapshot = githubRepo.snapshot || {};
 
   const visibleTasks = useMemo(() => {
     const tasks = activeProject?.tasks || [];
@@ -243,8 +253,18 @@ export default function TeamWorkspace() {
     }
   };
 
+  const fetchGitHubStatus = async () => {
+    try {
+      const res = await api.get('/team-projects/github/status');
+      setGithubStatus(res.data?.github || { connected: false });
+    } catch {
+      setGithubStatus({ connected: false });
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
+    fetchGitHubStatus();
   }, []);
 
   useEffect(() => {
@@ -256,6 +276,7 @@ export default function TeamWorkspace() {
     setIssueForm({ ...blankIssue });
     setReleaseForm({ ...blankRelease });
     setWikiForm({ ...blankWikiPage });
+    setGithubRepoInput(activeProject?.githubRepo?.fullName || '');
     setUnreadMessages(0);
   }, [activeProject?._id]);
 
@@ -367,6 +388,7 @@ export default function TeamWorkspace() {
                   maintenanceIssues: payload.maintenanceIssues || project.maintenanceIssues,
                   releases: payload.releases || project.releases,
                   wikiPages: payload.wikiPages || project.wikiPages,
+                  githubRepo: payload.githubRepo || project.githubRepo,
                   aiPlan: payload.aiPlan || project.aiPlan,
                   developerAgent: payload.developerAgent || project.developerAgent,
                   maintenanceAgent: payload.maintenanceAgent || project.maintenanceAgent,
@@ -676,6 +698,100 @@ export default function TeamWorkspace() {
       alert(err?.response?.data?.message || 'Failed to add build link.');
     } finally {
       setResourceSaving(false);
+    }
+  };
+
+  const connectGitHub = async (event) => {
+    event.preventDefault();
+
+    if (!githubToken.trim()) {
+      alert('Paste your GitHub fine-grained token first.');
+      return;
+    }
+
+    try {
+      setGithubConnecting(true);
+      const res = await api.post('/team-projects/github/connect', { token: githubToken.trim() });
+      setGithubStatus(res.data?.github || { connected: true });
+      setGithubToken('');
+      await loadGitHubRepos();
+      alert('GitHub connected.');
+    } catch (err) {
+      alert(err?.response?.data?.message || 'GitHub connection failed.');
+    } finally {
+      setGithubConnecting(false);
+    }
+  };
+
+  const disconnectGitHub = async () => {
+    try {
+      const res = await api.delete('/team-projects/github/connect');
+      setGithubStatus(res.data?.github || { connected: false });
+      setGithubRepos([]);
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to disconnect GitHub.');
+    }
+  };
+
+  const loadGitHubRepos = async () => {
+    try {
+      setGithubReposLoading(true);
+      const res = await api.get('/team-projects/github/repos');
+      setGithubRepos(res.data?.repos || []);
+      if (res.data?.github) setGithubStatus(res.data.github);
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Could not load GitHub repositories.');
+    } finally {
+      setGithubReposLoading(false);
+    }
+  };
+
+  const linkGitHubRepo = async (event) => {
+    event.preventDefault();
+
+    if (!activeProject?._id || !canEditActiveProject) {
+      alert('Only project owners and editors can link GitHub repositories.');
+      return;
+    }
+
+    if (!githubRepoInput.trim()) {
+      alert('Select or paste a GitHub repo first.');
+      return;
+    }
+
+    try {
+      setGithubLinking(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/github/link`, {
+        repo: githubRepoInput.trim()
+      });
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+      alert('GitHub repository linked and synced.');
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to link GitHub repository.');
+    } finally {
+      setGithubLinking(false);
+    }
+  };
+
+  const syncGitHubRepo = async () => {
+    if (!activeProject?._id) return;
+
+    try {
+      setGithubSyncing(true);
+      const res = await api.post(`/team-projects/${activeProject._id}/github/sync`);
+      setProjects((prev) => {
+        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
+        setSummary(buildProjectSummary(next));
+        return next;
+      });
+    } catch (err) {
+      alert(err?.response?.data?.message || 'GitHub sync failed.');
+    } finally {
+      setGithubSyncing(false);
     }
   };
 
@@ -1306,6 +1422,175 @@ export default function TeamWorkspace() {
                     >
                       {devAgentLoading ? 'Thinking...' : 'Ask Dev AI'}
                     </button>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl border border-white/8 bg-black/20 p-4">
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Real GitHub integration</p>
+                        <h4 className="mt-1 text-lg font-black text-white">
+                          {githubRepo.fullName ? githubRepo.fullName : 'Connect a repository to this project'}
+                        </h4>
+                        <p className="mt-2 max-w-3xl text-xs font-semibold leading-relaxed text-zinc-500">
+                          Sync real GitHub issues, pull requests, branches, and recent commits into ClientFlow AI so the client project status stays connected to actual code work.
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        {githubStatus.connected && (
+                          <button
+                            type="button"
+                            onClick={loadGitHubRepos}
+                            disabled={githubReposLoading}
+                            className="btn btn-secondary px-4 py-3 text-xs"
+                          >
+                            {githubReposLoading ? 'Loading...' : 'Load Repos'}
+                          </button>
+                        )}
+                        {githubRepo.fullName && (
+                          <button
+                            type="button"
+                            onClick={syncGitHubRepo}
+                            disabled={githubSyncing}
+                            className="btn btn-primary px-4 py-3 text-xs"
+                          >
+                            {githubSyncing ? 'Syncing...' : 'Sync GitHub'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {!githubStatus.connected ? (
+                      <form onSubmit={connectGitHub} className="mt-4 grid gap-3">
+                        <div className="rounded-2xl border border-yellow-300/15 bg-yellow-300/10 p-4">
+                          <p className="text-sm font-black text-yellow-100">Connect with a GitHub fine-grained token</p>
+                          <p className="mt-2 text-xs font-semibold leading-relaxed text-yellow-100/70">
+                            Create a token in GitHub with read-only access to repository metadata, issues, pull requests, and contents. The token is encrypted on the backend and never shown to the browser again.
+                          </p>
+                        </div>
+                        <input
+                          type="password"
+                          value={githubToken}
+                          onChange={(event) => setGithubToken(event.target.value)}
+                          placeholder="Paste GitHub token"
+                          className="input py-3 text-sm"
+                          autoComplete="off"
+                        />
+                        <button type="submit" disabled={githubConnecting} className="btn btn-primary py-3 text-xs">
+                          {githubConnecting ? 'Connecting...' : 'Connect GitHub'}
+                        </button>
+                      </form>
+                    ) : (
+                      <div className="mt-4 grid gap-4">
+                        <div className="flex flex-col gap-3 rounded-2xl border border-emerald-300/15 bg-emerald-300/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="text-sm font-black text-emerald-100">Connected as {githubStatus.username}</p>
+                            <p className="mt-1 text-xs font-semibold text-emerald-100/60">
+                              {githubStatus.lastVerifiedAt ? `Verified ${formatMessageTime(githubStatus.lastVerifiedAt)}` : 'Ready to load repositories'}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={disconnectGitHub}
+                            className="rounded-xl border border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-100 hover:bg-white/10"
+                          >
+                            Disconnect
+                          </button>
+                        </div>
+
+                        {canEditActiveProject && (
+                          <form onSubmit={linkGitHubRepo} className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_220px]">
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <select
+                                value={githubRepoInput}
+                                onChange={(event) => setGithubRepoInput(event.target.value)}
+                                className="input py-3 text-sm"
+                              >
+                                <option value="">Select loaded repo or paste below</option>
+                                {githubRepos.map((repo) => (
+                                  <option key={repo.fullName} value={repo.fullName}>
+                                    {repo.fullName}{repo.private ? ' (private)' : ''}
+                                  </option>
+                                ))}
+                              </select>
+                              <input
+                                value={githubRepoInput}
+                                onChange={(event) => setGithubRepoInput(event.target.value)}
+                                placeholder="owner/repo or https://github.com/owner/repo"
+                                className="input py-3 text-sm"
+                              />
+                            </div>
+                            <button type="submit" disabled={githubLinking} className="btn btn-primary py-3 text-xs">
+                              {githubLinking ? 'Linking...' : 'Link Repository'}
+                            </button>
+                          </form>
+                        )}
+
+                        {githubRepo.fullName && (
+                          <div className="grid gap-4 xl:grid-cols-4">
+                            {[
+                              ['Open Issues', githubSnapshot.counts?.openIssues || 0],
+                              ['Open PRs', githubSnapshot.counts?.openPullRequests || 0],
+                              ['Branches', githubSnapshot.counts?.branches || 0],
+                              ['Commits', githubSnapshot.counts?.commits || 0]
+                            ].map(([label, value]) => (
+                              <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                                <p className="mt-1 text-2xl font-black text-white">{value}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {githubRepo.fullName && (
+                          <div className="grid gap-4 xl:grid-cols-3">
+                            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent commits</p>
+                              <div className="mt-3 space-y-3">
+                                {(githubSnapshot.commits || []).slice(0, 5).map((commit) => (
+                                  <a key={commit.sha} href={commit.htmlUrl} target="_blank" rel="noopener noreferrer" className="block rounded-xl border border-white/8 bg-black/20 p-3 hover:border-emerald-300/25">
+                                    <p className="line-clamp-2 text-xs font-black text-white">{commit.message || commit.sha}</p>
+                                    <p className="mt-1 text-[10px] font-semibold text-zinc-500">{commit.author || 'GitHub'} - {commit.sha}</p>
+                                  </a>
+                                ))}
+                                {!(githubSnapshot.commits || []).length && (
+                                  <p className="text-xs font-semibold text-zinc-500">Sync GitHub to show commits.</p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">GitHub issues</p>
+                              <div className="mt-3 space-y-3">
+                                {(githubSnapshot.issues || []).slice(0, 5).map((issue) => (
+                                  <a key={issue.id} href={issue.htmlUrl} target="_blank" rel="noopener noreferrer" className="block rounded-xl border border-white/8 bg-black/20 p-3 hover:border-sky-300/25">
+                                    <p className="line-clamp-2 text-xs font-black text-white">#{issue.number} {issue.title}</p>
+                                    <p className="mt-1 text-[10px] font-semibold text-zinc-500">{statusLabel(issue.state)} - {issue.author || 'GitHub'}</p>
+                                  </a>
+                                ))}
+                                {!(githubSnapshot.issues || []).length && (
+                                  <p className="text-xs font-semibold text-zinc-500">No GitHub issues synced yet.</p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Pull requests</p>
+                              <div className="mt-3 space-y-3">
+                                {(githubSnapshot.pullRequests || []).slice(0, 5).map((pull) => (
+                                  <a key={pull.id} href={pull.htmlUrl} target="_blank" rel="noopener noreferrer" className="block rounded-xl border border-white/8 bg-black/20 p-3 hover:border-violet-300/25">
+                                    <p className="line-clamp-2 text-xs font-black text-white">#{pull.number} {pull.title}</p>
+                                    <p className="mt-1 text-[10px] font-semibold text-zinc-500">{pull.head} {'->'} {pull.base}</p>
+                                  </a>
+                                ))}
+                                {!(githubSnapshot.pullRequests || []).length && (
+                                  <p className="text-xs font-semibold text-zinc-500">No pull requests synced yet.</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="mt-5 grid gap-4">

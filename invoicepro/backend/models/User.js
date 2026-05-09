@@ -94,6 +94,52 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    github: {
+        connected: {
+            type: Boolean,
+            default: false
+        },
+        username: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        name: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        avatarUrl: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        htmlUrl: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        tokenEncrypted: {
+            type: String,
+            default: ''
+        },
+        tokenIv: {
+            type: String,
+            default: ''
+        },
+        tokenAuthTag: {
+            type: String,
+            default: ''
+        },
+        connectedAt: {
+            type: Date,
+            default: null
+        },
+        lastVerifiedAt: {
+            type: Date,
+            default: null
+        }
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],

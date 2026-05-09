@@ -7,6 +7,14 @@ const { protect, requirePro, hasPaidPlan } = require('../middleware/auth');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 const { getJwtSecret } = require('../utils/env');
 const { getCodeRunnerStatus, runCodeInDocker } = require('../utils/dockerSandbox');
+const {
+    encryptGitHubToken,
+    fetchGitHubRepos,
+    fetchGitHubRepoSnapshot,
+    fetchGitHubViewer,
+    getUserGitHubToken,
+    parseGitHubRepo
+} = require('../utils/githubIntegration');
 
 const router = express.Router();
 
@@ -162,6 +170,16 @@ const serializeProjectForUser = (project, user) => {
 const serializeProjectsForUser = (projects, user) =>
     projects.map((project) => serializeProjectForUser(project, user));
 
+const serializeGitHubStatus = (user) => ({
+    connected: Boolean(user?.github?.connected),
+    username: user?.github?.username || '',
+    name: user?.github?.name || '',
+    avatarUrl: user?.github?.avatarUrl || '',
+    htmlUrl: user?.github?.htmlUrl || '',
+    connectedAt: user?.github?.connectedAt || null,
+    lastVerifiedAt: user?.github?.lastVerifiedAt || null
+});
+
 const getProjectCollabSnapshot = (project) => {
     const plain = typeof project.toObject === 'function' ? project.toObject() : project;
 
@@ -173,6 +191,7 @@ const getProjectCollabSnapshot = (project) => {
         maintenanceIssues: plain.maintenanceIssues || [],
         releases: plain.releases || [],
         wikiPages: plain.wikiPages || [],
+        githubRepo: plain.githubRepo || {},
         codeEnvironments: plain.codeEnvironments || [],
         codeSnippets: plain.codeSnippets || [],
         codeRuns: plain.codeRuns || [],
@@ -634,6 +653,209 @@ router.get('/', protect, async(req, res) => {
 
 router.get('/code-runner/status', protect, async(req, res) => {
     res.json({ runner: getCodeRunnerStatus() });
+});
+
+router.get('/github/status', protect, async(req, res) => {
+    res.json({ github: serializeGitHubStatus(req.user) });
+});
+
+router.post('/github/connect', protect, requirePro, async(req, res) => {
+    try {
+        const token = cleanString(req.body.token);
+        if (!token || token.length < 20) {
+            return res.status(400).json({ message: 'Paste a valid GitHub fine-grained token.' });
+        }
+
+        const viewer = await fetchGitHubViewer(token);
+        const encrypted = encryptGitHubToken(token);
+
+        req.user.github = {
+            connected: true,
+            username: viewer.username,
+            name: viewer.name,
+            avatarUrl: viewer.avatarUrl,
+            htmlUrl: viewer.htmlUrl,
+            ...encrypted,
+            connectedAt: new Date(),
+            lastVerifiedAt: new Date()
+        };
+
+        await req.user.save();
+
+        res.json({
+            message: 'GitHub connected.',
+            github: serializeGitHubStatus(req.user)
+        });
+    } catch (err) {
+        console.error('GITHUB CONNECT ERROR:', err);
+        const status = err.status === 401 || err.status === 403 ? 400 : 500;
+        res.status(status).json({
+            message: status === 400
+                ? 'GitHub token could not be verified. Check token permissions and expiry.'
+                : 'GitHub connection failed.'
+        });
+    }
+});
+
+router.delete('/github/connect', protect, async(req, res) => {
+    req.user.github = {
+        connected: false,
+        username: '',
+        name: '',
+        avatarUrl: '',
+        htmlUrl: '',
+        tokenEncrypted: '',
+        tokenIv: '',
+        tokenAuthTag: '',
+        connectedAt: null,
+        lastVerifiedAt: null
+    };
+
+    await req.user.save();
+    res.json({ message: 'GitHub disconnected.', github: serializeGitHubStatus(req.user) });
+});
+
+router.get('/github/repos', protect, async(req, res) => {
+    try {
+        const token = getUserGitHubToken(req.user);
+        if (!token || !req.user.github?.connected) {
+            return res.status(400).json({ message: 'Connect GitHub first.' });
+        }
+
+        const repos = await fetchGitHubRepos(token);
+        req.user.github.lastVerifiedAt = new Date();
+        await req.user.save();
+
+        res.json({ repos, github: serializeGitHubStatus(req.user) });
+    } catch (err) {
+        console.error('GITHUB REPOS ERROR:', err);
+        res.status(err.status === 401 || err.status === 403 ? 400 : 500).json({
+            message: 'Could not load GitHub repositories. Check token permissions.'
+        });
+    }
+});
+
+router.post('/:id/github/link', protect, requirePro, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canEditProject(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and editors can link GitHub repositories.' });
+        }
+
+        const token = getUserGitHubToken(req.user);
+        if (!token || !req.user.github?.connected) {
+            return res.status(400).json({ message: 'Connect GitHub first.' });
+        }
+
+        const parsed = parseGitHubRepo(req.body.repo || req.body.repoUrl || req.body.fullName);
+        if (!parsed) {
+            return res.status(400).json({ message: 'Use a valid GitHub repository URL or owner/repo name.' });
+        }
+
+        const snapshot = await fetchGitHubRepoSnapshot(token, parsed.owner, parsed.name);
+        const repo = snapshot.repo || parsed;
+
+        project.githubRepo = {
+            owner: parsed.owner,
+            name: parsed.name,
+            fullName: parsed.fullName,
+            htmlUrl: repo.htmlUrl || parsed.htmlUrl,
+            defaultBranch: repo.defaultBranch || '',
+            private: Boolean(repo.private),
+            language: repo.language || '',
+            linkedBy: req.user?.name || req.user?.email || 'Team member',
+            linkedAt: new Date(),
+            lastSyncedAt: new Date(),
+            snapshot: {
+                ...snapshot,
+                syncedAt: new Date(snapshot.syncedAt || Date.now())
+            }
+        };
+
+        if (!project.resources.some((resource) => resource.url === project.githubRepo.htmlUrl)) {
+            project.resources.push({
+                label: `${parsed.fullName} repository`,
+                type: 'repository',
+                url: project.githubRepo.htmlUrl,
+                notes: 'Connected from GitHub integration.',
+                addedBy: req.user?.name || req.user?.email || 'Team member'
+            });
+        }
+
+        await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
+
+        res.json({
+            message: 'GitHub repository linked.',
+            project: serializeProjectForUser(project, req.user),
+            githubRepo: project.githubRepo
+        });
+    } catch (err) {
+        console.error('GITHUB LINK ERROR:', err);
+        res.status(err.status === 401 || err.status === 403 || err.status === 404 ? 400 : 500).json({
+            message: 'Could not link this GitHub repository. Check repo access and token permissions.'
+        });
+    }
+});
+
+router.post('/:id/github/sync', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id);
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!accessRole) {
+            return res.status(403).json({ message: 'You are not a member of this project.' });
+        }
+
+        if (!project.githubRepo?.owner || !project.githubRepo?.name) {
+            return res.status(400).json({ message: 'Link a GitHub repository first.' });
+        }
+
+        const token = getUserGitHubToken(req.user);
+        if (!token || !req.user.github?.connected) {
+            return res.status(400).json({ message: 'Connect GitHub first.' });
+        }
+
+        const snapshot = await fetchGitHubRepoSnapshot(token, project.githubRepo.owner, project.githubRepo.name);
+        project.githubRepo.snapshot = {
+            ...snapshot,
+            syncedAt: new Date(snapshot.syncedAt || Date.now())
+        };
+        project.githubRepo.lastSyncedAt = new Date();
+        project.githubRepo.defaultBranch = snapshot.repo?.defaultBranch || project.githubRepo.defaultBranch;
+        project.githubRepo.language = snapshot.repo?.language || project.githubRepo.language;
+        project.githubRepo.private = Boolean(snapshot.repo?.private);
+
+        await project.save();
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
+
+        res.json({
+            message: 'GitHub repository synced.',
+            project: serializeProjectForUser(project, req.user),
+            githubRepo: project.githubRepo
+        });
+    } catch (err) {
+        console.error('GITHUB SYNC ERROR:', err);
+        res.status(err.status === 401 || err.status === 403 || err.status === 404 ? 400 : 500).json({
+            message: 'Could not sync GitHub data. Check repo access and token permissions.'
+        });
+    }
 });
 
 router.get('/:id/events', async(req, res) => {
