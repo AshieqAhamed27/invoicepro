@@ -8,8 +8,28 @@ const appLinks = [
   { to: '/growth-plan', label: 'Growth', detail: 'Stability and daily plan', requiresPro: true },
   { to: '/ai-coach', label: 'AI Coach', detail: 'Find, talk, close, collect', requiresPro: true },
   { to: '/client-finder', label: 'Find Clients', detail: 'Find client opportunities', requiresPro: true },
+  { to: '/proposal-writer', label: 'Proposal', detail: 'Write and improve proposals', requiresPro: true },
+  { to: '/deal-room', label: 'Deal Room', detail: 'Move leads to paid work', requiresPro: true },
+  { to: '/leads', label: 'Lead Pipeline', detail: 'Track prospects and follow-up', requiresPro: true },
   { to: '/team-workspace', label: 'Team Work', detail: 'Projects, chat, ledger' },
   { to: '/create-invoice', label: 'Invoice', detail: 'Proposal or invoice' }
+];
+
+const primaryAppLinks = [
+  { to: '/money-gps', label: 'Money GPS' },
+  { to: '/team-workspace', label: 'Team Work' },
+  { to: '/create-invoice', label: 'Invoice' }
+];
+
+const moreAppLinks = [
+  { to: '/growth-plan', label: 'Growth Plan', detail: 'Income stability plan', requiresPro: true },
+  { to: '/ai-coach', label: 'AI Coach', detail: 'Find, talk, close, collect', requiresPro: true },
+  { to: '/client-finder', label: 'Find Clients', detail: 'Client opportunities', requiresPro: true },
+  { to: '/proposal-writer', label: 'Proposal Writer', detail: 'AI proposal support', requiresPro: true },
+  { to: '/deal-room', label: 'Deal Room', detail: 'Close serious leads', requiresPro: true },
+  { to: '/leads', label: 'Lead Pipeline', detail: 'Manage prospects', requiresPro: true },
+  { to: '/agency', label: 'Agency Setup', detail: 'Done-for-you freelancer system' },
+  { to: '/settings', label: 'Settings', detail: 'Profile, logo, payments' }
 ];
 
 const useCaseLinks = [
@@ -26,6 +46,7 @@ export default function Navbar() {
   const loggedIn = isLoggedIn();
   const [menuOpen, setMenuOpen] = useState(false);
   const [useCasesOpen, setUseCasesOpen] = useState(false);
+  const [appMenuOpen, setAppMenuOpen] = useState(false);
 
   const user = getUser();
   const isAdmin = user?.role === 'admin';
@@ -47,11 +68,13 @@ export default function Navbar() {
   const closeAllMenus = () => {
     setMenuOpen(false);
     setUseCasesOpen(false);
+    setAppMenuOpen(false);
   };
 
   useEffect(() => {
     setMenuOpen(false);
     setUseCasesOpen(false);
+    setAppMenuOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -71,6 +94,7 @@ export default function Navbar() {
         ? 'border-white/15 bg-white/10 text-white'
         : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white'
     }`;
+  const moreMenuActive = moreAppLinks.some((link) => location.pathname === link.to) || (isAdmin && location.pathname === '/admin');
 
   return (
     <nav className="sticky top-0 z-50 px-3 pt-3 pb-0 sm:px-4 sm:pt-4">
@@ -96,7 +120,10 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setUseCasesOpen((open) => !open)}
+                  onClick={() => {
+                    setAppMenuOpen(false);
+                    setUseCasesOpen((open) => !open);
+                  }}
                   className={`rounded-lg border px-3 py-2 font-semibold transition ${
                     useCaseLinks.some((link) => location.pathname === link.to)
                       ? 'border-white/15 bg-white/10 text-white'
@@ -126,17 +153,11 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-              <NavLink to="/agency" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
-                Agency Setup
-              </NavLink>
               <a href="/#pricing" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 hover:bg-white/[0.06] hover:text-white">
                 Pricing
               </a>
-              <a href="/#faq" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 hover:bg-white/[0.06] hover:text-white">
-                FAQ
-              </a>
-              <NavLink to="/contact" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
-                Contact
+              <NavLink to="/agency" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
+                Agency Setup
               </NavLink>
               <NavLink to="/login" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Login
@@ -150,29 +171,63 @@ export default function Navbar() {
               <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Dashboard
               </NavLink>
-              <NavLink to="/agency" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
-                Agency Setup
-              </NavLink>
-              {appLinks.map((link) => (
+              {primaryAppLinks.map((link) => (
                 <NavLink key={link.to} to={link.to} className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
-                  <span className="inline-flex items-center gap-2">
-                    {link.label}
-                    {link.requiresPro && !isPro && (
-                      <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-widest text-yellow-200">
-                        Pro
-                      </span>
-                    )}
-                  </span>
+                  {link.label}
                 </NavLink>
               ))}
-              <NavLink to="/settings" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
-                Settings
-              </NavLink>
-              {isAdmin && (
-                <NavLink to="/admin" className="rounded-lg px-3 py-2 font-semibold text-yellow-300 hover:bg-yellow-400/10">
-                  Admin
-                </NavLink>
-              )}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUseCasesOpen(false);
+                    setAppMenuOpen((open) => !open);
+                  }}
+                  className={`rounded-lg border px-3 py-2 font-semibold transition ${
+                    moreMenuActive
+                      ? 'border-white/15 bg-white/10 text-white'
+                      : 'border-transparent text-zinc-400 hover:bg-white/[0.06] hover:text-white'
+                  }`}
+                  aria-expanded={appMenuOpen}
+                >
+                  More
+                </button>
+                {appMenuOpen && (
+                  <div className="absolute right-0 top-full mt-3 w-80 rounded-2xl border border-white/10 bg-[#090d14] p-2 shadow-2xl shadow-black/40">
+                    {moreAppLinks.map((link) => (
+                      <NavLink
+                        key={link.to}
+                        to={link.to}
+                        onClick={closeAllMenus}
+                        className={(state) => `block rounded-xl px-4 py-3 transition ${
+                          state.isActive
+                            ? 'bg-white/10 text-white'
+                            : 'text-zinc-300 hover:bg-white/[0.06] hover:text-white'
+                        }`}
+                      >
+                        <span className="flex items-center justify-between gap-3">
+                          <span className="text-sm font-black">{link.label}</span>
+                          {link.requiresPro && !isPro && (
+                            <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-yellow-200">
+                              Pro
+                            </span>
+                          )}
+                        </span>
+                        <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
+                      </NavLink>
+                    ))}
+                    {isAdmin && (
+                      <NavLink
+                        to="/admin"
+                        onClick={closeAllMenus}
+                        className="block rounded-xl px-4 py-3 text-sm font-black text-yellow-300 transition hover:bg-yellow-400/10"
+                      >
+                        Admin
+                      </NavLink>
+                    )}
+                  </div>
+                )}
+              </div>
               {!isPro ? (
                 <NavLink to="/payment" className="rounded-lg border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 font-semibold text-yellow-200 hover:bg-yellow-400/15">
                   Upgrade
