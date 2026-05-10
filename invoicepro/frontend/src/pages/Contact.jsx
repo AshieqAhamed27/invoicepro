@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import {
@@ -11,9 +12,9 @@ import {
 import useDocumentMeta from '../utils/useDocumentMeta';
 
 const contactTopics = [
-  'Getting started with your workspace',
-  'Questions about billing flows or recurring invoices',
-  'Help with public invoice links or client payments',
+  'Agency setup help for your freelancer offer and client workflow',
+  'Getting started with your ClientFlow AI workspace',
+  'Questions about invoices, payment links, or client payments',
   'General product feedback and support requests'
 ];
 
@@ -35,8 +36,8 @@ export default function Contact() {
               Reach a real person when you need help with billing.
             </h1>
             <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 md:text-lg">
-              {COMPANY_NAME} is built for freelancers, consultants, and agencies that want a cleaner invoicing workflow.
-              The fastest way to contact us is email.
+              {COMPANY_NAME} is built for freelancers, consultants, and agencies that want a cleaner system for clients, projects, proposals, invoices, and payments.
+              For paid setup help, use the agency booking flow.
             </p>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -82,6 +83,12 @@ export default function Contact() {
             >
               Email Support
             </a>
+            <Link
+              to="/agency#agency-booking"
+              className="ml-0 mt-3 inline-flex rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-6 py-4 text-sm font-black text-yellow-200 transition-all hover:scale-[1.02] active:scale-95 sm:ml-3"
+            >
+              Book Agency Setup
+            </Link>
           </aside>
         </section>
       </main>

@@ -28,6 +28,9 @@ export default function Admin() {
   const [revenue, setRevenue] = useState(null);
   const [revenueLoading, setRevenueLoading] = useState(true);
   const [revenueError, setRevenueError] = useState('');
+  const [agencyBookings, setAgencyBookings] = useState([]);
+  const [agencyLoading, setAgencyLoading] = useState(true);
+  const [agencyError, setAgencyError] = useState('');
 
   const getScreenshotUrl = (request) => {
     return request.screenshotUrl
@@ -100,6 +103,20 @@ export default function Admin() {
     }
   };
 
+  const fetchAgencyBookings = async () => {
+    try {
+      setAgencyLoading(true);
+      setAgencyError('');
+      const res = await api.get('/agency/admin/bookings');
+      setAgencyBookings(res.data?.bookings || []);
+    } catch (err) {
+      console.log(err);
+      setAgencyError('Could not load agency setup bookings.');
+    } finally {
+      setAgencyLoading(false);
+    }
+  };
+
   const approve = async (id) => {
     try {
       await api.put(`/payment/approve/${id}`);
@@ -111,11 +128,35 @@ export default function Admin() {
     }
   };
 
+  const updateAgencyStatus = async (id, status) => {
+    try {
+      await api.put(`/agency/admin/bookings/${id}/status`, { status });
+      fetchAgencyBookings();
+    } catch (err) {
+      console.log(err);
+      alert(err?.response?.data?.message || 'Could not update setup status');
+    }
+  };
+
+  const updateChecklistItem = async (bookingId, item) => {
+    try {
+      await api.put(`/agency/admin/bookings/${bookingId}/checklist/${item.key}`, {
+        done: !item.done,
+        notes: item.notes || ''
+      });
+      fetchAgencyBookings();
+    } catch (err) {
+      console.log(err);
+      alert(err?.response?.data?.message || 'Could not update checklist item');
+    }
+  };
+
   useEffect(() => {
     fetchRequests();
     fetchPricing();
     fetchHealthDetails();
     fetchRevenue();
+    fetchAgencyBookings();
   }, []);
 
   const monthlyAmount = pricing?.plans?.monthly ?? null;
@@ -127,6 +168,15 @@ export default function Admin() {
   const requiredHealthy = Object.values(requiredChecks).length > 0 && Object.values(requiredChecks).every(Boolean);
   const paymentHealthy = paymentChecks.simulationEnabled || (paymentChecks.razorpayKeyId && paymentChecks.razorpayKeySecret);
   const envHealthy = requiredHealthy && Boolean(paymentHealthy);
+  const agencyRevenue = agencyBookings
+    .filter((booking) => ['paid', 'in_progress', 'delivered'].includes(booking.status))
+    .reduce((sum, booking) => sum + Number(booking.amount || 0), 0);
+  const getAgencyStatusClass = (status) => {
+    if (status === 'delivered') return 'border-emerald-400/10 bg-emerald-400/5 text-emerald-400';
+    if (status === 'in_progress' || status === 'paid') return 'border-sky-400/10 bg-sky-400/5 text-sky-300';
+    if (status === 'payment_pending') return 'border-yellow-400/10 bg-yellow-400/5 text-yellow-400';
+    return 'border-red-400/10 bg-red-400/5 text-red-300';
+  };
 
   return (
     <div className="premium-page min-h-screen text-white">
@@ -222,6 +272,132 @@ export default function Admin() {
               <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
                 {revenueError}
               </div>
+            </div>
+          )}
+        </section>
+
+        <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
+          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Agency Setup</p>
+                <h2 className="text-2xl font-black tracking-tight text-white">Setup clients and delivery checklist</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                  Track paid setup clients, complete each delivery step, and keep the service outcome visible.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex rounded-full border border-emerald-400/10 bg-emerald-400/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-400">
+                  {formatMoney(agencyRevenue)} collected
+                </span>
+                <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                  agencyError ? 'border-red-400/10 bg-red-400/5 text-red-400' : 'border-sky-400/10 bg-sky-400/5 text-sky-300'
+                }`}>
+                  {agencyError ? 'Unavailable' : `${agencyBookings.length} bookings`}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {agencyError && (
+            <div className="p-5 sm:p-8">
+              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                {agencyError}
+              </div>
+            </div>
+          )}
+
+          {agencyLoading ? (
+            <div className="grid gap-5 p-5 sm:p-8 md:grid-cols-2">
+              {[1, 2].map((item) => (
+                <div key={item} className="h-72 animate-pulse rounded-[2rem] border border-white/5 bg-white/[0.03]" />
+              ))}
+            </div>
+          ) : agencyBookings.length === 0 ? (
+            <div className="p-5 sm:p-8">
+              <div className="rounded-[2rem] border border-white/5 bg-black/10 p-8 text-center">
+                <h3 className="text-xl font-black text-white">No agency setup clients yet</h3>
+                <p className="mt-2 text-sm font-semibold text-zinc-500">When someone books from /agency, they will appear here.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-5 p-5 sm:p-8 xl:grid-cols-2">
+              {agencyBookings.map((booking) => (
+                <div key={booking._id} className="rounded-[2rem] border border-white/5 bg-black/10 p-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{booking.packageName}</p>
+                      <h3 className="mt-2 text-2xl font-black text-white">{booking.customerName}</h3>
+                      <p className="mt-1 break-all text-xs font-bold text-zinc-500">{booking.email} · {booking.whatsapp}</p>
+                    </div>
+                    <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${getAgencyStatusClass(booking.status)}`}>
+                      {booking.status?.replaceAll('_', ' ')}
+                    </span>
+                  </div>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Amount</p>
+                      <p className="mt-2 text-xl font-black text-emerald-300">{formatMoney(booking.amount)}</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Booked</p>
+                      <p className="mt-2 text-sm font-black text-white">{formatDate(booking.createdAt)}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Setup brief</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+                      <span className="text-white">Skill:</span> {booking.skill}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+                      <span className="text-white">Problem:</span> {booking.problem}
+                    </p>
+                    {(booking.targetClient || booking.incomeGoal || booking.portfolioUrl) && (
+                      <p className="mt-2 text-xs font-bold leading-relaxed text-zinc-500">
+                        Target: {booking.targetClient || 'Not set'} · Goal: {booking.incomeGoal || 'Not set'} · Portfolio: {booking.portfolioUrl || 'Not set'}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-5">
+                    <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Delivery checklist</p>
+                    <div className="grid gap-2">
+                      {(booking.deliveryChecklist || []).map((item) => (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => updateChecklistItem(booking._id, item)}
+                          className={`flex items-start justify-between gap-3 rounded-2xl border p-3 text-left transition ${
+                            item.done
+                              ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
+                              : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.07]'
+                          }`}
+                        >
+                          <span className="text-sm font-bold leading-relaxed">{item.label}</span>
+                          <span className="shrink-0 text-[10px] font-black uppercase tracking-widest">
+                            {item.done ? 'Done' : 'Mark'}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                    {['in_progress', 'delivered', 'refunded'].map((status) => (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => updateAgencyStatus(booking._id, status)}
+                        className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/10"
+                      >
+                        {status.replaceAll('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </section>

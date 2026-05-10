@@ -9,6 +9,7 @@ const User = require('../models/User');
 const PaymentRequest = require('../models/PaymentRequest');
 const Invoice = require('../models/Invoice');
 const BillingSubscription = require('../models/BillingSubscription');
+const AgencySetup = require('../models/AgencySetup');
 const sendEmail = require('../utils/sendEmail');
 const { paymentConfirmed } = require('../utils/emailTemplates');
 const { getPublicInvoiceUrl } = require('../utils/recurrence');
@@ -1317,6 +1318,28 @@ router.post('/webhook', async (req, res) => {
                         subscriptionStatus: planDetails[normalizedPlan].checkoutType === 'one_time' ? 'one_time_payment' : 'webhook_payment',
                         lastPaymentAt: new Date()
                     });
+                }
+            }
+            if (notes?.agencySetupId && isValidObjectId(notes.agencySetupId)) {
+                const setup = await AgencySetup.findById(notes.agencySetupId);
+                if (setup && setup.status === 'payment_pending') {
+                    setup.status = 'paid';
+                    setup.payment.providerOrderId = orderEntity?.id || setup.payment.providerOrderId || '';
+                    setup.payment.providerPaymentId = paymentEntity?.id || setup.payment.providerPaymentId || '';
+                    setup.payment.status = 'paid';
+                    setup.payment.paidAt = new Date();
+                    if (!setup.deliveryChecklist?.length) {
+                        setup.deliveryChecklist = [
+                            { key: 'intake', label: 'Review skill, niche, goal, and current problem' },
+                            { key: 'offer', label: 'Create clear service offer and positioning' },
+                            { key: 'lead_plan', label: 'Create lead source and outreach plan' },
+                            { key: 'proposal', label: 'Prepare proposal template and follow-up messages' },
+                            { key: 'workspace', label: 'Set up ClientFlow AI project and delivery workflow' },
+                            { key: 'payment', label: 'Set up invoice, payment, and collection workflow' },
+                            { key: 'handover', label: 'Send handover notes and next 7-day action plan' }
+                        ];
+                    }
+                    await setup.save();
                 }
             }
         }

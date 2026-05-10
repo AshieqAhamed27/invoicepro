@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BrandLogo from '../components/BrandLogo';
+import api from '../utils/api';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import {
   COMPANY_NAME,
@@ -31,7 +32,9 @@ const outcomes = [
 
 const packages = [
   {
+    id: 'starter',
     name: 'Starter Setup',
+    amount: 999,
     price: 'Rs 999',
     note: 'For freelancers starting from zero',
     features: [
@@ -42,7 +45,9 @@ const packages = [
     ]
   },
   {
+    id: 'growth',
     name: 'Growth Setup',
+    amount: 2999,
     price: 'Rs 2999',
     note: 'For freelancers ready to get clients',
     features: [
@@ -54,7 +59,9 @@ const packages = [
     featured: true
   },
   {
+    id: 'managed',
     name: 'Managed Growth',
+    amount: 4999,
     price: 'Rs 4999/mo',
     note: 'For ongoing weekly business support',
     features: [
@@ -65,6 +72,32 @@ const packages = [
     ]
   }
 ];
+
+const initialBookingForm = {
+  customerName: '',
+  email: '',
+  whatsapp: '',
+  skill: '',
+  problem: '',
+  targetClient: '',
+  incomeGoal: '',
+  portfolioUrl: '',
+  preferredPlatform: 'LinkedIn',
+  packageId: 'growth'
+};
+
+const loadRazorpayScript = () => new Promise((resolve) => {
+  if (window.Razorpay) {
+    resolve(true);
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+  script.onload = () => resolve(true);
+  script.onerror = () => resolve(false);
+  document.body.appendChild(script);
+});
 
 const process = [
   ['01', 'Understand your service', 'We collect your skill, target client, current problem, and income goal.'],
@@ -80,11 +113,127 @@ const whoItHelps = [
 ];
 
 export default function AgencyServices() {
+  const [bookingForm, setBookingForm] = useState(initialBookingForm);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState('');
+  const [bookingSuccess, setBookingSuccess] = useState('');
+
   useDocumentMeta({
     title: `${COMPANY_NAME} Agency - Done-for-you freelancer business setup`,
     description: 'ClientFlow AI Agency helps freelancers set up client finding, proposal, project delivery, invoice, and payment workflows.',
     path: '/agency'
   });
+
+  const selectedPackage = packages.find((plan) => plan.id === bookingForm.packageId) || packages[1];
+
+  const updateBookingForm = (event) => {
+    const { name, value } = event.target;
+    setBookingForm((current) => ({
+      ...current,
+      [name]: value
+    }));
+  };
+
+  const selectPackage = (packageId) => {
+    setBookingForm((current) => ({
+      ...current,
+      packageId
+    }));
+
+    window.setTimeout(() => {
+      document.getElementById('agency-booking')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
+  const confirmSimulationPayment = async(booking, order) => {
+    const verifyRes = await api.post(`/agency/bookings/${booking._id}/verify`, {
+      razorpay_order_id: order.id
+    });
+
+    setBookingSuccess(`Payment received for ${verifyRes.data?.booking?.packageName || selectedPackage.name}. We will contact you on WhatsApp/email for setup.`);
+    setBookingForm(initialBookingForm);
+    setBookingLoading(false);
+  };
+
+  const handleBookingSubmit = async(event) => {
+    event.preventDefault();
+    setBookingError('');
+    setBookingSuccess('');
+    setBookingLoading(true);
+
+    try {
+      const bookingRes = await api.post('/agency/bookings', {
+        ...bookingForm,
+        source: 'agency_page'
+      });
+      const booking = bookingRes.data?.booking;
+
+      if (!booking?._id) {
+        throw new Error('Booking was not created. Please try again.');
+      }
+
+      const orderRes = await api.post(`/agency/bookings/${booking._id}/order`);
+      const { keyId, order, simulation } = orderRes.data || {};
+
+      if (!order?.id) {
+        throw new Error('Payment order was not created. Please contact support.');
+      }
+
+      if (simulation) {
+        await confirmSimulationPayment(booking, order);
+        return;
+      }
+
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        throw new Error('Razorpay checkout failed to load. Please retry.');
+      }
+
+      const checkout = new window.Razorpay({
+        key: keyId,
+        amount: order.amount,
+        currency: order.currency || 'INR',
+        name: 'ClientFlow AI Agency',
+        description: selectedPackage.name,
+        order_id: order.id,
+        prefill: {
+          name: bookingForm.customerName,
+          email: bookingForm.email,
+          contact: bookingForm.whatsapp.replace(/\D/g, '')
+        },
+        notes: {
+          agencySetupId: booking._id,
+          packageId: selectedPackage.id
+        },
+        modal: {
+          ondismiss: () => {
+            setBookingLoading(false);
+          }
+        },
+        handler: async(response) => {
+          try {
+            const verifyRes = await api.post(`/agency/bookings/${booking._id}/verify`, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+
+            setBookingSuccess(`Payment received for ${verifyRes.data?.booking?.packageName || selectedPackage.name}. We will contact you on WhatsApp/email for setup.`);
+            setBookingForm(initialBookingForm);
+          } catch (verifyErr) {
+            setBookingError(verifyErr?.response?.data?.message || 'Payment verification failed. Please contact support.');
+          } finally {
+            setBookingLoading(false);
+          }
+        }
+      });
+
+      checkout.open();
+    } catch (err) {
+      setBookingError(err?.response?.data?.message || err?.message || 'Unable to create agency setup booking.');
+      setBookingLoading(false);
+    }
+  };
 
   return (
     <div className="premium-page min-h-screen text-white">
@@ -232,19 +381,204 @@ export default function AgencyServices() {
                       </p>
                     ))}
                   </div>
-                  <Link
-                    to="/contact"
+                  <button
+                    type="button"
+                    onClick={() => selectPackage(plan.id)}
                     className={`mt-6 flex w-full justify-center rounded-2xl px-5 py-4 text-sm font-black transition-all active:scale-95 ${
                       plan.featured
                         ? 'bg-yellow-400 text-black hover:bg-yellow-300'
                         : 'border border-white/10 text-white hover:bg-white/10'
                     }`}
                   >
-                    Ask for this setup
-                  </Link>
+                    Choose this setup
+                  </button>
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section id="agency-booking" className="border-y border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom responsive-heading-grid">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Book and pay</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Tell us your skill. We prepare your setup.
+              </h2>
+              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+                This is the onboarding flow after someone chooses a setup package. It collects the exact details needed to create their offer, outreach plan, proposal flow, workspace, and payment process.
+              </p>
+
+              <div className="mt-6 rounded-[1.5rem] border border-yellow-300/20 bg-yellow-300/[0.08] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">Selected package</p>
+                <p className="mt-2 text-2xl font-black text-white">{selectedPackage.name}</p>
+                <p className="mt-1 text-sm font-semibold text-zinc-400">{selectedPackage.price} - {selectedPackage.note}</p>
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                {[
+                  'After payment, the setup becomes visible in your admin delivery checklist.',
+                  'If setup is not delivered, the setup fee can be refunded.',
+                  'This is not an income guarantee. It is a delivered setup and action plan.'
+                ].map((item) => (
+                  <div key={item} className="rounded-2xl border border-white/8 bg-black/25 p-4">
+                    <p className="text-sm font-semibold leading-relaxed text-zinc-300">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <form onSubmit={handleBookingSubmit} className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/25 sm:p-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Full name</span>
+                  <input
+                    required
+                    name="customerName"
+                    value={bookingForm.customerName}
+                    onChange={updateBookingForm}
+                    className="input mt-2"
+                    placeholder="Your name"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Email</span>
+                  <input
+                    required
+                    type="email"
+                    name="email"
+                    value={bookingForm.email}
+                    onChange={updateBookingForm}
+                    className="input mt-2"
+                    placeholder="you@example.com"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">WhatsApp number</span>
+                  <input
+                    required
+                    name="whatsapp"
+                    value={bookingForm.whatsapp}
+                    onChange={updateBookingForm}
+                    className="input mt-2"
+                    placeholder="+91..."
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Package</span>
+                  <select
+                    name="packageId"
+                    value={bookingForm.packageId}
+                    onChange={updateBookingForm}
+                    className="input mt-2"
+                  >
+                    {packages.map((plan) => (
+                      <option key={plan.id} value={plan.id}>
+                        {plan.name} - {plan.price}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <label className="mt-4 block">
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">What skill/service do you sell?</span>
+                <input
+                  required
+                  name="skill"
+                  value={bookingForm.skill}
+                  onChange={updateBookingForm}
+                  className="input mt-2"
+                  placeholder="Example: React websites, logo design, social media marketing"
+                />
+              </label>
+
+              <label className="mt-4 block">
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Biggest problem now</span>
+                <textarea
+                  required
+                  name="problem"
+                  value={bookingForm.problem}
+                  onChange={updateBookingForm}
+                  className="input mt-2 min-h-[110px]"
+                  placeholder="Example: I do not know who to message, what price to offer, or how to close clients."
+                />
+              </label>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Target client</span>
+                  <input
+                    name="targetClient"
+                    value={bookingForm.targetClient}
+                    onChange={updateBookingForm}
+                    className="input mt-2"
+                    placeholder="Small shops, SaaS founders, coaches..."
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Monthly income goal</span>
+                  <input
+                    name="incomeGoal"
+                    value={bookingForm.incomeGoal}
+                    onChange={updateBookingForm}
+                    className="input mt-2"
+                    placeholder="Example: Rs 50,000"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Portfolio link</span>
+                  <input
+                    name="portfolioUrl"
+                    value={bookingForm.portfolioUrl}
+                    onChange={updateBookingForm}
+                    className="input mt-2"
+                    placeholder="LinkedIn, GitHub, Behance, website"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Main platform</span>
+                  <select
+                    name="preferredPlatform"
+                    value={bookingForm.preferredPlatform}
+                    onChange={updateBookingForm}
+                    className="input mt-2"
+                  >
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Upwork/Fiverr">Upwork/Fiverr</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </label>
+              </div>
+
+              {bookingError && (
+                <div className="mt-5 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                  {bookingError}
+                </div>
+              )}
+
+              {bookingSuccess && (
+                <div className="mt-5 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm font-bold text-emerald-300">
+                  {bookingSuccess}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={bookingLoading}
+                className="btn btn-primary mt-6 w-full py-5 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {bookingLoading ? 'Creating setup payment...' : `Book ${selectedPackage.name} - ${selectedPackage.price}`}
+              </button>
+            </form>
           </div>
         </section>
 
@@ -260,6 +594,62 @@ export default function AgencyServices() {
               {whoItHelps.map((item) => (
                 <div key={item} className="rounded-2xl border border-white/8 bg-black/25 p-4">
                   <p className="text-sm font-semibold leading-relaxed text-zinc-300">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-zinc-950/45 py-14 sm:py-16">
+          <div className="container-custom responsive-heading-grid">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Proof and guarantee</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Make buying feel safer for first users.
+              </h2>
+              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+                Early users need trust before they pay. The page now explains what gets delivered, what does not get promised, and what happens if setup is not delivered.
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              <div className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Early feedback</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+                  The interface feels clean, lightweight, and simple for an invoicing and freelancer workflow.
+                </p>
+              </div>
+              <div className="rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.08] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">Delivery guarantee</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+                  If the paid setup is not delivered, the setup fee can be refunded. This is a delivery guarantee, not an income guarantee.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Outreach scripts</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Use this to find first setup clients.
+              </h2>
+              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">
+                These are simple LinkedIn or WhatsApp messages. Ask for feedback first, then offer setup help only if they show a real problem.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {[
+                ['First message', 'Hi [Name], I noticed you do freelance [skill]. I am building a system to help freelancers get clients, send proposals, manage projects, and collect payment. Can I ask one quick question about your current client workflow?'],
+                ['If they reply', 'Thanks. What is harder for you right now: finding clients, writing proposals, managing projects, or collecting payment? I am using the answers to improve the product.'],
+                ['Soft offer', 'If useful, I can help set up your first client workflow: offer, outreach message, proposal template, project workspace, invoice, and payment flow. No pressure, only if it solves your current problem.']
+              ].map(([title, text]) => (
+                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">{title}</p>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">{text}</p>
                 </div>
               ))}
             </div>
