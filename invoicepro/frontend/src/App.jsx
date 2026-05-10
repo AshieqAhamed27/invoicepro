@@ -49,6 +49,7 @@ const Recurring = lazy(() => import('./pages/Recurring'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const SEOPage = lazy(() => import('./pages/SEOPage'));
 const VerticalLanding = lazy(() => import('./pages/VerticalLanding'));
+const WorkflowMode = lazy(() => import('./pages/WorkflowMode'));
 const InvoiceGenerator = lazy(() => import('./pages/InvoiceGenerator'));
 const HowToCreateInvoiceIndia = lazy(() => import('./pages/blog/HowToCreateInvoiceIndia'));
 const GSTInvoiceFormatIndia = lazy(() => import('./pages/blog/GSTInvoiceFormatIndia'));
@@ -642,10 +643,26 @@ export default function App() {
           }
         />
         <Route
+          path="/workflows/freelancers"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <WorkflowMode modeKey="freelancers" />
+            </Suspense>
+          }
+        />
+        <Route
           path="/developers"
           element={
             <Suspense fallback={<RouteLoader />}>
               <VerticalLanding pageKey="developers" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/workflows/developers"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <WorkflowMode modeKey="developers" />
             </Suspense>
           }
         />
@@ -658,6 +675,14 @@ export default function App() {
           }
         />
         <Route
+          path="/workflows/designers"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <WorkflowMode modeKey="designers" />
+            </Suspense>
+          }
+        />
+        <Route
           path="/agencies"
           element={
             <Suspense fallback={<RouteLoader />}>
@@ -666,10 +691,26 @@ export default function App() {
           }
         />
         <Route
+          path="/workflows/agencies"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <WorkflowMode modeKey="agencies" />
+            </Suspense>
+          }
+        />
+        <Route
           path="/consultants"
           element={
             <Suspense fallback={<RouteLoader />}>
               <VerticalLanding pageKey="consultants" />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/workflows/consultants"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <WorkflowMode modeKey="consultants" />
             </Suspense>
           }
         />

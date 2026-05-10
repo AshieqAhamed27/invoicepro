@@ -20,6 +20,7 @@ const verticals = {
     promise: 'Stable freelance income plan',
     primaryCta: 'Start Free as Freelancer',
     appPath: '/money-gps',
+    workflowPath: '/workflows/freelancers',
     secondaryCta: 'See Growth Plan',
     secondaryPath: '/growth-plan',
     problems: [
@@ -58,6 +59,7 @@ const verticals = {
     promise: 'From client request to paid release',
     primaryCta: 'Start as Developer',
     appPath: '/team-workspace',
+    workflowPath: '/workflows/developers',
     secondaryCta: 'Open Client Work Ledger',
     secondaryPath: '/team-workspace',
     problems: [
@@ -96,6 +98,7 @@ const verticals = {
     promise: 'Cleaner approvals and faster payment',
     primaryCta: 'Start as Designer',
     appPath: '/create-invoice?type=proposal',
+    workflowPath: '/workflows/designers',
     secondaryCta: 'Create Proposal',
     secondaryPath: '/create-invoice?type=proposal',
     problems: [
@@ -134,6 +137,7 @@ const verticals = {
     promise: 'Team delivery plus payment control',
     primaryCta: 'Start Agency Workspace',
     appPath: '/team-workspace',
+    workflowPath: '/workflows/agencies',
     secondaryCta: 'Open Team Workspace',
     secondaryPath: '/team-workspace',
     problems: [
@@ -172,6 +176,7 @@ const verticals = {
     promise: 'Proposal to retainer workflow',
     primaryCta: 'Start as Consultant',
     appPath: '/proposal-writer',
+    workflowPath: '/workflows/consultants',
     secondaryCta: 'Use Proposal Writer',
     secondaryPath: '/proposal-writer',
     problems: [
@@ -211,10 +216,10 @@ export default function VerticalLanding({ pageKey }) {
 
   useDocumentMeta(page.title, page.description, { path: page.path });
 
-  const primaryPath = loggedIn ? page.appPath : '/signup';
+  const primaryPath = page.workflowPath;
   const secondaryPath = loggedIn ? page.secondaryPath : '/signup';
-  const bottomPath = loggedIn ? page.appPath : '/signup';
-  const bottomLabel = loggedIn ? 'Open Workspace' : 'Create Free Account';
+  const bottomPath = page.workflowPath;
+  const bottomLabel = `Open ${page.audience} Workflow`;
 
   const trackPrimary = () => trackCtaClick(page.primaryCta, page.path, primaryPath);
   const trackSecondary = () => trackCtaClick(page.secondaryCta, page.path, secondaryPath);

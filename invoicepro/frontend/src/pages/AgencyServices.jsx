@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BrandLogo from '../components/BrandLogo';
 import api from '../utils/api';
 import { isLoggedIn } from '../utils/auth';
 import useDocumentMeta from '../utils/useDocumentMeta';
+import { getWorkflowMode, workflowModeList } from '../utils/workflowModes';
 import {
   COMPANY_NAME,
   SUPPORT_EMAIL,
@@ -84,6 +85,7 @@ const initialBookingForm = {
   incomeGoal: '',
   portfolioUrl: '',
   preferredPlatform: 'LinkedIn',
+  workflowType: 'freelancers',
   packageId: 'growth'
 };
 
@@ -114,6 +116,7 @@ const whoItHelps = [
 ];
 
 export default function AgencyServices() {
+  const location = useLocation();
   const loggedIn = isLoggedIn();
   const softwarePath = loggedIn ? '/money-gps' : '/signup';
   const softwareLabel = loggedIn ? 'Open Software' : 'Try Software Free';
@@ -129,6 +132,18 @@ export default function AgencyServices() {
   });
 
   const selectedPackage = packages.find((plan) => plan.id === bookingForm.packageId) || packages[1];
+  const selectedWorkflow = getWorkflowMode(bookingForm.workflowType);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const workflow = params.get('workflow');
+    if (workflow) {
+      setBookingForm((current) => ({
+        ...current,
+        workflowType: getWorkflowMode(workflow).key
+      }));
+    }
+  }, [location.search]);
 
   const updateBookingForm = (event) => {
     const { name, value } = event.target;
@@ -142,6 +157,17 @@ export default function AgencyServices() {
     setBookingForm((current) => ({
       ...current,
       packageId
+    }));
+
+    window.setTimeout(() => {
+      document.getElementById('agency-booking')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
+  const selectWorkflow = (workflowType) => {
+    setBookingForm((current) => ({
+      ...current,
+      workflowType: getWorkflowMode(workflowType).key
     }));
 
     window.setTimeout(() => {
@@ -329,6 +355,41 @@ export default function AgencyServices() {
           </div>
         </section>
 
+        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Choose setup workflow</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Each buyer gets a different setup path.
+              </h2>
+              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">
+                This keeps users from feeling lost. A developer gets a developer workflow, a designer gets a designer workflow, and an agency gets a team workflow.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+              {workflowModeList.map((workflow) => (
+                <button
+                  key={workflow.key}
+                  type="button"
+                  onClick={() => selectWorkflow(workflow.key)}
+                  className={`rounded-[1.5rem] border p-5 text-left transition-all hover:-translate-y-1 ${
+                    bookingForm.workflowType === workflow.key
+                      ? 'border-sky-300/35 bg-sky-300/[0.1]'
+                      : 'border-white/8 bg-white/[0.03] hover:border-sky-300/25'
+                  }`}
+                >
+                  <p className="text-lg font-black text-white">{workflow.label}</p>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{workflow.setupOutcome}</p>
+                  <p className="mt-5 text-[10px] font-black uppercase tracking-widest text-sky-300">
+                    Select workflow
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
@@ -417,6 +478,9 @@ export default function AgencyServices() {
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">Selected package</p>
                 <p className="mt-2 text-2xl font-black text-white">{selectedPackage.name}</p>
                 <p className="mt-1 text-sm font-semibold text-zinc-400">{selectedPackage.price} - {selectedPackage.note}</p>
+                <p className="mt-3 rounded-2xl border border-sky-300/20 bg-sky-300/10 p-3 text-sm font-black text-sky-100">
+                  Workflow: {selectedWorkflow.label}
+                </p>
               </div>
 
               <div className="mt-5 grid gap-3">
@@ -485,6 +549,25 @@ export default function AgencyServices() {
                       </option>
                     ))}
                   </select>
+                </label>
+
+                <label className="block sm:col-span-2">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Workflow type</span>
+                  <select
+                    name="workflowType"
+                    value={bookingForm.workflowType}
+                    onChange={updateBookingForm}
+                    className="input mt-2"
+                  >
+                    {workflowModeList.map((workflow) => (
+                      <option key={workflow.key} value={workflow.key}>
+                        {workflow.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+                    {selectedWorkflow.setupOutcome}
+                  </p>
                 </label>
               </div>
 

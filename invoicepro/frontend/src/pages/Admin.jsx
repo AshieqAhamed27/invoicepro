@@ -329,6 +329,9 @@ export default function Admin() {
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{booking.packageName}</p>
                       <h3 className="mt-2 text-2xl font-black text-white">{booking.customerName}</h3>
                       <p className="mt-1 break-all text-xs font-bold text-zinc-500">{booking.email} · {booking.whatsapp}</p>
+                      <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-sky-300">
+                        Workflow: {(booking.workflowType || 'freelancers').replaceAll('_', ' ')}
+                      </p>
                     </div>
                     <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${getAgencyStatusClass(booking.status)}`}>
                       {booking.status?.replaceAll('_', ' ')}

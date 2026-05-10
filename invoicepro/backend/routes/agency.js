@@ -47,6 +47,12 @@ const sanitizeEmail = (value) => sanitizeText(value, 160).toLowerCase();
 const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 const getPackage = (packageId) => setupPackages[String(packageId || '').toLowerCase()] || null;
+const normalizeWorkflowType = (value) => {
+    const workflow = String(value || '').toLowerCase();
+    return ['freelancers', 'developers', 'designers', 'agencies', 'consultants'].includes(workflow)
+        ? workflow
+        : 'freelancers';
+};
 
 const getRazorpayAuthHeader = () => {
     const keyId = process.env.RAZORPAY_KEY_ID;
@@ -138,6 +144,7 @@ router.post('/bookings', async(req, res) => {
             packageName: selectedPackage.name,
             amount: selectedPackage.amount,
             currency: selectedPackage.currency,
+            workflowType: normalizeWorkflowType(req.body.workflowType),
             customerName,
             email,
             whatsapp,

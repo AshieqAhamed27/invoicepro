@@ -40,6 +40,11 @@ const agencySetupSchema = new mongoose.Schema({
         type: String,
         default: 'INR'
     },
+    workflowType: {
+        type: String,
+        enum: ['freelancers', 'developers', 'designers', 'agencies', 'consultants'],
+        default: 'freelancers'
+    },
     customerName: {
         type: String,
         required: true
