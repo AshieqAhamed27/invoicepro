@@ -408,18 +408,24 @@ export default function Home() {
             </div>
 
             <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {positioningOffers.map((offer) => (
-                <div key={offer.title} className="rounded-[1.75rem] border border-white/8 bg-white/[0.035] p-6 transition-all hover:-translate-y-1 hover:border-sky-300/25">
-                  <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
-                    {offer.label}
-                  </span>
-                  <h3 className="mt-5 text-2xl font-black text-white">{offer.title}</h3>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{offer.text}</p>
-                  <Link to={offer.path} className="mt-6 inline-flex rounded-2xl border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10">
-                    {offer.cta}
-                  </Link>
-                </div>
-              ))}
+              {positioningOffers.map((offer) => {
+                const isSoftwareOffer = offer.path === '/signup';
+                const offerPath = isSoftwareOffer && loggedIn ? '/money-gps' : offer.path;
+                const offerCta = isSoftwareOffer && loggedIn ? 'Open software' : offer.cta;
+
+                return (
+                  <div key={offer.title} className="rounded-[1.75rem] border border-white/8 bg-white/[0.035] p-6 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                    <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
+                      {offer.label}
+                    </span>
+                    <h3 className="mt-5 text-2xl font-black text-white">{offer.title}</h3>
+                    <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{offer.text}</p>
+                    <Link to={offerPath} className="mt-6 inline-flex rounded-2xl border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10">
+                      {offerCta}
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
