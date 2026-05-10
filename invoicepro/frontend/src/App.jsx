@@ -18,6 +18,7 @@ import PlanReminderAgent from './components/PlanReminderAgent';
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/Home'));
 const Contact = lazy(() => import('./pages/Contact'));
+const AgencyServices = lazy(() => import('./pages/AgencyServices'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
@@ -203,6 +204,24 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <Contact />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/agency"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <AgencyServices />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/clientflow-ai-agency"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <AgencyServices />
             </Suspense>
           }
         />

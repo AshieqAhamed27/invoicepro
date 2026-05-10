@@ -59,6 +59,13 @@ const valueStack = [
   ['Grow', 'Money GPS and Growth Plan turn monthly income goals into daily business actions.']
 ];
 
+const agencyHighlights = [
+  ['Offer setup', 'Shape one clear freelance service, target client, price angle, and first message.'],
+  ['Lead workflow', 'Set up lead sources, follow-up timing, proposal flow, and daily Money GPS actions.'],
+  ['Delivery setup', 'Organize team workspace, tasks, client requests, docs, GitHub/project notes, and handover.'],
+  ['Payment setup', 'Prepare invoice, payment link, currency, and collection workflow for local or global clients.']
+];
+
 const verticalUseCases = [
   ['Freelancers', '/freelancers', 'Build stable income, find clients, close work, and get paid.'],
   ['Developers', '/developers', 'Track client requests, issues, releases, handover, invoices, and payments.'],
@@ -421,6 +428,42 @@ export default function Home() {
                     <h3 className="text-lg font-black text-white">{title}</h3>
                     <span className="rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-200">
                       Business step
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-yellow-400/[0.04] py-14 sm:py-16">
+          <div className="container-custom responsive-heading-grid">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">New service offer</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                ClientFlow AI Agency sets up the system for freelancers.
+              </h2>
+              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+                Some users do not want another empty tool. They want help choosing what service to sell, who to message, what proposal to send, how to deliver, and how to collect payment. The agency offer lets you sell setup help while the SaaS grows.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link to="/agency" className="btn btn-primary px-6 py-3 text-center text-sm">
+                  See Agency Setup
+                </Link>
+                <Link to="/contact" className="btn btn-secondary px-6 py-3 text-center text-sm">
+                  Request Help
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              {agencyHighlights.map(([title, detail]) => (
+                <div key={title} className="rounded-2xl border border-white/8 bg-black/25 p-4 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <h3 className="text-lg font-black text-white">{title}</h3>
+                    <span className="rounded-full border border-yellow-300/15 bg-yellow-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-200">
+                      Done for you
                     </span>
                   </div>
                   <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{detail}</p>

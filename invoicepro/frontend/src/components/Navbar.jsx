@@ -126,6 +126,9 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+              <NavLink to="/agency" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
+                Agency Setup
+              </NavLink>
               <a href="/#pricing" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 hover:bg-white/[0.06] hover:text-white">
                 Pricing
               </a>
@@ -241,6 +244,10 @@ export default function Navbar() {
               <NavLink to="/" onClick={closeMenu} className={mobileItemClass}>
                 <span className="block text-sm font-black">Home</span>
                 <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Product overview</span>
+              </NavLink>
+              <NavLink to="/agency" onClick={closeMenu} className={mobileItemClass}>
+                <span className="block text-sm font-black">Agency Setup</span>
+                <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Done-for-you freelancer system</span>
               </NavLink>
               <div className="grid gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
                 <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Use cases</p>
