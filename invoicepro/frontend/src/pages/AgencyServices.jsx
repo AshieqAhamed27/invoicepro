@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BrandLogo from '../components/BrandLogo';
 import api from '../utils/api';
+import { isLoggedIn } from '../utils/auth';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import {
   COMPANY_NAME,
@@ -113,6 +114,9 @@ const whoItHelps = [
 ];
 
 export default function AgencyServices() {
+  const loggedIn = isLoggedIn();
+  const softwarePath = loggedIn ? '/money-gps' : '/signup';
+  const softwareLabel = loggedIn ? 'Open Software' : 'Try Software Free';
   const [bookingForm, setBookingForm] = useState(initialBookingForm);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState('');
@@ -266,8 +270,8 @@ export default function AgencyServices() {
                 <Link to="/contact" className="btn btn-primary px-7 py-4 text-center text-sm">
                   Request Setup Help
                 </Link>
-                <Link to="/signup" className="btn btn-secondary px-7 py-4 text-center text-sm">
-                  Try Software Free
+                <Link to={softwarePath} className="btn btn-secondary px-7 py-4 text-center text-sm">
+                  {softwareLabel}
                 </Link>
               </div>
 
