@@ -150,6 +150,9 @@ export default function Navbar() {
               <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Dashboard
               </NavLink>
+              <NavLink to="/agency" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
+                Agency Setup
+              </NavLink>
               {appLinks.map((link) => (
                 <NavLink key={link.to} to={link.to} className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                   <span className="inline-flex items-center gap-2">
