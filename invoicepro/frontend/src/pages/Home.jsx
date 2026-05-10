@@ -106,6 +106,19 @@ const trustBadges = [
   ['Built for', 'Freelancers and small teams']
 ];
 
+const earlyFeedback = [
+  {
+    source: 'LinkedIn feedback',
+    quote: 'This looks like a really interesting idea. It definitely addresses a common challenge freelancers face. I appreciate you sharing it with me.',
+    author: 'Freelancer network connection'
+  },
+  {
+    source: 'Early product feedback',
+    quote: 'The interface feels clean, lightweight, and simple for an invoicing and freelancer workflow.',
+    author: 'Early reviewer'
+  }
+];
+
 const plans = [
   {
     id: 'free',
@@ -605,6 +618,32 @@ export default function Home() {
                 <div key={label} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{label}</p>
                   <p className="mt-2 text-sm font-black leading-relaxed text-white">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom responsive-heading-grid">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Early feedback</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Real people are already seeing the problem.
+              </h2>
+              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+                ClientFlow AI is being shaped with freelancer feedback, so the product stays focused on practical client, project, and payment problems.
+              </p>
+            </div>
+
+            <div className="grid gap-4">
+              {earlyFeedback.map((item) => (
+                <div key={item.quote} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">{item.source}</p>
+                  <p className="mt-4 text-base font-semibold leading-relaxed text-zinc-200">
+                    "{item.quote}"
+                  </p>
+                  <p className="mt-4 text-xs font-black uppercase tracking-widest text-zinc-500">{item.author}</p>
                 </div>
               ))}
             </div>
