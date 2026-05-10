@@ -1,7 +1,7 @@
 export const PRODUCT_NAME = 'ClientFlow AI';
 export const COMPANY_NAME = 'ClientFlow AI';
 export const COMPANY_SHORT_NAME = 'ClientFlow AI';
-export const COMPANY_TAGLINE = 'Freelancer business workspace to find clients, team up on bigger projects, and collect payment.';
+export const COMPANY_TAGLINE = 'Freelancer business system to get clients, manage projects, and collect payment.';
 export const COMPANY_LOGO = '/logo.svg';
 export const COMPANY_LEGAL_TYPE = 'Udyam-registered sole proprietorship';
 export const UDYAM_REGISTRATION_NUMBER = 'UDYAM-TN-37-0055272';

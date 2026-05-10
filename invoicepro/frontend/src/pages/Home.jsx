@@ -66,6 +66,23 @@ const agencyHighlights = [
   ['Payment setup', 'Prepare invoice, payment link, currency, and collection workflow for local or global clients.']
 ];
 
+const positioningOffers = [
+  {
+    title: 'Use the software',
+    label: 'Self-serve SaaS',
+    text: 'Freelancers use ClientFlow AI to plan daily money actions, find leads, write proposals, manage projects, create invoices, and track payments.',
+    cta: 'Start free',
+    path: '/signup'
+  },
+  {
+    title: 'Get the setup done for you',
+    label: 'Agency setup',
+    text: 'ClientFlow AI Agency helps beginners set up their offer, client plan, proposal workflow, project workspace, and payment collection system.',
+    cta: 'View agency setup',
+    path: '/agency'
+  }
+];
+
 const verticalUseCases = [
   ['Freelancers', '/freelancers', 'Build stable income, find clients, close work, and get paid.'],
   ['Developers', '/developers', 'Track client requests, issues, releases, handover, invoices, and payments.'],
@@ -207,8 +224,8 @@ export default function Home() {
         : 'You are currently using the Free version. Start the 7-day trial to unlock Pro tools.';
 
   useDocumentMeta({
-    title: `${COMPANY_NAME} - Find clients, manage projects, get paid`,
-    description: 'ClientFlow AI helps freelancers find clients, manage project delivery, send invoices, and collect local or international payments.'
+    title: `${COMPANY_NAME} - Freelancer business system`,
+    description: 'ClientFlow AI helps freelancers get clients, manage projects, send proposals, create invoices, and collect payments.'
   });
 
   const goToApp = (target, label) => {
@@ -242,23 +259,23 @@ export default function Home() {
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-yellow-300/20 bg-yellow-300/10 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
                 <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">
-                  AI business workspace for freelancers
+                  Freelancer business system
                 </span>
               </div>
 
               <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Turn freelance work into a stable business.{' '}
+                Get clients, run projects, and collect payment.{' '}
                 <span className="bg-gradient-to-r from-yellow-200 via-emerald-200 to-sky-200 bg-clip-text text-transparent">
-                  Find clients and get paid faster.
+                  Without losing control.
                 </span>
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 sm:text-lg">
-                ClientFlow AI helps freelancers find clients, close deals, manage delivery, collaborate on bigger projects, and collect local or international payments.
+                ClientFlow AI is a freelancer business system. It helps freelancers choose what to sell, find leads, write proposals, manage delivery, team up on bigger projects, and collect local or international payments.
               </p>
 
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-                India-first positioning for freelancers who need an alternative to U.S. or Canada-only client-flow tools, with local and international payment workflows.
+                Use the software yourself, or use ClientFlow AI Agency when you want the setup done with you.
               </p>
 
               {loggedIn && (
@@ -326,19 +343,15 @@ export default function Home() {
                   onClick={() => goToApp('/money-gps', loggedIn ? 'open_money_gps' : 'start_free')}
                   className="btn btn-primary px-7 py-4 text-sm"
                 >
-                  {loggedIn ? 'Open Money GPS' : 'Create Free Account'}
+                  {loggedIn ? 'Open Money GPS' : 'Start Free'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => goToApp('/dashboard', 'open_dashboard')}
-                  className="btn btn-secondary px-7 py-4 text-sm"
-                >
-                  View Dashboard
-                </button>
+                <Link to="/agency" className="btn btn-secondary px-7 py-4 text-center text-sm">
+                  Agency Setup
+                </Link>
               </div>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {['Find clients', 'Manage delivery', 'Collect payments'].map((item) => (
+              <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {['Find clients', 'Close proposals', 'Manage delivery', 'Collect payments'].map((item) => (
                   <div key={item} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
                     <p className="text-xs font-black uppercase tracking-widest text-zinc-300">{item}</p>
                   </div>
@@ -378,6 +391,35 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Correct positioning</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                We sell the result: a clearer freelancer business.
+              </h2>
+              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+                The app features support the outcome. The outcome is simple: know who to message, what to offer, how to deliver, and how to collect payment.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2">
+              {positioningOffers.map((offer) => (
+                <div key={offer.title} className="rounded-[1.75rem] border border-white/8 bg-white/[0.035] p-6 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                  <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
+                    {offer.label}
+                  </span>
+                  <h3 className="mt-5 text-2xl font-black text-white">{offer.title}</h3>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{offer.text}</p>
+                  <Link to={offer.path} className="mt-6 inline-flex rounded-2xl border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10">
+                    {offer.cta}
+                  </Link>
+                </div>
+              ))}
             </div>
           </div>
         </section>

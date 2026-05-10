@@ -14,8 +14,8 @@ const setMeta = (selector, attribute, value) => {
   return tag;
 };
 
-const defaultTitle = 'ClientFlow AI | Client-to-Cash Platform for Freelancers';
-const defaultDescription = 'ClientFlow AI helps freelancers find clients, manage projects, create invoices, and collect payments.';
+const defaultTitle = 'ClientFlow AI | Freelancer Business System';
+const defaultDescription = 'ClientFlow AI helps freelancers get clients, manage projects, send proposals, create invoices, and collect payments.';
 
 const normalizeMetaArgs = (titleOrConfig, description, options = {}) => {
   if (titleOrConfig && typeof titleOrConfig === 'object') {
