@@ -1,13 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser, hasProAccess } from '../utils/auth';
 import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
-import AIBillingAgent from '../components/AIBillingAgent';
-import PaymentCollectionAgent from '../components/PaymentCollectionAgent';
-import BusinessAutomationCenter from '../components/BusinessAutomationCenter';
 import { trackEvent } from '../utils/analytics';
+
+const AIBillingAgent = lazy(() => import('../components/AIBillingAgent'));
+const PaymentCollectionAgent = lazy(() => import('../components/PaymentCollectionAgent'));
+const BusinessAutomationCenter = lazy(() => import('../components/BusinessAutomationCenter'));
 
 const formatCurrency = (amount) =>
   `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
@@ -175,6 +176,25 @@ const getWorkflowToneClasses = (tone, active = false) => {
   return tones[tone] || tones.sky;
 };
 
+const DashboardSectionPlaceholder = ({ label = 'Loading section', title = 'Preparing this workspace...' }) => (
+  <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-white/8 bg-white/[0.025] p-5 shadow-2xl shadow-black/10 sm:p-8">
+    <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{label}</p>
+        <h2 className="mt-3 text-2xl font-black tracking-tight text-white">{title}</h2>
+        <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+          The dashboard is ready. This heavier AI section loads quietly after the main workspace.
+        </p>
+      </div>
+      <div className="grid w-full gap-3 sm:w-64">
+        <div className="h-3 rounded-full bg-white/10" />
+        <div className="h-3 w-3/4 rounded-full bg-white/5" />
+        <div className="h-3 w-1/2 rounded-full bg-white/5" />
+      </div>
+    </div>
+  </section>
+);
+
 const normalizeIncomeGoal = (goal = {}) => ({
   target: clampNumber(goal.target || DEFAULT_INCOME_GOAL.target, 1000, 100000000),
   averageDeal: clampNumber(goal.averageDeal || DEFAULT_INCOME_GOAL.averageDeal, 500, 10000000),
@@ -335,6 +355,7 @@ export default function Dashboard() {
       return 'find-clients';
     }
   });
+  const [showHeavySections, setShowHeavySections] = useState(false);
   const lastSavedIncomeGoal = useRef('');
 
   const navigate = useNavigate();
@@ -372,6 +393,19 @@ export default function Dashboard() {
   useEffect(() => {
     fetchDashboard();
   }, []);
+
+  useEffect(() => {
+    if (loading || dashboardError) {
+      setShowHeavySections(false);
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
+      setShowHeavySections(true);
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [loading, dashboardError]);
 
   useEffect(() => {
     let isActive = true;
@@ -452,7 +486,10 @@ export default function Dashboard() {
       });
 
       setLoading(false);
-      loadExtraData();
+
+      setTimeout(() => {
+        loadExtraData();
+      }, 250);
     } catch (err) {
       console.error('Failed to load dashboard', err);
       setDashboardError(
@@ -1895,14 +1932,20 @@ export default function Dashboard() {
         )}
 
         {!dashboardError && !loading && (
-          <BusinessAutomationCenter
-            invoices={invoices}
-            stats={stats}
-            leadDashboard={leadDashboard}
-            aiInsights={aiInsights}
-            incomePlan={incomePlan}
-            incomeGoal={incomeGoal}
-          />
+          showHeavySections ? (
+            <Suspense fallback={<DashboardSectionPlaceholder label="Automation center" title="Loading business automation..." />}>
+              <BusinessAutomationCenter
+                invoices={invoices}
+                stats={stats}
+                leadDashboard={leadDashboard}
+                aiInsights={aiInsights}
+                incomePlan={incomePlan}
+                incomeGoal={incomeGoal}
+              />
+            </Suspense>
+          ) : (
+            <DashboardSectionPlaceholder label="Automation center" title="Preparing business automation..." />
+          )
         )}
 
         {!dashboardError && !loading && (
@@ -2281,20 +2324,32 @@ export default function Dashboard() {
         </section>
 
         <div id="payment-collection-agent">
-          <PaymentCollectionAgent
-            insights={aiInsights}
-            onPromiseSaved={fetchDashboard}
-          />
+          {showHeavySections ? (
+            <Suspense fallback={<DashboardSectionPlaceholder label="Payment collection" title="Loading collection agent..." />}>
+              <PaymentCollectionAgent
+                insights={aiInsights}
+                onPromiseSaved={fetchDashboard}
+              />
+            </Suspense>
+          ) : (
+            <DashboardSectionPlaceholder label="Payment collection" title="Preparing collection agent..." />
+          )}
         </div>
 
         <section className="reveal reveal-delay-1 mb-12">
           {isPro ? (
-            <AIBillingAgent
-              mode="dashboard"
-              context={{ stats, invoices }}
-              onApplyDraft={openAiDraftInBuilder}
-              applyDraftLabel="Open In Builder"
-            />
+            showHeavySections ? (
+              <Suspense fallback={<DashboardSectionPlaceholder label="AI billing" title="Loading billing agent..." />}>
+                <AIBillingAgent
+                  mode="dashboard"
+                  context={{ stats, invoices }}
+                  onApplyDraft={openAiDraftInBuilder}
+                  applyDraftLabel="Open In Builder"
+                />
+              </Suspense>
+            ) : (
+              <DashboardSectionPlaceholder label="AI billing" title="Preparing billing agent..." />
+            )
           ) : (
             <div className="premium-panel border-yellow-400/20 bg-yellow-400/[0.04] p-5 sm:p-8">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
