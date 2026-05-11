@@ -69,6 +69,112 @@ const killerActionExamples = [
   }
 ];
 
+const simpleWorkflowOptions = [
+  {
+    id: 'find-clients',
+    title: 'Find clients',
+    promise: 'Pick the right client type, prepare a message, and start outreach.',
+    cta: 'Open Client Finder',
+    route: '/client-finder',
+    tone: 'sky',
+    steps: [
+      'Choose a service and target client',
+      'Generate a first message',
+      'Add interested leads to your pipeline'
+    ]
+  },
+  {
+    id: 'write-proposal',
+    title: 'Write proposal',
+    promise: 'Turn a client conversation into a clear offer with price, scope, and next step.',
+    cta: 'Create Proposal',
+    route: '/create-invoice?type=proposal',
+    tone: 'emerald',
+    steps: [
+      'Add client problem and scope',
+      'Set price, timeline, and validity',
+      'Share the proposal link with the client'
+    ]
+  },
+  {
+    id: 'manage-project',
+    title: 'Manage project',
+    promise: 'Keep client requests, team work, delivery notes, and handover organized.',
+    cta: 'Open Team Work',
+    route: '/team-workspace',
+    tone: 'purple',
+    steps: [
+      'Create or open a project',
+      'Add tasks, requests, and collaborators',
+      'Track delivery until handover'
+    ]
+  },
+  {
+    id: 'create-invoice',
+    title: 'Create invoice',
+    promise: 'Create a professional invoice with PDF, public link, and payment status.',
+    cta: 'Create Invoice',
+    route: '/create-invoice',
+    tone: 'yellow',
+    steps: [
+      'Select or add a client',
+      'Add items, tax, and currency',
+      'Share PDF or payment link'
+    ]
+  },
+  {
+    id: 'collect-payment',
+    title: 'Collect payment',
+    promise: 'Find pending money and prepare the right follow-up action.',
+    cta: 'Review Payments',
+    route: '/dashboard#payment-collection-agent',
+    tone: 'orange',
+    steps: [
+      'Check pending and overdue invoices',
+      'Open the highest priority invoice',
+      'Send WhatsApp follow-up or payment link'
+    ]
+  },
+  {
+    id: 'grow-income',
+    title: 'Grow income',
+    promise: 'Convert your monthly target into leads, proposals, deals, and follow-ups.',
+    cta: 'Open Growth Plan',
+    route: '/growth-plan',
+    tone: 'red',
+    steps: [
+      'Set your monthly income goal',
+      'Calculate required leads and proposals',
+      'Follow the daily action plan'
+    ]
+  }
+];
+
+const getWorkflowToneClasses = (tone, active = false) => {
+  const tones = {
+    sky: active
+      ? 'border-sky-300/35 bg-sky-300/[0.09] text-sky-200'
+      : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-sky-300/25 hover:bg-sky-300/[0.05]',
+    emerald: active
+      ? 'border-emerald-300/35 bg-emerald-300/[0.09] text-emerald-200'
+      : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-emerald-300/25 hover:bg-emerald-300/[0.05]',
+    purple: active
+      ? 'border-purple-300/35 bg-purple-300/[0.09] text-purple-200'
+      : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-purple-300/25 hover:bg-purple-300/[0.05]',
+    yellow: active
+      ? 'border-yellow-300/35 bg-yellow-300/[0.09] text-yellow-200'
+      : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-yellow-300/25 hover:bg-yellow-300/[0.05]',
+    orange: active
+      ? 'border-orange-300/35 bg-orange-300/[0.09] text-orange-200'
+      : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-orange-300/25 hover:bg-orange-300/[0.05]',
+    red: active
+      ? 'border-red-300/35 bg-red-300/[0.09] text-red-200'
+      : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-red-300/25 hover:bg-red-300/[0.05]'
+  };
+
+  return tones[tone] || tones.sky;
+};
+
 const normalizeIncomeGoal = (goal = {}) => ({
   target: clampNumber(goal.target || DEFAULT_INCOME_GOAL.target, 1000, 100000000),
   averageDeal: clampNumber(goal.averageDeal || DEFAULT_INCOME_GOAL.averageDeal, 500, 10000000),
@@ -221,11 +327,47 @@ export default function Dashboard() {
       return {};
     }
   });
+  const [selectedWorkflowId, setSelectedWorkflowId] = useState(() => {
+    try {
+      const stored = localStorage.getItem('clientflow_selected_workflow');
+      return simpleWorkflowOptions.some((item) => item.id === stored) ? stored : 'find-clients';
+    } catch {
+      return 'find-clients';
+    }
+  });
   const lastSavedIncomeGoal = useRef('');
 
   const navigate = useNavigate();
   const user = getUser() || {};
   const isPro = hasProAccess(user);
+  const selectedWorkflow = simpleWorkflowOptions.find((item) => item.id === selectedWorkflowId) || simpleWorkflowOptions[0];
+
+  const selectWorkflow = (workflowId) => {
+    setSelectedWorkflowId(workflowId);
+
+    try {
+      localStorage.setItem('clientflow_selected_workflow', workflowId);
+    } catch {
+      // Local storage is only used to remember the user's preferred dashboard path.
+    }
+
+    trackEvent('select_simple_workflow', { workflow_id: workflowId });
+  };
+
+  const goToSelectedWorkflow = () => {
+    trackEvent('open_simple_workflow', { workflow_id: selectedWorkflow.id });
+
+    if (selectedWorkflow.route.startsWith('/dashboard#')) {
+      const targetId = selectedWorkflow.route.split('#')[1];
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+    }
+
+    navigate(selectedWorkflow.route);
+  };
 
   useEffect(() => {
     fetchDashboard();
@@ -1182,6 +1324,86 @@ export default function Dashboard() {
             </Link>
           </div>
         </section>
+
+        {!dashboardError && (
+          <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
+            <div className="mb-8 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-end">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">
+                  Simple start
+                </p>
+                <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl lg:text-4xl">
+                  What do you want to do today?
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                  Pick one goal. ClientFlow AI shows only the next steps for that goal, so the deeper workflow stays easy to follow.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.06] p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200">Recommended habit</p>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+                  Start with one path, finish the action, then come back for the next business step.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.62fr)]">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {simpleWorkflowOptions.map((workflow) => {
+                  const active = workflow.id === selectedWorkflow.id;
+
+                  return (
+                    <button
+                      key={workflow.id}
+                      type="button"
+                      onClick={() => selectWorkflow(workflow.id)}
+                      className={`rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 active:scale-[0.99] ${getWorkflowToneClasses(workflow.tone, active)}`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="text-sm font-black text-white">{workflow.title}</h3>
+                        <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${
+                          active ? 'border-current text-current' : 'border-white/10 text-zinc-500'
+                        }`}>
+                          {active ? 'Selected' : 'Pick'}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-400">
+                        {workflow.promise}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <aside className={`rounded-[1.5rem] border p-5 sm:p-6 ${getWorkflowToneClasses(selectedWorkflow.tone, true)}`}>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-current">Focused workflow</p>
+                <h3 className="mt-3 text-2xl font-black text-white">{selectedWorkflow.title}</h3>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+                  {selectedWorkflow.promise}
+                </p>
+
+                <div className="mt-5 space-y-3">
+                  {selectedWorkflow.steps.map((step, index) => (
+                    <div key={step} className="flex gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-black text-white">
+                        {index + 1}
+                      </span>
+                      <p className="text-sm font-semibold leading-relaxed text-zinc-200">{step}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={goToSelectedWorkflow}
+                  className="mt-6 w-full rounded-2xl bg-white px-5 py-4 text-sm font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-[0.98]"
+                >
+                  {selectedWorkflow.cta}
+                </button>
+              </aside>
+            </div>
+          </section>
+        )}
 
         {dashboardError && (
           <section className="reveal reveal-delay-1 mb-12 rounded-2xl border border-red-400/20 bg-red-400/5 p-5 sm:p-8">
