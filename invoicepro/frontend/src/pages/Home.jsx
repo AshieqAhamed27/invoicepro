@@ -12,111 +12,90 @@ import {
   UDYAM_REGISTRATION_NUMBER
 } from '../utils/company';
 
-const coreValue = [
-  {
-    title: 'Daily Money Action',
-    text: 'Every day, ClientFlow AI tells the freelancer the highest-value action: message a lead, send a proposal, move a project, or collect payment.'
-  },
-  {
-    title: 'Income Stability Plan',
-    text: 'Users set a monthly target and see how many leads, proposals, projects, retainers, and collections are needed to reach it.'
-  },
-  {
-    title: 'Client Closing System',
-    text: 'AI helps package the service, write outreach, handle objections, create proposals, and move serious leads toward payment.'
-  },
-  {
-    title: 'Delivery Control Room',
-    text: 'Manage tasks, client requests, GitHub sync, releases, docs, team updates, and handover notes in one project workspace.'
-  },
-  {
-    title: 'Cashflow Protection',
-    text: 'Track INR or foreign-currency invoices, payment links, overdue money, accepted proposals, and pending follow-ups before cash gets missed.'
-  }
+const problemCards = [
+  ['Finding clients feels random', 'Freelancers often know their skill, but do not know who to message or what to say.'],
+  ['Projects become messy', 'Client requests, tasks, collaborators, approvals, and files get scattered across chat.'],
+  ['Payments get delayed', 'Invoices, follow-ups, payment links, and pending money are hard to track manually.']
 ];
 
-const productFlow = [
-  ['01', 'Money GPS', 'Open one screen and see the best action to move revenue today.'],
-  ['02', 'Growth Plan', 'Know how many leads, proposals, and clients are needed to hit the monthly income target.'],
-  ['03', 'Client', 'Find the right type of client and prepare the first message.'],
-  ['04', 'Work Ledger', 'Track client requests, project issues, releases, docs, approvals, and handover history.'],
-  ['05', 'Payment', 'Send INR or international invoices, share payment link, and follow pending revenue.']
+const simpleFlow = [
+  ['01', 'Find a client', 'Choose a target client and prepare the first message.'],
+  ['02', 'Send a proposal', 'Turn interest into clear scope, price, timeline, and next step.'],
+  ['03', 'Manage the work', 'Track tasks, client requests, teammates, notes, and delivery.'],
+  ['04', 'Create invoice', 'Send a professional invoice with PDF, public link, and currency support.'],
+  ['05', 'Collect payment', 'See pending money and send the right follow-up before it goes cold.']
 ];
 
-const whyPay = [
-  'Users are not paying only for invoices. They are paying for a system that keeps client acquisition, delivery, and payment collection moving.',
-  'It reduces missed opportunities by showing who to message, what proposal to send, and which payment to collect today.',
-  'It helps freelancers build stable monthly income with lead targets, proposal targets, pricing guidance, and retainer ideas.',
-  'It gives freelancers confidence to take bigger projects by adding teammates, GitHub sync, shared docs, issues, and release tracking.',
-  'It protects cashflow by connecting accepted proposals, active projects, pending invoices, and follow-up actions in one place.'
-];
-
-const valueStack = [
-  ['Find', 'AI helps identify client types, lead sources, outreach angles, and first messages.'],
-  ['Close', 'Proposal, pricing, objection handling, and deal-room workflows help move conversations to paid work.'],
-  ['Deliver', 'Team Work, GitHub sync, issues, releases, docs, and project updates keep client delivery organized.'],
-  ['Collect', 'Invoices, payment links, WhatsApp sharing, international currencies, and payment status protect cashflow.'],
-  ['Grow', 'Money GPS and Growth Plan turn monthly income goals into daily business actions.']
-];
-
-const agencyHighlights = [
-  ['Offer setup', 'Shape one clear freelance service, target client, price angle, and first message.'],
-  ['Lead workflow', 'Set up lead sources, follow-up timing, proposal flow, and daily Money GPS actions.'],
-  ['Delivery setup', 'Organize team workspace, tasks, client requests, docs, GitHub/project notes, and handover.'],
-  ['Payment setup', 'Prepare invoice, payment link, currency, and collection workflow for local or global clients.']
-];
-
-const positioningOffers = [
+const featureCards = [
   {
-    title: 'Use the software',
-    label: 'Self-serve SaaS',
-    text: 'Freelancers use ClientFlow AI to plan daily money actions, find leads, write proposals, manage projects, create invoices, and track payments.',
-    cta: 'Start free',
-    path: '/signup'
+    title: 'Money GPS',
+    benefit: 'Shows the best business action for today.',
+    detail: 'Instead of opening many tools, the freelancer sees what to do next: message a lead, send a proposal, finish a project task, or collect payment.',
+    path: '/money-gps'
   },
   {
-    title: 'Get the setup done for you',
-    label: 'Agency setup',
-    text: 'ClientFlow AI Agency helps beginners set up their offer, client plan, proposal workflow, project workspace, and payment collection system.',
-    cta: 'View agency setup',
+    title: 'AI Client Finder',
+    benefit: 'Helps freelancers know who to target.',
+    detail: 'Suggests client types, outreach angles, public search paths, and first messages so finding clients feels less random.',
+    path: '/client-finder'
+  },
+  {
+    title: 'Proposal Writer',
+    benefit: 'Turns conversations into paid work.',
+    detail: 'Creates a simple proposal with scope, price, timeline, validity, and next step so clients can say yes faster.',
+    path: '/proposal-writer'
+  },
+  {
+    title: 'Team Workspace',
+    benefit: 'Keeps project delivery organized.',
+    detail: 'Freelancers can manage tasks, client requests, collaborators, project notes, releases, and handover in one place.',
+    path: '/team-workspace'
+  },
+  {
+    title: 'Invoice and Payment Links',
+    benefit: 'Makes getting paid easier.',
+    detail: 'Create invoices, download PDF, share public links, use INR or foreign currencies, and connect Razorpay or UPI collection.',
+    path: '/create-invoice'
+  },
+  {
+    title: 'Payment Collection Agent',
+    benefit: 'Protects pending cash.',
+    detail: 'Ranks unpaid invoices by urgency and prepares the right WhatsApp or payment follow-up message for the freelancer to send.',
+    path: '/dashboard#payment-collection-agent'
+  },
+  {
+    title: 'Growth Plan',
+    benefit: 'Turns income goals into action.',
+    detail: 'The user sets a monthly income target, then sees how many leads, proposals, clients, and invoices are needed.',
+    path: '/growth-plan'
+  },
+  {
+    title: 'Business Autopilot',
+    benefit: 'Guides the full process.',
+    detail: 'Shows one lead-to-payment action list so freelancers do not feel confused by many separate tools.',
+    path: '/business-autopilot'
+  },
+  {
+    title: 'Agency Setup',
+    benefit: 'Done-for-you setup for beginners.',
+    detail: 'If a freelancer is confused, ClientFlow AI Agency sets up their offer, lead plan, proposal flow, workspace, invoice, and 7-day action plan.',
     path: '/agency'
   }
 ];
 
-const verticalUseCases = [
-  ['Freelancers', '/freelancers', 'Build stable income, find clients, close work, and get paid.'],
-  ['Developers', '/developers', 'Track client requests, issues, releases, handover, invoices, and payments.'],
-  ['Designers', '/designers', 'Manage proposals, revisions, approvals, delivery notes, and final payment.'],
-  ['Agencies', '/agencies', 'Invite collaborators, split delivery, maintain project history, and collect retainers.'],
-  ['Consultants', '/consultants', 'Turn conversations into proposals, retainers, invoices, and repeat clients.']
+const whoFor = [
+  ['Freelancers', 'Build stable client flow, proposals, invoices, and payments.'],
+  ['Developers', 'Manage client requirements, tasks, releases, handover, and payment.'],
+  ['Designers', 'Handle briefs, revisions, approvals, proposals, and final invoice.'],
+  ['Consultants', 'Turn conversations into proposals, retainers, and paid milestones.'],
+  ['Small agencies', 'Bring other freelancers into bigger projects and manage delivery together.']
 ];
 
-const previewRows = [
-  ['Today', 'Message 3 warm leads', 'Sales action'],
-  ['Project', 'Fix mobile navbar issue', 'High priority'],
-  ['Release', 'Ship v1.2 client changes', 'Planned'],
-  ['Payment', 'Follow up Rs 14,999 invoice', 'Pending']
-];
-
-const trustBadges = [
-  ['Registered', UDYAM_REGISTRATION_NUMBER],
-  ['Payments', 'Razorpay international + UPI'],
-  ['India-first', 'Alternative to U.S. or Canada-only client-flow tools'],
-  ['Support', SUPPORT_EMAIL],
-  ['Built for', 'Freelancers and small teams']
-];
-
-const earlyFeedback = [
-  {
-    source: 'LinkedIn feedback',
-    quote: 'This looks like a really interesting idea. It definitely addresses a common challenge freelancers face. I appreciate you sharing it with me.',
-    author: 'Freelancer network connection'
-  },
-  {
-    source: 'Early product feedback',
-    quote: 'The interface feels clean, lightweight, and simple for an invoicing and freelancer workflow.',
-    author: 'Early reviewer'
-  }
+const previewActions = [
+  ['Today', 'Message 3 warm leads'],
+  ['Proposal', 'Follow up website package'],
+  ['Project', 'Finish client delivery task'],
+  ['Payment', 'Collect pending invoice']
 ];
 
 const plans = [
@@ -124,57 +103,52 @@ const plans = [
     id: 'free',
     name: 'Free',
     price: 'Rs 0',
-    note: 'Start and test the workflow',
-    features: ['Test the business workspace', 'Create limited invoices', 'See the client-to-payment workflow'],
+    note: 'Try the basic workflow',
+    features: ['Create limited invoices', 'See the product flow', 'Start your workspace'],
     cta: 'Create Free Account'
   },
   {
     id: 'monthly',
     name: 'Pro Monthly',
     price: 'Rs 499',
-    note: 'For active freelancers who want steady work',
-    features: ['Money GPS daily action', 'AI client coach and proposal writer', 'Team Work with GitHub sync'],
+    note: 'For active freelancers',
+    features: ['Money GPS and AI tools', 'Unlimited invoices', 'Client finder, proposals, team workspace'],
     cta: 'Start Pro'
   },
   {
     id: 'yearly',
     name: 'Pro Yearly',
     price: 'Rs 4999',
-    note: 'Best for serious freelance business building',
-    features: ['Everything in monthly Pro', 'Income stability and recurring client planning', 'Long-term project ledger and cashflow control'],
+    note: 'For serious freelance growth',
+    features: ['Everything in Pro Monthly', 'Best yearly value', 'Growth planning and payment collection'],
     cta: 'Choose Yearly'
   }
 ];
 
-const faqs = [
+const trustBadges = [
+  ['Udyam registered', UDYAM_REGISTRATION_NUMBER],
+  ['Payments', 'Razorpay, UPI, and international payment support'],
+  ['India-first', 'Built for Indian freelancers, usable with global clients'],
+  ['Support', SUPPORT_EMAIL]
+];
+
+const feedback = [
   {
-    question: 'Is this only for invoice creation?',
-    answer: 'No. Invoices are only one part. The main feature is Money GPS: one screen that tells freelancers which client, project, proposal, or payment needs action today.'
+    quote: 'This looks like a really interesting idea. It definitely addresses a common challenge freelancers face.',
+    author: 'LinkedIn feedback'
   },
   {
-    question: 'Why would freelancers pay for it?',
-    answer: 'Because the product helps them avoid missed money actions: warm leads, accepted proposals, blocked projects, pending invoices, retainer chances, and follow-ups that can turn into revenue.'
-  },
-  {
-    question: 'How does it help me avoid going back to a job?',
-    answer: 'The Growth Plan turns your monthly income target into daily leads, proposals, prices, collection tasks, recurring client ideas, and retention messages. It does not guarantee income, but it keeps the right actions visible.'
-  },
-  {
-    question: 'Can I use it without a domain?',
-    answer: 'Yes. You can use the core app, invoices, Razorpay or UPI links, and WhatsApp sharing without buying a domain.'
-  },
-  {
-    question: 'Can foreign clients pay?',
-    answer: 'Yes, when Razorpay international payments are enabled on the seller account. Users can create invoices in USD, EUR, GBP, AED, SGD, AUD, or CAD and collect through Razorpay payment links.'
-  },
-  {
-    question: 'Who is this best for?',
-    answer: 'Freelancers, small agencies, developers, designers, marketers, consultants, and service businesses that need one place to manage client work and payments.'
-  },
-  {
-    question: 'Is this like GitHub or GitLab?',
-    answer: 'Not exactly. GitHub and GitLab are mainly for code. ClientFlow AI has a Client Work Ledger for freelancers to track client requests, issues, releases, approvals, docs, handover notes, invoices, and payments in one business workflow.'
+    quote: 'The interface feels clean, lightweight, and simple for an invoicing and freelancer workflow.',
+    author: 'Early product feedback'
   }
+];
+
+const faqs = [
+  ['Is ClientFlow AI only for invoices?', 'No. Invoices are one part. The product helps freelancers find clients, send proposals, manage work, create invoices, and collect payments.'],
+  ['Why should freelancers use it?', 'Because freelancers lose time and money when leads, proposals, projects, and payment follow-ups are scattered. ClientFlow AI puts the process in one place.'],
+  ['Can beginners use it?', 'Yes. Beginners can use the free software or choose Agency Setup if they want help setting up their offer and client workflow.'],
+  ['Can foreign clients pay?', 'Yes, if the seller has international payments enabled in Razorpay. Invoices can support INR, USD, EUR, GBP, AED, SGD, AUD, and CAD.'],
+  ['Do you guarantee income?', 'No. ClientFlow AI does not guarantee income. It gives freelancers a clearer system, daily actions, and payment workflow so they can execute better.']
 ];
 
 const getExpiryState = (user) => {
@@ -221,30 +195,46 @@ export default function Home() {
     ? null
     : showExpiryAlert && expiryState.expired
       ? `${planLabel} expired`
-    : hasActivePro
-      ? `${planLabel} active`
-      : 'Free version active';
+      : hasActivePro
+        ? `${planLabel} active`
+        : 'Free version active';
   const accountDetail = !loggedIn
     ? ''
     : showExpiryAlert
       ? expiryState.expired
-        ? 'Your Pro access has expired. Renew now to keep AI tools, unlimited invoices, and team workspace active.'
+        ? 'Your Pro access has expired. Renew to keep AI tools, unlimited invoices, and team workspace active.'
         : `Your ${planLabel} expires in ${expiryState.daysLeft} day${expiryState.daysLeft === 1 ? '' : 's'}. Renew early so your workflow does not stop.`
       : hasActivePro
         ? expiryState.expiresAt
           ? `Your ${planLabel} is active until ${formatDate(expiryState.expiresAt)}.`
           : `Your ${planLabel} is active.`
-        : 'You are currently using the Free version. Start the 7-day trial to unlock Pro tools.';
+        : 'You are using the Free version. Start the trial when you want Pro tools.';
 
   useDocumentMeta({
-    title: `${COMPANY_NAME} - Freelancer business system`,
-    description: 'ClientFlow AI helps freelancers get clients, manage projects, send proposals, create invoices, and collect payments.'
+    title: `${COMPANY_NAME} - Get clients, manage work, and get paid`,
+    description: 'ClientFlow AI helps freelancers find clients, send proposals, manage projects, create invoices, and collect payments in one workspace.'
   });
 
   const goToApp = (target, label) => {
     const nextPath = loggedIn ? target : '/signup';
     trackCtaClick(label, 'home', nextPath);
     navigate(nextPath);
+  };
+
+  const openFeature = (path, title) => {
+    if (path === '/agency') {
+      trackCtaClick(`feature_${title}`, 'home_features', path);
+      navigate(path);
+      return;
+    }
+
+    if (path.startsWith('/dashboard#')) {
+      trackCtaClick(`feature_${title}`, 'home_features', loggedIn ? path : '/signup');
+      navigate(loggedIn ? path : '/signup');
+      return;
+    }
+
+    goToApp(path, `feature_${title}`);
   };
 
   const selectPlan = (planId) => {
@@ -266,7 +256,7 @@ export default function Home() {
 
       <main>
         <section className="relative overflow-hidden border-b border-white/5">
-          <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-yellow-400/10 via-sky-500/5 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-yellow-400/10 via-emerald-400/5 to-transparent" />
           <div className="container-custom responsive-split-even relative py-14 sm:py-16 lg:py-24">
             <div>
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-yellow-300/20 bg-yellow-300/10 px-4 py-2">
@@ -277,18 +267,15 @@ export default function Home() {
               </div>
 
               <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Get clients, run projects, and collect payment.{' '}
-                <span className="bg-gradient-to-r from-yellow-200 via-emerald-200 to-sky-200 bg-clip-text text-transparent">
-                  Without losing control.
-                </span>
+                Get clients, manage work, and get paid faster.
               </h1>
 
-              <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 sm:text-lg">
-                ClientFlow AI is a freelancer business system. It helps freelancers choose what to sell, find leads, write proposals, manage delivery, team up on bigger projects, and collect local or international payments.
+              <p className="mt-6 max-w-2xl text-base font-semibold leading-relaxed text-zinc-300 sm:text-lg">
+                ClientFlow AI helps freelancers run the full client process in one place: find leads, send proposals, manage projects, create invoices, and collect payments.
               </p>
 
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-                Use the software yourself, or use ClientFlow AI Agency when you want the setup done with you.
+                Simple promise: open the app and know the next business action.
               </p>
 
               {loggedIn && (
@@ -301,26 +288,16 @@ export default function Home() {
                 }`}>
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className={`text-[10px] font-black uppercase tracking-[0.22em] ${
-                        showExpiryAlert ? 'text-yellow-200' : hasActivePro ? 'text-emerald-200' : 'text-sky-200'
-                      }`}>
-                        {showExpiryAlert ? 'Plan expiry alert' : 'Your plan status'}
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-400">
+                        Your account
                       </p>
                       <p className="mt-1 text-base font-black text-white">{accountStatus}</p>
-                      <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">
-                        {accountDetail}
-                      </p>
+                      <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">{accountDetail}</p>
                     </div>
                     <button
                       type="button"
-                      onClick={() => goToApp(hasActivePro && !showExpiryAlert ? '/dashboard' : '/payment', showExpiryAlert ? 'hero_renew_pro' : hasActivePro ? 'hero_open_dashboard_plan_status' : 'hero_start_trial_from_free_status')}
-                      className={`shrink-0 rounded-2xl px-5 py-3 text-xs font-black uppercase tracking-widest transition-all hover:-translate-y-0.5 active:scale-95 ${
-                        showExpiryAlert
-                          ? 'bg-yellow-300 text-slate-950 hover:bg-yellow-200'
-                          : hasActivePro
-                            ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
-                            : 'bg-sky-300 text-slate-950 hover:bg-sky-200'
-                      }`}
+                      onClick={() => goToApp(hasActivePro && !showExpiryAlert ? '/dashboard' : '/payment', 'home_plan_status')}
+                      className="shrink-0 rounded-2xl bg-white px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
                     >
                       {showExpiryAlert ? 'Renew Pro' : hasActivePro ? 'Open App' : 'Start Trial'}
                     </button>
@@ -328,78 +305,44 @@ export default function Home() {
                 </div>
               )}
 
-              {!loggedIn && (
-              <div className="mt-6 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.08] p-4 sm:max-w-2xl sm:p-5">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
-                      Try Pro free
-                    </p>
-                    <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">
-                      Start the 7-day free trial and test Money GPS, AI client coach, proposals, team workspace, and unlimited invoices.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => goToApp('/payment', 'hero_start_free_trial')}
-                    className="shrink-0 rounded-2xl bg-emerald-300 px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-emerald-200 active:scale-95"
-                  >
-                    Start Free Trial
-                  </button>
-                </div>
-              </div>
-              )}
-
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
-                  onClick={() => goToApp('/money-gps', loggedIn ? 'open_money_gps' : 'start_free')}
+                  onClick={() => goToApp('/dashboard', loggedIn ? 'hero_open_dashboard' : 'hero_start_free')}
                   className="btn btn-primary px-7 py-4 text-sm"
                 >
-                  {loggedIn ? 'Open Money GPS' : 'Start Free'}
+                  {loggedIn ? 'Open Dashboard' : 'Start Free'}
                 </button>
-                <Link to="/agency" className="btn btn-secondary px-7 py-4 text-center text-sm">
+                <a href="#features" className="btn btn-secondary px-7 py-4 text-center text-sm">
+                  See Features
+                </a>
+                <Link to="/agency" className="btn btn-dark px-7 py-4 text-center text-sm">
                   Agency Setup
                 </Link>
-              </div>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {['Find clients', 'Close proposals', 'Manage delivery', 'Collect payments'].map((item) => (
-                  <div key={item} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
-                    <p className="text-xs font-black uppercase tracking-widest text-zinc-300">{item}</p>
-                  </div>
-                ))}
               </div>
             </div>
 
             <div className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-4 shadow-2xl shadow-black/30">
               <div className="rounded-[1.5rem] border border-white/8 bg-black/30 p-5">
                 <div className="flex items-center justify-between gap-4">
-                  <BrandLogo showText={false} markClassName="h-12 w-12 sm:h-12 sm:w-12" />
+                  <BrandLogo showText={false} markClassName="h-12 w-12" />
                   <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
-                    Live workspace
+                    Today
                   </span>
                 </div>
 
                 <div className="mt-6 rounded-2xl border border-yellow-300/20 bg-yellow-300/10 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Money GPS action</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Next business action</p>
                   <p className="mt-2 text-xl font-black leading-tight text-white">
-                    Collect the pending invoice before starting new outreach.
+                    Follow up the pending proposal before creating new work.
                   </p>
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  {previewRows.map(([label, title, status]) => (
+                  {previewActions.map(([label, title]) => (
                     <div key={title} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                          <p className="mt-1 text-sm font-black text-white">{title}</p>
-                        </div>
-                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
-                          {status}
-                        </span>
-                      </div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                      <p className="mt-1 text-sm font-black text-white">{title}</p>
                     </div>
                   ))}
                 </div>
@@ -408,55 +351,23 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+        <section className="border-b border-white/5 bg-zinc-950/45 py-14 sm:py-16">
           <div className="container-custom">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Correct positioning</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">What the product does</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                We sell the result: a clearer freelancer business.
+                It connects client finding, project work, and payment collection.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-                The app features support the outcome. The outcome is simple: know who to message, what to offer, how to deliver, and how to collect payment.
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                Most freelancers use separate notes, chats, invoices, and payment links. ClientFlow AI brings the workflow together so money actions do not get missed.
               </p>
             </div>
 
-            <div className="mt-8 grid gap-5 md:grid-cols-2">
-              {positioningOffers.map((offer) => {
-                const isSoftwareOffer = offer.path === '/signup';
-                const offerPath = isSoftwareOffer && loggedIn ? '/money-gps' : offer.path;
-                const offerCta = isSoftwareOffer && loggedIn ? 'Open software' : offer.cta;
-
-                return (
-                  <div key={offer.title} className="rounded-[1.75rem] border border-white/8 bg-white/[0.035] p-6 transition-all hover:-translate-y-1 hover:border-sky-300/25">
-                    <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
-                      {offer.label}
-                    </span>
-                    <h3 className="mt-5 text-2xl font-black text-white">{offer.title}</h3>
-                    <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{offer.text}</p>
-                    <Link to={offerPath} className="mt-6 inline-flex rounded-2xl border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10">
-                      {offerCta}
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-b border-white/5 bg-zinc-950/40 py-14 sm:py-16">
-          <div className="container-custom">
-            <div className="max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">What it does</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                One product, one clear promise: help freelancers win, deliver, and collect.
-              </h2>
-            </div>
-
-            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-              {coreValue.map((item) => (
-                <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
-                  <h3 className="text-xl font-black text-white">{item.title}</h3>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{item.text}</p>
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {problemCards.map(([title, text]) => (
+                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                  <h3 className="text-xl font-black text-white">{title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
                 </div>
               ))}
             </div>
@@ -464,34 +375,75 @@ export default function Home() {
         </section>
 
         <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mb-8 max-w-2xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">How it works</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                One simple path from lead to payment.
+              </h2>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-5">
+              {simpleFlow.map(([step, title, text]) => (
+                <div key={step} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-300 text-sm font-black text-slate-950">
+                    {step}
+                  </span>
+                  <h3 className="mt-4 text-lg font-black text-white">{title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className="py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Features</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                What each feature does for freelancers.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                The features are not separate random tools. They support one goal: help freelancers win work, deliver it, and collect payment.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {featureCards.map((feature) => (
+                <button
+                  key={feature.title}
+                  type="button"
+                  onClick={() => openFeature(feature.path, feature.title)}
+                  className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-6 text-left transition-all hover:-translate-y-1 hover:border-yellow-300/25 hover:bg-yellow-300/[0.05]"
+                >
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">{feature.title}</p>
+                  <h3 className="mt-3 text-xl font-black text-white">{feature.benefit}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{feature.detail}</p>
+                  <p className="mt-5 text-[10px] font-black uppercase tracking-widest text-zinc-500">Open feature</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Why it is valuable</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Who should use it</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Users pay for the business system, not just the invoice.
+                Built for service businesses, not only invoice creation.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-                Invoices are the final step. The real value is helping freelancers know what to do before the invoice: find the right client, close the work, manage delivery, and collect without losing control.
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                ClientFlow AI is useful when a freelancer needs a repeatable system for getting clients, managing delivery, and getting paid.
               </p>
-              <button
-                type="button"
-                onClick={() => goToApp('/payment', 'value_stack_start_trial')}
-                className="mt-6 btn btn-primary px-6 py-3 text-sm"
-              >
-                Start Free Trial
-              </button>
             </div>
 
             <div className="grid gap-3">
-              {valueStack.map(([title, detail]) => (
-                <div key={title} className="rounded-2xl border border-white/8 bg-black/25 p-4 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <h3 className="text-lg font-black text-white">{title}</h3>
-                    <span className="rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-200">
-                      Business step
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{detail}</p>
+              {whoFor.map(([title, text]) => (
+                <div key={title} className="rounded-2xl border border-white/8 bg-black/25 p-4">
+                  <p className="text-base font-black text-white">{title}</p>
+                  <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
                 </div>
               ))}
             </div>
@@ -501,165 +453,37 @@ export default function Home() {
         <section className="border-b border-white/5 bg-yellow-400/[0.04] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">New service offer</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Need help setting it up?</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                ClientFlow AI Agency sets up the system for freelancers.
+                ClientFlow AI Agency sets up the system for beginners.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-                Some users do not want another empty tool. They want help choosing what service to sell, who to message, what proposal to send, how to deliver, and how to collect payment. The agency offer lets you sell setup help while the SaaS grows.
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                If a freelancer is confused, we help set up their offer, lead plan, proposal template, project workspace, invoice, payment follow-up, and 7-day action plan.
               </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link to="/agency" className="btn btn-primary px-6 py-3 text-center text-sm">
-                  See Agency Setup
-                </Link>
-                <Link to="/contact" className="btn btn-secondary px-6 py-3 text-center text-sm">
-                  Request Help
-                </Link>
-              </div>
+              <Link to="/agency" className="mt-6 inline-flex btn btn-primary px-6 py-3 text-sm">
+                See Agency Setup
+              </Link>
             </div>
 
-            <div className="grid gap-3">
-              {agencyHighlights.map(([title, detail]) => (
-                <div key={title} className="rounded-2xl border border-white/8 bg-black/25 p-4 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <h3 className="text-lg font-black text-white">{title}</h3>
-                    <span className="rounded-full border border-yellow-300/15 bg-yellow-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-200">
-                      Done for you
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-14 sm:py-16">
-          <div className="container-custom">
-            <div className="mb-8 max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Use cases</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Same product, specific workflow for different service businesses.
-              </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-                Each page explains the exact problem ClientFlow AI solves for that type of user.
+            <div className="rounded-[1.5rem] border border-yellow-300/20 bg-black/25 p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Agency setup result</p>
+              <p className="mt-3 text-2xl font-black leading-tight text-white">
+                The user knows who to message, what to offer, how to manage the project, and how to collect payment.
+              </p>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                This is a setup and action plan service. It does not guarantee income, but it gives the freelancer a clearer system to execute.
               </p>
             </div>
-
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-              {verticalUseCases.map(([label, path, text]) => (
-                <Link
-                  key={path}
-                  to={path}
-                  className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25 hover:bg-sky-300/[0.06]"
-                >
-                  <p className="text-lg font-black text-white">For {label}</p>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{text}</p>
-                  <p className="mt-5 text-[10px] font-black uppercase tracking-widest text-sky-300">View page</p>
-                </Link>
-              ))}
-            </div>
           </div>
         </section>
 
-        <section className="py-14 sm:py-16">
-          <div className="container-custom responsive-heading-grid">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Simple workflow</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                From confusion to one next action.
-              </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-                Instead of showing many tools first, ClientFlow AI starts with the most useful question: what should you do now to earn, deliver, or collect?
-              </p>
-              <button
-                type="button"
-                onClick={() => goToApp('/money-gps', 'workflow_start')}
-                className="mt-6 btn btn-primary px-6 py-3 text-sm"
-              >
-                Open Money GPS
-              </button>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {productFlow.map(([step, title, text]) => (
-                <div key={step} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{step}</p>
-                  <h3 className="mt-3 text-lg font-black text-white">{title}</h3>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-y border-white/5 bg-yellow-400/[0.045] py-14 sm:py-16">
-          <div className="container-custom responsive-heading-grid">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Why users pay</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Because it tells them what to do next.
-              </h2>
-            </div>
-            <div className="grid gap-3">
-              {whyPay.map((item) => (
-                <div key={item} className="rounded-2xl border border-white/8 bg-black/25 p-4">
-                  <p className="text-sm font-semibold leading-relaxed text-zinc-300">{item}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="trust" className="py-14 sm:py-16">
-          <div className="container-custom">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-              {trustBadges.map(([label, value]) => (
-                <div key={label} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{label}</p>
-                  <p className="mt-2 text-sm font-black leading-relaxed text-white">{value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-y border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
-          <div className="container-custom responsive-heading-grid">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Early feedback</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Real people are already seeing the problem.
-              </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-                ClientFlow AI is being shaped with freelancer feedback, so the product stays focused on practical client, project, and payment problems.
-              </p>
-            </div>
-
-            <div className="grid gap-4">
-              {earlyFeedback.map((item) => (
-                <div key={item.quote} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">{item.source}</p>
-                  <p className="mt-4 text-base font-semibold leading-relaxed text-zinc-200">
-                    "{item.quote}"
-                  </p>
-                  <p className="mt-4 text-xs font-black uppercase tracking-widest text-zinc-500">{item.author}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="pricing" className="border-y border-white/5 bg-zinc-950/55 py-14 sm:py-16">
+        <section id="pricing" className="border-b border-white/5 bg-zinc-950/55 py-14 sm:py-16">
           <div className="container-custom">
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Pricing</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Start free. Upgrade when ClientFlow helps your business.
+                Start free. Upgrade when the workflow helps.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">
-                Keep the free plan for testing. Use Pro when you want Money GPS, unlimited invoices, client finding, and project workspace.
-              </p>
             </div>
 
             <div className="mt-8 grid gap-5 md:grid-cols-3">
@@ -673,10 +497,7 @@ export default function Home() {
                   }`}
                 >
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">{plan.name}</p>
-                  <div className="mt-4 flex items-end gap-2">
-                    <span className="text-4xl font-black text-white">{plan.price}</span>
-                    {plan.id !== 'free' && <span className="pb-1 text-xs font-bold text-zinc-500">/ plan</span>}
-                  </div>
+                  <p className="mt-4 text-4xl font-black text-white">{plan.price}</p>
                   <p className="mt-2 text-sm font-semibold text-zinc-400">{plan.note}</p>
                   <div className="mt-6 space-y-3">
                     {plan.features.map((feature) => (
@@ -702,19 +523,52 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="border-b border-white/5 py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {trustBadges.map(([label, value]) => (
+                <div key={label} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{label}</p>
+                  <p className="mt-2 text-sm font-black leading-relaxed text-white">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom responsive-heading-grid">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Early feedback</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Freelancers understand the problem.
+              </h2>
+            </div>
+
+            <div className="grid gap-4">
+              {feedback.map((item) => (
+                <div key={item.quote} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5">
+                  <p className="text-base font-semibold leading-relaxed text-zinc-200">"{item.quote}"</p>
+                  <p className="mt-4 text-xs font-black uppercase tracking-widest text-zinc-500">{item.author}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="faq" className="py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">FAQ</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Clear answers for new users.
+                Simple answers for new users.
               </h2>
             </div>
             <div className="grid gap-4">
-              {faqs.map((item) => (
-                <div key={item.question} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
-                  <h3 className="text-base font-black text-white">{item.question}</h3>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{item.answer}</p>
+              {faqs.map(([question, answer]) => (
+                <div key={question} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+                  <h3 className="text-base font-black text-white">{question}</h3>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{answer}</p>
                 </div>
               ))}
             </div>
@@ -724,18 +578,18 @@ export default function Home() {
         <section className="border-t border-white/5 bg-black/25 py-14 sm:py-16">
           <div className="container-custom rounded-[2rem] border border-yellow-300/20 bg-yellow-300/[0.06] p-6 text-center sm:p-10">
             <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
-              Build a cleaner freelancer business today.
+              Build a clearer freelance business.
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-              Start with one lead, one project, or one invoice. ClientFlow AI keeps the next money action visible.
+            <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+              Start with one client action today. ClientFlow AI keeps the next step visible.
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
               <button
                 type="button"
-                onClick={() => goToApp('/money-gps', 'final_start')}
+                onClick={() => goToApp('/dashboard', 'final_start')}
                 className="btn btn-primary px-7 py-4 text-sm"
               >
-                {loggedIn ? 'Open Money GPS' : 'Create Free Account'}
+                {loggedIn ? 'Open Dashboard' : 'Create Free Account'}
               </button>
               <Link to="/contact" className="btn btn-secondary px-7 py-4 text-sm">
                 Contact Support
