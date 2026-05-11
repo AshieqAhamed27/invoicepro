@@ -185,6 +185,11 @@ export default function ProfitTracker() {
             <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-zinc-400 sm:text-lg">
               ClientFlow AI now checks revenue, AI tools, software subscriptions, payment fees, team cost, and delivery hours so freelancers do not work hard and still lose money.
             </p>
+            <div className="mt-5 max-w-3xl rounded-2xl border border-yellow-300/20 bg-yellow-300/[0.08] px-4 py-3">
+              <p className="text-sm font-bold leading-relaxed text-yellow-100">
+                Demo values are added to help you understand this tool. Edit them with your own project values to see your real profit.
+              </p>
+            </div>
           </div>
 
           <div className={`rounded-[1.5rem] border p-5 ${toneClasses[recommendation.tone]}`}>
