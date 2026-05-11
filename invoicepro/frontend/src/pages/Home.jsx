@@ -26,6 +26,23 @@ const simpleFlow = [
   ['05', 'Collect payment', 'See pending money and send the right follow-up before it goes cold.']
 ];
 
+const serviceOffers = [
+  {
+    title: 'ClientFlow AI Software',
+    label: 'Self-serve product',
+    text: 'Freelancers use the web app to find clients, send proposals, manage projects, create invoices, and collect payments.',
+    cta: 'Start free',
+    path: '/signup'
+  },
+  {
+    title: 'Agency Setup',
+    label: 'Done-for-you setup',
+    text: 'We help freelancers set up their offer, lead plan, proposal flow, project workspace, invoice, and 7-day action plan.',
+    cta: 'See agency setup',
+    path: '/agency'
+  }
+];
+
 const featureCards = [
   {
     title: 'Money GPS',
@@ -370,6 +387,40 @@ export default function Home() {
                   <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-yellow-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">What we provide</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                One product, plus setup help when freelancers need guidance.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                ClientFlow AI is the software. Agency Setup is the support service for freelancers who want help setting up their workflow.
+              </p>
+            </div>
+
+            <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">
+              {serviceOffers.map((offer) => {
+                const offerPath = offer.path === '/signup' && loggedIn ? '/dashboard' : offer.path;
+                const offerCta = offer.path === '/signup' && loggedIn ? 'Open dashboard' : offer.cta;
+
+                return (
+                  <Link
+                    key={offer.title}
+                    to={offerPath}
+                    className="rounded-[1.75rem] border border-white/8 bg-black/25 p-6 transition-all hover:-translate-y-1 hover:border-yellow-300/30 hover:bg-yellow-300/[0.06]"
+                  >
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">{offer.label}</p>
+                    <h3 className="mt-4 text-2xl font-black text-white">{offer.title}</h3>
+                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{offer.text}</p>
+                    <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-white">{offerCta}</p>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
