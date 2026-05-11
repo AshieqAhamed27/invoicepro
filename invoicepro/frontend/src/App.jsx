@@ -34,6 +34,7 @@ const ClientFinder = lazy(() => import('./pages/ClientFinder'));
 const SalesAgent = lazy(() => import('./pages/SalesAgent'));
 const OutboundAutopilot = lazy(() => import('./pages/OutboundAutopilot'));
 const BusinessAutopilot = lazy(() => import('./pages/BusinessAutopilot'));
+const ProfitTracker = lazy(() => import('./pages/ProfitTracker'));
 const ProposalWriter = lazy(() => import('./pages/ProposalWriter'));
 const DealClosureRoom = lazy(() => import('./pages/DealClosureRoom'));
 const TeamWorkspace = lazy(() => import('./pages/TeamWorkspace'));
@@ -143,6 +144,7 @@ const appRoutePrefixes = [
   '/money-gps',
   '/outbound-autopilot',
   '/payment',
+  '/profit-tracker',
   '/proposal-writer',
   '/public/invoice',
   '/p/invoice',
@@ -430,6 +432,19 @@ export default function App() {
               <ProRoute title="Business Autopilot unlocks after Pro payment">
                 <Suspense fallback={<RouteLoader />}>
                   <BusinessAutopilot />
+                </Suspense>
+              </ProRoute>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/profit-tracker"
+          element={
+            <PrivateRoute>
+              <ProRoute title="Profit Tracker unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <ProfitTracker />
                 </Suspense>
               </ProRoute>
             </PrivateRoute>

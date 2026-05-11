@@ -81,6 +81,12 @@ const featureCards = [
     path: '/dashboard#payment-collection-agent'
   },
   {
+    title: 'Profit Tracker',
+    benefit: 'Shows if a project is really profitable.',
+    detail: 'Checks client revenue, AI tools, software subscriptions, payment fees, team cost, and delivery hours so freelancers do not undercharge.',
+    path: '/profit-tracker'
+  },
+  {
     title: 'Growth Plan',
     benefit: 'Turns income goals into action.',
     detail: 'The user sets a monthly income target, then sees how many leads, proposals, clients, and invoices are needed.',
@@ -129,7 +135,7 @@ const plans = [
     name: 'Pro Monthly',
     price: 'Rs 499',
     note: 'For active freelancers',
-    features: ['Money GPS and AI tools', 'Unlimited invoices', 'Client finder, proposals, team workspace'],
+    features: ['Money GPS and AI tools', 'Unlimited invoices', 'Client finder, proposals, profit tracker'],
     cta: 'Start Pro'
   },
   {
