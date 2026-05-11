@@ -365,9 +365,13 @@ export default function AgencyServices() {
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link to="/contact" className="btn btn-primary px-7 py-4 text-center text-sm">
-                  Request Setup Help
-                </Link>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('agency-setup-process')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                  className="btn btn-primary px-7 py-4 text-center text-sm"
+                >
+                  See Setup Process
+                </button>
                 <Link to={softwarePath} className="btn btn-secondary px-7 py-4 text-center text-sm">
                   {softwareLabel}
                 </Link>
@@ -407,6 +411,53 @@ export default function AgencyServices() {
           </div>
         </section>
 
+        <section id="agency-setup-process" className="border-b border-yellow-300/15 bg-yellow-300/[0.06] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Start here</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                How ClientFlow AI Agency setup works.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-300 sm:text-base">
+                The user does not need to understand every tool. They only follow these 5 steps.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-5">
+              {agencyAutomationSteps.map((step) => (
+                <button
+                  key={step.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveAutomationStep(step.id);
+                    document.getElementById('agency-setup-details')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="rounded-[1.5rem] border border-yellow-300/20 bg-black/25 p-5 text-left transition-all hover:-translate-y-1 hover:border-yellow-300/40 hover:bg-yellow-300/[0.08]"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-yellow-300 text-sm font-black text-slate-950">
+                    {step.step}
+                  </span>
+                  <h3 className="mt-4 text-base font-black leading-tight text-white">{step.title}</h3>
+                  <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-400">{step.output}</p>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-8 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.08] p-5 text-center">
+              <p className="text-base font-black text-white">
+                Simple meaning: we set up their offer, leads, proposal, project workspace, invoice, payment follow-up, and 7-day action plan.
+              </p>
+              <button
+                type="button"
+                onClick={() => document.getElementById('agency-booking')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="mt-5 rounded-2xl bg-emerald-300 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:bg-emerald-200 active:scale-[0.98]"
+              >
+                Book Setup
+              </button>
+            </div>
+          </div>
+        </section>
+
         <section className="border-b border-white/5 bg-zinc-950/45 py-14 sm:py-16">
           <div className="container-custom">
             <div className="max-w-2xl">
@@ -427,7 +478,7 @@ export default function AgencyServices() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+        <section id="agency-setup-details" className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
           <div className="container-custom">
             <div className="mb-8 grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-end">
               <div>
