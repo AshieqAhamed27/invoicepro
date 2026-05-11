@@ -33,6 +33,7 @@ const LaunchCenter = lazy(() => import('./pages/LaunchCenter'));
 const ClientFinder = lazy(() => import('./pages/ClientFinder'));
 const SalesAgent = lazy(() => import('./pages/SalesAgent'));
 const OutboundAutopilot = lazy(() => import('./pages/OutboundAutopilot'));
+const BusinessAutopilot = lazy(() => import('./pages/BusinessAutopilot'));
 const ProposalWriter = lazy(() => import('./pages/ProposalWriter'));
 const DealClosureRoom = lazy(() => import('./pages/DealClosureRoom'));
 const TeamWorkspace = lazy(() => import('./pages/TeamWorkspace'));
@@ -127,6 +128,7 @@ const supportMessage = 'Hi I am interested in ClientFlow AI';
 const appRoutePrefixes = [
   '/admin',
   '/ai-coach',
+  '/business-autopilot',
   '/clients',
   '/client-finder',
   '/contact',
@@ -415,6 +417,19 @@ export default function App() {
               <ProRoute title="AI Outbound Autopilot unlocks after Pro payment">
                 <Suspense fallback={<RouteLoader />}>
                   <OutboundAutopilot />
+                </Suspense>
+              </ProRoute>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/business-autopilot"
+          element={
+            <PrivateRoute>
+              <ProRoute title="Business Autopilot unlocks after Pro payment">
+                <Suspense fallback={<RouteLoader />}>
+                  <BusinessAutopilot />
                 </Suspense>
               </ProRoute>
             </PrivateRoute>

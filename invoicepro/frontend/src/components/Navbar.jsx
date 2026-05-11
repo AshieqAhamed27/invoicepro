@@ -5,6 +5,7 @@ import BrandLogo from './BrandLogo';
 
 const appLinks = [
   { to: '/money-gps', label: 'Money GPS', detail: 'One best action today' },
+  { to: '/business-autopilot', label: 'Autopilot', detail: 'Lead to payment automation', requiresPro: true },
   { to: '/growth-plan', label: 'Growth', detail: 'Stability and daily plan', requiresPro: true },
   { to: '/ai-coach', label: 'AI Coach', detail: 'Find, talk, close, collect', requiresPro: true },
   { to: '/client-finder', label: 'Find Clients', detail: 'Find client opportunities', requiresPro: true },
@@ -17,11 +18,13 @@ const appLinks = [
 
 const primaryAppLinks = [
   { to: '/money-gps', label: 'Money GPS' },
+  { to: '/business-autopilot', label: 'Autopilot' },
   { to: '/team-workspace', label: 'Team Work' },
   { to: '/create-invoice', label: 'Invoice' }
 ];
 
 const moreAppLinks = [
+  { to: '/business-autopilot', label: 'Business Autopilot', detail: 'Lead to payment automation', requiresPro: true },
   { to: '/growth-plan', label: 'Growth Plan', detail: 'Income stability plan', requiresPro: true },
   { to: '/ai-coach', label: 'AI Coach', detail: 'Find, talk, close, collect', requiresPro: true },
   { to: '/client-finder', label: 'Find Clients', detail: 'Client opportunities', requiresPro: true },
