@@ -47,6 +47,7 @@ const Admin = lazy(() => import('./pages/Admin'));
 const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Clients = lazy(() => import('./pages/Clients'));
+const CloudDocuments = lazy(() => import('./pages/CloudDocuments'));
 const Recurring = lazy(() => import('./pages/Recurring'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const SEOPage = lazy(() => import('./pages/SEOPage'));
@@ -132,6 +133,7 @@ const appRoutePrefixes = [
   '/business-autopilot',
   '/clients',
   '/client-finder',
+  '/cloud-documents',
   '/contact',
   '/create-invoice',
   '/dashboard',
@@ -560,6 +562,17 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <Clients />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/cloud-documents"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <CloudDocuments />
               </Suspense>
             </PrivateRoute>
           }

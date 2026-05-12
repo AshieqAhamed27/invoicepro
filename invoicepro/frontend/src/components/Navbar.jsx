@@ -14,6 +14,7 @@ const appLinks = [
   { to: '/deal-room', label: 'Deal Room', detail: 'Move leads to paid work', requiresPro: true },
   { to: '/leads', label: 'Lead Pipeline', detail: 'Track prospects and follow-up', requiresPro: true },
   { to: '/team-workspace', label: 'Team Work', detail: 'Projects, chat, ledger' },
+  { to: '/cloud-documents', label: 'Cloud Docs', detail: 'Store invoices, contracts, and project files' },
   { to: '/create-invoice', label: 'Invoice', detail: 'Proposal or invoice' }
 ];
 
@@ -22,6 +23,7 @@ const primaryAppLinks = [
   { to: '/business-autopilot', label: 'Autopilot' },
   { to: '/profit-tracker', label: 'Profit' },
   { to: '/team-workspace', label: 'Team Work' },
+  { to: '/cloud-documents', label: 'Files' },
   { to: '/create-invoice', label: 'Invoice' }
 ];
 
@@ -34,6 +36,7 @@ const moreAppLinks = [
   { to: '/proposal-writer', label: 'Proposal Writer', detail: 'AI proposal support', requiresPro: true },
   { to: '/deal-room', label: 'Deal Room', detail: 'Close serious leads', requiresPro: true },
   { to: '/leads', label: 'Lead Pipeline', detail: 'Manage prospects', requiresPro: true },
+  { to: '/cloud-documents', label: 'Cloud Documents', detail: 'Invoices, contracts, files' },
   { to: '/agency', label: 'Agency Setup', detail: 'Done-for-you freelancer system' },
   { to: '/settings', label: 'Settings', detail: 'Profile, logo, payments' }
 ];
