@@ -624,8 +624,8 @@ export default function TeamWorkspace() {
           ))}
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[minmax(280px,0.42fr)_minmax(0,1fr)] xl:items-start">
-          <aside className="space-y-5 xl:sticky xl:top-28">
+        <section className="space-y-6">
+          <aside className={`grid gap-5 ${(createOpen || !projects.length) ? 'lg:grid-cols-2 lg:items-start' : ''}`}>
             <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
@@ -786,7 +786,7 @@ export default function TeamWorkspace() {
                   </div>
                 </section>
 
-                <section className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.42fr)] 2xl:items-start">
+                <section className="space-y-6">
                   <div className="space-y-6">
                     <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -929,7 +929,7 @@ export default function TeamWorkspace() {
                     </div>
                   </div>
 
-                  <aside className="space-y-6">
+                  <aside className="grid gap-6 xl:grid-cols-3">
                     <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
                       <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Payment path</p>
                       <h3 className="mt-2 text-2xl font-black text-white">Get paid without confusion</h3>
