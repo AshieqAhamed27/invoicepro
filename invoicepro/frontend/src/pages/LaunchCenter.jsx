@@ -20,9 +20,9 @@ const CheckPill = ({ ready }) => (
 
 const recentUpdates = [
   {
-    label: 'Client Work Ledger',
-    title: 'GitHub-style workflow for freelancers',
-    detail: 'Positioned the project system as a client delivery ledger for issues, client requests, release notes, docs, approvals, and handover history instead of a code-hosting clone.'
+    label: 'Client Workroom',
+    title: 'Client delivery workflow for freelancers',
+    detail: 'Positioned the project system as a simple client workroom for scope, milestones, proof, notes, approvals, invoices, and payment follow-up.'
   },
   {
     label: 'Growth Plan',
@@ -30,9 +30,9 @@ const recentUpdates = [
     detail: 'Added a Pro growth plan that calculates job escape score, income target actions, price upgrades, recurring client chances, and retention messages.'
   },
   {
-    label: 'Team Work',
-    title: 'Project Maintenance Hub',
-    detail: 'Added GitHub-style issues, release notes, project docs, and an AI maintainer so freelancers can manage long-term client projects.'
+    label: 'Client Workroom',
+    title: 'Scope to payment workflow',
+    detail: 'Rebuilt the project area around real client delivery: scope, milestones, proof links, delivery notes, collaborator invites, invoice, and payment follow-up.'
   },
   {
     label: 'Homepage',
@@ -55,9 +55,9 @@ const recentUpdates = [
     detail: 'Added a close-ready workspace that creates trust packs, buyer FAQs, objection replies, and next-step messages before invoicing.'
   },
   {
-    label: 'Team Work',
-    title: 'Freelancer Team Workspace',
-    detail: 'Added a Pro workspace where users can add another freelancer, split roles, assign tasks, generate an AI delivery plan, and maintain the project after handover.'
+    label: 'Client Workroom',
+    title: 'Freelancer project operating room',
+    detail: 'Simplified the team feature so users can quickly understand how to manage a real client project and get paid.'
   },
   {
     label: 'AI Sales',
@@ -203,13 +203,13 @@ export default function LaunchCenter() {
       path: '/dashboard'
     },
     {
-      id: 'team-workspace',
+      id: 'client-workroom',
       category: 'Product Ops',
-      label: 'Team Workspace for bigger projects',
+      label: 'Client Workroom for delivery',
       ready: true,
-      action: 'Add the Team Workspace route to help Pro users collaborate with other freelancers.',
-      doneText: 'Team Workspace is available for Pro users to split roles, track issues, plan releases, save docs, and manage delivery actions.',
-      path: '/team-workspace'
+      action: 'Add the Client Workroom route to help Pro users manage scope, delivery proof, collaborators, and payment.',
+      doneText: 'Client Workroom is available for Pro users to manage scope, milestones, proof, collaborators, invoice, and payment follow-up.',
+      path: '/client-workroom'
     },
     {
       id: 'pro-plan',

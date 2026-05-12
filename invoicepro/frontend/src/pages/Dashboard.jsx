@@ -101,8 +101,8 @@ const simpleWorkflowOptions = [
     id: 'manage-project',
     title: 'Manage project',
     promise: 'Keep client requests, team work, delivery notes, and handover organized.',
-    cta: 'Open Team Work',
-    route: '/team-workspace',
+    cta: 'Open Workroom',
+    route: '/client-workroom',
     tone: 'purple',
     steps: [
       'Create or open a project',

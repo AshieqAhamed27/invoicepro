@@ -44,7 +44,7 @@ const verticals = {
       'Money GPS for the best action today',
       'Freelancer Growth Plan with stability score',
       'AI Client Coach for messages and objection handling',
-      'Client Work Ledger for delivery history',
+      'Client Workroom for delivery proof and payment',
       'Local and international invoice workflow'
     ]
   },
@@ -58,17 +58,17 @@ const verticals = {
     audience: 'Freelance developers',
     promise: 'From client request to paid release',
     primaryCta: 'Start as Developer',
-    appPath: '/team-workspace',
+    appPath: '/client-workroom',
     workflowPath: '/workflows/developers',
-    secondaryCta: 'Open Client Work Ledger',
-    secondaryPath: '/team-workspace',
+    secondaryCta: 'Open Client Workroom',
+    secondaryPath: '/client-workroom',
     problems: [
       'Client requests arrive in chat and become hard to track.',
       'Bugs, releases, handover notes, and invoices are separated from the actual client workflow.',
       'Developers finish work but delay proposals, approvals, payment links, and final collection.'
     ],
     outcomes: [
-      'Track bugs, improvements, releases, docs, and handover in one client ledger.',
+      'Track scope, tasks, proof links, docs, handover, and payment in one client workroom.',
       'Use AI to decide the next delivery, proposal, or payment action.',
       'Create invoices and payment links after approved work.'
     ],
@@ -80,9 +80,9 @@ const verticals = {
       'Invoice and collect payment'
     ],
     features: [
-      'Client Work Ledger for issues and release notes',
-      'AI developer helper for next steps',
-      'Team workspace for larger builds',
+      'Client Workroom for scope, delivery proof, and handover',
+      'Workroom plan for next delivery steps',
+      'Collaborator invites for larger builds',
       'Proposal writer and deal room',
       'Razorpay, UPI, and international invoice flow'
     ]
@@ -120,7 +120,7 @@ const verticals = {
     ],
     features: [
       'AI proposal writer for scope and pricing',
-      'Client Work Ledger for revisions and approvals',
+      'Client Workroom for revisions, approvals, and proof',
       'Deal Closure Room for buyer doubts',
       'PDF invoice and public payment page',
       'Recurring client detector for monthly design support'
@@ -136,10 +136,10 @@ const verticals = {
     audience: 'Small agencies',
     promise: 'Team delivery plus payment control',
     primaryCta: 'Start Agency Workspace',
-    appPath: '/team-workspace',
+    appPath: '/client-workroom',
     workflowPath: '/workflows/agencies',
-    secondaryCta: 'Open Team Workspace',
-    secondaryPath: '/team-workspace',
+    secondaryCta: 'Open Client Workroom',
+    secondaryPath: '/client-workroom',
     problems: [
       'Small agencies manage people, clients, scope, and payment in too many separate tools.',
       'Project status becomes unclear when tasks, issues, release notes, and invoices are not connected.',
@@ -147,7 +147,7 @@ const verticals = {
     ],
     outcomes: [
       'Invite freelancers into project-specific workspaces.',
-      'Track tasks, issues, release plans, docs, and client handover.',
+      'Track scope, tasks, delivery proof, notes, collaborators, and client handover.',
       'Use invoices and payment collection as part of the same delivery loop.'
     ],
     workflow: [
@@ -158,9 +158,9 @@ const verticals = {
       'Invoice and retain client'
     ],
     features: [
-      'Freelancer team workspace',
-      'Client Work Ledger for long-term delivery',
-      'AI maintainer and delivery risk checks',
+      'Client Workroom for freelancer teams',
+      'Delivery proof and handover history',
+      'Workroom plan and delivery risk checks',
       'Proposal, deal, and invoice workflow',
       'Recurring billing for retainers'
     ]

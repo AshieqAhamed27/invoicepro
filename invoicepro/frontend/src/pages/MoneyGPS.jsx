@@ -119,7 +119,7 @@ const buildActionCandidates = ({ invoices = [], leadDashboard = {}, projects = [
       title: `Move ${activeProject.project.title} forward`,
       priority: 66,
       value: Number(activeProject.project.budget || 0),
-      route: '/team-workspace',
+      route: '/client-workroom',
       cta: 'Open Project',
       reason: 'Delivery risk can delay payment. Clearing project blockers protects the invoice.',
       message: `Team update: let us move the highest priority task or open issue forward today so ${activeProject.project.title} stays on track.`

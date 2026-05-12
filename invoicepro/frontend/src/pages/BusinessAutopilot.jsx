@@ -45,7 +45,7 @@ const automationStages = [
     id: 'project',
     title: 'Manage delivery',
     label: 'Project control',
-    route: '/team-workspace',
+    route: '/client-workroom',
     cta: 'Open team work',
     tone: 'purple',
     automates: 'Creates delivery tasks, client request tracking, collaborator roles, and handover notes.',

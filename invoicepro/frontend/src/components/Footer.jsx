@@ -47,8 +47,8 @@ export default function Footer() {
               <Link className="transition-colors hover:text-yellow-300" to="/deal-room">
                 Deal Closure Room
               </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/team-workspace">
-                Team Workspace
+              <Link className="transition-colors hover:text-yellow-300" to="/client-workroom">
+                Client Workroom
               </Link>
               <Link className="transition-colors hover:text-yellow-300" to="/agency">
                 Agency Setup

@@ -25,7 +25,7 @@ const planDetails = {
     amount: 499,
     currency: "INR",
     label: "Pro Monthly",
-    note: "Daily money actions, AI client coach, proposals, Team Work, GitHub sync, and payment collection.",
+    note: "Daily money actions, client coach, proposals, Client Workroom, and payment collection.",
     duration: "Billed every 30 days",
     amountSource: "fallback"
   },
@@ -80,7 +80,7 @@ const proValueItems = [
   'Money GPS: one best revenue action each day',
   'AI Client Coach: find, talk, close, and collect',
   'Proposal Writer and Deal Room for better conversion',
-  'Team Work with project ledger and GitHub sync',
+  'Client Workroom for scope, delivery proof, collaborators, and payment',
   'Unlimited INR and international invoices',
   'Payment tracking, UPI/Razorpay links, and cashflow control'
 ];
@@ -480,7 +480,7 @@ export default function Payment() {
             </h1>
 
             <p className="max-w-xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed mb-8 sm:mb-10">
-              Pro helps freelancers find clients, close work, manage delivery, connect GitHub, send proposals and invoices, and protect cashflow.
+              Pro helps freelancers find clients, close work, manage delivery, save proof, send proposals and invoices, and protect cashflow.
             </p>
 
             <div className="premium-panel p-5 sm:p-8 relative overflow-hidden group">

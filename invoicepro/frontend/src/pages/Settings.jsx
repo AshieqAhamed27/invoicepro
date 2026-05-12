@@ -80,11 +80,11 @@ const productSettings = [
     requiresPro: true
   },
   {
-    label: 'Team Work',
-    title: 'Client Work Ledger',
-    detail: 'GitHub/GitLab-inspired client delivery history for freelancers: tasks, issues, releases, docs, approvals, and handover notes.',
+    label: 'Workroom',
+    title: 'Client Workroom',
+    detail: 'Manage scope, milestones, files, delivery proof, collaborators, invoices, and payment follow-up in one client workspace.',
     status: 'Pro',
-    to: '/team-workspace',
+    to: '/client-workroom',
     requiresPro: true
   },
   {
@@ -141,8 +141,8 @@ const automationSettings = [
     state: 'Enabled'
   },
   {
-    title: 'Team Workspace',
-    detail: 'Keeps a client work ledger with collaborator roles, tasks, issues, release notes, docs, handover notes, and delivery risk.',
+    title: 'Client Workroom',
+    detail: 'Keeps client scope, milestones, proof links, delivery notes, collaborator roles, invoice, and payment follow-up visible.',
     state: 'Enabled'
   },
   {

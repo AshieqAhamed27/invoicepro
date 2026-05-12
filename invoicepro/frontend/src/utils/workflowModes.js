@@ -12,7 +12,7 @@ export const workflowModes = {
       ['Set income target', 'Define monthly goal and daily money action.', 'Money GPS', '/money-gps'],
       ['Find leads', 'Choose who to message and save serious prospects.', 'Client Finder', '/client-finder'],
       ['Send proposal', 'Turn interest into a clear offer and price.', 'Proposal Writer', '/proposal-writer'],
-      ['Deliver work', 'Track client tasks, notes, and updates.', 'Team Work', '/team-workspace'],
+      ['Deliver work', 'Track scope, tasks, proof, and updates.', 'Client Workroom', '/client-workroom'],
       ['Collect payment', 'Create invoice, share payment link, and follow up.', 'Invoice', '/create-invoice']
     ]
   },
@@ -21,15 +21,15 @@ export const workflowModes = {
     label: 'Developer Workflow',
     audience: 'freelance developers',
     path: '/workflows/developers',
-    appPath: '/team-workspace',
+    appPath: '/client-workroom',
     headline: 'From client requirement to paid release.',
-    summary: 'Best for web/app developers who need to connect scope, tasks, issues, GitHub, handover, and payment.',
-    setupOutcome: 'Developer offer, client requirement flow, GitHub/project ledger, release checklist, invoice/payment flow.',
+    summary: 'Best for web/app developers who need to connect scope, delivery tasks, proof, handover, and payment.',
+    setupOutcome: 'Developer offer, client requirement flow, delivery checklist, proof links, handover notes, invoice/payment flow.',
     steps: [
-      ['Capture requirement', 'Turn chat requests into a structured project.', 'Team Work', '/team-workspace'],
-      ['Plan build tasks', 'Track bugs, features, issues, and priorities.', 'Team Work', '/team-workspace'],
-      ['Sync project proof', 'Connect GitHub-style delivery notes and release history.', 'Team Work', '/team-workspace'],
-      ['Send handover', 'Write delivery notes and next maintenance steps.', 'Team Work', '/team-workspace'],
+      ['Capture requirement', 'Turn chat requests into a structured project.', 'Client Workroom', '/client-workroom'],
+      ['Plan delivery tasks', 'Track milestones, issues, proof, and priorities.', 'Client Workroom', '/client-workroom'],
+      ['Save project proof', 'Keep delivery notes, files, and approval links.', 'Client Workroom', '/client-workroom'],
+      ['Send handover', 'Write delivery notes and next maintenance steps.', 'Client Workroom', '/client-workroom'],
       ['Invoice release', 'Send invoice after approved milestone or launch.', 'Invoice', '/create-invoice']
     ]
   },
@@ -45,8 +45,8 @@ export const workflowModes = {
     steps: [
       ['Define design offer', 'Clarify package, deliverables, and revision limits.', 'Proposal Writer', '/proposal-writer'],
       ['Send proposal', 'Create fixed-scope proposal before work starts.', 'Proposal', '/create-invoice?type=proposal'],
-      ['Track revisions', 'Keep feedback, changes, and approvals in one place.', 'Team Work', '/team-workspace'],
-      ['Prepare handover', 'List final files, links, and client notes.', 'Team Work', '/team-workspace'],
+      ['Track revisions', 'Keep feedback, changes, and approvals in one place.', 'Client Workroom', '/client-workroom'],
+      ['Prepare handover', 'List final files, links, and client notes.', 'Client Workroom', '/client-workroom'],
       ['Collect final payment', 'Invoice after approval and share payment link.', 'Invoice', '/create-invoice']
     ]
   },
@@ -55,14 +55,14 @@ export const workflowModes = {
     label: 'Agency Workflow',
     audience: 'small agencies',
     path: '/workflows/agencies',
-    appPath: '/team-workspace',
+    appPath: '/client-workroom',
     headline: 'Manage client delivery, collaborators, retainers, and payments.',
     summary: 'Best for small agencies and freelancer teams handling bigger projects with multiple people.',
     setupOutcome: 'Agency offer, team delivery board, collaborator roles, retainer proposal, invoice/payment flow.',
     steps: [
-      ['Create client workspace', 'Set one project home for scope, tasks, and updates.', 'Team Work', '/team-workspace'],
-      ['Invite collaborators', 'Bring freelancers into the project with clear roles.', 'Team Work', '/team-workspace'],
-      ['Split delivery work', 'Assign tasks, issues, docs, and milestones.', 'Team Work', '/team-workspace'],
+      ['Create client workroom', 'Set one project home for scope, tasks, files, proof, and updates.', 'Client Workroom', '/client-workroom'],
+      ['Invite collaborators', 'Bring freelancers into the project with clear roles.', 'Client Workroom', '/client-workroom'],
+      ['Split delivery work', 'Assign tasks, notes, docs, and milestones.', 'Client Workroom', '/client-workroom'],
       ['Send retainer proposal', 'Move one-time work toward monthly support.', 'Proposal Writer', '/proposal-writer'],
       ['Collect retainer', 'Create recurring invoice or payment follow-up.', 'Recurring', '/recurring']
     ]

@@ -1,67 +1,54 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
-import { getToken, getUser } from '../utils/auth';
+import { getUser, hasProAccess } from '../utils/auth';
 import { openWhatsAppShare } from '../utils/whatsapp';
+import useDocumentMeta from '../utils/useDocumentMeta';
 
 const currencyOptions = ['INR', 'USD', 'GBP', 'EUR', 'AED', 'SGD', 'AUD', 'CAD'];
 const projectStatuses = ['planning', 'active', 'review', 'completed', 'paused'];
 const taskStatuses = ['todo', 'doing', 'done', 'blocked'];
-const priorities = ['low', 'normal', 'high'];
-const issueTypes = ['bug', 'feature', 'task', 'client_request'];
-const issueStatuses = ['open', 'in_progress', 'review', 'done'];
-const releaseStatuses = ['planned', 'in_progress', 'shipped'];
-const wikiCategories = ['setup', 'client', 'delivery', 'qa', 'handover', 'other'];
 
-const blankGroup = {
-  name: '',
-  focus: '',
-  lead: '',
-  status: 'planning'
+const defaultCreateForm = {
+  title: '',
+  clientName: '',
+  budget: '',
+  currency: 'INR',
+  deadline: '',
+  projectBrief: '',
+  firstMilestone: 'Confirm scope and acceptance criteria',
+  secondMilestone: 'Finish first delivery version',
+  finalMilestone: 'Final handover and invoice',
+  referenceLink: '',
+  deliveryProof: 'Final files, screenshots, links, approval notes, and payment confirmation.'
 };
 
-const blankCollaborator = {
-  name: '',
-  email: '',
-  role: '',
-  skill: '',
-  groupName: '',
-  availability: 'medium',
-  rate: ''
-};
-
-const blankTask = {
+const defaultTaskForm = {
   title: '',
   owner: '',
-  groupName: '',
   priority: 'normal',
   status: 'todo',
   dueDate: '',
   notes: ''
 };
 
-const blankIssue = {
-  title: '',
-  type: 'task',
-  priority: 'normal',
-  status: 'open',
-  owner: '',
-  groupName: '',
-  dueDate: '',
+const defaultResourceForm = {
+  label: '',
+  type: 'document',
+  url: '',
   notes: ''
 };
 
-const blankRelease = {
-  version: '',
-  title: '',
-  status: 'planned',
-  targetDate: '',
-  summary: ''
+const defaultInviteForm = {
+  email: '',
+  role: 'viewer',
+  groupName: ''
 };
 
-const blankWikiPage = {
+const defaultNoteForm = {
   title: '',
-  category: 'setup',
+  category: 'delivery',
   content: ''
 };
 
@@ -70,105 +57,177 @@ const formatCurrency = (amount, currency = 'INR') => {
   return `${prefix}${Number(amount || 0).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US')}`;
 };
 
-const formatDate = (date) => {
-  if (!date) return 'No deadline';
-  return new Date(date).toLocaleDateString('en-IN', {
+const formatDate = (value) => {
+  if (!value) return 'No deadline';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'No deadline';
+
+  return date.toLocaleDateString('en-IN', {
     day: 'numeric',
     month: 'short',
     year: 'numeric'
   });
 };
 
-const formatMessageTime = (date) => {
-  if (!date) return '';
-  return new Date(date).toLocaleString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
 const statusLabel = (value = '') =>
   String(value).replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
 
-const buildProjectSummary = (projects = []) => ({
+const getStatusClass = (status) => {
+  if (status === 'completed' || status === 'done') {
+    return 'border-emerald-300/20 bg-emerald-300/[0.08] text-emerald-200';
+  }
+  if (status === 'review' || status === 'doing') {
+    return 'border-sky-300/20 bg-sky-300/[0.08] text-sky-200';
+  }
+  if (status === 'blocked' || status === 'paused') {
+    return 'border-red-300/20 bg-red-300/[0.08] text-red-200';
+  }
+  return 'border-yellow-300/20 bg-yellow-300/[0.08] text-yellow-200';
+};
+
+const buildSummary = (projects = []) => ({
   total: projects.length,
   active: projects.filter((project) => project.status === 'active').length,
-  planning: projects.filter((project) => project.status === 'planning').length,
   review: projects.filter((project) => project.status === 'review').length,
-  completed: projects.filter((project) => project.status === 'completed').length,
-  groups: projects.reduce((sum, project) => sum + (project.groups?.length || 0), 0),
-  collaborators: projects.reduce((sum, project) => sum + (project.collaborators?.length || 0), 0),
-  messages: projects.reduce((sum, project) => sum + (project.messages?.length || 0), 0),
-  openIssues: projects.reduce(
-    (sum, project) => sum + (project.maintenanceIssues || []).filter((issue) => issue.status !== 'done').length,
-    0
-  ),
-  releases: projects.reduce((sum, project) => sum + (project.releases?.length || 0), 0),
-  docs: projects.reduce((sum, project) => sum + (project.wikiPages?.length || 0), 0),
   openTasks: projects.reduce(
     (sum, project) => sum + (project.tasks || []).filter((task) => task.status !== 'done').length,
     0
-  )
+  ),
+  proofLinks: projects.reduce((sum, project) => sum + (project.resources || []).length, 0)
 });
 
+const getWorkroomHealth = (project) => {
+  if (!project) {
+    return {
+      score: 0,
+      label: 'No workroom',
+      nextAction: 'Create the first client workroom.'
+    };
+  }
+
+  const tasks = project.tasks || [];
+  const resources = project.resources || [];
+  const docs = project.wikiPages || [];
+  const members = project.members || [];
+  const openTasks = tasks.filter((task) => task.status !== 'done');
+  const blockedTasks = tasks.filter((task) => task.status === 'blocked');
+  const doneTasks = tasks.filter((task) => task.status === 'done');
+  const hasScope = Boolean(project.projectBrief);
+  const hasDeadline = Boolean(project.deadline);
+  const hasProof = Boolean(resources.length || docs.length);
+  const completion = tasks.length ? Math.round((doneTasks.length / tasks.length) * 100) : 0;
+
+  let score = 35;
+  if (hasScope) score += 15;
+  if (hasDeadline) score += 10;
+  if (tasks.length) score += 15;
+  if (hasProof) score += 10;
+  if (members.length > 1) score += 5;
+  score += Math.min(completion, 10);
+  score -= blockedTasks.length * 8;
+  score = Math.max(5, Math.min(100, score));
+
+  const nextTask = blockedTasks[0] || openTasks.find((task) => task.priority === 'high') || openTasks[0];
+  const nextAction = project.aiPlan?.nextAction ||
+    (nextTask
+      ? `${nextTask.owner || 'Assign an owner'} should move "${nextTask.title}" forward.`
+      : hasProof
+        ? 'Create or share the final invoice and collect payment.'
+        : 'Add proof links, handover notes, or final files before invoicing.');
+
+  return {
+    score,
+    label: score >= 80 ? 'Healthy' : score >= 55 ? 'Needs attention' : 'At risk',
+    nextAction
+  };
+};
+
+const buildCreatePayload = (form) => {
+  const tasks = [
+    form.firstMilestone,
+    form.secondMilestone,
+    form.finalMilestone
+  ]
+    .map((title) => String(title || '').trim())
+    .filter(Boolean)
+    .map((title, index) => ({
+      title,
+      owner: index === 0 ? 'Owner' : '',
+      groupName: 'Delivery',
+      priority: index === 0 ? 'high' : 'normal',
+      status: 'todo',
+      dueDate: index === 2 ? form.deadline : '',
+      notes: ''
+    }));
+
+  const resources = String(form.referenceLink || '').trim()
+    ? [{
+        label: 'Client reference link',
+        type: 'document',
+        url: form.referenceLink.trim(),
+        notes: 'Added while creating the workroom.'
+      }]
+    : [];
+
+  const wikiPages = [
+    {
+      title: 'Scope agreement',
+      category: 'client',
+      content: form.projectBrief || 'Add the agreed scope, deliverables, price, timeline, and acceptance criteria.'
+    },
+    {
+      title: 'Delivery proof checklist',
+      category: 'handover',
+      content: form.deliveryProof
+    }
+  ].filter((page) => page.content);
+
+  return {
+    title: form.title,
+    clientName: form.clientName,
+    budget: form.budget,
+    currency: form.currency,
+    deadline: form.deadline,
+    projectBrief: form.projectBrief,
+    groups: [{
+      name: 'Delivery',
+      focus: 'Finish agreed client work and prepare proof for payment.',
+      lead: 'Owner',
+      status: 'planning'
+    }],
+    collaborators: [],
+    tasks,
+    resources,
+    wikiPages
+  };
+};
+
 export default function TeamWorkspace() {
+  const navigate = useNavigate();
   const currentUser = getUser() || {};
-  const chatOpenRef = useRef(false);
+  const isPro = hasProAccess(currentUser);
+
   const [projects, setProjects] = useState([]);
   const [summary, setSummary] = useState({});
-  const [canCreateProjects, setCanCreateProjects] = useState(false);
   const [activeProjectId, setActiveProjectId] = useState('');
+  const [canCreateProjects, setCanCreateProjects] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [planLoading, setPlanLoading] = useState('');
-  const [chatGroup, setChatGroup] = useState('');
-  const [chatMessage, setChatMessage] = useState('');
-  const [chatSending, setChatSending] = useState(false);
-  const [chatLiveStatus, setChatLiveStatus] = useState('offline');
-  const [chatOpen, setChatOpen] = useState(false);
-  const [unreadMessages, setUnreadMessages] = useState(0);
-  const [inviteLoading, setInviteLoading] = useState(false);
-  const [resourceSaving, setResourceSaving] = useState(false);
-  const [devAgentLoading, setDevAgentLoading] = useState(false);
-  const [issueSaving, setIssueSaving] = useState(false);
-  const [releaseSaving, setReleaseSaving] = useState(false);
-  const [wikiSaving, setWikiSaving] = useState(false);
-  const [maintenanceAgentLoading, setMaintenanceAgentLoading] = useState(false);
-  const [githubStatus, setGithubStatus] = useState({ connected: false });
-  const [githubToken, setGithubToken] = useState('');
-  const [githubRepos, setGithubRepos] = useState([]);
-  const [githubRepoInput, setGithubRepoInput] = useState('');
-  const [githubConnecting, setGithubConnecting] = useState(false);
-  const [githubReposLoading, setGithubReposLoading] = useState(false);
-  const [githubLinking, setGithubLinking] = useState(false);
-  const [githubSyncing, setGithubSyncing] = useState(false);
+  const [actionLoading, setActionLoading] = useState('');
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState(defaultCreateForm);
+  const [taskForm, setTaskForm] = useState(defaultTaskForm);
+  const [resourceForm, setResourceForm] = useState(defaultResourceForm);
+  const [noteForm, setNoteForm] = useState(defaultNoteForm);
+  const [inviteForm, setInviteForm] = useState(defaultInviteForm);
   const [lastInvite, setLastInvite] = useState(null);
-  const [inviteForm, setInviteForm] = useState({
-    email: '',
-    role: 'viewer',
-    groupName: ''
-  });
-  const [resourceForm, setResourceForm] = useState({
-    label: '',
-    type: 'repository',
-    url: '',
-    notes: ''
-  });
-  const [issueForm, setIssueForm] = useState({ ...blankIssue });
-  const [releaseForm, setReleaseForm] = useState({ ...blankRelease });
-  const [wikiForm, setWikiForm] = useState({ ...blankWikiPage });
-  const [form, setForm] = useState({
-    title: '',
-    clientName: '',
-    budget: '',
-    currency: 'INR',
-    deadline: '',
-    projectBrief: '',
-    groups: [{ ...blankGroup }],
-    collaborators: [{ ...blankCollaborator }],
-    tasks: [{ ...blankTask }]
+  const [chatMessage, setChatMessage] = useState('');
+
+  useDocumentMeta({
+    title: 'Client Workroom | ClientFlow AI',
+    description: 'Manage client scope, milestones, files, collaborators, delivery proof, invoice, and payment follow-up in one freelancer workroom.'
   });
 
   const activeProject = useMemo(
@@ -176,2507 +235,806 @@ export default function TeamWorkspace() {
     [activeProjectId, projects]
   );
 
-  const formGroupNames = useMemo(
-    () => form.groups.map((group) => group.name.trim()).filter(Boolean),
-    [form.groups]
+  const computedSummary = useMemo(
+    () => ({ ...buildSummary(projects), ...summary }),
+    [projects, summary]
   );
 
-  const activeGroupNames = useMemo(
-    () => (activeProject?.groups || []).map((group) => group.name).filter(Boolean),
-    [activeProject]
-  );
+  const health = useMemo(() => getWorkroomHealth(activeProject), [activeProject]);
+  const tasks = activeProject?.tasks || [];
+  const resources = activeProject?.resources || [];
+  const docs = activeProject?.wikiPages || [];
+  const members = activeProject?.members || [];
+  const messages = (activeProject?.messages || []).slice(-8);
+  const canEdit = Boolean(activeProject?.canEdit || ['owner', 'editor'].includes(activeProject?.accessRole));
+  const canInvite = Boolean(activeProject?.canInvite);
 
-  const visibleMessages = useMemo(() => {
-    const messages = activeProject?.messages || [];
-    if (!chatGroup) return messages;
+  const replaceProject = (updatedProject) => {
+    if (!updatedProject?._id) return;
 
-    return messages.filter((item) => (item.groupName || '') === chatGroup);
-  }, [activeProject, chatGroup]);
-
-  const activeMember = useMemo(() => {
-    if (!activeProject) return null;
-    return (activeProject.members || []).find((member) =>
-      String(member.user || '') === String(currentUser.id || currentUser._id || '') ||
-      String(member.email || '').toLowerCase() === String(currentUser.email || '').toLowerCase()
-    ) || null;
-  }, [activeProject, currentUser.email, currentUser.id, currentUser._id]);
-
-  const canEditActiveProject = Boolean(activeProject?.canEdit || ['owner', 'editor'].includes(activeProject?.accessRole));
-  const canInviteActiveProject = Boolean(activeProject?.canInvite);
-  const latestMessages = visibleMessages.slice(-40);
-  const sharedResources = activeProject?.resources || [];
-  const developerAgent = activeProject?.developerAgent || {};
-  const maintenanceIssues = activeProject?.maintenanceIssues || [];
-  const openMaintenanceIssues = maintenanceIssues.filter((issue) => issue.status !== 'done');
-  const releases = activeProject?.releases || [];
-  const wikiPages = activeProject?.wikiPages || [];
-  const maintenanceAgent = activeProject?.maintenanceAgent || {};
-  const githubRepo = activeProject?.githubRepo || {};
-  const githubSnapshot = githubRepo.snapshot || {};
-
-  const visibleTasks = useMemo(() => {
-    const tasks = activeProject?.tasks || [];
-    if (!activeProject || canEditActiveProject) return tasks;
-
-    const memberName = String(activeMember?.name || currentUser.name || '').toLowerCase();
-    const memberEmail = String(activeMember?.email || currentUser.email || '').toLowerCase();
-    const memberGroup = String(activeMember?.groupName || '').toLowerCase();
-    const assignedTasks = tasks.filter((task) => {
-      const owner = String(task.owner || '').toLowerCase();
-      const groupName = String(task.groupName || '').toLowerCase();
-
-      return (
-        (memberName && owner === memberName) ||
-        (memberEmail && owner === memberEmail) ||
-        (memberGroup && groupName === memberGroup)
-      );
+    setProjects((prev) => {
+      const exists = prev.some((project) => project._id === updatedProject._id);
+      const next = exists
+        ? prev.map((project) => project._id === updatedProject._id ? updatedProject : project)
+        : [updatedProject, ...prev];
+      setSummary(buildSummary(next));
+      return next;
     });
+    setActiveProjectId(updatedProject._id);
+  };
 
-    return assignedTasks.length ? assignedTasks : tasks;
-  }, [activeProject, activeMember, canEditActiveProject, currentUser.email, currentUser.name]);
+  const loadProjects = async () => {
+    setLoading(true);
+    setError('');
 
-  const fetchProjects = async () => {
     try {
-      setLoading(true);
       const res = await api.get('/team-projects');
       const nextProjects = res.data?.projects || [];
       setProjects(nextProjects);
-      setSummary(res.data?.summary || {});
+      setSummary(res.data?.summary || buildSummary(nextProjects));
       setCanCreateProjects(Boolean(res.data?.canCreateProjects));
+
       if (!activeProjectId && nextProjects[0]?._id) {
         setActiveProjectId(nextProjects[0]._id);
       }
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to load team workspace');
+      setError(err?.response?.data?.message || err?.friendlyMessage || 'Could not load client workrooms.');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchGitHubStatus = async () => {
-    try {
-      const res = await api.get('/team-projects/github/status');
-      setGithubStatus(res.data?.github || { connected: false });
-    } catch {
-      setGithubStatus({ connected: false });
-    }
-  };
-
   useEffect(() => {
-    fetchProjects();
-    fetchGitHubStatus();
+    loadProjects();
   }, []);
 
   useEffect(() => {
-    setChatGroup('');
-    setChatMessage('');
     setLastInvite(null);
-    setInviteForm((prev) => ({ ...prev, groupName: '' }));
-    setResourceForm({ label: '', type: 'repository', url: '', notes: '' });
-    setIssueForm({ ...blankIssue });
-    setReleaseForm({ ...blankRelease });
-    setWikiForm({ ...blankWikiPage });
-    setGithubRepoInput(activeProject?.githubRepo?.fullName || '');
-    setUnreadMessages(0);
+    setChatMessage('');
+    setTaskForm(defaultTaskForm);
+    setResourceForm(defaultResourceForm);
+    setNoteForm(defaultNoteForm);
+    setInviteForm(defaultInviteForm);
   }, [activeProject?._id]);
 
-  useEffect(() => {
-    if (!activeProject?._id || typeof EventSource === 'undefined') {
-      setChatLiveStatus('offline');
-      return undefined;
-    }
-
-    const token = getToken();
-    if (!token) {
-      setChatLiveStatus('offline');
-      return undefined;
-    }
-
-    const baseURL = String(api.defaults.baseURL || '').replace(/\/+$/, '');
-    const streamUrl = `${baseURL}/team-projects/${activeProject._id}/events?token=${encodeURIComponent(token)}`;
-    let isClosed = false;
-    const source = new EventSource(streamUrl);
-
-    setChatLiveStatus('connecting');
-
-    source.addEventListener('connected', () => {
-      if (!isClosed) setChatLiveStatus('live');
-    });
-
-    source.addEventListener('message', (event) => {
-      try {
-        const payload = JSON.parse(event.data || '{}');
-        const incomingMessage = payload.message;
-        const projectId = payload.projectId;
-
-        if (!projectId || !incomingMessage?._id) return;
-
-        setProjects((prev) => {
-          let changed = false;
-          const next = prev.map((project) => {
-            if (project._id !== projectId) return project;
-
-            const currentMessages = project.messages || [];
-            const alreadyExists = currentMessages.some((item) => String(item._id) === String(incomingMessage._id));
-            if (alreadyExists) return project;
-
-            changed = true;
-            return {
-              ...project,
-              messages: [...currentMessages, incomingMessage]
-            };
-          });
-
-          if (changed) {
-            setSummary(buildProjectSummary(next));
-            if (!chatOpenRef.current) {
-              setUnreadMessages((count) => count + 1);
-            }
-          }
-
-          return next;
-        });
-      } catch {
-        // Ignore malformed stream packets.
-      }
-    });
-
-    source.addEventListener('resource', (event) => {
-      try {
-        const payload = JSON.parse(event.data || '{}');
-        if (!payload.projectId || !payload.resource?._id) return;
-
-        setProjects((prev) => prev.map((project) => {
-          if (project._id !== payload.projectId) return project;
-          const resources = project.resources || [];
-          if (resources.some((item) => String(item._id) === String(payload.resource._id))) return project;
-          return { ...project, resources: [...resources, payload.resource] };
-        }));
-      } catch {
-        // Ignore malformed stream packets.
-      }
-    });
-
-    source.addEventListener('developer_agent', (event) => {
-      try {
-        const payload = JSON.parse(event.data || '{}');
-        if (!payload.projectId) return;
-
-        setProjects((prev) => prev.map((project) =>
-          project._id === payload.projectId
-            ? { ...project, developerAgent: payload.developerAgent || {} }
-            : project
-        ));
-      } catch {
-        // Ignore malformed stream packets.
-      }
-    });
-
-    source.addEventListener('project_update', (event) => {
-      try {
-        const payload = JSON.parse(event.data || '{}');
-        if (!payload.projectId) return;
-
-        setProjects((prev) => {
-          const next = prev.map((project) =>
-            project._id === payload.projectId
-              ? {
-                  ...project,
-                  status: payload.status || project.status,
-                  tasks: payload.tasks || project.tasks,
-                  resources: payload.resources || project.resources,
-                  maintenanceIssues: payload.maintenanceIssues || project.maintenanceIssues,
-                  releases: payload.releases || project.releases,
-                  wikiPages: payload.wikiPages || project.wikiPages,
-                  githubRepo: payload.githubRepo || project.githubRepo,
-                  aiPlan: payload.aiPlan || project.aiPlan,
-                  developerAgent: payload.developerAgent || project.developerAgent,
-                  maintenanceAgent: payload.maintenanceAgent || project.maintenanceAgent,
-                  updatedAt: payload.updatedAt || project.updatedAt
-                }
-              : project
-          );
-          setSummary(buildProjectSummary(next));
-          return next;
-        });
-      } catch {
-        // Ignore malformed stream packets.
-      }
-    });
-
-    source.addEventListener('access_removed', (event) => {
-      try {
-        const payload = JSON.parse(event.data || '{}');
-        const projectId = payload.projectId || activeProject._id;
-
-        setProjects((prev) => {
-          const next = prev.filter((project) => project._id !== projectId);
-          setSummary(buildProjectSummary(next));
-          return next;
-        });
-        setActiveProjectId('');
-        setChatLiveStatus('offline');
-        isClosed = true;
-        source.close();
-        alert(payload.message || 'Your access to this project was removed.');
-      } catch {
-        isClosed = true;
-        source.close();
-      }
-    });
-
-    source.onerror = () => {
-      if (!isClosed) setChatLiveStatus('reconnecting');
-    };
-
-    return () => {
-      isClosed = true;
-      source.close();
-      setChatLiveStatus('offline');
-    };
-  }, [activeProject?._id]);
-
-  useEffect(() => {
-    chatOpenRef.current = chatOpen;
-    if (chatOpen) {
-      setUnreadMessages(0);
-    }
-  }, [chatOpen, activeProject?._id]);
-
-  const updateField = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const updateGroup = (index, field, value) => {
-    setForm((prev) => ({
-      ...prev,
-      groups: prev.groups.map((group, currentIndex) =>
-        currentIndex === index ? { ...group, [field]: value } : group
-      )
-    }));
-  };
-
-  const updateCollaborator = (index, field, value) => {
-    setForm((prev) => ({
-      ...prev,
-      collaborators: prev.collaborators.map((person, currentIndex) =>
-        currentIndex === index ? { ...person, [field]: value } : person
-      )
-    }));
-  };
-
-  const updateTask = (index, field, value) => {
-    setForm((prev) => ({
-      ...prev,
-      tasks: prev.tasks.map((task, currentIndex) =>
-        currentIndex === index ? { ...task, [field]: value } : task
-      )
-    }));
-  };
-
-  const removeCollaborator = (index) => {
-    setForm((prev) => ({
-      ...prev,
-      collaborators: prev.collaborators.length === 1
-        ? [{ ...blankCollaborator }]
-        : prev.collaborators.filter((_, currentIndex) => currentIndex !== index)
-    }));
-  };
-
-  const removeGroup = (index) => {
-    setForm((prev) => ({
-      ...prev,
-      groups: prev.groups.length === 1
-        ? [{ ...blankGroup }]
-        : prev.groups.filter((_, currentIndex) => currentIndex !== index)
-    }));
-  };
-
-  const removeTask = (index) => {
-    setForm((prev) => ({
-      ...prev,
-      tasks: prev.tasks.length === 1
-        ? [{ ...blankTask }]
-        : prev.tasks.filter((_, currentIndex) => currentIndex !== index)
-    }));
-  };
-
-  const handleSubmit = async (event) => {
+  const createWorkroom = async (event) => {
     event.preventDefault();
+    setError('');
+    setMessage('');
 
-    if (!form.title.trim()) {
-      alert('Add a project title first.');
+    if (!canCreateProjects) {
+      navigate('/payment');
+      return;
+    }
+
+    if (!createForm.title.trim() || !createForm.clientName.trim()) {
+      setError('Add project name and client name first.');
       return;
     }
 
     try {
       setSaving(true);
-      const res = await api.post('/team-projects', form);
-      const created = res.data?.project;
-      setForm({
-        title: '',
-        clientName: '',
-        budget: '',
-        currency: 'INR',
-        deadline: '',
-        projectBrief: '',
-        groups: [{ ...blankGroup }],
-        collaborators: [{ ...blankCollaborator }],
-        tasks: [{ ...blankTask }]
-      });
-      await fetchProjects();
-      if (created?._id) setActiveProjectId(created._id);
+      const res = await api.post('/team-projects', buildCreatePayload(createForm));
+      replaceProject(res.data?.project);
+      setCreateForm(defaultCreateForm);
+      setCreateOpen(false);
+      setMessage('Client workroom created.');
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to create team project.');
+      setError(err?.response?.data?.message || err?.friendlyMessage || 'Could not create workroom.');
     } finally {
       setSaving(false);
     }
   };
 
-  const updateProjectStatus = async (project, status) => {
-    if (!project?.canEdit) {
-      alert('Only project owners and editors can update status.');
+  const updateProject = async (updates, loadingKey = 'project') => {
+    if (!activeProject?._id || !canEdit) {
+      setError('Only owners and editors can update this workroom.');
       return;
     }
 
     try {
-      const res = await api.patch(`/team-projects/${project._id}`, { status });
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === project._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
+      setActionLoading(loadingKey);
+      const res = await api.patch(`/team-projects/${activeProject._id}`, updates);
+      replaceProject(res.data?.project);
+      setMessage('Workroom updated.');
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to update project.');
-    }
-  };
-
-  const updateProjectTasks = async (project, nextTasks) => {
-    if (!project?.canEdit) {
-      alert('Only project owners and editors can update tasks.');
-      return;
-    }
-
-    try {
-      const res = await api.patch(`/team-projects/${project._id}`, { tasks: nextTasks });
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === project._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to update task.');
-    }
-  };
-
-  const generateAiPlan = async (projectId) => {
-    if (!canEditActiveProject) {
-      alert('Only project owners and editors can generate the AI plan.');
-      return;
-    }
-
-    try {
-      setPlanLoading(projectId);
-      const res = await api.post(`/team-projects/${projectId}/ai-plan`);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === projectId ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'AI plan failed.');
+      setError(err?.response?.data?.message || err?.friendlyMessage || 'Could not update workroom.');
     } finally {
-      setPlanLoading('');
+      setActionLoading('');
     }
   };
 
-  const sendGroupMessage = async (event) => {
+  const addTask = async (event) => {
     event.preventDefault();
+    setError('');
+    setMessage('');
 
-    if (!activeProject?._id || !chatMessage.trim()) {
+    if (!taskForm.title.trim()) {
+      setError('Add a milestone or task title first.');
+      return;
+    }
+
+    const nextTasks = [
+      ...tasks,
+      {
+        ...taskForm,
+        title: taskForm.title.trim(),
+        owner: taskForm.owner.trim(),
+        groupName: 'Delivery',
+        notes: taskForm.notes.trim()
+      }
+    ];
+
+    await updateProject({ tasks: nextTasks }, 'task');
+    setTaskForm(defaultTaskForm);
+  };
+
+  const updateTaskStatus = async (taskId, status) => {
+    const nextTasks = tasks.map((task) =>
+      task._id === taskId ? { ...task, status } : task
+    );
+    await updateProject({ tasks: nextTasks }, `task-${taskId}`);
+  };
+
+  const addResource = async (event) => {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+
+    if (!resourceForm.label.trim() || !resourceForm.url.trim()) {
+      setError('Add a label and https:// link first.');
       return;
     }
 
     try {
-      setChatSending(true);
-      const senderName = currentUser.name || currentUser.email || 'Project owner';
-      const res = await api.post(`/team-projects/${activeProject._id}/messages`, {
-        groupName: chatGroup,
-        senderName,
-        message: chatMessage
+      setActionLoading('resource');
+      const res = await api.post(`/team-projects/${activeProject._id}/resources`, {
+        ...resourceForm,
+        label: resourceForm.label.trim(),
+        url: resourceForm.url.trim(),
+        notes: resourceForm.notes.trim()
       });
-
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-      setChatMessage('');
+      replaceProject(res.data?.project);
+      setResourceForm(defaultResourceForm);
+      setMessage('Proof link added.');
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to send message.');
+      setError(err?.response?.data?.message || err?.friendlyMessage || 'Could not add proof link.');
     } finally {
-      setChatSending(false);
+      setActionLoading('');
+    }
+  };
+
+  const addDeliveryNote = async (event) => {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+
+    if (!noteForm.title.trim() || !noteForm.content.trim()) {
+      setError('Add note title and content first.');
+      return;
+    }
+
+    try {
+      setActionLoading('note');
+      const res = await api.post(`/team-projects/${activeProject._id}/wiki-pages`, {
+        ...noteForm,
+        title: noteForm.title.trim(),
+        content: noteForm.content.trim()
+      });
+      replaceProject(res.data?.project);
+      setNoteForm(defaultNoteForm);
+      setMessage('Delivery note saved.');
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.friendlyMessage || 'Could not save delivery note.');
+    } finally {
+      setActionLoading('');
     }
   };
 
   const createInvite = async (event) => {
     event.preventDefault();
+    setError('');
+    setMessage('');
 
-    if (!activeProject?._id || !canInviteActiveProject) {
-      alert('Only the paid project owner can create invite links.');
+    if (!canInvite) {
+      setError('Only the paid project owner can create invite links.');
       return;
     }
 
     try {
-      setInviteLoading(true);
+      setActionLoading('invite');
       const res = await api.post(`/team-projects/${activeProject._id}/invites`, inviteForm);
+      replaceProject(res.data?.project);
       setLastInvite(res.data?.invite || null);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
+      setMessage('Invite link created.');
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to create invite.');
+      setError(err?.response?.data?.message || err?.friendlyMessage || 'Could not create invite.');
     } finally {
-      setInviteLoading(false);
+      setActionLoading('');
     }
   };
 
-  const copyInviteLink = async () => {
+  const copyInvite = async () => {
     if (!lastInvite?.inviteUrl) return;
 
     try {
       await navigator.clipboard.writeText(lastInvite.inviteUrl);
-      alert('Invite link copied.');
+      setMessage('Invite link copied.');
     } catch {
       window.prompt('Copy invite link:', lastInvite.inviteUrl);
     }
   };
 
-  const shareInviteOnWhatsApp = () => {
-    if (!lastInvite?.whatsappText) return;
-    openWhatsAppShare(lastInvite.whatsappText);
-  };
-
-  const updateMemberAccess = async (member, updates) => {
-    if (!activeProject?._id || !member?._id || !canInviteActiveProject) {
-      return;
-    }
-
-    try {
-      const res = await api.patch(`/team-projects/${activeProject._id}/members/${member._id}`, updates);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to update member access.');
+  const shareInvite = () => {
+    if (lastInvite?.whatsappText) {
+      openWhatsAppShare(lastInvite.whatsappText);
     }
   };
 
-  const addBuildResource = async (event) => {
+  const sendProjectMessage = async (event) => {
     event.preventDefault();
+    setError('');
+    setMessage('');
 
-    if (!activeProject?._id || !canEditActiveProject) {
-      alert('Only project owners and editors can add code/output links.');
-      return;
-    }
-
-    if (!resourceForm.label.trim() || !resourceForm.url.trim()) {
-      alert('Add a label and link first.');
-      return;
-    }
+    if (!chatMessage.trim()) return;
 
     try {
-      setResourceSaving(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/resources`, resourceForm);
-      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
-      setResourceForm({ label: '', type: 'repository', url: '', notes: '' });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to add build link.');
-    } finally {
-      setResourceSaving(false);
-    }
-  };
-
-  const connectGitHub = async (event) => {
-    event.preventDefault();
-
-    if (!githubToken.trim()) {
-      alert('Paste your GitHub fine-grained token first.');
-      return;
-    }
-
-    try {
-      setGithubConnecting(true);
-      const res = await api.post('/team-projects/github/connect', { token: githubToken.trim() });
-      setGithubStatus(res.data?.github || { connected: true });
-      setGithubToken('');
-      await loadGitHubRepos();
-      alert('GitHub connected.');
-    } catch (err) {
-      alert(err?.response?.data?.message || 'GitHub connection failed.');
-    } finally {
-      setGithubConnecting(false);
-    }
-  };
-
-  const disconnectGitHub = async () => {
-    try {
-      const res = await api.delete('/team-projects/github/connect');
-      setGithubStatus(res.data?.github || { connected: false });
-      setGithubRepos([]);
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to disconnect GitHub.');
-    }
-  };
-
-  const loadGitHubRepos = async () => {
-    try {
-      setGithubReposLoading(true);
-      const res = await api.get('/team-projects/github/repos');
-      setGithubRepos(res.data?.repos || []);
-      if (res.data?.github) setGithubStatus(res.data.github);
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Could not load GitHub repositories.');
-    } finally {
-      setGithubReposLoading(false);
-    }
-  };
-
-  const linkGitHubRepo = async (event) => {
-    event.preventDefault();
-
-    if (!activeProject?._id || !canEditActiveProject) {
-      alert('Only project owners and editors can link GitHub repositories.');
-      return;
-    }
-
-    if (!githubRepoInput.trim()) {
-      alert('Select or paste a GitHub repo first.');
-      return;
-    }
-
-    try {
-      setGithubLinking(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/github/link`, {
-        repo: githubRepoInput.trim()
+      setActionLoading('message');
+      const res = await api.post(`/team-projects/${activeProject._id}/messages`, {
+        senderName: currentUser.name || currentUser.email || 'Team member',
+        message: chatMessage.trim()
       });
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-      alert('GitHub repository linked and synced.');
+      replaceProject(res.data?.project);
+      setChatMessage('');
     } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to link GitHub repository.');
+      setError(err?.response?.data?.message || err?.friendlyMessage || 'Could not send update.');
     } finally {
-      setGithubLinking(false);
+      setActionLoading('');
     }
   };
 
-  const syncGitHubRepo = async () => {
-    if (!activeProject?._id) return;
+  const generateWorkroomPlan = async () => {
+    setError('');
+    setMessage('');
 
     try {
-      setGithubSyncing(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/github/sync`);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
+      setActionLoading('plan');
+      const res = await api.post(`/team-projects/${activeProject._id}/ai-plan`);
+      replaceProject(res.data?.project);
+      setMessage('Workroom plan refreshed.');
     } catch (err) {
-      alert(err?.response?.data?.message || 'GitHub sync failed.');
+      setError(err?.response?.data?.message || err?.friendlyMessage || 'Could not refresh plan.');
     } finally {
-      setGithubSyncing(false);
+      setActionLoading('');
     }
   };
 
-  const generateDeveloperAgent = async () => {
-    if (!activeProject?._id) return;
+  const copyClientSummary = async () => {
+    if (!activeProject) return;
 
-    try {
-      setDevAgentLoading(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/dev-agent`);
-      setProjects((prev) => prev.map((item) => item._id === activeProject._id ? res.data.project : item));
-    } catch (err) {
-      alert(err?.response?.data?.message || 'AI developer helper failed.');
-    } finally {
-      setDevAgentLoading(false);
-    }
-  };
-
-  const addMaintenanceIssue = async (event) => {
-    event.preventDefault();
-
-    if (!activeProject?._id || !canEditActiveProject) {
-      alert('Only project owners and editors can add issues.');
-      return;
-    }
-
-    if (!issueForm.title.trim()) {
-      alert('Add an issue title first.');
-      return;
-    }
-
-    try {
-      setIssueSaving(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/issues`, issueForm);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-      setIssueForm({ ...blankIssue });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to add issue.');
-    } finally {
-      setIssueSaving(false);
-    }
-  };
-
-  const updateMaintenanceIssue = async (issue, updates) => {
-    if (!activeProject?._id || !issue?._id || !canEditActiveProject) return;
-
-    try {
-      const res = await api.patch(`/team-projects/${activeProject._id}/issues/${issue._id}`, updates);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to update issue.');
-    }
-  };
-
-  const addRelease = async (event) => {
-    event.preventDefault();
-
-    if (!activeProject?._id || !canEditActiveProject) {
-      alert('Only project owners and editors can add releases.');
-      return;
-    }
-
-    if (!releaseForm.version.trim() || !releaseForm.title.trim()) {
-      alert('Add a version and release title first.');
-      return;
-    }
-
-    try {
-      setReleaseSaving(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/releases`, releaseForm);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-      setReleaseForm({ ...blankRelease });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to add release.');
-    } finally {
-      setReleaseSaving(false);
-    }
-  };
-
-  const updateRelease = async (release, updates) => {
-    if (!activeProject?._id || !release?._id || !canEditActiveProject) return;
-
-    try {
-      const res = await api.patch(`/team-projects/${activeProject._id}/releases/${release._id}`, updates);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to update release.');
-    }
-  };
-
-  const addWikiPage = async (event) => {
-    event.preventDefault();
-
-    if (!activeProject?._id || !canEditActiveProject) {
-      alert('Only project owners and editors can add docs.');
-      return;
-    }
-
-    if (!wikiForm.title.trim() || !wikiForm.content.trim()) {
-      alert('Add a doc title and content first.');
-      return;
-    }
-
-    try {
-      setWikiSaving(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/wiki-pages`, wikiForm);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-      setWikiForm({ ...blankWikiPage });
-    } catch (err) {
-      alert(err?.response?.data?.message || 'Failed to add project doc.');
-    } finally {
-      setWikiSaving(false);
-    }
-  };
-
-  const generateMaintenanceAgent = async () => {
-    if (!activeProject?._id) return;
-
-    try {
-      setMaintenanceAgentLoading(true);
-      const res = await api.post(`/team-projects/${activeProject._id}/maintenance-agent`);
-      setProjects((prev) => {
-        const next = prev.map((item) => item._id === activeProject._id ? res.data.project : item);
-        setSummary(buildProjectSummary(next));
-        return next;
-      });
-    } catch (err) {
-      if (err?.response?.status === 404) {
-        alert('AI Maintainer is in the latest code, but your live Render backend is not redeployed yet. Push the backend changes and redeploy Render, then refresh this page.');
-      } else {
-        alert(err?.response?.data?.message || 'AI maintainer failed.');
-      }
-    } finally {
-      setMaintenanceAgentLoading(false);
-    }
-  };
-
-  const copyTeamBrief = async (project) => {
-    const plan = project.aiPlan || {};
     const text = [
-      `Project: ${project.title}`,
-      `Client: ${project.clientName || 'Not set'}`,
-      `Budget: ${formatCurrency(project.budget, project.currency)}`,
-      `Deadline: ${formatDate(project.deadline)}`,
+      `Project: ${activeProject.title}`,
+      `Client: ${activeProject.clientName || 'Not added'}`,
+      `Budget: ${formatCurrency(activeProject.budget, activeProject.currency)}`,
+      `Deadline: ${formatDate(activeProject.deadline)}`,
       '',
-      `AI Summary: ${plan.summary || 'No AI plan yet'}`,
-      `Next Action: ${plan.nextAction || 'Generate AI plan first'}`,
+      `Scope: ${activeProject.projectBrief || 'Scope not added yet.'}`,
       '',
-      'Groups:',
-      ...(project.groups || []).map((group) => `- ${group.name}: ${group.focus || 'focus not set'}${group.lead ? ` | Lead: ${group.lead}` : ''}`),
+      'Milestones:',
+      ...(tasks.length ? tasks.map((task) => `- ${task.title}: ${statusLabel(task.status)}`) : ['- Add milestones first.']),
       '',
-      'Collaborators:',
-      ...(project.collaborators || []).map((person) => `- ${person.name}: ${person.role || 'Contributor'} (${person.skill || 'skill not set'})${person.groupName ? ` | Group: ${person.groupName}` : ''}`),
-      '',
-      'Tasks:',
-      ...(project.tasks || []).map((task) => `- ${task.title} | ${task.groupName || 'No group'} | ${task.owner || 'Unassigned'} | ${task.status}`),
-      '',
-      'Open issues:',
-      ...((project.maintenanceIssues || [])
-        .filter((issue) => issue.status !== 'done')
-        .map((issue) => `- ${issue.title} | ${issue.type || 'task'} | ${issue.priority || 'normal'} | ${issue.status || 'open'}`)),
-      '',
-      'Releases:',
-      ...((project.releases || []).map((release) =>
-        `- ${release.version}: ${release.title} | ${release.status || 'planned'}`
-      )),
-      '',
-      'Project docs:',
-      ...((project.wikiPages || []).map((page) => `- ${page.title} | ${page.category || 'other'}`)),
-      '',
-      'Recent chat:',
-      ...((project.messages || []).slice(-5).map((item) =>
-        `- ${item.senderName || 'Team'}${item.groupName ? ` (${item.groupName})` : ''}: ${item.message}`
-      ))
+      `Next action: ${health.nextAction}`
     ].join('\n');
 
     try {
       await navigator.clipboard.writeText(text);
-      alert('Team brief copied.');
+      setMessage('Client summary copied.');
     } catch {
-      window.prompt('Copy team brief:', text);
+      window.prompt('Copy project summary:', text);
     }
+  };
+
+  const sharePaymentFollowUp = () => {
+    if (!activeProject) return;
+
+    openWhatsAppShare([
+      `Hi ${activeProject.clientName || ''},`,
+      `Sharing a quick update for ${activeProject.title}.`,
+      'The agreed work is ready/moving as planned. Please confirm the next payment step when convenient.',
+      `Amount: ${formatCurrency(activeProject.budget, activeProject.currency)}`,
+      'Thank you.'
+    ].join('\n'));
   };
 
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
 
-      <main className="container-custom py-8 sm:py-10 md:py-16">
-        <section className="reveal mb-10">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="h-px w-8 bg-yellow-400" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Team Workspace</p>
+      <main className="container-custom py-8 sm:py-10 md:py-14">
+        <section className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.42fr)] lg:items-end">
+          <div>
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-300" />
+              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+                Client Workroom
+              </span>
+            </div>
+            <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+              Run each client project from scope to payment.
+            </h1>
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-zinc-400 sm:text-lg">
+              One place for scope, milestones, collaborator invites, project updates, delivery proof, invoices, and payment follow-up. This is the practical system freelancers need after they win a client.
+            </p>
           </div>
-          <div className="responsive-heading-grid">
-            <div>
-              <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
-                Work with other freelancers on bigger client projects
-              </h1>
-              <p className="mt-4 max-w-3xl text-base font-medium leading-relaxed text-zinc-400 sm:text-lg">
-                Invite freelancers with a link, assign roles, split tasks, chat by group, and let AI prepare the daily delivery plan before you invoice the client.
-              </p>
-            </div>
 
-            <div className="rounded-3xl border border-yellow-400/20 bg-yellow-400/[0.05] p-5">
-              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Why users pay</p>
-              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
-                A solo freelancer can take bigger projects by bringing another freelancer into a structured delivery room.
-              </p>
+          <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.04] p-5 shadow-2xl shadow-black/20">
+            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Workroom health</p>
+            <div className="mt-4 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-5xl font-black text-white">{health.score}</p>
+                <p className="mt-1 text-sm font-semibold text-zinc-500">{health.label}</p>
+              </div>
+              <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${getStatusClass(activeProject?.status || 'planning')}`}>
+                {statusLabel(activeProject?.status || 'planning')}
+              </span>
             </div>
+            <p className="mt-4 rounded-2xl border border-white/8 bg-black/25 p-4 text-sm font-semibold leading-relaxed text-zinc-300">
+              {health.nextAction}
+            </p>
           </div>
         </section>
 
-        <section className="reveal reveal-delay-1 mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
+        {(message || error) && (
+          <section className={`mb-6 rounded-2xl border p-4 ${
+            error
+              ? 'border-red-300/20 bg-red-300/[0.08] text-red-100'
+              : 'border-emerald-300/20 bg-emerald-300/[0.08] text-emerald-100'
+          }`}>
+            <p className="text-sm font-bold">{error || message}</p>
+          </section>
+        )}
+
+        <section className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            ['Projects', summary.total || 0],
-            ['Active', summary.active || 0],
-            ['Groups', summary.groups || 0],
-            ['Open tasks', summary.openTasks || 0],
-            ['Open issues', summary.openIssues || 0],
-            ['Releases', summary.releases || 0],
-            ['Collaborators', summary.collaborators || 0],
-            ['Messages', summary.messages || 0]
+            ['Workrooms', computedSummary.total || projects.length],
+            ['Active', computedSummary.active || 0],
+            ['Open tasks', computedSummary.openTasks || 0],
+            ['Proof links', computedSummary.proofLinks || 0]
           ].map(([label, value]) => (
-            <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-              <p className="mt-2 text-3xl font-black text-white">{value}</p>
+            <div key={label} className="rounded-[1.25rem] border border-white/8 bg-white/[0.03] p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{label}</p>
+              <p className="mt-3 text-3xl font-black text-white">{value}</p>
             </div>
           ))}
         </section>
 
-        <section className="reveal reveal-delay-2 mb-8 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-5 sm:p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">GitHub-style project control</p>
-              <h2 className="mt-2 text-2xl font-black text-white">Client Work Ledger is inside every team project</h2>
-              <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-zinc-500">
-                Track client requests, bugs, improvements, releases, docs, approvals, resources, handover notes, and team updates without forcing freelancers to use a developer-only tool.
-              </p>
+        <section className="mb-8 grid gap-4 md:grid-cols-5">
+          {[
+            ['1', 'Agree scope', 'Clear deliverables, price, timeline.'],
+            ['2', 'Manage work', 'Milestones and owners stay visible.'],
+            ['3', 'Save proof', 'Files, links, notes, approvals.'],
+            ['4', 'Create invoice', 'Turn delivered work into payment.'],
+            ['5', 'Collect payment', 'Follow up before cash gets stuck.']
+          ].map(([step, title, text]) => (
+            <div key={step} className="rounded-[1.25rem] border border-white/8 bg-black/25 p-4 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
+              <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-300 text-sm font-black text-slate-950">{step}</span>
+              <h2 className="mt-4 text-lg font-black text-white">{title}</h2>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
-            {activeProject ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => document.getElementById('github-setup')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="btn btn-primary px-5 py-3 text-xs"
-                >
-                  Connect GitHub
-                </button>
-                <button
-                  type="button"
-                  onClick={() => document.getElementById('client-work-ledger')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="btn btn-secondary px-5 py-3 text-xs"
-                >
-                  Open Ledger
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={() => document.getElementById('create-team-project')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                className="btn btn-primary px-5 py-3 text-xs"
-              >
-                Create Project First
-              </button>
-            )}
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {[
-              ['Issues', 'Bugs, change requests, priority, owner, and status.'],
-              ['Releases', 'Version plans and client changelog for delivered work.'],
-              ['Project Docs', 'Setup, QA, requirements, approvals, and handover notes.'],
-              ['Resources', 'GitHub repo, live preview, Figma, requirement links, and files.']
-            ].map(([title, detail]) => (
-              <div key={title} className="rounded-2xl border border-white/8 bg-black/20 p-4 transition-all hover:-translate-y-1 hover:border-sky-300/25">
-                <p className="text-sm font-black text-white">{title}</p>
-                <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{detail}</p>
-              </div>
-            ))}
-          </div>
+          ))}
         </section>
 
-        <section className="reveal reveal-delay-2 mb-8 rounded-3xl border border-emerald-400/15 bg-emerald-400/[0.04] p-5 sm:p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Beginner setup</p>
-              <h2 className="mt-2 text-2xl font-black text-white">Connect GitHub in 3 simple steps</h2>
-              <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-zinc-500">
-                Use this only if your project has code. ClientFlow AI will show real commits, issues, pull requests, and branches inside the client project.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => document.getElementById(activeProject ? 'github-setup' : 'create-team-project')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className="btn btn-primary px-5 py-3 text-xs"
-            >
-              {activeProject ? 'Open GitHub Setup' : 'Create Project First'}
-            </button>
-          </div>
-
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {[
-              ['1', 'Create or open a team project', 'GitHub is linked per client project, so each project can have its own repository.'],
-              ['2', 'Paste GitHub token', 'Paste the token in the GitHub setup box. The token is encrypted on the backend.'],
-              ['3', 'Load repo and link it', 'Choose a repository, then sync real commits, issues, pull requests, and branches.']
-            ].map(([step, title, detail]) => (
-              <div key={step} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-300 text-sm font-black text-slate-950">
-                  {step}
+        <section className="grid gap-6 xl:grid-cols-[minmax(280px,0.42fr)_minmax(0,1fr)] xl:items-start">
+          <aside className="space-y-5 xl:sticky xl:top-28">
+            <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Projects</p>
+                  <h2 className="mt-2 text-2xl font-black text-white">Client list</h2>
                 </div>
-                <p className="mt-3 text-sm font-black text-white">{title}</p>
-                <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{detail}</p>
+                <button
+                  type="button"
+                  onClick={() => setCreateOpen((open) => !open)}
+                  className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/15"
+                >
+                  New
+                </button>
               </div>
-            ))}
-          </div>
-        </section>
 
-        <div className="grid gap-8">
-          <section className="reveal reveal-delay-1 space-y-8">
-            {loading ? (
-              <div className="premium-panel p-8">
-                <div className="h-6 w-48 animate-pulse rounded-full bg-white/5" />
-                <div className="mt-5 h-32 animate-pulse rounded-3xl bg-white/5" />
-              </div>
-            ) : projects.length ? (
-              <div className="grid gap-5">
-                {projects.map((project) => {
-                  const isActive = activeProject?._id === project._id;
-                  const doneTasks = (project.tasks || []).filter((task) => task.status === 'done').length;
-                  const totalTasks = project.tasks?.length || 0;
-
-                  return (
+              <div className="mt-5 space-y-3">
+                {loading ? (
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                    <div className="h-3 w-2/3 rounded-full bg-white/10" />
+                    <div className="mt-3 h-3 w-1/2 rounded-full bg-white/5" />
+                  </div>
+                ) : projects.length ? (
+                  projects.map((project) => (
                     <button
                       key={project._id}
                       type="button"
                       onClick={() => setActiveProjectId(project._id)}
-                      className={`rounded-3xl border p-5 text-left transition-all hover:-translate-y-1 ${
-                        isActive
-                          ? 'border-yellow-300/40 bg-yellow-300/[0.06]'
-                          : 'border-white/8 bg-white/[0.03] hover:border-white/15'
+                      className={`w-full rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 ${
+                        activeProject?._id === project._id
+                          ? 'border-emerald-300/30 bg-emerald-300/[0.08]'
+                          : 'border-white/8 bg-black/20 hover:border-white/15 hover:bg-white/[0.04]'
                       }`}
                     >
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{project.clientName || 'Internal project'}</p>
-                          <h2 className="mt-2 text-2xl font-black text-white">{project.title}</h2>
-                          <p className="mt-2 line-clamp-2 text-sm font-medium leading-relaxed text-zinc-500">
-                            {project.projectBrief || 'No brief added yet.'}
-                          </p>
-                        </div>
-                        <div className="flex shrink-0 flex-wrap gap-2">
-                          <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-200">
-                            {statusLabel(project.accessRole || 'member')}
-                          </span>
-                          <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-300">
-                            {statusLabel(project.status)}
-                          </span>
-                          <span className="rounded-full border border-emerald-400/15 bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
-                            {formatCurrency(project.budget, project.currency)}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
-                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Deadline</p>
-                          <p className="mt-1 text-sm font-black text-white">{formatDate(project.deadline)}</p>
-                        </div>
-                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Groups</p>
-                          <p className="mt-1 text-sm font-black text-white">{project.groups?.length || 0} groups</p>
-                        </div>
-                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Team</p>
-                          <p className="mt-1 text-sm font-black text-white">{project.collaborators?.length || 0} people</p>
-                        </div>
-                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Tasks</p>
-                          <p className="mt-1 text-sm font-black text-white">{doneTasks}/{totalTasks} done</p>
-                        </div>
-                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Issues</p>
-                          <p className="mt-1 text-sm font-black text-white">
-                            {(project.maintenanceIssues || []).filter((issue) => issue.status !== 'done').length} open
-                          </p>
-                        </div>
-                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Releases</p>
-                          <p className="mt-1 text-sm font-black text-white">{project.releases?.length || 0} versions</p>
-                        </div>
-                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Chat</p>
-                          <p className="mt-1 text-sm font-black text-white">{project.messages?.length || 0} updates</p>
-                        </div>
+                      <p className="text-sm font-black text-white">{project.title}</p>
+                      <p className="mt-1 text-xs font-semibold text-zinc-500">{project.clientName || 'Client not added'}</p>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${getStatusClass(project.status)}`}>
+                          {statusLabel(project.status)}
+                        </span>
+                        <span className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                          {(project.tasks || []).filter((task) => task.status !== 'done').length} open
+                        </span>
                       </div>
                     </button>
-                  );
-                })}
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                    <p className="text-sm font-black text-white">No client workroom yet.</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+                      Create one when a client shows interest or accepts a proposal.
+                    </p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="premium-panel p-8 text-center">
-                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">No team project yet</p>
-                <h2 className="mt-3 text-3xl font-black text-white">
-                  {canCreateProjects ? 'Create your first delivery room' : 'No shared project found'}
-                </h2>
-                <p className="mx-auto mt-3 max-w-xl text-sm font-medium leading-relaxed text-zinc-500">
-                  {canCreateProjects
-                    ? 'Use it when a project is too big for one freelancer and you need a designer, developer, writer, marketer, or assistant to help.'
-                    : 'Ask the project owner to send you a ClientFlow AI team invite link. After you accept it, only that shared project will appear here.'}
+            </div>
+
+            {(createOpen || !projects.length) && (
+              <form onSubmit={createWorkroom} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Create workroom</p>
+                <h2 className="mt-3 text-2xl font-black text-white">New client project</h2>
+                {!canCreateProjects && (
+                  <div className="mt-4 rounded-2xl border border-yellow-300/20 bg-yellow-300/[0.08] p-4">
+                    <p className="text-sm font-semibold leading-relaxed text-yellow-100">
+                      Creating client workrooms is a Pro feature because it stores projects, collaborators, notes, and delivery proof.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/payment')}
+                      className="mt-4 rounded-xl bg-yellow-300 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-950"
+                    >
+                      Upgrade
+                    </button>
+                  </div>
+                )}
+                <div className="mt-5 grid gap-4">
+                  <input className="input" value={createForm.title} onChange={(event) => setCreateForm({ ...createForm, title: event.target.value })} placeholder="Project name" />
+                  <input className="input" value={createForm.clientName} onChange={(event) => setCreateForm({ ...createForm, clientName: event.target.value })} placeholder="Client name" />
+                  <div className="grid gap-3 sm:grid-cols-[1fr_120px]">
+                    <input className="input" type="number" min="0" value={createForm.budget} onChange={(event) => setCreateForm({ ...createForm, budget: event.target.value })} placeholder="Project value" />
+                    <select className="input" value={createForm.currency} onChange={(event) => setCreateForm({ ...createForm, currency: event.target.value })}>
+                      {currencyOptions.map((currency) => <option key={currency} value={currency}>{currency}</option>)}
+                    </select>
+                  </div>
+                  <input className="input" type="date" value={createForm.deadline} onChange={(event) => setCreateForm({ ...createForm, deadline: event.target.value })} />
+                  <textarea className="input min-h-[110px]" value={createForm.projectBrief} onChange={(event) => setCreateForm({ ...createForm, projectBrief: event.target.value })} placeholder="Scope: what client expects, deliverables, price, timeline, acceptance criteria" />
+                  <input className="input" value={createForm.firstMilestone} onChange={(event) => setCreateForm({ ...createForm, firstMilestone: event.target.value })} placeholder="First milestone" />
+                  <input className="input" value={createForm.secondMilestone} onChange={(event) => setCreateForm({ ...createForm, secondMilestone: event.target.value })} placeholder="Second milestone" />
+                  <input className="input" value={createForm.finalMilestone} onChange={(event) => setCreateForm({ ...createForm, finalMilestone: event.target.value })} placeholder="Final milestone" />
+                  <input className="input" value={createForm.referenceLink} onChange={(event) => setCreateForm({ ...createForm, referenceLink: event.target.value })} placeholder="Optional client reference link https://" />
+                  <button type="submit" disabled={saving} className="btn btn-primary w-full">
+                    {saving ? 'Creating...' : 'Create Client Workroom'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </aside>
+
+          <section className="min-w-0">
+            {!activeProject ? (
+              <div className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-8 text-center">
+                <h2 className="text-3xl font-black text-white">Create your first client workroom</h2>
+                <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                  Use it when a lead becomes serious. Keep the scope, work, proof, invoice, and payment follow-up together.
                 </p>
               </div>
-            )}
-
-            {activeProject && (
-              <div className="premium-panel p-5 sm:p-8">
-                <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">AI delivery plan</p>
-                    <h2 className="mt-2 text-2xl font-black text-white">{activeProject.title}</h2>
-                    <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                      {activeProject.aiPlan?.summary || 'Generate a plan to split work and reduce delivery risk.'}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <select
-                      value={activeProject.status}
-                      onChange={(event) => updateProjectStatus(activeProject, event.target.value)}
-                      disabled={!canEditActiveProject}
-                      className="input py-3 text-xs"
-                    >
-                      {projectStatuses.map((status) => (
-                        <option key={status} value={status}>{statusLabel(status)}</option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => generateAiPlan(activeProject._id)}
-                      disabled={planLoading === activeProject._id || !canEditActiveProject}
-                      className="btn btn-primary px-5 py-3 text-xs"
-                    >
-                      {planLoading === activeProject._id ? 'Planning...' : 'Generate AI Plan'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => copyTeamBrief(activeProject)}
-                      className="btn btn-secondary px-5 py-3 text-xs"
-                    >
-                      Copy Brief
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('client-work-ledger')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                      className="btn btn-secondary px-5 py-3 text-xs"
-                    >
-                      Open Ledger
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('github-setup')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                      className="btn btn-secondary px-5 py-3 text-xs"
-                    >
-                      GitHub Setup
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid gap-5 xl:grid-cols-3">
-                  <div className="rounded-3xl border border-white/8 bg-black/20 p-5 xl:col-span-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Next action</p>
-                    <p className="mt-3 text-lg font-black leading-relaxed text-white">
-                      {activeProject.aiPlan?.nextAction || 'Add collaborators and tasks, then generate the AI plan.'}
-                    </p>
-                  </div>
-                  <div className="rounded-3xl border border-white/8 bg-black/20 p-5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Risk level</p>
-                    <p className={`mt-3 text-2xl font-black ${
-                      activeProject.aiPlan?.riskLevel === 'high'
-                        ? 'text-red-300'
-                        : activeProject.aiPlan?.riskLevel === 'low'
-                          ? 'text-emerald-300'
-                          : 'text-yellow-300'
-                    }`}>
-                      {statusLabel(activeProject.aiPlan?.riskLevel || 'medium')}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-8">
-                  <h3 className="mb-4 text-lg font-black text-white">Groups</h3>
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    {(activeProject.aiPlan?.groupPlan?.length ? activeProject.aiPlan.groupPlan : activeProject.groups || []).map((group, index) => (
-                      <div key={`${group.name}-${index}`} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-black text-white">{group.name}</p>
-                            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-emerald-300">
-                              {group.focus || 'Project delivery'}
-                            </p>
-                          </div>
-                          {group.risk && (
-                            <span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-widest ${
-                              group.risk === 'high'
-                                ? 'bg-red-400/10 text-red-300'
-                                : group.risk === 'low'
-                                  ? 'bg-emerald-400/10 text-emerald-300'
-                                  : 'bg-yellow-400/10 text-yellow-300'
-                            }`}>
-                              {group.risk}
-                            </span>
-                          )}
-                        </div>
-                        <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">
-                          {group.nextAction || `Lead: ${group.lead || 'Not assigned yet'}`}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-8 rounded-3xl border border-emerald-400/15 bg-emerald-400/[0.04] p-4 sm:p-5">
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            ) : (
+              <div className="space-y-6">
+                <section className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-7">
+                  <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.38fr)] lg:items-start">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Invite freelancers</p>
-                      <h3 className="mt-1 text-xl font-black text-white">Bring another freelancer into this project</h3>
-                      <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
-                        Share a secure link by WhatsApp or email. They sign up or login, then join only this project with the permission you choose.
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${getStatusClass(activeProject.status)}`}>
+                          {statusLabel(activeProject.status)}
+                        </span>
+                        <span className="rounded-full border border-white/8 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                          {activeProject.accessRole || 'owner'}
+                        </span>
+                      </div>
+                      <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                        {activeProject.title}
+                      </h2>
+                      <p className="mt-3 text-base font-semibold text-zinc-400">
+                        Client: <span className="text-white">{activeProject.clientName || 'Not added'}</span>
+                      </p>
+                      <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
+                        {activeProject.projectBrief || 'Add scope so the client, freelancer, and collaborators know exactly what is included before payment is requested.'}
                       </p>
                     </div>
-                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-300">
-                      Your role: {statusLabel(activeProject.accessRole || 'member')}
-                    </span>
+
+                    <div className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Commercials</p>
+                      <p className="mt-3 text-3xl font-black text-white">{formatCurrency(activeProject.budget, activeProject.currency)}</p>
+                      <p className="mt-1 text-sm font-semibold text-zinc-500">Deadline: {formatDate(activeProject.deadline)}</p>
+                      <select
+                        className="input mt-5"
+                        value={activeProject.status || 'planning'}
+                        disabled={!canEdit || actionLoading === 'status'}
+                        onChange={(event) => updateProject({ status: event.target.value }, 'status')}
+                      >
+                        {projectStatuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
+                      </select>
+                    </div>
                   </div>
 
-                  {canInviteActiveProject ? (
-                    <>
-                      <form onSubmit={createInvite} className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        <input
-                          type="email"
-                          value={inviteForm.email}
-                          onChange={(event) => setInviteForm((prev) => ({ ...prev, email: event.target.value }))}
-                          placeholder="Freelancer email optional"
-                          className="input py-3 text-sm sm:col-span-2 xl:col-span-1"
-                        />
-                        <select
-                          value={inviteForm.role}
-                          onChange={(event) => setInviteForm((prev) => ({ ...prev, role: event.target.value }))}
-                          className="input py-3 text-sm"
-                        >
-                          <option value="viewer">Viewer</option>
-                          <option value="editor">Editor</option>
-                        </select>
-                        <select
-                          value={inviteForm.groupName}
-                          onChange={(event) => setInviteForm((prev) => ({ ...prev, groupName: event.target.value }))}
-                          className="input py-3 text-sm"
-                        >
-                          <option value="">No group</option>
-                          {activeGroupNames.map((groupName) => (
-                            <option key={groupName} value={groupName}>{groupName}</option>
-                          ))}
-                        </select>
-                        <button
-                          type="submit"
-                          disabled={inviteLoading}
-                          className="btn btn-primary px-4 py-3 text-xs"
-                        >
-                          {inviteLoading ? 'Creating...' : 'Create Link'}
-                        </button>
-                      </form>
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <button type="button" onClick={generateWorkroomPlan} disabled={actionLoading === 'plan'} className="btn btn-secondary">
+                      {actionLoading === 'plan' ? 'Refreshing...' : 'Refresh Plan'}
+                    </button>
+                    <button type="button" onClick={copyClientSummary} className="btn btn-secondary">
+                      Copy Client Summary
+                    </button>
+                    <button type="button" onClick={() => navigate('/create-invoice')} className="btn btn-primary">
+                      Create Invoice
+                    </button>
+                    <button type="button" onClick={sharePaymentFollowUp} className="btn btn-dark">
+                      WhatsApp Follow-up
+                    </button>
+                  </div>
+                </section>
 
-                      {lastInvite?.inviteUrl && (
-                        <div className="mt-4 rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Invite link</p>
-                          <p className="mt-2 break-all text-sm font-semibold leading-relaxed text-zinc-300">
-                            {lastInvite.inviteUrl}
-                          </p>
-                          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                            <button type="button" onClick={copyInviteLink} className="btn btn-secondary px-4 py-3 text-xs">
-                              Copy Link
-                            </button>
-                            <button type="button" onClick={shareInviteOnWhatsApp} className="btn btn-secondary px-4 py-3 text-xs">
-                              Share WhatsApp
-                            </button>
-                            <a
-                              href={`mailto:${encodeURIComponent(lastInvite.email || '')}?subject=${encodeURIComponent(lastInvite.emailSubject || 'Join project')}&body=${encodeURIComponent(lastInvite.emailBody || lastInvite.inviteUrl)}`}
-                              className="btn btn-secondary px-4 py-3 text-center text-xs"
-                            >
-                              Open Email
-                            </a>
-                          </div>
+                <section className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_minmax(340px,0.42fr)] 2xl:items-start">
+                  <div className="space-y-6">
+                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Milestones</p>
+                          <h3 className="mt-2 text-2xl font-black text-white">Work that must finish</h3>
                         </div>
-                      )}
+                        <span className="rounded-full border border-white/8 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                          {tasks.filter((task) => task.status === 'done').length}/{tasks.length || 0} done
+                        </span>
+                      </div>
 
-                      <div className="mt-5">
-                        <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Project members</p>
-                        <div className="grid gap-3">
-                          {(activeProject.members || []).filter((member) => member.status !== 'removed').map((member) => (
-                            <div key={member._id || member.email} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                                <div className="min-w-0">
-                                  <p className="truncate text-sm font-black text-white">{member.name || member.email || 'Team member'}</p>
-                                  <p className="mt-1 text-xs font-medium text-zinc-500">
-                                    {member.email || 'No email'} {member.groupName ? `- ${member.groupName}` : ''}
-                                  </p>
-                                </div>
-                                {member.role === 'owner' ? (
-                                  <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-200">
-                                    Owner
-                                  </span>
-                                ) : (
-                                  <div className="grid gap-2 sm:grid-cols-[120px_150px_90px]">
-                                    <select
-                                      value={member.role || 'viewer'}
-                                      onChange={(event) => updateMemberAccess(member, { role: event.target.value })}
-                                      className="input py-2 text-xs"
-                                    >
-                                      <option value="viewer">Viewer</option>
-                                      <option value="editor">Editor</option>
-                                    </select>
-                                    <select
-                                      value={member.groupName || ''}
-                                      onChange={(event) => updateMemberAccess(member, { groupName: event.target.value })}
-                                      className="input py-2 text-xs"
-                                    >
-                                      <option value="">No group</option>
-                                      {activeGroupNames.map((groupName) => (
-                                        <option key={groupName} value={groupName}>{groupName}</option>
-                                      ))}
-                                    </select>
-                                    <button
-                                      type="button"
-                                      onClick={() => updateMemberAccess(member, { status: 'removed' })}
-                                      className="rounded-xl border border-red-400/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 hover:bg-red-400/10"
-                                    >
-                                      Remove
-                                    </button>
-                                  </div>
-                                )}
+                      <div className="mt-5 space-y-3">
+                        {tasks.length ? tasks.map((task) => (
+                          <div key={task._id || task.title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_180px] md:items-center">
+                              <div>
+                                <p className="text-base font-black text-white">{task.title}</p>
+                                <p className="mt-1 text-sm font-semibold text-zinc-500">
+                                  {task.owner || 'Unassigned'} - {formatDate(task.dueDate)}
+                                </p>
+                                {task.notes && <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{task.notes}</p>}
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="mt-5 rounded-2xl border border-white/8 bg-black/20 p-4 text-sm font-semibold leading-relaxed text-zinc-400">
-                      Only the paid project owner can create invite links. Editors and viewers can work inside the project, update allowed tasks, and use group chat.
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-8 rounded-3xl border border-violet-400/15 bg-violet-400/[0.04] p-4 sm:p-5">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-violet-300">Build & output</p>
-                      <h3 className="mt-1 text-xl font-black text-white">Shared code, preview, design, and delivery links</h3>
-                      <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
-                        Everyone in this project can see the same code links and output. Owners and editors can add new links.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={generateDeveloperAgent}
-                      disabled={devAgentLoading}
-                      className="btn btn-secondary px-5 py-3 text-xs"
-                    >
-                      {devAgentLoading ? 'Thinking...' : 'Ask Dev AI'}
-                    </button>
-                  </div>
-
-                  <div id="github-setup" className="mt-5 scroll-mt-28 rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.04] p-4">
-                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Step-by-step GitHub setup</p>
-                        <h4 className="mt-1 text-lg font-black text-white">
-                          {githubRepo.fullName ? githubRepo.fullName : 'Connect a repository to this project'}
-                        </h4>
-                        <p className="mt-2 max-w-3xl text-xs font-semibold leading-relaxed text-zinc-500">
-                          Sync real GitHub issues, pull requests, branches, and recent commits into ClientFlow AI so the client project status stays connected to actual code work.
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-2 sm:flex-row">
-                        {githubStatus.connected && (
-                          <button
-                            type="button"
-                            onClick={loadGitHubRepos}
-                            disabled={githubReposLoading}
-                            className="btn btn-secondary px-4 py-3 text-xs"
-                          >
-                            {githubReposLoading ? 'Loading...' : 'Load Repos'}
-                          </button>
-                        )}
-                        {githubRepo.fullName && (
-                          <button
-                            type="button"
-                            onClick={syncGitHubRepo}
-                            disabled={githubSyncing}
-                            className="btn btn-primary px-4 py-3 text-xs"
-                          >
-                            {githubSyncing ? 'Syncing...' : 'Sync GitHub'}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {!githubStatus.connected ? (
-                      <form onSubmit={connectGitHub} className="mt-4 grid gap-3">
-                        <div className="rounded-2xl border border-yellow-300/15 bg-yellow-300/10 p-4">
-                          <p className="text-sm font-black text-yellow-100">Connect with a GitHub fine-grained token</p>
-                          <p className="mt-2 text-xs font-semibold leading-relaxed text-yellow-100/70">
-                            Create a token in GitHub with read-only access to repository metadata, issues, pull requests, and contents. The token is encrypted on the backend and never shown to the browser again.
-                          </p>
-                        </div>
-                        <input
-                          type="password"
-                          value={githubToken}
-                          onChange={(event) => setGithubToken(event.target.value)}
-                          placeholder="Paste GitHub token"
-                          className="input py-3 text-sm"
-                          autoComplete="off"
-                        />
-                        <button type="submit" disabled={githubConnecting} className="btn btn-primary py-3 text-xs">
-                          {githubConnecting ? 'Connecting...' : 'Connect GitHub'}
-                        </button>
-                      </form>
-                    ) : (
-                      <div className="mt-4 grid gap-4">
-                        <div className="flex flex-col gap-3 rounded-2xl border border-emerald-300/15 bg-emerald-300/10 p-4 sm:flex-row sm:items-center sm:justify-between">
-                          <div>
-                            <p className="text-sm font-black text-emerald-100">Connected as {githubStatus.username}</p>
-                            <p className="mt-1 text-xs font-semibold text-emerald-100/60">
-                              {githubStatus.lastVerifiedAt ? `Verified ${formatMessageTime(githubStatus.lastVerifiedAt)}` : 'Ready to load repositories'}
-                            </p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={disconnectGitHub}
-                            className="rounded-xl border border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-100 hover:bg-white/10"
-                          >
-                            Disconnect
-                          </button>
-                        </div>
-
-                        {canEditActiveProject && (
-                          <form onSubmit={linkGitHubRepo} className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_220px]">
-                            <div className="grid gap-3 sm:grid-cols-2">
                               <select
-                                value={githubRepoInput}
-                                onChange={(event) => setGithubRepoInput(event.target.value)}
-                                className="input py-3 text-sm"
+                                className="input"
+                                value={task.status || 'todo'}
+                                disabled={!canEdit || actionLoading === `task-${task._id}`}
+                                onChange={(event) => updateTaskStatus(task._id, event.target.value)}
                               >
-                                <option value="">Select loaded repo or paste below</option>
-                                {githubRepos.map((repo) => (
-                                  <option key={repo.fullName} value={repo.fullName}>
-                                    {repo.fullName}{repo.private ? ' (private)' : ''}
-                                  </option>
-                                ))}
+                                {taskStatuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
                               </select>
-                              <input
-                                value={githubRepoInput}
-                                onChange={(event) => setGithubRepoInput(event.target.value)}
-                                placeholder="owner/repo or https://github.com/owner/repo"
-                                className="input py-3 text-sm"
-                              />
                             </div>
-                            <button type="submit" disabled={githubLinking} className="btn btn-primary py-3 text-xs">
-                              {githubLinking ? 'Linking...' : 'Link Repository'}
-                            </button>
-                          </form>
-                        )}
-
-                        {githubRepo.fullName && (
-                          <div className="grid gap-4 xl:grid-cols-4">
-                            {[
-                              ['Open Issues', githubSnapshot.counts?.openIssues || 0],
-                              ['Open PRs', githubSnapshot.counts?.openPullRequests || 0],
-                              ['Branches', githubSnapshot.counts?.branches || 0],
-                              ['Commits', githubSnapshot.counts?.commits || 0]
-                            ].map(([label, value]) => (
-                              <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                                <p className="mt-1 text-2xl font-black text-white">{value}</p>
-                              </div>
-                            ))}
                           </div>
-                        )}
-
-                        {githubRepo.fullName && (
-                          <div className="grid gap-4 xl:grid-cols-3">
-                            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent commits</p>
-                              <div className="mt-3 space-y-3">
-                                {(githubSnapshot.commits || []).slice(0, 5).map((commit) => (
-                                  <a key={commit.sha} href={commit.htmlUrl} target="_blank" rel="noopener noreferrer" className="block rounded-xl border border-white/8 bg-black/20 p-3 hover:border-emerald-300/25">
-                                    <p className="line-clamp-2 text-xs font-black text-white">{commit.message || commit.sha}</p>
-                                    <p className="mt-1 text-[10px] font-semibold text-zinc-500">{commit.author || 'GitHub'} - {commit.sha}</p>
-                                  </a>
-                                ))}
-                                {!(githubSnapshot.commits || []).length && (
-                                  <p className="text-xs font-semibold text-zinc-500">Sync GitHub to show commits.</p>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">GitHub issues</p>
-                              <div className="mt-3 space-y-3">
-                                {(githubSnapshot.issues || []).slice(0, 5).map((issue) => (
-                                  <a key={issue.id} href={issue.htmlUrl} target="_blank" rel="noopener noreferrer" className="block rounded-xl border border-white/8 bg-black/20 p-3 hover:border-sky-300/25">
-                                    <p className="line-clamp-2 text-xs font-black text-white">#{issue.number} {issue.title}</p>
-                                    <p className="mt-1 text-[10px] font-semibold text-zinc-500">{statusLabel(issue.state)} - {issue.author || 'GitHub'}</p>
-                                  </a>
-                                ))}
-                                {!(githubSnapshot.issues || []).length && (
-                                  <p className="text-xs font-semibold text-zinc-500">No GitHub issues synced yet.</p>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Pull requests</p>
-                              <div className="mt-3 space-y-3">
-                                {(githubSnapshot.pullRequests || []).slice(0, 5).map((pull) => (
-                                  <a key={pull.id} href={pull.htmlUrl} target="_blank" rel="noopener noreferrer" className="block rounded-xl border border-white/8 bg-black/20 p-3 hover:border-violet-300/25">
-                                    <p className="line-clamp-2 text-xs font-black text-white">#{pull.number} {pull.title}</p>
-                                    <p className="mt-1 text-[10px] font-semibold text-zinc-500">{pull.head} {'->'} {pull.base}</p>
-                                  </a>
-                                ))}
-                                {!(githubSnapshot.pullRequests || []).length && (
-                                  <p className="text-xs font-semibold text-zinc-500">No pull requests synced yet.</p>
-                                )}
-                              </div>
-                            </div>
+                        )) : (
+                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <p className="text-sm font-semibold text-zinc-500">No milestones yet. Add the first delivery task below.</p>
                           </div>
                         )}
                       </div>
-                    )}
-                  </div>
 
-                  <div className="mt-5 grid gap-4">
-                    <div className="space-y-3">
-                      {sharedResources.length ? (
-                        sharedResources.map((resource) => (
+                      <form onSubmit={addTask} className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <input className="input" value={taskForm.title} onChange={(event) => setTaskForm({ ...taskForm, title: event.target.value })} placeholder="Add milestone or task" />
+                        <div className="grid gap-3 md:grid-cols-3">
+                          <input className="input" value={taskForm.owner} onChange={(event) => setTaskForm({ ...taskForm, owner: event.target.value })} placeholder="Owner" />
+                          <select className="input" value={taskForm.priority} onChange={(event) => setTaskForm({ ...taskForm, priority: event.target.value })}>
+                            <option value="low">Low priority</option>
+                            <option value="normal">Normal priority</option>
+                            <option value="high">High priority</option>
+                          </select>
+                          <input className="input" type="date" value={taskForm.dueDate} onChange={(event) => setTaskForm({ ...taskForm, dueDate: event.target.value })} />
+                        </div>
+                        <textarea className="input min-h-[88px]" value={taskForm.notes} onChange={(event) => setTaskForm({ ...taskForm, notes: event.target.value })} placeholder="Notes or acceptance criteria" />
+                        <button type="submit" disabled={!canEdit || actionLoading === 'task'} className="btn btn-secondary w-full">
+                          {actionLoading === 'task' ? 'Adding...' : 'Add Milestone'}
+                        </button>
+                      </form>
+                    </div>
+
+                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Proof and files</p>
+                          <h3 className="mt-2 text-2xl font-black text-white">Links the client can trust</h3>
+                        </div>
+                        <Link to="/cloud-documents" className="btn btn-dark">
+                          Open Cloud Docs
+                        </Link>
+                      </div>
+
+                      <div className="mt-5 grid gap-3 md:grid-cols-2">
+                        {resources.length ? resources.map((resource) => (
                           <a
                             key={resource._id || resource.url}
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="block rounded-2xl border border-white/8 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-violet-300/25"
+                            className="rounded-2xl border border-white/8 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-sky-300/25"
                           >
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-black text-white">{resource.label}</p>
-                                <p className="mt-1 break-all text-xs font-medium text-zinc-500">{resource.url}</p>
-                              </div>
-                              <span className="rounded-full border border-violet-300/15 bg-violet-300/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-violet-200">
-                                {statusLabel(resource.type || 'other')}
-                              </span>
-                            </div>
-                            {resource.notes && (
-                              <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-400">{resource.notes}</p>
-                            )}
+                            <p className="text-sm font-black text-white">{resource.label}</p>
+                            <p className="mt-1 text-xs font-black uppercase tracking-widest text-sky-300">{statusLabel(resource.type || 'document')}</p>
+                            {resource.notes && <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{resource.notes}</p>}
                           </a>
-                        ))
-                      ) : (
-                        <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
-                          <p className="text-sm font-black text-white">No code or output links yet</p>
-                          <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                            Add repository, live preview, design, or requirement links so the whole team works from one place.
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                        )) : (
+                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 md:col-span-2">
+                            <p className="text-sm font-semibold text-zinc-500">Add proposal, design, drive, preview, contract, or delivery proof links here.</p>
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                      {canEditActiveProject ? (
-                        <form onSubmit={addBuildResource} className="space-y-3">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Add shared link</p>
-                          <input
-                            value={resourceForm.label}
-                            onChange={(event) => setResourceForm((prev) => ({ ...prev, label: event.target.value }))}
-                            placeholder="GitHub repo, live preview, Figma..."
-                            className="input py-3 text-sm"
-                          />
-                          <select
-                            value={resourceForm.type}
-                            onChange={(event) => setResourceForm((prev) => ({ ...prev, type: event.target.value }))}
-                            className="input py-3 text-sm"
-                          >
-                            <option value="repository">Repository</option>
-                            <option value="preview">Live preview</option>
-                            <option value="design">Design</option>
+                      <form onSubmit={addResource} className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <div className="grid gap-3 md:grid-cols-[1fr_160px]">
+                          <input className="input" value={resourceForm.label} onChange={(event) => setResourceForm({ ...resourceForm, label: event.target.value })} placeholder="Link label" />
+                          <select className="input" value={resourceForm.type} onChange={(event) => setResourceForm({ ...resourceForm, type: event.target.value })}>
                             <option value="document">Document</option>
+                            <option value="design">Design</option>
+                            <option value="preview">Preview</option>
+                            <option value="repository">Repository</option>
                             <option value="other">Other</option>
                           </select>
-                          <input
-                            value={resourceForm.url}
-                            onChange={(event) => setResourceForm((prev) => ({ ...prev, url: event.target.value }))}
-                            placeholder="https://..."
-                            className="input py-3 text-sm"
-                          />
-                          <textarea
-                            value={resourceForm.notes}
-                            onChange={(event) => setResourceForm((prev) => ({ ...prev, notes: event.target.value }))}
-                            placeholder="What should the team check here?"
-                            rows="3"
-                            className="input min-h-[88px] resize-none py-3 text-sm"
-                          />
-                          <button
-                            type="submit"
-                            disabled={resourceSaving}
-                            className="btn btn-primary w-full py-3 text-xs"
-                          >
-                            {resourceSaving ? 'Adding...' : 'Add Link'}
-                          </button>
-                        </form>
-                      ) : (
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Viewer mode</p>
-                          <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
-                            You can view build links and chat with the team. Ask the owner to make you an editor if you need to add links or update work.
-                          </p>
                         </div>
-                      )}
+                        <input className="input" value={resourceForm.url} onChange={(event) => setResourceForm({ ...resourceForm, url: event.target.value })} placeholder="https://..." />
+                        <textarea className="input min-h-[80px]" value={resourceForm.notes} onChange={(event) => setResourceForm({ ...resourceForm, notes: event.target.value })} placeholder="Why this link matters" />
+                        <button type="submit" disabled={!canEdit || actionLoading === 'resource'} className="btn btn-secondary w-full">
+                          {actionLoading === 'resource' ? 'Saving...' : 'Add Proof Link'}
+                        </button>
+                      </form>
                     </div>
-                  </div>
 
-                  <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-violet-300">AI developer helper</p>
-                        <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">
-                          {developerAgent.summary || 'Ask Dev AI to prepare next development steps from tasks and shared links.'}
-                        </p>
-                      </div>
-                    </div>
-                    {(developerAgent.nextSteps?.length || developerAgent.codeChecklist?.length) && (
-                      <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                        <div>
-                          <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Next development steps</p>
-                          <div className="space-y-2">
-                            {(developerAgent.nextSteps || []).map((item) => (
-                              <p key={item} className="rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-semibold leading-relaxed text-zinc-300">{item}</p>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Code review checklist</p>
-                          <div className="space-y-2">
-                            {(developerAgent.codeChecklist || []).map((item) => (
-                              <p key={item} className="rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-semibold leading-relaxed text-zinc-300">{item}</p>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div id="client-work-ledger" className="scroll-mt-28 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-4 sm:p-5">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Client Work Ledger</p>
-                      <h3 className="mt-1 text-xl font-black text-white">Issues, releases, docs, approvals, and AI maintainer</h3>
-                      <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-zinc-500">
-                        Use this like a GitHub/GitLab-inspired delivery history for freelancers: track client requests, bugs, improvements, versions, project docs, and handover notes without becoming a code-hosting tool.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={generateMaintenanceAgent}
-                      disabled={maintenanceAgentLoading}
-                      className="btn btn-secondary px-5 py-3 text-xs"
-                    >
-                      {maintenanceAgentLoading ? 'Checking...' : 'Ask AI Maintainer'}
-                    </button>
-                  </div>
-
-                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    {[
-                      ['Open issues', openMaintenanceIssues.length],
-                      ['High priority', maintenanceIssues.filter((issue) => issue.status !== 'done' && issue.priority === 'high').length],
-                      ['Releases', releases.length],
-                      ['Project docs', wikiPages.length]
-                    ].map(([label, value]) => (
-                      <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                        <p className="mt-1 text-2xl font-black text-white">{value}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                      <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">AI maintainer</p>
-                        <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-300">
-                          {maintenanceAgent.summary || 'Ask AI Maintainer to review open issues, release plans, and project docs.'}
-                        </p>
-                      </div>
-                      <div className="rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Health score</p>
-                        <p className={`mt-1 text-2xl font-black ${
-                          Number(maintenanceAgent.healthScore || 75) >= 80
-                            ? 'text-emerald-300'
-                            : Number(maintenanceAgent.healthScore || 75) >= 55
-                              ? 'text-yellow-300'
-                              : 'text-red-300'
-                        }`}>
-                          {Number(maintenanceAgent.healthScore || 75)}/100
-                        </p>
-                      </div>
-                    </div>
-                    {maintenanceAgent.nextAction && (
-                      <p className="mt-4 rounded-2xl border border-sky-300/15 bg-sky-300/10 p-4 text-sm font-black leading-relaxed text-sky-100">
-                        {maintenanceAgent.nextAction}
-                      </p>
-                    )}
-                    {(maintenanceAgent.releaseChecklist?.length || maintenanceAgent.riskNotes?.length) && (
-                      <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                        <div>
-                          <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Release checklist</p>
-                          <div className="space-y-2">
-                            {(maintenanceAgent.releaseChecklist || []).map((item) => (
-                              <p key={item} className="rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-semibold leading-relaxed text-zinc-300">{item}</p>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Risk notes</p>
-                          <div className="space-y-2">
-                            {(maintenanceAgent.riskNotes || []).map((item) => (
-                              <p key={item} className="rounded-xl border border-yellow-300/15 bg-yellow-300/10 p-3 text-xs font-semibold leading-relaxed text-yellow-100">{item}</p>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-5 grid gap-5">
-                    <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Issues</p>
-                          <h4 className="mt-1 text-lg font-black text-white">Bugs, improvements, and client requests</h4>
-                        </div>
-                        <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-200">
-                          {openMaintenanceIssues.length} open
-                        </span>
-                      </div>
-
-                      <div className="mt-4 max-h-[420px] space-y-3 overflow-y-auto pr-1">
-                        {maintenanceIssues.length ? (
-                          maintenanceIssues.map((issue) => (
-                            <div key={issue._id || issue.title} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                                <div className="min-w-0">
-                                  <p className="font-black text-white">{issue.title}</p>
-                                  <p className="mt-1 text-xs font-medium text-zinc-500">
-                                    {statusLabel(issue.type)} - {statusLabel(issue.priority)} priority - {issue.owner || 'Unassigned'} - {formatDate(issue.dueDate)}
-                                  </p>
-                                  {issue.notes && (
-                                    <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-400">{issue.notes}</p>
-                                  )}
-                                </div>
-                                <select
-                                  value={issue.status || 'open'}
-                                  onChange={(event) => updateMaintenanceIssue(issue, { status: event.target.value })}
-                                  disabled={!canEditActiveProject}
-                                  className="input py-2 text-xs lg:w-36"
-                                >
-                                  {issueStatuses.map((status) => (
-                                    <option key={status} value={status}>{statusLabel(status)}</option>
-                                  ))}
-                                </select>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
-                            <p className="text-sm font-black text-white">No maintenance issues yet</p>
-                            <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                              Add bugs, requested changes, future improvements, or QA work here.
-                            </p>
+                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Delivery notes</p>
+                      <h3 className="mt-2 text-2xl font-black text-white">Scope, approvals, handover</h3>
+                      <div className="mt-5 grid gap-3 md:grid-cols-2">
+                        {docs.length ? docs.map((doc) => (
+                          <article key={doc._id || doc.title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <p className="text-sm font-black text-white">{doc.title}</p>
+                            <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">{statusLabel(doc.category || 'note')}</p>
+                            <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{doc.content}</p>
+                          </article>
+                        )) : (
+                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 md:col-span-2">
+                            <p className="text-sm font-semibold text-zinc-500">Save important agreements, revision notes, client approval, and final handover details.</p>
                           </div>
                         )}
                       </div>
 
-                      {canEditActiveProject && (
-                        <form onSubmit={addMaintenanceIssue} className="mt-4 grid gap-3">
-                          <input
-                            value={issueForm.title}
-                            onChange={(event) => setIssueForm((prev) => ({ ...prev, title: event.target.value }))}
-                            placeholder="Issue title, bug, improvement, or client request"
-                            className="input py-3 text-sm"
-                          />
-                          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                            <select
-                              value={issueForm.type}
-                              onChange={(event) => setIssueForm((prev) => ({ ...prev, type: event.target.value }))}
-                              className="input py-3 text-sm"
-                            >
-                              {issueTypes.map((type) => (
-                                <option key={type} value={type}>{statusLabel(type)}</option>
-                              ))}
-                            </select>
-                            <select
-                              value={issueForm.priority}
-                              onChange={(event) => setIssueForm((prev) => ({ ...prev, priority: event.target.value }))}
-                              className="input py-3 text-sm"
-                            >
-                              {priorities.map((priority) => (
-                                <option key={priority} value={priority}>{statusLabel(priority)}</option>
-                              ))}
-                            </select>
-                            <select
-                              value={issueForm.groupName}
-                              onChange={(event) => setIssueForm((prev) => ({ ...prev, groupName: event.target.value }))}
-                              className="input py-3 text-sm"
-                            >
-                              <option value="">No group</option>
-                              {activeGroupNames.map((groupName) => (
-                                <option key={groupName} value={groupName}>{groupName}</option>
-                              ))}
-                            </select>
-                            <input
-                              type="date"
-                              value={issueForm.dueDate}
-                              onChange={(event) => setIssueForm((prev) => ({ ...prev, dueDate: event.target.value }))}
-                              className="input py-3 text-sm"
-                            />
-                          </div>
-                          <input
-                            value={issueForm.owner}
-                            onChange={(event) => setIssueForm((prev) => ({ ...prev, owner: event.target.value }))}
-                            placeholder="Owner name or email"
-                            className="input py-3 text-sm"
-                          />
-                          <textarea
-                            value={issueForm.notes}
-                            onChange={(event) => setIssueForm((prev) => ({ ...prev, notes: event.target.value }))}
-                            placeholder="What needs to be fixed or improved?"
-                            rows="3"
-                            className="input min-h-[88px] resize-none py-3 text-sm"
-                          />
-                          <button type="submit" disabled={issueSaving} className="btn btn-primary py-3 text-xs">
-                            {issueSaving ? 'Adding...' : 'Add Issue'}
-                          </button>
-                        </form>
-                      )}
-                    </div>
-
-                    <div className="grid gap-5 xl:grid-cols-2">
-                      <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Releases</p>
-                        <h4 className="mt-1 text-lg font-black text-white">Version plan and client changelog</h4>
-
-                        <div className="mt-4 space-y-3">
-                          {releases.length ? (
-                            releases.map((release) => (
-                              <div key={release._id || release.version} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                  <div>
-                                    <p className="text-sm font-black text-white">{release.version} - {release.title}</p>
-                                    <p className="mt-1 text-xs font-medium text-zinc-500">{formatDate(release.targetDate)}</p>
-                                  </div>
-                                  <select
-                                    value={release.status || 'planned'}
-                                    onChange={(event) => updateRelease(release, { status: event.target.value })}
-                                    disabled={!canEditActiveProject}
-                                    className="input py-2 text-xs sm:w-36"
-                                  >
-                                    {releaseStatuses.map((status) => (
-                                      <option key={status} value={status}>{statusLabel(status)}</option>
-                                    ))}
-                                  </select>
-                                </div>
-                                {release.summary && (
-                                  <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-400">{release.summary}</p>
-                                )}
-                              </div>
-                            ))
-                          ) : (
-                            <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center">
-                              <p className="text-sm font-black text-white">No releases yet</p>
-                              <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                                Plan versions so clients know what changed and what is shipping next.
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        {canEditActiveProject && (
-                          <form onSubmit={addRelease} className="mt-4 grid gap-3">
-                            <div className="grid gap-3 sm:grid-cols-[110px_minmax(0,1fr)]">
-                              <input
-                                value={releaseForm.version}
-                                onChange={(event) => setReleaseForm((prev) => ({ ...prev, version: event.target.value }))}
-                                placeholder="v1.1"
-                                className="input py-3 text-sm"
-                              />
-                              <input
-                                value={releaseForm.title}
-                                onChange={(event) => setReleaseForm((prev) => ({ ...prev, title: event.target.value }))}
-                                placeholder="Release title"
-                                className="input py-3 text-sm"
-                              />
-                            </div>
-                            <div className="grid gap-3 sm:grid-cols-2">
-                              <select
-                                value={releaseForm.status}
-                                onChange={(event) => setReleaseForm((prev) => ({ ...prev, status: event.target.value }))}
-                                className="input py-3 text-sm"
-                              >
-                                {releaseStatuses.map((status) => (
-                                  <option key={status} value={status}>{statusLabel(status)}</option>
-                                ))}
-                              </select>
-                              <input
-                                type="date"
-                                value={releaseForm.targetDate}
-                                onChange={(event) => setReleaseForm((prev) => ({ ...prev, targetDate: event.target.value }))}
-                                className="input py-3 text-sm"
-                              />
-                            </div>
-                            <textarea
-                              value={releaseForm.summary}
-                              onChange={(event) => setReleaseForm((prev) => ({ ...prev, summary: event.target.value }))}
-                              placeholder="What will change in this release?"
-                              rows="3"
-                              className="input min-h-[88px] resize-none py-3 text-sm"
-                            />
-                            <button type="submit" disabled={releaseSaving} className="btn btn-primary py-3 text-xs">
-                              {releaseSaving ? 'Adding...' : 'Add Release'}
-                            </button>
-                          </form>
-                        )}
-                      </div>
-
-                      <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Project docs</p>
-                        <h4 className="mt-1 text-lg font-black text-white">Setup, QA, and handover notes</h4>
-
-                        <div className="mt-4 space-y-3">
-                          {wikiPages.length ? (
-                            wikiPages.slice(-4).map((page) => (
-                              <div key={page._id || page.title} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <p className="text-sm font-black text-white">{page.title}</p>
-                                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
-                                    {statusLabel(page.category || 'other')}
-                                  </span>
-                                </div>
-                                <p className="mt-3 line-clamp-4 whitespace-pre-line text-xs font-medium leading-relaxed text-zinc-400">
-                                  {page.content}
-                                </p>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center">
-                              <p className="text-sm font-black text-white">No docs yet</p>
-                              <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                                Save setup steps, client rules, QA checklist, and handover notes.
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        {canEditActiveProject && (
-                          <form onSubmit={addWikiPage} className="mt-4 grid gap-3">
-                            <input
-                              value={wikiForm.title}
-                              onChange={(event) => setWikiForm((prev) => ({ ...prev, title: event.target.value }))}
-                              placeholder="Doc title"
-                              className="input py-3 text-sm"
-                            />
-                            <select
-                              value={wikiForm.category}
-                              onChange={(event) => setWikiForm((prev) => ({ ...prev, category: event.target.value }))}
-                              className="input py-3 text-sm"
-                            >
-                              {wikiCategories.map((category) => (
-                                <option key={category} value={category}>{statusLabel(category)}</option>
-                              ))}
-                            </select>
-                            <textarea
-                              value={wikiForm.content}
-                              onChange={(event) => setWikiForm((prev) => ({ ...prev, content: event.target.value }))}
-                              placeholder="Write setup steps, QA checklist, client rule, or handover note"
-                              rows="5"
-                              className="input min-h-[120px] resize-none py-3 text-sm"
-                            />
-                            <button type="submit" disabled={wikiSaving} className="btn btn-primary py-3 text-xs">
-                              {wikiSaving ? 'Saving...' : 'Save Doc'}
-                            </button>
-                          </form>
-                        )}
-                      </div>
+                      <form onSubmit={addDeliveryNote} className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <input className="input" value={noteForm.title} onChange={(event) => setNoteForm({ ...noteForm, title: event.target.value })} placeholder="Note title" />
+                        <select className="input" value={noteForm.category} onChange={(event) => setNoteForm({ ...noteForm, category: event.target.value })}>
+                          <option value="client">Client agreement</option>
+                          <option value="delivery">Delivery</option>
+                          <option value="qa">Review / QA</option>
+                          <option value="handover">Handover</option>
+                          <option value="other">Other</option>
+                        </select>
+                        <textarea className="input min-h-[110px]" value={noteForm.content} onChange={(event) => setNoteForm({ ...noteForm, content: event.target.value })} placeholder="Write the decision, proof, approval, or handover note" />
+                        <button type="submit" disabled={!canEdit || actionLoading === 'note'} className="btn btn-secondary w-full">
+                          {actionLoading === 'note' ? 'Saving...' : 'Save Note'}
+                        </button>
+                      </form>
                     </div>
                   </div>
-                </div>
 
-                <div className="hidden">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Group chat</p>
-                      <h3 className="mt-1 text-xl font-black text-white">Keep team updates inside the project</h3>
-                      <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
-                        Send updates to the whole project or filter the conversation by group.
-                      </p>
-                    </div>
-                    <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-                      <span className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-widest ${
-                        chatLiveStatus === 'live'
-                          ? 'border-emerald-300/20 bg-emerald-300/10 text-emerald-200'
-                          : chatLiveStatus === 'connecting' || chatLiveStatus === 'reconnecting'
-                            ? 'border-yellow-300/20 bg-yellow-300/10 text-yellow-200'
-                            : 'border-white/10 bg-white/[0.04] text-zinc-400'
-                      }`}>
-                        {chatLiveStatus === 'live'
-                          ? 'Live'
-                          : chatLiveStatus === 'connecting'
-                            ? 'Connecting'
-                            : chatLiveStatus === 'reconnecting'
-                              ? 'Reconnecting'
-                              : 'Offline'}
-                      </span>
-                      <select
-                        value={chatGroup}
-                        onChange={(event) => setChatGroup(event.target.value)}
-                        className="input w-full py-3 text-xs lg:w-56"
-                      >
-                        <option value="">All project chat</option>
-                        {activeGroupNames.map((groupName) => (
-                          <option key={groupName} value={groupName}>{groupName}</option>
+                  <aside className="space-y-6">
+                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Payment path</p>
+                      <h3 className="mt-2 text-2xl font-black text-white">Get paid without confusion</h3>
+                      <div className="mt-5 space-y-3">
+                        {[
+                          ['Scope agreed', activeProject.projectBrief ? 'Ready' : 'Missing scope'],
+                          ['Work status', `${tasks.filter((task) => task.status === 'done').length}/${tasks.length || 0} tasks done`],
+                          ['Proof saved', resources.length || docs.length ? 'Ready' : 'Add proof'],
+                          ['Invoice', 'Create when delivery is ready']
+                        ].map(([label, value]) => (
+                          <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                            <p className="mt-1 text-sm font-black text-white">{value}</p>
+                          </div>
                         ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 max-h-[360px] space-y-3 overflow-y-auto rounded-2xl border border-white/8 bg-black/20 p-3 sm:p-4">
-                    {visibleMessages.length ? (
-                      visibleMessages.slice(-40).map((item) => (
-                        <div key={item._id || `${item.senderName}-${item.createdAt}`} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-sm font-black text-white">{item.senderName || 'Team member'}</p>
-                              <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
-                                {item.groupName || 'All project'}
-                              </span>
-                            </div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                              {formatMessageTime(item.createdAt)}
-                            </p>
-                          </div>
-                          <p className="mt-3 whitespace-pre-line text-sm font-medium leading-relaxed text-zinc-300">
-                            {item.message}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
-                        <p className="text-sm font-black text-white">No messages yet</p>
-                        <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                          Share the first project update, blocker, or handover note for this team.
-                        </p>
                       </div>
-                    )}
-                  </div>
-
-                  <form onSubmit={sendGroupMessage} className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_130px]">
-                    <textarea
-                      value={chatMessage}
-                      onChange={(event) => setChatMessage(event.target.value)}
-                      placeholder={chatGroup ? `Message ${chatGroup}` : 'Write a project update for the team'}
-                      rows="3"
-                      maxLength="1200"
-                      className="input min-h-[96px] resize-none py-4 text-sm"
-                    />
-                    <button
-                      type="submit"
-                      disabled={chatSending || !chatMessage.trim()}
-                      className="btn btn-primary h-full min-h-[56px] self-stretch px-5 py-4 text-xs disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {chatSending ? 'Sending...' : 'Send Update'}
-                    </button>
-                  </form>
-                </div>
-
-                <div className="mt-8 grid gap-6 xl:grid-cols-2">
-                  <div>
-                    <h3 className="mb-4 text-lg font-black text-white">Role split</h3>
-                    <div className="space-y-3">
-                      {(activeProject.aiPlan?.roleSplit?.length ? activeProject.aiPlan.roleSplit : activeProject.collaborators || []).map((person, index) => (
-                        <div key={`${person.name}-${index}`} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                          <p className="text-sm font-black text-white">{person.name}</p>
-                          <p className="mt-1 text-xs font-bold uppercase tracking-widest text-yellow-300">{person.role || 'Contributor'}</p>
-                          <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">{person.focus || person.skill || 'No focus assigned yet.'}</p>
-                        </div>
-                      ))}
+                      <div className="mt-5 grid gap-3">
+                        <button type="button" onClick={() => navigate('/create-invoice')} className="btn btn-primary w-full">
+                          Create Invoice
+                        </button>
+                        <button type="button" onClick={sharePaymentFollowUp} className="btn btn-secondary w-full">
+                          Prepare WhatsApp Follow-up
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <h3 className="mb-4 text-lg font-black text-white">Milestones</h3>
-                    <div className="space-y-3">
-                      {(activeProject.aiPlan?.milestonePlan || []).map((milestone, index) => (
-                        <div key={`${milestone.title}-${index}`} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                          <p className="text-sm font-black text-white">{milestone.title}</p>
-                          <p className="mt-1 text-xs font-medium text-zinc-500">
-                            {milestone.owner || 'Unassigned'} - {milestone.dueHint || 'Schedule next'}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 grid gap-6">
-                  <div>
-                    <h3 className="mb-4 text-lg font-black text-white">Project tasks</h3>
-                    <div className="space-y-3">
-                      {visibleTasks.map((task, index) => (
-                        <div key={task._id || index} className="grid gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4 sm:grid-cols-[minmax(0,1fr)_150px]">
-                          <div>
-                            <p className="font-black text-white">{task.title}</p>
-                            <p className="mt-1 text-xs font-medium text-zinc-500">
-                              {task.groupName || 'No group'} - {task.owner || 'Unassigned'} - {statusLabel(task.priority)} priority - {formatDate(task.dueDate)}
-                            </p>
+                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-purple-300">Collaborators</p>
+                      <h3 className="mt-2 text-2xl font-black text-white">Bring another freelancer</h3>
+                      <div className="mt-5 space-y-3">
+                        {members.map((member) => (
+                          <div key={member._id || member.email || member.name} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <p className="text-sm font-black text-white">{member.name || member.email || 'Team member'}</p>
+                            <p className="mt-1 text-xs font-semibold text-zinc-500">{member.email || 'No email'} - {member.role}</p>
                           </div>
-                          <select
-                            value={task.status}
-                            onChange={(event) => {
-                              const nextTasks = (activeProject.tasks || []).map((item, currentIndex) =>
-                                (task._id && item._id === task._id) || (!task._id && currentIndex === index)
-                                  ? { ...item, status: event.target.value }
-                                  : item
-                              );
-                              updateProjectTasks(activeProject, nextTasks);
-                            }}
-                            disabled={!canEditActiveProject}
-                            className="input py-3 text-xs"
-                          >
-                            {taskStatuses.map((status) => (
-                              <option key={status} value={status}>{statusLabel(status)}</option>
-                            ))}
-                          </select>
-                        </div>
-                      ))}
-                      {!visibleTasks.length && (
-                        <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
-                          <p className="text-sm font-black text-white">No assigned tasks yet</p>
-                          <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                            Ask the project owner to assign tasks by your name or group.
-                          </p>
+                        ))}
+                      </div>
+                      <form onSubmit={createInvite} className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <input className="input" value={inviteForm.email} onChange={(event) => setInviteForm({ ...inviteForm, email: event.target.value })} placeholder="Freelancer email optional" />
+                        <select className="input" value={inviteForm.role} onChange={(event) => setInviteForm({ ...inviteForm, role: event.target.value })}>
+                          <option value="viewer">Viewer</option>
+                          <option value="editor">Editor</option>
+                        </select>
+                        <button type="submit" disabled={!canInvite || actionLoading === 'invite'} className="btn btn-secondary w-full">
+                          {actionLoading === 'invite' ? 'Creating...' : 'Create Invite Link'}
+                        </button>
+                      </form>
+                      {lastInvite?.inviteUrl && (
+                        <div className="mt-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] p-4">
+                          <p className="text-sm font-semibold leading-relaxed text-emerald-100">Invite ready for {lastInvite.role} access.</p>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                            <button type="button" onClick={copyInvite} className="btn btn-dark">Copy</button>
+                            <button type="button" onClick={shareInvite} className="btn btn-dark">WhatsApp</button>
+                          </div>
                         </div>
                       )}
                     </div>
-                  </div>
 
-                  <div>
-                    <h3 className="mb-4 text-lg font-black text-white">AI risk notes</h3>
-                    <div className="space-y-3">
-                      {(activeProject.aiPlan?.risks || []).map((risk) => (
-                        <div key={risk} className="rounded-2xl border border-yellow-400/15 bg-yellow-400/[0.05] p-4 text-sm font-semibold leading-relaxed text-yellow-100">
-                          {risk}
-                        </div>
-                      ))}
+                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Project updates</p>
+                      <h3 className="mt-2 text-2xl font-black text-white">Simple team chat</h3>
+                      <div className="mt-5 max-h-80 space-y-3 overflow-y-auto pr-1">
+                        {messages.length ? messages.map((item) => (
+                          <div key={item._id || `${item.senderName}-${item.createdAt}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <p className="text-xs font-black uppercase tracking-widest text-sky-300">{item.senderName || 'Team member'}</p>
+                            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{item.message}</p>
+                            <p className="mt-2 text-[10px] font-semibold text-zinc-600">{formatDate(item.createdAt)}</p>
+                          </div>
+                        )) : (
+                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <p className="text-sm font-semibold text-zinc-500">No updates yet. Write what changed, what is blocked, or what the client approved.</p>
+                          </div>
+                        )}
+                      </div>
+                      <form onSubmit={sendProjectMessage} className="mt-5 grid gap-3">
+                        <textarea className="input min-h-[90px]" value={chatMessage} onChange={(event) => setChatMessage(event.target.value)} placeholder="Write project update" />
+                        <button type="submit" disabled={actionLoading === 'message'} className="btn btn-secondary w-full">
+                          {actionLoading === 'message' ? 'Sending...' : 'Send Update'}
+                        </button>
+                      </form>
                     </div>
-                  </div>
-                </div>
+                  </aside>
+                </section>
               </div>
             )}
           </section>
+        </section>
 
-          <section className="reveal reveal-delay-2">
-            {canCreateProjects ? (
-              <form onSubmit={handleSubmit} className="premium-panel p-5 sm:p-8">
-                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Create team project</p>
-                <h2 className="mt-2 text-2xl font-black text-white">New collaboration room</h2>
-
-              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <input
-                  value={form.title}
-                  onChange={(event) => updateField('title', event.target.value)}
-                  placeholder="Project title"
-                  className="input py-4"
-                />
-                <input
-                  value={form.clientName}
-                  onChange={(event) => updateField('clientName', event.target.value)}
-                  placeholder="Client name"
-                  className="input py-4"
-                />
-                <div className="grid gap-3 sm:grid-cols-2 xl:col-span-2">
-                  <input
-                    type="number"
-                    min="0"
-                    value={form.budget}
-                    onChange={(event) => updateField('budget', event.target.value)}
-                    placeholder="Budget"
-                    className="input py-4"
-                  />
-                  <select
-                    value={form.currency}
-                    onChange={(event) => updateField('currency', event.target.value)}
-                    className="input py-4"
-                  >
-                    {currencyOptions.map((currency) => (
-                      <option key={currency} value={currency}>{currency}</option>
-                    ))}
-                  </select>
-                </div>
-                <input
-                  type="date"
-                  value={form.deadline}
-                  onChange={(event) => updateField('deadline', event.target.value)}
-                  className="input py-4"
-                />
-                <textarea
-                  value={form.projectBrief}
-                  onChange={(event) => updateField('projectBrief', event.target.value)}
-                  placeholder="Brief: what should the team deliver?"
-                  rows="4"
-                  className="input min-h-[120px] resize-none py-4 md:col-span-2 xl:col-span-4"
-                />
-              </div>
-
-              <div className="mt-8">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-white">Groups</h3>
-                  <button
-                    type="button"
-                    onClick={() => updateField('groups', [...form.groups, { ...blankGroup }])}
-                    className="rounded-xl border border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10"
-                  >
-                    Add
-                  </button>
-                </div>
-                <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-                  {form.groups.map((group, index) => (
-                    <div key={index} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                      <div className="grid gap-3">
-                        <input
-                          value={group.name}
-                          onChange={(event) => updateGroup(index, 'name', event.target.value)}
-                          placeholder="Group name, e.g. Design Team"
-                          className="input py-3 text-sm"
-                        />
-                        <input
-                          value={group.focus}
-                          onChange={(event) => updateGroup(index, 'focus', event.target.value)}
-                          placeholder="Group focus"
-                          className="input py-3 text-sm"
-                        />
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <input
-                            value={group.lead}
-                            onChange={(event) => updateGroup(index, 'lead', event.target.value)}
-                            placeholder="Group lead"
-                            className="input py-3 text-sm"
-                          />
-                          <select
-                            value={group.status}
-                            onChange={(event) => updateGroup(index, 'status', event.target.value)}
-                            className="input py-3 text-sm"
-                          >
-                            {projectStatuses.map((status) => (
-                              <option key={status} value={status}>{statusLabel(status)}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeGroup(index)}
-                          className="rounded-xl border border-red-400/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 hover:bg-red-400/10"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-8">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-white">Collaborators</h3>
-                  <button
-                    type="button"
-                    onClick={() => updateField('collaborators', [...form.collaborators, { ...blankCollaborator }])}
-                    className="rounded-xl border border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10"
-                  >
-                    Add
-                  </button>
-                </div>
-                <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-                  {form.collaborators.map((person, index) => (
-                    <div key={index} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                      <div className="grid gap-3">
-                        <input
-                          value={person.name}
-                          onChange={(event) => updateCollaborator(index, 'name', event.target.value)}
-                          placeholder="Freelancer name"
-                          className="input py-3 text-sm"
-                        />
-                        <input
-                          value={person.email}
-                          onChange={(event) => updateCollaborator(index, 'email', event.target.value)}
-                          placeholder="Email or contact"
-                          className="input py-3 text-sm"
-                        />
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <input
-                            value={person.role}
-                            onChange={(event) => updateCollaborator(index, 'role', event.target.value)}
-                            placeholder="Role"
-                            className="input py-3 text-sm"
-                          />
-                          <input
-                            value={person.skill}
-                            onChange={(event) => updateCollaborator(index, 'skill', event.target.value)}
-                            placeholder="Skill"
-                            className="input py-3 text-sm"
-                          />
-                        </div>
-                        <select
-                          value={person.groupName}
-                          onChange={(event) => updateCollaborator(index, 'groupName', event.target.value)}
-                          className="input py-3 text-sm"
-                        >
-                          <option value="">No group selected</option>
-                          {formGroupNames.map((groupName) => (
-                            <option key={groupName} value={groupName}>{groupName}</option>
-                          ))}
-                        </select>
-                        <button
-                          type="button"
-                          onClick={() => removeCollaborator(index)}
-                          className="rounded-xl border border-red-400/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 hover:bg-red-400/10"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-8">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-white">Tasks</h3>
-                  <button
-                    type="button"
-                    onClick={() => updateField('tasks', [...form.tasks, { ...blankTask }])}
-                    className="rounded-xl border border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10"
-                  >
-                    Add
-                  </button>
-                </div>
-                <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-                  {form.tasks.map((task, index) => (
-                    <div key={index} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                      <div className="grid gap-3">
-                        <input
-                          value={task.title}
-                          onChange={(event) => updateTask(index, 'title', event.target.value)}
-                          placeholder="Task title"
-                          className="input py-3 text-sm"
-                        />
-                        <input
-                          value={task.owner}
-                          onChange={(event) => updateTask(index, 'owner', event.target.value)}
-                          placeholder="Owner name"
-                          className="input py-3 text-sm"
-                        />
-                        <select
-                          value={task.groupName}
-                          onChange={(event) => updateTask(index, 'groupName', event.target.value)}
-                          className="input py-3 text-sm"
-                        >
-                          <option value="">No group selected</option>
-                          {formGroupNames.map((groupName) => (
-                            <option key={groupName} value={groupName}>{groupName}</option>
-                          ))}
-                        </select>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <select
-                            value={task.priority}
-                            onChange={(event) => updateTask(index, 'priority', event.target.value)}
-                            className="input py-3 text-sm"
-                          >
-                            {priorities.map((priority) => (
-                              <option key={priority} value={priority}>{statusLabel(priority)}</option>
-                            ))}
-                          </select>
-                          <input
-                            type="date"
-                            value={task.dueDate}
-                            onChange={(event) => updateTask(index, 'dueDate', event.target.value)}
-                            className="input py-3 text-sm"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeTask(index)}
-                          className="rounded-xl border border-red-400/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 hover:bg-red-400/10"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={saving}
-                className="btn btn-primary mt-8 w-full py-5 text-base"
-              >
-                {saving ? 'Creating...' : 'Create Team Workspace'}
-              </button>
-              </form>
-            ) : (
-              <div className="premium-panel p-5 sm:p-8">
-                <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Joined workspace</p>
-                <h2 className="mt-2 text-2xl font-black text-white">You are a project member</h2>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-500">
-                  You can open projects shared with you, see assigned work, and send group chat updates. Creating new team workspaces and invite links is available for the paid project owner.
+        {!isPro && (
+          <section className="mt-8 rounded-[1.75rem] border border-yellow-300/20 bg-yellow-300/[0.08] p-5 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">Pro workflow</p>
+                <h2 className="mt-2 text-2xl font-black text-white">Workrooms become valuable when you use them for real client delivery.</h2>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-yellow-100/80">
+                  Upgrade when you want saved client projects, collaborator invites, delivery proof, and payment workflow in one place.
                 </p>
-                <div className="mt-5 grid gap-3">
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Your access</p>
-                    <p className="mt-1 text-lg font-black text-white">
-                      {statusLabel(activeProject?.accessRole || 'Member')}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Assigned tasks</p>
-                    <p className="mt-1 text-lg font-black text-white">{visibleTasks.length}</p>
-                  </div>
-                </div>
               </div>
-            )}
-          </section>
-        </div>
-      </main>
-
-      {activeProject && (
-        <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-50 print:hidden sm:right-6">
-          {chatOpen && (
-            <div className="mb-4 w-[calc(100vw-2rem)] max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#090d14]/95 shadow-2xl shadow-black/50 backdrop-blur-2xl">
-              <div className="border-b border-white/10 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Project chat</p>
-                    <h3 className="mt-1 text-lg font-black text-white">{activeProject.title}</h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setChatOpen(false)}
-                    className="rounded-xl border border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:bg-white/10 hover:text-white"
-                  >
-                    Close
-                  </button>
-                </div>
-                <div className="mt-3 flex gap-2">
-                  <span className={`inline-flex items-center justify-center rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-widest ${
-                    chatLiveStatus === 'live'
-                      ? 'border-emerald-300/20 bg-emerald-300/10 text-emerald-200'
-                      : chatLiveStatus === 'connecting' || chatLiveStatus === 'reconnecting'
-                        ? 'border-yellow-300/20 bg-yellow-300/10 text-yellow-200'
-                        : 'border-white/10 bg-white/[0.04] text-zinc-400'
-                  }`}>
-                    {chatLiveStatus === 'live'
-                      ? 'Live'
-                      : chatLiveStatus === 'connecting'
-                        ? 'Connecting'
-                        : chatLiveStatus === 'reconnecting'
-                          ? 'Reconnecting'
-                          : 'Offline'}
-                  </span>
-                  <select
-                    value={chatGroup}
-                    onChange={(event) => setChatGroup(event.target.value)}
-                    className="input flex-1 py-2 text-xs"
-                  >
-                    <option value="">All project chat</option>
-                    {activeGroupNames.map((groupName) => (
-                      <option key={groupName} value={groupName}>{groupName}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="max-h-[52vh] space-y-3 overflow-y-auto p-4">
-                {latestMessages.length ? (
-                  latestMessages.map((item) => (
-                    <div key={item._id || `${item.senderName}-${item.createdAt}`} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-black text-white">{item.senderName || 'Team member'}</p>
-                          <span className="rounded-full border border-sky-300/15 bg-sky-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
-                            {item.groupName || 'All'}
-                          </span>
-                        </div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                          {formatMessageTime(item.createdAt)}
-                        </p>
-                      </div>
-                      <p className="mt-3 whitespace-pre-line text-sm font-medium leading-relaxed text-zinc-300">{item.message}</p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-white/10 p-6 text-center">
-                    <p className="text-sm font-black text-white">No messages yet</p>
-                    <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">
-                      Send the first update for this project.
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <form onSubmit={sendGroupMessage} className="border-t border-white/10 p-4">
-                <textarea
-                  value={chatMessage}
-                  onChange={(event) => setChatMessage(event.target.value)}
-                  placeholder={chatGroup ? `Message ${chatGroup}` : 'Write a team update'}
-                  rows="3"
-                  maxLength="1200"
-                  className="input min-h-[90px] resize-none py-3 text-sm"
-                />
-                <button
-                  type="submit"
-                  disabled={chatSending || !chatMessage.trim()}
-                  className="btn btn-primary mt-3 w-full py-3 text-xs disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {chatSending ? 'Sending...' : 'Send Message'}
-                </button>
-              </form>
+              <button type="button" onClick={() => navigate('/payment')} className="btn btn-primary shrink-0">
+                Upgrade Pro
+              </button>
             </div>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setChatOpen((value) => !value)}
-            className="relative ml-auto flex h-14 w-14 items-center justify-center rounded-full border border-sky-300/20 bg-sky-400 text-slate-950 shadow-2xl shadow-sky-900/40 transition hover:-translate-y-1 hover:bg-sky-300"
-            aria-label="Open project chat"
-          >
-            <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8M8 14h5m8-2a9 9 0 11-3.6-7.2L21 3v5h-5" />
-            </svg>
-            {unreadMessages > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-[#090d14] bg-red-500 px-1.5 text-[10px] font-black text-white">
-                {unreadMessages > 9 ? '9+' : unreadMessages}
-              </span>
-            )}
-          </button>
-        </div>
-      )}
+          </section>
+        )}
+      </main>
     </div>
   );
 }

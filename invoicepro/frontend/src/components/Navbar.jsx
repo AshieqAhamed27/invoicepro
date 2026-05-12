@@ -13,7 +13,7 @@ const appLinks = [
   { to: '/proposal-writer', label: 'Proposal', detail: 'Write and improve proposals', requiresPro: true },
   { to: '/deal-room', label: 'Deal Room', detail: 'Move leads to paid work', requiresPro: true },
   { to: '/leads', label: 'Lead Pipeline', detail: 'Track prospects and follow-up', requiresPro: true },
-  { to: '/team-workspace', label: 'Team Work', detail: 'Projects, chat, ledger' },
+  { to: '/client-workroom', label: 'Workroom', detail: 'Scope, tasks, files, proof, payment' },
   { to: '/cloud-documents', label: 'Cloud Docs', detail: 'Store invoices, contracts, and project files' },
   { to: '/create-invoice', label: 'Invoice', detail: 'Proposal or invoice' }
 ];
@@ -22,7 +22,7 @@ const primaryAppLinks = [
   { to: '/money-gps', label: 'Money GPS' },
   { to: '/business-autopilot', label: 'Autopilot' },
   { to: '/profit-tracker', label: 'Profit' },
-  { to: '/team-workspace', label: 'Team Work' },
+  { to: '/client-workroom', label: 'Workroom' },
   { to: '/cloud-documents', label: 'Files' },
   { to: '/create-invoice', label: 'Invoice' }
 ];
@@ -36,6 +36,7 @@ const moreAppLinks = [
   { to: '/proposal-writer', label: 'Proposal Writer', detail: 'AI proposal support', requiresPro: true },
   { to: '/deal-room', label: 'Deal Room', detail: 'Close serious leads', requiresPro: true },
   { to: '/leads', label: 'Lead Pipeline', detail: 'Manage prospects', requiresPro: true },
+  { to: '/client-workroom', label: 'Client Workroom', detail: 'Scope, tasks, files, proof, payment' },
   { to: '/cloud-documents', label: 'Cloud Documents', detail: 'Invoices, contracts, files' },
   { to: '/agency', label: 'Agency Setup', detail: 'Done-for-you freelancer system' },
   { to: '/settings', label: 'Settings', detail: 'Profile, logo, payments' }

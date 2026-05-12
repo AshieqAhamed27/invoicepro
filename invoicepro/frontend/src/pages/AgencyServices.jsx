@@ -24,7 +24,7 @@ const outcomes = [
   },
   {
     title: 'Project delivery system',
-    text: 'We organize tasks, documents, client requests, GitHub/project notes, and handover flow for active work.'
+    text: 'We organize tasks, documents, client requests, proof links, project notes, and handover flow for active work.'
   },
   {
     title: 'Invoice and payment setup',

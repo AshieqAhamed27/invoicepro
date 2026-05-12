@@ -63,10 +63,10 @@ const featureCards = [
     path: '/proposal-writer'
   },
   {
-    title: 'Team Workspace',
-    benefit: 'Keeps project delivery organized.',
-    detail: 'Freelancers can manage tasks, client requests, collaborators, project notes, releases, and handover in one place.',
-    path: '/team-workspace'
+    title: 'Client Workroom',
+    benefit: 'Runs each client job from scope to payment.',
+    detail: 'Freelancers can manage scope, milestones, collaborators, project notes, delivery proof, invoices, and follow-up in one place.',
+    path: '/client-workroom'
   },
   {
     title: 'Invoice and Payment Links',
@@ -127,7 +127,7 @@ const plans = [
     name: 'Free',
     price: 'Rs 0',
     note: 'Try the basic workflow',
-    features: ['Create limited invoices', 'See the product flow', 'Start your workspace'],
+    features: ['Create limited invoices', 'See the product flow', 'Start your client workroom'],
     cta: 'Create Free Account'
   },
   {
@@ -294,7 +294,7 @@ export default function Home() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-semibold leading-relaxed text-zinc-300 sm:text-lg">
-                ClientFlow AI helps freelancers run the full client process in one place: find leads, send proposals, manage projects, create invoices, and collect payments.
+                ClientFlow AI helps freelancers run the full client process in one place: find leads, send proposals, manage client workrooms, create invoices, and collect payments.
               </p>
 
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">

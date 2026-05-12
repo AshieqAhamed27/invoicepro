@@ -132,6 +132,7 @@ const appRoutePrefixes = [
   '/ai-coach',
   '/business-autopilot',
   '/clients',
+  '/client-workroom',
   '/client-finder',
   '/cloud-documents',
   '/contact',
@@ -475,6 +476,17 @@ export default function App() {
                   <DealClosureRoom />
                 </Suspense>
               </ProRoute>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/client-workroom"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <TeamWorkspace />
+              </Suspense>
             </PrivateRoute>
           }
         />

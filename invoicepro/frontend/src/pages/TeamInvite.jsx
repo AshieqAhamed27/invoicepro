@@ -64,7 +64,7 @@ export default function TeamInvite() {
     try {
       setAccepting(true);
       await api.post(`/team-projects/invites/${token}/accept`);
-      navigate('/team-workspace', { replace: true });
+      navigate('/client-workroom', { replace: true });
     } catch (err) {
       setError(err?.response?.data?.message || 'Could not accept invite.');
     } finally {
