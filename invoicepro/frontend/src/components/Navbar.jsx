@@ -204,7 +204,7 @@ export default function Navbar() {
                   More
                 </button>
                 {appMenuOpen && (
-                  <div className="absolute right-0 top-full mt-3 w-80 rounded-2xl border border-white/10 bg-[#090d14] p-2 shadow-2xl shadow-black/40">
+                  <div className="absolute right-0 top-full mt-3 max-h-[min(32rem,calc(100vh-6rem))] w-80 overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-[#090d14] p-2 shadow-2xl shadow-black/40">
                     {moreAppLinks.map((link) => (
                       <NavLink
                         key={link.to}
