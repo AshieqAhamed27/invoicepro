@@ -4,6 +4,7 @@ import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel } from '../u
 import BrandLogo from './BrandLogo';
 
 const appLinks = [
+  { to: '/client-flow', label: 'Client Flow', detail: 'Lead to payment workflow' },
   { to: '/money-gps', label: 'Money GPS', detail: 'One best action today' },
   { to: '/business-autopilot', label: 'Autopilot', detail: 'Lead to payment automation', requiresPro: true },
   { to: '/profit-tracker', label: 'Profit Tracker', detail: 'AI/software cost and project profit', requiresPro: true },
@@ -19,15 +20,15 @@ const appLinks = [
 ];
 
 const primaryAppLinks = [
+  { to: '/client-flow', label: 'Client Flow' },
   { to: '/money-gps', label: 'Money GPS' },
-  { to: '/business-autopilot', label: 'Autopilot' },
-  { to: '/profit-tracker', label: 'Profit' },
   { to: '/client-workroom', label: 'Workroom' },
-  { to: '/cloud-documents', label: 'Files' },
-  { to: '/create-invoice', label: 'Invoice' }
+  { to: '/create-invoice', label: 'Invoice' },
+  { to: '/cloud-documents', label: 'Files' }
 ];
 
 const moreAppLinks = [
+  { to: '/client-flow', label: 'Client Flow', detail: 'Lead to payment workflow' },
   { to: '/business-autopilot', label: 'Business Autopilot', detail: 'Lead to payment automation', requiresPro: true },
   { to: '/profit-tracker', label: 'Profit Tracker', detail: 'AI tool cost and project profit', requiresPro: true },
   { to: '/growth-plan', label: 'Growth Plan', detail: 'Income stability plan', requiresPro: true },
@@ -342,9 +343,9 @@ export default function Navbar() {
                   </NavLink>
                 </>
               ) : (
-                <NavLink to="/dashboard" onClick={closeMenu} className={mobileItemClass}>
-                  <span className="block text-sm font-black">Dashboard</span>
-                  <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Business overview</span>
+                <NavLink to="/client-flow" onClick={closeMenu} className={mobileItemClass}>
+                  <span className="block text-sm font-black">Client Flow</span>
+                  <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Lead to payment workflow</span>
                 </NavLink>
               )}
             </div>

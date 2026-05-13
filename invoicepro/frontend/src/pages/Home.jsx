@@ -45,6 +45,12 @@ const serviceOffers = [
 
 const featureCards = [
   {
+    title: 'Client Flow',
+    benefit: 'Shows the full path from lead to payment.',
+    detail: 'Beginners see one guided workflow: find client, qualify, proposal, workroom, delivery proof, invoice, and payment follow-up.',
+    path: '/client-flow'
+  },
+  {
     title: 'Money GPS',
     benefit: 'Shows the best business action for today.',
     detail: 'Instead of opening many tools, the freelancer sees what to do next: message a lead, send a proposal, finish a project task, or collect payment.',
@@ -266,7 +272,7 @@ export default function Home() {
     }
 
     const nextPath = planId === 'free'
-      ? (loggedIn ? '/dashboard' : '/signup')
+      ? (loggedIn ? '/client-flow' : '/signup')
       : (loggedIn ? '/payment' : '/signup');
 
     trackCtaClick(`select_${planId}`, 'home_pricing', nextPath);
@@ -319,10 +325,10 @@ export default function Home() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => goToApp(hasActivePro && !showExpiryAlert ? '/dashboard' : '/payment', 'home_plan_status')}
+                      onClick={() => goToApp(hasActivePro && !showExpiryAlert ? '/client-flow' : '/payment', 'home_plan_status')}
                       className="shrink-0 rounded-2xl bg-white px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
                     >
-                      {showExpiryAlert ? 'Renew Pro' : hasActivePro ? 'Open App' : 'Start Trial'}
+                      {showExpiryAlert ? 'Renew Pro' : hasActivePro ? 'Open Flow' : 'Start Trial'}
                     </button>
                   </div>
                 </div>
@@ -331,10 +337,10 @@ export default function Home() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
-                  onClick={() => goToApp('/dashboard', loggedIn ? 'hero_open_dashboard' : 'hero_start_free')}
+                  onClick={() => goToApp('/client-flow', loggedIn ? 'hero_open_client_flow' : 'hero_start_free')}
                   className="btn btn-primary px-7 py-4 text-sm"
                 >
-                  {loggedIn ? 'Open Dashboard' : 'Start Free'}
+                  {loggedIn ? 'Open Client Flow' : 'Start Free'}
                 </button>
                 <a href="#features" className="btn btn-secondary px-7 py-4 text-center text-sm">
                   See Features
@@ -411,8 +417,8 @@ export default function Home() {
 
             <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">
               {serviceOffers.map((offer) => {
-                const offerPath = offer.path === '/signup' && loggedIn ? '/dashboard' : offer.path;
-                const offerCta = offer.path === '/signup' && loggedIn ? 'Open dashboard' : offer.cta;
+                const offerPath = offer.path === '/signup' && loggedIn ? '/client-flow' : offer.path;
+                const offerCta = offer.path === '/signup' && loggedIn ? 'Open client flow' : offer.cta;
 
                 return (
                   <Link
@@ -643,10 +649,10 @@ export default function Home() {
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
               <button
                 type="button"
-                onClick={() => goToApp('/dashboard', 'final_start')}
+                onClick={() => goToApp('/client-flow', 'final_start')}
                 className="btn btn-primary px-7 py-4 text-sm"
               >
-                {loggedIn ? 'Open Dashboard' : 'Create Free Account'}
+                {loggedIn ? 'Open Client Flow' : 'Create Free Account'}
               </button>
               <Link to="/contact" className="btn btn-secondary px-7 py-4 text-sm">
                 Contact Support

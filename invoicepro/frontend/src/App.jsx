@@ -26,6 +26,7 @@ const DigitalDeliveryPolicy = lazy(() => import('./pages/DigitalDeliveryPolicy')
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const ClientFlow = lazy(() => import('./pages/ClientFlow'));
 const MoneyGPS = lazy(() => import('./pages/MoneyGPS'));
 const GrowthPlan = lazy(() => import('./pages/GrowthPlan'));
 const ClientCoach = lazy(() => import('./pages/ClientCoach'));
@@ -108,7 +109,7 @@ const PrivateRoute = ({ children }) => {
 const PublicRoute = ({ children }) => {
   return !isLoggedIn()
     ? children
-    : <Navigate to="/dashboard" replace />;
+    : <Navigate to="/client-flow" replace />;
 };
 
 const isAdmin = () => {
@@ -132,6 +133,7 @@ const appRoutePrefixes = [
   '/ai-coach',
   '/business-autopilot',
   '/clients',
+  '/client-flow',
   '/client-workroom',
   '/client-finder',
   '/cloud-documents',
@@ -336,6 +338,17 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <Dashboard />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/client-flow"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <ClientFlow />
               </Suspense>
             </PrivateRoute>
           }

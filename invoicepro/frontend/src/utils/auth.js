@@ -52,7 +52,7 @@ export const resolvePostLoginRedirect = (locationState) => {
     return `${from.pathname}${from.search || ''}${from.hash || ''}`;
   }
 
-  return storedRedirect || '/dashboard';
+  return storedRedirect || '/client-flow';
 };
 
 export const isLoggedIn = () => {
