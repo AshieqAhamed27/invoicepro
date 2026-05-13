@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getPlanLabel, getUser, hasProAccess } from '../utils/auth';
@@ -86,16 +87,19 @@ const proValueItems = [
 ];
 
 export default function Payment() {
+  const location = useLocation();
   const [plan, setPlan] = useState('monthly');
   const [loading, setLoading] = useState(false);
-  const [trialLoading, setTrialLoading] = useState(false);
+  const [earlyAccessLoading, setEarlyAccessLoading] = useState(false);
   const [pricingLoading, setPricingLoading] = useState(true);
   const [serverPlanDetails, setServerPlanDetails] = useState(planDetails);
   const [pricingWarning, setPricingWarning] = useState('');
   const [pricingBlocked, setPricingBlocked] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
+  const [earlyAccessStatus, setEarlyAccessStatus] = useState(null);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [accountUser, setAccountUser] = useState(() => getUser() || {});
+  const earlyIntent = new URLSearchParams(location.search).get('early') === '1';
 
   useEffect(() => {
     const selectedPlan = getSafePlan(localStorage.getItem("plan") || "monthly");
@@ -149,17 +153,37 @@ export default function Payment() {
     loadSubscription();
   }, []);
 
+  useEffect(() => {
+    const loadEarlyAccessStatus = async () => {
+      try {
+        const res = await api.get('/payment/early-access/status');
+        setEarlyAccessStatus(res.data || null);
+        if (res.data?.user) {
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+          setAccountUser(res.data.user);
+        }
+      } catch {
+        setEarlyAccessStatus(null);
+      }
+    };
+
+    loadEarlyAccessStatus();
+  }, []);
+
   const current = serverPlanDetails[getSafePlan(plan)] || planDetails[getSafePlan(plan)];
-  const trialAlreadyUsed = Boolean(accountUser?.trialUsedAt);
+  const earlyAccessAlreadyUsed = Boolean(accountUser?.earlyAccessUsedAt);
+  const earlyAccessClosed = earlyAccessStatus?.enabled === false || Number(earlyAccessStatus?.seatsRemaining || 0) <= 0;
   const activePlanLabel = getPlanLabel(accountUser);
-  const trialDisabled = trialLoading || loading || hasProAccess(accountUser) || trialAlreadyUsed;
-  const trialButtonLabel = hasProAccess(accountUser)
+  const earlyAccessDisabled = earlyAccessLoading || loading || hasProAccess(accountUser) || earlyAccessAlreadyUsed || earlyAccessClosed;
+  const earlyAccessButtonLabel = hasProAccess(accountUser)
     ? `${activePlanLabel} Active`
-    : trialAlreadyUsed
-      ? 'Trial Already Used'
-      : trialLoading
-        ? 'Activating Trial...'
-        : 'Start 7-Day Free Trial';
+    : earlyAccessAlreadyUsed
+      ? 'Early Access Already Used'
+      : earlyAccessClosed
+        ? 'Early Access Seats Filled'
+        : earlyAccessLoading
+          ? 'Activating Early Access...'
+          : `Activate ${earlyAccessStatus?.days || 30}-Day Free Access`;
   const selectPlan = (nextPlan) => {
     const safePlan = getSafePlan(nextPlan);
     localStorage.setItem("plan", safePlan);
@@ -171,28 +195,28 @@ export default function Payment() {
     });
   };
 
-  const handleTrialStart = async () => {
-    if (trialDisabled) return;
+  const handleEarlyAccessStart = async () => {
+    if (earlyAccessDisabled) return;
 
     try {
-      setTrialLoading(true);
-      const res = await api.post('/payment/trial/start');
+      setEarlyAccessLoading(true);
+      const res = await api.post('/payment/early-access/start');
 
       if (res.data?.user) {
         localStorage.setItem('user', JSON.stringify(res.data.user));
         setAccountUser(res.data.user);
       }
 
-      trackEvent('start_trial', {
+      trackEvent('start_early_access', {
         value: 0,
         currency: 'INR'
       });
-      alert(res.data?.message || '7-day Pro trial activated');
-      window.location.href = '/dashboard';
+      alert(res.data?.message || 'Early access activated');
+      window.location.href = '/client-flow';
     } catch (err) {
-      alert(err?.response?.data?.message || 'Unable to activate trial');
+      alert(err?.response?.data?.message || 'Unable to activate early access');
     } finally {
-      setTrialLoading(false);
+      setEarlyAccessLoading(false);
     }
   };
 
@@ -483,6 +507,45 @@ export default function Payment() {
               Pro helps freelancers find clients, close work, manage delivery, save proof, send proposals and invoices, and protect cashflow.
             </p>
 
+            <div className={`mb-6 rounded-[1.75rem] border p-5 sm:p-6 ${
+              earlyIntent
+                ? 'border-emerald-300/35 bg-emerald-300/[0.1]'
+                : 'border-emerald-300/20 bg-emerald-300/[0.06]'
+            }`}>
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+                    Early-user free access
+                  </p>
+                  <h2 className="mt-2 text-2xl font-black text-white">
+                    First {earlyAccessStatus?.seatLimit || 50} freelancers get {earlyAccessStatus?.days || 30} days of Pro free.
+                  </h2>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-emerald-50/70">
+                    No card needed. Use the full workflow, then share honest feedback so ClientFlow AI can improve for real freelancers.
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleEarlyAccessStart}
+                    disabled={earlyAccessDisabled}
+                    className={`w-full rounded-2xl px-5 py-4 text-sm font-black uppercase tracking-widest transition-all lg:w-auto ${
+                      earlyAccessDisabled
+                        ? 'cursor-not-allowed border border-white/10 bg-white/[0.04] text-zinc-500'
+                        : 'bg-emerald-300 text-slate-950 hover:-translate-y-0.5 hover:bg-emerald-200 active:scale-95'
+                    }`}
+                  >
+                    {earlyAccessButtonLabel}
+                  </button>
+                  {earlyAccessStatus && (
+                    <p className="mt-3 text-center text-[10px] font-black uppercase tracking-widest text-emerald-100/60">
+                      {Math.max(0, Number(earlyAccessStatus.seatsRemaining || 0))} seats left
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
                   <svg className="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" /></svg>
@@ -589,15 +652,15 @@ export default function Payment() {
 
                <button
                  type="button"
-                 onClick={handleTrialStart}
-                 disabled={trialDisabled}
+                 onClick={handleEarlyAccessStart}
+                 disabled={earlyAccessDisabled}
                  className={`mt-3 w-full rounded-2xl border border-white/10 px-5 py-4 text-sm font-black text-white transition-all ${
-                   trialDisabled
+                   earlyAccessDisabled
                      ? 'cursor-not-allowed bg-white/[0.02] opacity-60'
                      : 'bg-white/[0.03] hover:bg-white/[0.06] active:scale-[0.98]'
                  }`}
                >
-                 {trialButtonLabel}
+                 {earlyAccessButtonLabel}
                </button>
 
                {pricingWarning && (
@@ -642,7 +705,7 @@ export default function Payment() {
 
              <div className="mt-8 p-8 rounded-[2rem] border border-white/5 bg-white/[0.01]">
                 <p className="text-[10px] font-bold text-zinc-600 leading-relaxed uppercase tracking-widest text-center">
-                  Use the 7-day trial for free setup calls, the founder offer for early users, or monthly billing for repeat subscribers.
+                  Use early access to test the full workflow, the founder offer for 90-day paid access, or monthly billing for repeat subscribers.
                 </p>
              </div>
           </aside>

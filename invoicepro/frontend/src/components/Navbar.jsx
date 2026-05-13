@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel } from '../utils/auth';
+import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel, setPostLoginRedirect } from '../utils/auth';
 import BrandLogo from './BrandLogo';
 
 const appLinks = [
@@ -80,6 +80,19 @@ export default function Navbar() {
     setMenuOpen(false);
     setUseCasesOpen(false);
     setAppMenuOpen(false);
+  };
+
+  const openEarlyAccess = () => {
+    const earlyAccessPath = '/payment?early=1';
+
+    if (!loggedIn) {
+      setPostLoginRedirect(earlyAccessPath);
+      navigate('/signup');
+    } else {
+      navigate(earlyAccessPath);
+    }
+
+    closeAllMenus();
   };
 
   useEffect(() => {

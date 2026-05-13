@@ -44,6 +44,14 @@ const getConfiguredAmount = (envName, fallback) => {
     return Number.isFinite(amount) && amount > 0 ? amount : fallback;
 };
 
+const getConfiguredPositiveInt = (envName, fallback) => {
+    const value = Number(process.env[envName]);
+    return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+};
+
+const EARLY_ACCESS_DAYS = getConfiguredPositiveInt('EARLY_ACCESS_DAYS', 30);
+const EARLY_ACCESS_SEAT_LIMIT = getConfiguredPositiveInt('EARLY_ACCESS_SEAT_LIMIT', 50);
+
 const planDetails = {
     monthly: {
         amount: getConfiguredAmount('PRO_MONTHLY_AMOUNT', 499),
@@ -110,6 +118,8 @@ const serializeUser = (user) => ({
     lastPaymentAt: user.lastPaymentAt,
     trialStartedAt: user.trialStartedAt,
     trialUsedAt: user.trialUsedAt,
+    earlyAccessStartedAt: user.earlyAccessStartedAt,
+    earlyAccessUsedAt: user.earlyAccessUsedAt,
     companyName: user.companyName,
     gstNumber: user.gstNumber,
     upiId: user.upiId,
@@ -463,6 +473,80 @@ router.get('/subscription/status', protect, async(req, res) => {
         });
     } catch (err) {
         res.status(500).json({ message: 'Unable to load subscription status' });
+    }
+});
+
+router.get('/early-access/status', protect, async(req, res) => {
+    try {
+        const now = new Date();
+        const activeSeats = await User.countDocuments({
+            plan: 'early_access',
+            planExpiresAt: { $gt: now }
+        });
+
+        res.json({
+            enabled: process.env.EARLY_ACCESS_ENABLED !== 'false',
+            days: EARLY_ACCESS_DAYS,
+            seatLimit: EARLY_ACCESS_SEAT_LIMIT,
+            activeSeats,
+            seatsRemaining: Math.max(0, EARLY_ACCESS_SEAT_LIMIT - activeSeats),
+            user: serializeUser(req.user)
+        });
+    } catch (err) {
+        console.error('Early access status error:', err.message);
+        res.status(500).json({ message: 'Unable to load early access status' });
+    }
+});
+
+router.post('/early-access/start', protect, async(req, res) => {
+    try {
+        if (process.env.EARLY_ACCESS_ENABLED === 'false') {
+            return res.status(403).json({ message: 'Early access is currently closed.' });
+        }
+
+        const now = new Date();
+        const alreadyActive = req.user.plan && req.user.plan !== 'free' && (!req.user.planExpiresAt || req.user.planExpiresAt > now);
+        if (alreadyActive) {
+            return res.json({
+                message: 'Your account already has active Pro access.',
+                user: serializeUser(req.user)
+            });
+        }
+
+        if (req.user.earlyAccessUsedAt) {
+            return res.status(400).json({ message: 'Early access has already been used on this account.' });
+        }
+
+        const activeSeats = await User.countDocuments({
+            plan: 'early_access',
+            planExpiresAt: { $gt: now }
+        });
+
+        if (activeSeats >= EARLY_ACCESS_SEAT_LIMIT) {
+            return res.status(400).json({ message: 'All early access seats are filled. Please choose a paid plan or contact support.' });
+        }
+
+        const expiresAt = new Date(now);
+        expiresAt.setDate(expiresAt.getDate() + EARLY_ACCESS_DAYS);
+
+        req.user.plan = 'early_access';
+        req.user.planExpiresAt = expiresAt;
+        req.user.subscriptionProvider = 'manual';
+        req.user.subscriptionStatus = 'early_access';
+        req.user.planStartedAt = now;
+        req.user.earlyAccessStartedAt = now;
+        req.user.earlyAccessUsedAt = now;
+        await req.user.save();
+
+        res.json({
+            message: `${EARLY_ACCESS_DAYS}-day early access activated`,
+            days: EARLY_ACCESS_DAYS,
+            seatsRemaining: Math.max(0, EARLY_ACCESS_SEAT_LIMIT - activeSeats - 1),
+            user: serializeUser(req.user)
+        });
+    } catch (err) {
+        console.error('Early access activation error:', err.message);
+        res.status(500).json({ message: 'Unable to activate early access' });
     }
 });
 
@@ -1077,7 +1161,7 @@ router.get('/admin/revenue', protect, async(req, res) => {
                         totalUsers: { $sum: 1 },
                         proUsers: {
                             $sum: {
-                                $cond: [{ $in: ['$plan', ['monthly', 'yearly', 'founder90', 'trial', 'pro']] }, 1, 0]
+                                $cond: [{ $in: ['$plan', ['monthly', 'yearly', 'founder90', 'trial', 'early_access', 'pro']] }, 1, 0]
                             }
                         },
                         trialUsers: {

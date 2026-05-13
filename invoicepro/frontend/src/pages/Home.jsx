@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BrandLogo from '../components/BrandLogo';
-import { formatDate, getPlanLabel, getUser, hasProAccess, isLoggedIn } from '../utils/auth';
+import { formatDate, getPlanLabel, getUser, hasProAccess, isLoggedIn, setPostLoginRedirect } from '../utils/auth';
 import { trackCtaClick } from '../utils/analytics';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import {
@@ -128,6 +128,14 @@ const previewActions = [
 ];
 
 const plans = [
+  {
+    id: 'early_access',
+    name: 'Early Access',
+    price: 'Rs 0',
+    note: '30 days Pro free for first 50 freelancers',
+    features: ['Full Pro workflow for 30 days', 'No card required', 'Give feedback and help shape the product'],
+    cta: 'Get Early Access'
+  },
   {
     id: 'free',
     name: 'Free',
@@ -267,6 +275,17 @@ export default function Home() {
   };
 
   const selectPlan = (planId) => {
+    if (planId === 'early_access') {
+      const earlyAccessPath = '/payment?early=1';
+      if (!loggedIn) {
+        setPostLoginRedirect(earlyAccessPath);
+      }
+
+      trackCtaClick('select_early_access', 'home_pricing', loggedIn ? earlyAccessPath : '/signup');
+      navigate(loggedIn ? earlyAccessPath : '/signup');
+      return;
+    }
+
     if (planId !== 'free') {
       localStorage.setItem('plan', planId);
     }
@@ -274,6 +293,10 @@ export default function Home() {
     const nextPath = planId === 'free'
       ? (loggedIn ? '/client-flow' : '/signup')
       : (loggedIn ? '/payment' : '/signup');
+
+    if (!loggedIn && planId !== 'free') {
+      setPostLoginRedirect('/payment');
+    }
 
     trackCtaClick(`select_${planId}`, 'home_pricing', nextPath);
     navigate(nextPath);
@@ -335,6 +358,13 @@ export default function Home() {
               )}
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => selectPlan('early_access')}
+                  className="rounded-2xl bg-emerald-300 px-7 py-4 text-sm font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-emerald-200 active:scale-95"
+                >
+                  Get 30 Days Free
+                </button>
                 <button
                   type="button"
                   onClick={() => goToApp('/client-flow', loggedIn ? 'hero_open_client_flow' : 'hero_start_free')}
@@ -549,12 +579,14 @@ export default function Home() {
               </h2>
             </div>
 
-            <div className="mt-8 grid gap-5 md:grid-cols-3">
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {plans.map((plan) => (
                 <div
                   key={plan.id}
                   className={`rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${
-                    plan.id === 'monthly'
+                    plan.id === 'early_access'
+                      ? 'border-emerald-300/35 bg-emerald-300/[0.08] shadow-2xl shadow-emerald-950/20'
+                      : plan.id === 'monthly'
                       ? 'border-yellow-300/35 bg-yellow-300/[0.08] shadow-2xl shadow-yellow-950/20'
                       : 'border-white/8 bg-white/[0.03]'
                   }`}
@@ -573,7 +605,9 @@ export default function Home() {
                     type="button"
                     onClick={() => selectPlan(plan.id)}
                     className={`mt-6 w-full rounded-2xl px-5 py-4 text-sm font-black transition-all active:scale-95 ${
-                      plan.id === 'monthly'
+                      plan.id === 'early_access'
+                        ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
+                        : plan.id === 'monthly'
                         ? 'bg-yellow-400 text-black hover:bg-yellow-300'
                         : 'border border-white/10 text-white hover:bg-white/10'
                     }`}

@@ -88,6 +88,7 @@ export const hasProAccess = (user = getUser()) => {
 export const getPlanLabel = (user = getUser()) => {
   if (!user?.plan || user.plan === 'free') return 'Free';
   if (user.plan === 'trial') return 'Pro Trial';
+  if (user.plan === 'early_access') return 'Early Access';
   if (user.plan === 'monthly') return 'Pro Monthly';
   if (user.plan === 'yearly') return 'Pro Annual';
   if (user.plan === 'founder90') return 'Founder 90 Days';
