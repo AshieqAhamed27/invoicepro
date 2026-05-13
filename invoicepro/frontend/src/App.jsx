@@ -14,6 +14,7 @@ import { trackPageView } from './utils/analytics';
 import ScrollAnimator from './components/ScrollAnimator';
 import ProFeatureGate from './components/ProFeatureGate';
 import PlanReminderAgent from './components/PlanReminderAgent';
+import DeviceReminderAgent from './components/DeviceReminderAgent';
 
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/Home'));
@@ -785,6 +786,7 @@ export default function App() {
 
       </Routes>
       {/* ✅ WhatsApp Floating Button */}
+      <DeviceReminderAgent />
       <PlanReminderAgent />
       <WhatsAppFloatingButton />
     </BrowserRouter>

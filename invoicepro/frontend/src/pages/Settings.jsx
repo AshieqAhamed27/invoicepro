@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 import { COMPANY_SHORT_NAME } from '../utils/company';
 import { getUser, hasProAccess } from '../utils/auth';
+import { DEVICE_REMINDERS_KEY, PLAN_DEVICE_REMINDERS_KEY } from '../components/DeviceReminderAgent';
 
 const settingsNav = [
   { label: 'Business Profile', href: '#business-profile' },
@@ -164,6 +165,12 @@ export default function Settings() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
+  const [deviceRemindersEnabled, setDeviceRemindersEnabled] = useState(() => (
+    typeof window !== 'undefined' && localStorage.getItem(DEVICE_REMINDERS_KEY) === '1'
+  ));
+  const [notificationState, setNotificationState] = useState(() => (
+    typeof window !== 'undefined' && 'Notification' in window ? window.Notification.permission : 'unsupported'
+  ));
   const currentUser = getUser() || {};
   const isPro = hasProAccess(currentUser);
 
@@ -221,6 +228,40 @@ export default function Settings() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const enableDeviceReminders = async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      setNotificationState('unsupported');
+      alert('This browser does not support device notifications.');
+      return;
+    }
+
+    const permission = await window.Notification.requestPermission();
+    setNotificationState(permission);
+
+    if (permission !== 'granted') {
+      alert('Device notification permission was not allowed. You can enable it later from browser settings.');
+      return;
+    }
+
+    localStorage.setItem(DEVICE_REMINDERS_KEY, '1');
+    localStorage.setItem(PLAN_DEVICE_REMINDERS_KEY, '1');
+    setDeviceRemindersEnabled(true);
+
+    try {
+      new window.Notification('ClientFlow AI reminders enabled', {
+        body: 'You will get device alerts for payments, leads, proposals, project tasks, and plan expiry when ClientFlow AI is open.',
+        icon: '/logo.svg',
+        tag: 'clientflow-device-reminders-enabled'
+      });
+    } catch {}
+  };
+
+  const disableDeviceReminders = () => {
+    localStorage.setItem(DEVICE_REMINDERS_KEY, '0');
+    localStorage.setItem(PLAN_DEVICE_REMINDERS_KEY, '0');
+    setDeviceRemindersEnabled(false);
   };
 
   const sendTestEmail = async () => {
@@ -425,6 +466,39 @@ export default function Settings() {
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Automation Settings</h2>
                 <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">What ClientFlow AI handles for the user</p>
+              </div>
+
+              <div className="mb-5 rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.06] p-5">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Device Reminder Automation</p>
+                    <h3 className="mt-2 text-xl font-black text-white">Notify users when action is needed.</h3>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-emerald-50/70">
+                      Sends browser/device alerts for unpaid invoices, lead follow-ups, proposal follow-ups, accepted proposals, project tasks, and plan expiry. It checks quietly while the app is open and avoids repeat spam.
+                    </p>
+                    <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-emerald-100/50">
+                      Status: {deviceRemindersEnabled ? 'Enabled on this device' : notificationState === 'denied' ? 'Blocked by browser' : 'Not enabled'}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
+                    <button
+                      type="button"
+                      onClick={enableDeviceReminders}
+                      disabled={deviceRemindersEnabled || notificationState === 'denied'}
+                      className="rounded-2xl bg-emerald-300 px-5 py-4 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {deviceRemindersEnabled ? 'Enabled' : 'Enable Alerts'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={disableDeviceReminders}
+                      disabled={!deviceRemindersEnabled}
+                      className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Disable
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div className="divide-y divide-white/5 rounded-2xl border border-white/8 bg-black/20">
