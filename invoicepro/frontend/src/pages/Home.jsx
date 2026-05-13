@@ -127,6 +127,8 @@ const previewActions = [
   ['Payment', 'Collect pending invoice']
 ];
 
+const PLAN_EXPIRY_REMINDER_DAYS = 2;
+
 const plans = [
   {
     id: 'early_access',
@@ -215,7 +217,7 @@ const getExpiryState = (user) => {
     expiresAt,
     daysLeft,
     expired: daysLeft <= 0,
-    expiringSoon: daysLeft > 0 && daysLeft <= 7
+    expiringSoon: daysLeft > 0 && daysLeft <= PLAN_EXPIRY_REMINDER_DAYS
   };
 };
 

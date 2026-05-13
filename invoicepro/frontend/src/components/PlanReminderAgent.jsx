@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { formatDate, getPlanLabel, getUser, hasProAccess, isLoggedIn } from '../utils/auth';
 
 const DEVICE_REMINDER_KEY = 'clientflow_plan_device_reminders_enabled';
+const PLAN_EXPIRY_REMINDER_DAYS = 2;
 const dismissedKey = (userId, dateKey) => `clientflow_plan_reminder_dismissed_${userId || 'user'}_${dateKey}`;
 const notifiedKey = (userId, dateKey) => `clientflow_plan_device_notified_${userId || 'user'}_${dateKey}`;
 
@@ -34,7 +35,7 @@ const getExpiryState = (user) => {
     expiresAt,
     daysLeft,
     expired: daysLeft <= 0,
-    expiringSoon: daysLeft > 0 && daysLeft <= 7
+    expiringSoon: daysLeft > 0 && daysLeft <= PLAN_EXPIRY_REMINDER_DAYS
   };
 };
 
@@ -52,7 +53,7 @@ const getReminderCopy = (user, expiryState) => {
   return {
     title: `${planLabel} expires in ${expiryState.daysLeft} day${expiryState.daysLeft === 1 ? '' : 's'}`,
     body: `Renew before ${formatDate(expiryState.expiresAt)} so your Pro workflow does not stop.`,
-    tone: expiryState.daysLeft <= 3 ? 'warning' : 'info'
+    tone: 'warning'
   };
 };
 
