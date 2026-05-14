@@ -1677,48 +1677,83 @@ const buildSupportFallback = (question = '') => {
         return 'Ask me anything. I can explain ClientFlow AI, freelancing, pricing, invoices, getting clients, payments, proposals, or how to start step by step.';
     }
 
+    if (/\b(what does|what is|why need|why use|useful|value|benefit|worth|relevant)\b/.test(text)) {
+        return [
+            'ClientFlow AI is useful because most freelancers do not fail only because they cannot create an invoice. They struggle because the full business flow is scattered.',
+            '',
+            'They find leads in one place, message clients somewhere else, write proposals manually, forget follow-ups, lose track of pending payments, and do not know what action to take today.',
+            '',
+            'ClientFlow AI brings that workflow into one system:',
+            '1. Find or plan client opportunities.',
+            '2. Prepare better client messages.',
+            '3. Turn interested leads into proposals.',
+            '4. Manage project work and collaborators.',
+            '5. Create invoices and payment links.',
+            '6. Track pending payments and follow up.',
+            '7. Understand cashflow and profit.',
+            '',
+            'So the real value is not “invoice creation”. The value is helping a freelancer move from random work to a more organized business.'
+        ].join('\n');
+    }
+
     if (/\b(price|pricing|cost|pay|pro|plan|trial|free|499|4999)\b/.test(text)) {
         return [
-            'ClientFlow AI has a free starting option, and Pro is Rs 499/month or Rs 4999/year.',
+            'A user should pay for Pro only if ClientFlow AI helps them save time, avoid missed follow-ups, collect money faster, or win even one better client.',
             '',
-            'A user pays for Pro when they want more than invoice creation. Pro is for managing the full freelancer business flow: finding leads, preparing client messages, writing proposals, creating invoices, tracking pending payments, and getting follow-up guidance.',
+            'If someone only wants to create one simple invoice, the free version may be enough. Pro is for freelancers who want a daily business system, not just an invoice tool.',
             '',
-            'Simple idea: free users can understand the product, but Pro users use it as their daily business assistant.'
+            'Why Pro can be worth Rs 499/month:',
+            '1. It helps decide what to do today: who to message, which lead to follow up, what invoice is pending, and what payment needs attention.',
+            '2. It prepares client messages and proposal direction, so the freelancer does not start from a blank page.',
+            '3. It tracks invoices, overdue payments, and cashflow, so money does not get forgotten.',
+            '4. It supports bigger projects with team workspace and project tracking.',
+            '5. It gives a more professional workflow for clients: proposal, invoice, payment link, PDF, and follow-up.',
+            '',
+            'Real reason to pay: if ClientFlow AI helps recover one pending payment, close one client, or save a few hours every month, the Pro price becomes easier to justify.'
         ].join('\n');
     }
 
     if (/\b(client|lead|customer|find|grow|linkedin|instagram|sales)\b/.test(text)) {
         return [
-            'To get clients, use ClientFlow AI like a daily action system.',
+            'ClientFlow AI helps with clients because freelancers often know their skill, but they do not know what to do every day to get work.',
             '',
-            '1. Choose one service you can clearly deliver.',
-            '2. Find businesses or people who may need that service.',
-            '3. Send a simple helpful message, not a hard sales pitch.',
-            '4. Track replies inside your lead pipeline.',
-            '5. When someone is interested, create a proposal.',
-            '6. After approval, create the invoice and payment link.',
+            'The product guides the user through a repeatable client workflow:',
+            '1. Pick a clear service and target customer.',
+            '2. Create a simple outreach message.',
+            '3. Track who replied and who needs follow-up.',
+            '4. Turn interested people into proposals.',
+            '5. Convert accepted proposals into invoices and payment links.',
             '',
-            'This keeps freelancers from randomly messaging people and forgetting follow-ups.'
+            'Why this matters: one good client is usually worth much more than the monthly price. The tool does not magically bring clients, but it helps the freelancer stop guessing and start following a clear process.'
         ].join('\n');
     }
 
     if (/\b(invoice|pdf|payment|razorpay|upi|international|dollar|paid|collect)\b/.test(text)) {
         return [
-            'ClientFlow AI helps you collect payment professionally.',
+            'The payment value is simple: freelancers lose money when invoices are unclear, payment links are missing, or follow-ups are forgotten.',
             '',
-            'You can create an invoice, download it as PDF, share a public invoice link, add payment details, and track whether it is Paid, Pending, or Overdue.',
+            'ClientFlow AI helps by keeping the payment flow clean:',
+            '1. Create a professional invoice.',
+            '2. Download or share the PDF.',
+            '3. Share a public invoice/payment link.',
+            '4. Track Paid, Pending, and Overdue invoices.',
+            '5. Prepare follow-up messages for unpaid invoices.',
             '',
-            'For Indian clients, you can use UPI/Razorpay-friendly payment flow. For international clients, you can use Razorpay international cards, payment links, invoices, or global bank transfer options if they are enabled in your Razorpay account.'
+            'For Indian clients, it works with UPI/Razorpay-friendly flow. For international clients, the freelancer can use supported Razorpay international payment options if enabled.',
+            '',
+            'Why users need this: getting paid is not only about creating a bill. It is about making the client understand the amount, due date, payment method, and reminder clearly.'
         ].join('\n');
     }
 
     if (/\b(team|collab|collaboration|project|freelancer|workspace)\b/.test(text)) {
         return [
-            'The team workspace is for bigger freelancer projects.',
+            'The team workspace matters when a freelancer wants to accept bigger projects instead of working alone on small tasks forever.',
             '',
-            'Example: one freelancer brings the client, another handles design, another handles development. ClientFlow AI helps keep project tasks, updates, collaborators, proposals, and invoices connected in one place.',
+            'Example: one freelancer finds the client, one does design, one does development, and one handles content. Without a workspace, updates get lost in WhatsApp chats and everyone becomes confused.',
             '',
-            'That makes the project easier to manage and helps the owner know who is doing what.'
+            'ClientFlow AI keeps project tasks, updates, collaborators, proposals, and invoices connected. The owner can understand what is pending, who is responsible, and what needs to be delivered next.',
+            '',
+            'Why users need this: it helps freelancers grow from solo work into project ownership.'
         ].join('\n');
     }
 
@@ -1730,16 +1765,18 @@ const buildSupportFallback = (question = '') => {
         return [
             'ClientFlow AI cannot guarantee income. No honest product can promise that.',
             '',
-            'But it can help freelancers behave like a real business every day: find leads, follow up, write better proposals, manage work, invoice professionally, and collect payments faster.',
+            'But it can help freelancers behave like a real business every day. That means clear client outreach, better follow-ups, stronger proposals, organized project work, professional invoices, and payment tracking.',
             '',
-            'That consistency is what gives freelancers a better chance to grow.'
+            'Why that matters: freelancing income becomes unstable when the freelancer only waits for work. ClientFlow AI helps the user build a habit of daily business actions.'
         ].join('\n');
     }
 
     return [
         'Sure, I can help with that.',
         '',
-        'I am built to guide users through freelancer business questions, ClientFlow AI features, getting clients, proposals, invoices, payments, pricing, and daily workflow. Ask your question in simple words and I will explain it clearly, step by step.'
+        'Here is the honest way to think about ClientFlow AI: it should help a freelancer reduce confusion, take the next business action, look professional to clients, and collect money with less manual tracking.',
+        '',
+        'Ask your question in simple words. I can explain the product, the business value, how to get clients, how to talk to clients, how to create proposals, how invoices/payments work, and whether Pro makes sense for your situation.'
     ].join('\n');
 };
 
@@ -1758,6 +1795,9 @@ const callOpenAiSupportAssistant = ({ messages, page, fallback }) => new Promise
         'You can answer product questions, freelancer business questions, client communication questions, pricing questions, invoice/payment questions, and general beginner questions that help users understand what to do next.',
         'If the user asks something unrelated to ClientFlow AI, answer briefly if it is safe, then connect it back to freelancing, business workflow, or how ClientFlow AI can help.',
         'Give detailed explanations when useful: use short paragraphs or numbered steps. Aim for 120 to 350 words for explanation questions.',
+        'For every product, pricing, or feature question, explain the real user problem, why the user needs it, and what outcome it helps with.',
+        'If the user asks why to pay, be honest: say free is enough for simple invoice use, and Pro is only worth it when the user wants client workflow, follow-up, proposals, cashflow, and payment tracking.',
+        'Avoid generic phrases like "more than invoice creation" unless you immediately explain the specific pain and outcome.',
         'Do not promise guaranteed income, legal advice, tax advice, or payment approval. If needed, say the user should verify with their payment provider or professional advisor.',
         'Use simple language for beginners. No markdown tables. No emojis. Line breaks are allowed for readability.',
         `Product facts: ${supportAssistantKnowledge.product}`,
