@@ -5,7 +5,10 @@ import {
   COMPANY_LEGAL_DESCRIPTION,
   COMPANY_NAME,
   COMPANY_TAGLINE,
+  LINKEDIN_PROFILE_URL,
   SUPPORT_EMAIL,
+  SUPPORT_PHONE_DISPLAY,
+  SUPPORT_PHONE_TEL,
   UDYAM_REGISTRATION_NUMBER
 } from '../utils/company';
 
@@ -105,6 +108,17 @@ export default function Footer() {
             <div className="grid gap-4 font-medium text-zinc-400">
               <a href={`mailto:${SUPPORT_EMAIL}`} className="break-all font-bold text-white transition-colors hover:text-yellow-300 sm:break-normal">
                 {SUPPORT_EMAIL}
+              </a>
+              <a href={`tel:${SUPPORT_PHONE_TEL}`} className="font-bold text-white transition-colors hover:text-yellow-300">
+                {SUPPORT_PHONE_DISPLAY}
+              </a>
+              <a
+                href={LINKEDIN_PROFILE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-white transition-colors hover:text-yellow-300"
+              >
+                LinkedIn
               </a>
               <p className="text-xs">
                 Based in India.

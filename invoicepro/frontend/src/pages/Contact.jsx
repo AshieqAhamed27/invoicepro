@@ -6,7 +6,10 @@ import {
   COMPANY_LEGAL_DESCRIPTION,
   COMPANY_LOCATION,
   COMPANY_NAME,
+  LINKEDIN_PROFILE_URL,
   SUPPORT_EMAIL,
+  SUPPORT_PHONE_DISPLAY,
+  SUPPORT_PHONE_TEL,
   UDYAM_REGISTRATION_NUMBER
 } from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
@@ -48,6 +51,31 @@ export default function Contact() {
                 </a>
                 <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
                   Best for setup help, product questions, and issues related to invoices or payments.
+                </p>
+              </div>
+
+              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Mobile</p>
+                <a href={`tel:${SUPPORT_PHONE_TEL}`} className="mt-3 block text-lg font-black text-white hover:text-yellow-300 sm:text-xl">
+                  {SUPPORT_PHONE_DISPLAY}
+                </a>
+                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
+                  Best for urgent product or setup questions.
+                </p>
+              </div>
+
+              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">LinkedIn</p>
+                <a
+                  href={LINKEDIN_PROFILE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 block break-words text-lg font-black text-white hover:text-yellow-300 sm:text-xl"
+                >
+                  Ashieq Ahamed
+                </a>
+                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
+                  Connect for feedback, early access, and product updates.
                 </p>
               </div>
 
