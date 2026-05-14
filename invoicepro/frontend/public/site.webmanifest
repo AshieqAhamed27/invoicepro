@@ -1,7 +1,7 @@
 {
   "name": "ClientFlow AI",
   "short_name": "ClientFlow AI",
-  "description": "Create GST invoices, payment links, and recurring billing for Indian businesses.",
+  "description": "Freelancer business system to find clients, manage projects, send proposals, create invoices, and collect payments.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

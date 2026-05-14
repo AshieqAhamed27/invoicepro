@@ -2,110 +2,164 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://invoicepro-lime.vercel.app/</loc>
-    <lastmod>2026-05-01</lastmod>
-  </url>
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/invoice-generator</loc>
-    <lastmod>2026-05-01</lastmod>
-  </url>
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/blog/how-to-create-invoice-india</loc>
-    <lastmod>2026-05-01</lastmod>
-  </url>
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/blog/gst-invoice-format-india</loc>
-    <lastmod>2026-05-02</lastmod>
-  </url>
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/gst-invoice-generator</loc>
-    <lastmod>2026-05-02</lastmod>
-  </url>
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/online-invoice-maker-india</loc>
-    <lastmod>2026-05-02</lastmod>
-  </url>
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/freelance-invoice-software</loc>
-    <lastmod>2026-05-02</lastmod>
-  </url>
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/payment-reminder-software</loc>
-    <lastmod>2026-05-02</lastmod>
-  </url>
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/razorpay-invoice-payment-tracking</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/freelancers</loc>
-    <lastmod>2026-05-09</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/developers</loc>
-    <lastmod>2026-05-09</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/designers</loc>
-    <lastmod>2026-05-09</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/agencies</loc>
-    <lastmod>2026-05-09</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/consultants</loc>
-    <lastmod>2026-05-09</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/workflows/freelancers</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/workflows/developers</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/workflows/designers</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/workflows/agencies</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/workflows/consultants</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/agency</loc>
-    <lastmod>2026-05-10</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/invoice-generator</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/gst-invoice-generator</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/online-invoice-maker-india</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/freelance-invoice-software</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/payment-reminder-software</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/razorpay-invoice-payment-tracking</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/blog/how-to-create-invoice-india</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/blog/gst-invoice-format-india</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/contact</loc>
-    <lastmod>2026-05-01</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/privacy</loc>
-    <lastmod>2026-05-01</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.35</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/terms</loc>
-    <lastmod>2026-05-01</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.35</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/refund-policy</loc>
-    <lastmod>2026-05-02</lastmod>
-  </url>
-  <url>
-    <loc>https://invoicepro-lime.vercel.app/shipping-policy</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/cancellation-refund-policy</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
   <url>
     <loc>https://invoicepro-lime.vercel.app/digital-delivery-policy</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://invoicepro-lime.vercel.app/shipping-policy</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

@@ -6,6 +6,7 @@ import BrandLogo from '../components/BrandLogo';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_LOGO } from '../utils/company';
 import { trackEvent } from '../utils/analytics';
+import useDocumentMeta from '../utils/useDocumentMeta';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -88,6 +89,12 @@ export default function PublicInvoice() {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [accepting, setAccepting] = useState(false);
+
+  useDocumentMeta(
+    'Secure Invoice | ClientFlow AI',
+    'Open a secure ClientFlow AI invoice link.',
+    { path: `/public/invoice/${id}`, robots: 'noindex, nofollow' }
+  );
 
   useEffect(() => {
     fetchInvoice();

@@ -2,12 +2,37 @@ import React from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import useDocumentMeta from '../../utils/useDocumentMeta';
+import { COMPANY_NAME, SITE_URL } from '../../utils/company';
 
 export default function HowToCreateInvoiceIndia() {
 
     useDocumentMeta(
-        "How to Create Invoice in India (2026 Guide)",
-        "Learn how to create invoices in India with GST, payment links, and UPI. Step-by-step guide for freelancers and businesses."
+        'How to Create Invoice in India (2026 Guide)',
+        'Learn how to create invoices in India with GST, payment links, and UPI. Step-by-step guide for freelancers and businesses.',
+        {
+            path: '/blog/how-to-create-invoice-india',
+            jsonLd: {
+                '@context': 'https://schema.org',
+                '@type': 'Article',
+                headline: 'How to Create Invoice in India (2026 Guide)',
+                description: 'Learn how to create invoices in India with GST, payment links, and UPI.',
+                datePublished: '2026-05-01',
+                dateModified: '2026-05-14',
+                author: {
+                    '@type': 'Organization',
+                    name: COMPANY_NAME
+                },
+                publisher: {
+                    '@type': 'Organization',
+                    name: COMPANY_NAME,
+                    logo: {
+                        '@type': 'ImageObject',
+                        url: `${SITE_URL}/logo-1200.png`
+                    }
+                },
+                mainEntityOfPage: `${SITE_URL}/blog/how-to-create-invoice-india`
+            }
+        }
     );
 
     return (

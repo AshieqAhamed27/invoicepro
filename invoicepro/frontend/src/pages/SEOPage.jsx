@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import useDocumentMeta from '../utils/useDocumentMeta';
-import { COMPANY_NAME, UDYAM_REGISTRATION_NUMBER } from '../utils/company';
+import { COMPANY_NAME, SITE_URL, UDYAM_REGISTRATION_NUMBER } from '../utils/company';
 import { trackCtaClick } from '../utils/analytics';
 
 const pages = {
@@ -131,7 +131,40 @@ export default function SEOPage({ pageKey }) {
 
   if (!page) return <Navigate to="/" replace />;
 
-  useDocumentMeta(page.title, page.description, { path: page.path });
+  const pageStructuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: page.faqs.map(([question, answer]) => ({
+        '@type': 'Question',
+        name: question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: answer
+        }
+      }))
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${SITE_URL}/`
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: page.eyebrow,
+          item: `${SITE_URL}${page.path}`
+        }
+      ]
+    }
+  ];
+
+  useDocumentMeta(page.title, page.description, { path: page.path, jsonLd: pageStructuredData });
 
   const handlePrimaryCta = () => {
     trackCtaClick(page.primaryCta, page.path, '/signup');

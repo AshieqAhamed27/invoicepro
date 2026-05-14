@@ -7,8 +7,9 @@ import useDocumentMeta from '../utils/useDocumentMeta';
 export default function InvoiceGenerator() {
 
   useDocumentMeta(
-    "Invoice Generator India – Create GST Invoices Online | ClientFlow AI",
-    "Free invoice generator for India. Create GST invoices, send payment links, and accept UPI or Razorpay payments easily."
+    'Invoice Generator India - Create GST Invoices Online | ClientFlow AI',
+    'Free invoice generator for India. Create GST invoices, send payment links, and accept UPI or Razorpay payments easily.',
+    { path: '/invoice-generator' }
   );
 
   return (

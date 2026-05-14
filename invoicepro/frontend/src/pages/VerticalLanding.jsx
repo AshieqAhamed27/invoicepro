@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BrandLogo from '../components/BrandLogo';
 import useDocumentMeta from '../utils/useDocumentMeta';
-import { COMPANY_NAME, UDYAM_REGISTRATION_NUMBER } from '../utils/company';
+import { COMPANY_NAME, SITE_URL, UDYAM_REGISTRATION_NUMBER } from '../utils/company';
 import { trackCtaClick } from '../utils/analytics';
 import { isLoggedIn } from '../utils/auth';
 
@@ -214,7 +214,46 @@ export default function VerticalLanding({ pageKey }) {
 
   if (!page) return <Navigate to="/" replace />;
 
-  useDocumentMeta(page.title, page.description, { path: page.path });
+  const pageStructuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: page.title,
+      serviceType: 'Freelancer business workflow software',
+      provider: {
+        '@type': 'Organization',
+        name: COMPANY_NAME,
+        url: SITE_URL
+      },
+      audience: {
+        '@type': 'Audience',
+        audienceType: page.audience
+      },
+      areaServed: ['India', 'Worldwide'],
+      url: `${SITE_URL}${page.path}`,
+      description: page.description
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${SITE_URL}/`
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: page.audience,
+          item: `${SITE_URL}${page.path}`
+        }
+      ]
+    }
+  ];
+
+  useDocumentMeta(page.title, page.description, { path: page.path, jsonLd: pageStructuredData });
 
   const primaryPath = page.workflowPath;
   const secondaryPath = loggedIn ? page.secondaryPath : '/signup';

@@ -8,6 +8,8 @@ import { trackCtaClick } from '../utils/analytics';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import {
   COMPANY_NAME,
+  COMPANY_TAGLINE,
+  SITE_URL,
   SUPPORT_EMAIL,
   UDYAM_REGISTRATION_NUMBER
 } from '../utils/company';
@@ -190,6 +192,65 @@ const faqs = [
   ['Do you guarantee income?', 'No. ClientFlow AI does not guarantee income. It gives freelancers a clearer system, daily actions, and payment workflow so they can execute better.']
 ];
 
+const homeStructuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: COMPANY_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo-1200.png`,
+    email: SUPPORT_EMAIL,
+    identifier: UDYAM_REGISTRATION_NUMBER,
+    description: COMPANY_TAGLINE
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: COMPANY_NAME,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    url: SITE_URL,
+    image: `${SITE_URL}/logo-1200.png`,
+    description: 'ClientFlow AI helps freelancers find clients, send proposals, manage projects, create invoices, and collect payments in one workspace.',
+    audience: {
+      '@type': 'Audience',
+      audienceType: 'Freelancers, consultants, developers, designers, and small agencies'
+    },
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'Free',
+        price: '0',
+        priceCurrency: 'INR'
+      },
+      {
+        '@type': 'Offer',
+        name: 'Pro Monthly',
+        price: '499',
+        priceCurrency: 'INR'
+      },
+      {
+        '@type': 'Offer',
+        name: 'Pro Yearly',
+        price: '4999',
+        priceCurrency: 'INR'
+      }
+    ]
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(([question, answer]) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: answer
+      }
+    }))
+  }
+];
+
 const getExpiryState = (user) => {
   if (!user?.planExpiresAt) {
     return {
@@ -251,7 +312,9 @@ export default function Home() {
 
   useDocumentMeta({
     title: `${COMPANY_NAME} - Get clients, manage work, and get paid`,
-    description: 'ClientFlow AI helps freelancers find clients, send proposals, manage projects, create invoices, and collect payments in one workspace.'
+    description: 'ClientFlow AI helps freelancers find clients, send proposals, manage projects, create invoices, and collect payments in one workspace.',
+    path: '/',
+    jsonLd: homeStructuredData
   });
 
   const goToApp = (target, label) => {

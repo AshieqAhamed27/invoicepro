@@ -13,7 +13,8 @@ export default function Signup() {
 
   useDocumentMeta(
     'Create Your Account | ClientFlow AI',
-    'Start your India-ready ClientFlow AI workspace to find leads, send invoices, share Razorpay or UPI payment links, and organize follow-ups.'
+    'Start your India-ready ClientFlow AI workspace to find leads, send invoices, share Razorpay or UPI payment links, and organize follow-ups.',
+    { path: '/signup', robots: 'noindex, follow' }
   );
 
   const [form, setForm] = useState({

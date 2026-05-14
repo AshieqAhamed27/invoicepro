@@ -30,7 +30,8 @@ export default function TeamInvite() {
 
   useDocumentMeta(
     'Team Invite | ClientFlow AI',
-    'Accept a ClientFlow AI team workspace invite and join a freelancer project room.'
+    'Accept a ClientFlow AI team workspace invite and join a freelancer project room.',
+    { path: `/team-invite/${token}`, robots: 'noindex, nofollow' }
   );
 
   useEffect(() => {

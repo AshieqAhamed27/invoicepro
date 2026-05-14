@@ -2,15 +2,34 @@ User-agent: *
 Allow: /
 
 Disallow: /admin
+Disallow: /api
+Disallow: /ai-coach
+Disallow: /business-autopilot
 Disallow: /clients
+Disallow: /client-flow
+Disallow: /client-workroom
+Disallow: /client-finder
+Disallow: /cloud-documents
 Disallow: /create-invoice
 Disallow: /dashboard
+Disallow: /deal-room
+Disallow: /growth-plan
 Disallow: /invoice/
+Disallow: /leads
+Disallow: /login
+Disallow: /money-gps
+Disallow: /outbound-autopilot
 Disallow: /launch
 Disallow: /payment
 Disallow: /p/invoice/
+Disallow: /profit-tracker
+Disallow: /proposal-writer
 Disallow: /public/invoice/
 Disallow: /recurring
+Disallow: /sales-agent
 Disallow: /settings
+Disallow: /signup
+Disallow: /team-invite
+Disallow: /team-workspace
 
 Sitemap: https://invoicepro-lime.vercel.app/sitemap.xml

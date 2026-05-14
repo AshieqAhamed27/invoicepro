@@ -6,6 +6,7 @@ import BrandLogo from '../components/BrandLogo';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { trackCtaClick } from '../utils/analytics';
 import { isLoggedIn } from '../utils/auth';
+import { COMPANY_NAME, SITE_URL } from '../utils/company';
 import { workflowModes } from '../utils/workflowModes';
 
 export default function WorkflowMode({ modeKey }) {
@@ -14,10 +15,30 @@ export default function WorkflowMode({ modeKey }) {
 
   if (!workflow) return <Navigate to="/" replace />;
 
+  const pageStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: workflow.label,
+    description: workflow.summary,
+    url: `${SITE_URL}${workflow.path}`,
+    provider: {
+      '@type': 'Organization',
+      name: COMPANY_NAME,
+      url: SITE_URL
+    },
+    step: workflow.steps.map(([title, detail], index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: title,
+      text: detail
+    }))
+  };
+
   useDocumentMeta({
     title: `${workflow.label} | ClientFlow AI`,
     description: workflow.summary,
-    path: workflow.path
+    path: workflow.path,
+    jsonLd: pageStructuredData
   });
 
   const appStartPath = loggedIn ? workflow.appPath : '/signup';

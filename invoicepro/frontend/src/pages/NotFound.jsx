@@ -2,9 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { isLoggedIn } from '../utils/auth';
+import useDocumentMeta from '../utils/useDocumentMeta';
 
 export default function NotFound() {
   const loggedIn = isLoggedIn();
+
+  useDocumentMeta(
+    'Page Not Found | ClientFlow AI',
+    'This ClientFlow AI page does not exist or has moved.',
+    { robots: 'noindex, follow' }
+  );
 
   const primaryHref = loggedIn ? '/dashboard' : '/';
   const primaryLabel = loggedIn ? 'Back to Dashboard' : 'Back Home';

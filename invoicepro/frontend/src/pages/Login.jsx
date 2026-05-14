@@ -15,7 +15,8 @@ export default function Login() {
 
   useDocumentMeta(
     'Login | ClientFlow AI',
-    'Sign in to manage invoices, clients, recurring billing, and payment tracking in ClientFlow AI.'
+    'Sign in to manage invoices, clients, recurring billing, and payment tracking in ClientFlow AI.',
+    { path: '/login', robots: 'noindex, follow' }
   );
 
   const [form, setForm] = useState({
