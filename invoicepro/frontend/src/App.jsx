@@ -20,6 +20,7 @@ import DeviceReminderAgent from './components/DeviceReminderAgent';
 const Home = lazy(() => import('./pages/Home'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
+const LinkedInPortfolio = lazy(() => import('./pages/LinkedInPortfolio'));
 const AgencyServices = lazy(() => import('./pages/AgencyServices'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -225,6 +226,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <Portfolio />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/linkedin"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <LinkedInPortfolio />
             </Suspense>
           }
         />
