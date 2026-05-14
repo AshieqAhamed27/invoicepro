@@ -1635,6 +1635,140 @@ const extractOpenAiText = (body) => {
     return '';
 };
 
+const supportAssistantKnowledge = {
+    product: 'ClientFlow AI is a freelancer business system for finding clients, managing deals, writing proposals, working with collaborators, creating invoices, sharing payment links, and tracking cashflow.',
+    positioning: 'It is built India-first with Rs invoices, Razorpay/UPI-friendly payment flow, WhatsApp sharing, Udyam trust messaging, and support for global clients through international payment links when Razorpay is enabled.',
+    pricing: 'Free access is available for starting users. Pro is Rs 499 monthly or Rs 4999 yearly. Agency setup services are separate if the user wants done-with-you setup.',
+    features: [
+        'AI coach for finding clients and talking to prospects',
+        'Client finder and lead pipeline',
+        'Proposal and invoice creation',
+        'Public invoice view with payment link and PDF download',
+        'Money GPS and profit tracker',
+        'Team workspace for bigger freelancer projects',
+        'Device reminders and WhatsApp-ready follow-ups'
+    ],
+    contactEmail: process.env.SUPPORT_EMAIL || process.env.EMAIL_FROM || 'ashieqahamed4@gmail.com',
+    contactPhone: process.env.SUPPORT_PHONE || '+91 90809 63704',
+    linkedIn: process.env.LINKEDIN_PROFILE_URL || 'https://www.linkedin.com/in/ashieq-ahamed-s-a-1a37332a8'
+};
+
+const supportSuggestions = [
+    'What does ClientFlow AI do?',
+    'How much does Pro cost?',
+    'How do I get clients?',
+    'How do I collect payments?'
+];
+
+const sanitizeSupportMessages = (messages = []) =>
+    (Array.isArray(messages) ? messages : [])
+        .slice(-8)
+        .map((message) => ({
+            role: message?.role === 'assistant' ? 'assistant' : 'user',
+            content: compactText(message?.content, '').slice(0, 700)
+        }))
+        .filter((message) => message.content);
+
+const buildSupportFallback = (question = '') => {
+    const text = compactText(question).toLowerCase();
+
+    if (!text) {
+        return 'Ask me anything about ClientFlow AI, pricing, invoices, getting clients, payments, or how to start.';
+    }
+
+    if (/\b(price|pricing|cost|pay|pro|plan|trial|free|499|4999)\b/.test(text)) {
+        return 'ClientFlow AI has a free starting option, and Pro is Rs 499/month or Rs 4999/year. Pro is for freelancers who want AI client workflow, proposals, invoices, cashflow tracking, and follow-up support in one place.';
+    }
+
+    if (/\b(client|lead|customer|find|grow|linkedin|instagram|sales)\b/.test(text)) {
+        return 'Use ClientFlow AI to choose a niche, create a daily outreach plan, find possible clients, prepare a message, track replies, and move serious leads into proposals and invoices.';
+    }
+
+    if (/\b(invoice|pdf|payment|razorpay|upi|international|dollar|paid|collect)\b/.test(text)) {
+        return 'You can create invoices, download PDF, share public invoice links, add payment links, track Paid/Pending/Overdue status, and follow up through WhatsApp-ready messages. International clients can pay through supported Razorpay international payment methods when your account is enabled.';
+    }
+
+    if (/\b(team|collab|collaboration|project|freelancer|workspace)\b/.test(text)) {
+        return 'The team workspace helps freelancers handle bigger projects together: invite collaborators, track project tasks, share updates, and keep the client work connected to proposals and invoices.';
+    }
+
+    if (/\b(contact|support|call|phone|email|whatsapp|owner|help)\b/.test(text)) {
+        return `You can contact ClientFlow AI at ${supportAssistantKnowledge.contactEmail}, call ${supportAssistantKnowledge.contactPhone}, or message on LinkedIn: ${supportAssistantKnowledge.linkedIn}.`;
+    }
+
+    if (/\b(guarantee|sure income|earn|money|job|success)\b/.test(text)) {
+        return 'ClientFlow AI cannot guarantee income, but it helps freelancers act consistently: find leads, follow up, create proposals, invoice professionally, and collect payments faster.';
+    }
+
+    return 'ClientFlow AI helps freelancers build stable income by managing the full client workflow: find clients, follow up, write proposals, manage project work, create invoices, and collect payment.';
+};
+
+const callOpenAiSupportAssistant = ({ messages, page, fallback }) => new Promise((resolve, reject) => {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) return resolve('');
+
+    const latestQuestion = messages[messages.length - 1]?.content || '';
+    const history = messages
+        .map((message) => `${message.role}: ${message.content}`)
+        .join('\n');
+
+    const prompt = [
+        'You are the ClientFlow AI website assistant.',
+        'Answer visitor questions clearly and calmly. Keep answers under 120 words unless the user asks for steps.',
+        'Only answer about ClientFlow AI, freelancer business workflow, invoices, payments, pricing, agency setup, product usage, and getting started.',
+        'Do not promise guaranteed income, legal advice, tax advice, or payment approval. If needed, say the user should verify with their payment provider or professional advisor.',
+        'Use simple language for beginners. No markdown tables. No emojis.',
+        `Product facts: ${supportAssistantKnowledge.product}`,
+        `Positioning: ${supportAssistantKnowledge.positioning}`,
+        `Pricing: ${supportAssistantKnowledge.pricing}`,
+        `Features: ${supportAssistantKnowledge.features.join('; ')}`,
+        `Contact email: ${supportAssistantKnowledge.contactEmail}`,
+        `Contact phone: ${supportAssistantKnowledge.contactPhone}`,
+        `LinkedIn: ${supportAssistantKnowledge.linkedIn}`,
+        `Current page: ${compactText(page, '/').slice(0, 120)}`,
+        `Fallback answer if unsure: ${fallback}`,
+        `Conversation:\n${history}`,
+        `Latest question: ${latestQuestion}`
+    ].join('\n');
+
+    const payload = JSON.stringify({
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
+        input: prompt
+    });
+
+    const request = https.request({
+        hostname: 'api.openai.com',
+        path: '/v1/responses',
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload)
+        },
+        timeout: 12000
+    }, (response) => {
+        let raw = '';
+        response.on('data', (chunk) => { raw += chunk; });
+        response.on('end', () => {
+            try {
+                const body = raw ? JSON.parse(raw) : {};
+                if (response.statusCode < 200 || response.statusCode >= 300) {
+                    return reject(new Error(body?.error?.message || 'OpenAI support request failed'));
+                }
+
+                resolve(compactText(extractOpenAiText(body)).slice(0, 1200));
+            } catch (err) {
+                reject(err);
+            }
+        });
+    });
+
+    request.on('error', reject);
+    request.on('timeout', () => request.destroy(new Error('OpenAI support request timed out')));
+    request.write(payload);
+    request.end();
+});
+
 const callOpenAiDraft = ({ type, context }) => new Promise((resolve, reject) => {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) return resolve('');
@@ -1902,6 +2036,42 @@ const callOpenAiProposalWriter = ({ context, fallback }) => new Promise((resolve
     request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
     request.write(payload);
     request.end();
+});
+
+router.post('/support-chat', async(req, res) => {
+    const messages = sanitizeSupportMessages(req.body?.messages);
+    const latestQuestion = messages[messages.length - 1]?.content || '';
+    const fallback = buildSupportFallback(latestQuestion);
+
+    if (!latestQuestion) {
+        return res.status(400).json({
+            message: 'Ask a question first.',
+            answer: fallback,
+            suggestions: supportSuggestions
+        });
+    }
+
+    try {
+        const answer = await callOpenAiSupportAssistant({
+            messages,
+            page: req.body?.page,
+            fallback
+        });
+
+        return res.json({
+            answer: answer || fallback,
+            source: answer ? 'ai' : 'fallback',
+            suggestions: supportSuggestions
+        });
+    } catch (err) {
+        console.error('SUPPORT CHAT ERROR:', err.message);
+
+        return res.json({
+            answer: fallback,
+            source: 'fallback',
+            suggestions: supportSuggestions
+        });
+    }
 });
 
 router.post('/proposal-writer', protect, requirePro, async(req, res) => {
