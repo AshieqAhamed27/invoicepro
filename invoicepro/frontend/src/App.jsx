@@ -19,6 +19,7 @@ import DeviceReminderAgent from './components/DeviceReminderAgent';
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/Home'));
 const Contact = lazy(() => import('./pages/Contact'));
+const Portfolio = lazy(() => import('./pages/Portfolio'));
 const AgencyServices = lazy(() => import('./pages/AgencyServices'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -215,6 +216,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <Contact />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/portfolio"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <Portfolio />
             </Suspense>
           }
         />

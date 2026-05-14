@@ -141,6 +141,9 @@ export default function Navbar() {
               <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Home
               </NavLink>
+              <NavLink to="/portfolio" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
+                Portfolio
+              </NavLink>
               <div className="relative">
                 <button
                   type="button"
@@ -330,6 +333,10 @@ export default function Navbar() {
               <NavLink to="/agency" onClick={closeMenu} className={mobileItemClass}>
                 <span className="block text-sm font-black">Agency Setup</span>
                 <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Done-for-you freelancer system</span>
+              </NavLink>
+              <NavLink to="/portfolio" onClick={closeMenu} className={mobileItemClass}>
+                <span className="block text-sm font-black">Portfolio</span>
+                <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Founder and product work</span>
               </NavLink>
               <div className="grid gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
                 <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Use cases</p>
