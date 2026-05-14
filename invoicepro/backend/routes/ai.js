@@ -1655,9 +1655,10 @@ const supportAssistantKnowledge = {
 
 const supportSuggestions = [
     'What does ClientFlow AI do?',
-    'How much does Pro cost?',
+    'Explain step by step',
     'How do I get clients?',
-    'How do I collect payments?'
+    'How do I collect payments?',
+    'How should I talk to a client?'
 ];
 
 const sanitizeSupportMessages = (messages = []) =>
@@ -1673,23 +1674,52 @@ const buildSupportFallback = (question = '') => {
     const text = compactText(question).toLowerCase();
 
     if (!text) {
-        return 'Ask me anything about ClientFlow AI, pricing, invoices, getting clients, payments, or how to start.';
+        return 'Ask me anything. I can explain ClientFlow AI, freelancing, pricing, invoices, getting clients, payments, proposals, or how to start step by step.';
     }
 
     if (/\b(price|pricing|cost|pay|pro|plan|trial|free|499|4999)\b/.test(text)) {
-        return 'ClientFlow AI has a free starting option, and Pro is Rs 499/month or Rs 4999/year. Pro is for freelancers who want AI client workflow, proposals, invoices, cashflow tracking, and follow-up support in one place.';
+        return [
+            'ClientFlow AI has a free starting option, and Pro is Rs 499/month or Rs 4999/year.',
+            '',
+            'A user pays for Pro when they want more than invoice creation. Pro is for managing the full freelancer business flow: finding leads, preparing client messages, writing proposals, creating invoices, tracking pending payments, and getting follow-up guidance.',
+            '',
+            'Simple idea: free users can understand the product, but Pro users use it as their daily business assistant.'
+        ].join('\n');
     }
 
     if (/\b(client|lead|customer|find|grow|linkedin|instagram|sales)\b/.test(text)) {
-        return 'Use ClientFlow AI to choose a niche, create a daily outreach plan, find possible clients, prepare a message, track replies, and move serious leads into proposals and invoices.';
+        return [
+            'To get clients, use ClientFlow AI like a daily action system.',
+            '',
+            '1. Choose one service you can clearly deliver.',
+            '2. Find businesses or people who may need that service.',
+            '3. Send a simple helpful message, not a hard sales pitch.',
+            '4. Track replies inside your lead pipeline.',
+            '5. When someone is interested, create a proposal.',
+            '6. After approval, create the invoice and payment link.',
+            '',
+            'This keeps freelancers from randomly messaging people and forgetting follow-ups.'
+        ].join('\n');
     }
 
     if (/\b(invoice|pdf|payment|razorpay|upi|international|dollar|paid|collect)\b/.test(text)) {
-        return 'You can create invoices, download PDF, share public invoice links, add payment links, track Paid/Pending/Overdue status, and follow up through WhatsApp-ready messages. International clients can pay through supported Razorpay international payment methods when your account is enabled.';
+        return [
+            'ClientFlow AI helps you collect payment professionally.',
+            '',
+            'You can create an invoice, download it as PDF, share a public invoice link, add payment details, and track whether it is Paid, Pending, or Overdue.',
+            '',
+            'For Indian clients, you can use UPI/Razorpay-friendly payment flow. For international clients, you can use Razorpay international cards, payment links, invoices, or global bank transfer options if they are enabled in your Razorpay account.'
+        ].join('\n');
     }
 
     if (/\b(team|collab|collaboration|project|freelancer|workspace)\b/.test(text)) {
-        return 'The team workspace helps freelancers handle bigger projects together: invite collaborators, track project tasks, share updates, and keep the client work connected to proposals and invoices.';
+        return [
+            'The team workspace is for bigger freelancer projects.',
+            '',
+            'Example: one freelancer brings the client, another handles design, another handles development. ClientFlow AI helps keep project tasks, updates, collaborators, proposals, and invoices connected in one place.',
+            '',
+            'That makes the project easier to manage and helps the owner know who is doing what.'
+        ].join('\n');
     }
 
     if (/\b(contact|support|call|phone|email|whatsapp|owner|help)\b/.test(text)) {
@@ -1697,10 +1727,20 @@ const buildSupportFallback = (question = '') => {
     }
 
     if (/\b(guarantee|sure income|earn|money|job|success)\b/.test(text)) {
-        return 'ClientFlow AI cannot guarantee income, but it helps freelancers act consistently: find leads, follow up, create proposals, invoice professionally, and collect payments faster.';
+        return [
+            'ClientFlow AI cannot guarantee income. No honest product can promise that.',
+            '',
+            'But it can help freelancers behave like a real business every day: find leads, follow up, write better proposals, manage work, invoice professionally, and collect payments faster.',
+            '',
+            'That consistency is what gives freelancers a better chance to grow.'
+        ].join('\n');
     }
 
-    return 'ClientFlow AI helps freelancers build stable income by managing the full client workflow: find clients, follow up, write proposals, manage project work, create invoices, and collect payment.';
+    return [
+        'Sure, I can help with that.',
+        '',
+        'I am built to guide users through freelancer business questions, ClientFlow AI features, getting clients, proposals, invoices, payments, pricing, and daily workflow. Ask your question in simple words and I will explain it clearly, step by step.'
+    ].join('\n');
 };
 
 const callOpenAiSupportAssistant = ({ messages, page, fallback }) => new Promise((resolve, reject) => {
@@ -1713,11 +1753,13 @@ const callOpenAiSupportAssistant = ({ messages, page, fallback }) => new Promise
         .join('\n');
 
     const prompt = [
-        'You are the ClientFlow AI website assistant.',
-        'Answer visitor questions clearly and calmly. Keep answers under 120 words unless the user asks for steps.',
-        'Only answer about ClientFlow AI, freelancer business workflow, invoices, payments, pricing, agency setup, product usage, and getting started.',
+        'You are the friendly AI guide inside the ClientFlow AI website.',
+        'Speak like a helpful friend and product coach. Be warm, clear, practical, and beginner-friendly.',
+        'You can answer product questions, freelancer business questions, client communication questions, pricing questions, invoice/payment questions, and general beginner questions that help users understand what to do next.',
+        'If the user asks something unrelated to ClientFlow AI, answer briefly if it is safe, then connect it back to freelancing, business workflow, or how ClientFlow AI can help.',
+        'Give detailed explanations when useful: use short paragraphs or numbered steps. Aim for 120 to 350 words for explanation questions.',
         'Do not promise guaranteed income, legal advice, tax advice, or payment approval. If needed, say the user should verify with their payment provider or professional advisor.',
-        'Use simple language for beginners. No markdown tables. No emojis.',
+        'Use simple language for beginners. No markdown tables. No emojis. Line breaks are allowed for readability.',
         `Product facts: ${supportAssistantKnowledge.product}`,
         `Positioning: ${supportAssistantKnowledge.positioning}`,
         `Pricing: ${supportAssistantKnowledge.pricing}`,
@@ -1756,7 +1798,7 @@ const callOpenAiSupportAssistant = ({ messages, page, fallback }) => new Promise
                     return reject(new Error(body?.error?.message || 'OpenAI support request failed'));
                 }
 
-                resolve(compactText(extractOpenAiText(body)).slice(0, 1200));
+                resolve(String(extractOpenAiText(body) || '').trim().slice(0, 3000));
             } catch (err) {
                 reject(err);
             }

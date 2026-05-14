@@ -11,16 +11,20 @@ const hiddenRoutePrefixes = ['/public/invoice', '/p/invoice'];
 
 const starterMessage = {
   role: 'assistant',
-  content: `Hi, I am the ${PRODUCT_NAME} assistant. Ask me about pricing, invoices, getting clients, payments, or how to start.`
+  content: `Hi, I am your ${PRODUCT_NAME} guide. Ask me anything about freelancing, getting clients, proposals, invoices, payments, pricing, or how to use this product. I will explain it clearly.`
 };
 
-const fallbackAnswer = `I can help with ${PRODUCT_NAME}, pricing, invoices, client workflow, payments, and getting started. For direct support, email ${SUPPORT_EMAIL} or call ${SUPPORT_PHONE_DISPLAY}.`;
+const fallbackAnswer = `I can help with ${PRODUCT_NAME}, freelancing, pricing, invoices, client workflow, payments, and getting started.
+
+Ask your question in simple words and I will explain it step by step. For direct support, email ${SUPPORT_EMAIL} or call ${SUPPORT_PHONE_DISPLAY}.`;
 
 const quickQuestions = [
-  'What does this product do?',
-  'How much is Pro?',
+  'Explain this product clearly',
+  'How should I start?',
   'How do I get clients?',
-  'How do I collect payment?'
+  'How do I collect payment?',
+  'What should I say to clients?',
+  'Why should I pay for Pro?'
 ];
 
 export default function SupportChatWidget() {
@@ -92,14 +96,14 @@ export default function SupportChatWidget() {
     <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-4 z-40 print:hidden sm:left-5">
       {isOpen && (
         <section
-          className="mb-4 flex max-h-[min(680px,calc(100vh-7rem))] w-[calc(100vw-2rem)] max-w-[380px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 text-white shadow-2xl shadow-black/35 backdrop-blur-xl"
+          className="mb-4 flex h-[min(720px,calc(100vh-6rem))] w-[calc(100vw-2rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 text-white shadow-2xl shadow-black/35 backdrop-blur-xl"
           aria-label={`${PRODUCT_NAME} AI assistant`}
         >
-          <div className="flex items-start justify-between gap-3 border-b border-white/10 bg-gradient-to-r from-blue-600/25 to-purple-600/20 p-4">
+          <div className="shrink-0 flex items-start justify-between gap-3 border-b border-white/10 bg-gradient-to-r from-blue-600/25 to-purple-600/20 p-4">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-blue-200">AI Website Help</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-blue-200">Friendly AI Guide</p>
               <h2 className="mt-1 text-base font-black">{PRODUCT_NAME} Assistant</h2>
-              <p className="mt-1 text-xs text-slate-300">Answers product, pricing, invoice, and payment doubts.</p>
+              <p className="mt-1 text-xs text-slate-300">Ask product, freelancing, client, invoice, and payment questions.</p>
             </div>
             <button
               type="button"
@@ -111,14 +115,14 @@ export default function SupportChatWidget() {
             </button>
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto p-4">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-4 pr-3">
             {messages.map((message, index) => (
               <div
                 key={`${message.role}-${index}`}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <p
-                  className={`max-w-[86%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                  className={`max-w-[92%] whitespace-pre-line break-words rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                     message.role === 'user'
                       ? 'rounded-br-md bg-blue-500 text-white'
                       : 'rounded-bl-md border border-white/10 bg-white/[0.07] text-slate-100'
@@ -144,9 +148,9 @@ export default function SupportChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="border-t border-white/10 p-3">
+          <div className="shrink-0 border-t border-white/10 p-3">
             {messages.length <= 1 && (
-              <div className="mb-3 grid grid-cols-2 gap-2">
+              <div className="mb-3 grid max-h-28 grid-cols-2 gap-2 overflow-y-auto pr-1">
                 {quickQuestions.map((question) => (
                   <button
                     key={question}
@@ -181,7 +185,7 @@ export default function SupportChatWidget() {
                 rows={1}
                 maxLength={500}
                 placeholder="Ask your doubt..."
-                className="min-h-[44px] flex-1 resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-300/50 focus:ring-2 focus:ring-blue-400/30"
+                className="max-h-28 min-h-[44px] flex-1 resize-none overflow-y-auto rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-300/50 focus:ring-2 focus:ring-blue-400/30"
               />
               <button
                 type="submit"
