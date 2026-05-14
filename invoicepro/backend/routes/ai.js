@@ -1648,6 +1648,13 @@ const supportAssistantKnowledge = {
         'Team workspace for bigger freelancer projects',
         'Device reminders and WhatsApp-ready follow-ups'
     ],
+    outcomes: [
+        'know what business action to take today',
+        'stop losing leads because of missed follow-ups',
+        'look more professional with proposals, invoices, and payment links',
+        'track unpaid invoices before cashflow becomes stressful',
+        'grow from solo freelancing into organized project work'
+    ],
     contactEmail: process.env.SUPPORT_EMAIL || process.env.EMAIL_FROM || 'ashieqahamed4@gmail.com',
     contactPhone: process.env.SUPPORT_PHONE || '+91 90809 63704',
     linkedIn: process.env.LINKEDIN_PROFILE_URL || 'https://www.linkedin.com/in/ashieq-ahamed-s-a-1a37332a8'
@@ -1655,6 +1662,7 @@ const supportAssistantKnowledge = {
 
 const supportSuggestions = [
     'What does ClientFlow AI do?',
+    'What features are included?',
     'Explain step by step',
     'How do I get clients?',
     'How do I collect payments?',
@@ -1675,6 +1683,59 @@ const buildSupportFallback = (question = '') => {
 
     if (!text) {
         return 'Ask me anything. I can explain ClientFlow AI, freelancing, pricing, invoices, getting clients, payments, proposals, or how to start step by step.';
+    }
+
+    if (/\b(feature|features|tools|modules|included|include|what.*have|what.*has|what.*inside|available)\b/.test(text)) {
+        return [
+            'ClientFlow AI has features for the full freelancer business flow, not only invoice creation.',
+            '',
+            'Main features:',
+            '1. AI Coach: helps the user understand how to find clients, talk to clients, and move toward closing work.',
+            '2. Client Finder and Lead Pipeline: helps plan target clients, save leads, and track follow-ups.',
+            '3. Proposal Writer: helps turn an interested lead into a clear offer before asking for payment.',
+            '4. Invoice Creator: creates professional invoices with PDF download and public invoice view.',
+            '5. Payment Tracking: tracks Paid, Pending, and Overdue invoices so the user knows where money is stuck.',
+            '6. WhatsApp-ready Follow-ups: prepares messages the freelancer can send to clients manually.',
+            '7. Money GPS and Profit Tracker: helps understand income goals, costs, and cashflow.',
+            '8. Team Workspace: helps freelancers manage bigger projects with other freelancers.',
+            '',
+            'Why this matters: freelancers usually use many scattered tools. ClientFlow AI tries to keep the business flow in one place.'
+        ].join('\n');
+    }
+
+    if (/\b(product|website|platform|app|clientflow|client flow|tell.*product|about.*product|explain.*product|what.*product)\b/.test(text)) {
+        return [
+            'ClientFlow AI is a business workspace for freelancers and small service providers.',
+            '',
+            'The product is built around one simple problem: freelancers do not just need invoices. They need a system to get clients, follow up, send proposals, manage work, and collect payments without confusion.',
+            '',
+            'ClientFlow AI helps the user move through this flow:',
+            '1. Decide what service to offer.',
+            '2. Find or plan possible clients.',
+            '3. Prepare a message or pitch.',
+            '4. Track leads and follow-ups.',
+            '5. Create a proposal when the client is interested.',
+            '6. Manage project work if the client accepts.',
+            '7. Create invoice, share PDF/payment link, and track payment.',
+            '',
+            'The real value is clarity. A freelancer can open the product and understand what to do next instead of managing everything in notes, WhatsApp, memory, and spreadsheets.'
+        ].join('\n');
+    }
+
+    if (/\b(how.*work|workflow|step by step|how.*start|getting started|start using|use this|use website)\b/.test(text)) {
+        return [
+            'Here is the simple way to use ClientFlow AI step by step:',
+            '',
+            '1. Start with your service: choose what you sell, such as web design, development, marketing, editing, consulting, or another freelance service.',
+            '2. Use the client tools: plan who to contact and prepare a simple client message.',
+            '3. Save leads: track who replied, who needs follow-up, and who is interested.',
+            '4. Create a proposal: when a client is interested, turn the idea into a clear offer.',
+            '5. Manage the project: if the work is bigger, use the team workspace to organize tasks and collaborators.',
+            '6. Create invoice: generate the invoice, share the PDF or public invoice link, and add payment details.',
+            '7. Track payment: check pending and overdue invoices, then send a professional follow-up.',
+            '',
+            'That is why the product is useful: it connects client-getting and payment collection into one workflow.'
+        ].join('\n');
     }
 
     if (/\b(what does|what is|why need|why use|useful|value|benefit|worth|relevant)\b/.test(text)) {
@@ -1804,6 +1865,7 @@ const callOpenAiSupportAssistant = ({ messages, page, fallback }) => new Promise
         `Positioning: ${supportAssistantKnowledge.positioning}`,
         `Pricing: ${supportAssistantKnowledge.pricing}`,
         `Features: ${supportAssistantKnowledge.features.join('; ')}`,
+        `User outcomes: ${supportAssistantKnowledge.outcomes.join('; ')}`,
         `Contact email: ${supportAssistantKnowledge.contactEmail}`,
         `Contact phone: ${supportAssistantKnowledge.contactPhone}`,
         `LinkedIn: ${supportAssistantKnowledge.linkedIn}`,
