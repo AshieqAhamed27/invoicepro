@@ -86,7 +86,7 @@ export default function Footer() {
           <div>
             <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Company</h3>
             <div className="grid gap-4 font-medium text-zinc-400">
-              <Link className="transition-colors hover:text-yellow-300" to="/portfolio">Founder Portfolio</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/portfolio">Builder Portfolio</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/privacy">Privacy</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/terms">Terms</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/refund-policy">

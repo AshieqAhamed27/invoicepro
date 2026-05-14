@@ -15,7 +15,7 @@ const builderName = 'Ashieq Ahamed';
 
 const quickLinks = [
   ['Try ClientFlow AI', '/', 'See the freelancer business system'],
-  ['Founder Portfolio', '/portfolio', 'Learn more about the builder'],
+  ['Builder Portfolio', '/portfolio', 'Learn more about the builder'],
   ['Agency Setup', '/agency', 'Done-for-you workflow setup'],
   ['Contact', `mailto:${SUPPORT_EMAIL}`, 'Share feedback or ask a question']
 ];
@@ -47,7 +47,7 @@ export default function LinkedInPortfolio() {
       about: {
         '@type': 'Person',
         name: builderName,
-        jobTitle: 'Founder of ClientFlow AI',
+        jobTitle: 'Builder of ClientFlow AI',
         email: SUPPORT_EMAIL
       }
     }

@@ -14,7 +14,7 @@ import {
 const builderName = 'Ashieq Ahamed';
 
 const highlights = [
-  ['Founder', 'Building ClientFlow AI for freelancers and small service businesses.'],
+  ['Builder', 'Building ClientFlow AI for freelancers and small service businesses.'],
   ['India-first', 'Focused on Indian freelancers who also work with global clients.'],
   ['AI-assisted builder', 'Uses AI, product thinking, and real user feedback to ship faster.'],
   ['Registered business', `Udyam registered: ${UDYAM_REGISTRATION_NUMBER}.`]
@@ -67,7 +67,7 @@ const structuredData = [
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: builderName,
-    jobTitle: 'Founder and AI-assisted SaaS product builder',
+    jobTitle: 'AI-assisted SaaS product builder',
     email: SUPPORT_EMAIL,
     url: `${SITE_URL}/portfolio`,
     worksFor: {
@@ -97,7 +97,7 @@ const structuredData = [
 
 export default function Portfolio() {
   useDocumentMeta({
-    title: `${builderName} | AI SaaS Founder Portfolio`,
+    title: `${builderName} | AI SaaS Builder Portfolio`,
     description: `${builderName} is building ClientFlow AI, an India-first freelancer business system for client finding, proposals, project management, invoices, and payment collection.`,
     path: '/portfolio',
     jsonLd: structuredData
@@ -115,7 +115,7 @@ export default function Portfolio() {
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-yellow-300/20 bg-yellow-300/10 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
                 <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">
-                  Founder portfolio
+                  Builder portfolio
                 </span>
               </div>
 
@@ -124,7 +124,7 @@ export default function Portfolio() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-semibold leading-relaxed text-zinc-300 sm:text-lg">
-                I am {builderName}, founder of {COMPANY_NAME}. I am building practical AI business systems for freelancers, developers, designers, consultants, and small agencies.
+                I am {builderName}, the builder behind {COMPANY_NAME}. I am building practical AI business systems for freelancers, developers, designers, consultants, and small agencies.
               </p>
 
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
@@ -152,7 +152,7 @@ export default function Portfolio() {
               <div className="mt-6">
                 <p className="text-3xl font-black text-white">{builderName}</p>
                 <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
-                  Founder, product builder, and AI-assisted SaaS maker based in India.
+                  Product builder and AI-assisted SaaS maker based in India.
                 </p>
               </div>
 
