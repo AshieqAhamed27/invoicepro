@@ -539,7 +539,7 @@ export default function Home() {
             </div>
 
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {featureCards.map((feature) => (
+              {featurePageCards.map((feature) => (
                 <button
                   key={feature.title}
                   type="button"
