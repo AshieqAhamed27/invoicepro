@@ -6,6 +6,7 @@ import BrandLogo from '../components/BrandLogo';
 import { formatDate, getPlanLabel, getUser, hasProAccess, isLoggedIn, setPostLoginRedirect } from '../utils/auth';
 import { trackCtaClick } from '../utils/analytics';
 import useDocumentMeta from '../utils/useDocumentMeta';
+import { featurePageCards } from '../utils/featurePages';
 import {
   COMPANY_NAME,
   COMPANY_TAGLINE,
@@ -41,81 +42,6 @@ const serviceOffers = [
     label: 'Done-for-you setup',
     text: 'We help freelancers set up their offer, lead plan, proposal flow, project workspace, invoice, and 7-day action plan.',
     cta: 'See agency setup',
-    path: '/agency'
-  }
-];
-
-const featureCards = [
-  {
-    title: 'Client Flow',
-    benefit: 'Shows the full path from lead to payment.',
-    detail: 'Beginners see one guided workflow: find client, qualify, proposal, workroom, delivery proof, invoice, and payment follow-up.',
-    path: '/client-flow'
-  },
-  {
-    title: 'Money GPS',
-    benefit: 'Shows the best business action for today.',
-    detail: 'Instead of opening many tools, the freelancer sees what to do next: message a lead, send a proposal, finish a project task, or collect payment.',
-    path: '/money-gps'
-  },
-  {
-    title: 'AI Client Finder',
-    benefit: 'Helps freelancers know who to target.',
-    detail: 'Suggests client types, outreach angles, public search paths, and first messages so finding clients feels less random.',
-    path: '/client-finder'
-  },
-  {
-    title: 'Proposal Writer',
-    benefit: 'Turns conversations into paid work.',
-    detail: 'Creates a simple proposal with scope, price, timeline, validity, and next step so clients can say yes faster.',
-    path: '/proposal-writer'
-  },
-  {
-    title: 'Client Workroom',
-    benefit: 'Runs each client job from scope to payment.',
-    detail: 'Freelancers can manage scope, milestones, collaborators, project notes, delivery proof, invoices, and follow-up in one place.',
-    path: '/client-workroom'
-  },
-  {
-    title: 'DevOps Delivery Kit',
-    benefit: 'Helps developers launch and hand over client projects.',
-    detail: 'Optional workflow for technical freelancers: GitHub repo notes, Linux/VPS checklist, domain, SSL, backup, deployment proof, handover, and maintenance offer.',
-    path: '/devops-delivery'
-  },
-  {
-    title: 'Invoice and Payment Links',
-    benefit: 'Makes getting paid easier.',
-    detail: 'Create invoices, download PDF, share public links, use INR or foreign currencies, and connect Razorpay or UPI collection.',
-    path: '/create-invoice'
-  },
-  {
-    title: 'Payment Collection Agent',
-    benefit: 'Protects pending cash.',
-    detail: 'Ranks unpaid invoices by urgency and prepares the right WhatsApp or payment follow-up message for the freelancer to send.',
-    path: '/dashboard#payment-collection-agent'
-  },
-  {
-    title: 'Profit Tracker',
-    benefit: 'Shows if a project is really profitable.',
-    detail: 'Checks client revenue, AI tools, software subscriptions, payment fees, team cost, and delivery hours so freelancers do not undercharge.',
-    path: '/profit-tracker'
-  },
-  {
-    title: 'Growth Plan',
-    benefit: 'Turns income goals into action.',
-    detail: 'The user sets a monthly income target, then sees how many leads, proposals, clients, and invoices are needed.',
-    path: '/growth-plan'
-  },
-  {
-    title: 'Business Autopilot',
-    benefit: 'Guides the full process.',
-    detail: 'Shows one lead-to-payment action list so freelancers do not feel confused by many separate tools.',
-    path: '/business-autopilot'
-  },
-  {
-    title: 'Agency Setup',
-    benefit: 'Done-for-you setup for beginners.',
-    detail: 'If a freelancer is confused, ClientFlow AI Agency sets up their offer, lead plan, proposal flow, workspace, invoice, and 7-day action plan.',
     path: '/agency'
   }
 ];
@@ -337,6 +263,12 @@ export default function Home() {
   };
 
   const openFeature = (path, title) => {
+    if (path.startsWith('/features/')) {
+      trackCtaClick(`feature_${title}`, 'home_features', path);
+      navigate(path);
+      return;
+    }
+
     if (path === '/agency' || path === '/devops-delivery') {
       trackCtaClick(`feature_${title}`, 'home_features', path);
       navigate(path);

@@ -24,6 +24,7 @@ const Portfolio = lazy(() => import('./pages/Portfolio'));
 const LinkedInPortfolio = lazy(() => import('./pages/LinkedInPortfolio'));
 const AgencyServices = lazy(() => import('./pages/AgencyServices'));
 const DevOpsDelivery = lazy(() => import('./pages/DevOpsDelivery'));
+const FeatureDetail = lazy(() => import('./pages/FeatureDetail'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
@@ -255,6 +256,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <DevOpsDelivery />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/features/:featureKey"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <FeatureDetail />
             </Suspense>
           }
         />
