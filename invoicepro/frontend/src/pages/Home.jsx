@@ -77,6 +77,12 @@ const featureCards = [
     path: '/client-workroom'
   },
   {
+    title: 'DevOps Delivery Kit',
+    benefit: 'Helps developers launch and hand over client projects.',
+    detail: 'Optional workflow for technical freelancers: GitHub repo notes, Linux/VPS checklist, domain, SSL, backup, deployment proof, handover, and maintenance offer.',
+    path: '/devops-delivery'
+  },
+  {
     title: 'Invoice and Payment Links',
     benefit: 'Makes getting paid easier.',
     detail: 'Create invoices, download PDF, share public links, use INR or foreign currencies, and connect Razorpay or UPI collection.',
@@ -116,10 +122,16 @@ const featureCards = [
 
 const whoFor = [
   ['Freelancers', 'Build stable client flow, proposals, invoices, and payments.'],
-  ['Developers', 'Manage client requirements, tasks, releases, handover, and payment.'],
+  ['Developers', 'Manage client requirements, GitHub delivery, Linux/VPS launch, handover, maintenance, and payment.'],
   ['Designers', 'Handle briefs, revisions, approvals, proposals, and final invoice.'],
   ['Consultants', 'Turn conversations into proposals, retainers, and paid milestones.'],
   ['Small agencies', 'Bring other freelancers into bigger projects and manage delivery together.']
+];
+
+const devOpsHighlights = [
+  ['GitHub and delivery notes', 'Keep repo, release, issue, proof, and handover information connected to the client project.'],
+  ['Linux/VPS checklist', 'Plan Ubuntu, SSH, firewall, Nginx, SSL, environment variables, logs, backups, and uptime checks.'],
+  ['Maintenance upsell', 'Turn finished website/app delivery into monthly support, monitoring, backups, and small fixes.']
 ];
 
 const previewActions = [
@@ -187,6 +199,7 @@ const feedback = [
 const faqs = [
   ['Is ClientFlow AI only for invoices?', 'No. Invoices are one part. The product helps freelancers find clients, send proposals, manage work, create invoices, and collect payments.'],
   ['Why should freelancers use it?', 'Because freelancers lose time and money when leads, proposals, projects, and payment follow-ups are scattered. ClientFlow AI puts the process in one place.'],
+  ['Is the Linux/DevOps feature for everyone?', 'No. DevOps Delivery Kit is optional and mainly useful for developers, technical freelancers, and small agencies who deliver websites, apps, VPS, GitHub, or maintenance work.'],
   ['Can beginners use it?', 'Yes. Beginners can use the free software or choose Agency Setup if they want help setting up their offer and client workflow.'],
   ['Can foreign clients pay?', 'Yes, if the seller has international payments enabled in Razorpay. Invoices can support INR, USD, EUR, GBP, AED, SGD, AUD, and CAD.'],
   ['Do you guarantee income?', 'No. ClientFlow AI does not guarantee income. It gives freelancers a clearer system, daily actions, and payment workflow so they can execute better.']
@@ -324,7 +337,7 @@ export default function Home() {
   };
 
   const openFeature = (path, title) => {
-    if (path === '/agency') {
+    if (path === '/agency' || path === '/devops-delivery') {
       trackCtaClick(`feature_${title}`, 'home_features', path);
       navigate(path);
       return;
@@ -549,6 +562,32 @@ export default function Home() {
                   </span>
                   <h3 className="mt-4 text-lg font-black text-white">{title}</h3>
                   <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom responsive-heading-grid">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Optional for developers</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Linux-powered delivery when the project needs real deployment.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                This is not the main product for every freelancer. It is an extra workflow for developers and agencies who deliver websites/apps and need GitHub, Linux/VPS, SSL, backups, handover, and maintenance.
+              </p>
+              <Link to="/devops-delivery" className="mt-6 inline-flex btn btn-secondary px-6 py-3 text-sm">
+                See DevOps Delivery Kit
+              </Link>
+            </div>
+
+            <div className="grid gap-4">
+              {devOpsHighlights.map(([title, text]) => (
+                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                  <h3 className="text-base font-black text-white">{title}</h3>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
                 </div>
               ))}
             </div>

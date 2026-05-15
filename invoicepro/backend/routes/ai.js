@@ -1646,6 +1646,7 @@ const supportAssistantKnowledge = {
         'Public invoice view with payment link and PDF download',
         'Money GPS and profit tracker',
         'Team workspace for bigger freelancer projects',
+        'DevOps Delivery Kit for developers who need GitHub, Linux/VPS, SSL, backups, handover, and maintenance workflow',
         'Device reminders and WhatsApp-ready follow-ups'
     ],
     outcomes: [
@@ -1685,6 +1686,24 @@ const buildSupportFallback = (question = '') => {
         return 'Ask me anything. I can explain ClientFlow AI, freelancing, pricing, invoices, getting clients, payments, proposals, or how to start step by step.';
     }
 
+    if (/\b(linux|devops|vps|ubuntu|server|github|git|deploy|deployment|ssl|nginx|docker|backup|handover|maintenance)\b/.test(text)) {
+        return [
+            'ClientFlow AI now has an optional DevOps Delivery Kit for technical freelancers and small agencies.',
+            '',
+            'It is useful when the client project is a website, web app, VPS, or technical delivery. The goal is not to turn ClientFlow AI into a Linux-only product. The main product still helps freelancers get clients, manage projects, invoice, and collect payment.',
+            '',
+            'The DevOps workflow helps developers track:',
+            '1. GitHub repo and release notes.',
+            '2. Linux/VPS setup checklist such as Ubuntu, SSH, firewall, Nginx, environment variables, SSL, and logs.',
+            '3. Deployment proof and production URL.',
+            '4. Backup and monitoring plan.',
+            '5. Client handover notes.',
+            '6. Monthly maintenance offer.',
+            '',
+            'Why users need it: developers often finish code but struggle with professional launch, handover, and maintenance. This workflow helps them deliver like a serious business.'
+        ].join('\n');
+    }
+
     if (/\b(feature|features|tools|modules|included|include|what.*have|what.*has|what.*inside|available)\b/.test(text)) {
         return [
             'ClientFlow AI has features for the full freelancer business flow, not only invoice creation.',
@@ -1698,6 +1717,7 @@ const buildSupportFallback = (question = '') => {
             '6. WhatsApp-ready Follow-ups: prepares messages the freelancer can send to clients manually.',
             '7. Money GPS and Profit Tracker: helps understand income goals, costs, and cashflow.',
             '8. Team Workspace: helps freelancers manage bigger projects with other freelancers.',
+            '9. DevOps Delivery Kit: optional for developers who need GitHub, Linux/VPS, SSL, deployment proof, backup, handover, and maintenance workflow.',
             '',
             'Why this matters: freelancers usually use many scattered tools. ClientFlow AI tries to keep the business flow in one place.'
         ].join('\n');

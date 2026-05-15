@@ -15,6 +15,7 @@ const appLinks = [
   { to: '/deal-room', label: 'Deal Room', detail: 'Move leads to paid work', requiresPro: true },
   { to: '/leads', label: 'Lead Pipeline', detail: 'Track prospects and follow-up', requiresPro: true },
   { to: '/client-workroom', label: 'Workroom', detail: 'Scope, tasks, files, proof, payment' },
+  { to: '/devops-delivery', label: 'DevOps Kit', detail: 'Linux, GitHub, deployment, handover' },
   { to: '/cloud-documents', label: 'Cloud Docs', detail: 'Store invoices, contracts, and project files' },
   { to: '/create-invoice', label: 'Invoice', detail: 'Proposal or invoice' }
 ];
@@ -38,6 +39,7 @@ const moreAppLinks = [
   { to: '/deal-room', label: 'Deal Room', detail: 'Close serious leads', requiresPro: true },
   { to: '/leads', label: 'Lead Pipeline', detail: 'Manage prospects', requiresPro: true },
   { to: '/client-workroom', label: 'Client Workroom', detail: 'Scope, tasks, files, proof, payment' },
+  { to: '/devops-delivery', label: 'DevOps Delivery Kit', detail: 'Linux/VPS, GitHub, SSL, backup, handover' },
   { to: '/cloud-documents', label: 'Cloud Documents', detail: 'Invoices, contracts, files' },
   { to: '/agency', label: 'Agency Setup', detail: 'Done-for-you freelancer system' },
   { to: '/settings', label: 'Settings', detail: 'Profile, logo, payments' }
@@ -46,6 +48,7 @@ const moreAppLinks = [
 const useCaseLinks = [
   { to: '/freelancers', label: 'Freelancers', detail: 'Find clients and get paid' },
   { to: '/developers', label: 'Developers', detail: 'Manage builds and releases' },
+  { to: '/devops-delivery', label: 'DevOps Kit', detail: 'Linux/VPS delivery for developers' },
   { to: '/designers', label: 'Designers', detail: 'Handle revisions and approvals' },
   { to: '/agencies', label: 'Agencies', detail: 'Run teams and retainers' },
   { to: '/consultants', label: 'Consultants', detail: 'Close retainers and invoices' }

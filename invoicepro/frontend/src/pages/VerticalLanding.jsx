@@ -52,9 +52,9 @@ const verticals = {
     path: '/developers',
     eyebrow: 'ClientFlow AI for developers',
     title: 'Freelance Developer Project Workspace | ClientFlow AI',
-    description: 'Manage freelance coding clients, bugs, releases, handover notes, proposals, invoices, and payments in one workspace.',
+    description: 'Manage freelance coding clients, bugs, releases, Linux/VPS delivery, handover notes, proposals, invoices, and payments in one workspace.',
     headline: 'A client-work system for freelance developers.',
-    subhead: 'Use ClientFlow AI to manage client coding work beyond code: scope, issues, releases, docs, handover, invoices, and payment collection.',
+    subhead: 'Use ClientFlow AI to manage client coding work beyond code: scope, issues, releases, GitHub delivery, Linux/VPS handover, invoices, and payment collection.',
     audience: 'Freelance developers',
     promise: 'From client request to paid release',
     primaryCta: 'Start as Developer',
@@ -64,11 +64,11 @@ const verticals = {
     secondaryPath: '/client-workroom',
     problems: [
       'Client requests arrive in chat and become hard to track.',
-      'Bugs, releases, handover notes, and invoices are separated from the actual client workflow.',
+      'Bugs, releases, Linux/VPS deployment notes, handover notes, and invoices are separated from the actual client workflow.',
       'Developers finish work but delay proposals, approvals, payment links, and final collection.'
     ],
     outcomes: [
-      'Track scope, tasks, proof links, docs, handover, and payment in one client workroom.',
+      'Track scope, tasks, GitHub proof, Linux/VPS launch notes, docs, handover, and payment in one client workroom.',
       'Use AI to decide the next delivery, proposal, or payment action.',
       'Create invoices and payment links after approved work.'
     ],
@@ -76,11 +76,12 @@ const verticals = {
       'Save client requirement',
       'Create tasks and issues',
       'Plan release and QA',
-      'Write handover notes',
+      'Document deployment and handover',
       'Invoice and collect payment'
     ],
     features: [
       'Client Workroom for scope, delivery proof, and handover',
+      'DevOps Delivery Kit for GitHub, Linux/VPS, SSL, backups, and maintenance',
       'Workroom plan for next delivery steps',
       'Collaborator invites for larger builds',
       'Proposal writer and deal room',
@@ -142,12 +143,12 @@ const verticals = {
     secondaryPath: '/client-workroom',
     problems: [
       'Small agencies manage people, clients, scope, and payment in too many separate tools.',
-      'Project status becomes unclear when tasks, issues, release notes, and invoices are not connected.',
+      'Project status becomes unclear when tasks, issues, Linux/VPS launch notes, release notes, and invoices are not connected.',
       'Clients ask for updates but the team has no simple delivery ledger to show progress.'
     ],
     outcomes: [
       'Invite freelancers into project-specific workspaces.',
-      'Track scope, tasks, delivery proof, notes, collaborators, and client handover.',
+      'Track scope, tasks, delivery proof, deployment notes, collaborators, and client handover.',
       'Use invoices and payment collection as part of the same delivery loop.'
     ],
     workflow: [
@@ -159,6 +160,7 @@ const verticals = {
     ],
     features: [
       'Client Workroom for freelancer teams',
+      'DevOps Delivery Kit for technical client projects',
       'Delivery proof and handover history',
       'Workroom plan and delivery risk checks',
       'Proposal, deal, and invoice workflow',

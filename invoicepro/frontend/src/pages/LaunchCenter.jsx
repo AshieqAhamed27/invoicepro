@@ -20,6 +20,11 @@ const CheckPill = ({ ready }) => (
 
 const recentUpdates = [
   {
+    label: 'DevOps Delivery',
+    title: 'Linux-powered delivery kit for developers',
+    detail: 'Added optional GitHub, Linux/VPS, SSL, backup, handover, and maintenance positioning for technical freelancers and small agencies.'
+  },
+  {
     label: 'Client Workroom',
     title: 'Client delivery workflow for freelancers',
     detail: 'Positioned the project system as a simple client workroom for scope, milestones, proof, notes, approvals, invoices, and payment follow-up.'

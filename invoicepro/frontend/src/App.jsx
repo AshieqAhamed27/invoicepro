@@ -23,6 +23,7 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
 const LinkedInPortfolio = lazy(() => import('./pages/LinkedInPortfolio'));
 const AgencyServices = lazy(() => import('./pages/AgencyServices'));
+const DevOpsDelivery = lazy(() => import('./pages/DevOpsDelivery'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
@@ -245,6 +246,24 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <AgencyServices />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/devops-delivery"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <DevOpsDelivery />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/linux-services"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <DevOpsDelivery />
             </Suspense>
           }
         />

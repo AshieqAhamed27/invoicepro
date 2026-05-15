@@ -53,6 +53,9 @@ export default function Footer() {
               <Link className="transition-colors hover:text-yellow-300" to="/client-workroom">
                 Client Workroom
               </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/devops-delivery">
+                DevOps Delivery Kit
+              </Link>
               <Link className="transition-colors hover:text-yellow-300" to="/agency">
                 Agency Setup
               </Link>
@@ -80,6 +83,7 @@ export default function Footer() {
             <div className="grid gap-4 font-medium text-zinc-400">
               <Link className="transition-colors hover:text-yellow-300" to="/freelancers">For Freelancers</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/developers">For Developers</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/devops-delivery">Linux/VPS Delivery</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/designers">For Designers</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/agencies">For Agencies</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/consultants">For Consultants</Link>

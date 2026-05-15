@@ -23,13 +23,13 @@ export const workflowModes = {
     path: '/workflows/developers',
     appPath: '/client-workroom',
     headline: 'From client requirement to paid release.',
-    summary: 'Best for web/app developers who need to connect scope, delivery tasks, proof, handover, and payment.',
-    setupOutcome: 'Developer offer, client requirement flow, delivery checklist, proof links, handover notes, invoice/payment flow.',
+    summary: 'Best for web/app developers who need to connect scope, delivery tasks, GitHub, Linux/VPS launch notes, handover, maintenance, and payment.',
+    setupOutcome: 'Developer offer, client requirement flow, delivery checklist, GitHub/Linux handover notes, invoice/payment flow.',
     steps: [
       ['Capture requirement', 'Turn chat requests into a structured project.', 'Client Workroom', '/client-workroom'],
       ['Plan delivery tasks', 'Track milestones, issues, proof, and priorities.', 'Client Workroom', '/client-workroom'],
-      ['Save project proof', 'Keep delivery notes, files, and approval links.', 'Client Workroom', '/client-workroom'],
-      ['Send handover', 'Write delivery notes and next maintenance steps.', 'Client Workroom', '/client-workroom'],
+      ['Prepare DevOps checklist', 'Document GitHub repo, Linux/VPS setup, SSL, backups, and launch notes.', 'DevOps Kit', '/devops-delivery'],
+      ['Send handover', 'Write delivery notes, proof links, and next maintenance steps.', 'Client Workroom', '/client-workroom'],
       ['Invoice release', 'Send invoice after approved milestone or launch.', 'Invoice', '/create-invoice']
     ]
   },
@@ -57,12 +57,12 @@ export const workflowModes = {
     path: '/workflows/agencies',
     appPath: '/client-workroom',
     headline: 'Manage client delivery, collaborators, retainers, and payments.',
-    summary: 'Best for small agencies and freelancer teams handling bigger projects with multiple people.',
-    setupOutcome: 'Agency offer, team delivery board, collaborator roles, retainer proposal, invoice/payment flow.',
+    summary: 'Best for small agencies and freelancer teams handling bigger projects with multiple people, technical delivery, and maintenance.',
+    setupOutcome: 'Agency offer, team delivery board, collaborator roles, DevOps handover, retainer proposal, invoice/payment flow.',
     steps: [
       ['Create client workroom', 'Set one project home for scope, tasks, files, proof, and updates.', 'Client Workroom', '/client-workroom'],
       ['Invite collaborators', 'Bring freelancers into the project with clear roles.', 'Client Workroom', '/client-workroom'],
-      ['Split delivery work', 'Assign tasks, notes, docs, and milestones.', 'Client Workroom', '/client-workroom'],
+      ['Split delivery work', 'Assign tasks, notes, docs, milestones, and deployment proof.', 'Client Workroom', '/client-workroom'],
       ['Send retainer proposal', 'Move one-time work toward monthly support.', 'Proposal Writer', '/proposal-writer'],
       ['Collect retainer', 'Create recurring invoice or payment follow-up.', 'Recurring', '/recurring']
     ]
