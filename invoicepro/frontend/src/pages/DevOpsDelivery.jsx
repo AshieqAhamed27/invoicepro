@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import BrandLogo from '../components/BrandLogo';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { COMPANY_NAME, SITE_URL } from '../utils/company';
+import { isLoggedIn } from '../utils/auth';
 
 const deliveryProblems = [
   ['Deployment is unclear', 'The client says yes, but the freelancer still needs to decide GitHub, hosting, environment variables, domain, SSL, and release process.'],
@@ -56,6 +57,12 @@ const handoverItems = [
 ];
 
 export default function DevOpsDelivery() {
+  const loggedIn = isLoggedIn();
+  const startPath = loggedIn ? '/client-flow' : '/signup';
+  const startLabel = loggedIn ? 'Open Client Flow' : 'Start Free';
+  const workroomPath = loggedIn ? '/client-workroom' : '/signup';
+  const workroomLabel = loggedIn ? 'Open Workroom' : 'Create Free Account';
+
   useDocumentMeta({
     title: `DevOps Delivery Kit for Freelance Developers | ${COMPANY_NAME}`,
     description: 'ClientFlow AI DevOps Delivery Kit helps freelance developers manage GitHub, Linux/VPS setup, deployments, SSL, backups, handover, and maintenance offers.',
@@ -107,8 +114,8 @@ export default function DevOpsDelivery() {
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link to="/signup" className="btn btn-primary px-7 py-4 text-center text-sm">
-                  Start Free
+                <Link to={startPath} className="btn btn-primary px-7 py-4 text-center text-sm">
+                  {startLabel}
                 </Link>
                 <Link to="/developers" className="btn btn-secondary px-7 py-4 text-center text-sm">
                   For Developers
@@ -243,11 +250,11 @@ export default function DevOpsDelivery() {
               Use ClientFlow AI for the business flow, then use DevOps Delivery Kit when the project needs GitHub, Linux/VPS, domain, SSL, backup, handover, and maintenance.
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link to="/signup" className="btn btn-primary px-7 py-4 text-sm">
-                Create Free Account
+              <Link to={startPath} className="btn btn-primary px-7 py-4 text-sm">
+                {startLabel}
               </Link>
-              <Link to="/client-workroom" className="btn btn-secondary px-7 py-4 text-sm">
-                Open Workroom
+              <Link to={workroomPath} className="btn btn-secondary px-7 py-4 text-sm">
+                {workroomLabel}
               </Link>
             </div>
           </div>
