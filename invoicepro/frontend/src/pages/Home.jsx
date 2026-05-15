@@ -21,6 +21,42 @@ const problemCards = [
   ['Payments get delayed', 'Invoices, follow-ups, payment links, and pending money are hard to track manually.']
 ];
 
+const realWorldOutcomes = [
+  {
+    title: 'Stop losing leads after the first message',
+    problem: 'Many freelancers talk to interested people, then forget to follow up.',
+    result: 'ClientFlow AI keeps the next action visible so the lead does not go cold.'
+  },
+  {
+    title: 'Turn interest into a clear proposal',
+    problem: 'Clients disappear when scope, price, timeline, and next step are unclear.',
+    result: 'The proposal workflow helps the freelancer send a cleaner offer faster.'
+  },
+  {
+    title: 'Finish work with proof and fewer disputes',
+    problem: 'Delivery becomes confusing when tasks, notes, approvals, and files stay in chat.',
+    result: 'The workroom keeps milestones, proof, collaborators, and invoice flow connected.'
+  },
+  {
+    title: 'Collect pending money professionally',
+    problem: 'Unpaid invoices are easy to ignore because follow-up feels awkward.',
+    result: 'Payment Collection Agent shows which payment matters first and prepares the message.'
+  }
+];
+
+const proWorthReasons = [
+  ['If one proposal closes faster', 'A single won project can be worth far more than the monthly Pro price.'],
+  ['If one pending invoice is collected sooner', 'The product pays for itself when it helps recover cash that was stuck.'],
+  ['If the freelancer saves weekly admin time', 'Less time switching between notes, chats, invoices, and reminders means more time for paid work.'],
+  ['If the freelancer wants stable monthly income', 'Growth Plan and Money GPS turn income goals into weekly actions instead of guesswork.']
+];
+
+const honestFit = [
+  ['Use Free if', 'You only want to test the workflow or create a small number of invoices.'],
+  ['Use Pro if', 'You actively manage leads, proposals, projects, invoices, payment follow-ups, and monthly income goals.'],
+  ['Do not pay if', 'You only need one basic invoice once and do not want a freelancer business workflow.']
+];
+
 const simpleFlow = [
   ['01', 'Find a client', 'Choose a target client and prepare the first message.'],
   ['02', 'Send a proposal', 'Turn interest into clear scope, price, timeline, and next step.'],
@@ -82,8 +118,8 @@ const plans = [
     id: 'free',
     name: 'Free',
     price: 'Rs 0',
-    note: 'Try the basic workflow',
-    features: ['Create limited invoices', 'See the product flow', 'Start your client workroom'],
+    note: 'Use before you pay',
+    features: ['Try the lead to payment flow', 'Create limited invoices', 'Understand if the product fits your work'],
     cta: 'Create Free Account'
   },
   {
@@ -91,7 +127,7 @@ const plans = [
     name: 'Pro Monthly',
     price: 'Rs 499',
     note: 'For active freelancers',
-    features: ['Money GPS and AI tools', 'Unlimited invoices', 'Client finder, proposals, profit tracker'],
+    features: ['Daily money action', 'Client finder, proposals, workroom, and payment agent', 'Unlimited invoices and profit tracking'],
     cta: 'Start Pro'
   },
   {
@@ -99,7 +135,7 @@ const plans = [
     name: 'Pro Yearly',
     price: 'Rs 4999',
     note: 'For serious freelance growth',
-    features: ['Everything in Pro Monthly', 'Best yearly value', 'Growth planning and payment collection'],
+    features: ['Everything in Pro Monthly', 'Best yearly value', 'For freelancers building stable monthly income'],
     cta: 'Choose Yearly'
   }
 ];
@@ -125,6 +161,8 @@ const feedback = [
 const faqs = [
   ['Is ClientFlow AI only for invoices?', 'No. Invoices are one part. The product helps freelancers find clients, send proposals, manage work, create invoices, and collect payments.'],
   ['Why should freelancers use it?', 'Because freelancers lose time and money when leads, proposals, projects, and payment follow-ups are scattered. ClientFlow AI puts the process in one place.'],
+  ['When is Pro worth paying for?', 'Pro makes sense when the freelancer is actively trying to win clients, send proposals, manage projects, collect payments, and grow monthly income. If it helps close one client or collect one delayed payment, it can be worth more than the subscription.'],
+  ['When should someone stay on Free?', 'Stay on Free if you only want to test the product, create a few invoices, or you are not yet managing real leads and client work.'],
   ['Is the Linux/DevOps feature for everyone?', 'No. DevOps Delivery Kit is optional and mainly useful for developers, technical freelancers, and small agencies who deliver websites, apps, VPS, GitHub, or maintenance work.'],
   ['Can beginners use it?', 'Yes. Beginners can use the free software or choose Agency Setup if they want help setting up their offer and client workflow.'],
   ['Can foreign clients pay?', 'Yes, if the seller has international payments enabled in Razorpay. Invoices can support INR, USD, EUR, GBP, AED, SGD, AUD, and CAD.'],
@@ -329,15 +367,15 @@ export default function Home() {
               </div>
 
               <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Get clients, manage work, and get paid faster.
+                Run your freelance business without losing leads, work, or payments.
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-semibold leading-relaxed text-zinc-300 sm:text-lg">
-                ClientFlow AI helps freelancers run the full client process in one place: find leads, send proposals, manage client workrooms, create invoices, and collect payments.
+                ClientFlow AI helps freelancers turn conversations into proposals, manage delivery, create invoices, and collect payment without keeping the whole business in memory.
               </p>
 
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-                Simple promise: open the app and know the next business action.
+                Simple promise: open the app and know the next money action.
               </p>
 
               {loggedIn && (
@@ -425,10 +463,10 @@ export default function Home() {
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">What the product does</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                It connects client finding, project work, and payment collection.
+                It solves the boring problems that actually cost freelancers money.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                Most freelancers use separate notes, chats, invoices, and payment links. ClientFlow AI brings the workflow together so money actions do not get missed.
+                Most freelancers do not fail because they cannot create an invoice. They lose money because leads go cold, proposals are delayed, client work gets messy, and payments are not followed up.
               </p>
             </div>
 
@@ -437,6 +475,44 @@ export default function Home() {
                 <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-sky-300/25">
                   <h3 className="text-xl font-black text-white">{title}</h3>
                   <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="responsive-heading-grid">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Real-world value</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Users pay when the product protects their cashflow.
+                </h2>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  ClientFlow AI is designed around outcomes a freelancer can feel: fewer forgotten leads, faster proposals, cleaner delivery, and more professional payment follow-up.
+                </p>
+              </div>
+
+              <div className="rounded-[1.75rem] border border-emerald-300/20 bg-black/25 p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Why Pro can be worth it</p>
+                <p className="mt-3 text-2xl font-black leading-tight text-white">
+                  If it helps recover one delayed payment or close one client faster, the subscription can pay for itself.
+                </p>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                  No income guarantee. The value is giving freelancers a clearer system so important money actions do not disappear.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {realWorldOutcomes.map((item) => (
+                <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
+                  <h3 className="text-lg font-black leading-tight text-white">{item.title}</h3>
+                  <p className="mt-4 text-xs font-black uppercase tracking-widest text-zinc-600">Problem</p>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.problem}</p>
+                  <p className="mt-4 text-xs font-black uppercase tracking-widest text-emerald-300">Result</p>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-200">{item.result}</p>
                 </div>
               ))}
             </div>
@@ -602,6 +678,43 @@ export default function Home() {
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
                 This is a setup and action plan service. It does not guarantee income, but it gives the freelancer a clearer system to execute.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-zinc-950/70 py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Pay for outcomes, not buttons</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Pro is for freelancers already doing real client work.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                A user should not feel forced to pay just to create one invoice. They pay when ClientFlow AI becomes their daily business control room.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+              <div className="grid gap-4 md:grid-cols-2">
+                {proWorthReasons.map(([title, text]) => (
+                  <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
+                    <h3 className="text-lg font-black text-white">{title}</h3>
+                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-[1.75rem] border border-white/10 bg-black/30 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Honest fit</p>
+                <div className="mt-4 space-y-3">
+                  {honestFit.map(([title, text]) => (
+                    <div key={title} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
+                      <p className="text-sm font-black text-white">{title}</p>
+                      <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>

@@ -142,6 +142,35 @@ export default function FeatureDetail() {
           </div>
         </section>
 
+        <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Business value</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Why this is useful in real client work.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                ClientFlow AI is not asking users to pay for a button. Each workflow should help protect a real business action: winning work, delivering clearly, or collecting money.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Prevents</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">{feature.problem}</p>
+              </div>
+              <div className="rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.08] p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Creates</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-200">{feature.outcome}</p>
+              </div>
+              <div className="rounded-[1.5rem] border border-yellow-300/20 bg-yellow-300/[0.08] p-5">
+                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Worth using when</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-200">{feature.bestFor}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="border-t border-white/5 bg-black/25 py-14 sm:py-16">
           <div className="container-custom rounded-[2rem] border border-yellow-300/20 bg-yellow-300/[0.06] p-6 text-center sm:p-10">
             <h2 className="mx-auto max-w-3xl text-3xl font-black tracking-tight text-white sm:text-4xl">
