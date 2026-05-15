@@ -263,7 +263,7 @@ export default function Home() {
   };
 
   const openFeature = (path, title) => {
-    if (path.startsWith('/features/')) {
+    if (path.startsWith('/work/')) {
       trackCtaClick(`feature_${title}`, 'home_features', path);
       navigate(path);
       return;
@@ -549,7 +549,7 @@ export default function Home() {
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">{feature.title}</p>
                   <h3 className="mt-3 text-xl font-black text-white">{feature.benefit}</h3>
                   <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{feature.detail}</p>
-                  <p className="mt-5 text-[10px] font-black uppercase tracking-widest text-zinc-500">Open feature</p>
+                  <p className="mt-5 text-[10px] font-black uppercase tracking-widest text-zinc-500">View work page</p>
                 </button>
               ))}
             </div>

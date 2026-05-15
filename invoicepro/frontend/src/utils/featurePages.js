@@ -1,6 +1,6 @@
 export const featurePages = {
   'client-flow': {
-    path: '/features/client-flow',
+    path: '/work/client-flow',
     appPath: '/client-flow',
     title: 'Client Flow',
     eyebrow: 'Lead to payment workflow',
@@ -25,7 +25,7 @@ export const featurePages = {
     ]
   },
   'money-gps': {
-    path: '/features/money-gps',
+    path: '/work/money-gps',
     appPath: '/money-gps',
     title: 'Money GPS',
     eyebrow: 'Daily business action',
@@ -50,7 +50,7 @@ export const featurePages = {
     ]
   },
   'client-finder': {
-    path: '/features/client-finder',
+    path: '/work/client-finder',
     appPath: '/client-finder',
     title: 'AI Client Finder',
     eyebrow: 'Find better client targets',
@@ -75,7 +75,7 @@ export const featurePages = {
     ]
   },
   'proposal-writer': {
-    path: '/features/proposal-writer',
+    path: '/work/proposal-writer',
     appPath: '/proposal-writer',
     title: 'Proposal Writer',
     eyebrow: 'Turn interest into a clear offer',
@@ -100,7 +100,7 @@ export const featurePages = {
     ]
   },
   'client-workroom': {
-    path: '/features/client-workroom',
+    path: '/work/client-workroom',
     appPath: '/client-workroom',
     title: 'Client Workroom',
     eyebrow: 'Manage delivery and proof',
@@ -125,7 +125,7 @@ export const featurePages = {
     ]
   },
   'devops-delivery': {
-    path: '/features/devops-delivery',
+    path: '/work/devops-delivery',
     appPath: '/devops-delivery',
     title: 'DevOps Delivery Kit',
     eyebrow: 'Optional for technical freelancers',
@@ -150,7 +150,7 @@ export const featurePages = {
     ]
   },
   'invoice-payment-links': {
-    path: '/features/invoice-payment-links',
+    path: '/work/invoice-payment-links',
     appPath: '/create-invoice',
     title: 'Invoice and Payment Links',
     eyebrow: 'Professional billing',
@@ -175,7 +175,7 @@ export const featurePages = {
     ]
   },
   'payment-collection-agent': {
-    path: '/features/payment-collection-agent',
+    path: '/work/payment-collection-agent',
     appPath: '/dashboard#payment-collection-agent',
     title: 'Payment Collection Agent',
     eyebrow: 'Protect pending cash',
@@ -200,7 +200,7 @@ export const featurePages = {
     ]
   },
   'profit-tracker': {
-    path: '/features/profit-tracker',
+    path: '/work/profit-tracker',
     appPath: '/profit-tracker',
     title: 'Profit Tracker',
     eyebrow: 'Know project profit',
@@ -225,7 +225,7 @@ export const featurePages = {
     ]
   },
   'growth-plan': {
-    path: '/features/growth-plan',
+    path: '/work/growth-plan',
     appPath: '/growth-plan',
     title: 'Growth Plan',
     eyebrow: 'Income goal to actions',
@@ -250,7 +250,7 @@ export const featurePages = {
     ]
   },
   'business-autopilot': {
-    path: '/features/business-autopilot',
+    path: '/work/business-autopilot',
     appPath: '/business-autopilot',
     title: 'Business Autopilot',
     eyebrow: 'Guided business process',
@@ -275,7 +275,7 @@ export const featurePages = {
     ]
   },
   'agency-setup': {
-    path: '/features/agency-setup',
+    path: '/work/agency-setup',
     appPath: '/agency',
     title: 'Agency Setup',
     eyebrow: 'Done-for-you setup',

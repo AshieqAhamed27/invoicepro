@@ -270,6 +270,15 @@ export default function App() {
         />
 
         <Route
+          path="/work/:featureKey"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <FeatureDetail />
+            </Suspense>
+          }
+        />
+
+        <Route
           path="/linux-services"
           element={
             <Suspense fallback={<RouteLoader />}>

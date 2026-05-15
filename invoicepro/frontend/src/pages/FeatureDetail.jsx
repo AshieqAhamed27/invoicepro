@@ -78,7 +78,7 @@ export default function FeatureDetail() {
               <div className="flex items-center justify-between gap-4 border-b border-white/8 pb-5">
                 <BrandLogo showText={false} markClassName="h-12 w-12" />
                 <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
-                  Feature guide
+                  Work page
                 </span>
               </div>
               <div className="mt-5 grid gap-4">
@@ -100,10 +100,10 @@ export default function FeatureDetail() {
             <div className="max-w-3xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">How it works</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Understand the feature before opening the app.
+                Understand the workflow before opening the tool.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                This page explains the workflow first. The app page opens only when the user is ready to try it.
+                This work page explains the job first. The real app tool opens only when the user is ready to try it.
               </p>
             </div>
 
@@ -125,7 +125,7 @@ export default function FeatureDetail() {
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">What is included</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Clear feature value, not a random dashboard button.
+                Clear workflow value, not a random dashboard button.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
                 Best for: {feature.bestFor}
@@ -148,7 +148,7 @@ export default function FeatureDetail() {
               Ready to use {feature.title}?
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-              Start from this explanation page, then open the real workspace when you are ready.
+              Start from this work page, then open the real workspace when you are ready.
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
               <Link to={primaryPath} className="btn btn-primary px-7 py-4 text-sm">
