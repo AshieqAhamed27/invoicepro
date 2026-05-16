@@ -69,8 +69,11 @@ const getEnvSanity = () => {
             razorpayYearlyPlanId: hasUsableValue('RAZORPAY_YEARLY_PLAN_ID')
         },
         ai: {
+            provider: process.env.AI_PROVIDER || 'openai',
             openAiKey: hasUsableValue('OPENAI_API_KEY'),
-            openAiModel: process.env.OPENAI_MODEL || null
+            openAiModel: process.env.OPENAI_MODEL || null,
+            anthropicKey: hasUsableValue('ANTHROPIC_API_KEY'),
+            anthropicModel: process.env.ANTHROPIC_MODEL || null
         },
         email: {
             emailUser: hasUsableValue('EMAIL_USER'),
@@ -156,10 +159,11 @@ const getLaunchReadiness = ({ databaseState = 'unknown' } = {}) => {
         {
             id: 'ai',
             category: 'AI',
-            label: 'OpenAI billing assistant',
-            ready: envSanity.ai.openAiKey && Boolean(envSanity.ai.openAiModel),
+            label: 'AI provider assistant',
+            ready: (envSanity.ai.openAiKey && Boolean(envSanity.ai.openAiModel)) ||
+                (envSanity.ai.anthropicKey && Boolean(envSanity.ai.anthropicModel)),
             severity: 'important',
-            action: 'Add OPENAI_API_KEY and OPENAI_MODEL.'
+            action: 'Add OPENAI_API_KEY/OPENAI_MODEL or ANTHROPIC_API_KEY/ANTHROPIC_MODEL.'
         },
         {
             id: 'recurring',

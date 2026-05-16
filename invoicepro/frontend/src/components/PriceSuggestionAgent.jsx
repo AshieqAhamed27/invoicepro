@@ -10,6 +10,12 @@ const formatMoney = (amount) =>
 const optionClass =
   'input bg-black/20 border-white/5 py-3 text-xs font-bold text-zinc-200';
 
+const getAiSourceLabel = (source) => {
+  if (source === 'anthropic') return 'Anthropic Claude + ClientFlow AI rules';
+  if (source === 'openai') return 'OpenAI + ClientFlow AI rules';
+  return 'ClientFlow AI rules';
+};
+
 export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
   const itemNames = useMemo(
     () => (Array.isArray(context.items) ? context.items.map((item) => item?.name).filter(Boolean).join(', ') : ''),
@@ -221,7 +227,7 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
                   </div>
                 </div>
                 <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                  Source: {result.source === 'openai' ? 'OpenAI + ClientFlow AI rules' : 'ClientFlow AI rules'}
+                  Source: {getAiSourceLabel(result.source)}
                 </p>
               </div>
 

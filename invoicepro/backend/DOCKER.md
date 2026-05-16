@@ -61,8 +61,11 @@ FRONTEND_URL=https://your-frontend-domain.com
 CORS_ORIGINS=https://your-frontend-domain.com
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+AI_PROVIDER=openai
 OPENAI_API_KEY=your_openai_api_key
 OPENAI_MODEL=gpt-5-mini
+ANTHROPIC_API_KEY=your_anthropic_api_key
+ANTHROPIC_MODEL=claude-sonnet-4-20250514
 CRON_SECRET=your_long_random_secret
 CODE_RUNNER_ENABLED=false
 ```

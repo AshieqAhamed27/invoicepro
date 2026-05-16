@@ -1635,6 +1635,177 @@ const extractOpenAiText = (body) => {
     return '';
 };
 
+const extractAnthropicText = (body) => {
+    const content = Array.isArray(body?.content) ? body.content : [];
+    return content
+        .map((part) => part?.text || '')
+        .filter(Boolean)
+        .join('\n')
+        .trim();
+};
+
+const normalizeAiProvider = (value = 'openai') => {
+    const provider = String(value || 'openai').trim().toLowerCase();
+    if (provider === 'anthropic' || provider === 'claude') return 'anthropic';
+    if (provider === 'auto') return 'auto';
+    return 'openai';
+};
+
+const getAiProviderOrder = () => {
+    const preferred = normalizeAiProvider(process.env.AI_PROVIDER || 'openai');
+    const order = preferred === 'anthropic'
+        ? ['anthropic', 'openai']
+        : ['openai', 'anthropic'];
+
+    return Array.from(new Set(order));
+};
+
+const getAiProviderConfig = (provider) => {
+    if (provider === 'anthropic') {
+        return {
+            provider,
+            apiKey: process.env.ANTHROPIC_API_KEY,
+            hostname: 'api.anthropic.com',
+            path: '/v1/messages',
+            model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514'
+        };
+    }
+
+    return {
+        provider: 'openai',
+        apiKey: process.env.OPENAI_API_KEY,
+        hostname: 'api.openai.com',
+        path: '/v1/responses',
+        model: process.env.OPENAI_MODEL || 'gpt-5-mini'
+    };
+};
+
+const getAnthropicMaxTokens = (maxTokens = 1200) => {
+    const configured = Number(process.env.ANTHROPIC_MAX_TOKENS || maxTokens);
+    if (!Number.isFinite(configured)) return maxTokens;
+    return Math.min(Math.max(Math.round(configured), 256), 4096);
+};
+
+const buildAiPayload = ({ provider, model, prompt, maxTokens }) => {
+    if (provider === 'anthropic') {
+        return JSON.stringify({
+            model,
+            max_tokens: getAnthropicMaxTokens(maxTokens),
+            messages: [{
+                role: 'user',
+                content: prompt
+            }]
+        });
+    }
+
+    return JSON.stringify({
+        model,
+        input: prompt
+    });
+};
+
+const buildAiHeaders = ({ provider, apiKey, payload }) => {
+    if (provider === 'anthropic') {
+        return {
+            'x-api-key': apiKey,
+            'anthropic-version': process.env.ANTHROPIC_VERSION || '2023-06-01',
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload)
+        };
+    }
+
+    return {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload)
+    };
+};
+
+const extractAiText = (provider, body) =>
+    provider === 'anthropic' ? extractAnthropicText(body) : extractOpenAiText(body);
+
+const callAiProviderText = ({ provider, prompt, timeout = 12000, maxTokens = 1200 }) => new Promise((resolve, reject) => {
+    const config = getAiProviderConfig(provider);
+    if (!config.apiKey) return resolve('');
+
+    const payload = buildAiPayload({
+        provider: config.provider,
+        model: config.model,
+        prompt,
+        maxTokens
+    });
+
+    const request = https.request({
+        hostname: config.hostname,
+        path: config.path,
+        method: 'POST',
+        headers: buildAiHeaders({
+            provider: config.provider,
+            apiKey: config.apiKey,
+            payload
+        }),
+        timeout
+    }, (response) => {
+        let raw = '';
+        response.on('data', (chunk) => { raw += chunk; });
+        response.on('end', () => {
+            try {
+                const body = raw ? JSON.parse(raw) : {};
+                if (response.statusCode < 200 || response.statusCode >= 300) {
+                    const message = body?.error?.message || `${config.provider} request failed`;
+                    return reject(new Error(message));
+                }
+
+                resolve(String(extractAiText(config.provider, body) || '').trim());
+            } catch (err) {
+                reject(err);
+            }
+        });
+    });
+
+    request.on('error', reject);
+    request.on('timeout', () => request.destroy(new Error(`${config.provider} request timed out`)));
+    request.write(payload);
+    request.end();
+});
+
+const callAiText = async({ prompt, timeout = 12000, maxTokens = 1200 }) => {
+    let lastError = null;
+
+    for (const provider of getAiProviderOrder()) {
+        try {
+            const text = await callAiProviderText({ provider, prompt, timeout, maxTokens });
+            if (text) return { text, provider };
+        } catch (err) {
+            lastError = err;
+        }
+    }
+
+    if (lastError) throw lastError;
+    return { text: '', provider: '' };
+};
+
+const callAiJson = async({ prompt, timeout = 12000, maxTokens = 1200 }) => {
+    let lastError = null;
+
+    for (const provider of getAiProviderOrder()) {
+        try {
+            const text = await callAiProviderText({ provider, prompt, timeout, maxTokens });
+            if (!text) continue;
+
+            const value = extractJsonObject(text);
+            if (value) return { value, provider };
+
+            lastError = new Error(`${provider} returned invalid JSON`);
+        } catch (err) {
+            lastError = err;
+        }
+    }
+
+    if (lastError) throw lastError;
+    return { value: null, provider: '' };
+};
+
 const supportAssistantKnowledge = {
     product: 'ClientFlow AI is a freelancer business system for finding clients, managing deals, writing proposals, working with collaborators, creating invoices, sharing payment links, and tracking cashflow.',
     positioning: 'It is built India-first with Rs invoices, Razorpay/UPI-friendly payment flow, WhatsApp sharing, Udyam trust messaging, and support for global clients through international payment links when Razorpay is enabled.',
@@ -1861,10 +2032,7 @@ const buildSupportFallback = (question = '') => {
     ].join('\n');
 };
 
-const callOpenAiSupportAssistant = ({ messages, page, fallback }) => new Promise((resolve, reject) => {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return resolve('');
-
+const callAiSupportAssistant = async({ messages, page, fallback }) => {
     const latestQuestion = messages[messages.length - 1]?.content || '';
     const history = messages
         .map((message) => `${message.role}: ${message.content}`)
@@ -1895,48 +2063,14 @@ const callOpenAiSupportAssistant = ({ messages, page, fallback }) => new Promise
         `Latest question: ${latestQuestion}`
     ].join('\n');
 
-    const payload = JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
-        input: prompt
-    });
+    const result = await callAiText({ prompt, timeout: 12000, maxTokens: 1200 });
+    return {
+        ...result,
+        text: String(result.text || '').trim().slice(0, 3000)
+    };
+};
 
-    const request = https.request({
-        hostname: 'api.openai.com',
-        path: '/v1/responses',
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(payload)
-        },
-        timeout: 12000
-    }, (response) => {
-        let raw = '';
-        response.on('data', (chunk) => { raw += chunk; });
-        response.on('end', () => {
-            try {
-                const body = raw ? JSON.parse(raw) : {};
-                if (response.statusCode < 200 || response.statusCode >= 300) {
-                    return reject(new Error(body?.error?.message || 'OpenAI support request failed'));
-                }
-
-                resolve(String(extractOpenAiText(body) || '').trim().slice(0, 3000));
-            } catch (err) {
-                reject(err);
-            }
-        });
-    });
-
-    request.on('error', reject);
-    request.on('timeout', () => request.destroy(new Error('OpenAI support request timed out')));
-    request.write(payload);
-    request.end();
-});
-
-const callOpenAiDraft = ({ type, context }) => new Promise((resolve, reject) => {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return resolve('');
-
+const callAiDraft = async({ type, context }) => {
     const prompt = [
         'You are ClientFlow AI, a concise billing assistant for Indian freelancers, agencies, and consultants.',
         'Write one polished client-facing billing text. No markdown. No emojis. Keep it under 55 words.',
@@ -1951,47 +2085,10 @@ const callOpenAiDraft = ({ type, context }) => new Promise((resolve, reject) => 
         `Variation seed: ${context.variantSeed || Date.now()}.`
     ].join('\n');
 
-    const payload = JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
-        input: prompt
-    });
+    return callAiText({ prompt, timeout: 12000, maxTokens: 350 });
+};
 
-    const request = https.request({
-        hostname: 'api.openai.com',
-        path: '/v1/responses',
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(payload)
-        },
-        timeout: 12000
-    }, (response) => {
-        let raw = '';
-        response.on('data', (chunk) => { raw += chunk; });
-        response.on('end', () => {
-            try {
-                const body = raw ? JSON.parse(raw) : {};
-                if (response.statusCode < 200 || response.statusCode >= 300) {
-                    return reject(new Error(body?.error?.message || 'OpenAI request failed'));
-                }
-                resolve(extractOpenAiText(body));
-            } catch (err) {
-                reject(err);
-            }
-        });
-    });
-
-    request.on('error', reject);
-    request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
-    request.write(payload);
-    request.end();
-});
-
-const callOpenAiInvoiceDraft = ({ message, user }) => new Promise((resolve, reject) => {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return resolve(null);
-
+const callAiInvoiceDraft = async({ message, user }) => {
     const today = toDateInput(new Date());
     const prompt = [
         'You are ClientFlow AI, a billing agent for Indian freelancers, agencies, and consultants.',
@@ -2005,48 +2102,10 @@ const callOpenAiInvoiceDraft = ({ message, user }) => new Promise((resolve, reje
         `User message: ${message}`
     ].join('\n');
 
-    const payload = JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
-        input: prompt
-    });
+    return callAiJson({ prompt, timeout: 12000, maxTokens: 900 });
+};
 
-    const request = https.request({
-        hostname: 'api.openai.com',
-        path: '/v1/responses',
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(payload)
-        },
-        timeout: 12000
-    }, (response) => {
-        let raw = '';
-        response.on('data', (chunk) => { raw += chunk; });
-        response.on('end', () => {
-            try {
-                const body = raw ? JSON.parse(raw) : {};
-                if (response.statusCode < 200 || response.statusCode >= 300) {
-                    return reject(new Error(body?.error?.message || 'OpenAI request failed'));
-                }
-
-                resolve(extractJsonObject(extractOpenAiText(body)));
-            } catch (err) {
-                reject(err);
-            }
-        });
-    });
-
-    request.on('error', reject);
-    request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
-    request.write(payload);
-    request.end();
-});
-
-const callOpenAiPriceSuggestion = ({ context, fallback }) => new Promise((resolve, reject) => {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return resolve(null);
-
+const callAiPriceSuggestion = async({ context, fallback }) => {
     const prompt = [
         'You are ClientFlow AI, a pricing strategy assistant for Indian freelancers, consultants, agencies, and service businesses.',
         'Return only valid JSON. No markdown, no explanation.',
@@ -2057,48 +2116,10 @@ const callOpenAiPriceSuggestion = ({ context, fallback }) => new Promise((resolv
         `Rule baseline: ${JSON.stringify(fallback)}`
     ].join('\n');
 
-    const payload = JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
-        input: prompt
-    });
+    return callAiJson({ prompt, timeout: 12000, maxTokens: 1200 });
+};
 
-    const request = https.request({
-        hostname: 'api.openai.com',
-        path: '/v1/responses',
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(payload)
-        },
-        timeout: 12000
-    }, (response) => {
-        let raw = '';
-        response.on('data', (chunk) => { raw += chunk; });
-        response.on('end', () => {
-            try {
-                const body = raw ? JSON.parse(raw) : {};
-                if (response.statusCode < 200 || response.statusCode >= 300) {
-                    return reject(new Error(body?.error?.message || 'OpenAI request failed'));
-                }
-
-                resolve(extractJsonObject(extractOpenAiText(body)));
-            } catch (err) {
-                reject(err);
-            }
-        });
-    });
-
-    request.on('error', reject);
-    request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
-    request.write(payload);
-    request.end();
-});
-
-const callOpenAiClientFinder = ({ context, fallback }) => new Promise((resolve, reject) => {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return resolve(null);
-
+const callAiClientFinder = async({ context, fallback }) => {
     const prompt = [
         'You are ClientFlow AI, an ethical client acquisition coach for freelancers and small agencies.',
         'Return only valid JSON. No markdown, no explanation.',
@@ -2110,48 +2131,10 @@ const callOpenAiClientFinder = ({ context, fallback }) => new Promise((resolve, 
         `Rule fallback: ${JSON.stringify(fallback)}`
     ].join('\n');
 
-    const payload = JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
-        input: prompt
-    });
+    return callAiJson({ prompt, timeout: 14000, maxTokens: 1800 });
+};
 
-    const request = https.request({
-        hostname: 'api.openai.com',
-        path: '/v1/responses',
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(payload)
-        },
-        timeout: 14000
-    }, (response) => {
-        let raw = '';
-        response.on('data', (chunk) => { raw += chunk; });
-        response.on('end', () => {
-            try {
-                const body = raw ? JSON.parse(raw) : {};
-                if (response.statusCode < 200 || response.statusCode >= 300) {
-                    return reject(new Error(body?.error?.message || 'OpenAI request failed'));
-                }
-
-                resolve(extractJsonObject(extractOpenAiText(body)));
-            } catch (err) {
-                reject(err);
-            }
-        });
-    });
-
-    request.on('error', reject);
-    request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
-    request.write(payload);
-    request.end();
-});
-
-const callOpenAiProposalWriter = ({ context, fallback }) => new Promise((resolve, reject) => {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return resolve(null);
-
+const callAiProposalWriter = async({ context, fallback }) => {
     const prompt = [
         'You are ClientFlow AI, an expert proposal and RFP response writer for freelancers, agencies, consultants, and small service businesses.',
         'Return only valid JSON. No markdown, no explanation.',
@@ -2164,43 +2147,8 @@ const callOpenAiProposalWriter = ({ context, fallback }) => new Promise((resolve
         `Fallback baseline: ${JSON.stringify(fallback)}`
     ].join('\n');
 
-    const payload = JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5-mini',
-        input: prompt
-    });
-
-    const request = https.request({
-        hostname: 'api.openai.com',
-        path: '/v1/responses',
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(payload)
-        },
-        timeout: 14000
-    }, (response) => {
-        let raw = '';
-        response.on('data', (chunk) => { raw += chunk; });
-        response.on('end', () => {
-            try {
-                const body = raw ? JSON.parse(raw) : {};
-                if (response.statusCode < 200 || response.statusCode >= 300) {
-                    return reject(new Error(body?.error?.message || 'OpenAI request failed'));
-                }
-
-                resolve(extractJsonObject(extractOpenAiText(body)));
-            } catch (err) {
-                reject(err);
-            }
-        });
-    });
-
-    request.on('error', reject);
-    request.on('timeout', () => request.destroy(new Error('OpenAI request timed out')));
-    request.write(payload);
-    request.end();
-});
+    return callAiJson({ prompt, timeout: 14000, maxTokens: 1800 });
+};
 
 router.post('/support-chat', async(req, res) => {
     const messages = sanitizeSupportMessages(req.body?.messages);
@@ -2216,15 +2164,15 @@ router.post('/support-chat', async(req, res) => {
     }
 
     try {
-        const answer = await callOpenAiSupportAssistant({
+        const aiAnswer = await callAiSupportAssistant({
             messages,
             page: req.body?.page,
             fallback
         });
 
         return res.json({
-            answer: answer || fallback,
-            source: answer ? 'ai' : 'fallback',
+            answer: aiAnswer.text || fallback,
+            source: aiAnswer.provider || 'fallback',
             suggestions: supportSuggestions
         });
     } catch (err) {
@@ -2243,10 +2191,10 @@ router.post('/proposal-writer', protect, requirePro, async(req, res) => {
     const fallback = buildProposalWriterFallback(context);
 
     try {
-        const openAiPlan = await callOpenAiProposalWriter({ context, fallback });
+        const aiPlan = await callAiProposalWriter({ context, fallback });
         res.json({
-            source: openAiPlan ? 'openai' : 'rules',
-            proposal: normalizeProposalWriterPlan(openAiPlan, fallback)
+            source: aiPlan.provider || 'rules',
+            proposal: normalizeProposalWriterPlan(aiPlan.value, fallback)
         });
     } catch (err) {
         console.error('AI PROPOSAL WRITER FALLBACK:', err.message);
@@ -2286,10 +2234,10 @@ router.post('/client-finder', protect, requirePro, async(req, res) => {
     const fallback = buildClientFinderFallback(context);
 
     try {
-        const openAiPlan = await callOpenAiClientFinder({ context, fallback });
+        const aiPlan = await callAiClientFinder({ context, fallback });
         res.json({
-            source: openAiPlan ? 'openai' : 'rules',
-            plan: normalizeClientFinderPlan(openAiPlan, fallback)
+            source: aiPlan.provider || 'rules',
+            plan: normalizeClientFinderPlan(aiPlan.value, fallback)
         });
     } catch (err) {
         console.error('AI CLIENT FINDER FALLBACK:', err.message);
@@ -2305,10 +2253,10 @@ router.post('/price-suggestion', protect, requirePro, async(req, res) => {
     const fallback = buildPriceSuggestionFallback(context);
 
     try {
-        const openAiSuggestion = await callOpenAiPriceSuggestion({ context, fallback });
+        const aiSuggestion = await callAiPriceSuggestion({ context, fallback });
         res.json({
-            source: openAiSuggestion ? 'openai' : 'rules',
-            suggestion: normalizePriceSuggestion(openAiSuggestion, fallback)
+            source: aiSuggestion.provider || 'rules',
+            suggestion: normalizePriceSuggestion(aiSuggestion.value, fallback)
         });
     } catch (err) {
         console.error('AI PRICE SUGGESTION FALLBACK:', err.message);
@@ -2350,9 +2298,9 @@ router.post('/agent', protect, requirePro, async(req, res) => {
 
         if (intent === 'create_invoice' || intent === 'calculate_total') {
             try {
-                const openAiDraft = await callOpenAiInvoiceDraft({ message, user: req.user });
-                draft = normalizeInvoiceDraft(openAiDraft, message, req.user);
-                source = openAiDraft ? 'openai' : 'rules';
+                const aiDraft = await callAiInvoiceDraft({ message, user: req.user });
+                draft = normalizeInvoiceDraft(aiDraft.value, message, req.user);
+                source = aiDraft.provider || 'rules';
             } catch (err) {
                 console.error('AI AGENT DRAFT FALLBACK:', err.message);
                 draft = normalizeInvoiceDraft(null, message, req.user);
@@ -2402,10 +2350,10 @@ router.post('/draft', protect, async(req, res) => {
     const fallback = buildDraftFallback(type, context);
 
     try {
-        const generated = await callOpenAiDraft({ type, context });
+        const generated = await callAiDraft({ type, context });
         res.json({
-            source: generated ? 'openai' : 'rules',
-            text: generated || fallback
+            source: generated.provider || 'rules',
+            text: generated.text || fallback
         });
     } catch (err) {
         console.error('AI DRAFT FALLBACK:', err.message);
