@@ -82,6 +82,21 @@ const serviceOffers = [
   }
 ];
 
+const earlyUserClarity = [
+  {
+    title: 'What we provide',
+    text: 'A web app for client finding, lead follow-up, proposals, project delivery, invoices, payment links, and cashflow tracking.'
+  },
+  {
+    title: 'What problem we solve',
+    text: 'Freelancers lose money when client work is scattered across memory, WhatsApp, notes, spreadsheets, and separate invoice tools.'
+  },
+  {
+    title: 'What example values mean',
+    text: 'Some screens show sample names, amounts, and tasks only to help new users understand the workflow. Replace them with real client data when you start.'
+  }
+];
+
 const whoFor = [
   ['Freelancers', 'Build stable client flow, proposals, invoices, and payments.'],
   ['Developers', 'Manage client requirements, GitHub delivery, Linux/VPS launch, handover, maintenance, and payment.'],
@@ -453,7 +468,7 @@ export default function Home() {
                 <div className="flex items-center justify-between gap-4">
                   <BrandLogo showText={false} markClassName="h-12 w-12" />
                   <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
-                    Today
+                    Example preview
                   </span>
                 </div>
 
@@ -472,6 +487,10 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
+
+                <p className="mt-5 rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-xs font-bold leading-relaxed text-zinc-400">
+                  These are example values for understanding the product. Your real dashboard uses your own leads, proposals, projects, invoices, and payments.
+                </p>
               </div>
             </div>
           </div>
@@ -568,6 +587,29 @@ export default function Home() {
                   </Link>
                 );
               })}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">For new users</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Clear product promise for beginners.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                The product is simple: organize the client-to-payment workflow so freelancers know what to do next and stop losing money through missed follow-ups, unclear offers, messy delivery, and delayed invoices.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {earlyUserClarity.map((item) => (
+                <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-6 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                  <h3 className="text-xl font-black text-white">{item.title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.text}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>

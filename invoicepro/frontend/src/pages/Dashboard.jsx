@@ -25,24 +25,24 @@ const DEFAULT_INCOME_GOAL = {
   service: 'Website, design, or business service package'
 };
 
-const demoModeCards = [
+const examplePreviewCards = [
   {
     label: 'Lead',
-    title: 'A boutique owner needs a booking page',
-    value: 'Fit 82/100',
-    detail: 'AI suggests a WhatsApp pitch and a starter service package.'
+    title: 'Example lead: a business needs a booking page',
+    value: 'Fit score',
+    detail: 'Shows how the app can suggest a pitch and starter service package.'
   },
   {
     label: 'Proposal',
-    title: 'Website cleanup + payment setup',
-    value: 'Rs 14,999',
-    detail: 'Client-ready proposal with scope, validity date, and next step.'
+    title: 'Example offer: website cleanup and payment setup',
+    value: 'Price range',
+    detail: 'Shows scope, validity date, price, and next step before client approval.'
   },
   {
     label: 'Invoice',
-    title: 'INV-DEMO-001 waiting for payment',
-    value: 'Due today',
-    detail: 'Public invoice link, PDF, Razorpay link, and UPI payment route.'
+    title: 'Example invoice waiting for payment',
+    value: 'Due status',
+    detail: 'Shows PDF, public invoice link, Razorpay link, and UPI payment route.'
   },
   {
     label: 'Follow-up',
@@ -1143,7 +1143,7 @@ export default function Dashboard() {
     ? Math.round((completedAutomationCount / dailyAutomationPlan.length) * 100)
     : 0;
   const automationFocus = dailyAutomationPlan.find((action) => !dailyAutomationDone[action.id]) || dailyAutomationPlan[0];
-  const showDemoMode = !dashboardError && !loading && invoices.length === 0;
+  const showExamplePreview = !dashboardError && !loading && invoices.length === 0;
   const overdueAmount = overdueInvoiceList.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
   const collectionRiskAmount = overdueAmount || Number(stats.pendingAmount || 0);
   const collectionRiskNote = overdueInvoiceList.length
@@ -1466,17 +1466,16 @@ export default function Dashboard() {
           </section>
         )}
 
-        {showDemoMode && (
+        {showExamplePreview && (
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-yellow-400/20 bg-yellow-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
             <div className="mb-8 grid gap-5">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Demo Mode</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Example Preview</p>
                 <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
                   See how ClientFlow AI works before your first real client.
                 </h2>
                 <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                  Your dashboard is empty, so this preview shows the flow users pay for:
-                  find a lead, send a proposal, create an invoice, then follow up for payment.
+                  Your dashboard is empty, so these example values are added only for understanding. They are not real clients, income, or generated results. Add your own leads, proposals, invoices, and payments to make this dashboard real.
                 </p>
               </div>
 
@@ -1489,12 +1488,12 @@ export default function Dashboard() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {demoModeCards.map((card) => (
+              {examplePreviewCards.map((card) => (
                 <div key={card.title} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
                   <div className="mb-5 flex items-center justify-between gap-3">
                     <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{card.label}</p>
                     <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
-                      Demo
+                      Example
                     </span>
                   </div>
                   <h3 className="text-base font-black leading-tight text-white">{card.title}</h3>
@@ -1517,7 +1516,7 @@ export default function Dashboard() {
                 onClick={() => navigate('/create-invoice?type=proposal')}
                 className="btn btn-dark px-6 py-4 text-sm font-black"
               >
-                Create Demo Proposal
+                Try Proposal Flow
               </button>
               <button
                 type="button"

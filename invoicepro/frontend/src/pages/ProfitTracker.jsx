@@ -164,7 +164,7 @@ export default function ProfitTracker() {
     }));
   };
 
-  const resetDemo = () => setState(defaultState);
+  const resetExample = () => setState(defaultState);
 
   return (
     <div className="premium-page min-h-screen text-white">
@@ -187,7 +187,7 @@ export default function ProfitTracker() {
             </p>
             <div className="mt-5 max-w-3xl rounded-2xl border border-yellow-300/20 bg-yellow-300/[0.08] px-4 py-3">
               <p className="text-sm font-bold leading-relaxed text-yellow-100">
-                Demo values are added to help you understand this tool. Edit them with your own project values to see your real profit.
+                Example values are added only to help you understand this tool. Edit them with your real project values to see actual profit.
               </p>
             </div>
           </div>
@@ -223,10 +223,10 @@ export default function ProfitTracker() {
               </div>
               <button
                 type="button"
-                onClick={resetDemo}
+                onClick={resetExample}
                 className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
               >
-                Reset demo
+                Reset example
               </button>
             </div>
 
