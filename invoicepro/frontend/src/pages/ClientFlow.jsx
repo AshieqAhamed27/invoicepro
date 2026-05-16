@@ -190,6 +190,12 @@ export default function ClientFlow() {
     navigate(step.route);
   };
 
+  const askGuide = (question = 'What should I do next in ClientFlow AI?') => {
+    window.dispatchEvent(new CustomEvent('clientflow:open-assistant', {
+      detail: { question }
+    }));
+  };
+
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
@@ -225,13 +231,22 @@ export default function ClientFlow() {
             <div className="mt-4 rounded-2xl border border-yellow-300/20 bg-yellow-300/[0.08] p-4">
               <p className="text-sm font-black text-white">{currentStep.title}</p>
               <p className="mt-2 text-sm font-semibold leading-relaxed text-yellow-100/80">{currentStep.detail}</p>
-              <button
-                type="button"
-                onClick={() => openStep(currentStep)}
-                className="mt-4 rounded-xl bg-yellow-300 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-yellow-200 active:scale-95"
-              >
-                {currentStep.cta}
-              </button>
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => openStep(currentStep)}
+                  className="rounded-xl bg-yellow-300 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-yellow-200 active:scale-95"
+                >
+                  {currentStep.cta}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => askGuide(`I am on the Client Flow page. My next action is "${currentStep.title}". Explain exactly what I should do next.`)}
+                  className="rounded-xl border border-yellow-300/25 px-4 py-2 text-xs font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/10 active:scale-95"
+                >
+                  Ask AI Guide
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -263,13 +278,22 @@ export default function ClientFlow() {
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Use this order</p>
               <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">Lead → Proposal → Workroom → Invoice → Payment</h2>
             </div>
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard')}
-              className="btn btn-dark"
-            >
-              Open Dashboard
-            </button>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard')}
+                className="btn btn-dark"
+              >
+                Open Dashboard
+              </button>
+              <button
+                type="button"
+                onClick={() => askGuide('Explain the ClientFlow AI workflow in simple steps and tell me where to begin today.')}
+                className="btn btn-primary"
+              >
+                Ask AI Guide
+              </button>
+            </div>
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-2">

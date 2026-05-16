@@ -9,16 +9,11 @@ import {
 
 const hiddenRoutePrefixes = ['/public/invoice', '/p/invoice'];
 
-const starterMessage = {
-  role: 'assistant',
-  content: `Hi, I am your ${PRODUCT_NAME} guide. Ask me anything about freelancing, getting clients, proposals, invoices, payments, pricing, or how to use this product. I will explain it clearly.`
-};
-
 const fallbackAnswer = `I can help with ${PRODUCT_NAME}, freelancing, pricing, invoices, client workflow, payments, and getting started.
 
 Ask your question in simple words and I will explain it step by step. For direct support, email ${SUPPORT_EMAIL} or call ${SUPPORT_PHONE_DISPLAY}.`;
 
-const quickQuestions = [
+const defaultQuickQuestions = [
   'Explain this product clearly',
   'How should I start?',
   'How do I get clients?',
@@ -27,16 +22,98 @@ const quickQuestions = [
   'Why should I pay for Pro?'
 ];
 
+const routeGuides = [
+  {
+    match: (pathname) => pathname.startsWith('/client-flow'),
+    label: 'Workflow Guide',
+    starter: `You are on the Client Flow page. I can help you choose the next action: find a lead, qualify, write a proposal, organize delivery proof, create an invoice, or collect payment.`,
+    questions: [
+      'What should I do next?',
+      'Explain this workflow',
+      'Help me get my first client',
+      'Help me write a proposal',
+      'How do I collect payment?',
+      'What is Pro for?'
+    ]
+  },
+  {
+    match: (pathname) => pathname.startsWith('/payment'),
+    label: 'Plan Guide',
+    starter: `You are viewing payment and plan options. I can explain what Pro unlocks and when it makes sense to pay for ${PRODUCT_NAME}.`,
+    questions: [
+      'Should I upgrade to Pro?',
+      'What does Pro unlock?',
+      'Can I start free?',
+      'How does payment tracking work?',
+      'How can this save time?',
+      'What if I need support?'
+    ]
+  },
+  {
+    match: (pathname) => pathname.startsWith('/create-invoice'),
+    label: 'Invoice Guide',
+    starter: 'You are creating an invoice. I can help with invoice fields, pricing, due dates, tax, payment links, and follow-up wording.',
+    questions: [
+      'What should I put on an invoice?',
+      'Help me price this work',
+      'What due date should I use?',
+      'How do payment links work?',
+      'Write a payment message',
+      'Explain GST fields'
+    ]
+  },
+  {
+    match: (pathname) => pathname === '/' || pathname.startsWith('/freelancers') || pathname.startsWith('/developers') || pathname.startsWith('/designers') || pathname.startsWith('/agencies') || pathname.startsWith('/consultants'),
+    label: 'Product Guide',
+    starter: `Welcome to ${PRODUCT_NAME}. I can explain the product, help you choose a first workflow, and show how client finding, proposals, invoices, and payments connect.`,
+    questions: defaultQuickQuestions
+  }
+];
+
+const getRouteGuide = (pathname) =>
+  routeGuides.find((guide) => guide.match(pathname)) || {
+    label: 'Friendly AI Guide',
+    starter: `Hi, I am your ${PRODUCT_NAME} guide. Ask me anything about freelancing, getting clients, proposals, invoices, payments, pricing, or how to use this product. I will explain it clearly.`,
+    questions: defaultQuickQuestions
+  };
+
+const createAssistantMessage = (content) => ({
+  role: 'assistant',
+  content
+});
+
 export default function SupportChatWidget() {
   const { pathname } = useLocation();
+  const routeGuide = getRouteGuide(pathname);
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([starterMessage]);
+  const [messages, setMessages] = useState([createAssistantMessage(routeGuide.starter)]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const messagesEndRef = useRef(null);
 
   const hiddenOnCurrentRoute = hiddenRoutePrefixes.some((prefix) => pathname.startsWith(prefix));
+
+  useEffect(() => {
+    setMessages((current) => {
+      if (current.length > 1) return current;
+      return [createAssistantMessage(routeGuide.starter)];
+    });
+  }, [routeGuide.starter]);
+
+  useEffect(() => {
+    const openAssistant = (event) => {
+      const question = String(event.detail?.question || '').trim();
+      setIsOpen(true);
+
+      if (question) {
+        window.setTimeout(() => askAssistant(question), 0);
+      }
+    };
+
+    window.addEventListener('clientflow:open-assistant', openAssistant);
+    return () => window.removeEventListener('clientflow:open-assistant', openAssistant);
+  }, [loading, messages, pathname]);
 
   useEffect(() => {
     if (isOpen) {
@@ -101,7 +178,7 @@ export default function SupportChatWidget() {
         >
           <div className="shrink-0 flex items-start justify-between gap-3 border-b border-white/10 bg-gradient-to-r from-blue-600/25 to-purple-600/20 p-4">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-blue-200">Friendly AI Guide</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-blue-200">{routeGuide.label}</p>
               <h2 className="mt-1 text-base font-black">{PRODUCT_NAME} Assistant</h2>
               <p className="mt-1 text-xs text-slate-300">Ask product, freelancing, client, invoice, and payment questions.</p>
             </div>
@@ -151,7 +228,7 @@ export default function SupportChatWidget() {
           <div className="shrink-0 border-t border-white/10 p-3">
             {messages.length <= 1 && (
               <div className="mb-3 grid max-h-28 grid-cols-2 gap-2 overflow-y-auto pr-1">
-                {quickQuestions.map((question) => (
+                {routeGuide.questions.map((question) => (
                   <button
                     key={question}
                     type="button"
