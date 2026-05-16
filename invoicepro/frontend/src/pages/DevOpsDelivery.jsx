@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -116,12 +116,137 @@ const linuxRunbook = [
   }
 ];
 
+const healthCheckCommand = `printf "CLIENTFLOW_LINUX_HEALTH_CHECK\\n"
+printf "HOSTNAME="; hostname
+printf "KERNEL="; uname -r
+printf "UPTIME="; uptime -p
+printf "DISK_ROOT="; df -h / | awk 'NR==2 {print $5 " used, " $4 " free"}'
+printf "MEMORY="; free -h | awk '/Mem:/ {print $3 " used, " $7 " available"}'
+printf "LOAD_AVERAGE="; uptime | awk -F'load average:' '{print $2}'
+printf "OPEN_PORTS="; (ss -tuln 2>/dev/null || netstat -tuln 2>/dev/null) | awk 'NR>1 {print $5}' | sed 's/.*://' | sort -n | uniq | paste -sd "," -
+printf "UFW_STATUS="; sudo -n ufw status 2>/dev/null | head -n 1 || true
+printf "NGINX_STATUS="; systemctl is-active nginx 2>/dev/null || true
+printf "APP_PROCESSES="; ps -eo comm | grep -E "node|pm2|nginx|apache2|docker" | sort | uniq | paste -sd "," - || true
+printf "SSL_CERTS="; sudo -n find /etc/letsencrypt/live -maxdepth 2 -name cert.pem 2>/dev/null | wc -l
+printf "RECENT_ERRORS="; sudo -n journalctl -p 3 -n 5 --no-pager 2>/dev/null | wc -l`;
+
+const parsePercent = (value) => {
+  const match = String(value || '').match(/(\d{1,3})%/);
+  return match ? Number(match[1]) : 0;
+};
+
+const parseHealthOutput = (rawOutput) => {
+  const lines = String(rawOutput || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const data = {};
+
+  lines.forEach((line) => {
+    const separatorIndex = line.indexOf('=');
+    if (separatorIndex === -1) return;
+
+    const key = line.slice(0, separatorIndex).trim();
+    const value = line.slice(separatorIndex + 1).trim();
+    data[key] = value;
+  });
+
+  const findings = [];
+  const diskPercent = parsePercent(data.DISK_ROOT);
+  const ports = String(data.OPEN_PORTS || '')
+    .split(',')
+    .map((port) => port.trim())
+    .filter(Boolean);
+  const nginxStatus = String(data.NGINX_STATUS || '').toLowerCase();
+  const ufwStatus = String(data.UFW_STATUS || '').toLowerCase();
+  const sslCerts = Number(data.SSL_CERTS || 0);
+  const recentErrors = Number(data.RECENT_ERRORS || 0);
+
+  if (!lines.length) {
+    return {
+      data,
+      score: 0,
+      label: 'Waiting for server output',
+      findings: ['Paste health check output to create a server review.']
+    };
+  }
+
+  if (!String(rawOutput).includes('CLIENTFLOW_LINUX_HEALTH_CHECK')) {
+    findings.push('Output does not look like the ClientFlow AI health check format.');
+  }
+
+  if (diskPercent >= 90) findings.push('Root disk usage is very high. Free space or increase disk size before launch.');
+  else if (diskPercent >= 75) findings.push('Root disk usage is getting high. Add cleanup or backup rotation.');
+  else if (diskPercent > 0) findings.push('Root disk usage looks acceptable.');
+
+  if (!ufwStatus.includes('active')) {
+    findings.push('Firewall does not appear active. Confirm UFW or cloud firewall rules before handover.');
+  } else {
+    findings.push('Firewall appears active.');
+  }
+
+  if (ports.includes('80') || ports.includes('443')) {
+    findings.push('HTTP/HTTPS ports are open for web traffic.');
+  } else {
+    findings.push('HTTP/HTTPS ports are not visible. Confirm the app is reachable from the public domain.');
+  }
+
+  if (nginxStatus === 'active') {
+    findings.push('Nginx is active.');
+  } else {
+    findings.push('Nginx is not active or not installed. Confirm the reverse proxy or hosting method.');
+  }
+
+  if (sslCerts > 0) {
+    findings.push('SSL certificate files were found on the server.');
+  } else {
+    findings.push('No LetsEncrypt certificate files found. Confirm SSL through the hosting provider or another certificate path.');
+  }
+
+  if (recentErrors > 0) {
+    findings.push('Recent system errors exist. Review journalctl before final handover.');
+  } else {
+    findings.push('No recent critical journal errors were found by this check.');
+  }
+
+  const penalties = [
+    diskPercent >= 90 ? 25 : diskPercent >= 75 ? 10 : 0,
+    ufwStatus.includes('active') ? 0 : 20,
+    ports.includes('80') || ports.includes('443') ? 0 : 15,
+    nginxStatus === 'active' ? 0 : 10,
+    sslCerts > 0 ? 0 : 15,
+    recentErrors > 0 ? 10 : 0
+  ];
+  const score = Math.max(0, 100 - penalties.reduce((sum, value) => sum + value, 0));
+  const label = score >= 85 ? 'Launch ready' : score >= 65 ? 'Needs review' : 'Fix before handover';
+
+  return {
+    data,
+    score,
+    label,
+    findings
+  };
+};
+
 export default function DevOpsDelivery() {
   const loggedIn = isLoggedIn();
   const startPath = loggedIn ? '/client-flow' : '/signup';
   const startLabel = loggedIn ? 'Open Client Flow' : 'Start Free';
   const workroomPath = loggedIn ? '/client-workroom' : '/signup';
   const workroomLabel = loggedIn ? 'Open Workroom' : 'Create Free Account';
+  const [healthOutput, setHealthOutput] = useState('');
+  const [copied, setCopied] = useState(false);
+  const healthReport = useMemo(() => parseHealthOutput(healthOutput), [healthOutput]);
+
+  const copyHealthCommand = async() => {
+    try {
+      await navigator.clipboard.writeText(healthCheckCommand);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   useDocumentMeta({
     title: `DevOps Delivery Kit for Freelance Developers | ${COMPANY_NAME}`,
@@ -339,6 +464,78 @@ export default function DevOpsDelivery() {
                   </div>
                 </article>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="responsive-heading-grid">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Real Linux health check</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Review a live VPS without storing SSH keys.
+                </h2>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  Run the read-only command on the server, paste the output here, and ClientFlow AI turns it into launch and handover risks.
+                </p>
+              </div>
+
+              <div className="rounded-[1.5rem] border border-sky-300/20 bg-black/25 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Server readiness</p>
+                <div className="mt-4 flex items-end justify-between gap-4">
+                  <div>
+                    <p className="text-5xl font-black text-white">{healthReport.score}%</p>
+                    <p className="mt-1 text-sm font-semibold text-zinc-400">{healthReport.label}</p>
+                  </div>
+                  <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                    Manual check
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+              <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Read-only command</p>
+                    <h3 className="mt-2 text-xl font-black text-white">Linux Health Check</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={copyHealthCommand}
+                    className="rounded-xl bg-sky-300 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-sky-200 active:scale-95"
+                  >
+                    {copied ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+                <pre className="mt-5 max-h-96 overflow-auto rounded-2xl border border-white/8 bg-slate-950/90 p-4 text-xs font-bold leading-relaxed text-emerald-200">
+                  {healthCheckCommand}
+                </pre>
+              </div>
+
+              <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+                <label className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500" htmlFor="linux-health-output">
+                  Server output
+                </label>
+                <textarea
+                  id="linux-health-output"
+                  value={healthOutput}
+                  onChange={(event) => setHealthOutput(event.target.value)}
+                  rows={13}
+                  placeholder="Paste CLIENTFLOW_LINUX_HEALTH_CHECK output here..."
+                  className="mt-3 w-full resize-y rounded-2xl border border-white/10 bg-black/30 p-4 text-sm font-semibold leading-relaxed text-white outline-none transition placeholder:text-zinc-600 focus:border-sky-300/50 focus:ring-2 focus:ring-sky-400/20"
+                />
+
+                <div className="mt-5 grid gap-3">
+                  {healthReport.findings.map((finding) => (
+                    <div key={finding} className="rounded-2xl border border-white/8 bg-black/25 p-4 text-sm font-semibold leading-relaxed text-zinc-300">
+                      {finding}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
