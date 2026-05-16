@@ -56,6 +56,66 @@ const handoverItems = [
   'Monthly maintenance offer and support boundary'
 ];
 
+const deliveryStandards = [
+  ['Scope before server work', 'Confirm runtime, domain, database, deployment target, rollback owner, and payment milestone before touching the server.'],
+  ['Access control', 'Track who has SSH, hosting, domain, GitHub, database, and admin access. Remove temporary access after handover.'],
+  ['Release evidence', 'Save build command, commit or tag, production URL, health check, test result, and client approval proof.'],
+  ['Support boundary', 'Define what is included after launch: uptime checks, backups, updates, bug fixes, response time, and excluded new work.']
+];
+
+const linuxRunbook = [
+  {
+    title: 'Access and SSH',
+    checks: [
+      'Create a non-root sudo user for deployment',
+      'Use SSH keys instead of shared passwords',
+      'Record server IP, username, SSH port, and recovery owner',
+      'Remove temporary access after client handover'
+    ],
+    commands: ['adduser deployer', 'usermod -aG sudo deployer', 'ssh deployer@server-ip']
+  },
+  {
+    title: 'Firewall and packages',
+    checks: [
+      'Allow only required ports such as SSH, HTTP, and HTTPS',
+      'Update OS packages before launch',
+      'Record installed runtime versions',
+      'Keep the firewall state in the project notes'
+    ],
+    commands: ['sudo apt update && sudo apt upgrade', 'sudo ufw allow OpenSSH', 'sudo ufw allow 80,443/tcp']
+  },
+  {
+    title: 'Web server and SSL',
+    checks: [
+      'Configure Nginx reverse proxy or static hosting',
+      'Add domain DNS and redirect rules',
+      'Issue SSL certificate and test HTTPS',
+      'Save production URL and certificate renewal notes'
+    ],
+    commands: ['sudo nginx -t', 'sudo systemctl reload nginx', 'sudo certbot --nginx']
+  },
+  {
+    title: 'App process and logs',
+    checks: [
+      'Run the app with a managed process or service',
+      'Store environment variables safely',
+      'Know where app, Nginx, and system logs live',
+      'Write restart and rollback notes for handover'
+    ],
+    commands: ['systemctl status app', 'journalctl -u app -n 100', 'tail -n 100 /var/log/nginx/error.log']
+  },
+  {
+    title: 'Backup and recovery',
+    checks: [
+      'Define database export or snapshot schedule',
+      'Record where backups are stored',
+      'Test one recovery path before promising safety',
+      'Add emergency contact and maintenance terms'
+    ],
+    commands: ['crontab -l', 'tar -czf backup.tar.gz app-folder', 'mongodump --uri="<connection-uri>"']
+  }
+];
+
 export default function DevOpsDelivery() {
   const loggedIn = isLoggedIn();
   const startPath = loggedIn ? '/client-flow' : '/signup';
@@ -208,6 +268,76 @@ export default function DevOpsDelivery() {
                   <h3 className="text-base font-black text-white">{card.title}</h3>
                   <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{card.text}</p>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Company-grade delivery habits</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                The goal is not bigger claims. The goal is cleaner delivery evidence.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                These standards help a solo developer or small agency behave more like a serious delivery team: clear access, clear release proof, clear support boundaries, and clean payment timing.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {deliveryStandards.map(([title, text]) => (
+                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
+                  <h3 className="text-lg font-black text-white">{title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="max-w-3xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Linux/VPS runbook</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Practical checks a developer can follow before handover.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                This keeps Linux delivery useful inside the existing ClientFlow AI workflow. Use it after proposal approval and before final invoice/payment collection.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 lg:grid-cols-2">
+              {linuxRunbook.map((group) => (
+                <article key={group.title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Runbook area</p>
+                      <h3 className="mt-2 text-xl font-black text-white">{group.title}</h3>
+                    </div>
+                    <span className="rounded-full border border-sky-300/20 bg-sky-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-200">
+                      Linux
+                    </span>
+                  </div>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {group.checks.map((check) => (
+                      <div key={check} className="rounded-2xl border border-white/8 bg-black/25 p-4 text-sm font-semibold leading-relaxed text-zinc-300">
+                        {check}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 rounded-2xl border border-white/8 bg-slate-950/80 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Useful commands to document</p>
+                    <div className="mt-3 space-y-2">
+                      {group.commands.map((command) => (
+                        <code key={command} className="block overflow-x-auto whitespace-nowrap rounded-xl bg-black/45 px-3 py-2 text-xs font-bold text-emerald-200">
+                          {command}
+                        </code>
+                      ))}
+                    </div>
+                  </div>
+                </article>
               ))}
             </div>
           </div>

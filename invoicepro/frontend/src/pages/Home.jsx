@@ -147,6 +147,25 @@ const trustBadges = [
   ['Support', SUPPORT_EMAIL]
 ];
 
+const operatingStandards = [
+  {
+    title: 'Real business identity',
+    text: 'Shows legal registration, support contact, terms, privacy, refund policy, and honest limits instead of pretending to be a large corporation.'
+  },
+  {
+    title: 'One workflow discipline',
+    text: 'Every major tool supports the same flow: lead, proposal, workroom, proof, invoice, and payment collection.'
+  },
+  {
+    title: 'Client-ready documentation',
+    text: 'Workrooms, proposal details, invoice links, proof notes, and DevOps handover items make the freelancer look more organized to clients.'
+  },
+  {
+    title: 'Technical delivery option',
+    text: 'Developers can add GitHub, Linux/VPS, SSL, backup, release evidence, and maintenance notes when the project needs real deployment.'
+  }
+];
+
 const feedback = [
   {
     quote: 'This looks like a really interesting idea. It definitely addresses a common challenge freelancers face.',
@@ -776,6 +795,29 @@ export default function Home() {
                 <div key={label} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{label}</p>
                   <p className="mt-2 text-sm font-black leading-relaxed text-white">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-slate-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Company-grade standards</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Professional without fake enterprise claims.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                The product should help a freelancer look organized, reliable, and serious to clients. That is useful. Fake MNC branding is not.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {operatingStandards.map((item) => (
+                <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                  <h3 className="text-lg font-black text-white">{item.title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.text}</p>
                 </div>
               ))}
             </div>

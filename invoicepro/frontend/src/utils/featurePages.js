@@ -130,22 +130,22 @@ export const featurePages = {
     title: 'DevOps Delivery Kit',
     eyebrow: 'Optional for technical freelancers',
     benefit: 'Helps developers launch and hand over client projects.',
-    detail: 'DevOps Delivery Kit is an optional workflow for technical freelancers: GitHub repo notes, Linux/VPS checklist, domain, SSL, backup, deployment proof, handover, and maintenance offer.',
-    problem: 'Developers can finish code but still lose trust during deployment, server notes, SSL, backup, handover, and maintenance planning.',
-    outcome: 'The user can deliver a technical project like a professional company and offer monthly support after launch.',
+    detail: 'DevOps Delivery Kit is an optional workflow for technical freelancers: GitHub release notes, Linux/VPS runbook, access control, firewall, Nginx, SSL, logs, backups, deployment proof, handover, and maintenance offer.',
+    problem: 'Developers can finish code but still lose trust during deployment, server access, release proof, SSL, backup, handover, and maintenance planning.',
+    outcome: 'The user can deliver a technical project with cleaner company-grade documentation and offer monthly support after launch.',
     bestFor: 'Developers, technical freelancers, and small agencies.',
     appCta: 'Open DevOps Kit',
     workflow: [
       'Save GitHub repo and release notes',
-      'Prepare Linux/VPS checklist',
-      'Track domain and SSL',
-      'Record deployment proof',
+      'Prepare Linux/VPS access and firewall checks',
+      'Track domain, Nginx, SSL, logs, and backups',
+      'Record deployment proof and rollback notes',
       'Prepare handover and maintenance offer'
     ],
     included: [
       'GitHub delivery notes',
-      'Linux/VPS launch checklist',
-      'Domain, SSL, backup, and monitoring notes',
+      'Linux/VPS access, firewall, Nginx, SSL, and log runbook',
+      'Backup, recovery, deployment proof, and monitoring notes',
       'Maintenance offer structure'
     ]
   },
