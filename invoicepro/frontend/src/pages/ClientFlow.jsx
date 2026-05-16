@@ -160,6 +160,13 @@ export default function ClientFlow() {
     projectData: {},
     cloudData: {}
   });
+  const [autopilotEnabled, setAutopilotEnabled] = useState(() => {
+    try {
+      return localStorage.getItem('clientflow_autopilot_enabled') === '1';
+    } catch {
+      return false;
+    }
+  });
 
   useDocumentMeta({
     title: 'Client Flow | ClientFlow AI',
@@ -354,6 +361,18 @@ export default function ClientFlow() {
     openRoute(step.route);
   };
 
+  const enableAutopilot = () => {
+    try {
+      localStorage.setItem('clientflow_autopilot_enabled', '1');
+      localStorage.setItem('clientflow_selected_workflow', 'business-autopilot');
+    } catch {
+      // Autopilot can still open even if the browser blocks local storage.
+    }
+
+    setAutopilotEnabled(true);
+    openRoute('/business-autopilot');
+  };
+
   const askGuide = (question = 'What should I do next in ClientFlow AI?') => {
     window.dispatchEvent(new CustomEvent('clientflow:open-assistant', {
       detail: { question }
@@ -420,6 +439,32 @@ export default function ClientFlow() {
             <p className="text-sm font-bold text-yellow-100">{error}</p>
           </section>
         )}
+
+        <section className="mb-8 rounded-[2rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-5 shadow-2xl shadow-black/20 sm:p-7">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(280px,0.42fr)] lg:items-center">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Automate the process</p>
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">
+                {autopilotEnabled ? 'Autopilot is ready to guide the next step.' : 'Let Autopilot choose the next action for the user.'}
+              </h2>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+                Autopilot scans the workflow and turns many tools into one simple action list: find lead, follow up, write proposal, manage delivery, invoice, and collect payment. It prepares work, but the user approves before anything is sent.
+              </p>
+            </div>
+            <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Current automation target</p>
+              <p className="mt-2 text-lg font-black text-white">{workflowBottleneck.label}</p>
+              <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{workflowBottleneck.detail}</p>
+              <button
+                type="button"
+                onClick={enableAutopilot}
+                className="mt-4 w-full rounded-2xl bg-emerald-300 px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200 active:scale-95"
+              >
+                {autopilotEnabled ? 'Open Autopilot' : 'Enable Autopilot'}
+              </button>
+            </div>
+          </div>
+        </section>
 
         <section className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {[

@@ -116,6 +116,12 @@ const buildFallbackTasks = () => [
   }
 ];
 
+const automationRules = [
+  ['Auto decides next step', 'The system checks leads, proposals, invoices, and payments, then shows the best action first.'],
+  ['AI prepares content', 'It can prepare outreach, proposal direction, invoice draft, and payment follow-up wording.'],
+  ['User approves sensitive actions', 'Messages, prices, invoices, payment links, and client communication stay under user control.']
+];
+
 const buildAutomationTasks = ({ invoiceData, leadData }) => {
   const stats = invoiceData?.stats || {};
   const invoices = invoiceData?.invoices || [];
@@ -208,6 +214,13 @@ export default function BusinessAutopilot() {
       return {};
     }
   });
+  const [autopilotMode, setAutopilotMode] = useState(() => {
+    try {
+      return localStorage.getItem('clientflow_autopilot_enabled') === '1';
+    } catch {
+      return false;
+    }
+  });
 
   useDocumentMeta({
     title: 'Business Autopilot | ClientFlow AI',
@@ -291,6 +304,20 @@ export default function BusinessAutopilot() {
     navigate(task.action);
   };
 
+  const toggleAutopilotMode = () => {
+    setAutopilotMode((prev) => {
+      const next = !prev;
+
+      try {
+        localStorage.setItem('clientflow_autopilot_enabled', next ? '1' : '0');
+        if (next) localStorage.setItem('clientflow_selected_workflow', 'business-autopilot');
+      } catch { }
+
+      trackEvent('toggle_process_autopilot_mode', { enabled: next });
+      return next;
+    });
+  };
+
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
@@ -313,10 +340,25 @@ export default function BusinessAutopilot() {
           </div>
 
           <div className="rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.07] p-5">
-            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200">Today progress</p>
-            <p className="mt-3 text-5xl font-black text-white">{progress}%</p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200">Today progress</p>
+                <p className="mt-3 text-5xl font-black text-white">{progress}%</p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleAutopilotMode}
+                className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
+                  autopilotMode
+                    ? 'border-emerald-200/30 bg-emerald-200 text-slate-950'
+                    : 'border-white/10 bg-black/20 text-zinc-300 hover:bg-white/10'
+                }`}
+              >
+                {autopilotMode ? 'On' : 'Off'}
+              </button>
+            </div>
             <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
-              {completedCount}/{tasks.length || 0} automation actions completed today.
+              {completedCount}/{tasks.length || 0} automation actions completed today. {autopilotMode ? 'Autopilot mode is active.' : 'Turn it on to make this the default easy path.'}
             </p>
             <div className="mt-4 h-3 overflow-hidden rounded-full bg-black/30">
               <div className="h-full rounded-full bg-emerald-300 transition-all" style={{ width: `${progress}%` }} />
@@ -403,6 +445,15 @@ export default function BusinessAutopilot() {
               })}
             </div>
           </div>
+        </section>
+
+        <section className="mb-12 grid gap-4 md:grid-cols-3">
+          {automationRules.map(([title, text]) => (
+            <article key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{title}</p>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+            </article>
+          ))}
         </section>
 
         <section className="mb-12">

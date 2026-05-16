@@ -74,6 +74,13 @@ const serviceOffers = [
     path: '/signup'
   },
   {
+    title: 'Business Autopilot',
+    label: 'Easy mode',
+    text: 'The app scans leads, proposals, invoices, and payment status, then shows the next best action so users do not feel lost.',
+    cta: 'Open autopilot',
+    path: '/business-autopilot'
+  },
+  {
     title: 'Agency Setup',
     label: 'Done-for-you setup',
     text: 'We help freelancers set up their offer, lead plan, proposal flow, project workspace, invoice, and 7-day action plan.',
@@ -569,9 +576,13 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">
+            <div className="mx-auto mt-8 grid max-w-6xl gap-5 md:grid-cols-3">
               {serviceOffers.map((offer) => {
-                const offerPath = offer.path === '/signup' && loggedIn ? '/client-flow' : offer.path;
+                const offerPath = offer.path === '/signup' && loggedIn
+                  ? '/client-flow'
+                  : offer.path === '/business-autopilot' && !loggedIn
+                    ? '/signup'
+                    : offer.path;
                 const offerCta = offer.path === '/signup' && loggedIn ? 'Open client flow' : offer.cta;
 
                 return (

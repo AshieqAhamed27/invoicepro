@@ -22,10 +22,10 @@ const appLinks = [
 
 const primaryAppLinks = [
   { to: '/client-flow', label: 'Client Flow' },
+  { to: '/business-autopilot', label: 'Autopilot', requiresPro: true },
   { to: '/money-gps', label: 'Money GPS' },
   { to: '/client-workroom', label: 'Workroom' },
-  { to: '/create-invoice', label: 'Invoice' },
-  { to: '/cloud-documents', label: 'Files' }
+  { to: '/create-invoice', label: 'Invoice' }
 ];
 
 const moreAppLinks = [

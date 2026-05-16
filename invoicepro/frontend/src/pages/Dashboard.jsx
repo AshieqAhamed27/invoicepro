@@ -72,6 +72,19 @@ const killerActionExamples = [
 
 const simpleWorkflowOptions = [
   {
+    id: 'business-autopilot',
+    title: 'Automate my day',
+    promise: 'Let ClientFlow AI choose the next lead, proposal, invoice, or payment action.',
+    cta: 'Open Autopilot',
+    route: '/business-autopilot',
+    tone: 'emerald',
+    steps: [
+      'Scan leads, proposals, invoices, and payment status',
+      'Show the next best business action',
+      'Open the right tool while you approve every send or payment step'
+    ]
+  },
+  {
     id: 'find-clients',
     title: 'Find clients',
     promise: 'Pick the right client type, prepare a message, and start outreach.',
@@ -356,6 +369,13 @@ export default function Dashboard() {
     }
   });
   const [showHeavySections, setShowHeavySections] = useState(false);
+  const [autopilotEnabled, setAutopilotEnabled] = useState(() => {
+    try {
+      return localStorage.getItem('clientflow_autopilot_enabled') === '1';
+    } catch {
+      return false;
+    }
+  });
   const lastSavedIncomeGoal = useRef('');
 
   const navigate = useNavigate();
@@ -388,6 +408,20 @@ export default function Dashboard() {
     }
 
     navigate(selectedWorkflow.route);
+  };
+
+  const enableAutopilot = () => {
+    try {
+      localStorage.setItem('clientflow_autopilot_enabled', '1');
+      localStorage.setItem('clientflow_selected_workflow', 'business-autopilot');
+    } catch {
+      // Autopilot still opens even if local storage is unavailable.
+    }
+
+    setAutopilotEnabled(true);
+    setSelectedWorkflowId('business-autopilot');
+    trackEvent('enable_dashboard_autopilot');
+    navigate('/business-autopilot');
   };
 
   useEffect(() => {
@@ -1334,7 +1368,13 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-4 md:flex md:flex-wrap md:gap-4">
+          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2 md:flex md:flex-wrap md:gap-4">
+            <Link
+              to="/business-autopilot"
+              className="btn btn-primary px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
+            >
+              Autopilot
+            </Link>
             <Link
               to="/launch"
               className="btn btn-dark px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
@@ -1355,12 +1395,35 @@ export default function Dashboard() {
             </Link>
             <Link
               to="/create-invoice"
-              className="btn btn-primary px-5 sm:px-10 py-4 sm:py-5 shadow-2xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all font-black uppercase text-xs tracking-widest"
+              className="btn btn-secondary px-5 sm:px-10 py-4 sm:py-5 shadow-2xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all font-black uppercase text-xs tracking-widest"
             >
               New Deal
             </Link>
           </div>
         </section>
+
+        {!dashboardError && (
+          <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-5 shadow-2xl shadow-black/20 sm:p-8">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Easy mode</p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">
+                  {autopilotEnabled ? 'Autopilot is active for this workspace.' : 'Turn on Autopilot when you do not know what to do next.'}
+                </h2>
+                <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
+                  Autopilot scans your leads, proposals, invoices, and payment status, then opens the right next action. It prepares the work, but you still approve messages, prices, invoices, and payment follow-ups.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={enableAutopilot}
+                className="shrink-0 rounded-2xl bg-emerald-300 px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200 active:scale-95"
+              >
+                {autopilotEnabled ? 'Open Autopilot' : 'Enable Autopilot'}
+              </button>
+            </div>
+          </section>
+        )}
 
         {!dashboardError && (
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
