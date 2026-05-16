@@ -51,6 +51,60 @@ const markStartup = ({ entrypoint, port }) => {
     startupState.startedAt = new Date().toISOString();
 };
 
+const normalizeAiProvider = (value) => {
+    const provider = String(value || 'openai').trim().toLowerCase();
+    if (provider === 'anthropic' || provider === 'claude') return 'anthropic';
+    if (provider === 'auto') return 'auto';
+    return 'openai';
+};
+
+const getAiProviderStatus = () => {
+    const provider = normalizeAiProvider(process.env.AI_PROVIDER);
+    const openAiModel = getEnvValue('OPENAI_MODEL') || 'gpt-5-mini';
+    const anthropicModel = getEnvValue('ANTHROPIC_MODEL') || 'claude-sonnet-4-20250514';
+    const openAiKey = hasUsableValue('OPENAI_API_KEY');
+    const anthropicKey = hasUsableValue('ANTHROPIC_API_KEY');
+    const providers = {
+        openai: {
+            configured: openAiKey,
+            model: openAiModel
+        },
+        anthropic: {
+            configured: anthropicKey,
+            model: anthropicModel
+        }
+    };
+    const providerOrder = provider === 'anthropic'
+        ? ['anthropic', 'openai']
+        : provider === 'auto'
+            ? ['anthropic', 'openai']
+            : ['openai', 'anthropic'];
+    const activeProvider = providerOrder.find((item) => providers[item].configured) || '';
+    const ready = Boolean(activeProvider);
+    const selectedProvider = provider === 'auto' ? activeProvider || providerOrder[0] : provider;
+    const usingFallback = ready && provider !== 'auto' && activeProvider !== selectedProvider;
+    const activeModel = activeProvider ? providers[activeProvider].model : providers[selectedProvider]?.model || '';
+
+    return {
+        provider,
+        selectedProvider,
+        activeProvider,
+        activeModel,
+        ready,
+        status: ready ? (usingFallback ? 'fallback-ready' : 'ready') : 'missing-key',
+        openAiKey,
+        openAiModel,
+        anthropicKey,
+        anthropicModel,
+        fallbackAvailable: ready && activeProvider !== selectedProvider,
+        action: ready
+            ? usingFallback
+                ? `${selectedProvider} is selected, but ${activeProvider} is the configured fallback provider.`
+                : `${activeProvider || selectedProvider} is configured for AI requests.`
+            : 'Add an OpenAI or Anthropic API key in the backend environment.'
+    };
+};
+
 const getEnvSanity = () => {
     const allowedOrigins = getAllowedOrigins();
 
@@ -68,13 +122,7 @@ const getEnvSanity = () => {
             razorpayMonthlyPlanId: hasUsableValue('RAZORPAY_MONTHLY_PLAN_ID'),
             razorpayYearlyPlanId: hasUsableValue('RAZORPAY_YEARLY_PLAN_ID')
         },
-        ai: {
-            provider: process.env.AI_PROVIDER || 'openai',
-            openAiKey: hasUsableValue('OPENAI_API_KEY'),
-            openAiModel: process.env.OPENAI_MODEL || null,
-            anthropicKey: hasUsableValue('ANTHROPIC_API_KEY'),
-            anthropicModel: process.env.ANTHROPIC_MODEL || null
-        },
+        ai: getAiProviderStatus(),
         email: {
             emailUser: hasUsableValue('EMAIL_USER'),
             emailPass: hasUsableValue('EMAIL_PASS'),
@@ -160,10 +208,9 @@ const getLaunchReadiness = ({ databaseState = 'unknown' } = {}) => {
             id: 'ai',
             category: 'AI',
             label: 'AI provider assistant',
-            ready: (envSanity.ai.openAiKey && Boolean(envSanity.ai.openAiModel)) ||
-                (envSanity.ai.anthropicKey && Boolean(envSanity.ai.anthropicModel)),
+            ready: envSanity.ai.ready,
             severity: 'important',
-            action: 'Add OPENAI_API_KEY/OPENAI_MODEL or ANTHROPIC_API_KEY/ANTHROPIC_MODEL.'
+            action: envSanity.ai.action
         },
         {
             id: 'recurring',
@@ -194,6 +241,7 @@ const getLaunchReadiness = ({ databaseState = 'unknown' } = {}) => {
 module.exports = {
     PRICING_VERSION,
     getConnectionStateLabel,
+    getAiProviderStatus,
     getEnvSanity,
     getLaunchReadiness,
     markStartup,

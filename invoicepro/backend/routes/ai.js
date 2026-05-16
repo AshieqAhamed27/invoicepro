@@ -1653,7 +1653,7 @@ const normalizeAiProvider = (value = 'openai') => {
 
 const getAiProviderOrder = () => {
     const preferred = normalizeAiProvider(process.env.AI_PROVIDER || 'openai');
-    const order = preferred === 'anthropic'
+    const order = preferred === 'anthropic' || preferred === 'auto'
         ? ['anthropic', 'openai']
         : ['openai', 'anthropic'];
 

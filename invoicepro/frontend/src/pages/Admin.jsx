@@ -15,6 +15,34 @@ const formatDate = (value) => {
     year: 'numeric'
   });
 };
+const formatDateTime = (value) => {
+  if (!value) return 'Not tested';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Not tested';
+  return date.toLocaleString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+const getProviderLabel = (provider) => {
+  if (provider === 'anthropic') return 'Anthropic Claude';
+  if (provider === 'openai') return 'OpenAI';
+  if (provider === 'auto') return 'Auto failover';
+  return 'Not selected';
+};
+const getAiStatusClass = (status) => {
+  if (status === 'ready') return 'border-emerald-400/10 bg-emerald-400/5 text-emerald-400';
+  if (status === 'fallback-ready') return 'border-sky-400/10 bg-sky-400/5 text-sky-300';
+  return 'border-yellow-400/10 bg-yellow-400/5 text-yellow-400';
+};
+const getAiTestClass = (result) => {
+  if (!result) return 'border-white/5 bg-white/[0.03] text-zinc-400';
+  return result.passed
+    ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-300'
+    : 'border-yellow-400/10 bg-yellow-400/5 text-yellow-300';
+};
 
 export default function Admin() {
   const [requests, setRequests] = useState([]);
@@ -25,6 +53,9 @@ export default function Admin() {
   const [health, setHealth] = useState(null);
   const [healthLoading, setHealthLoading] = useState(true);
   const [healthError, setHealthError] = useState('');
+  const [aiTestLoading, setAiTestLoading] = useState(false);
+  const [aiTestResult, setAiTestResult] = useState(null);
+  const [aiTestError, setAiTestError] = useState('');
   const [revenue, setRevenue] = useState(null);
   const [revenueLoading, setRevenueLoading] = useState(true);
   const [revenueError, setRevenueError] = useState('');
@@ -86,6 +117,42 @@ export default function Admin() {
       setHealthError('Could not load backend runtime diagnostics.');
     } finally {
       setHealthLoading(false);
+    }
+  };
+
+  const runAiSmokeTest = async () => {
+    try {
+      setAiTestLoading(true);
+      setAiTestError('');
+      const res = await api.post('/ai/support-chat', {
+        page: '/admin',
+        messages: [
+          {
+            role: 'user',
+            content: 'Admin AI smoke test. Reply in one short sentence that ClientFlow AI provider is working.'
+          }
+        ]
+      });
+      const source = res.data?.source || 'fallback';
+      const passed = source === 'anthropic' || source === 'openai';
+
+      setAiTestResult({
+        passed,
+        source,
+        checkedAt: new Date().toISOString(),
+        answerPreview: String(res.data?.answer || '').slice(0, 180)
+      });
+    } catch (err) {
+      console.log(err);
+      setAiTestResult({
+        passed: false,
+        source: 'error',
+        checkedAt: new Date().toISOString(),
+        answerPreview: ''
+      });
+      setAiTestError(err?.friendlyMessage || err?.response?.data?.message || 'AI smoke test failed.');
+    } finally {
+      setAiTestLoading(false);
     }
   };
 
@@ -164,10 +231,15 @@ export default function Admin() {
   const pricingReady = Number(monthlyAmount || 0) > 0 && Number(yearlyAmount || 0) > 0;
   const requiredChecks = health?.envSanity?.required || {};
   const paymentChecks = health?.envSanity?.payments || {};
+  const aiChecks = health?.envSanity?.ai || {};
   const recurringChecks = health?.envSanity?.recurring || {};
   const requiredHealthy = Object.values(requiredChecks).length > 0 && Object.values(requiredChecks).every(Boolean);
   const paymentHealthy = paymentChecks.simulationEnabled || (paymentChecks.razorpayKeyId && paymentChecks.razorpayKeySecret);
   const envHealthy = requiredHealthy && Boolean(paymentHealthy);
+  const aiReady = Boolean(aiChecks.ready);
+  const aiStatusLabel = aiChecks.status === 'fallback-ready'
+    ? 'Fallback Ready'
+    : aiReady ? 'Ready' : 'Needs Key';
   const agencyRevenue = agencyBookings
     .filter((booking) => ['paid', 'in_progress', 'delivered'].includes(booking.status))
     .reduce((sum, booking) => sum + Number(booking.amount || 0), 0);
@@ -470,6 +542,93 @@ export default function Admin() {
         </section>
 
         <section className="reveal reveal-delay-2 mb-12 premium-panel overflow-hidden">
+          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">AI Provider Status</p>
+                <h2 className="text-2xl font-black tracking-tight text-white">Admin AI diagnostics</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                  Verify which backend AI provider is selected, whether keys are configured, and whether a live AI route returns provider output.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${getAiStatusClass(aiChecks.status)}`}>
+                  {healthLoading ? 'Checking' : aiStatusLabel}
+                </span>
+                <button
+                  type="button"
+                  onClick={runAiSmokeTest}
+                  disabled={aiTestLoading || healthLoading}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-200 transition hover:border-emerald-400/30 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {aiTestLoading ? 'Testing...' : 'Run AI Test'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Selected Provider</p>
+              <p className="text-2xl font-black tracking-tight text-white">
+                {healthLoading ? '--' : getProviderLabel(aiChecks.provider)}
+              </p>
+              <p className="mt-2 text-xs font-bold text-zinc-500">
+                Active: {healthLoading ? '--' : getProviderLabel(aiChecks.activeProvider || aiChecks.selectedProvider)}
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Active Model</p>
+              <p className="break-words text-xl font-black tracking-tight text-white">
+                {healthLoading ? '--' : (aiChecks.activeModel || 'No provider ready')}
+              </p>
+              <p className="mt-2 text-xs font-bold text-zinc-500">
+                Status: {healthLoading ? '--' : aiStatusLabel}
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Key Readiness</p>
+              <div className="space-y-2 text-xs font-bold text-zinc-400">
+                <p>Anthropic: {aiChecks.anthropicKey ? 'Configured' : 'Missing'}</p>
+                <p>OpenAI: {aiChecks.openAiKey ? 'Configured' : 'Missing'}</p>
+                <p>Failover: {aiChecks.fallbackAvailable ? 'Available' : aiReady ? 'Not needed' : 'Unavailable'}</p>
+              </div>
+            </div>
+
+            <div className={`rounded-[2rem] border p-6 ${getAiTestClass(aiTestResult)}`}>
+              <p className="mb-3 text-[10px] font-black uppercase tracking-widest opacity-80">Last AI Test</p>
+              <p className="text-2xl font-black tracking-tight">
+                {aiTestLoading ? 'Running' : aiTestResult ? (aiTestResult.passed ? 'Passed' : 'Fallback') : 'Not tested'}
+              </p>
+              <p className="mt-2 text-xs font-bold opacity-80">
+                Source: {aiTestResult ? getProviderLabel(aiTestResult.source) : '--'}
+              </p>
+              <p className="mt-1 text-xs font-bold opacity-70">
+                {formatDateTime(aiTestResult?.checkedAt)}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-6 px-5 pb-5 sm:px-8 sm:pb-8 lg:grid-cols-2">
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Recommended Action</p>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+                {healthLoading ? 'Checking backend AI environment...' : (aiChecks.action || 'Add an AI provider key in backend environment.')}
+              </p>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Smoke Test Detail</p>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+                {aiTestError || aiTestResult?.answerPreview || 'Click Run AI Test after adding credits or redeploying the backend.'}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="reveal reveal-delay-2 mb-12 premium-panel overflow-hidden">
           <div className="border-b border-white/5 p-5 sm:p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Runtime Diagnostics</p>
@@ -528,6 +687,7 @@ export default function Admin() {
               <div className="space-y-2 text-xs font-bold text-zinc-400">
                 <p>Required: {requiredHealthy ? 'OK' : 'Check'}</p>
                 <p>Payments: {paymentChecks.simulationEnabled ? 'Simulation' : paymentHealthy ? 'Keys ready' : 'Check keys'}</p>
+                <p>AI: {aiReady ? getProviderLabel(aiChecks.activeProvider || aiChecks.selectedProvider) : 'Provider key missing'}</p>
                 <p>Recurring: {recurringChecks.cronSecret ? 'Cron ready' : 'Cron secret missing'}</p>
                 <p>CORS origins: {health?.envSanity?.cors?.allowedOriginCount ?? '--'}</p>
               </div>
