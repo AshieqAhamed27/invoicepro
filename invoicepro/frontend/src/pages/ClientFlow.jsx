@@ -130,6 +130,24 @@ const statePill = {
   next: 'Next'
 };
 
+const getMaturityLabel = (score) => {
+  if (score >= 90) return 'Growth-ready workflow';
+  if (score >= 70) return 'Active client system';
+  if (score >= 45) return 'Workflow taking shape';
+  if (score >= 20) return 'Early setup';
+  return 'Start the first loop';
+};
+
+const getMaturityDetail = (score) => {
+  if (score >= 90) return 'You have enough workflow proof to focus on repeat clients, retention, and higher-value offers.';
+  if (score >= 70) return 'Your client flow is active. Keep improving proposal follow-up, delivery proof, and payment speed.';
+  if (score >= 45) return 'The system is forming. Finish the missing link so work can move cleanly from lead to payment.';
+  if (score >= 20) return 'You have started. The next goal is one real client opportunity and one clear proposal path.';
+  return 'Begin with one service, one target client, and one saved lead. Keep the workflow small.';
+};
+
+const proRoutes = ['/client-finder', '/leads', '/proposal-writer'];
+
 export default function ClientFlow() {
   const navigate = useNavigate();
   const user = getUser() || {};
@@ -180,14 +198,160 @@ export default function ClientFlow() {
   const steps = useMemo(() => buildSteps(counts), [counts]);
   const currentStep = steps.find((step) => !step.done) || steps[steps.length - 1];
   const completion = Math.round((steps.filter((step) => step.done).length / steps.length) * 100);
+  const workflowSignals = useMemo(() => ([
+    {
+      id: 'identity',
+      label: 'Business identity',
+      done: Boolean(user.companyName || user.name),
+      route: '/settings',
+      cta: 'Open Settings',
+      detail: 'Add the business name, logo, UPI, and contact details clients will see.'
+    },
+    {
+      id: 'lead',
+      label: 'Lead source',
+      done: counts.leads > 0,
+      route: '/client-finder',
+      cta: 'Find Clients',
+      detail: 'Create or save one real client opportunity before building more tools.'
+    },
+    {
+      id: 'proposal',
+      label: 'Proposal path',
+      done: counts.proposals > 0 || counts.acceptedProposals > 0,
+      route: '/proposal-writer',
+      cta: 'Write Proposal',
+      detail: 'Turn client interest into scope, price, timeline, and next step.'
+    },
+    {
+      id: 'delivery',
+      label: 'Delivery room',
+      done: counts.workrooms > 0,
+      route: '/client-workroom',
+      cta: 'Open Workroom',
+      detail: 'Keep scope, tasks, files, approvals, and handover in one client space.'
+    },
+    {
+      id: 'proof',
+      label: 'Proof saved',
+      done: counts.proof > 0,
+      route: '/cloud-documents',
+      cta: 'Save Proof',
+      detail: 'Save links, files, approvals, and delivery notes before invoicing.'
+    },
+    {
+      id: 'invoice',
+      label: 'Invoice route',
+      done: counts.invoices > 0,
+      route: '/create-invoice',
+      cta: 'Create Invoice',
+      detail: 'Send a professional invoice with due date, PDF, public link, and payment route.'
+    },
+    {
+      id: 'collection',
+      label: 'Payment collected',
+      done: counts.paidInvoices > 0,
+      route: '/dashboard#payment-collection-agent',
+      cta: 'Collect Payment',
+      detail: 'Use payment follow-up until money is actually collected.'
+    }
+  ]), [
+    counts.acceptedProposals,
+    counts.invoices,
+    counts.leads,
+    counts.paidInvoices,
+    counts.proof,
+    counts.proposals,
+    counts.workrooms,
+    user.companyName,
+    user.name
+  ]);
+  const workflowHealth = Math.round((workflowSignals.filter((signal) => signal.done).length / workflowSignals.length) * 100);
+  const workflowBottleneck = workflowSignals.find((signal) => !signal.done) || workflowSignals[workflowSignals.length - 1];
+  const maturityLabel = getMaturityLabel(workflowHealth);
+  const maturityDetail = getMaturityDetail(workflowHealth);
+  const weeklyPlan = useMemo(() => ([
+    {
+      day: 'Day 1',
+      title: 'Choose one service and one target client',
+      detail: 'Keep the offer narrow so outreach and proposals become easier.',
+      done: Boolean(user.companyName || user.name),
+      route: '/settings',
+      cta: 'Set Identity'
+    },
+    {
+      day: 'Day 2',
+      title: 'Create one real client opportunity',
+      detail: 'Find or save a lead that has a problem you can solve this week.',
+      done: counts.leads > 0,
+      route: '/client-finder',
+      cta: 'Find Client'
+    },
+    {
+      day: 'Day 3',
+      title: 'Qualify the lead before proposing',
+      detail: 'Check budget, urgency, problem clarity, and decision maker before writing a long proposal.',
+      done: counts.hotLeads > 0 || counts.followUps > 0,
+      route: '/leads',
+      cta: 'Qualify Lead'
+    },
+    {
+      day: 'Day 4',
+      title: 'Send a clear proposal',
+      detail: 'Make scope, price, timeline, validity, and next payment step easy to understand.',
+      done: counts.proposals > 0 || counts.acceptedProposals > 0,
+      route: '/proposal-writer',
+      cta: 'Write Proposal'
+    },
+    {
+      day: 'Day 5',
+      title: 'Open the client workroom',
+      detail: 'Move accepted work into tasks, milestones, links, notes, proof, and handover.',
+      done: counts.workrooms > 0,
+      route: '/client-workroom',
+      cta: 'Open Workroom'
+    },
+    {
+      day: 'Day 6',
+      title: 'Save delivery proof',
+      detail: 'Add files, preview links, screenshots, approvals, and notes before requesting payment.',
+      done: counts.proof > 0,
+      route: '/cloud-documents',
+      cta: 'Save Proof'
+    },
+    {
+      day: 'Day 7',
+      title: 'Invoice and follow up',
+      detail: 'Create the invoice, share the public link or PDF, and follow up until payment is collected.',
+      done: counts.invoices > 0 && counts.paidInvoices > 0,
+      route: counts.invoices > 0 ? '/dashboard#payment-collection-agent' : '/create-invoice',
+      cta: counts.invoices > 0 ? 'Collect Payment' : 'Create Invoice'
+    }
+  ]), [
+    counts.acceptedProposals,
+    counts.followUps,
+    counts.hotLeads,
+    counts.invoices,
+    counts.leads,
+    counts.paidInvoices,
+    counts.proof,
+    counts.proposals,
+    counts.workrooms,
+    user.companyName,
+    user.name
+  ]);
 
-  const openStep = (step) => {
-    if (!isPro && ['/client-finder', '/leads', '/proposal-writer'].includes(step.route)) {
+  const openRoute = (route) => {
+    if (!isPro && proRoutes.includes(route)) {
       navigate('/payment');
       return;
     }
 
-    navigate(step.route);
+    navigate(route);
+  };
+
+  const openStep = (step) => {
+    openRoute(step.route);
   };
 
   const askGuide = (question = 'What should I do next in ClientFlow AI?') => {
@@ -272,6 +436,86 @@ export default function ClientFlow() {
           ))}
         </section>
 
+        <section className="mb-8 grid gap-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+          <div className="rounded-[1.75rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-5 sm:p-6">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Workflow health</p>
+            <div className="mt-4 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-5xl font-black text-white">{workflowHealth}%</p>
+                <p className="mt-1 text-sm font-black text-emerald-100">{maturityLabel}</p>
+              </div>
+              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                8/10 path
+              </span>
+            </div>
+            <p className="mt-4 text-sm font-semibold leading-relaxed text-emerald-50/80">{maturityDetail}</p>
+
+            <div className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Current bottleneck</p>
+              <h3 className="mt-2 text-lg font-black text-white">{workflowBottleneck.label}</h3>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{workflowBottleneck.detail}</p>
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => openRoute(workflowBottleneck.route)}
+                  className="rounded-xl bg-emerald-300 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200 active:scale-95"
+                >
+                  {workflowBottleneck.cta}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => askGuide(`My ClientFlow AI bottleneck is "${workflowBottleneck.label}". Give me the next 3 practical actions.`)}
+                  className="rounded-xl border border-emerald-300/25 px-4 py-2 text-xs font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/10 active:scale-95"
+                >
+                  Ask AI
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Quality gates</p>
+                <h2 className="mt-2 text-2xl font-black text-white">What makes this workflow stronger</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/launch')}
+                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+              >
+                Launch Center
+              </button>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {workflowSignals.map((signal) => (
+                <button
+                  key={signal.id}
+                  type="button"
+                  onClick={() => openRoute(signal.route)}
+                  className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${
+                    signal.done
+                      ? 'border-emerald-300/20 bg-emerald-300/[0.08]'
+                      : 'border-white/8 bg-black/25 hover:border-yellow-300/25'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-sm font-black text-white">{signal.label}</p>
+                    <span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-widest ${
+                      signal.done
+                        ? 'bg-emerald-300 text-slate-950'
+                        : 'border border-white/10 text-zinc-400'
+                    }`}>
+                      {signal.done ? 'Done' : 'Open'}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{signal.detail}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="mb-8 rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-7">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -340,6 +584,58 @@ export default function ClientFlow() {
                 </article>
               );
             })}
+          </div>
+        </section>
+
+        <section className="mb-8 rounded-[2rem] border border-sky-300/20 bg-sky-300/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-7">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">7-day execution path</p>
+              <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">Turn the product into a weekly habit.</h2>
+              <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                This is the simplest path to an 8/10 workflow: complete one real business action each day, then repeat the loop with better clients.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => askGuide('Create a 7-day ClientFlow AI execution plan for my current workflow state.')}
+              className="btn btn-secondary"
+            >
+              Ask AI Plan
+            </button>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-7">
+            {weeklyPlan.map((item) => (
+              <article
+                key={item.day}
+                className={`rounded-[1.5rem] border p-4 transition hover:-translate-y-1 ${
+                  item.done
+                    ? 'border-emerald-300/20 bg-emerald-300/[0.08]'
+                    : 'border-white/8 bg-black/25 hover:border-sky-300/25'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">{item.day}</p>
+                  <span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-widest ${
+                    item.done
+                      ? 'bg-emerald-300 text-slate-950'
+                      : 'border border-white/10 text-zinc-400'
+                  }`}>
+                    {item.done ? 'Done' : 'Do'}
+                  </span>
+                </div>
+                <h3 className="mt-3 text-base font-black leading-tight text-white">{item.title}</h3>
+                <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">{item.detail}</p>
+                <button
+                  type="button"
+                  onClick={() => openRoute(item.route)}
+                  className="mt-4 w-full rounded-xl border border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                >
+                  {item.cta}
+                </button>
+              </article>
+            ))}
           </div>
         </section>
 

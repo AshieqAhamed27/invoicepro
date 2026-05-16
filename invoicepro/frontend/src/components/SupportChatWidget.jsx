@@ -29,11 +29,11 @@ const routeGuides = [
     starter: `You are on the Client Flow page. I can help you choose the next action: find a lead, qualify, write a proposal, organize delivery proof, create an invoice, or collect payment.`,
     questions: [
       'What should I do next?',
+      'Make my 7-day plan',
+      'What is my bottleneck?',
       'Explain this workflow',
       'Help me get my first client',
-      'Help me write a proposal',
-      'How do I collect payment?',
-      'What is Pro for?'
+      'How do I collect payment?'
     ]
   },
   {
