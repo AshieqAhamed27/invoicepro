@@ -180,7 +180,7 @@ export default function ClientFlow() {
 
       const [invoiceRes, leadRes, projectRes, cloudRes] = await Promise.allSettled([
         api.get('/invoices/dashboard'),
-        api.get('/leads/dashboard'),
+        isPro ? api.get('/leads/dashboard') : Promise.resolve({ data: {} }),
         api.get('/team-projects'),
         api.get('/cloud-documents')
       ]);

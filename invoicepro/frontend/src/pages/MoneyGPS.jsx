@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
+import { getUser, hasProAccess } from '../utils/auth';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { openWhatsAppShare } from '../utils/whatsapp';
 
@@ -160,12 +161,13 @@ export default function MoneyGPS() {
 
   useEffect(() => {
     const loadMoneyGps = async () => {
+      const isPro = hasProAccess(getUser());
       setLoading(true);
       setError('');
 
       const [invoiceRes, leadRes, projectRes] = await Promise.allSettled([
         api.get('/invoices/dashboard'),
-        api.get('/leads/dashboard'),
+        isPro ? api.get('/leads/dashboard') : Promise.resolve({ data: {} }),
         api.get('/team-projects')
       ]);
 

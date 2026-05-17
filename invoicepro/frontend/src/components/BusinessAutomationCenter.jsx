@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { getUser, hasProAccess } from '../utils/auth';
 import { openWhatsAppShare } from '../utils/whatsapp';
 import { trackEvent } from '../utils/analytics';
 
@@ -172,6 +173,7 @@ export default function BusinessAutomationCenter({
   incomeGoal = null
 }) {
   const navigate = useNavigate();
+  const isPro = hasProAccess(getUser());
   const [leads, setLeads] = useState([]);
   const [recurringSchedules, setRecurringSchedules] = useState([]);
   const [loadingSignals, setLoadingSignals] = useState(true);
@@ -187,6 +189,16 @@ export default function BusinessAutomationCenter({
     let active = true;
 
     const loadAutomationSignals = async () => {
+      if (!isPro) {
+        setLeads([
+          ...(leadDashboard.followUpsDue || []),
+          ...(leadDashboard.hotLeads || [])
+        ]);
+        setRecurringSchedules([]);
+        setLoadingSignals(false);
+        return;
+      }
+
       const [leadResult, recurringResult] = await Promise.allSettled([
         api.get('/leads'),
         api.get('/invoices/recurring')
@@ -216,7 +228,7 @@ export default function BusinessAutomationCenter({
     return () => {
       active = false;
     };
-  }, [leadDashboard.followUpsDue, leadDashboard.hotLeads]);
+  }, [isPro, leadDashboard.followUpsDue, leadDashboard.hotLeads]);
 
   const paymentQueue = useMemo(() => {
     const plan = Array.isArray(aiInsights?.collectionPlan) ? aiInsights.collectionPlan : [];

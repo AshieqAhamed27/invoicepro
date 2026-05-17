@@ -2,6 +2,17 @@
     "installCommand": "npm --prefix invoicepro/frontend ci",
     "buildCommand": "npm --prefix invoicepro/frontend run build",
     "outputDirectory": "invoicepro/frontend/dist",
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "Cross-Origin-Opener-Policy",
+                    "value": "same-origin-allow-popups"
+                }
+            ]
+        }
+    ],
     "rewrites": [
         {
             "source": "/(.*)",

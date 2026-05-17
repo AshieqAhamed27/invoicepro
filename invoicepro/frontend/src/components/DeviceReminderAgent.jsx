@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../utils/api';
-import { getUser, isLoggedIn } from '../utils/auth';
+import { getUser, hasProAccess, isLoggedIn } from '../utils/auth';
 
 export const DEVICE_REMINDERS_KEY = 'clientflow_device_reminders_enabled';
 export const PLAN_DEVICE_REMINDERS_KEY = 'clientflow_plan_device_reminders_enabled';
@@ -148,6 +148,7 @@ export default function DeviceReminderAgent() {
   const location = useLocation();
   const [tick, setTick] = useState(0);
   const user = useMemo(() => (isLoggedIn() ? getUser() : null), [location.pathname, tick]);
+  const isPro = hasProAccess(user);
   const userId = user?.id || user?._id || user?.email;
 
   useEffect(() => {
@@ -163,7 +164,7 @@ export default function DeviceReminderAgent() {
 
       const [invoiceResult, leadResult, projectResult] = await Promise.allSettled([
         api.get('/invoices/dashboard'),
-        api.get('/leads/dashboard'),
+        isPro ? api.get('/leads/dashboard') : Promise.resolve({ data: {} }),
         api.get('/team-projects')
       ]);
 
@@ -194,7 +195,7 @@ export default function DeviceReminderAgent() {
     };
 
     runDeviceReminderCheck();
-  }, [tick, user, userId]);
+  }, [isPro, tick, user, userId]);
 
   return null;
 }

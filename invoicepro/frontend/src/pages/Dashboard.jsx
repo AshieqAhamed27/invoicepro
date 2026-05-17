@@ -581,14 +581,16 @@ export default function Dashboard() {
   const loadExtraData = async () => {
     const [aiResult, leadResult] = await Promise.allSettled([
       api.get('/ai/insights'),
-      api.get('/leads/dashboard')
+      isPro ? api.get('/leads/dashboard') : Promise.resolve({ data: null })
     ]);
 
     if (aiResult.status === 'fulfilled') {
       setAiInsights(aiResult.value.data);
     }
 
-    if (leadResult.status === 'fulfilled') {
+    if (!isPro) {
+      setLeadDashboardError('');
+    } else if (leadResult.status === 'fulfilled') {
       setLeadDashboard({
         stats: leadResult.value.data?.stats || {},
         summary: leadResult.value.data?.summary || {},

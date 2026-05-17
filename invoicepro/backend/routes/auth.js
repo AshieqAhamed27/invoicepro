@@ -14,17 +14,23 @@ const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ''));
 
+const authError = (message, status = 400) => {
+    const error = new Error(message);
+    error.status = status;
+    return error;
+};
+
 const verifyGoogleCredential = (credential) => {
     return new Promise((resolve, reject) => {
         const clientId = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID;
         const token = String(credential || '').trim();
 
         if (!clientId) {
-            return reject(new Error('Google login is not configured on the backend.'));
+            return reject(authError('Google login is not configured on the backend.', 503));
         }
 
         if (!token) {
-            return reject(new Error('Missing Google credential.'));
+            return reject(authError('Missing Google credential.', 400));
         }
 
         const url = `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`;
@@ -44,15 +50,15 @@ const verifyGoogleCredential = (credential) => {
                 }
 
                 if (googleRes.statusCode < 200 || googleRes.statusCode >= 300) {
-                    return reject(new Error(payload.error_description || 'Google credential verification failed.'));
+                    return reject(authError(payload.error_description || 'Google credential verification failed.', 401));
                 }
 
                 if (payload.aud !== clientId) {
-                    return reject(new Error('Google credential audience mismatch.'));
+                    return reject(authError('Google credential audience mismatch.', 401));
                 }
 
                 if (!payload.email || payload.email_verified !== 'true') {
-                    return reject(new Error('Google account email is not verified.'));
+                    return reject(authError('Google account email is not verified.', 401));
                 }
 
                 resolve({
@@ -63,7 +69,7 @@ const verifyGoogleCredential = (credential) => {
         });
 
         req.on('timeout', () => {
-            req.destroy(new Error('Google verification timed out.'));
+            req.destroy(authError('Google verification timed out.', 504));
         });
         req.on('error', reject);
     });
@@ -142,7 +148,8 @@ const serializeUser = (user) => ({
     gstNumber: user.gstNumber,
     upiId: user.upiId,
     address: user.address,
-    logo: user.logo
+    logo: user.logo,
+    role: user.role
 });
 
 // ==========================
@@ -329,8 +336,11 @@ router.post(
 
         } catch (err) {
             console.error('GOOGLE LOGIN ERROR:', err.message);
-            res.status(500).json({
-                message: 'Google login failed'
+            const status = err.status || 500;
+            res.status(status).json({
+                message: status >= 500
+                    ? 'Google login is temporarily unavailable. Please use email login or try again later.'
+                    : err.message
             });
         }
     }
