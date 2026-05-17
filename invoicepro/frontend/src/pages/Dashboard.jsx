@@ -6,6 +6,7 @@ import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
 import ClientSetupWizard from '../components/ClientSetupWizard';
 import PaymentReliabilityCenter from '../components/PaymentReliabilityCenter';
+import GlobalFreelancerAccessCenter from '../components/GlobalFreelancerAccessCenter';
 import { trackEvent } from '../utils/analytics';
 
 const AIBillingAgent = lazy(() => import('../components/AIBillingAgent'));
@@ -424,6 +425,21 @@ export default function Dashboard() {
     setSelectedWorkflowId('business-autopilot');
     trackEvent('enable_dashboard_autopilot');
     navigate('/business-autopilot');
+  };
+
+  const openGlobalAccessWorkflow = (route) => {
+    trackEvent('open_global_access_workflow', { route });
+
+    if (route.startsWith('/dashboard#')) {
+      const targetId = route.split('#')[1];
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+    }
+
+    navigate(route);
   };
 
   const applySetupProfile = (profile) => {
@@ -1457,6 +1473,14 @@ export default function Dashboard() {
             onOpenAutopilot={enableAutopilot}
             selectedWorkflowId={selectedWorkflowId}
             stats={stats}
+          />
+        )}
+
+        {!dashboardError && !loading && (
+          <GlobalFreelancerAccessCenter
+            stats={stats}
+            leadSummary={leadDashboard.summary}
+            onOpenWorkflow={openGlobalAccessWorkflow}
           />
         )}
 

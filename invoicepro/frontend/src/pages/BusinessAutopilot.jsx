@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import GlobalFreelancerAccessCenter from '../components/GlobalFreelancerAccessCenter';
 import api from '../utils/api';
 import { trackEvent } from '../utils/analytics';
 import useDocumentMeta from '../utils/useDocumentMeta';
@@ -395,6 +396,21 @@ export default function BusinessAutopilot() {
     });
   };
 
+  const openGlobalAccessWorkflow = (route) => {
+    trackEvent('open_global_access_workflow_from_autopilot', { route });
+
+    if (route.startsWith('/dashboard#')) {
+      navigate('/dashboard');
+      setTimeout(() => {
+        const target = document.getElementById(route.split('#')[1]);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 350);
+      return;
+    }
+
+    navigate(route);
+  };
+
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
@@ -568,6 +584,13 @@ export default function BusinessAutopilot() {
             </article>
           ))}
         </section>
+
+        <GlobalFreelancerAccessCenter
+          compact
+          stats={invoiceData?.stats || {}}
+          leadSummary={leadData?.summary || {}}
+          onOpenWorkflow={openGlobalAccessWorkflow}
+        />
 
         <section className="mb-12">
           <div className="mb-6 max-w-3xl">
