@@ -4,7 +4,11 @@ import Navbar from '../components/Navbar';
 
 const API_BASE_URL = api.defaults.baseURL || '';
 const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
+const formatNumber = (value) => Number(value || 0).toLocaleString('en-IN');
 const formatMoney = (amount) => `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
+const formatPercent = (value) => `${Number(value || 0).toLocaleString('en-IN', {
+  maximumFractionDigits: 1
+})}%`;
 const formatDate = (value) => {
   if (!value) return 'Not set';
   const date = new Date(value);
@@ -59,6 +63,9 @@ export default function Admin() {
   const [revenue, setRevenue] = useState(null);
   const [revenueLoading, setRevenueLoading] = useState(true);
   const [revenueError, setRevenueError] = useState('');
+  const [productAnalytics, setProductAnalytics] = useState(null);
+  const [productAnalyticsLoading, setProductAnalyticsLoading] = useState(true);
+  const [productAnalyticsError, setProductAnalyticsError] = useState('');
   const [agencyBookings, setAgencyBookings] = useState([]);
   const [agencyLoading, setAgencyLoading] = useState(true);
   const [agencyError, setAgencyError] = useState('');
@@ -170,6 +177,20 @@ export default function Admin() {
     }
   };
 
+  const fetchProductAnalytics = async () => {
+    try {
+      setProductAnalyticsLoading(true);
+      setProductAnalyticsError('');
+      const res = await api.get('/product-analytics/admin/summary');
+      setProductAnalytics(res.data || null);
+    } catch (err) {
+      console.log(err);
+      setProductAnalyticsError('Could not load product analytics.');
+    } finally {
+      setProductAnalyticsLoading(false);
+    }
+  };
+
   const fetchAgencyBookings = async () => {
     try {
       setAgencyLoading(true);
@@ -223,6 +244,7 @@ export default function Admin() {
     fetchPricing();
     fetchHealthDetails();
     fetchRevenue();
+    fetchProductAnalytics();
     fetchAgencyBookings();
   }, []);
 
@@ -249,6 +271,12 @@ export default function Admin() {
     if (status === 'payment_pending') return 'border-yellow-400/10 bg-yellow-400/5 text-yellow-400';
     return 'border-red-400/10 bg-red-400/5 text-red-300';
   };
+  const productTotals = productAnalytics?.totals || {};
+  const registeredMembers = Number(productTotals.registeredMembers || 0);
+  const uniqueVisitors = Number(productTotals.uniqueVisitors || 0);
+  const paidMembers = Number(productTotals.paidMembers || 0);
+  const signupRate = uniqueVisitors > 0 ? (registeredMembers / uniqueVisitors) * 100 : 0;
+  const paidRate = registeredMembers > 0 ? (paidMembers / registeredMembers) * 100 : 0;
 
   return (
     <div className="premium-page min-h-screen text-white">
@@ -267,6 +295,114 @@ export default function Admin() {
             Verify manual payment evidence and confirm live checkout pricing.
           </p>
         </div>
+
+        <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
+          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Product Growth</p>
+                <h2 className="text-2xl font-black tracking-tight text-white">Member and usage analytics</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                  Track real app views, active members, free access, and paid members from your own backend.
+                </p>
+              </div>
+              <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                productAnalyticsError ? 'border-red-400/10 bg-red-400/5 text-red-400' : 'border-emerald-400/10 bg-emerald-400/5 text-emerald-400'
+              }`}>
+                {productAnalyticsError ? 'Unavailable' : 'Live Tracking'}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-6">
+            {[
+              { label: 'Product Views', value: productTotals.productViews, tone: 'text-white' },
+              { label: 'Unique Visitors', value: productTotals.uniqueVisitors, tone: 'text-sky-300' },
+              { label: 'Members', value: productTotals.registeredMembers, tone: 'text-white' },
+              { label: 'Active 30 Days', value: productTotals.activeMembers30d, tone: 'text-emerald-300' },
+              { label: 'Free Access', value: productTotals.freeAccessMembers, tone: 'text-yellow-300' },
+              { label: 'Paid Members', value: productTotals.paidMembers, tone: 'text-emerald-300' }
+            ].map((item) => (
+              <div key={item.label} className="rounded-[2rem] border border-white/5 bg-black/10 p-5">
+                <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
+                <p className={`text-3xl font-black tracking-tight ${item.tone}`}>
+                  {productAnalyticsLoading ? '--' : formatNumber(item.value)}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-6 px-5 pb-5 sm:px-8 sm:pb-8 lg:grid-cols-3">
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Growth Funnel</p>
+              <div className="mt-4 grid gap-3">
+                {[
+                  ['Visitor to member', formatPercent(signupRate)],
+                  ['Member to paid', formatPercent(paidRate)],
+                  ['Paid conversion', formatPercent(productTotals.paidConversionRate)]
+                ].map(([label, value]) => (
+                  <div key={label} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                    <span className="text-xs font-black uppercase tracking-widest text-zinc-500">{label}</span>
+                    <span className="text-lg font-black text-white">{productAnalyticsLoading ? '--' : value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Access Mix</p>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-center">
+                {[
+                  ['Trial', productTotals.trialMembers],
+                  ['Early', productTotals.earlyAccessMembers],
+                  ['Paid', productTotals.paidMembers],
+                  ['Admins', productTotals.adminMembers]
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                    <p className="text-2xl font-black text-white">{productAnalyticsLoading ? '--' : formatNumber(value)}</p>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Last 7 Days</p>
+              <p className="mt-4 text-4xl font-black text-white">
+                {productAnalyticsLoading ? '--' : formatNumber(productAnalytics?.last7Days?.productViews)}
+              </p>
+              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
+                {productAnalyticsLoading
+                  ? 'Checking...'
+                  : `${formatNumber(productAnalytics?.last7Days?.uniqueVisitors)} visitors viewed the product`}
+              </p>
+            </div>
+          </div>
+
+          {!productAnalyticsLoading && productAnalytics?.recentActivity?.length > 0 && (
+            <div className="border-t border-white/5 p-5 sm:p-8">
+              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent Product Views</p>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {productAnalytics.recentActivity.map((event) => (
+                  <div key={event.id} className="rounded-2xl border border-white/5 bg-black/10 p-4">
+                    <p className="truncate text-sm font-black text-white">{event.title || event.path || 'Product view'}</p>
+                    <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-widest text-zinc-600">{event.path || '/'}</p>
+                    <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-sky-300">{event.plan || 'visitor'}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{formatDateTime(event.createdAt)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {productAnalyticsError && (
+            <div className="px-8 pb-8">
+              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                {productAnalyticsError}
+              </div>
+            </div>
+          )}
+        </section>
 
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
           <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
