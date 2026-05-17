@@ -51,6 +51,31 @@ const proWorthReasons = [
   ['If the freelancer wants stable monthly income', 'Growth Plan and Money GPS turn income goals into weekly actions instead of guesswork.']
 ];
 
+const marketplaceDifference = [
+  {
+    label: 'Upwork/Fiverr model',
+    title: 'Marketplace competition',
+    text: 'Freelancers compete inside a platform for visibility, jobs, ratings, bids, and algorithm attention.'
+  },
+  {
+    label: 'ClientFlow AI model',
+    title: 'Direct-client business system',
+    text: 'Freelancers use their own leads, brand, proposals, workroom, invoice links, and follow-up process.'
+  },
+  {
+    label: 'Money angle',
+    title: 'Subscription, not seller commission',
+    text: 'ClientFlow AI can earn from Pro plans and setup services without taking a large cut from every client project.'
+  }
+];
+
+const directClientAdvantages = [
+  ['Own the client relationship', 'The freelancer keeps the lead, conversation, proposal, delivery proof, and invoice history in their workspace.'],
+  ['Sell packaged services', 'Instead of waiting for job posts, freelancers can create offers, message target clients, and follow up.'],
+  ['Look professional outside marketplaces', 'Proposals, workrooms, payment pages, delivery proof, and reminders make direct selling safer.'],
+  ['Earn with subscriptions and setup help', 'The product makes money from Pro access and done-for-you setup instead of only marketplace commissions.']
+];
+
 const honestFit = [
   ['Use Free if', 'You only want to test the workflow or create a small number of invoices.'],
   ['Use Pro if', 'You actively manage leads, proposals, projects, invoices, payment follow-ups, and monthly income goals.'],
@@ -206,6 +231,7 @@ const faqs = [
   ['When should someone stay on Free?', 'Stay on Free if you only want to test the product, create a few invoices, or you are not yet managing real leads and client work.'],
   ['Is the Linux/DevOps feature for everyone?', 'No. DevOps Delivery Kit is optional and mainly useful for developers, technical freelancers, and small agencies who deliver websites, apps, VPS, GitHub, or maintenance work.'],
   ['Can beginners use it?', 'Yes. Beginners can use the free software or choose Agency Setup if they want help setting up their offer and client workflow.'],
+  ['Is this another Upwork or Fiverr?', 'No. ClientFlow AI is not a job marketplace. It is a direct-client business system for freelancers who want to manage their own leads, proposals, work, invoices, and payments.'],
   ['Can foreign clients pay?', 'Yes, if the seller has international payments enabled in Razorpay. Invoices can support INR, USD, EUR, GBP, AED, SGD, AUD, and CAD.'],
   ['Do you guarantee income?', 'No. ClientFlow AI does not guarantee income. It gives freelancers a clearer system, daily actions, and payment workflow so they can execute better.']
 ];
@@ -558,6 +584,51 @@ export default function Home() {
                   <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.problem}</p>
                   <p className="mt-4 text-xs font-black uppercase tracking-widest text-emerald-300">Result</p>
                   <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-200">{item.result}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-cyan-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="responsive-heading-grid">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-cyan-300">Different from marketplaces</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  ClientFlow AI is for freelancers who want direct clients, not another bidding platform.
+                </h2>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  Upwork and Fiverr make money by owning the marketplace transaction. ClientFlow AI should make money by helping freelancers own their client workflow and pay for software that protects their cashflow.
+                </p>
+              </div>
+
+              <div className="rounded-[1.75rem] border border-cyan-300/20 bg-black/25 p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">Positioning</p>
+                <p className="mt-3 text-2xl font-black leading-tight text-white">
+                  Not "find cheap gigs". Build a repeatable client-to-payment system.
+                </p>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                  This makes the product easier to sell as a monthly tool, a founder plan, and a setup service for freelancers who are serious about direct client work.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {marketplaceDifference.map((item) => (
+                <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-6 transition-all hover:-translate-y-1 hover:border-cyan-300/25">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">{item.label}</p>
+                  <h3 className="mt-3 text-xl font-black text-white">{item.title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {directClientAdvantages.map(([title, text]) => (
+                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+                  <h3 className="text-lg font-black text-white">{title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
                 </div>
               ))}
             </div>

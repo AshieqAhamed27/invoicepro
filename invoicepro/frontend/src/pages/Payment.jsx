@@ -86,6 +86,13 @@ const proValueItems = [
   'Payment tracking, UPI/Razorpay links, and cashflow control'
 ];
 
+const directClientValueItems = [
+  ['No bidding credits', 'Pay for a workflow you control, not for every proposal attempt.'],
+  ['No marketplace commission promise', 'ClientFlow AI earns from Pro plans and setup help, not by taking a large seller cut from each project.'],
+  ['Own your client system', 'Keep direct leads, proposal records, project proof, invoices, and follow-ups in your workspace.'],
+  ['Useful before marketplace scale', 'You can earn with Pro and setup services before building a full client marketplace.']
+];
+
 export default function Payment() {
   const location = useLocation();
   const [plan, setPlan] = useState('monthly');
@@ -506,6 +513,35 @@ export default function Payment() {
             <p className="max-w-xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed mb-8 sm:mb-10">
               Pro helps freelancers find clients, close work, manage delivery, save proof, send proposals and invoices, and protect cashflow.
             </p>
+
+            <div className="mb-6 rounded-[1.75rem] border border-cyan-300/20 bg-cyan-300/[0.06] p-5 sm:p-6">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="max-w-2xl">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">
+                    Why this is different
+                  </p>
+                  <h2 className="mt-2 text-2xl font-black text-white">
+                    Pro is a direct-client business system, not another freelance marketplace.
+                  </h2>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
+                    Upwork and Fiverr monetize marketplace transactions. ClientFlow AI should monetize the operating system freelancers use to win, manage, and collect from their own clients.
+                  </p>
+                </div>
+                <div className="shrink-0 rounded-2xl border border-white/10 bg-black/25 px-5 py-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Main revenue model</p>
+                  <p className="mt-2 text-xl font-black text-white">Pro + Setup</p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {directClientValueItems.map(([title, text]) => (
+                  <div key={title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                    <p className="text-sm font-black text-white">{title}</p>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div className={`mb-6 rounded-[1.75rem] border p-5 sm:p-6 ${
               earlyIntent
