@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -121,6 +121,59 @@ const PublicRoute = ({ children }) => {
 const isAdmin = () => {
   const user = getUser();
   return user?.role === 'admin';
+};
+
+const AdminRoute = ({ children }) => {
+  const location = useLocation();
+  const loggedIn = isLoggedIn();
+  const [adminCheck, setAdminCheck] = useState(() => (
+    loggedIn && isAdmin() ? 'allowed' : 'checking'
+  ));
+
+  useEffect(() => {
+    let active = true;
+
+    if (!loggedIn) {
+      setAdminCheck('guest');
+      return () => {
+        active = false;
+      };
+    }
+
+    const currentUser = getUser() || {};
+    setAdminCheck(currentUser.role === 'admin' ? 'allowed' : 'checking');
+
+    api.get('/auth/me')
+      .then((res) => {
+        if (!active) return;
+
+        const nextUser = { ...currentUser, ...(res.data.user || {}) };
+        localStorage.setItem('user', JSON.stringify(nextUser));
+        setAdminCheck(nextUser.role === 'admin' ? 'allowed' : 'denied');
+      })
+      .catch(() => {
+        if (!active) return;
+        setAdminCheck(currentUser.role === 'admin' ? 'allowed' : 'denied');
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [loggedIn]);
+
+  if (!loggedIn || adminCheck === 'guest') {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (adminCheck === 'checking') {
+    return <RouteLoader />;
+  }
+
+  if (adminCheck !== 'allowed') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
 };
 
 const ProRoute = ({ children, title }) => {
@@ -679,13 +732,11 @@ export default function App() {
         <Route
           path="/admin"
           element={
-            isAdmin() ? (
+            <AdminRoute>
               <Suspense fallback={<RouteLoader />}>
                 <Admin />
               </Suspense>
-            ) : (
-              <Navigate to="/dashboard" />
-            )
+            </AdminRoute>
           }
         />
 
