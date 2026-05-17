@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import IntegrationReadinessHub from '../components/IntegrationReadinessHub';
 import api from '../utils/api';
 import { getUser } from '../utils/auth';
 
@@ -302,6 +303,8 @@ export default function LaunchCenter() {
             </div>
           ))}
         </section>
+
+        <IntegrationReadinessHub compact health={health} />
 
         <section className="reveal reveal-delay-2 responsive-heading-grid mb-12">
           <div className="premium-panel p-5 sm:p-8">

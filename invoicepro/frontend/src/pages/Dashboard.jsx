@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import ClientSetupWizard from '../components/ClientSetupWizard';
 import PaymentReliabilityCenter from '../components/PaymentReliabilityCenter';
 import GlobalFreelancerAccessCenter from '../components/GlobalFreelancerAccessCenter';
+import IntegrationReadinessHub from '../components/IntegrationReadinessHub';
 import { trackEvent } from '../utils/analytics';
 
 const AIBillingAgent = lazy(() => import('../components/AIBillingAgent'));
@@ -1482,6 +1483,10 @@ export default function Dashboard() {
             leadSummary={leadDashboard.summary}
             onOpenWorkflow={openGlobalAccessWorkflow}
           />
+        )}
+
+        {!dashboardError && !loading && (
+          <IntegrationReadinessHub />
         )}
 
         {!dashboardError && (

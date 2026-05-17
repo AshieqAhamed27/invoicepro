@@ -20,6 +20,7 @@ const {
     PRICING_VERSION,
     getConnectionStateLabel,
     getEnvSanity,
+    getIntegrationReadiness,
     getLaunchReadiness,
     markStartup,
     startupState
@@ -200,6 +201,7 @@ app.get('/api/health/details', (req, res) => {
             state: databaseState
         },
         envSanity: getEnvSanity(),
+        integrationReadiness: getIntegrationReadiness(),
         readiness: getLaunchReadiness({ databaseState })
     });
 });
@@ -215,6 +217,7 @@ app.get('/api/health/launch-readiness', (req, res) => {
             state: databaseState
         },
         envSanity: getEnvSanity(),
+        integrationReadiness: getIntegrationReadiness(),
         readiness: getLaunchReadiness({ databaseState })
     });
 });
