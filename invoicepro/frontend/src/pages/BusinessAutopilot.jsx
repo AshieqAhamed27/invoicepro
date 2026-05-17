@@ -122,6 +122,53 @@ const automationRules = [
   ['User approves sensitive actions', 'Messages, prices, invoices, payment links, and client communication stay under user control.']
 ];
 
+const taskReviewCopy = {
+  lead: {
+    prepared: 'Target client angle and outreach direction are prepared.',
+    approval: 'Review the lead quality before saving or messaging.'
+  },
+  'follow-up': {
+    prepared: 'Follow-up priority and message direction are prepared.',
+    approval: 'Send manually from the channel where the client replies.'
+  },
+  proposal: {
+    prepared: 'Proposal scope, price direction, and next step are ready to review.',
+    approval: 'Confirm scope and amount before sharing the proposal.'
+  },
+  project: {
+    prepared: 'Delivery checklist and handover direction are prepared.',
+    approval: 'Confirm access, owner, and client visibility before inviting others.'
+  },
+  invoice: {
+    prepared: 'Invoice conversion path is ready.',
+    approval: 'Check client, amount, tax, and payment method before sending.'
+  },
+  payment: {
+    prepared: 'Payment collection target and reminder direction are prepared.',
+    approval: 'Review tone and payment link before sending the reminder.'
+  },
+  growth: {
+    prepared: 'Growth target and daily action direction are prepared.',
+    approval: 'Confirm the target before following the plan.'
+  }
+};
+
+const getTaskReviewCopy = (stage) => taskReviewCopy[stage] || taskReviewCopy.lead;
+
+const statusLabels = {
+  ready: 'Ready',
+  approved: 'Approved',
+  editing: 'Editing',
+  skipped: 'Skipped'
+};
+
+const getQueueStatusClass = (status) => {
+  if (status === 'approved') return 'border-emerald-300/25 bg-emerald-300/[0.08] text-emerald-200';
+  if (status === 'editing') return 'border-sky-300/25 bg-sky-300/[0.08] text-sky-200';
+  if (status === 'skipped') return 'border-zinc-300/15 bg-white/[0.04] text-zinc-400';
+  return 'border-yellow-300/20 bg-yellow-300/[0.08] text-yellow-100';
+};
+
 const buildAutomationTasks = ({ invoiceData, leadData }) => {
   const stats = invoiceData?.stats || {};
   const invoices = invoiceData?.invoices || [];
@@ -221,6 +268,14 @@ export default function BusinessAutopilot() {
       return false;
     }
   });
+  const [queueStatusMap, setQueueStatusMap] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('clientflow_autopilot_queue_status') || '{}');
+      return stored.date === todayKey() ? stored.status || {} : {};
+    } catch {
+      return {};
+    }
+  });
 
   useDocumentMeta({
     title: 'Business Autopilot | ClientFlow AI',
@@ -262,31 +317,53 @@ export default function BusinessAutopilot() {
   }, []);
 
   const tasks = useMemo(() => buildAutomationTasks({ invoiceData, leadData }), [invoiceData, leadData]);
-  const completedCount = tasks.filter((task) => doneMap[task.id]).length;
+  const isTaskClosed = (task) => {
+    const status = queueStatusMap[task.id];
+    return Boolean(doneMap[task.id]) || status === 'approved' || status === 'skipped';
+  };
+  const completedCount = tasks.filter((task) => isTaskClosed(task)).length;
   const progress = tasks.length ? Math.round((completedCount / tasks.length) * 100) : 0;
-  const nextTask = tasks.find((task) => !doneMap[task.id]) || tasks[0];
+  const nextTask = tasks.find((task) => !isTaskClosed(task)) || tasks[0];
 
-  const toggleDone = (taskId) => {
-    setDoneMap((prev) => {
-      const next = { ...prev, [taskId]: !prev[taskId] };
+  const updateTaskStatus = (task, status) => {
+    setQueueStatusMap((prev) => {
+      const next = { ...prev, [task.id]: status };
 
       try {
-        localStorage.setItem('clientflow_process_autopilot_done', JSON.stringify({
+        localStorage.setItem('clientflow_autopilot_queue_status', JSON.stringify({
           date: todayKey(),
-          done: next
+          status: next
         }));
       } catch { }
 
-      trackEvent('toggle_process_autopilot_task', {
-        task_id: taskId,
-        done: Boolean(next[taskId])
-      });
-
       return next;
+    });
+
+    if (status === 'approved' || status === 'skipped') {
+      setDoneMap((prev) => {
+        const next = { ...prev, [task.id]: true };
+
+        try {
+          localStorage.setItem('clientflow_process_autopilot_done', JSON.stringify({
+            date: todayKey(),
+            done: next
+          }));
+        } catch { }
+
+        return next;
+      });
+    }
+
+    trackEvent('update_autopilot_queue_status', {
+      task_id: task.id,
+      stage: task.stage,
+      status
     });
   };
 
   const runTask = (task) => {
+    updateTaskStatus(task, 'editing');
+
     trackEvent('run_process_autopilot_task', {
       task_id: task.id,
       stage: task.stage
@@ -385,20 +462,40 @@ export default function BusinessAutopilot() {
                   : nextTask?.detail}
               </p>
               {!loading && nextTask && (
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <div className="mt-5 grid gap-3">
+                  {[
+                    ['AI prepared', getTaskReviewCopy(nextTask.stage).prepared],
+                    ['Approval needed', getTaskReviewCopy(nextTask.stage).approval]
+                  ].map(([label, text]) => (
+                    <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{label}</p>
+                      <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {!loading && nextTask && (
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <button
                     type="button"
                     onClick={() => runTask(nextTask)}
                     className="btn btn-primary px-6 py-4 text-sm"
                   >
-                    Run This Step
+                    Edit / Open
                   </button>
                   <button
                     type="button"
-                    onClick={() => toggleDone(nextTask.id)}
+                    onClick={() => updateTaskStatus(nextTask, 'approved')}
                     className="btn btn-secondary px-6 py-4 text-sm"
                   >
-                    {doneMap[nextTask.id] ? 'Mark Not Done' : 'Mark Done'}
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateTaskStatus(nextTask, 'skipped')}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-4 text-sm font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/[0.08]"
+                  >
+                    Skip
                   </button>
                 </div>
               )}
@@ -407,7 +504,9 @@ export default function BusinessAutopilot() {
             <div className="grid gap-3">
               {(loading ? buildFallbackTasks() : tasks).map((task, index) => {
                 const stage = automationStages.find((item) => item.id === task.stage) || automationStages[0];
-                const done = Boolean(doneMap[task.id]);
+                const status = queueStatusMap[task.id] || (doneMap[task.id] ? 'approved' : 'ready');
+                const done = isTaskClosed(task);
+                const reviewCopy = getTaskReviewCopy(task.stage);
 
                 return (
                   <div key={task.id} className={`rounded-2xl border p-4 transition-all ${done ? 'border-emerald-300/25 bg-emerald-300/[0.08]' : 'border-white/8 bg-black/20'}`}>
@@ -418,25 +517,39 @@ export default function BusinessAutopilot() {
                         </p>
                         <h3 className="mt-1 text-base font-black text-white">{task.title}</h3>
                         <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{task.detail}</p>
+                        <div className="mt-3 grid gap-2">
+                          <p className="rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs font-semibold leading-relaxed text-zinc-400">
+                            {reviewCopy.prepared}
+                          </p>
+                          <p className="rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs font-semibold leading-relaxed text-zinc-400">
+                            {reviewCopy.approval}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex shrink-0 gap-2">
+                      <div className="flex shrink-0 flex-col gap-2 sm:min-w-32">
+                        <span className={`rounded-xl border px-3 py-2 text-center text-[10px] font-black uppercase tracking-widest ${getQueueStatusClass(status)}`}>
+                          {statusLabels[status] || statusLabels.ready}
+                        </span>
                         <button
                           type="button"
                           onClick={() => runTask(task)}
                           className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
                         >
-                          Open
+                          Edit
                         </button>
                         <button
                           type="button"
-                          onClick={() => toggleDone(task.id)}
-                          className={`rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-widest transition ${
-                            done
-                              ? 'border-emerald-300/20 bg-emerald-300/10 text-emerald-200'
-                              : 'border-white/10 bg-white/[0.04] text-zinc-400 hover:bg-white/10'
-                          }`}
+                          onClick={() => updateTaskStatus(task, 'approved')}
+                          className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-200 transition hover:bg-emerald-300/15"
                         >
-                          {done ? 'Done' : 'Mark'}
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateTaskStatus(task, 'skipped')}
+                          className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 transition hover:bg-white/10"
+                        >
+                          Skip
                         </button>
                       </div>
                     </div>

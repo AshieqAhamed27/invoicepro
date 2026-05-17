@@ -4,6 +4,8 @@ import api from '../utils/api';
 import { getUser, hasProAccess } from '../utils/auth';
 import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
+import ClientSetupWizard from '../components/ClientSetupWizard';
+import PaymentReliabilityCenter from '../components/PaymentReliabilityCenter';
 import { trackEvent } from '../utils/analytics';
 
 const AIBillingAgent = lazy(() => import('../components/AIBillingAgent'));
@@ -422,6 +424,30 @@ export default function Dashboard() {
     setSelectedWorkflowId('business-autopilot');
     trackEvent('enable_dashboard_autopilot');
     navigate('/business-autopilot');
+  };
+
+  const applySetupProfile = (profile) => {
+    const workflowId = profile?.workflow || 'business-autopilot';
+
+    if (simpleWorkflowOptions.some((item) => item.id === workflowId)) {
+      setSelectedWorkflowId(workflowId);
+    }
+
+    setIncomeGoal((prev) => normalizeIncomeGoal({
+      ...prev,
+      target: profile?.monthlyTarget || prev.target,
+      service: profile?.service || prev.service
+    }));
+
+    if (workflowId === 'business-autopilot') {
+      setAutopilotEnabled(true);
+    }
+
+    trackEvent('complete_setup_wizard', {
+      workflow_id: workflowId,
+      business_type: profile?.businessType,
+      payment_method: profile?.paymentMethod
+    });
   };
 
   useEffect(() => {
@@ -1425,6 +1451,15 @@ export default function Dashboard() {
           </section>
         )}
 
+        {!dashboardError && !loading && (
+          <ClientSetupWizard
+            onApplySetup={applySetupProfile}
+            onOpenAutopilot={enableAutopilot}
+            selectedWorkflowId={selectedWorkflowId}
+            stats={stats}
+          />
+        )}
+
         {!dashboardError && (
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
             <div className="mb-8 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-end">
@@ -2384,6 +2419,16 @@ export default function Dashboard() {
             </div>
           </div>
         </section>
+
+        {!dashboardError && !loading && (
+          <PaymentReliabilityCenter
+            stats={stats}
+            invoices={invoices}
+            insights={aiInsights}
+            onOpenPayments={() => navigate('/payment')}
+            onOpenInvoice={(invoice) => navigate(`/invoice/${invoice._id}`)}
+          />
+        )}
 
         <div id="payment-collection-agent">
           {showHeavySections ? (
