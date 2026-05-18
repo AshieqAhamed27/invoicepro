@@ -1810,6 +1810,7 @@ const supportAssistantKnowledge = {
     product: 'ClientFlow AI is a freelancer business system for finding clients, managing deals, writing proposals, working with collaborators, creating invoices, sharing payment links, and tracking cashflow.',
     positioning: 'It is built India-first with Rs invoices, Razorpay/UPI-friendly payment flow, WhatsApp sharing, Udyam trust messaging, and support for global clients through international payment links when Razorpay is enabled.',
     pricing: 'Free access is available for starting users. Pro is Rs 499 monthly or Rs 4999 yearly. Agency setup services are separate if the user wants done-with-you setup.',
+    honestLimits: 'Do not promise guaranteed clients, guaranteed income, automatic payment approval, or real server automation unless a connected integration exists. Voice quality depends on the user browser and device voices. AI answers require a configured provider; fallback rules are used when the provider is unavailable.',
     features: [
         'AI coach for finding clients and talking to prospects',
         'Client finder and lead pipeline',
@@ -1840,6 +1841,65 @@ const supportSuggestions = [
     'How do I collect payments?',
     'How should I talk to a client?'
 ];
+
+const supportPageGuides = [
+    {
+        match: (page = '') => page === '/' || page.startsWith('/freelancers') || page.startsWith('/developers') || page.startsWith('/designers') || page.startsWith('/consultants') || page.startsWith('/agencies'),
+        guide: 'The user is on a public product/landing page. Explain value quickly: lead, proposal, work, invoice, payment. Help them understand whether the product fits them.'
+    },
+    {
+        match: (page = '') => page.startsWith('/client-flow'),
+        guide: 'The user is on Client Flow. Coach them through the sequence: lead, proposal, workroom, invoice, payment. Give one next action based on their confusion.'
+    },
+    {
+        match: (page = '') => page.startsWith('/ai-coach'),
+        guide: 'The user is on AI Coach. Ask for their service, target client, result, price, and channel. Then give client-finding scripts and next actions.'
+    },
+    {
+        match: (page = '') => page.startsWith('/create-invoice'),
+        guide: 'The user is creating an invoice/proposal. Help with client name, service, amount, due date, GST, payment method, and the share message.'
+    },
+    {
+        match: (page = '') => page.startsWith('/payment'),
+        guide: 'The user is on pricing/payment. Be honest: Free is fine for simple use; Pro is for serious lead-to-payment workflow, follow-up, proposals, workrooms, and cashflow.'
+    },
+    {
+        match: (page = '') => page.startsWith('/devops-delivery'),
+        guide: 'The user is on DevOps Delivery. Separate real automation from checklist workflow. If there is no server connection, call it a handover/checklist workflow, not automatic Linux monitoring.'
+    },
+    {
+        match: (page = '') => page.startsWith('/dashboard'),
+        guide: 'The user is on Dashboard. Help them choose today\'s business action based on leads, invoices, pending money, and workflow health.'
+    },
+    {
+        match: (page = '') => page.startsWith('/settings'),
+        guide: 'The user is in Settings. Help them configure business profile, payment details, branding, product settings, automation, and security.'
+    }
+];
+
+const getSupportPageGuide = (page = '') => {
+    const cleanPage = compactText(page, '/').toLowerCase();
+    return supportPageGuides.find((item) => item.match(cleanPage))?.guide || 'Use the current page and user question to give one clear next action.';
+};
+
+const sanitizeSupportPageContext = (value) => {
+    if (!value || typeof value !== 'object') return '';
+
+    const cleanList = (items) => (Array.isArray(items) ? items : [])
+        .map((item) => compactText(item, '').slice(0, 90))
+        .filter(Boolean)
+        .slice(0, 10);
+
+    const context = {
+        title: compactText(value.title, '').slice(0, 120),
+        pathname: compactText(value.pathname, '').slice(0, 120),
+        h1: cleanList(value.h1),
+        h2: cleanList(value.h2),
+        actions: cleanList(value.actions)
+    };
+
+    return JSON.stringify(context);
+};
 
 const supportLanguageInstructions = {
     auto: 'Detect the user language and reply in the same natural style. If the user mixes languages, reply in that same mixed style. If the user uses another language, answer in that language when possible.',
@@ -1960,7 +2020,7 @@ const buildSupportFallback = (question = '') => {
 
     if (!text) {
         return [
-            'Tell me what you are trying to do, and I will guide you step by step.',
+            'Tell me what you are trying to finish, and I will make the next step small.',
             '',
             'For example, ask:',
             '1. What should I do next?',
@@ -1968,7 +2028,21 @@ const buildSupportFallback = (question = '') => {
             '3. How do I create and share an invoice?',
             '4. Is this feature real or still manual?',
             '',
-            'Short question is enough. I will keep the answer practical.'
+            'Short question is enough. I will answer like a coach, not like a help article.'
+        ].join('\n');
+    }
+
+    if (/\b(ai coach|assistant|coach|reply|answer|perfect|not perfect|wrong|not correct|friendly|like you|robot)\b/.test(text)) {
+        return [
+            'You are right to expect better from the coach.',
+            '',
+            'A good coach should do this:',
+            '1. understand what page the user is on',
+            '2. answer in simple friendly language',
+            '3. give the next action, not generic motivation',
+            '4. be honest when a feature is manual, demo, or not connected yet',
+            '',
+            'Try one direct question like "help me get clients for website design" or "explain this page". The answer should be practical, short, and usable immediately.'
         ].join('\n');
     }
 
@@ -2067,7 +2141,10 @@ const buildSupportFallback = (question = '') => {
             '4. Send a short helpful message.',
             '5. Save every reply as a lead and follow up.',
             '',
-            'The tool will not magically bring clients. It should make the daily sales process less confusing.'
+            'Copy-ready message:',
+            '"Hi, I noticed one thing you can improve. I help businesses with this problem. Want me to share 2 quick ideas?"',
+            '',
+            'The tool will not magically bring clients. It should make the daily sales process less confusing and easier to repeat.'
         ].join('\n');
     }
 
@@ -2123,23 +2200,42 @@ const buildSupportFallback = (question = '') => {
     ].join('\n');
 };
 
-const callAiSupportAssistant = async({ messages, page, fallback, languageMode = 'auto', languageLabel = '', voiceMode = 'text' }) => {
+const normalizeSupportCoachAnswer = (answer = '', fallback = '') => {
+    const text = String(answer || '')
+        .replace(/^\s*(coach|answer|assistant)\s*:\s*/i, '')
+        .trim();
+
+    const generic = /\b(as an ai|how can i assist|i can help you with|feel free to ask|i'm here to help)\b/i.test(text);
+    const marketing = /\b(revolutionary|game-changing|seamless solution|unlock your potential)\b/i.test(text);
+
+    if (!text || text.length < 18 || generic || marketing) return fallback;
+    return text.slice(0, 3000);
+};
+
+const callAiSupportAssistant = async({ messages, page, pageContext = '', fallback, languageMode = 'auto', languageLabel = '', voiceMode = 'text' }) => {
     const latestQuestion = messages[messages.length - 1]?.content || '';
     const history = messages
         .map((message) => `${message.role}: ${message.content}`)
         .join('\n');
     const languageInstruction = getSupportLanguageInstruction(languageMode, languageLabel);
+    const pageGuide = getSupportPageGuide(page);
 
     const prompt = [
         'You are the in-product human-style AI coach inside the ClientFlow AI website.',
         'Act like a real practical coach sitting next to the user, not a generic FAQ bot and not a sales page.',
         'Your job is to reduce confusion and help the user take the next correct action in the product or in their freelance business.',
         'Sound like the helpful builder in this conversation: warm, direct, honest, encouraging, specific, and calm.',
-        'Use natural spoken wording with short sentences, especially when the user is using voice. Avoid corporate marketing language.',
+        'Use natural spoken wording with short sentences, especially when the user is using voice. Avoid corporate marketing language and avoid stiff support phrasing.',
         `Language instruction: ${languageInstruction}`,
         `User input mode: ${voiceMode === 'voice' ? 'voice or speech' : 'text'}.`,
         `Style guide:\n${supportCoachStyleGuide}`,
         `Examples of the desired coaching style:\n${formatSupportCoachExamples()}`,
+        'Response contract:',
+        'The first line must directly answer the user. No warm-up sentence if it delays the answer.',
+        'If the user asks for action, include "Do this now:" and 2 to 4 small steps.',
+        'If the user asks for a message/script, write the message they can copy.',
+        'If the user asks if something is real, hard, useful, or ready, answer honestly first.',
+        'If the user is frustrated, agree with the issue briefly and then fix the next step.',
         'Coach behavior:',
         'Start with the useful answer, not with "ClientFlow AI is..." unless the user asks what the product is.',
         'Use the user message and current page to infer what they are trying to do. If they are vague, still give one likely next action and ask one small clarifying question.',
@@ -2169,12 +2265,15 @@ const callAiSupportAssistant = async({ messages, page, fallback, languageMode = 
         `Product facts: ${supportAssistantKnowledge.product}`,
         `Positioning: ${supportAssistantKnowledge.positioning}`,
         `Pricing: ${supportAssistantKnowledge.pricing}`,
+        `Honest limits: ${supportAssistantKnowledge.honestLimits}`,
         `Features: ${supportAssistantKnowledge.features.join('; ')}`,
         `User outcomes: ${supportAssistantKnowledge.outcomes.join('; ')}`,
         `Contact email: ${supportAssistantKnowledge.contactEmail}`,
         `Contact phone: ${supportAssistantKnowledge.contactPhone}`,
         `LinkedIn: ${supportAssistantKnowledge.linkedIn}`,
         `Current page: ${compactText(page, '/').slice(0, 120)}`,
+        `Current page guide: ${pageGuide}`,
+        `Visible page context: ${pageContext || 'not provided'}`,
         `Grounding facts if unsure. Do not copy this word-for-word; use it only to avoid false claims: ${fallback}`,
         `Conversation:\n${history}`,
         `Latest question: ${latestQuestion}`
@@ -2183,7 +2282,7 @@ const callAiSupportAssistant = async({ messages, page, fallback, languageMode = 
     const result = await callAiText({ prompt, timeout: 12000, maxTokens: 1200 });
     return {
         ...result,
-        text: String(result.text || '').trim().slice(0, 3000)
+        text: normalizeSupportCoachAnswer(result.text, fallback)
     };
 };
 
@@ -2274,6 +2373,7 @@ router.post('/support-chat', async(req, res) => {
     const languageMode = compactText(req.body?.languageMode, 'auto').toLowerCase().slice(0, 30);
     const languageLabel = compactText(req.body?.languageLabel, '').slice(0, 60);
     const voiceMode = compactText(req.body?.voiceMode, 'text').toLowerCase().slice(0, 20);
+    const pageContext = sanitizeSupportPageContext(req.body?.pageContext);
 
     if (!latestQuestion) {
         return res.status(400).json({
@@ -2287,6 +2387,7 @@ router.post('/support-chat', async(req, res) => {
         const aiAnswer = await callAiSupportAssistant({
             messages,
             page: req.body?.page,
+            pageContext,
             fallback,
             languageMode,
             languageLabel,

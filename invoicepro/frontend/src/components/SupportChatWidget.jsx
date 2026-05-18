@@ -9,9 +9,93 @@ import {
 
 const hiddenRoutePrefixes = ['/public/invoice', '/p/invoice'];
 
-const fallbackAnswer = `I'm with you. The coach is slow right now, but do this first: tell me the exact thing you are trying to finish.
+const createLocalCoachFallback = (question = '', page = '/') => {
+  const text = String(question || '').toLowerCase();
+  const onClientFlow = String(page || '').startsWith('/client-flow');
+  const onInvoice = String(page || '').startsWith('/create-invoice');
+  const onPayment = String(page || '').startsWith('/payment');
 
-Example: "help me get clients", "explain this page", "fix payment setup", or "what should I do next". I will guide you step by step. For direct support, email ${SUPPORT_EMAIL} or call ${SUPPORT_PHONE_DISPLAY}.`;
+  if (/\b(client|lead|customer|sales|first client|get clients|outreach|linkedin|instagram)\b/.test(text)) {
+    return `Do this now:
+1. Pick one service you can deliver well.
+2. Pick one target client type.
+3. Find 10 real leads today and save them.
+4. Send one short useful message, not a long sales pitch.
+
+Message example:
+"Hi, I noticed one thing you can improve. I help businesses with this exact problem. Want me to share 2 quick ideas?"
+
+Then track every reply inside ${PRODUCT_NAME}.`;
+  }
+
+  if (/\b(invoice|payment|paid|collect|upi|razorpay|overdue|pending)\b/.test(text) || onInvoice || onPayment) {
+    return `Do this now:
+1. Create the invoice with client name, service, amount, due date, and payment method.
+2. Share the invoice link or PDF.
+3. If it is unpaid, send a polite follow-up before the due date.
+
+Simple follow-up:
+"Hi, sharing this invoice again for easy reference. Please complete it when possible. Thank you."
+
+The goal is not only making an invoice. The goal is making payment easy to complete.`;
+  }
+
+  if (/\b(pro|price|pricing|paid plan|upgrade|free|worth)\b/.test(text)) {
+    return `Honest answer: Free is enough if the user only wants to test or create a simple invoice.
+
+Pro is worth it only when the user actively needs:
+1. lead tracking
+2. proposals
+3. workroom/project flow
+4. payment follow-up
+5. cashflow guidance
+
+Do not sell Pro as "more buttons". Sell it as "less confusion from lead to payment".`;
+  }
+
+  if (/\b(linux|devops|vps|server|github|deploy|deployment|ssl|nginx|backup)\b/.test(text)) {
+    return `Be clear with users:
+If the feature stores checklist, handover notes, GitHub links, SSL notes, backup plan, and maintenance items, call it a DevOps delivery workflow.
+
+Only call it real Linux automation if it actually connects to a server, checks logs, verifies SSL, or runs commands.
+
+For now, the easy useful version is a developer handover and maintenance checklist. That still solves a real client problem.`;
+  }
+
+  if (/\b(ai coach|assistant|coach|reply|answer|perfect|wrong|not correct)\b/.test(text)) {
+    return `You are right to expect better from the coach.
+
+A good coach should do 3 things:
+1. understand the page the user is on
+2. answer in simple friendly language
+3. give the next action, not generic motivation
+
+Try asking one direct thing like "help me get clients for web design" or "explain this page". I will keep the answer practical.`;
+  }
+
+  if (onClientFlow || /\b(next|start|workflow|what should i do|how to use|step)\b/.test(text)) {
+    return `Start with one real workflow. Do not open every tool first.
+
+Do this now:
+1. Add or choose one lead.
+2. Send a proposal or clear message.
+3. Create the invoice after the work/scope is clear.
+4. Track payment status and follow up.
+
+That is the main ${PRODUCT_NAME} path: lead, proposal, work, invoice, payment.`;
+  }
+
+  return `I'm with you. Tell me the exact thing you want to finish.
+
+Useful examples:
+1. "Help me get clients"
+2. "Explain this page"
+3. "Write a client message"
+4. "How do I collect payment?"
+5. "What should I do next?"
+
+For direct support, email ${SUPPORT_EMAIL} or call ${SUPPORT_PHONE_DISPLAY}.`;
+};
 
 const defaultQuickQuestions = [
   'Explain this product clearly',
@@ -312,6 +396,37 @@ const getLanguageMode = (mode) =>
 
 const cleanTranscript = (value) =>
   String(value || '').replace(/\s+/g, ' ').trim();
+
+const cleanCoachAnswer = (answer, fallback) => {
+  const text = String(answer || '')
+    .replace(/^\s*(coach|answer|assistant)\s*:\s*/i, '')
+    .trim();
+
+  const tooGeneric = /\b(as an ai|how can i assist|i can help you with|feel free to ask|i'm here to help)\b/i.test(text);
+  if (!text || text.length < 18 || tooGeneric) return fallback;
+
+  return text;
+};
+
+const getPageContextSnapshot = (pathname) => {
+  if (typeof document === 'undefined') {
+    return { pathname };
+  }
+
+  const textFrom = (selector, limit = 6) =>
+    Array.from(document.querySelectorAll(selector))
+      .map((element) => cleanTranscript(element.textContent))
+      .filter(Boolean)
+      .slice(0, limit);
+
+  return {
+    pathname,
+    title: document.title,
+    h1: textFrom('h1', 2),
+    h2: textFrom('h2', 5),
+    actions: textFrom('button, a[href]', 10)
+  };
+};
 
 const getSpeechRecognition = () => {
   if (typeof window === 'undefined') return null;
@@ -652,6 +767,7 @@ export default function SupportChatWidget() {
 
     const userMessage = { role: 'user', content: cleanQuestion };
     const nextMessages = [...messages, userMessage];
+    const localFallback = createLocalCoachFallback(cleanQuestion, pathname);
 
     setMessages(nextMessages);
     setInput('');
@@ -661,6 +777,7 @@ export default function SupportChatWidget() {
     try {
       const res = await api.post('/ai/support-chat', {
         page: pathname,
+        pageContext: getPageContextSnapshot(pathname),
         languageMode,
         languageLabel: selectedLanguage.label,
         voiceMode: voiceEnabled ? 'voice' : 'text',
@@ -673,16 +790,16 @@ export default function SupportChatWidget() {
         ...current,
         {
           role: 'assistant',
-          content: res.data?.answer || fallbackAnswer
+          content: cleanCoachAnswer(res.data?.answer, localFallback)
         }
       ]);
     } catch {
-      setError('Assistant is slow right now. Showing a safe answer.');
+      setError('Coach is slow right now. Showing a practical offline answer.');
       setMessages((current) => [
         ...current,
         {
           role: 'assistant',
-          content: fallbackAnswer
+          content: localFallback
         }
       ]);
     } finally {
