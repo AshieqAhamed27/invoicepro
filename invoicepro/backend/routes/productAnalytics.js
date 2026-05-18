@@ -48,10 +48,15 @@ const requireAdmin = (req, res) => {
 };
 
 const countUnique = async(match, field) => {
-    const values = await ProductAnalyticsEvent.distinct(field, {
-        ...match,
-        [field]: { $nin: [null, ''] }
-    });
+    const query = { ...match };
+
+    if (!query[field]) {
+        query[field] = field === 'user'
+            ? { $ne: null }
+            : { $nin: [null, ''] };
+    }
+
+    const values = await ProductAnalyticsEvent.distinct(field, query);
 
     return values.length;
 };
