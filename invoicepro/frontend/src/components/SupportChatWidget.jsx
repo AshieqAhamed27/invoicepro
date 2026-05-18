@@ -354,6 +354,7 @@ export default function SupportChatWidget() {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isVoicePaused, setIsVoicePaused] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState('');
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -362,6 +363,7 @@ export default function SupportChatWidget() {
   const hiddenOnCurrentRoute = hiddenRoutePrefixes.some((prefix) => pathname.startsWith(prefix));
   const selectedLanguage = getLanguageMode(languageMode);
   const avatarMode = isListening ? 'listening' : isSpeaking ? 'speaking' : 'idle';
+  const voiceHasActiveSpeech = isSpeaking || isVoicePaused;
 
   const getSpeechLangForText = (text) => {
     if (selectedLanguage.voiceLang === 'auto') {
@@ -380,7 +382,6 @@ export default function SupportChatWidget() {
     return (
       voices.find((voice) => voice.lang === language) ||
       voices.find((voice) => voice.lang?.toLowerCase().startsWith(`${languagePrefix}-`)) ||
-      voices.find((voice) => /english|india|tamil/i.test(`${voice.name} ${voice.lang}`)) ||
       null
     );
   };
@@ -390,6 +391,7 @@ export default function SupportChatWidget() {
     if (!cleanText || !isSpeechSynthesisSupported()) return;
 
     window.speechSynthesis.cancel();
+    setIsVoicePaused(false);
 
     const speechLang = getSpeechLangForText(cleanText);
     const utterance = new window.SpeechSynthesisUtterance(cleanText);
@@ -403,14 +405,27 @@ export default function SupportChatWidget() {
 
     utterance.onstart = () => {
       setIsSpeaking(true);
+      setIsVoicePaused(false);
+      setVoiceStatus('Speaking...');
+    };
+    utterance.onpause = () => {
+      setIsSpeaking(false);
+      setIsVoicePaused(true);
+      setVoiceStatus('Voice paused');
+    };
+    utterance.onresume = () => {
+      setIsSpeaking(true);
+      setIsVoicePaused(false);
       setVoiceStatus('Speaking...');
     };
     utterance.onend = () => {
       setIsSpeaking(false);
+      setIsVoicePaused(false);
       setVoiceStatus('');
     };
     utterance.onerror = () => {
       setIsSpeaking(false);
+      setIsVoicePaused(false);
       setVoiceStatus('');
     };
 
@@ -445,6 +460,21 @@ export default function SupportChatWidget() {
   }, [messages, loading, isOpen]);
 
   useEffect(() => {
+    if (!isSpeechSynthesisSupported()) return undefined;
+
+    const warmVoices = () => {
+      window.speechSynthesis.getVoices();
+    };
+
+    warmVoices();
+    window.speechSynthesis.addEventListener?.('voiceschanged', warmVoices);
+
+    return () => {
+      window.speechSynthesis.removeEventListener?.('voiceschanged', warmVoices);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!voiceEnabled || !isOpen || loading) return;
 
     const latestMessage = messages[messages.length - 1];
@@ -465,6 +495,50 @@ export default function SupportChatWidget() {
       }
     };
   }, []);
+
+  const stopVoice = () => {
+    if (!isSpeechSynthesisSupported()) return;
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+    setIsVoicePaused(false);
+    setVoiceStatus('');
+  };
+
+  const pauseOrResumeVoice = () => {
+    if (!isSpeechSynthesisSupported()) return;
+
+    if (isVoicePaused || window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+      setIsSpeaking(true);
+      setIsVoicePaused(false);
+      setVoiceStatus('Speaking...');
+      return;
+    }
+
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.pause();
+      setIsSpeaking(false);
+      setIsVoicePaused(true);
+      setVoiceStatus('Voice paused');
+    }
+  };
+
+  const handleLanguageChange = (mode) => {
+    stopVoice();
+    setLanguageMode(mode);
+    setVoiceStatus('');
+  };
+
+  const handleEditMessage = (messageIndex) => {
+    const message = messages[messageIndex];
+    if (!message || message.role !== 'user' || loading) return;
+
+    stopVoice();
+    setInput(message.content);
+    setMessages((current) => current.slice(0, messageIndex));
+    setError('');
+    setVoiceStatus('Editing message. Update it and send again.');
+  };
 
   const askAssistant = async(question) => {
     const cleanQuestion = String(question || '').trim();
@@ -534,6 +608,7 @@ export default function SupportChatWidget() {
     if (isSpeechSynthesisSupported()) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      setIsVoicePaused(false);
     }
 
     let heardTranscript = '';
@@ -600,9 +675,7 @@ export default function SupportChatWidget() {
     }
 
     if (voiceEnabled) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      setVoiceStatus('');
+      stopVoice();
       setVoiceEnabled(false);
       return;
     }
@@ -636,7 +709,7 @@ export default function SupportChatWidget() {
                   <select
                     id="coach-language-mode"
                     value={languageMode}
-                    onChange={(event) => setLanguageMode(event.target.value)}
+                    onChange={(event) => handleLanguageChange(event.target.value)}
                     className="h-8 rounded-lg border border-white/10 bg-slate-900 px-2 text-[11px] font-bold text-slate-100 outline-none transition focus:border-blue-300/50 focus:ring-2 focus:ring-blue-400/30"
                   >
                     {languageModes.map((mode) => (
@@ -678,6 +751,36 @@ export default function SupportChatWidget() {
                     </svg>
                     <span>{voiceEnabled ? 'Voice on' : 'Voice off'}</span>
                   </button>
+                  {voiceHasActiveSpeech && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={pauseOrResumeVoice}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 text-[11px] font-black text-slate-100 transition hover:border-blue-300/40 hover:bg-blue-500/10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        aria-label={isVoicePaused ? 'Resume voice reply' : 'Pause voice reply'}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          {isVoicePaused ? (
+                            <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l10.5-6.86a1 1 0 0 0 0-1.72L9.5 4.28A1 1 0 0 0 8 5.14Z" />
+                          ) : (
+                            <path d="M7 5a2 2 0 0 1 2 2v10a2 2 0 1 1-4 0V7a2 2 0 0 1 2-2Zm10 0a2 2 0 0 1 2 2v10a2 2 0 1 1-4 0V7a2 2 0 0 1 2-2Z" />
+                          )}
+                        </svg>
+                        <span>{isVoicePaused ? 'Resume' : 'Pause'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={stopVoice}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 text-[11px] font-black text-slate-100 transition hover:border-rose-300/40 hover:bg-rose-500/10 focus:outline-none focus:ring-2 focus:ring-rose-300"
+                        aria-label="Stop voice reply"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path d="M7 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
+                        </svg>
+                        <span>Stop</span>
+                      </button>
+                    </>
+                  )}
                 </div>
                 {voiceStatus && (
                   <p className="mt-2 text-[11px] font-bold text-blue-100">{voiceStatus}</p>
@@ -700,15 +803,28 @@ export default function SupportChatWidget() {
                 key={`${message.role}-${index}`}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <p
-                  className={`max-w-[92%] whitespace-pre-line break-words rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                    message.role === 'user'
-                      ? 'rounded-br-md bg-blue-500 text-white'
-                      : 'rounded-bl-md border border-white/10 bg-white/[0.07] text-slate-100'
-                  }`}
-                >
-                  {message.content}
-                </p>
+                <div className={`flex max-w-[92%] flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  <p
+                    className={`whitespace-pre-line break-words rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                      message.role === 'user'
+                        ? 'rounded-br-md bg-blue-500 text-white'
+                        : 'rounded-bl-md border border-white/10 bg-white/[0.07] text-slate-100'
+                    }`}
+                  >
+                    {message.content}
+                  </p>
+                  {message.role === 'user' && (
+                    <button
+                      type="button"
+                      onClick={() => handleEditMessage(index)}
+                      disabled={loading}
+                      className="mt-1 rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-blue-100/80 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-not-allowed disabled:opacity-50"
+                      aria-label="Edit message"
+                    >
+                      Edit
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
 
