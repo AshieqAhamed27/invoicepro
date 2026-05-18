@@ -277,6 +277,8 @@ export default function Admin() {
   const paidMembers = Number(productTotals.paidMembers || 0);
   const signupRate = uniqueVisitors > 0 ? (registeredMembers / uniqueVisitors) * 100 : 0;
   const paidRate = registeredMembers > 0 ? (paidMembers / registeredMembers) * 100 : 0;
+  const platformEarnings = revenue?.platformEarnings || {};
+  const earningSources = platformEarnings.sources || {};
 
   return (
     <div className="premium-page min-h-screen text-white">
@@ -408,23 +410,26 @@ export default function Admin() {
           <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Company Revenue</p>
-                <h2 className="text-2xl font-black tracking-tight text-white">Money dashboard</h2>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-emerald-300">Admin-only earnings</p>
+                <h2 className="text-2xl font-black tracking-tight text-white">How much this product earned</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                  Counts ClientFlow AI plan money and agency setup money. Users&apos; paid invoices are shown separately because that money belongs to their clients/business.
+                </p>
               </div>
               <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
                 revenueError ? 'border-red-400/10 bg-red-400/5 text-red-400' : 'border-emerald-400/10 bg-emerald-400/5 text-emerald-400'
               }`}>
-                {revenueError ? 'Unavailable' : 'Live'}
+                {revenueError ? 'Unavailable' : 'Admin only'}
               </span>
             </div>
           </div>
 
           <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-4">
             {[
-              { label: 'MRR Estimate', value: formatMoney(revenue?.subscriptions?.mrr), tone: 'text-emerald-300' },
-              { label: 'Paid Invoice Revenue', value: formatMoney(revenue?.invoices?.paidRevenue), tone: 'text-white' },
-              { label: 'Pending Invoice Revenue', value: formatMoney(revenue?.invoices?.pendingRevenue), tone: 'text-yellow-300' },
-              { label: 'Active Subscriptions', value: revenue?.subscriptions?.active || 0, tone: 'text-sky-300' }
+              { label: 'Total Product Earned', value: formatMoney(platformEarnings.totalEarned), tone: 'text-emerald-300' },
+              { label: 'Plan Earnings', value: formatMoney(platformEarnings.planRevenue), tone: 'text-white' },
+              { label: 'Agency Setup Earned', value: formatMoney(platformEarnings.agencyRevenue), tone: 'text-yellow-300' },
+              { label: 'MRR Estimate', value: formatMoney(revenue?.subscriptions?.mrr), tone: 'text-sky-300' }
             ].map((item) => (
               <div key={item.label} className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
                 <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
@@ -435,33 +440,46 @@ export default function Admin() {
 
           <div className="grid gap-6 px-5 pb-5 sm:px-8 sm:pb-8 lg:grid-cols-2">
             <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">User Funnel</p>
-              <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Earning Sources</p>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
                 {[
-                  ['Users', revenue?.users?.totalUsers || 0],
-                  ['Paid/Trial', revenue?.users?.proUsers || 0],
-                  ['Trials', revenue?.users?.trialUsers || 0]
+                  ['Subscriptions', formatMoney(earningSources.subscriptions?.collected)],
+                  ['Manual Plans', formatMoney(earningSources.manualApprovals?.collected)],
+                  ['Direct Checkout', formatMoney(earningSources.directCheckoutEstimate?.collected)],
+                  ['Agency Setup', formatMoney(earningSources.agencySetup?.collected)]
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                    <p className="text-2xl font-black text-white">{revenueLoading ? '--' : value}</p>
+                    <p className="text-xl font-black text-white">{revenueLoading ? '--' : value}</p>
                     <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
                   </div>
                 ))}
               </div>
+              <p className="mt-4 text-xs font-semibold leading-relaxed text-zinc-500">
+                {platformEarnings.note || 'Only admin accounts can load this API.'}
+              </p>
             </div>
 
             <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Payment Links</p>
-              <p className="mt-4 text-4xl font-black text-white">{revenueLoading ? '--' : (revenue?.invoices?.paymentLinks || 0)}</p>
-              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
-                {revenueLoading ? 'Checking...' : `${revenue?.invoices?.paidInvoices || 0} paid invoices / ${revenue?.invoices?.totalInvoices || 0} total invoices`}
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">User Invoice Money</p>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                  <p className="text-2xl font-black text-white">{revenueLoading ? '--' : formatMoney(revenue?.invoices?.paidRevenue)}</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Paid by their clients</p>
+                </div>
+                <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                  <p className="text-2xl font-black text-yellow-300">{revenueLoading ? '--' : formatMoney(revenue?.invoices?.pendingRevenue)}</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Pending invoices</p>
+                </div>
+              </div>
+              <p className="mt-4 text-xs font-bold uppercase tracking-widest text-zinc-500">
+                {revenueLoading ? 'Checking...' : `${revenue?.invoices?.paymentLinks || 0} payment links / ${revenue?.invoices?.paidInvoices || 0} paid invoices`}
               </p>
             </div>
           </div>
 
           {!revenueLoading && revenue?.recentPaidInvoices?.length > 0 && (
             <div className="border-t border-white/5 p-5 sm:p-8">
-              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent Paid Invoices</p>
+              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent User Paid Invoices</p>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {revenue.recentPaidInvoices.map((invoice) => (
                   <div key={invoice._id} className="rounded-2xl border border-white/5 bg-black/10 p-4">

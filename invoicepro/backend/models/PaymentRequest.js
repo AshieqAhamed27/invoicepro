@@ -33,6 +33,18 @@ const paymentRequestSchema = new mongoose.Schema({
     plan: {
         type: String,
         default: 'monthly'
+    },
+    amount: {
+        type: Number,
+        default: 0
+    },
+    currency: {
+        type: String,
+        default: 'INR'
+    },
+    approvedAt: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 

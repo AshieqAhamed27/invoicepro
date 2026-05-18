@@ -85,6 +85,20 @@ const normalizePlan = (plan) => {
     return planDetails[safePlan] ? safePlan : null;
 };
 
+const getPlanAmount = (plan, fallbackAmount = 0) => {
+    const normalizedPlan = normalizePlan(plan);
+    const amount = Number(fallbackAmount || 0);
+    if (Number.isFinite(amount) && amount > 0) return amount;
+    return normalizedPlan ? Number(planDetails[normalizedPlan]?.amount || 0) : 0;
+};
+
+const getSubscriptionPaidCycles = (subscription = {}) => {
+    const paidCount = Number(subscription.paidCount || 0);
+    if (Number.isFinite(paidCount) && paidCount > 0) return paidCount;
+    if (subscription.lastPaymentId) return 1;
+    return 0;
+};
+
 const getRazorpaySubscriptionPlanId = (plan) => {
     const normalizedPlan = normalizePlan(plan);
     if (!normalizedPlan) return '';
@@ -1126,6 +1140,8 @@ router.post('/request', protect, upload.single('screenshot'), async(req, res) =>
             screenshotSize: req.file.size,
             screenshotData: req.file.buffer,
             plan: normalizedPlan,
+            amount: getPlanAmount(normalizedPlan),
+            currency: 'INR',
             status: 'pending'
         });
 
@@ -1152,8 +1168,9 @@ router.get('/admin/revenue', protect, async(req, res) => {
     try {
         if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
 
+        const agencyPaidStatuses = ['paid', 'in_progress', 'delivered'];
         const activeSubscriptionStatuses = ['active', 'authenticated'];
-        const [userStats, invoiceStatsResult, activeSubscriptions, recentSubscriptions, recentPaidInvoices] = await Promise.all([
+        const [userStats, invoiceStatsResult, activeSubscriptions, billingSubscriptions, manualPaymentRequests, directCheckoutUsers, agencyEarningsResult, recentSubscriptions, recentPaidInvoices] = await Promise.all([
             User.aggregate([
                 {
                     $group: {
@@ -1194,6 +1211,27 @@ router.get('/admin/revenue', protect, async(req, res) => {
                 status: { $in: activeSubscriptionStatuses }
             }).select('plan amount currency status currentEnd providerSubscriptionId updatedAt').lean(),
             BillingSubscription.find()
+                .select('user plan amount currency status paidCount lastPaymentId latestEvent currentEnd updatedAt createdAt')
+                .lean(),
+            PaymentRequest.find({ status: 'approved' })
+                .select('user plan amount currency status approvedAt updatedAt createdAt')
+                .lean(),
+            User.find({
+                lastPaymentAt: { $ne: null },
+                plan: { $in: Object.keys(planDetails) },
+                subscriptionStatus: { $in: ['one_time_payment', 'webhook_payment'] }
+            }).select('plan subscriptionStatus lastPaymentAt').lean(),
+            AgencySetup.aggregate([
+                { $match: { status: { $in: agencyPaidStatuses } } },
+                {
+                    $group: {
+                        _id: null,
+                        collected: { $sum: '$amount' },
+                        count: { $sum: 1 }
+                    }
+                }
+            ]),
+            BillingSubscription.find()
                 .select('plan amount currency status currentEnd providerSubscriptionId latestEvent lastPaymentId updatedAt createdAt')
                 .sort({ updatedAt: -1 })
                 .limit(8)
@@ -1219,10 +1257,51 @@ router.get('/admin/revenue', protect, async(req, res) => {
             if (subscription.plan === 'founder90') return sum;
             return sum + Number(subscription.amount || 0);
         }, 0);
+        const subscriptionRevenue = billingSubscriptions.reduce((sum, subscription) => (
+            sum + (getPlanAmount(subscription.plan, subscription.amount) * getSubscriptionPaidCycles(subscription))
+        ), 0);
+        const manualRevenue = manualPaymentRequests.reduce((sum, request) => (
+            sum + getPlanAmount(request.plan, request.amount)
+        ), 0);
+        const knownPlanRevenueUserIds = new Set([
+            ...billingSubscriptions.map((subscription) => String(subscription.user || '')).filter(Boolean),
+            ...manualPaymentRequests.map((request) => String(request.user || '')).filter(Boolean)
+        ]);
+        const directCheckoutEstimate = directCheckoutUsers
+            .filter((user) => !knownPlanRevenueUserIds.has(String(user._id)))
+            .reduce((sum, user) => sum + getPlanAmount(user.plan), 0);
+        const agencyEarnings = agencyEarningsResult[0] || { collected: 0, count: 0 };
+        const planRevenue = subscriptionRevenue + manualRevenue + directCheckoutEstimate;
+        const totalProductEarnings = planRevenue + Number(agencyEarnings.collected || 0);
 
         res.json({
             users: userSummary,
             invoices: invoiceSummary,
+            platformEarnings: {
+                totalEarned: Math.round(totalProductEarnings),
+                planRevenue: Math.round(planRevenue),
+                agencyRevenue: Math.round(Number(agencyEarnings.collected || 0)),
+                currency: 'INR',
+                sources: {
+                    subscriptions: {
+                        count: billingSubscriptions.filter((subscription) => getSubscriptionPaidCycles(subscription) > 0).length,
+                        collected: Math.round(subscriptionRevenue)
+                    },
+                    manualApprovals: {
+                        count: manualPaymentRequests.length,
+                        collected: Math.round(manualRevenue)
+                    },
+                    directCheckoutEstimate: {
+                        count: directCheckoutUsers.filter((user) => !knownPlanRevenueUserIds.has(String(user._id))).length,
+                        collected: Math.round(directCheckoutEstimate)
+                    },
+                    agencySetup: {
+                        count: Number(agencyEarnings.count || 0),
+                        collected: Math.round(Number(agencyEarnings.collected || 0))
+                    }
+                },
+                note: 'Admin-only platform earnings. Customer invoice amounts are shown separately and are not counted as ClientFlow AI earnings.'
+            },
             subscriptions: {
                 active: activeSubscriptions.length,
                 mrr: Math.round(mrr),
@@ -1258,6 +1337,9 @@ router.put('/approve/:id', protect, async(req, res) => {
         const request = await PaymentRequest.findById(req.params.id);
         if (!request) return res.status(404).json({ message: 'Not found' });
         request.status = 'approved';
+        request.amount = getPlanAmount(request.plan, request.amount);
+        request.currency = request.currency || 'INR';
+        request.approvedAt = request.approvedAt || new Date();
         await request.save();
         const user = await User.findById(request.user);
         if (user) await setUserPlan(user, request.plan, {
