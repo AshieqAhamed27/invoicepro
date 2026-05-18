@@ -22,6 +22,64 @@ const defaultQuickQuestions = [
   'Why should I pay for Pro?'
 ];
 
+const assistantStyles = `
+  @keyframes cf-guide-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  @keyframes cf-guide-wave {
+    0%, 100% { transform: rotate(-16deg); }
+    50% { transform: rotate(18deg); }
+  }
+
+  @keyframes cf-guide-blink {
+    0%, 88%, 100% { transform: scaleY(1); }
+    92%, 96% { transform: scaleY(0.12); }
+  }
+
+  @keyframes cf-guide-glow {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.08); }
+  }
+`;
+
+const GuideAvatar = ({ compact = false }) => {
+  const sizeClass = compact ? 'h-10 w-10' : 'h-14 w-14';
+
+  return (
+    <div
+      className={`${sizeClass} relative shrink-0`}
+      aria-hidden="true"
+      style={{ animation: 'cf-guide-bob 2.8s ease-in-out infinite' }}
+    >
+      <span
+        className="absolute inset-0 rounded-full bg-blue-400/30 blur-md"
+        style={{ animation: 'cf-guide-glow 2.4s ease-in-out infinite' }}
+      />
+      <div className="absolute inset-0 rounded-full border border-white/15 bg-gradient-to-b from-slate-800 to-slate-950 shadow-xl shadow-blue-950/30" />
+      <div className="absolute left-1/2 top-[17%] h-[43%] w-[46%] -translate-x-1/2 rounded-full bg-[#f2c7a5] shadow-inner shadow-white/15">
+        <div className="absolute left-0 top-[-6%] h-[35%] w-full rounded-t-full bg-slate-900" />
+        <span
+          className="absolute left-[28%] top-[45%] h-[8%] w-[10%] rounded-full bg-slate-950"
+          style={{ animation: 'cf-guide-blink 4.6s ease-in-out infinite' }}
+        />
+        <span
+          className="absolute right-[28%] top-[45%] h-[8%] w-[10%] rounded-full bg-slate-950"
+          style={{ animation: 'cf-guide-blink 4.6s ease-in-out infinite' }}
+        />
+        <span className="absolute left-1/2 top-[66%] h-[5%] w-[24%] -translate-x-1/2 rounded-full bg-rose-500/80" />
+      </div>
+      <div className="absolute bottom-[15%] left-1/2 h-[28%] w-[58%] -translate-x-1/2 rounded-t-full bg-gradient-to-r from-blue-500 to-purple-500" />
+      <div
+        className="absolute right-[4%] top-[36%] h-[26%] w-[14%] origin-bottom rounded-full bg-[#f2c7a5]"
+        style={{ animation: 'cf-guide-wave 1.7s ease-in-out infinite' }}
+      />
+      <span className="absolute bottom-[17%] right-[18%] h-2 w-2 rounded-full bg-emerald-300 shadow-lg shadow-emerald-400/50" />
+    </div>
+  );
+};
+
 const routeGuides = [
   {
     match: (pathname) => pathname.startsWith('/client-flow'),
@@ -171,16 +229,20 @@ export default function SupportChatWidget() {
 
   return (
     <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-4 z-40 print:hidden sm:left-5">
+      <style>{assistantStyles}</style>
       {isOpen && (
         <section
           className="mb-4 flex h-[min(720px,calc(100vh-6rem))] w-[calc(100vw-2rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 text-white shadow-2xl shadow-black/35 backdrop-blur-xl"
-          aria-label={`${PRODUCT_NAME} AI assistant`}
+          aria-label={`${PRODUCT_NAME} coach`}
         >
           <div className="shrink-0 flex items-start justify-between gap-3 border-b border-white/10 bg-gradient-to-r from-blue-600/25 to-purple-600/20 p-4">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-blue-200">{routeGuide.label}</p>
-              <h2 className="mt-1 text-base font-black">{PRODUCT_NAME} Assistant</h2>
-              <p className="mt-1 text-xs text-slate-300">Ask product, freelancing, client, invoice, and payment questions.</p>
+            <div className="flex min-w-0 gap-3">
+              <GuideAvatar />
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-blue-200">{routeGuide.label}</p>
+                <h2 className="mt-1 text-base font-black">{PRODUCT_NAME} Coach</h2>
+                <p className="mt-1 text-xs leading-relaxed text-slate-300">Ask how to use this page, what to click next, or how to finish your workflow.</p>
+              </div>
             </div>
             <button
               type="button"
@@ -228,6 +290,13 @@ export default function SupportChatWidget() {
           <div className="shrink-0 border-t border-white/10 p-3">
             {messages.length <= 1 && (
               <div className="mb-3 grid max-h-28 grid-cols-2 gap-2 overflow-y-auto pr-1">
+                <button
+                  type="button"
+                  onClick={() => askAssistant(`I am on ${pathname}. Explain this page and tell me the next 3 steps.`)}
+                  className="rounded-xl border border-blue-300/20 bg-blue-500/10 px-3 py-2 text-left text-[11px] font-bold text-blue-100 transition hover:-translate-y-0.5 hover:border-blue-300/40 hover:bg-blue-500/15 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  Guide this page
+                </button>
                 {routeGuide.questions.map((question) => (
                   <button
                     key={question}
@@ -282,17 +351,15 @@ export default function SupportChatWidget() {
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
-        className="group flex items-center gap-2 rounded-full border border-white/10 bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-xl shadow-black/25 transition hover:-translate-y-1 hover:border-blue-300/40 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="group flex items-center gap-3 rounded-full border border-white/10 bg-slate-950 px-3 py-2.5 text-sm font-black text-white shadow-xl shadow-black/25 transition hover:-translate-y-1 hover:border-blue-300/40 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400 sm:px-4"
         aria-expanded={isOpen}
-        aria-label={`${isOpen ? 'Close' : 'Open'} ${PRODUCT_NAME} AI assistant`}
+        aria-label={`${isOpen ? 'Close' : 'Open'} ${PRODUCT_NAME} coach`}
       >
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition group-hover:scale-105">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 0 0-1.032-.211 50.89 50.89 0 0 0-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 0 0 2.433 3.982l-3.498 2.187a.75.75 0 0 1-1.135-.636v-4.28a49.54 49.54 0 0 1-.387-.052C2.99 15.846 1.75 14.162 1.75 12.328V6.374c0-1.834 1.24-3.518 3.163-3.716Z" />
-            <path d="M15.75 7.5c1.376 0 2.739.057 4.086.17 1.67.138 2.914 1.54 2.914 3.207v3.346c0 1.668-1.244 3.07-2.914 3.209-.36.03-.72.057-1.083.08v3.838a.75.75 0 0 1-1.154.633l-5.002-3.201a45.697 45.697 0 0 1-1.922-.093c-1.67-.14-2.914-1.54-2.914-3.209v-3.346c0-1.668 1.244-3.07 2.914-3.207A49.138 49.138 0 0 1 15.75 7.5Z" />
-          </svg>
+        <GuideAvatar compact />
+        <span className="leading-tight">
+          <span className="block text-left">AI Coach</span>
+          <span className="hidden text-left text-[10px] font-bold text-slate-400 sm:block">Guide me</span>
         </span>
-        <span>Ask AI</span>
       </button>
     </div>
   );
