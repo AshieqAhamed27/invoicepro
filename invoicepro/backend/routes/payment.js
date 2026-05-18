@@ -1170,7 +1170,16 @@ router.get('/admin/revenue', protect, async(req, res) => {
 
         const agencyPaidStatuses = ['paid', 'in_progress', 'delivered'];
         const activeSubscriptionStatuses = ['active', 'authenticated'];
-        const [userStats, invoiceStatsResult, activeSubscriptions, billingSubscriptions, manualPaymentRequests, directCheckoutUsers, agencyEarningsResult, recentSubscriptions, recentPaidInvoices] = await Promise.all([
+        const paidPlanIds = ['pro', ...Object.keys(planDetails)];
+        const paidUserMatch = {
+            role: { $ne: 'admin' },
+            plan: { $in: paidPlanIds },
+            $or: [
+                { planExpiresAt: null },
+                { planExpiresAt: { $gt: new Date() } }
+            ]
+        };
+        const [userStats, invoiceStatsResult, activeSubscriptions, billingSubscriptions, manualPaymentRequests, directCheckoutUsers, agencyEarningsResult, paidUsers, recentSubscriptions, recentPaidInvoices] = await Promise.all([
             User.aggregate([
                 {
                     $group: {
@@ -1231,6 +1240,11 @@ router.get('/admin/revenue', protect, async(req, res) => {
                     }
                 }
             ]),
+            User.find(paidUserMatch)
+                .select('name email plan subscriptionStatus subscriptionProvider planStartedAt planExpiresAt lastPaymentAt createdAt')
+                .sort({ lastPaymentAt: -1, planStartedAt: -1, createdAt: -1 })
+                .limit(100)
+                .lean(),
             BillingSubscription.find()
                 .select('plan amount currency status currentEnd providerSubscriptionId latestEvent lastPaymentId updatedAt createdAt')
                 .sort({ updatedAt: -1 })
@@ -1307,6 +1321,20 @@ router.get('/admin/revenue', protect, async(req, res) => {
                 mrr: Math.round(mrr),
                 recent: recentSubscriptions
             },
+            paidUsers: paidUsers.map((user) => ({
+                id: user._id,
+                name: user.name || 'Unnamed user',
+                email: user.email || '',
+                plan: user.plan || 'paid',
+                amount: getPlanAmount(user.plan),
+                currency: 'INR',
+                subscriptionStatus: user.subscriptionStatus || '',
+                subscriptionProvider: user.subscriptionProvider || '',
+                planStartedAt: user.planStartedAt || null,
+                planExpiresAt: user.planExpiresAt || null,
+                lastPaymentAt: user.lastPaymentAt || null,
+                createdAt: user.createdAt || null
+            })),
             recentPaidInvoices
         });
     } catch (err) {

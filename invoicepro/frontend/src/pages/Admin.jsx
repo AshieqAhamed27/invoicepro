@@ -47,6 +47,14 @@ const getAiTestClass = (result) => {
     ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-300'
     : 'border-yellow-400/10 bg-yellow-400/5 text-yellow-300';
 };
+const getPlanLabel = (plan) => {
+  if (plan === 'monthly') return 'Pro Monthly';
+  if (plan === 'yearly') return 'Pro Yearly';
+  if (plan === 'founder90') return 'Founder 90';
+  if (plan === 'pro') return 'Pro';
+  return plan || 'Paid';
+};
+const getStatusLabel = (status) => String(status || 'paid').replaceAll('_', ' ');
 
 export default function Admin() {
   const [requests, setRequests] = useState([]);
@@ -279,6 +287,7 @@ export default function Admin() {
   const paidRate = registeredMembers > 0 ? (paidMembers / registeredMembers) * 100 : 0;
   const platformEarnings = revenue?.platformEarnings || {};
   const earningSources = platformEarnings.sources || {};
+  const paidUsersList = revenue?.paidUsers || [];
 
   return (
     <div className="premium-page min-h-screen text-white">
@@ -303,9 +312,9 @@ export default function Admin() {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Product Growth</p>
-                <h2 className="text-2xl font-black tracking-tight text-white">Member and usage analytics</h2>
+                <h2 className="text-2xl font-black tracking-tight text-white">Unique member and usage analytics</h2>
                 <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-                  Track real app views, active members, free access, and paid members from your own backend.
+                  Counts unique/new people only. Repeated visits from the same visitor are ignored in the main numbers.
                 </p>
               </div>
               <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
@@ -318,12 +327,12 @@ export default function Admin() {
 
           <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-6">
             {[
-              { label: 'Product Views', value: productTotals.productViews, tone: 'text-white' },
-              { label: 'Unique Visitors', value: productTotals.uniqueVisitors, tone: 'text-sky-300' },
-              { label: 'Members', value: productTotals.registeredMembers, tone: 'text-white' },
-              { label: 'Active 30 Days', value: productTotals.activeMembers30d, tone: 'text-emerald-300' },
-              { label: 'Free Access', value: productTotals.freeAccessMembers, tone: 'text-yellow-300' },
-              { label: 'Paid Members', value: productTotals.paidMembers, tone: 'text-emerald-300' }
+              { label: 'New Product Viewers', value: productTotals.newProductViewers ?? productTotals.uniqueVisitors, tone: 'text-sky-300' },
+              { label: 'New Visitors 7d', value: productAnalytics?.last7Days?.newVisitors, tone: 'text-white' },
+              { label: 'Users Who Used', value: productTotals.usersWhoUsedProduct, tone: 'text-emerald-300' },
+              { label: 'Active Users 30d', value: productTotals.activeMembers30d, tone: 'text-emerald-300' },
+              { label: 'Free Users', value: productTotals.freeAccessMembers, tone: 'text-yellow-300' },
+              { label: 'Paid Users', value: productTotals.paidMembers, tone: 'text-emerald-300' }
             ].map((item) => (
               <div key={item.label} className="rounded-[2rem] border border-white/5 bg-black/10 p-5">
                 <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
@@ -369,21 +378,21 @@ export default function Admin() {
             </div>
 
             <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Last 7 Days</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">New In Last 7 Days</p>
               <p className="mt-4 text-4xl font-black text-white">
-                {productAnalyticsLoading ? '--' : formatNumber(productAnalytics?.last7Days?.productViews)}
+                {productAnalyticsLoading ? '--' : formatNumber(productAnalytics?.last7Days?.newVisitors)}
               </p>
               <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
                 {productAnalyticsLoading
                   ? 'Checking...'
-                  : `${formatNumber(productAnalytics?.last7Days?.uniqueVisitors)} visitors viewed the product`}
+                  : `${formatNumber(productAnalytics?.last7Days?.uniqueVisitors)} unique visitors active, repeated visits ignored`}
               </p>
             </div>
           </div>
 
           {!productAnalyticsLoading && productAnalytics?.recentActivity?.length > 0 && (
             <div className="border-t border-white/5 p-5 sm:p-8">
-              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent Product Views</p>
+              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent Unique Product Viewers</p>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {productAnalytics.recentActivity.map((event) => (
                   <div key={event.id} className="rounded-2xl border border-white/5 bg-black/10 p-4">
@@ -475,6 +484,60 @@ export default function Admin() {
                 {revenueLoading ? 'Checking...' : `${revenue?.invoices?.paymentLinks || 0} payment links / ${revenue?.invoices?.paidInvoices || 0} paid invoices`}
               </p>
             </div>
+          </div>
+
+          <div className="border-t border-white/5 p-5 sm:p-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Paid Users</p>
+                <h3 className="mt-2 text-xl font-black text-white">Who paid for the product</h3>
+              </div>
+              <span className="inline-flex rounded-full border border-emerald-400/10 bg-emerald-400/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                {revenueLoading ? '--' : `${paidUsersList.length} users`}
+              </span>
+            </div>
+
+            {revenueLoading ? (
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/[0.03]" />
+                ))}
+              </div>
+            ) : paidUsersList.length === 0 ? (
+              <div className="mt-5 rounded-2xl border border-white/5 bg-black/10 p-6 text-sm font-semibold text-zinc-500">
+                No paid users yet. When someone buys Pro or an approved paid plan, their name will appear here.
+              </div>
+            ) : (
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {paidUsersList.map((user) => (
+                  <div key={user.id || user.email} className="rounded-2xl border border-white/5 bg-black/10 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-white">{user.name || 'Unnamed user'}</p>
+                        <p className="mt-1 truncate text-xs font-bold text-zinc-500">{user.email || 'No email'}</p>
+                      </div>
+                      <span className="shrink-0 rounded-full border border-emerald-400/10 bg-emerald-400/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-300">
+                        {getPlanLabel(user.plan)}
+                      </span>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">Amount</p>
+                        <p className="mt-1 text-sm font-black text-emerald-300">{formatMoney(user.amount)}</p>
+                      </div>
+                      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">Status</p>
+                        <p className="mt-1 truncate text-sm font-black capitalize text-white">{getStatusLabel(user.subscriptionStatus)}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                      <span>Paid: {formatDate(user.lastPaymentAt || user.planStartedAt)}</span>
+                      <span>Expire: {formatDate(user.planExpiresAt)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {!revenueLoading && revenue?.recentPaidInvoices?.length > 0 && (

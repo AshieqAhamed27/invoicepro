@@ -61,6 +61,35 @@ const countUnique = async(match, field) => {
     return values.length;
 };
 
+const countFirstSeen = async(match, field, since) => {
+    const identityFilter = field === 'user'
+        ? { $ne: null }
+        : { $nin: [null, ''] };
+
+    const result = await ProductAnalyticsEvent.aggregate([
+        {
+            $match: {
+                ...match,
+                [field]: identityFilter
+            }
+        },
+        {
+            $group: {
+                _id: `$${field}`,
+                firstSeenAt: { $min: '$createdAt' }
+            }
+        },
+        {
+            $match: {
+                firstSeenAt: { $gte: since }
+            }
+        },
+        { $count: 'count' }
+    ]);
+
+    return Number(result[0]?.count || 0);
+};
+
 router.post('/event', async(req, res) => {
     try {
         const visitorId = limitText(req.body?.visitorId, 100);
@@ -101,32 +130,49 @@ router.get('/admin/summary', protect, async(req, res) => {
         const last7Days = new Date(now);
         last7Days.setDate(last7Days.getDate() - 7);
 
+        const pageViewMatch = {
+            eventName: 'page_view',
+            role: { $ne: 'admin' }
+        };
+        const memberUseMatch = {
+            role: { $ne: 'admin' },
+            user: { $ne: null }
+        };
+
         const [
-            totalProductViews,
-            uniqueVisitors,
+            rawProductViews,
+            uniqueProductViewers,
+            newVisitors7d,
+            uniqueVisitors7d,
+            usersWhoUsedProduct,
             activeMembers30d,
-            recentViews7d,
-            recentVisitors7d,
+            newMembers7d,
             userSummary,
             recentActivity
         ] = await Promise.all([
-            ProductAnalyticsEvent.countDocuments({ eventName: 'page_view' }),
-            countUnique({}, 'visitorId'),
-            countUnique({ createdAt: { $gte: last30Days }, user: { $ne: null } }, 'user'),
-            ProductAnalyticsEvent.countDocuments({
-                eventName: 'page_view',
-                createdAt: { $gte: last7Days }
-            }),
-            countUnique({ createdAt: { $gte: last7Days } }, 'visitorId'),
+            ProductAnalyticsEvent.countDocuments(pageViewMatch),
+            countUnique(pageViewMatch, 'visitorId'),
+            countFirstSeen(pageViewMatch, 'visitorId', last7Days),
+            countUnique({ ...pageViewMatch, createdAt: { $gte: last7Days } }, 'visitorId'),
+            countUnique(memberUseMatch, 'user'),
+            countUnique({ ...memberUseMatch, createdAt: { $gte: last30Days } }, 'user'),
+            countFirstSeen(memberUseMatch, 'user', last7Days),
             User.aggregate([
                 {
                     $group: {
                         _id: null,
-                        registeredMembers: { $sum: 1 },
+                        registeredMembers: {
+                            $sum: { $cond: [{ $ne: ['$role', 'admin'] }, 1, 0] }
+                        },
                         freeAccessMembers: {
                             $sum: {
                                 $cond: [
-                                    { $in: [{ $ifNull: ['$plan', 'free'] }, FREE_ACCESS_PLANS] },
+                                    {
+                                        $and: [
+                                            { $ne: ['$role', 'admin'] },
+                                            { $in: [{ $ifNull: ['$plan', 'free'] }, FREE_ACCESS_PLANS] }
+                                        ]
+                                    },
                                     1,
                                     0
                                 ]
@@ -134,14 +180,35 @@ router.get('/admin/summary', protect, async(req, res) => {
                         },
                         paidMembers: {
                             $sum: {
-                                $cond: [{ $in: ['$plan', PAID_PLANS] }, 1, 0]
+                                $cond: [
+                                    {
+                                        $and: [
+                                            { $ne: ['$role', 'admin'] },
+                                            { $in: ['$plan', PAID_PLANS] }
+                                        ]
+                                    },
+                                    1,
+                                    0
+                                ]
                             }
                         },
                         trialMembers: {
-                            $sum: { $cond: [{ $eq: ['$plan', 'trial'] }, 1, 0] }
+                            $sum: {
+                                $cond: [
+                                    { $and: [{ $ne: ['$role', 'admin'] }, { $eq: ['$plan', 'trial'] }] },
+                                    1,
+                                    0
+                                ]
+                            }
                         },
                         earlyAccessMembers: {
-                            $sum: { $cond: [{ $eq: ['$plan', 'early_access'] }, 1, 0] }
+                            $sum: {
+                                $cond: [
+                                    { $and: [{ $ne: ['$role', 'admin'] }, { $eq: ['$plan', 'early_access'] }] },
+                                    1,
+                                    0
+                                ]
+                            }
                         },
                         adminMembers: {
                             $sum: { $cond: [{ $eq: ['$role', 'admin'] }, 1, 0] }
@@ -149,11 +216,34 @@ router.get('/admin/summary', protect, async(req, res) => {
                     }
                 }
             ]),
-            ProductAnalyticsEvent.find({ eventName: 'page_view' })
-                .select('path title visitorId user plan createdAt')
-                .sort({ createdAt: -1 })
-                .limit(8)
-                .lean()
+            ProductAnalyticsEvent.aggregate([
+                {
+                    $match: {
+                        ...pageViewMatch,
+                        visitorId: { $nin: [null, ''] }
+                    }
+                },
+                { $sort: { createdAt: -1 } },
+                {
+                    $group: {
+                        _id: '$visitorId',
+                        event: { $first: '$$ROOT' }
+                    }
+                },
+                { $replaceRoot: { newRoot: '$event' } },
+                { $sort: { createdAt: -1 } },
+                { $limit: 8 },
+                {
+                    $project: {
+                        path: 1,
+                        title: 1,
+                        visitorId: 1,
+                        user: 1,
+                        plan: 1,
+                        createdAt: 1
+                    }
+                }
+            ])
         ]);
 
         const members = userSummary[0] || {
@@ -170,9 +260,13 @@ router.get('/admin/summary', protect, async(req, res) => {
 
         res.json({
             totals: {
-                productViews: totalProductViews,
-                uniqueVisitors,
+                productViews: uniqueProductViewers,
+                rawProductViews,
+                uniqueVisitors: uniqueProductViewers,
+                newProductViewers: uniqueProductViewers,
+                usersWhoUsedProduct,
                 activeMembers30d,
+                newMembers7d,
                 registeredMembers,
                 freeAccessMembers: Number(members.freeAccessMembers || 0),
                 paidMembers,
@@ -184,8 +278,10 @@ router.get('/admin/summary', protect, async(req, res) => {
                     : 0
             },
             last7Days: {
-                productViews: recentViews7d,
-                uniqueVisitors: recentVisitors7d
+                productViews: newVisitors7d,
+                newVisitors: newVisitors7d,
+                uniqueVisitors: uniqueVisitors7d,
+                newMembers: newMembers7d
             },
             recentActivity: recentActivity.map((event) => ({
                 id: event._id,
