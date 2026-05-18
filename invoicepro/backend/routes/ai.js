@@ -1876,6 +1876,76 @@ const getSupportLanguageInstruction = (mode = 'auto', label = '') => {
     return supportLanguageInstructions.auto;
 };
 
+const supportCoachStyleGuide = [
+    'Write like a real person who is helping the user build and use the product, not like a support article.',
+    'Be warm but not fake. Use simple words. It is okay to say "good question", "yes", "not yet", "do this first", or "honest answer".',
+    'Make the answer feel like a coach in a chat: short, specific, and useful right now.',
+    'When the user is confused, name the confusion and make the next step smaller.',
+    'When the user asks if something is possible, answer yes/no first, then say the easiest path.',
+    'When the user asks "what next", give the next move, not a full product explanation.',
+    'When the user asks about setup or errors, explain the cause in plain language and give exact steps.',
+    'Never sound like marketing copy. Never give a long feature dump unless the user asks for a full list.',
+    'Do not over-apologize. Do not say "As an AI". Do not end every answer with the same question.',
+    'If the user writes in broken English, reply respectfully in simple natural English or their selected language. Do not correct their grammar.'
+].join('\n');
+
+const supportCoachExamples = [
+    {
+        user: 'what next i need',
+        coach: [
+            'Next, do one small launch-ready check.',
+            '',
+            '1. Open the main workflow and make sure a new user can understand what to do in 30 seconds.',
+            '2. Test one real path: signup, create invoice, share invoice, check payment status.',
+            '3. If that works, start marketing with a simple promise: "ClientFlow AI helps freelancers get clients, send invoices, and follow up without confusion."',
+            '',
+            'Do not add more big features until this path feels smooth.'
+        ].join('\n')
+    },
+    {
+        user: 'i have no AWS and stripe',
+        coach: [
+            'That is okay. Do not block the product because of AWS or Stripe.',
+            '',
+            'For now, use what you already have:',
+            '1. Keep Render/Vercel for hosting.',
+            '2. Use Razorpay/UPI for India payments if available.',
+            '3. Show other integrations as "coming soon" only if they are not connected yet.',
+            '',
+            'The product can still be marketed if the core freelancer workflow is real.'
+        ].join('\n')
+    },
+    {
+        user: 'is this real linux features or demo features',
+        coach: [
+            'Honest answer: check which parts actually save data and run real checks.',
+            '',
+            'If it only shows a checklist, call it a Linux delivery checklist.',
+            'If it connects to servers, reads logs, checks SSL, or runs commands, then it is a real Linux feature.',
+            '',
+            'Until that integration is built, keep the wording clear so users trust the product.'
+        ].join('\n')
+    },
+    {
+        user: 'how to get clients',
+        coach: [
+            'Start smaller than "get clients". Pick one service and one customer type today.',
+            '',
+            'Do this now:',
+            '1. Choose one offer, like "I build invoice websites for local shops."',
+            '2. Find 20 businesses that clearly need it.',
+            '3. Send a short message with one problem, one result, and one call option.',
+            '',
+            'If you want, I can write the exact message for your service.'
+        ].join('\n')
+    }
+];
+
+const formatSupportCoachExamples = () =>
+    supportCoachExamples
+        .map((example) => `User: ${example.user}\nCoach: ${example.coach}`)
+        .join('\n\n');
+
 const sanitizeSupportMessages = (messages = []) =>
     (Array.isArray(messages) ? messages : [])
         .slice(-8)
@@ -1889,95 +1959,85 @@ const buildSupportFallback = (question = '') => {
     const text = compactText(question).toLowerCase();
 
     if (!text) {
-        return 'Ask me anything. I can explain ClientFlow AI, freelancing, pricing, invoices, getting clients, payments, proposals, or how to start step by step.';
+        return [
+            'Tell me what you are trying to do, and I will guide you step by step.',
+            '',
+            'For example, ask:',
+            '1. What should I do next?',
+            '2. How do I get my first client?',
+            '3. How do I create and share an invoice?',
+            '4. Is this feature real or still manual?',
+            '',
+            'Short question is enough. I will keep the answer practical.'
+        ].join('\n');
     }
 
     if (/\b(linux|devops|vps|ubuntu|server|github|git|deploy|deployment|ssl|nginx|docker|backup|handover|maintenance)\b/.test(text)) {
         return [
-            'ClientFlow AI now has an optional DevOps Delivery Kit for technical freelancers and small agencies.',
+            'Honest answer: use the Linux/DevOps area as a delivery workflow unless your version is connected to real server checks.',
             '',
-            'It is useful when the client project is a website, web app, VPS, or technical delivery. The goal is not to turn ClientFlow AI into a Linux-only product. The main product still helps freelancers get clients, manage projects, invoice, and collect payment.',
+            'Do this now:',
+            '1. Track GitHub repo, deployment URL, SSL, backup, logs, and handover notes.',
+            '2. Use it as proof that the developer finished the job professionally.',
+            '3. Offer monthly maintenance after delivery.',
             '',
-            'The DevOps workflow helps developers track:',
-            '1. GitHub repo and release notes.',
-            '2. Linux/VPS setup checklist such as Ubuntu, SSH, firewall, Nginx, environment variables, SSL, and logs.',
-            '3. Deployment proof and production URL.',
-            '4. Backup and monitoring plan.',
-            '5. Client handover notes.',
-            '6. Monthly maintenance offer.',
-            '',
-            'Why users need it: developers often finish code but struggle with professional launch, handover, and maintenance. This workflow helps them deliver like a serious business.'
+            'If the product does not actually connect to VPS yet, do not call it automatic Linux monitoring. Call it a DevOps delivery checklist. That keeps user trust.'
         ].join('\n');
     }
 
     if (/\b(feature|features|tools|modules|included|include|what.*have|what.*has|what.*inside|available)\b/.test(text)) {
         return [
-            'ClientFlow AI has features for the full freelancer business flow, not only invoice creation.',
+            'Short version: ClientFlow AI should help a freelancer move from client confusion to paid work.',
             '',
-            'Main features:',
-            '1. AI Coach: helps the user understand how to find clients, talk to clients, and move toward closing work.',
-            '2. Client Finder and Lead Pipeline: helps plan target clients, save leads, and track follow-ups.',
-            '3. Proposal Writer: helps turn an interested lead into a clear offer before asking for payment.',
-            '4. Invoice Creator: creates professional invoices with PDF download and public invoice view.',
-            '5. Payment Tracking: tracks Paid, Pending, and Overdue invoices so the user knows where money is stuck.',
-            '6. WhatsApp-ready Follow-ups: prepares messages the freelancer can send to clients manually.',
-            '7. Money GPS and Profit Tracker: helps understand income goals, costs, and cashflow.',
-            '8. Team Workspace: helps freelancers manage bigger projects with other freelancers.',
-            '9. DevOps Delivery Kit: optional for developers who need GitHub, Linux/VPS, SSL, deployment proof, backup, handover, and maintenance workflow.',
+            'The useful flow is:',
+            '1. Decide what service to sell.',
+            '2. Find and track leads.',
+            '3. Write a proposal or client message.',
+            '4. Create invoice and share it.',
+            '5. Track pending or overdue payment.',
             '',
-            'Why this matters: freelancers usually use many scattered tools. ClientFlow AI tries to keep the business flow in one place.'
+            'That is the real value. Do not present it as only an invoice maker. Present it as a simple operating system for freelance work.'
         ].join('\n');
     }
 
     if (/\b(product|website|platform|app|clientflow|client flow|tell.*product|about.*product|explain.*product|what.*product)\b/.test(text)) {
         return [
-            'ClientFlow AI is a business workspace for freelancers and small service providers.',
+            'Think of ClientFlow AI as a coach plus workspace for freelancers.',
             '',
-            'The product is built around one simple problem: freelancers do not just need invoices. They need a system to get clients, follow up, send proposals, manage work, and collect payments without confusion.',
+            'The problem it solves is simple: freelancers usually lose track of leads, proposals, invoices, and follow-ups. Then money gets delayed.',
             '',
-            'ClientFlow AI helps the user move through this flow:',
-            '1. Decide what service to offer.',
-            '2. Find or plan possible clients.',
-            '3. Prepare a message or pitch.',
-            '4. Track leads and follow-ups.',
-            '5. Create a proposal when the client is interested.',
-            '6. Manage project work if the client accepts.',
-            '7. Create invoice, share PDF/payment link, and track payment.',
+            'The product should guide them through one clean path:',
+            'client idea -> lead follow-up -> proposal -> invoice -> payment tracking.',
             '',
-            'The real value is clarity. A freelancer can open the product and understand what to do next instead of managing everything in notes, WhatsApp, memory, and spreadsheets.'
+            'If a new user opens it, the first goal is not to impress them with many buttons. The goal is to make them know what to do next.'
         ].join('\n');
     }
 
     if (/\b(how.*work|workflow|step by step|how.*start|getting started|start using|use this|use website)\b/.test(text)) {
         return [
-            'Here is the simple way to use ClientFlow AI step by step:',
+            'Start like this. Keep it simple.',
             '',
-            '1. Start with your service: choose what you sell, such as web design, development, marketing, editing, consulting, or another freelance service.',
-            '2. Use the client tools: plan who to contact and prepare a simple client message.',
-            '3. Save leads: track who replied, who needs follow-up, and who is interested.',
-            '4. Create a proposal: when a client is interested, turn the idea into a clear offer.',
-            '5. Manage the project: if the work is bigger, use the team workspace to organize tasks and collaborators.',
-            '6. Create invoice: generate the invoice, share the PDF or public invoice link, and add payment details.',
-            '7. Track payment: check pending and overdue invoices, then send a professional follow-up.',
+            '1. Add one real client or lead.',
+            '2. Write the offer or proposal.',
+            '3. Create the invoice.',
+            '4. Share the invoice link or PDF.',
+            '5. Check pending payment and send follow-up.',
             '',
-            'That is why the product is useful: it connects client-getting and payment collection into one workflow.'
+            'Do not try every feature first. Test one real client workflow. If that feels smooth, the product is moving in the right direction.'
         ].join('\n');
     }
 
     if (/\b(what does|what is|why need|why use|useful|value|benefit|worth|relevant)\b/.test(text)) {
         return [
-            'ClientFlow AI is useful because most freelancers do not fail only because they cannot create an invoice. They struggle because the full business flow is scattered.',
+            'Yes, it is useful if it helps the user take action, not just read information.',
             '',
-            'They find leads in one place, message clients somewhere else, write proposals manually, forget follow-ups, lose track of pending payments, and do not know what action to take today.',
+            'The real problem is this: freelancers forget follow-ups, delay proposals, lose invoice status, and do not know what to do next.',
             '',
-            'ClientFlow AI brings that workflow into one system:',
-            '1. Find or plan client opportunities.',
-            '2. Prepare better client messages.',
-            '3. Turn interested leads into proposals.',
-            '4. Manage project work and collaborators.',
-            '5. Create invoices and payment links.',
-            '6. Track pending payments and follow up.',
-            '7. Understand cashflow and profit.',
+            'A good version of ClientFlow AI should guide them like this:',
+            '1. Who should I contact?',
+            '2. What should I say?',
+            '3. What proposal or invoice should I send?',
+            '4. Who has not paid yet?',
             '',
             'So the real value is not “invoice creation”. The value is helping a freelancer move from random work to a more organized business.'
         ].join('\n');
@@ -1985,33 +2045,29 @@ const buildSupportFallback = (question = '') => {
 
     if (/\b(price|pricing|cost|pay|pro|plan|trial|free|499|4999)\b/.test(text)) {
         return [
-            'A user should pay for Pro only if ClientFlow AI helps them save time, avoid missed follow-ups, collect money faster, or win even one better client.',
+            'Honest answer: do not push Pro to everyone.',
             '',
-            'If someone only wants to create one simple invoice, the free version may be enough. Pro is for freelancers who want a daily business system, not just an invoice tool.',
+            'If a user only wants one invoice, free may be enough.',
+            'If they want client tracking, proposals, follow-ups, payment status, and daily business guidance, then Pro makes sense.',
             '',
-            'Why Pro can be worth Rs 499/month:',
-            '1. It helps decide what to do today: who to message, which lead to follow up, what invoice is pending, and what payment needs attention.',
-            '2. It prepares client messages and proposal direction, so the freelancer does not start from a blank page.',
-            '3. It tracks invoices, overdue payments, and cashflow, so money does not get forgotten.',
-            '4. It supports bigger projects with team workspace and project tracking.',
-            '5. It gives a more professional workflow for clients: proposal, invoice, payment link, PDF, and follow-up.',
+            'The simple selling point is this: if ClientFlow AI helps them recover one pending payment or close one client, the monthly price becomes easier to justify.',
             '',
-            'Real reason to pay: if ClientFlow AI helps recover one pending payment, close one client, or save a few hours every month, the Pro price becomes easier to justify.'
+            'So explain Pro around outcomes, not just feature names.'
         ].join('\n');
     }
 
     if (/\b(client|lead|customer|find|grow|linkedin|instagram|sales)\b/.test(text)) {
         return [
-            'ClientFlow AI helps with clients because freelancers often know their skill, but they do not know what to do every day to get work.',
+            'Start with one clear offer. That is the fastest move.',
             '',
-            'The product guides the user through a repeatable client workflow:',
-            '1. Pick a clear service and target customer.',
-            '2. Create a simple outreach message.',
-            '3. Track who replied and who needs follow-up.',
-            '4. Turn interested people into proposals.',
-            '5. Convert accepted proposals into invoices and payment links.',
+            'Do this today:',
+            '1. Pick one service you can deliver well.',
+            '2. Pick one target customer type.',
+            '3. Find 20 people/businesses in that group.',
+            '4. Send a short helpful message.',
+            '5. Save every reply as a lead and follow up.',
             '',
-            'Why this matters: one good client is usually worth much more than the monthly price. The tool does not magically bring clients, but it helps the freelancer stop guessing and start following a clear process.'
+            'The tool will not magically bring clients. It should make the daily sales process less confusing.'
         ].join('\n');
     }
 
@@ -2059,11 +2115,11 @@ const buildSupportFallback = (question = '') => {
     }
 
     return [
-        'Sure, I can help with that.',
+        'Got it. Here is the practical way to think about it.',
         '',
-        'Here is the honest way to think about ClientFlow AI: it should help a freelancer reduce confusion, take the next business action, look professional to clients, and collect money with less manual tracking.',
+        'ClientFlow AI should not just answer questions. It should tell the freelancer what to do next: find a lead, write a message, send a proposal, create an invoice, or follow up for payment.',
         '',
-        'Ask your question in simple words. I can explain the product, the business value, how to get clients, how to talk to clients, how to create proposals, how invoices/payments work, and whether Pro makes sense for your situation.'
+        'Ask me with one simple line, like "what should I do next?" or "help me get clients". I will give a direct next step.'
     ].join('\n');
 };
 
@@ -2076,12 +2132,14 @@ const callAiSupportAssistant = async({ messages, page, fallback, languageMode = 
 
     const prompt = [
         'You are the in-product human-style AI coach inside the ClientFlow AI website.',
-        'Act like a real practical coach sitting next to the user, not a generic FAQ bot.',
+        'Act like a real practical coach sitting next to the user, not a generic FAQ bot and not a sales page.',
         'Your job is to reduce confusion and help the user take the next correct action in the product or in their freelance business.',
-        'Sound like a friendly young coach: warm, direct, honest, encouraging, and specific.',
+        'Sound like the helpful builder in this conversation: warm, direct, honest, encouraging, specific, and calm.',
         'Use natural spoken wording with short sentences, especially when the user is using voice. Avoid corporate marketing language.',
         `Language instruction: ${languageInstruction}`,
         `User input mode: ${voiceMode === 'voice' ? 'voice or speech' : 'text'}.`,
+        `Style guide:\n${supportCoachStyleGuide}`,
+        `Examples of the desired coaching style:\n${formatSupportCoachExamples()}`,
         'Coach behavior:',
         'Start with the useful answer, not with "ClientFlow AI is..." unless the user asks what the product is.',
         'Use the user message and current page to infer what they are trying to do. If they are vague, still give one likely next action and ask one small clarifying question.',
@@ -2096,12 +2154,13 @@ const callAiSupportAssistant = async({ messages, page, fallback, languageMode = 
         '3. If the user sounds confused, explain like a beginner friend would explain it.',
         '4. If something is not built or not connected, say honestly and suggest the easiest current workaround.',
         '5. Use 2 to 5 short steps for workflow answers. Use one short paragraph for simple questions.',
-        '6. End with one useful follow-up question only when it helps continue the coaching.',
+        '6. End with one useful follow-up question only when it helps continue the coaching. Do not force a question.',
         '7. Never pretend the app has real integrations, automatic payments, or guaranteed client results unless product facts explicitly say so.',
         '8. Avoid repeating the same sentences from earlier answers. Use the conversation history.',
+        '9. Return only the coach reply. Do not include labels like "Coach:" or "Answer:".',
         'You can answer product questions, freelancer business questions, client communication questions, pricing questions, invoice/payment questions, and beginner questions that help users understand what to do next.',
         'If the user asks something unrelated to ClientFlow AI, answer briefly if it is safe, then connect it back to freelancing, business workflow, or how ClientFlow AI can help.',
-        'Aim for 60 to 180 words. For voice mode, prefer 35 to 100 words unless the user asks for detail.',
+        'Aim for 45 to 140 words. For voice mode, prefer 30 to 85 words unless the user asks for detail.',
         'For every product, pricing, or feature question, explain the real user problem, why the user needs it, and what outcome it helps with.',
         'If the user asks why to pay, be honest: say free is enough for simple invoice use, and Pro is only worth it when the user wants client workflow, follow-up, proposals, cashflow, and payment tracking.',
         'Avoid generic phrases like "more than invoice creation" unless you immediately explain the specific pain and outcome.',
@@ -2116,7 +2175,7 @@ const callAiSupportAssistant = async({ messages, page, fallback, languageMode = 
         `Contact phone: ${supportAssistantKnowledge.contactPhone}`,
         `LinkedIn: ${supportAssistantKnowledge.linkedIn}`,
         `Current page: ${compactText(page, '/').slice(0, 120)}`,
-        `Fallback answer if unsure: ${fallback}`,
+        `Grounding facts if unsure. Do not copy this word-for-word; use it only to avoid false claims: ${fallback}`,
         `Conversation:\n${history}`,
         `Latest question: ${latestQuestion}`
     ].join('\n');

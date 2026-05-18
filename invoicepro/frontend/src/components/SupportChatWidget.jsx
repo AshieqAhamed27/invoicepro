@@ -9,9 +9,9 @@ import {
 
 const hiddenRoutePrefixes = ['/public/invoice', '/p/invoice'];
 
-const fallbackAnswer = `I can help with ${PRODUCT_NAME}, freelancing, pricing, invoices, client workflow, payments, and getting started.
+const fallbackAnswer = `I'm with you. The coach is slow right now, but do this first: tell me the exact thing you are trying to finish.
 
-Ask your question in simple words and I will explain it step by step. For direct support, email ${SUPPORT_EMAIL} or call ${SUPPORT_PHONE_DISPLAY}.`;
+Example: "help me get clients", "explain this page", "fix payment setup", or "what should I do next". I will guide you step by step. For direct support, email ${SUPPORT_EMAIL} or call ${SUPPORT_PHONE_DISPLAY}.`;
 
 const defaultQuickQuestions = [
   'Explain this product clearly',
@@ -286,7 +286,7 @@ const routeGuides = [
   {
     match: (pathname) => pathname.startsWith('/client-flow'),
     label: 'Workflow Guide',
-    starter: `You are on the Client Flow page. I can help you choose the next action: find a lead, qualify, write a proposal, organize delivery proof, create an invoice, or collect payment.`,
+    starter: 'Good, you are in the Client Flow area. Start with one real lead or client. I can guide the next move: find, qualify, propose, deliver, invoice, or follow up for payment.',
     questions: [
       'What should I do next?',
       'Make my 7-day plan',
@@ -299,7 +299,7 @@ const routeGuides = [
   {
     match: (pathname) => pathname.startsWith('/payment'),
     label: 'Plan Guide',
-    starter: `You are viewing payment and plan options. I can explain what Pro unlocks and when it makes sense to pay for ${PRODUCT_NAME}.`,
+    starter: `You are checking plans. Honest rule: use free for simple invoices, use Pro only if you need client workflow, follow-ups, proposals, and payment tracking.`,
     questions: [
       'Should I upgrade to Pro?',
       'What does Pro unlock?',
@@ -312,7 +312,7 @@ const routeGuides = [
   {
     match: (pathname) => pathname.startsWith('/create-invoice'),
     label: 'Invoice Guide',
-    starter: 'You are creating an invoice. I can help with invoice fields, pricing, due dates, tax, payment links, and follow-up wording.',
+    starter: 'You are creating an invoice. Do not overthink it: add client, service, amount, due date, and payment details. I can help you fill it cleanly.',
     questions: [
       'What should I put on an invoice?',
       'Help me price this work',
@@ -325,7 +325,7 @@ const routeGuides = [
   {
     match: (pathname) => pathname === '/' || pathname.startsWith('/freelancers') || pathname.startsWith('/developers') || pathname.startsWith('/designers') || pathname.startsWith('/agencies') || pathname.startsWith('/consultants'),
     label: 'Product Guide',
-    starter: `Welcome to ${PRODUCT_NAME}. I can explain the product, help you choose a first workflow, and show how client finding, proposals, invoices, and payments connect.`,
+    starter: `Welcome. Think of ${PRODUCT_NAME} as a coach for freelance work: get a lead, send a proposal, invoice, and follow up. Ask me what you want to finish first.`,
     questions: defaultQuickQuestions
   }
 ];
@@ -333,7 +333,7 @@ const routeGuides = [
 const getRouteGuide = (pathname) =>
   routeGuides.find((guide) => guide.match(pathname)) || {
     label: 'Friendly AI Guide',
-    starter: `Hi, I am your ${PRODUCT_NAME} guide. Ask me anything about freelancing, getting clients, proposals, invoices, payments, pricing, or how to use this product. I will explain it clearly.`,
+    starter: `Hi, I am your ${PRODUCT_NAME} coach. Tell me what you are trying to do, and I will give you the next clear step.`,
     questions: defaultQuickQuestions
   };
 
