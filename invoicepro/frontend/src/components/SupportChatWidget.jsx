@@ -199,6 +199,112 @@ const assistantStyles = `
     0%, 100% { opacity: 0.35; transform: scale(1); }
     50% { opacity: 0.85; transform: scale(1.14); }
   }
+
+  @keyframes cf-coach-panel-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes cf-coach-message-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes cf-coach-sheen {
+    0% { transform: translateX(-120%); opacity: 0; }
+    20% { opacity: 0.55; }
+    100% { transform: translateX(120%); opacity: 0; }
+  }
+
+  @keyframes cf-coach-float-glow {
+    0%, 100% { box-shadow: 0 18px 45px rgba(15, 23, 42, 0.35), 0 0 0 rgba(59, 130, 246, 0); }
+    50% { box-shadow: 0 20px 55px rgba(15, 23, 42, 0.45), 0 0 28px rgba(59, 130, 246, 0.2); }
+  }
+
+  .cf-coach-panel {
+    animation: cf-coach-panel-in 240ms ease-out both;
+    position: relative;
+    isolation: isolate;
+  }
+
+  .cf-coach-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.08) 18%, transparent 34%),
+      radial-gradient(circle at 20% 0%, rgba(34, 197, 94, 0.12), transparent 30%),
+      radial-gradient(circle at 92% 8%, rgba(14, 165, 233, 0.12), transparent 28%);
+    transform: translateX(-120%);
+    animation: cf-coach-sheen 4.8s ease-in-out infinite;
+    z-index: -1;
+  }
+
+  .cf-coach-message {
+    animation: cf-coach-message-in 180ms ease-out both;
+  }
+
+  .cf-coach-scroll {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(96, 165, 250, 0.55) rgba(15, 23, 42, 0.2);
+  }
+
+  .cf-coach-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .cf-coach-scroll::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.24);
+    border-radius: 999px;
+  }
+
+  .cf-coach-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(96, 165, 250, 0.8), rgba(16, 185, 129, 0.65));
+    border-radius: 999px;
+  }
+
+  .cf-coach-soft-button {
+    will-change: transform;
+  }
+
+  .cf-coach-soft-button:hover {
+    transform: translateY(-1px);
+  }
+
+  .cf-coach-launcher {
+    animation: cf-coach-float-glow 4.2s ease-in-out infinite;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .cf-coach-launcher::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent, rgba(255,255,255,0.16), transparent);
+    transform: translateX(-130%);
+    transition: transform 520ms ease;
+  }
+
+  .cf-coach-launcher:hover::after {
+    transform: translateX(130%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cf-coach-panel,
+    .cf-coach-panel::before,
+    .cf-coach-message,
+    .cf-coach-launcher {
+      animation: none !important;
+    }
+
+    .cf-coach-launcher::after {
+      transition: none !important;
+    }
+  }
 `;
 
 const getLanguageMode = (mode) =>
@@ -694,10 +800,10 @@ export default function SupportChatWidget() {
       <style>{assistantStyles}</style>
       {isOpen && (
         <section
-          className="mb-4 flex h-[min(720px,calc(100vh-6rem))] w-[calc(100vw-2rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 text-white shadow-2xl shadow-black/35 backdrop-blur-xl"
+          className="cf-coach-panel mb-4 flex h-[min(720px,calc(100vh-6rem))] w-[calc(100vw-2rem)] max-w-[430px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 text-white shadow-2xl shadow-black/35 backdrop-blur-xl"
           aria-label={`${PRODUCT_NAME} coach`}
         >
-          <div className="shrink-0 flex items-start justify-between gap-3 border-b border-white/10 bg-gradient-to-r from-blue-600/25 to-purple-600/20 p-4">
+          <div className="shrink-0 flex items-start justify-between gap-3 border-b border-white/10 bg-gradient-to-r from-blue-600/25 via-cyan-500/10 to-emerald-500/15 p-4">
             <div className="flex min-w-0 gap-3">
               <GuideAvatar mode={avatarMode} />
               <div className="min-w-0">
@@ -720,7 +826,7 @@ export default function SupportChatWidget() {
                     type="button"
                     onClick={startVoiceInput}
                     disabled={loading}
-                    className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-2 text-[11px] font-black transition focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    className={`cf-coach-soft-button inline-flex h-8 items-center gap-1.5 rounded-lg border px-2 text-[11px] font-black transition focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-not-allowed disabled:opacity-50 ${
                       isListening
                         ? 'border-emerald-300/60 bg-emerald-400/15 text-emerald-100'
                         : 'border-white/10 bg-white/5 text-slate-100 hover:border-blue-300/40 hover:bg-blue-500/10'
@@ -736,7 +842,7 @@ export default function SupportChatWidget() {
                   <button
                     type="button"
                     onClick={toggleVoiceReply}
-                    className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-2 text-[11px] font-black transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                    className={`cf-coach-soft-button inline-flex h-8 items-center gap-1.5 rounded-lg border px-2 text-[11px] font-black transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
                       voiceEnabled
                         ? 'border-purple-300/50 bg-purple-400/15 text-purple-100'
                         : 'border-white/10 bg-white/5 text-slate-100 hover:border-blue-300/40 hover:bg-blue-500/10'
@@ -756,7 +862,7 @@ export default function SupportChatWidget() {
                       <button
                         type="button"
                         onClick={pauseOrResumeVoice}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 text-[11px] font-black text-slate-100 transition hover:border-blue-300/40 hover:bg-blue-500/10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="cf-coach-soft-button inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 text-[11px] font-black text-slate-100 transition hover:border-blue-300/40 hover:bg-blue-500/10 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         aria-label={isVoicePaused ? 'Resume voice reply' : 'Pause voice reply'}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -771,7 +877,7 @@ export default function SupportChatWidget() {
                       <button
                         type="button"
                         onClick={stopVoice}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 text-[11px] font-black text-slate-100 transition hover:border-rose-300/40 hover:bg-rose-500/10 focus:outline-none focus:ring-2 focus:ring-rose-300"
+                        className="cf-coach-soft-button inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 text-[11px] font-black text-slate-100 transition hover:border-rose-300/40 hover:bg-rose-500/10 focus:outline-none focus:ring-2 focus:ring-rose-300"
                         aria-label="Stop voice reply"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -790,18 +896,18 @@ export default function SupportChatWidget() {
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="cf-coach-soft-button grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-400"
               aria-label="Close AI assistant"
             >
               <span aria-hidden="true">x</span>
             </button>
           </div>
 
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-4 pr-3">
+          <div className="cf-coach-scroll min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-4 pr-3">
             {messages.map((message, index) => (
               <div
                 key={`${message.role}-${index}`}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`cf-coach-message flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`flex max-w-[92%] flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}>
                   <p
@@ -818,7 +924,7 @@ export default function SupportChatWidget() {
                       type="button"
                       onClick={() => handleEditMessage(index)}
                       disabled={loading}
-                      className="mt-1 rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-blue-100/80 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="cf-coach-soft-button mt-1 rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-blue-100/80 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-not-allowed disabled:opacity-50"
                       aria-label="Edit message"
                     >
                       Edit
@@ -830,7 +936,7 @@ export default function SupportChatWidget() {
 
             {loading && (
               <div className="flex justify-start">
-                <div className="rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.07] px-4 py-3">
+                <div className="cf-coach-message rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.07] px-4 py-3">
                   <div className="flex gap-1.5">
                     <span className="h-2 w-2 animate-pulse rounded-full bg-blue-300"></span>
                     <span className="h-2 w-2 animate-pulse rounded-full bg-purple-300 [animation-delay:120ms]"></span>
@@ -845,11 +951,11 @@ export default function SupportChatWidget() {
 
           <div className="shrink-0 border-t border-white/10 p-3">
             {messages.length <= 1 && (
-              <div className="mb-3 grid max-h-28 grid-cols-2 gap-2 overflow-y-auto pr-1">
+              <div className="cf-coach-scroll mb-3 grid max-h-28 grid-cols-2 gap-2 overflow-y-auto pr-1">
                 <button
                   type="button"
                   onClick={() => askAssistant(`I am on ${pathname}. Explain this page and tell me the next 3 steps.`)}
-                  className="rounded-xl border border-blue-300/20 bg-blue-500/10 px-3 py-2 text-left text-[11px] font-bold text-blue-100 transition hover:-translate-y-0.5 hover:border-blue-300/40 hover:bg-blue-500/15 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="cf-coach-soft-button rounded-xl border border-blue-300/20 bg-blue-500/10 px-3 py-2 text-left text-[11px] font-bold text-blue-100 transition hover:border-blue-300/40 hover:bg-blue-500/15 hover:shadow-lg hover:shadow-blue-950/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   Guide this page
                 </button>
@@ -858,7 +964,7 @@ export default function SupportChatWidget() {
                     key={question}
                     type="button"
                     onClick={() => askAssistant(question)}
-                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left text-[11px] font-bold text-slate-200 transition hover:-translate-y-0.5 hover:border-blue-300/40 hover:bg-blue-500/10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="cf-coach-soft-button rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left text-[11px] font-bold text-slate-200 transition hover:border-blue-300/40 hover:bg-blue-500/10 hover:shadow-lg hover:shadow-blue-950/20 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
                     {question}
                   </button>
@@ -892,7 +998,7 @@ export default function SupportChatWidget() {
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-950/30 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                className="cf-coach-soft-button grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-emerald-500 text-white shadow-lg shadow-blue-950/30 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                 aria-label="Send question"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -907,7 +1013,7 @@ export default function SupportChatWidget() {
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
-        className="group flex items-center gap-3 rounded-full border border-white/10 bg-slate-950 px-3 py-2.5 text-sm font-black text-white shadow-xl shadow-black/25 transition hover:-translate-y-1 hover:border-blue-300/40 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400 sm:px-4"
+        className="cf-coach-launcher group flex items-center gap-3 rounded-full border border-white/10 bg-slate-950 px-3 py-2.5 text-sm font-black text-white shadow-xl shadow-black/25 transition hover:-translate-y-1 hover:border-blue-300/40 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400 sm:px-4"
         aria-expanded={isOpen}
         aria-label={`${isOpen ? 'Close' : 'Open'} ${PRODUCT_NAME} coach`}
       >
