@@ -2,6 +2,31 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { getJwtSecret } = require('../utils/env');
 
+const DEFAULT_ADMIN_EMAILS = ['ashieqahamed4@gmail.com'];
+
+const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
+
+const getAdminEmails = () => {
+  const configured = String(process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map(normalizeEmail)
+    .filter(Boolean);
+
+  return new Set([...DEFAULT_ADMIN_EMAILS, ...configured]);
+};
+
+const isAdminEmail = (email) => getAdminEmails().has(normalizeEmail(email));
+
+const syncAdminRole = async (user) => {
+  if (!user || !isAdminEmail(user.email) || user.role === 'admin') {
+    return user;
+  }
+
+  user.role = 'admin';
+  await user.save();
+  return user;
+};
+
 const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -16,6 +41,8 @@ const protect = async (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: 'User not found.' });
     }
+
+    await syncAdminRole(req.user);
 
     const expiresAt = req.user.planExpiresAt ? new Date(req.user.planExpiresAt) : null;
     const canExpireLocally = ['trial', 'one_time_payment', 'manual_approval', 'webhook_payment'].includes(req.user.subscriptionStatus);
@@ -70,4 +97,4 @@ const requirePro = (req, res, next) => {
   next();
 };
 
-module.exports = { protect, requirePro, hasPaidPlan };
+module.exports = { protect, requirePro, hasPaidPlan, isAdminEmail, syncAdminRole };

@@ -5,7 +5,8 @@ const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 const { getJwtSecret } = require('../utils/env');
 const {
-    protect
+    protect,
+    syncAdminRole
 } = require('../middleware/auth');
 
 const router = express.Router();
@@ -211,6 +212,8 @@ router.post(
                     companyName
                 });
 
+            await syncAdminRole(user);
+
             res.status(201).json({
                 message: 'Account created successfully!',
                 token: generateToken(
@@ -281,6 +284,8 @@ router.post(
                     });
             }
 
+            await syncAdminRole(user);
+
             res.json({
                 message: 'Login successful!',
                 token: generateToken(
@@ -326,6 +331,8 @@ router.post(
                             .toString(36)
                     });
             }
+
+            await syncAdminRole(user);
 
             res.json({
                 token: generateToken(
