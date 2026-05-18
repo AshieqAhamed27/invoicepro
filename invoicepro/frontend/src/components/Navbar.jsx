@@ -201,6 +201,18 @@ export default function Navbar() {
               <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Dashboard
               </NavLink>
+              {isAdmin && (
+                <NavLink
+                  to="/admin"
+                  className={(state) => `rounded-lg border px-3 py-2 font-semibold transition ${
+                    state.isActive
+                      ? 'border-yellow-300/30 bg-yellow-300/15 text-yellow-100'
+                      : 'border-yellow-300/15 bg-yellow-300/5 text-yellow-200 hover:bg-yellow-300/10'
+                  }`}
+                >
+                  Admin
+                </NavLink>
+              )}
               {primaryAppLinks.map((link) => (
                 <NavLink key={link.to} to={link.to} className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                   {link.label}
