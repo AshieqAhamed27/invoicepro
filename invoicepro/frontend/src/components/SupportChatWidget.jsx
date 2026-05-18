@@ -25,7 +25,7 @@ const defaultQuickQuestions = [
 const languageModes = [
   {
     id: 'auto',
-    label: 'Auto language',
+    label: 'All languages',
     speechLang: 'en-IN',
     voiceLang: 'auto'
   },
@@ -34,6 +34,18 @@ const languageModes = [
     label: 'English',
     speechLang: 'en-IN',
     voiceLang: 'en-IN'
+  },
+  {
+    id: 'hindi',
+    label: 'Hindi',
+    speechLang: 'hi-IN',
+    voiceLang: 'hi-IN'
+  },
+  {
+    id: 'hinglish',
+    label: 'Hindi + English',
+    speechLang: 'hi-IN',
+    voiceLang: 'hi-IN'
   },
   {
     id: 'tamil',
@@ -46,6 +58,114 @@ const languageModes = [
     label: 'Tamil + English',
     speechLang: 'en-IN',
     voiceLang: 'en-IN'
+  },
+  {
+    id: 'telugu',
+    label: 'Telugu',
+    speechLang: 'te-IN',
+    voiceLang: 'te-IN'
+  },
+  {
+    id: 'kannada',
+    label: 'Kannada',
+    speechLang: 'kn-IN',
+    voiceLang: 'kn-IN'
+  },
+  {
+    id: 'malayalam',
+    label: 'Malayalam',
+    speechLang: 'ml-IN',
+    voiceLang: 'ml-IN'
+  },
+  {
+    id: 'bengali',
+    label: 'Bengali',
+    speechLang: 'bn-IN',
+    voiceLang: 'bn-IN'
+  },
+  {
+    id: 'marathi',
+    label: 'Marathi',
+    speechLang: 'mr-IN',
+    voiceLang: 'mr-IN'
+  },
+  {
+    id: 'gujarati',
+    label: 'Gujarati',
+    speechLang: 'gu-IN',
+    voiceLang: 'gu-IN'
+  },
+  {
+    id: 'punjabi',
+    label: 'Punjabi',
+    speechLang: 'pa-IN',
+    voiceLang: 'pa-IN'
+  },
+  {
+    id: 'urdu',
+    label: 'Urdu',
+    speechLang: 'ur-IN',
+    voiceLang: 'ur-IN'
+  },
+  {
+    id: 'arabic',
+    label: 'Arabic',
+    speechLang: 'ar-SA',
+    voiceLang: 'ar-SA'
+  },
+  {
+    id: 'french',
+    label: 'French',
+    speechLang: 'fr-FR',
+    voiceLang: 'fr-FR'
+  },
+  {
+    id: 'spanish',
+    label: 'Spanish',
+    speechLang: 'es-ES',
+    voiceLang: 'es-ES'
+  },
+  {
+    id: 'german',
+    label: 'German',
+    speechLang: 'de-DE',
+    voiceLang: 'de-DE'
+  },
+  {
+    id: 'portuguese',
+    label: 'Portuguese',
+    speechLang: 'pt-BR',
+    voiceLang: 'pt-BR'
+  },
+  {
+    id: 'indonesian',
+    label: 'Indonesian',
+    speechLang: 'id-ID',
+    voiceLang: 'id-ID'
+  },
+  {
+    id: 'malay',
+    label: 'Malay',
+    speechLang: 'ms-MY',
+    voiceLang: 'ms-MY'
+  },
+  {
+    id: 'chinese',
+    label: 'Chinese',
+    speechLang: 'zh-CN',
+    voiceLang: 'zh-CN'
+  },
+  {
+    id: 'japanese',
+    label: 'Japanese',
+    speechLang: 'ja-JP',
+    voiceLang: 'ja-JP'
+  },
+  {
+    id: 'korean',
+    label: 'Korean',
+    speechLang: 'ko-KR',
+    voiceLang: 'ko-KR'
   }
 ];
 
@@ -95,7 +215,25 @@ const getSpeechRecognition = () => {
 const isSpeechSynthesisSupported = () =>
   typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 
-const containsTamilText = (text) => /[\u0B80-\u0BFF]/.test(String(text || ''));
+const detectSpeechLanguage = (text) => {
+  const value = String(text || '');
+  const scriptChecks = [
+    { pattern: /[\u0B80-\u0BFF]/, language: 'ta-IN' },
+    { pattern: /[\u0900-\u097F]/, language: 'hi-IN' },
+    { pattern: /[\u0C00-\u0C7F]/, language: 'te-IN' },
+    { pattern: /[\u0C80-\u0CFF]/, language: 'kn-IN' },
+    { pattern: /[\u0D00-\u0D7F]/, language: 'ml-IN' },
+    { pattern: /[\u0980-\u09FF]/, language: 'bn-IN' },
+    { pattern: /[\u0A80-\u0AFF]/, language: 'gu-IN' },
+    { pattern: /[\u0A00-\u0A7F]/, language: 'pa-IN' },
+    { pattern: /[\u0600-\u06FF]/, language: 'ur-IN' },
+    { pattern: /[\u4E00-\u9FFF]/, language: 'zh-CN' },
+    { pattern: /[\u3040-\u30FF]/, language: 'ja-JP' },
+    { pattern: /[\uAC00-\uD7AF]/, language: 'ko-KR' }
+  ];
+
+  return scriptChecks.find((check) => check.pattern.test(value))?.language || 'en-IN';
+};
 
 const GuideAvatar = ({ compact = false, mode = 'idle' }) => {
   const sizeClass = compact ? 'h-10 w-10' : 'h-14 w-14';
@@ -227,7 +365,7 @@ export default function SupportChatWidget() {
 
   const getSpeechLangForText = (text) => {
     if (selectedLanguage.voiceLang === 'auto') {
-      return containsTamilText(text) ? 'ta-IN' : 'en-IN';
+      return detectSpeechLanguage(text);
     }
 
     return selectedLanguage.voiceLang;
@@ -344,6 +482,7 @@ export default function SupportChatWidget() {
       const res = await api.post('/ai/support-chat', {
         page: pathname,
         languageMode,
+        languageLabel: selectedLanguage.label,
         voiceMode: voiceEnabled ? 'voice' : 'text',
         messages: nextMessages
           .filter((message) => message.content)
@@ -400,7 +539,9 @@ export default function SupportChatWidget() {
     let heardTranscript = '';
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
-    recognition.lang = selectedLanguage.speechLang;
+    recognition.lang = selectedLanguage.id === 'auto'
+      ? window.navigator?.language || selectedLanguage.speechLang
+      : selectedLanguage.speechLang;
     recognition.interimResults = true;
     recognition.continuous = false;
     recognition.maxAlternatives = 1;
@@ -489,7 +630,7 @@ export default function SupportChatWidget() {
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-blue-200">{routeGuide.label}</p>
                 <h2 className="mt-1 text-base font-black">{PRODUCT_NAME} Coach</h2>
-                <p className="mt-1 text-xs leading-relaxed text-slate-300">Speak or type in English, Tamil, Tamil + English, or your own language style.</p>
+                <p className="mt-1 text-xs leading-relaxed text-slate-300">Speak or type in any language. Choose a speech language when using the mic.</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <label className="sr-only" htmlFor="coach-language-mode">Coach language</label>
                   <select
@@ -629,7 +770,7 @@ export default function SupportChatWidget() {
                 }}
                 rows={1}
                 maxLength={500}
-                placeholder="Ask in Tamil, English, Tanglish, or any language..."
+                placeholder="Ask in any language..."
                 className="max-h-28 min-h-[44px] flex-1 resize-none overflow-y-auto rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-300/50 focus:ring-2 focus:ring-blue-400/30"
               />
               <button

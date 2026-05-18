@@ -1842,14 +1842,39 @@ const supportSuggestions = [
 ];
 
 const supportLanguageInstructions = {
-    auto: 'Detect the user language and reply in the same natural style. If the user mixes Tamil and English, reply in a friendly mixed Tamil-English style. If the user uses another language, answer in that language when possible.',
+    auto: 'Detect the user language and reply in the same natural style. If the user mixes languages, reply in that same mixed style. If the user uses another language, answer in that language when possible.',
     english: 'Reply in simple, friendly Indian English.',
+    hindi: 'Reply in natural friendly Hindi. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    hinglish: 'Reply in conversational Hindi + English. Keep it natural like an Indian coach talking to a beginner.',
     tamil: 'Reply in natural friendly Tamil. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    tanglish: 'Reply in conversational Tamil + English. Use simple English words mixed with Tamil-style phrasing when the user writes or speaks mixed language.'
+    tanglish: 'Reply in conversational Tamil + English. Use simple English words mixed with Tamil-style phrasing when the user writes or speaks mixed language.',
+    telugu: 'Reply in natural friendly Telugu. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    kannada: 'Reply in natural friendly Kannada. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    malayalam: 'Reply in natural friendly Malayalam. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    bengali: 'Reply in natural friendly Bengali. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    marathi: 'Reply in natural friendly Marathi. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    gujarati: 'Reply in natural friendly Gujarati. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    punjabi: 'Reply in natural friendly Punjabi. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    urdu: 'Reply in natural friendly Urdu. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    arabic: 'Reply in natural friendly Arabic. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    french: 'Reply in natural friendly French. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    spanish: 'Reply in natural friendly Spanish. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    german: 'Reply in natural friendly German. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    portuguese: 'Reply in natural friendly Portuguese. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    indonesian: 'Reply in natural friendly Indonesian. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    malay: 'Reply in natural friendly Malay. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    chinese: 'Reply in natural friendly Simplified Chinese. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    japanese: 'Reply in natural friendly Japanese. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    korean: 'Reply in natural friendly Korean. Keep product names, UI labels, and technical terms in English when that is clearer.'
 };
 
-const getSupportLanguageInstruction = (mode = 'auto') =>
-    supportLanguageInstructions[compactText(mode, 'auto').toLowerCase()] || supportLanguageInstructions.auto;
+const getSupportLanguageInstruction = (mode = 'auto', label = '') => {
+    const cleanMode = compactText(mode, 'auto').toLowerCase();
+    const cleanLabel = compactText(label, '');
+    if (supportLanguageInstructions[cleanMode]) return supportLanguageInstructions[cleanMode];
+    if (cleanLabel) return `Reply in natural friendly ${cleanLabel}. Keep product names, UI labels, and technical terms in English when that is clearer.`;
+    return supportLanguageInstructions.auto;
+};
 
 const sanitizeSupportMessages = (messages = []) =>
     (Array.isArray(messages) ? messages : [])
@@ -2042,22 +2067,33 @@ const buildSupportFallback = (question = '') => {
     ].join('\n');
 };
 
-const callAiSupportAssistant = async({ messages, page, fallback, languageMode = 'auto', voiceMode = 'text' }) => {
+const callAiSupportAssistant = async({ messages, page, fallback, languageMode = 'auto', languageLabel = '', voiceMode = 'text' }) => {
     const latestQuestion = messages[messages.length - 1]?.content || '';
     const history = messages
         .map((message) => `${message.role}: ${message.content}`)
         .join('\n');
-    const languageInstruction = getSupportLanguageInstruction(languageMode);
+    const languageInstruction = getSupportLanguageInstruction(languageMode, languageLabel);
 
     const prompt = [
-        'You are the friendly AI guide inside the ClientFlow AI website.',
-        'Speak like a helpful young human friend and product coach. Be warm, clear, practical, and beginner-friendly.',
-        'Use natural spoken wording with short sentences, especially when the user is using voice.',
+        'You are the in-product human-style AI coach inside the ClientFlow AI website.',
+        'Act like a real practical coach sitting next to the user, not a generic FAQ bot.',
+        'Your job is to reduce confusion and help the user take the next correct action in the product or in their freelance business.',
+        'Sound like a friendly young coach: warm, direct, honest, encouraging, and specific.',
+        'Use natural spoken wording with short sentences, especially when the user is using voice. Avoid corporate marketing language.',
         `Language instruction: ${languageInstruction}`,
         `User input mode: ${voiceMode === 'voice' ? 'voice or speech' : 'text'}.`,
-        'You can answer product questions, freelancer business questions, client communication questions, pricing questions, invoice/payment questions, and general beginner questions that help users understand what to do next.',
+        'Reply rules:',
+        '1. First answer the exact question the user asked. Do not start with a long product introduction unless they ask what the product is.',
+        '2. Give a clear next step the user can do now. If relevant, mention the page, button, or workflow they should use.',
+        '3. If the user sounds confused, explain like a beginner friend would explain it.',
+        '4. If something is not built or not connected, say honestly and suggest the easiest current workaround.',
+        '5. Use 2 to 5 short steps for workflow answers. Use one short paragraph for simple questions.',
+        '6. End with one useful follow-up question only when it helps continue the coaching.',
+        '7. Never pretend the app has real integrations, automatic payments, or guaranteed client results unless product facts explicitly say so.',
+        '8. Avoid repeating the same sentences from earlier answers. Use the conversation history.',
+        'You can answer product questions, freelancer business questions, client communication questions, pricing questions, invoice/payment questions, and beginner questions that help users understand what to do next.',
         'If the user asks something unrelated to ClientFlow AI, answer briefly if it is safe, then connect it back to freelancing, business workflow, or how ClientFlow AI can help.',
-        'Give detailed explanations when useful: use short paragraphs or numbered steps. Aim for 120 to 350 words for explanation questions.',
+        'Aim for 60 to 180 words. For voice mode, prefer 35 to 100 words unless the user asks for detail.',
         'For every product, pricing, or feature question, explain the real user problem, why the user needs it, and what outcome it helps with.',
         'If the user asks why to pay, be honest: say free is enough for simple invoice use, and Pro is only worth it when the user wants client workflow, follow-up, proposals, cashflow, and payment tracking.',
         'Avoid generic phrases like "more than invoice creation" unless you immediately explain the specific pain and outcome.',
@@ -2169,6 +2205,7 @@ router.post('/support-chat', async(req, res) => {
     const latestQuestion = messages[messages.length - 1]?.content || '';
     const fallback = buildSupportFallback(latestQuestion);
     const languageMode = compactText(req.body?.languageMode, 'auto').toLowerCase().slice(0, 30);
+    const languageLabel = compactText(req.body?.languageLabel, '').slice(0, 60);
     const voiceMode = compactText(req.body?.voiceMode, 'text').toLowerCase().slice(0, 20);
 
     if (!latestQuestion) {
@@ -2185,6 +2222,7 @@ router.post('/support-chat', async(req, res) => {
             page: req.body?.page,
             fallback,
             languageMode,
+            languageLabel,
             voiceMode
         });
 
