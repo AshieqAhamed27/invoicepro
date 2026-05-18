@@ -1841,6 +1841,16 @@ const supportSuggestions = [
     'How should I talk to a client?'
 ];
 
+const supportLanguageInstructions = {
+    auto: 'Detect the user language and reply in the same natural style. If the user mixes Tamil and English, reply in a friendly mixed Tamil-English style. If the user uses another language, answer in that language when possible.',
+    english: 'Reply in simple, friendly Indian English.',
+    tamil: 'Reply in natural friendly Tamil. Keep product names, UI labels, and technical terms in English when that is clearer.',
+    tanglish: 'Reply in conversational Tamil + English. Use simple English words mixed with Tamil-style phrasing when the user writes or speaks mixed language.'
+};
+
+const getSupportLanguageInstruction = (mode = 'auto') =>
+    supportLanguageInstructions[compactText(mode, 'auto').toLowerCase()] || supportLanguageInstructions.auto;
+
 const sanitizeSupportMessages = (messages = []) =>
     (Array.isArray(messages) ? messages : [])
         .slice(-8)
@@ -2032,15 +2042,19 @@ const buildSupportFallback = (question = '') => {
     ].join('\n');
 };
 
-const callAiSupportAssistant = async({ messages, page, fallback }) => {
+const callAiSupportAssistant = async({ messages, page, fallback, languageMode = 'auto', voiceMode = 'text' }) => {
     const latestQuestion = messages[messages.length - 1]?.content || '';
     const history = messages
         .map((message) => `${message.role}: ${message.content}`)
         .join('\n');
+    const languageInstruction = getSupportLanguageInstruction(languageMode);
 
     const prompt = [
         'You are the friendly AI guide inside the ClientFlow AI website.',
-        'Speak like a helpful friend and product coach. Be warm, clear, practical, and beginner-friendly.',
+        'Speak like a helpful young human friend and product coach. Be warm, clear, practical, and beginner-friendly.',
+        'Use natural spoken wording with short sentences, especially when the user is using voice.',
+        `Language instruction: ${languageInstruction}`,
+        `User input mode: ${voiceMode === 'voice' ? 'voice or speech' : 'text'}.`,
         'You can answer product questions, freelancer business questions, client communication questions, pricing questions, invoice/payment questions, and general beginner questions that help users understand what to do next.',
         'If the user asks something unrelated to ClientFlow AI, answer briefly if it is safe, then connect it back to freelancing, business workflow, or how ClientFlow AI can help.',
         'Give detailed explanations when useful: use short paragraphs or numbered steps. Aim for 120 to 350 words for explanation questions.',
@@ -2154,6 +2168,8 @@ router.post('/support-chat', async(req, res) => {
     const messages = sanitizeSupportMessages(req.body?.messages);
     const latestQuestion = messages[messages.length - 1]?.content || '';
     const fallback = buildSupportFallback(latestQuestion);
+    const languageMode = compactText(req.body?.languageMode, 'auto').toLowerCase().slice(0, 30);
+    const voiceMode = compactText(req.body?.voiceMode, 'text').toLowerCase().slice(0, 20);
 
     if (!latestQuestion) {
         return res.status(400).json({
@@ -2167,7 +2183,9 @@ router.post('/support-chat', async(req, res) => {
         const aiAnswer = await callAiSupportAssistant({
             messages,
             page: req.body?.page,
-            fallback
+            fallback,
+            languageMode,
+            voiceMode
         });
 
         return res.json({

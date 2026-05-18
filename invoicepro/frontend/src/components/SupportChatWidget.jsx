@@ -22,6 +22,33 @@ const defaultQuickQuestions = [
   'Why should I pay for Pro?'
 ];
 
+const languageModes = [
+  {
+    id: 'auto',
+    label: 'Auto language',
+    speechLang: 'en-IN',
+    voiceLang: 'auto'
+  },
+  {
+    id: 'english',
+    label: 'English',
+    speechLang: 'en-IN',
+    voiceLang: 'en-IN'
+  },
+  {
+    id: 'tamil',
+    label: 'Tamil',
+    speechLang: 'ta-IN',
+    voiceLang: 'ta-IN'
+  },
+  {
+    id: 'tanglish',
+    label: 'Tamil + English',
+    speechLang: 'en-IN',
+    voiceLang: 'en-IN'
+  }
+];
+
 const assistantStyles = `
   @keyframes cf-guide-bob {
     0%, 100% { transform: translateY(0); }
@@ -42,10 +69,38 @@ const assistantStyles = `
     0%, 100% { opacity: 0.55; transform: scale(1); }
     50% { opacity: 0.9; transform: scale(1.08); }
   }
+
+  @keyframes cf-guide-talk {
+    0%, 100% { transform: translateX(-50%) scaleY(1); }
+    50% { transform: translateX(-50%) scaleY(2.35); }
+  }
+
+  @keyframes cf-guide-listen {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.14); }
+  }
 `;
 
-const GuideAvatar = ({ compact = false }) => {
+const getLanguageMode = (mode) =>
+  languageModes.find((item) => item.id === mode) || languageModes[0];
+
+const cleanTranscript = (value) =>
+  String(value || '').replace(/\s+/g, ' ').trim();
+
+const getSpeechRecognition = () => {
+  if (typeof window === 'undefined') return null;
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+};
+
+const isSpeechSynthesisSupported = () =>
+  typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+
+const containsTamilText = (text) => /[\u0B80-\u0BFF]/.test(String(text || ''));
+
+const GuideAvatar = ({ compact = false, mode = 'idle' }) => {
   const sizeClass = compact ? 'h-10 w-10' : 'h-14 w-14';
+  const isListening = mode === 'listening';
+  const isSpeaking = mode === 'speaking';
 
   return (
     <div
@@ -53,8 +108,14 @@ const GuideAvatar = ({ compact = false }) => {
       aria-hidden="true"
       style={{ animation: 'cf-guide-bob 2.8s ease-in-out infinite' }}
     >
+      {isListening && (
+        <span
+          className="absolute -inset-1 rounded-full border border-emerald-300/60"
+          style={{ animation: 'cf-guide-listen 1.25s ease-in-out infinite' }}
+        />
+      )}
       <span
-        className="absolute inset-0 rounded-full bg-blue-400/30 blur-md"
+        className={`absolute inset-0 rounded-full blur-md ${isListening ? 'bg-emerald-300/35' : isSpeaking ? 'bg-purple-300/35' : 'bg-blue-400/30'}`}
         style={{ animation: 'cf-guide-glow 2.4s ease-in-out infinite' }}
       />
       <div className="absolute inset-0 rounded-full border border-white/15 bg-gradient-to-b from-slate-800 to-slate-950 shadow-xl shadow-blue-950/30" />
@@ -68,7 +129,10 @@ const GuideAvatar = ({ compact = false }) => {
           className="absolute right-[28%] top-[45%] h-[8%] w-[10%] rounded-full bg-slate-950"
           style={{ animation: 'cf-guide-blink 4.6s ease-in-out infinite' }}
         />
-        <span className="absolute left-1/2 top-[66%] h-[5%] w-[24%] -translate-x-1/2 rounded-full bg-rose-500/80" />
+        <span
+          className="absolute left-1/2 top-[66%] h-[5%] w-[24%] -translate-x-1/2 rounded-full bg-rose-500/80"
+          style={isSpeaking ? { animation: 'cf-guide-talk 0.32s ease-in-out infinite' } : undefined}
+        />
       </div>
       <div className="absolute bottom-[15%] left-1/2 h-[28%] w-[58%] -translate-x-1/2 rounded-t-full bg-gradient-to-r from-blue-500 to-purple-500" />
       <div
@@ -148,9 +212,72 @@ export default function SupportChatWidget() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [languageMode, setLanguageMode] = useState('auto');
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceStatus, setVoiceStatus] = useState('');
   const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const lastSpokenMessageRef = useRef('');
 
   const hiddenOnCurrentRoute = hiddenRoutePrefixes.some((prefix) => pathname.startsWith(prefix));
+  const selectedLanguage = getLanguageMode(languageMode);
+  const avatarMode = isListening ? 'listening' : isSpeaking ? 'speaking' : 'idle';
+
+  const getSpeechLangForText = (text) => {
+    if (selectedLanguage.voiceLang === 'auto') {
+      return containsTamilText(text) ? 'ta-IN' : 'en-IN';
+    }
+
+    return selectedLanguage.voiceLang;
+  };
+
+  const pickVoice = (language) => {
+    if (!isSpeechSynthesisSupported()) return null;
+
+    const voices = window.speechSynthesis.getVoices();
+    const languagePrefix = String(language || 'en-IN').split('-')[0];
+
+    return (
+      voices.find((voice) => voice.lang === language) ||
+      voices.find((voice) => voice.lang?.toLowerCase().startsWith(`${languagePrefix}-`)) ||
+      voices.find((voice) => /english|india|tamil/i.test(`${voice.name} ${voice.lang}`)) ||
+      null
+    );
+  };
+
+  const speakAssistant = (text) => {
+    const cleanText = String(text || '').trim();
+    if (!cleanText || !isSpeechSynthesisSupported()) return;
+
+    window.speechSynthesis.cancel();
+
+    const speechLang = getSpeechLangForText(cleanText);
+    const utterance = new window.SpeechSynthesisUtterance(cleanText);
+    const voice = pickVoice(speechLang);
+
+    utterance.lang = speechLang;
+    utterance.rate = 0.96;
+    utterance.pitch = 1.08;
+    utterance.volume = 1;
+    if (voice) utterance.voice = voice;
+
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      setVoiceStatus('Speaking...');
+    };
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setVoiceStatus('');
+    };
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      setVoiceStatus('');
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
 
   useEffect(() => {
     setMessages((current) => {
@@ -179,7 +306,27 @@ export default function SupportChatWidget() {
     }
   }, [messages, loading, isOpen]);
 
-  if (hiddenOnCurrentRoute) return null;
+  useEffect(() => {
+    if (!voiceEnabled || !isOpen || loading) return;
+
+    const latestMessage = messages[messages.length - 1];
+    if (!latestMessage || latestMessage.role !== 'assistant' || messages.length <= 1) return;
+
+    const messageKey = `${messages.length}:${latestMessage.content}`;
+    if (lastSpokenMessageRef.current === messageKey) return;
+
+    lastSpokenMessageRef.current = messageKey;
+    speakAssistant(latestMessage.content);
+  }, [messages, voiceEnabled, isOpen, loading, languageMode]);
+
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.abort?.();
+      if (isSpeechSynthesisSupported()) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   const askAssistant = async(question) => {
     const cleanQuestion = String(question || '').trim();
@@ -196,6 +343,8 @@ export default function SupportChatWidget() {
     try {
       const res = await api.post('/ai/support-chat', {
         page: pathname,
+        languageMode,
+        voiceMode: voiceEnabled ? 'voice' : 'text',
         messages: nextMessages
           .filter((message) => message.content)
           .slice(-8)
@@ -219,6 +368,9 @@ export default function SupportChatWidget() {
       ]);
     } finally {
       setLoading(false);
+      if (!voiceEnabled) {
+        setVoiceStatus('');
+      }
     }
   };
 
@@ -226,6 +378,102 @@ export default function SupportChatWidget() {
     event.preventDefault();
     askAssistant(input);
   };
+
+  const startVoiceInput = () => {
+    const SpeechRecognition = getSpeechRecognition();
+
+    if (!SpeechRecognition) {
+      setError('Voice input is not supported in this browser. You can still type in Tamil, English, Tanglish, or any language.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop?.();
+      return;
+    }
+
+    if (isSpeechSynthesisSupported()) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+
+    let heardTranscript = '';
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.lang = selectedLanguage.speechLang;
+    recognition.interimResults = true;
+    recognition.continuous = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceStatus('Listening...');
+      setError('');
+    };
+
+    recognition.onresult = (event) => {
+      let finalText = '';
+      let interimText = '';
+
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const transcript = event.results[index]?.[0]?.transcript || '';
+        if (event.results[index].isFinal) {
+          finalText += `${transcript} `;
+        } else {
+          interimText += transcript;
+        }
+      }
+
+      heardTranscript = cleanTranscript(finalText || interimText || heardTranscript);
+      if (heardTranscript) {
+        setInput(heardTranscript);
+      }
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+      setVoiceStatus('');
+      setError('I could not hear clearly. Please try again or type your question.');
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+
+      const question = cleanTranscript(heardTranscript);
+      if (question) {
+        setVoiceStatus('Thinking...');
+        askAssistant(question);
+      } else {
+        setVoiceStatus('');
+      }
+    };
+
+    recognition.start();
+  };
+
+  const toggleVoiceReply = () => {
+    if (!isSpeechSynthesisSupported()) {
+      setError('Voice reply is not supported in this browser. Text chat still works.');
+      return;
+    }
+
+    if (voiceEnabled) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setVoiceStatus('');
+      setVoiceEnabled(false);
+      return;
+    }
+
+    setVoiceEnabled(true);
+    const latestAssistantMessage = [...messages].reverse().find((message) => message.role === 'assistant');
+    if (latestAssistantMessage) {
+      window.setTimeout(() => speakAssistant(latestAssistantMessage.content), 0);
+    }
+  };
+
+  if (hiddenOnCurrentRoute) return null;
 
   return (
     <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-4 z-40 print:hidden sm:left-5">
@@ -237,11 +485,62 @@ export default function SupportChatWidget() {
         >
           <div className="shrink-0 flex items-start justify-between gap-3 border-b border-white/10 bg-gradient-to-r from-blue-600/25 to-purple-600/20 p-4">
             <div className="flex min-w-0 gap-3">
-              <GuideAvatar />
+              <GuideAvatar mode={avatarMode} />
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-blue-200">{routeGuide.label}</p>
                 <h2 className="mt-1 text-base font-black">{PRODUCT_NAME} Coach</h2>
-                <p className="mt-1 text-xs leading-relaxed text-slate-300">Ask how to use this page, what to click next, or how to finish your workflow.</p>
+                <p className="mt-1 text-xs leading-relaxed text-slate-300">Speak or type in English, Tamil, Tamil + English, or your own language style.</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <label className="sr-only" htmlFor="coach-language-mode">Coach language</label>
+                  <select
+                    id="coach-language-mode"
+                    value={languageMode}
+                    onChange={(event) => setLanguageMode(event.target.value)}
+                    className="h-8 rounded-lg border border-white/10 bg-slate-900 px-2 text-[11px] font-bold text-slate-100 outline-none transition focus:border-blue-300/50 focus:ring-2 focus:ring-blue-400/30"
+                  >
+                    {languageModes.map((mode) => (
+                      <option key={mode.id} value={mode.id}>{mode.label}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={startVoiceInput}
+                    disabled={loading}
+                    className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-2 text-[11px] font-black transition focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:cursor-not-allowed disabled:opacity-50 ${
+                      isListening
+                        ? 'border-emerald-300/60 bg-emerald-400/15 text-emerald-100'
+                        : 'border-white/10 bg-white/5 text-slate-100 hover:border-blue-300/40 hover:bg-blue-500/10'
+                    }`}
+                    aria-label={isListening ? 'Stop listening' : 'Start voice question'}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Z" />
+                      <path d="M5 11a1 1 0 1 1 2 0 5 5 0 0 0 10 0 1 1 0 1 1 2 0 7.002 7.002 0 0 1-6 6.93V20h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-2.07A7.002 7.002 0 0 1 5 11Z" />
+                    </svg>
+                    <span>{isListening ? 'Listening' : 'Speak'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={toggleVoiceReply}
+                    className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-2 text-[11px] font-black transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                      voiceEnabled
+                        ? 'border-purple-300/50 bg-purple-400/15 text-purple-100'
+                        : 'border-white/10 bg-white/5 text-slate-100 hover:border-blue-300/40 hover:bg-blue-500/10'
+                    }`}
+                    aria-pressed={voiceEnabled}
+                    aria-label={voiceEnabled ? 'Turn voice reply off' : 'Turn voice reply on'}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M13.5 4.06a1 1 0 0 1 1.5.86v14.16a1 1 0 0 1-1.5.86L8.7 17H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3.7l4.8-2.94Z" />
+                      <path d="M17.1 8.64a1 1 0 0 1 1.4.2 5.34 5.34 0 0 1 0 6.32 1 1 0 1 1-1.6-1.2 3.34 3.34 0 0 0 0-3.92 1 1 0 0 1 .2-1.4Z" />
+                      <path d="M19.55 5.94a1 1 0 0 1 1.41.09 9.2 9.2 0 0 1 0 11.94 1 1 0 1 1-1.5-1.32 7.2 7.2 0 0 0 0-9.3 1 1 0 0 1 .09-1.41Z" />
+                    </svg>
+                    <span>{voiceEnabled ? 'Voice on' : 'Voice off'}</span>
+                  </button>
+                </div>
+                {voiceStatus && (
+                  <p className="mt-2 text-[11px] font-bold text-blue-100">{voiceStatus}</p>
+                )}
               </div>
             </div>
             <button
@@ -330,7 +629,7 @@ export default function SupportChatWidget() {
                 }}
                 rows={1}
                 maxLength={500}
-                placeholder="Ask your doubt..."
+                placeholder="Ask in Tamil, English, Tanglish, or any language..."
                 className="max-h-28 min-h-[44px] flex-1 resize-none overflow-y-auto rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-300/50 focus:ring-2 focus:ring-blue-400/30"
               />
               <button
@@ -355,10 +654,10 @@ export default function SupportChatWidget() {
         aria-expanded={isOpen}
         aria-label={`${isOpen ? 'Close' : 'Open'} ${PRODUCT_NAME} coach`}
       >
-        <GuideAvatar compact />
+        <GuideAvatar compact mode={avatarMode} />
         <span className="leading-tight">
           <span className="block text-left">AI Coach</span>
-          <span className="hidden text-left text-[10px] font-bold text-slate-400 sm:block">Guide me</span>
+          <span className="hidden text-left text-[10px] font-bold text-slate-400 sm:block">Talk to me</span>
         </span>
       </button>
     </div>
