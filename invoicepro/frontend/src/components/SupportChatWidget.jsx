@@ -913,7 +913,7 @@ export default function SupportChatWidget() {
   if (hiddenOnCurrentRoute) return null;
 
   return (
-    <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-4 z-40 print:hidden sm:left-5">
+    <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-3 z-40 print:hidden sm:bottom-[max(1.25rem,env(safe-area-inset-bottom))] sm:left-5">
       <style>{assistantStyles}</style>
       {isOpen && (
         <section
@@ -1130,12 +1130,12 @@ export default function SupportChatWidget() {
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
-        className="cf-coach-launcher group flex items-center gap-3 rounded-full border border-white/10 bg-slate-950 px-3 py-2.5 text-sm font-black text-white shadow-xl shadow-black/25 transition hover:-translate-y-1 hover:border-blue-300/40 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400 sm:px-4"
+        className="cf-coach-launcher group flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-slate-950 p-2 text-sm font-black text-white shadow-xl shadow-black/25 transition hover:-translate-y-1 hover:border-blue-300/40 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-400 sm:h-auto sm:w-auto sm:justify-start sm:gap-3 sm:px-4 sm:py-2.5"
         aria-expanded={isOpen}
         aria-label={`${isOpen ? 'Close' : 'Open'} ${PRODUCT_NAME} coach`}
       >
         <GuideAvatar compact mode={avatarMode} />
-        <span className="leading-tight">
+        <span className="hidden leading-tight sm:block">
           <span className="block text-left">AI Coach</span>
           <span className="hidden text-left text-[10px] font-bold text-slate-400 sm:block">Talk to me</span>
         </span>

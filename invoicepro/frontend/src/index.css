@@ -130,6 +130,32 @@ table {
     text-wrap: pretty;
 }
 
+.mobile-nav-panel {
+    height: calc(100vh - 5.2rem);
+    max-height: calc(100vh - 5.2rem);
+}
+
+@supports (height: 100dvh) {
+    .mobile-nav-panel {
+        height: calc(100dvh - 5.2rem);
+        max-height: calc(100dvh - 5.2rem);
+    }
+}
+
+@media (min-width: 640px) {
+    .mobile-nav-panel {
+        height: calc(100vh - 6.25rem);
+        max-height: calc(100vh - 6.25rem);
+    }
+
+    @supports (height: 100dvh) {
+        .mobile-nav-panel {
+            height: calc(100dvh - 6.25rem);
+            max-height: calc(100dvh - 6.25rem);
+        }
+    }
+}
+
 
 /* Background effects */
 
@@ -642,6 +668,11 @@ select option:disabled {
     box-shadow: 0 22px 70px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+.premium-page .mobile-nav-panel {
+    background: rgb(9, 13, 20) !important;
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgb(9, 13, 20) 48%, rgba(94, 224, 194, 0.07)) !important;
+}
+
 .premium-page :where(section[class*="border"], article[class*="border"], div[class*="border"], a[class*="border"]) {
     border-color: var(--premium-border);
     background-image: var(--premium-glass);
@@ -888,6 +919,10 @@ select option:disabled {
     .invoice-document :where(.grid, .flex) {
         min-width: 0;
     }
+
+    nav :where(a, button) {
+        min-width: 0;
+    }
 }
 
 @media (max-width: 380px) {
@@ -904,6 +939,7 @@ select option:disabled {
         letter-spacing: 0.1em;
     }
 }
+
 
 
 /* --- ANIMATIONS --- */

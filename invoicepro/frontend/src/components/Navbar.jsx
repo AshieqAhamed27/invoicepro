@@ -109,14 +109,33 @@ export default function Navbar() {
 
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') closeAllMenus();
+    };
 
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const desktopQuery = window.matchMedia('(min-width: 1280px)');
+    const handleDesktopChange = (event) => {
+      if (event.matches) closeAllMenus();
+    };
+
+    handleDesktopChange(desktopQuery);
+    desktopQuery.addEventListener('change', handleDesktopChange);
+
+    return () => {
+      desktopQuery.removeEventListener('change', handleDesktopChange);
+    };
+  }, []);
+
   const mobileItemClass = (state) =>
-    `rounded-2xl border px-4 py-3 transition-all ${
+    `rounded-xl border px-3.5 py-3 transition-all sm:px-4 ${
       state.isActive
         ? 'border-white/15 bg-white/10 text-white'
         : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white'
@@ -124,21 +143,21 @@ export default function Navbar() {
   const moreMenuActive = moreAppLinks.some((link) => location.pathname === link.to) || (isAdmin && location.pathname === '/admin');
 
   return (
-    <nav className="sticky top-0 z-50 px-3 pt-3 pb-0 sm:px-4 sm:pt-4">
-      <div className="container-custom flex h-16 items-center justify-between rounded-[1.35rem] border border-white/10 bg-[#090d14]/90 px-3 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:h-16 sm:px-6">
+    <nav className="sticky top-0 z-50 px-2 pb-0 pt-[max(0.55rem,env(safe-area-inset-top))] sm:px-4 sm:pt-4">
+      <div className="container-custom flex h-14 min-w-0 items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#090d14]/90 px-3 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:h-16 sm:rounded-2xl sm:px-5 lg:px-6">
         <NavLink
           to="/"
-          onClick={closeMenu}
-          className="group flex min-w-0 items-center gap-3"
+          onClick={closeAllMenus}
+          className="group flex min-w-0 shrink items-center gap-3"
           aria-label="ClientFlow AI home"
         >
           <BrandLogo
             className="min-w-0"
-            markClassName="h-9 w-9 transition-transform duration-300 group-hover:scale-110 sm:h-11 sm:w-11"
+            markClassName="h-8 w-8 transition-transform duration-300 group-hover:scale-110 sm:h-11 sm:w-11"
           />
         </NavLink>
 
-        <div className="hidden items-center gap-1 text-sm xl:flex">
+        <div className="hidden min-w-0 items-center gap-1 text-sm xl:flex">
           {!loggedIn ? (
             <>
               <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
@@ -286,6 +305,45 @@ export default function Navbar() {
           )}
         </div>
 
+        <div className="ml-auto hidden shrink-0 items-center gap-2 sm:flex xl:hidden">
+          {!loggedIn ? (
+            <button
+              type="button"
+              onClick={() => {
+                navigate('/signup');
+                closeAllMenus();
+              }}
+              className="rounded-lg border border-yellow-300/25 bg-yellow-300/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15"
+            >
+              Start Free
+            </button>
+          ) : isAdmin ? (
+            <NavLink
+              to="/admin"
+              onClick={closeAllMenus}
+              className={(state) => `rounded-lg border px-3 py-2 text-xs font-black uppercase tracking-widest transition ${
+                state.isActive
+                  ? 'border-yellow-300/35 bg-yellow-300/15 text-yellow-100'
+                  : 'border-yellow-300/20 bg-yellow-300/10 text-yellow-200 hover:bg-yellow-300/15'
+              }`}
+            >
+              Admin
+            </NavLink>
+          ) : !isPro ? (
+            <NavLink
+              to="/payment"
+              onClick={closeAllMenus}
+              className="rounded-lg border border-yellow-300/20 bg-yellow-300/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-yellow-200 hover:bg-yellow-300/15"
+            >
+              Upgrade
+            </NavLink>
+          ) : (
+            <span className="max-w-[10rem] truncate rounded-lg border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-200">
+              {planLabel}
+            </span>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
@@ -295,6 +353,7 @@ export default function Navbar() {
               : 'border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.08]'
           }`}
           aria-expanded={menuOpen}
+          aria-controls="primary-mobile-navigation"
           aria-label="Toggle navigation menu"
         >
           <span className="relative h-4 w-5">
@@ -310,12 +369,18 @@ export default function Navbar() {
           <button
             type="button"
             aria-label="Close navigation overlay"
-            className="fixed inset-0 top-20 z-40 bg-black/45 backdrop-blur-sm xl:hidden"
-            onClick={closeMenu}
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm xl:hidden"
+            onClick={closeAllMenus}
           />
-          <div className="animate-menu-drop fixed inset-x-3 top-[5.2rem] z-50 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-[1.75rem] border border-white/10 bg-[#090d14]/98 shadow-2xl shadow-black/45 backdrop-blur-2xl sm:inset-x-4 xl:hidden">
-          <div className="flex flex-col gap-5 p-4 text-base sm:p-6">
-            <div className="rounded-[1.35rem] border border-white/10 bg-white/[0.04] p-4">
+          <div
+            id="primary-mobile-navigation"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation menu"
+            className="mobile-nav-panel animate-menu-drop fixed inset-x-2 top-[4.45rem] z-50 flex overflow-hidden rounded-xl border border-white/10 bg-[#090d14]/98 shadow-2xl shadow-black/45 backdrop-blur-2xl sm:inset-x-4 sm:top-[5.25rem] sm:rounded-2xl md:left-1/2 md:right-auto md:w-[min(44rem,calc(100vw-2rem))] md:-translate-x-1/2 xl:hidden"
+          >
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-3 text-base sm:gap-5 sm:p-5">
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 sm:rounded-2xl">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">
                 {loggedIn ? 'Signed in workspace' : 'ClientFlow AI'}
               </p>
@@ -339,8 +404,14 @@ export default function Navbar() {
               )}
             </div>
 
-            <div className="grid gap-3">
-              <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Main</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:col-span-2">Main</p>
+              {loggedIn && (
+                <NavLink to="/dashboard" onClick={closeMenu} className={mobileItemClass}>
+                  <span className="block text-sm font-black">Dashboard</span>
+                  <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Overview and business status</span>
+                </NavLink>
+              )}
               <NavLink to="/" onClick={closeMenu} className={mobileItemClass}>
                 <span className="block text-sm font-black">Home</span>
                 <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Product overview</span>
@@ -353,8 +424,8 @@ export default function Navbar() {
                 <span className="block text-sm font-black">Portfolio</span>
                 <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Builder and product work</span>
               </NavLink>
-              <div className="grid gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
-                <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Use cases</p>
+              <div className="grid gap-2 rounded-xl border border-white/8 bg-white/[0.03] p-3 sm:col-span-2 sm:grid-cols-2 sm:rounded-2xl">
+                <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:col-span-2">Use cases</p>
                 {useCaseLinks.map((link) => (
                   <NavLink key={link.to} to={link.to} onClick={closeMenu} className={mobileItemClass}>
                     <span className="block text-sm font-black">{link.label}</span>
@@ -378,7 +449,7 @@ export default function Navbar() {
                   </NavLink>
                 </>
               ) : (
-                <NavLink to="/client-flow" onClick={closeMenu} className={mobileItemClass}>
+                <NavLink to="/client-flow" onClick={closeMenu} className={`${mobileItemClass({ isActive: location.pathname === '/client-flow' })} sm:col-span-2`}>
                   <span className="block text-sm font-black">Client Flow</span>
                   <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Lead to payment workflow</span>
                 </NavLink>
@@ -386,8 +457,8 @@ export default function Navbar() {
             </div>
 
             {loggedIn && (
-              <div className="grid gap-3">
-                <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Core workflow</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:col-span-2">Core workflow</p>
                 {appLinks.map((link) => (
                   <NavLink key={link.to} to={link.to} onClick={closeMenu} className={mobileItemClass}>
                     <span className="flex items-center justify-between gap-3">
@@ -404,7 +475,7 @@ export default function Navbar() {
               </div>
             )}
 
-            <div className="grid gap-3 border-t border-white/5 pt-4">
+            <div className="grid gap-2 border-t border-white/5 pt-4 sm:grid-cols-2">
               {!loggedIn ? (
                 <>
                   <NavLink to="/login" onClick={closeMenu} className={mobileItemClass}>
@@ -417,7 +488,7 @@ export default function Navbar() {
                       navigate('/signup');
                       closeMenu();
                     }}
-                    className="rounded-2xl bg-yellow-300 px-5 py-4 text-sm font-black uppercase tracking-widest text-slate-950 shadow-xl shadow-yellow-950/20 transition active:scale-[0.98]"
+                    className="rounded-xl bg-yellow-300 px-5 py-4 text-sm font-black uppercase tracking-widest text-slate-950 shadow-xl shadow-yellow-950/20 transition active:scale-[0.98] sm:rounded-2xl"
                   >
                     Create Free Account
                   </button>
@@ -427,7 +498,7 @@ export default function Navbar() {
                       navigate('/payment');
                       closeMenu();
                     }}
-                    className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-4 text-sm font-black uppercase tracking-widest text-emerald-200 transition active:scale-[0.98]"
+                    className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-4 text-sm font-black uppercase tracking-widest text-emerald-200 transition active:scale-[0.98] sm:rounded-2xl"
                   >
                     Start Free Trial
                   </button>
@@ -435,12 +506,12 @@ export default function Navbar() {
               ) : (
                 <>
                   {!isPro ? (
-                    <NavLink to="/payment" onClick={closeMenu} className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 font-black text-yellow-200 hover:bg-yellow-300/15">
+                    <NavLink to="/payment" onClick={closeMenu} className="rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 font-black text-yellow-200 hover:bg-yellow-300/15 sm:rounded-2xl">
                       Upgrade Pro
                       <span className="mt-0.5 block text-xs font-semibold text-yellow-100/60">Unlock AI growth tools</span>
                     </NavLink>
                   ) : (
-                    <NavLink to="/payment" onClick={closeMenu} className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 font-black text-emerald-200 hover:bg-emerald-300/15">
+                    <NavLink to="/payment" onClick={closeMenu} className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 font-black text-emerald-200 hover:bg-emerald-300/15 sm:rounded-2xl">
                       Manage Plan
                       <span className="mt-0.5 block text-xs font-semibold text-emerald-100/60">{planLabel}</span>
                     </NavLink>
@@ -450,11 +521,11 @@ export default function Navbar() {
                     <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Profile, logo, payments</span>
                   </NavLink>
                   {isAdmin && (
-                    <NavLink to="/admin" onClick={closeMenu} className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 font-black text-yellow-200 hover:bg-yellow-300/15">
+                    <NavLink to="/admin" onClick={closeMenu} className="rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 font-black text-yellow-200 hover:bg-yellow-300/15 sm:rounded-2xl">
                       Admin
                     </NavLink>
                   )}
-                  <button type="button" onClick={handleLogout} className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-sm font-black uppercase tracking-widest text-zinc-300 transition active:scale-[0.98]">
+                  <button type="button" onClick={handleLogout} className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-4 text-sm font-black uppercase tracking-widest text-zinc-300 transition active:scale-[0.98] sm:rounded-2xl">
                     Logout
                   </button>
                 </>
