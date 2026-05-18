@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { resolvePostLoginRedirect, setAuth } from '../utils/auth';
+import { clearAuth, resolvePostLoginRedirect, setAuth } from '../utils/auth';
 import Navbar from '../components/Navbar';
+import AuthProviderButtons from '../components/AuthProviderButtons';
 import { SUPPORT_EMAIL } from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { trackEvent } from '../utils/analytics';
 
-const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim();
+const getSafeReturnPath = (value) => {
+  const path = String(value || '').trim();
+
+  if (!path || !path.startsWith('/') || path.startsWith('//') || path.includes('\\')) {
+    return '';
+  }
+
+  return path;
+};
 
 export default function Login() {
   const navigate = useNavigate();
@@ -32,68 +41,45 @@ export default function Login() {
     if (params.get('session') === 'expired') {
       setError('Your session expired. Please sign in again.');
     }
+
+    if (params.get('oauth_error')) {
+      setError(params.get('oauth_error'));
+    }
   }, [location.search]);
 
-  const handleGoogleLogin = async (response) => {
-    try {
-      const res = await api.post('/auth/google', {
-        credential: response.credential
-      });
-
-      setAuth(res.data.token, res.data.user);
-      trackEvent('login', { method: 'google' });
-      navigate(resolvePostLoginRedirect(location.state), { replace: true });
-    } catch (err) {
-      console.log(err);
-      alert('Google login failed');
-    }
+  const completeAuth = (token, user, method) => {
+    setAuth(token, user);
+    trackEvent('login', { method });
+    navigate(resolvePostLoginRedirect(location.state), { replace: true });
   };
 
   useEffect(() => {
-    if (!googleClientId) return;
+    const hash = new URLSearchParams(String(location.hash || '').replace(/^#/, ''));
+    const oauthToken = hash.get('oauth_token');
 
-    const loadGoogleScript = () => {
-      return new Promise((resolve) => {
-        const existingScript = document.querySelector(
-          'script[src="https://accounts.google.com/gsi/client"]'
-        );
+    if (!oauthToken) return undefined;
 
-        if (existingScript) {
-          resolve();
-          return;
-        }
+    const provider = hash.get('oauth_provider') || 'oauth';
+    const returnTo = getSafeReturnPath(hash.get('oauth_return'));
 
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.async = true;
-        script.defer = true;
-        script.onload = resolve;
+    window.history.replaceState(null, '', `${location.pathname}${location.search}`);
+    localStorage.setItem('token', oauthToken);
+    setLoading(true);
 
-        document.body.appendChild(script);
-      });
-    };
+    api.get('/auth/me')
+      .then((res) => {
+        setAuth(oauthToken, res.data.user);
+        trackEvent('login', { method: provider });
+        navigate(returnTo || resolvePostLoginRedirect(location.state), { replace: true });
+      })
+      .catch(() => {
+        clearAuth();
+        setError('Social login could not be completed. Please try again or use email login.');
+      })
+      .finally(() => setLoading(false));
 
-    loadGoogleScript().then(() => {
-      if (window.google) {
-        window.google.accounts.id.initialize({
-          client_id: googleClientId,
-          callback: handleGoogleLogin
-        });
-
-        const googleBtn = document.getElementById('googleBtn');
-        if (googleBtn) {
-          googleBtn.innerHTML = '';
-          window.google.accounts.id.renderButton(googleBtn, {
-            theme: 'outline',
-            size: 'large',
-            width: 300,
-            text: 'continue_with',
-            shape: 'pill'
-          });
-        }
-      }
-    });
-  }, []);
+    return undefined;
+  }, [location.hash, location.pathname, location.search, location.state, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -171,17 +157,12 @@ export default function Login() {
               </div>
             )}
 
-            {googleClientId && (
-              <>
-                <div id="googleBtn" className="mb-8 flex max-w-full justify-center overflow-hidden sm:scale-110" />
-
-                <div className="mb-8 flex items-center gap-4">
-                  <span className="h-px flex-1 bg-white/5" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-700">or use email</span>
-                  <span className="h-px flex-1 bg-white/5" />
-                </div>
-              </>
-            )}
+            <AuthProviderButtons
+              mode="login"
+              onAuthenticated={completeAuth}
+              onError={setError}
+              dividerLabel="or use email"
+            />
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">

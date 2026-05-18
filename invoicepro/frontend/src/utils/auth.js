@@ -38,6 +38,10 @@ export const setPostLoginRedirect = (path) => {
   localStorage.setItem(POST_LOGIN_REDIRECT_KEY, path);
 };
 
+export const peekPostLoginRedirect = () => {
+  return localStorage.getItem(POST_LOGIN_REDIRECT_KEY);
+};
+
 export const consumePostLoginRedirect = () => {
   const redirect = localStorage.getItem(POST_LOGIN_REDIRECT_KEY);
   localStorage.removeItem(POST_LOGIN_REDIRECT_KEY);

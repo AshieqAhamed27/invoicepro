@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
-import { resolvePostLoginRedirect, setAuth } from '../utils/auth';
+import { clearAuth, resolvePostLoginRedirect, setAuth } from '../utils/auth';
 import Navbar from '../components/Navbar';
+import AuthProviderButtons from '../components/AuthProviderButtons';
 import { SUPPORT_EMAIL } from '../utils/company';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { trackEvent } from '../utils/analytics';
+
+const getSafeReturnPath = (value) => {
+  const path = String(value || '').trim();
+
+  if (!path || !path.startsWith('/') || path.startsWith('//') || path.includes('\\')) {
+    return '';
+  }
+
+  return path;
+};
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -26,6 +37,48 @@ export default function Signup() {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const completeAuth = (token, user, method) => {
+    setAuth(token, user);
+    trackEvent('sign_up', { method });
+    navigate(resolvePostLoginRedirect(location.state), { replace: true });
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+
+    if (params.get('oauth_error')) {
+      setError(params.get('oauth_error'));
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    const hash = new URLSearchParams(String(location.hash || '').replace(/^#/, ''));
+    const oauthToken = hash.get('oauth_token');
+
+    if (!oauthToken) return undefined;
+
+    const provider = hash.get('oauth_provider') || 'oauth';
+    const returnTo = getSafeReturnPath(hash.get('oauth_return'));
+
+    window.history.replaceState(null, '', `${location.pathname}${location.search}`);
+    localStorage.setItem('token', oauthToken);
+    setLoading(true);
+
+    api.get('/auth/me')
+      .then((res) => {
+        setAuth(oauthToken, res.data.user);
+        trackEvent('sign_up', { method: provider });
+        navigate(returnTo || resolvePostLoginRedirect(location.state), { replace: true });
+      })
+      .catch(() => {
+        clearAuth();
+        setError('Social signup could not be completed. Please try again or use email signup.');
+      })
+      .finally(() => setLoading(false));
+
+    return undefined;
+  }, [location.hash, location.pathname, location.search, location.state, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -116,6 +169,13 @@ export default function Signup() {
                 {error}
               </div>
             )}
+
+            <AuthProviderButtons
+              mode="signup"
+              onAuthenticated={completeAuth}
+              onError={setError}
+              dividerLabel="or create with email"
+            />
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

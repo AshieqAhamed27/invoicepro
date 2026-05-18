@@ -131,6 +131,12 @@ app.use('/api/auth/google', createRateLimiter({
     keyPrefix: 'auth-google',
     message: 'Too many Google login attempts. Please wait and try again.'
 }));
+app.use('/api/auth/oauth', createRateLimiter({
+    windowMs: securityConfig.authWindowMs,
+    max: securityConfig.authMax,
+    keyPrefix: 'auth-oauth',
+    message: 'Too many social login attempts. Please wait and try again.'
+}));
 app.use('/api/ai', createRateLimiter({
     windowMs: securityConfig.aiWindowMs,
     max: securityConfig.aiMax,
