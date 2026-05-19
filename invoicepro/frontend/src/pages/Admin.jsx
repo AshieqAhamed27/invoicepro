@@ -66,17 +66,24 @@ const getUserGraphMax = (rows) => Math.max(
     Number(row.featureEvents || 0)
   ])
 );
+const getUserGraphX = (rows, index) => {
+  const usableWidth = USER_GRAPH_WIDTH - (USER_GRAPH_PADDING * 2);
+
+  return USER_GRAPH_PADDING + (rows.length === 1
+    ? usableWidth / 2
+    : (index / (rows.length - 1)) * usableWidth);
+};
+const getUserGraphY = (row, key, maxValue) => {
+  const usableHeight = USER_GRAPH_HEIGHT - (USER_GRAPH_PADDING * 2);
+
+  return USER_GRAPH_PADDING + usableHeight - ((Number(row?.[key] || 0) / maxValue) * usableHeight);
+};
 const buildUserGraphPoints = (rows, key, maxValue) => {
   if (!rows.length) return '';
 
-  const usableWidth = USER_GRAPH_WIDTH - (USER_GRAPH_PADDING * 2);
-  const usableHeight = USER_GRAPH_HEIGHT - (USER_GRAPH_PADDING * 2);
-
   return rows.map((row, index) => {
-    const x = USER_GRAPH_PADDING + (rows.length === 1
-      ? usableWidth / 2
-      : (index / (rows.length - 1)) * usableWidth);
-    const y = USER_GRAPH_PADDING + usableHeight - ((Number(row[key] || 0) / maxValue) * usableHeight);
+    const x = getUserGraphX(rows, index);
+    const y = getUserGraphY(row, key, maxValue);
     return `${x},${y}`;
   }).join(' ');
 };
@@ -100,6 +107,7 @@ export default function Admin() {
   const [productAnalyticsLoading, setProductAnalyticsLoading] = useState(true);
   const [productAnalyticsError, setProductAnalyticsError] = useState('');
   const [analyticsUpdatedAt, setAnalyticsUpdatedAt] = useState('');
+  const [hoveredGraphIndex, setHoveredGraphIndex] = useState(null);
   const [agencyBookings, setAgencyBookings] = useState([]);
   const [agencyLoading, setAgencyLoading] = useState(true);
   const [agencyError, setAgencyError] = useState('');
@@ -323,6 +331,10 @@ export default function Admin() {
   const dailyActivity = productAnalytics?.dailyActivity || [];
   const userGraphMax = getUserGraphMax(dailyActivity);
   const latestDailyActivity = dailyActivity[dailyActivity.length - 1] || {};
+  const activeGraphIndex = hoveredGraphIndex ?? (dailyActivity.length > 0 ? dailyActivity.length - 1 : -1);
+  const activeDailyActivity = dailyActivity[activeGraphIndex] || latestDailyActivity;
+  const activeGraphX = activeGraphIndex >= 0 ? getUserGraphX(dailyActivity, activeGraphIndex) : USER_GRAPH_PADDING;
+  const activeTooltipX = Math.max(44, Math.min(USER_GRAPH_WIDTH - 190, activeGraphX - 78));
   const userGraphLines = [
     { key: 'visitors', label: 'Unique viewers', color: '#38bdf8' },
     { key: 'members', label: 'Logged-in members', color: '#34d399' },
@@ -419,7 +431,7 @@ export default function Admin() {
                 <div className="min-w-0 overflow-hidden rounded-[1.5rem] border border-white/5 bg-white/[0.025] p-4">
                   {dailyActivity.length > 0 ? (
                     <>
-                      <div className="overflow-x-auto">
+                      <div className="overflow-x-auto" onMouseLeave={() => setHoveredGraphIndex(null)}>
                         <svg
                           viewBox={`0 0 ${USER_GRAPH_WIDTH} ${USER_GRAPH_HEIGHT}`}
                           className="h-64 min-w-[640px] w-full sm:min-w-0"
@@ -458,15 +470,71 @@ export default function Admin() {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               opacity="0.95"
+                              style={{
+                                filter: hoveredGraphIndex === null ? 'none' : `drop-shadow(0 0 8px ${line.color})`,
+                                transform: hoveredGraphIndex === null ? 'translateY(0)' : 'translateY(-1px)',
+                                transition: 'filter 220ms ease, transform 220ms ease'
+                              }}
                             />
                           ))}
+
+                          {activeGraphIndex >= 0 && (
+                            <>
+                              <line
+                                x1={activeGraphX}
+                                y1={USER_GRAPH_PADDING - 6}
+                                x2={activeGraphX}
+                                y2={USER_GRAPH_HEIGHT - USER_GRAPH_PADDING + 8}
+                                stroke="rgba(255,255,255,0.22)"
+                                strokeDasharray="5 6"
+                                strokeWidth="2"
+                              />
+
+                              {userGraphLines.map((line) => (
+                                <circle
+                                  key={`${line.key}-active`}
+                                  cx={activeGraphX}
+                                  cy={getUserGraphY(activeDailyActivity, line.key, userGraphMax)}
+                                  r={hoveredGraphIndex === null ? 4 : 6}
+                                  fill={line.color}
+                                  stroke="#050505"
+                                  strokeWidth="3"
+                                  style={{ transition: 'r 180ms ease, cy 180ms ease' }}
+                                />
+                              ))}
+
+                              <g
+                                transform={`translate(${activeTooltipX}, 14)`}
+                                pointerEvents="none"
+                                style={{ transition: 'transform 180ms ease' }}
+                              >
+                                <rect
+                                  width="170"
+                                  height="88"
+                                  rx="16"
+                                  fill="rgba(3,7,18,0.92)"
+                                  stroke="rgba(255,255,255,0.12)"
+                                />
+                                <text x="14" y="22" fill="rgba(255,255,255,0.92)" fontSize="12" fontWeight="800">
+                                  {activeDailyActivity.label || 'Selected day'}
+                                </text>
+                                <text x="14" y="44" fill="#38bdf8" fontSize="11" fontWeight="800">
+                                  Viewers: {formatNumber(activeDailyActivity.visitors)}
+                                </text>
+                                <text x="14" y="62" fill="#34d399" fontSize="11" fontWeight="800">
+                                  Members: {formatNumber(activeDailyActivity.members)}
+                                </text>
+                                <text x="14" y="80" fill="#facc15" fontSize="11" fontWeight="800">
+                                  Actions: {formatNumber(activeDailyActivity.featureEvents)}
+                                </text>
+                              </g>
+                            </>
+                          )}
 
                           {dailyActivity.map((row, index) => {
                             const shouldShow = index === 0 || index === dailyActivity.length - 1 || index % 3 === 0;
                             if (!shouldShow) return null;
-                            const x = USER_GRAPH_PADDING + (dailyActivity.length === 1
-                              ? (USER_GRAPH_WIDTH - (USER_GRAPH_PADDING * 2)) / 2
-                              : (index / (dailyActivity.length - 1)) * (USER_GRAPH_WIDTH - (USER_GRAPH_PADDING * 2)));
+                            const x = getUserGraphX(dailyActivity, index);
                             return (
                               <text
                                 key={row.date}
@@ -479,6 +547,31 @@ export default function Admin() {
                               >
                                 {row.label}
                               </text>
+                            );
+                          })}
+
+                          {dailyActivity.map((row, index) => {
+                            const x = getUserGraphX(dailyActivity, index);
+                            const previousX = index === 0
+                              ? USER_GRAPH_PADDING
+                              : (getUserGraphX(dailyActivity, index - 1) + x) / 2;
+                            const nextX = index === dailyActivity.length - 1
+                              ? USER_GRAPH_WIDTH - USER_GRAPH_PADDING
+                              : (x + getUserGraphX(dailyActivity, index + 1)) / 2;
+
+                            return (
+                              <rect
+                                key={`${row.date}-hover-zone`}
+                                x={previousX}
+                                y="0"
+                                width={Math.max(1, nextX - previousX)}
+                                height={USER_GRAPH_HEIGHT}
+                                fill="transparent"
+                                tabIndex="0"
+                                onMouseEnter={() => setHoveredGraphIndex(index)}
+                                onFocus={() => setHoveredGraphIndex(index)}
+                                style={{ cursor: 'crosshair' }}
+                              />
                             );
                           })}
                         </svg>
@@ -503,13 +596,26 @@ export default function Admin() {
                 </div>
 
                 <div className="grid gap-3">
+                  <div className={`rounded-2xl border p-4 transition duration-300 ${
+                    hoveredGraphIndex === null
+                      ? 'border-white/5 bg-white/[0.03]'
+                      : 'border-sky-400/20 bg-sky-400/10 shadow-lg shadow-sky-950/20'
+                  }`}>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                      {hoveredGraphIndex === null ? 'Latest Day' : 'Selected Day'}
+                    </p>
+                    <p className="mt-2 text-lg font-black tracking-tight text-white">
+                      {activeDailyActivity.label || '--'}
+                    </p>
+                  </div>
+
                   {[
-                    { label: 'Latest Viewers', value: latestDailyActivity.visitors, tone: 'text-sky-300' },
-                    { label: 'Latest Members', value: latestDailyActivity.members, tone: 'text-emerald-300' },
-                    { label: 'Latest Actions', value: latestDailyActivity.featureEvents, tone: 'text-yellow-300' },
-                    { label: 'Latest Signups', value: latestDailyActivity.signups, tone: 'text-white' }
+                    { label: 'Viewers', value: activeDailyActivity.visitors, tone: 'text-sky-300' },
+                    { label: 'Members', value: activeDailyActivity.members, tone: 'text-emerald-300' },
+                    { label: 'Actions', value: activeDailyActivity.featureEvents, tone: 'text-yellow-300' },
+                    { label: 'Signups', value: activeDailyActivity.signups, tone: 'text-white' }
                   ].map((item) => (
-                    <div key={item.label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                    <div key={item.label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-white/10">
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
                       <p className={`mt-2 text-3xl font-black tracking-tight ${item.tone}`}>
                         {productAnalyticsLoading ? '--' : formatNumber(item.value)}
