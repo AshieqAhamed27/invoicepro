@@ -98,6 +98,19 @@ export default function Navbar() {
     closeAllMenus();
   };
 
+  const openBuyPro = () => {
+    localStorage.setItem('plan', 'monthly');
+
+    if (!loggedIn) {
+      setPostLoginRedirect('/payment');
+      navigate('/signup');
+    } else {
+      navigate('/payment');
+    }
+
+    closeAllMenus();
+  };
+
   useEffect(() => {
     setMenuOpen(false);
     setUseCasesOpen(false);
@@ -211,6 +224,13 @@ export default function Navbar() {
               <NavLink to="/login" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Login
               </NavLink>
+              <button
+                type="button"
+                onClick={openBuyPro}
+                className="rounded-lg border border-yellow-300/25 bg-yellow-300/10 px-3 py-2 font-semibold text-yellow-100 transition hover:bg-yellow-300/15"
+              >
+                Buy Pro
+              </button>
               <button type="button" onClick={() => navigate('/signup')} className="btn btn-primary">
                 Start Free
               </button>
@@ -307,16 +327,25 @@ export default function Navbar() {
 
         <div className="ml-auto hidden shrink-0 items-center gap-2 sm:flex xl:hidden">
           {!loggedIn ? (
-            <button
-              type="button"
-              onClick={() => {
-                navigate('/signup');
-                closeAllMenus();
-              }}
-              className="rounded-lg border border-yellow-300/25 bg-yellow-300/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15"
-            >
-              Start Free
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={openBuyPro}
+                className="rounded-lg border border-yellow-300/25 bg-yellow-300/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15"
+              >
+                Buy Pro
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigate('/signup');
+                  closeAllMenus();
+                }}
+                className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.08]"
+              >
+                Free
+              </button>
+            </div>
           ) : isAdmin ? (
             <NavLink
               to="/admin"
@@ -495,12 +524,11 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => {
-                      navigate('/payment');
-                      closeMenu();
+                      openBuyPro();
                     }}
                     className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-4 text-sm font-black uppercase tracking-widest text-emerald-200 transition active:scale-[0.98] sm:rounded-2xl"
                   >
-                    Start Free Trial
+                    Buy Pro
                   </button>
                 </>
               ) : (

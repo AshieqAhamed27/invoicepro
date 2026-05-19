@@ -93,6 +93,12 @@ const directClientValueItems = [
   ['Useful before marketplace scale', 'You can earn with Pro and setup services before building a full client marketplace.']
 ];
 
+const checkoutValueCards = [
+  ['Find and follow up', 'Keep leads, next messages, and daily money actions visible.'],
+  ['Sell and deliver', 'Use proposals, deal room, workroom, files, proof, and client notes.'],
+  ['Invoice and collect', 'Create invoices, track payment status, and prepare follow-up messages.']
+];
+
 export default function Payment() {
   const location = useLocation();
   const [plan, setPlan] = useState('monthly');
@@ -507,12 +513,43 @@ export default function Payment() {
                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Secure Checkout</p>
             </div>
             <h1 className="text-4xl font-bold sm:text-5xl xl:text-7xl tracking-tight text-white mb-6 leading-none">
-              Upgrade from invoice tool to <br /> <span className="text-zinc-600">business system.</span>
+              Buy ClientFlow AI Pro <br /> <span className="text-zinc-600">for your freelance workflow.</span>
             </h1>
 
             <p className="max-w-xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed mb-8 sm:mb-10">
-              Pro helps freelancers find clients, close work, manage delivery, save proof, send proposals and invoices, and protect cashflow.
+              Pro unlocks the full lead-to-payment system: find clients, send proposals, manage delivery, create invoices, and follow up pending money.
             </p>
+
+            <div className="mb-6 rounded-[1.75rem] border border-yellow-300/25 bg-yellow-300/[0.08] p-5 sm:p-6">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">You are buying</p>
+                  <h2 className="mt-2 text-2xl font-black text-white">
+                    {current.label} for {pricingLoading ? 'live price check' : `Rs ${current.amount}`}
+                  </h2>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+                    Choose the plan, click the payment button, complete Razorpay checkout, and Pro access opens in your workspace.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRazorpayPayment}
+                  disabled={loading || pricingLoading || pricingBlocked}
+                  className="rounded-2xl bg-yellow-400 px-6 py-4 text-sm font-black uppercase tracking-widest text-black shadow-xl shadow-yellow-950/20 transition-all hover:-translate-y-0.5 hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {pricingLoading ? 'Checking Price' : loading ? 'Opening Checkout' : 'Buy Now'}
+                </button>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                {checkoutValueCards.map(([title, text]) => (
+                  <div key={title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                    <p className="text-sm font-black text-white">{title}</p>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div className="mb-6 rounded-[1.75rem] border border-cyan-300/20 bg-cyan-300/[0.06] p-5 sm:p-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -635,7 +672,7 @@ export default function Payment() {
           <aside className="reveal reveal-delay-1 h-fit">
             <div className="premium-panel p-5 sm:p-8 xl:p-10">
                <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-8">
-                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Checkout Terminal</p>
+                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Payment Summary</p>
                </div>
 
                 <div className="space-y-6 mb-10">
@@ -682,8 +719,8 @@ export default function Payment() {
                    : loading
                      ? 'Starting Checkout...'
                      : current.checkoutType === 'one_time'
-                       ? 'Pay Once and Activate'
-                       : 'Start Subscription'}
+                       ? 'Pay Once with Razorpay'
+                       : 'Buy Pro with Razorpay'}
                </button>
 
                <button

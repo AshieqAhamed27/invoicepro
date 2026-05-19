@@ -175,7 +175,7 @@ const plans = [
     price: 'Rs 499',
     note: 'For active freelancers',
     features: ['Daily money action', 'Client finder, proposals, workroom, and payment agent', 'Unlimited invoices and profit tracking'],
-    cta: 'Start Pro'
+    cta: 'Buy Pro Monthly'
   },
   {
     id: 'yearly',
@@ -183,7 +183,32 @@ const plans = [
     price: 'Rs 4999',
     note: 'For serious freelance growth',
     features: ['Everything in Pro Monthly', 'Best yearly value', 'For freelancers building stable monthly income'],
-    cta: 'Choose Yearly'
+    cta: 'Buy Pro Yearly'
+  }
+];
+
+const buyerPathCards = [
+  {
+    title: 'Try it first',
+    price: 'Rs 0',
+    text: 'Use the workflow, create invoices, and understand if ClientFlow AI fits your freelance work.',
+    action: 'Create Free Account',
+    planId: 'free'
+  },
+  {
+    title: 'Buy Pro',
+    price: 'Rs 499/month',
+    text: 'Unlock the full client finder, proposal, workroom, payment follow-up, profit, and growth workflow.',
+    action: 'Buy Pro Monthly',
+    planId: 'monthly',
+    recommended: true
+  },
+  {
+    title: 'Get setup help',
+    price: 'Done-for-you',
+    text: 'Use this if you are confused and want help setting your offer, lead plan, invoice, and 7-day action plan.',
+    action: 'Book Agency Setup',
+    path: '/agency'
   }
 ];
 
@@ -442,7 +467,7 @@ export default function Home() {
               </p>
 
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-                Simple promise: open the app and know the next money action.
+                Simple promise: know who to contact, what to send, what to deliver, and which payment to collect next.
               </p>
 
               {loggedIn && (
@@ -472,13 +497,20 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => selectPlan('monthly')}
+                  className="rounded-2xl bg-yellow-400 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-black shadow-xl shadow-yellow-950/20 transition-all hover:-translate-y-0.5 hover:bg-yellow-300 active:scale-95"
+                >
+                  Buy Pro Rs 499/month
+                </button>
                 <button
                   type="button"
                   onClick={() => selectPlan('early_access')}
                   className="rounded-2xl bg-emerald-300 px-7 py-4 text-sm font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-emerald-200 active:scale-95"
                 >
-                  Get 30 Days Free
+                  Try 30 Days Free
                 </button>
                 <button
                   type="button"
@@ -487,13 +519,13 @@ export default function Home() {
                 >
                   {loggedIn ? 'Open Client Flow' : 'Start Free'}
                 </button>
-                <a href="#features" className="btn btn-secondary px-7 py-4 text-center text-sm">
-                  See Features
-                </a>
                 <Link to="/agency" className="btn btn-dark px-7 py-4 text-center text-sm">
-                  Agency Setup
+                  Need Setup Help?
                 </Link>
               </div>
+              <p className="mt-4 max-w-xl text-xs font-bold leading-relaxed text-zinc-600">
+                New users can start free. Serious freelancers can buy Pro. Confused beginners can choose setup help.
+              </p>
             </div>
 
             <div className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-4 shadow-2xl shadow-black/30">
@@ -525,6 +557,67 @@ export default function Home() {
                   These are example values for understanding the product. Your real dashboard uses your own leads, proposals, projects, invoices, and payments.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-yellow-400/[0.035] py-12 sm:py-14">
+          <div className="container-custom">
+            <div className="responsive-heading-grid">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Choose today</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  New users should understand the product and know where to buy.
+                </h2>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  ClientFlow AI is not only an invoice maker. It is a daily business workflow for freelancers who want clients, cleaner delivery, invoices, and payment follow-up in one place.
+                </p>
+              </div>
+
+              <div className="rounded-[1.75rem] border border-yellow-300/20 bg-black/25 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">What users buy</p>
+                <p className="mt-3 text-2xl font-black leading-tight text-white">
+                  Pro gives the full lead-to-payment system. Setup help gives a beginner a clear starting plan.
+                </p>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                  No income guarantee. The value is making money actions visible and easier to execute.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {buyerPathCards.map((card) => (
+                <button
+                  key={card.title}
+                  type="button"
+                  onClick={() => card.path ? navigate(card.path) : selectPlan(card.planId)}
+                  className={`rounded-[1.75rem] border p-6 text-left transition-all hover:-translate-y-1 ${
+                    card.recommended
+                      ? 'border-yellow-300/35 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/20'
+                      : 'border-white/8 bg-black/25 hover:border-yellow-300/25 hover:bg-yellow-300/[0.05]'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-2xl font-black text-white">{card.title}</h3>
+                      <p className="mt-2 text-3xl font-black tracking-tight text-yellow-200">{card.price}</p>
+                    </div>
+                    {card.recommended && (
+                      <span className="rounded-full border border-yellow-300/20 bg-yellow-300/15 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-100">
+                        Best next step
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">{card.text}</p>
+                  <span className={`mt-6 inline-flex w-full justify-center rounded-2xl px-5 py-4 text-sm font-black uppercase tracking-widest transition ${
+                    card.recommended
+                      ? 'bg-yellow-400 text-black hover:bg-yellow-300'
+                      : 'border border-white/10 text-white hover:bg-white/10'
+                  }`}>
+                    {card.action}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
         </section>
@@ -867,8 +960,11 @@ export default function Home() {
             <div className="mx-auto max-w-2xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Pricing</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Start free. Upgrade when the workflow helps.
+                Start free or buy Pro when you want the full workflow.
               </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                Free is for testing. Pro is for freelancers who want daily client, delivery, invoice, and payment actions.
+              </p>
             </div>
 
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
