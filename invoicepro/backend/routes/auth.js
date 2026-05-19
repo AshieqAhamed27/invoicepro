@@ -752,6 +752,48 @@ router.put(
     }
 );
 
+router.get('/public-profile/:id', async(req, res) => {
+    try {
+        const id = String(req.params.id || '').trim();
+
+        if (!/^[a-f0-9]{24}$/i.test(id)) {
+            return res.status(400).json({ message: 'Invalid profile link.' });
+        }
+
+        const user = await User.findById(id)
+            .select('name email companyName address logo gstNumber createdAt')
+            .lean();
+
+        if (!user) {
+            return res.status(404).json({ message: 'Profile not found.' });
+        }
+
+        const displayName = user.companyName || user.name || 'Freelancer';
+
+        res.json({
+            profile: {
+                id: user._id,
+                displayName,
+                name: user.name || '',
+                companyName: user.companyName || '',
+                email: user.email || '',
+                address: user.address || '',
+                logo: user.logo || '',
+                gstReady: Boolean(user.gstNumber),
+                memberSince: user.createdAt,
+                services: [
+                    'Lead follow-up and client workflow',
+                    'Proposal, scope, and approval handling',
+                    'Invoice, payment link, and collection tracking'
+                ]
+            }
+        });
+    } catch (err) {
+        console.error('PUBLIC PROFILE ERROR:', err.message);
+        res.status(500).json({ message: 'Unable to load profile.' });
+    }
+});
+
 // Insecure direct upgrade route removed. 
 // Use /payment/razorpay or /payment/request for verified upgrades.
 

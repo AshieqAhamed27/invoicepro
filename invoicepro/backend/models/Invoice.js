@@ -278,7 +278,69 @@ const invoiceSchema = new mongoose.Schema({
             type: Date,
             default: null
         }
-    }
+    },
+
+    scopeAgreement: {
+        included: [{
+            type: String,
+            trim: true
+        }],
+        excluded: [{
+            type: String,
+            trim: true
+        }],
+        revisionLimit: {
+            type: Number,
+            default: 2,
+            min: 0
+        },
+        extraWorkRate: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        timeline: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        approvalRequired: {
+            type: Boolean,
+            default: true
+        },
+        lockedAt: {
+            type: Date,
+            default: null
+        }
+    },
+
+    changeRequests: [{
+        requesterName: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        requesterEmail: {
+            type: String,
+            default: '',
+            trim: true,
+            lowercase: true
+        },
+        message: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        status: {
+            type: String,
+            enum: ['new', 'accepted', 'declined', 'priced'],
+            default: 'new'
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    }]
 
 }, {
     timestamps: true

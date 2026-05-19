@@ -77,6 +77,14 @@ export default function CreateInvoice() {
     dayOfMonth: today.getDate(),
     sendEmail: true
   });
+  const [scopeAgreement, setScopeAgreement] = useState({
+    included: '',
+    excluded: '',
+    revisionLimit: 2,
+    extraWorkRate: '',
+    timeline: '',
+    approvalRequired: true
+  });
 
   const [clients, setClients] = useState([]);
   const isProposal = documentType === 'proposal';
@@ -144,6 +152,13 @@ export default function CreateInvoice() {
     const updated = [...items];
     updated[i][field] = value;
     setItems(updated);
+  };
+
+  const handleScopeChange = (field, value) => {
+    setScopeAgreement((prev) => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const addItem = () => {
@@ -352,6 +367,7 @@ export default function CreateInvoice() {
         currency: finalCurrency,
         upiId: finalUpi,
         sourceLeadId,
+        scopeAgreement,
         items,
         amount: total,
         recurring: isProposal ? { enabled: false } : recurring
@@ -552,6 +568,86 @@ export default function CreateInvoice() {
                 rows="3"
                 className="input resize-none py-4 bg-black/20 border-white/5 focus:bg-black/60 min-h-[120px]"
               />
+            </section>
+
+            <section className="premium-panel p-5 sm:p-8">
+              <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h2 className="text-2xl font-black text-white leading-none mb-1">Scope Lock</h2>
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                    Protect against unclear revisions and extra work
+                  </p>
+                </div>
+                <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                  Client portal ready
+                </span>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="space-y-1.5">
+                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Included work</p>
+                  <textarea
+                    value={scopeAgreement.included}
+                    onChange={(e) => handleScopeChange('included', e.target.value)}
+                    placeholder="One item per line: landing page, payment setup, deployment..."
+                    rows="4"
+                    className="input min-h-[130px] resize-none border-white/5 bg-black/20 py-4 focus:bg-black/60"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Not included</p>
+                  <textarea
+                    value={scopeAgreement.excluded}
+                    onChange={(e) => handleScopeChange('excluded', e.target.value)}
+                    placeholder="One item per line: paid ads, extra pages, content writing..."
+                    rows="4"
+                    className="input min-h-[130px] resize-none border-white/5 bg-black/20 py-4 focus:bg-black/60"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Revision limit</p>
+                  <input
+                    type="number"
+                    min="0"
+                    max="20"
+                    value={scopeAgreement.revisionLimit}
+                    onChange={(e) => handleScopeChange('revisionLimit', e.target.value)}
+                    className="input border-white/5 bg-black/20 py-4"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Extra work pricing</p>
+                  <input
+                    value={scopeAgreement.extraWorkRate}
+                    onChange={(e) => handleScopeChange('extraWorkRate', e.target.value)}
+                    placeholder="e.g. Rs 1,500/hour or quoted separately"
+                    className="input border-white/5 bg-black/20 py-4"
+                  />
+                </div>
+                <div className="space-y-1.5 lg:col-span-2">
+                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Timeline / approval rule</p>
+                  <input
+                    value={scopeAgreement.timeline}
+                    onChange={(e) => handleScopeChange('timeline', e.target.value)}
+                    placeholder="e.g. 7 business days after assets and approval are received"
+                    className="input border-white/5 bg-black/20 py-4"
+                  />
+                </div>
+                <label className="flex items-start gap-3 rounded-2xl border border-white/8 bg-black/20 p-4 lg:col-span-2">
+                  <input
+                    type="checkbox"
+                    checked={scopeAgreement.approvalRequired}
+                    onChange={(e) => handleScopeChange('approvalRequired', e.target.checked)}
+                    className="mt-1 h-4 w-4 accent-yellow-400"
+                  />
+                  <span>
+                    <span className="block text-sm font-black text-white">Require client approval before work starts</span>
+                    <span className="mt-1 block text-xs font-semibold leading-relaxed text-zinc-500">
+                      The public proposal page will show these scope terms before the client accepts or requests changes.
+                    </span>
+                  </span>
+                </label>
+              </div>
             </section>
 
             {/* Section: Items */}

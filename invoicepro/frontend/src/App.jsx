@@ -52,6 +52,7 @@ const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 const Payment = lazy(() => import('./pages/Payment'));
 const Admin = lazy(() => import('./pages/Admin'));
 const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
+const FreelancerProfile = lazy(() => import('./pages/FreelancerProfile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Clients = lazy(() => import('./pages/Clients'));
 const CloudDocuments = lazy(() => import('./pages/CloudDocuments'));
@@ -417,6 +418,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <PublicInvoice />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/f/:id"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <FreelancerProfile />
             </Suspense>
           }
         />

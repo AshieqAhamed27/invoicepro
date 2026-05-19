@@ -27,6 +27,47 @@ const isProposalDocument = (value) => String(value || 'invoice').toLowerCase() =
 
 const isPaidPlan = hasPaidPlan;
 
+const limitText = (value, maxLength) => String(value || '').trim().slice(0, maxLength);
+
+const toCleanStringArray = (value, maxItems = 8, maxLength = 160) => {
+    if (Array.isArray(value)) {
+        return value
+            .map((item) => limitText(item, maxLength))
+            .filter(Boolean)
+            .slice(0, maxItems);
+    }
+
+    return String(value || '')
+        .split(/\r?\n|,/)
+        .map((item) => limitText(item, maxLength))
+        .filter(Boolean)
+        .slice(0, maxItems);
+};
+
+const normalizeScopeAgreement = (value = {}) => {
+    const included = toCleanStringArray(value.included);
+    const excluded = toCleanStringArray(value.excluded);
+    const revisionLimit = Math.max(0, Math.min(20, Number(value.revisionLimit ?? 2) || 0));
+    const extraWorkRate = limitText(value.extraWorkRate, 120);
+    const timeline = limitText(value.timeline, 160);
+    const hasScope =
+        included.length > 0 ||
+        excluded.length > 0 ||
+        extraWorkRate ||
+        timeline ||
+        revisionLimit !== 2;
+
+    return {
+        included,
+        excluded,
+        revisionLimit,
+        extraWorkRate,
+        timeline,
+        approvalRequired: value.approvalRequired !== false,
+        lockedAt: hasScope ? new Date() : null
+    };
+};
+
 const getValidSourceLead = async(sourceLeadId, userId) => {
     if (!isValidObjectId(sourceLeadId)) return null;
 
@@ -272,6 +313,52 @@ router.post('/public/:id/accept', async(req, res) => {
     }
 });
 
+router.post('/public/:id/change-request', async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'document');
+        }
+
+        const invoice = await Invoice.findById(req.params.id);
+
+        if (!invoice) {
+            return res.status(404).json({
+                message: 'Document not found.'
+            });
+        }
+
+        const requesterName = limitText(req.body?.requesterName || invoice.clientName, 80);
+        const requesterEmail = limitText(req.body?.requesterEmail || invoice.clientEmail, 120).toLowerCase();
+        const message = limitText(req.body?.message, 1000);
+
+        if (!message) {
+            return res.status(400).json({
+                message: 'Please describe the requested change.'
+            });
+        }
+
+        invoice.changeRequests.push({
+            requesterName,
+            requesterEmail,
+            message,
+            status: 'new',
+            createdAt: new Date()
+        });
+        await invoice.save();
+
+        res.status(201).json({
+            message: 'Change request saved.',
+            changeRequests: invoice.changeRequests
+        });
+    } catch (err) {
+        console.error('PUBLIC CHANGE REQUEST ERROR:', err);
+
+        res.status(500).json({
+            message: 'Server error.'
+        });
+    }
+});
+
 
 
 // ==========================
@@ -316,6 +403,7 @@ router.post('/', protect, async(req, res) => {
             sgst,
             upiId,
             sourceLeadId,
+            scopeAgreement,
             recurring
         } = req.body;
 
@@ -370,6 +458,7 @@ router.post('/', protect, async(req, res) => {
             user: user._id,
             proposalStatus: normalizedDocumentType === 'proposal' ? 'sent' : null,
             sourceLeadId: sourceLead?._id || null,
+            scopeAgreement: normalizeScopeAgreement(scopeAgreement),
 
             // ✅ FIXED STATUS SYSTEM
             status: 'pending',
@@ -553,7 +642,8 @@ router.post('/:id/convert', protect, async(req, res) => {
             status: 'pending',
             paidAt: null,
             sourceProposalId: proposal._id,
-            sourceLeadId: proposal.sourceLeadId || null
+            sourceLeadId: proposal.sourceLeadId || null,
+            scopeAgreement: proposal.scopeAgreement || normalizeScopeAgreement()
         });
 
         proposal.convertedToInvoiceId = invoice._id;

@@ -89,6 +89,8 @@ export default function PublicInvoice() {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [accepting, setAccepting] = useState(false);
+  const [changeRequest, setChangeRequest] = useState('');
+  const [changeRequestStatus, setChangeRequestStatus] = useState('');
 
   useDocumentMeta(
     'Secure Invoice | ClientFlow AI',
@@ -281,6 +283,27 @@ export default function PublicInvoice() {
     }
   };
 
+  const handleChangeRequest = async () => {
+    if (!changeRequest.trim()) {
+      setChangeRequestStatus('Please describe what needs to change.');
+      return;
+    }
+
+    try {
+      setChangeRequestStatus('Saving request...');
+      await api.post(`/invoices/public/${id}/change-request`, {
+        requesterName: invoice.clientName,
+        requesterEmail: invoice.clientEmail,
+        message: changeRequest
+      });
+      setChangeRequest('');
+      setChangeRequestStatus('Change request sent. The provider can quote or approve the extra work.');
+      fetchInvoice();
+    } catch (err) {
+      setChangeRequestStatus(err.response?.data?.message || 'Could not save change request.');
+    }
+  };
+
   const business = invoice.businessSnapshot || {};
   const snapshotName = firstText(business.name);
   const personalName = firstText(invoice.user?.name);
@@ -315,6 +338,17 @@ export default function PublicInvoice() {
         : null;
 
   const safeCompanyLogoUrl = getSafeRemoteImageUrl(companyLogo);
+  const scopeAgreement = invoice.scopeAgreement || {};
+  const includedScope = Array.isArray(scopeAgreement.included) ? scopeAgreement.included.filter(Boolean) : [];
+  const excludedScope = Array.isArray(scopeAgreement.excluded) ? scopeAgreement.excluded.filter(Boolean) : [];
+  const revisionLimit = Number(scopeAgreement.revisionLimit ?? 2);
+  const hasScopeAgreement = Boolean(scopeAgreement.lockedAt) ||
+    revisionLimit !== 2 ||
+    includedScope.length > 0 ||
+    excludedScope.length > 0 ||
+    scopeAgreement.extraWorkRate ||
+    scopeAgreement.timeline;
+  const changeRequests = Array.isArray(invoice.changeRequests) ? invoice.changeRequests : [];
 
   return (
     <div className="premium-page min-h-screen px-3 py-5 sm:px-4 sm:py-10">
@@ -419,6 +453,76 @@ export default function PublicInvoice() {
             ))}
           </div>
         </div>
+
+        {hasScopeAgreement && (
+          <div className="mb-10 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-5 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Scope lock</p>
+                <h3 className="mt-2 text-xl font-black text-slate-950">Clear terms before extra work starts</h3>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-emerald-900/70">
+                  This protects both sides from unclear revisions, scope creep, and surprise work.
+                </p>
+              </div>
+              <span className="rounded-full bg-emerald-600 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                {revisionLimit} revisions
+              </span>
+            </div>
+
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              {includedScope.length > 0 && (
+                <div className="rounded-xl border border-emerald-100 bg-white p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Included</p>
+                  <ul className="mt-3 space-y-2 text-sm font-semibold text-slate-700">
+                    {includedScope.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {excludedScope.length > 0 && (
+                <div className="rounded-xl border border-amber-100 bg-white p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Not included</p>
+                  <ul className="mt-3 space-y-2 text-sm font-semibold text-slate-700">
+                    {excludedScope.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {(scopeAgreement.timeline || scopeAgreement.extraWorkRate || scopeAgreement.approvalRequired) && (
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                {scopeAgreement.timeline && (
+                  <div className="rounded-xl border border-white bg-white/80 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Timeline</p>
+                    <p className="mt-2 text-sm font-bold text-slate-800">{scopeAgreement.timeline}</p>
+                  </div>
+                )}
+                {scopeAgreement.extraWorkRate && (
+                  <div className="rounded-xl border border-white bg-white/80 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Extra work</p>
+                    <p className="mt-2 text-sm font-bold text-slate-800">{scopeAgreement.extraWorkRate}</p>
+                  </div>
+                )}
+                {scopeAgreement.approvalRequired && (
+                  <div className="rounded-xl border border-white bg-white/80 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Approval</p>
+                    <p className="mt-2 text-sm font-bold text-slate-800">Client approval is required before work starts.</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-col justify-between gap-10 md:flex-row">
           <div className="flex-1">
@@ -558,6 +662,57 @@ export default function PublicInvoice() {
                 </span>
                 <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter mt-1">Inclusive of all taxes</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.5fr)]">
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest text-slate-500">Need a change?</p>
+              <h3 className="mt-2 text-xl font-black text-slate-950">Request it here before the scope changes</h3>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-500">
+                Extra pages, new features, additional revisions, or new deliverables should be requested here so the provider can approve or quote them clearly.
+              </p>
+              <textarea
+                value={changeRequest}
+                onChange={(e) => setChangeRequest(e.target.value)}
+                rows="4"
+                placeholder="Describe the change you want..."
+                className="mt-4 w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-slate-400"
+              />
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={handleChangeRequest}
+                  className="rounded-xl bg-slate-950 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-black active:scale-95"
+                >
+                  Send Change Request
+                </button>
+                {changeRequestStatus && (
+                  <p className="text-xs font-bold text-slate-500">{changeRequestStatus}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Request history</p>
+              {changeRequests.length > 0 ? (
+                <div className="mt-3 space-y-3">
+                  {changeRequests.slice(-3).reverse().map((request) => (
+                    <div key={request._id || request.createdAt} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                      <p className="text-sm font-bold text-slate-800">{request.message}</p>
+                      <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        {request.status || 'new'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-500">
+                  No change requests yet. This helps keep delivery clean and payment conversations professional.
+                </p>
+              )}
             </div>
           </div>
         </div>

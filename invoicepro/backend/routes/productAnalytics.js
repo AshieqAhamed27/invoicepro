@@ -148,7 +148,9 @@ router.get('/admin/summary', protect, async(req, res) => {
             activeMembers30d,
             newMembers7d,
             userSummary,
-            recentActivity
+            recentActivity,
+            topPages,
+            topEvents
         ] = await Promise.all([
             ProductAnalyticsEvent.countDocuments(pageViewMatch),
             countUnique(pageViewMatch, 'visitorId'),
@@ -243,6 +245,68 @@ router.get('/admin/summary', protect, async(req, res) => {
                         createdAt: 1
                     }
                 }
+            ]),
+            ProductAnalyticsEvent.aggregate([
+                {
+                    $match: {
+                        ...pageViewMatch,
+                        path: { $nin: [null, ''] }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$path',
+                        uniqueVisitors: { $addToSet: '$visitorId' },
+                        views: { $sum: 1 },
+                        title: { $last: '$title' }
+                    }
+                },
+                {
+                    $project: {
+                        path: '$_id',
+                        title: 1,
+                        views: 1,
+                        uniqueVisitors: { $size: '$uniqueVisitors' },
+                        _id: 0
+                    }
+                },
+                { $sort: { uniqueVisitors: -1, views: -1 } },
+                { $limit: 8 }
+            ]),
+            ProductAnalyticsEvent.aggregate([
+                {
+                    $match: {
+                        role: { $ne: 'admin' },
+                        eventName: { $nin: [null, '', 'page_view'] }
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$eventName',
+                        users: { $addToSet: '$user' },
+                        visitors: { $addToSet: '$visitorId' },
+                        events: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        eventName: '$_id',
+                        events: 1,
+                        users: {
+                            $size: {
+                                $filter: {
+                                    input: '$users',
+                                    as: 'user',
+                                    cond: { $ne: ['$$user', null] }
+                                }
+                            }
+                        },
+                        visitors: { $size: '$visitors' },
+                        _id: 0
+                    }
+                },
+                { $sort: { events: -1 } },
+                { $limit: 8 }
             ])
         ]);
 
@@ -289,7 +353,9 @@ router.get('/admin/summary', protect, async(req, res) => {
                 title: event.title,
                 plan: event.plan || 'visitor',
                 createdAt: event.createdAt
-            }))
+            })),
+            topPages,
+            topEvents
         });
     } catch (err) {
         console.error('PRODUCT ANALYTICS SUMMARY ERROR:', err.message);

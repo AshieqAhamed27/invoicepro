@@ -390,6 +390,60 @@ export default function Admin() {
             </div>
           </div>
 
+          {!productAnalyticsLoading && (
+            <div className="grid gap-6 border-t border-white/5 p-5 sm:p-8 lg:grid-cols-2">
+              <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Top Pages</p>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+                  Shows where users spend attention, so you can improve the real conversion path.
+                </p>
+                <div className="mt-4 grid gap-3">
+                  {(productAnalytics?.topPages || []).length > 0 ? productAnalytics.topPages.map((page) => (
+                    <div key={page.path} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-white">{page.title || page.path}</p>
+                          <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-widest text-zinc-600">{page.path}</p>
+                        </div>
+                        <span className="shrink-0 rounded-full border border-sky-400/10 bg-sky-400/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-sky-300">
+                          {formatNumber(page.uniqueVisitors)} users
+                        </span>
+                      </div>
+                    </div>
+                  )) : (
+                    <p className="rounded-2xl border border-white/5 bg-white/[0.03] p-4 text-sm font-semibold text-zinc-500">
+                      No page data yet.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Feature Usage</p>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+                  Shows what users actually do after landing, not repeated page refreshes.
+                </p>
+                <div className="mt-4 grid gap-3">
+                  {(productAnalytics?.topEvents || []).length > 0 ? productAnalytics.topEvents.map((event) => (
+                    <div key={event.eventName} className="flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-white">{event.eventName}</p>
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                          {formatNumber(event.users)} members / {formatNumber(event.visitors)} visitors
+                        </p>
+                      </div>
+                      <span className="text-lg font-black text-emerald-300">{formatNumber(event.events)}</span>
+                    </div>
+                  )) : (
+                    <p className="rounded-2xl border border-white/5 bg-white/[0.03] p-4 text-sm font-semibold text-zinc-500">
+                      No feature events yet.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {!productAnalyticsLoading && productAnalytics?.recentActivity?.length > 0 && (
             <div className="border-t border-white/5 p-5 sm:p-8">
               <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent Unique Product Viewers</p>

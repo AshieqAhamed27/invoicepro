@@ -277,6 +277,10 @@ export default function ClientFlow() {
   const workflowBottleneck = workflowSignals.find((signal) => !signal.done) || workflowSignals[workflowSignals.length - 1];
   const maturityLabel = getMaturityLabel(workflowHealth);
   const maturityDetail = getMaturityDetail(workflowHealth);
+  const directProfilePath = user.id ? `/f/${user.id}` : '';
+  const directProfileUrl = directProfilePath && typeof window !== 'undefined'
+    ? `${window.location.origin}${directProfilePath}`
+    : '';
   const weeklyPlan = useMemo(() => ([
     {
       day: 'Day 1',
@@ -379,6 +383,17 @@ export default function ClientFlow() {
     }));
   };
 
+  const copyDirectProfile = async () => {
+    if (!directProfileUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(directProfileUrl);
+      askGuide(`I copied my direct client profile link: ${directProfileUrl}. Write a short LinkedIn DM to share it with a potential client.`);
+    } catch {
+      window.prompt('Copy your direct client profile link:', directProfileUrl);
+    }
+  };
+
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
@@ -463,6 +478,104 @@ export default function ClientFlow() {
                 {autopilotEnabled ? 'Open Autopilot' : 'Enable Autopilot'}
               </button>
             </div>
+          </div>
+        </section>
+
+        <section className="mb-8 rounded-[2rem] border border-sky-300/20 bg-sky-300/[0.05] p-5 shadow-2xl shadow-black/20 sm:p-7">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.42fr)] lg:items-center">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Own your clients</p>
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">
+                Share a direct profile instead of waiting for marketplace algorithms.
+              </h2>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+                Your public profile gives prospects one clean link for your services, trust signals, and project enquiry. It supports direct clients without Upwork/Fiverr-style marketplace dependency.
+              </p>
+            </div>
+            <div className="rounded-[1.5rem] border border-white/10 bg-black/25 p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Direct client link</p>
+              <p className="mt-2 break-all rounded-xl border border-white/8 bg-white/[0.03] p-3 text-xs font-bold text-sky-100">
+                {directProfileUrl || 'Available after profile sync'}
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => directProfilePath && navigate(directProfilePath)}
+                  disabled={!directProfilePath}
+                  className="rounded-xl bg-sky-300 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition hover:bg-sky-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  View Page
+                </button>
+                <button
+                  type="button"
+                  onClick={copyDirectProfile}
+                  disabled={!directProfileUrl}
+                  className="rounded-xl border border-sky-300/25 px-4 py-3 text-xs font-black uppercase tracking-widest text-sky-100 transition hover:bg-sky-300/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Copy Link
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-8 rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-7">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-red-300">Marketplace problem solver</p>
+              <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                Use ClientFlow AI to avoid the common freelancer traps.
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
+                This product should not become another bidding site. It should help freelancers own direct clients, control scope, prove delivery, and collect payment professionally.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => askGuide('Create a direct-client plan that avoids marketplace fees, scope creep, weak proposals, and late payments.')}
+              className="btn btn-secondary"
+            >
+              Ask AI Plan
+            </button>
+          </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              {
+                problem: 'Algorithm dependency',
+                solution: 'Share direct profile',
+                route: directProfilePath || '/settings',
+                detail: 'Use one profile link in LinkedIn, WhatsApp, email, and proposals.'
+              },
+              {
+                problem: 'Scope creep',
+                solution: 'Scope Lock',
+                route: '/create-invoice?type=proposal',
+                detail: 'Define included work, excluded work, revisions, and extra-work pricing.'
+              },
+              {
+                problem: 'Payment delay',
+                solution: 'Payment follow-up',
+                route: '/dashboard#payment-collection-agent',
+                detail: 'Track pending invoices and send the right reminder before the deal goes cold.'
+              },
+              {
+                problem: 'No proof trail',
+                solution: 'Delivery proof',
+                route: '/cloud-documents',
+                detail: 'Save links, files, approvals, and notes before asking for payment.'
+              }
+            ].map((item) => (
+              <button
+                key={item.problem}
+                type="button"
+                onClick={() => openRoute(item.route)}
+                className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5 text-left transition hover:-translate-y-1 hover:border-yellow-300/25 hover:bg-white/[0.04]"
+              >
+                <p className="text-[10px] font-black uppercase tracking-widest text-red-300">{item.problem}</p>
+                <h3 className="mt-3 text-lg font-black text-white">{item.solution}</h3>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{item.detail}</p>
+              </button>
+            ))}
           </div>
         </section>
 
