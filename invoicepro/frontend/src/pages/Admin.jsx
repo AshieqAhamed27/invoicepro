@@ -55,6 +55,31 @@ const getPlanLabel = (plan) => {
   return plan || 'Paid';
 };
 const getStatusLabel = (status) => String(status || 'paid').replaceAll('_', ' ');
+const USER_GRAPH_WIDTH = 720;
+const USER_GRAPH_HEIGHT = 220;
+const USER_GRAPH_PADDING = 30;
+const getUserGraphMax = (rows) => Math.max(
+  1,
+  ...rows.flatMap((row) => [
+    Number(row.visitors || 0),
+    Number(row.members || 0),
+    Number(row.featureEvents || 0)
+  ])
+);
+const buildUserGraphPoints = (rows, key, maxValue) => {
+  if (!rows.length) return '';
+
+  const usableWidth = USER_GRAPH_WIDTH - (USER_GRAPH_PADDING * 2);
+  const usableHeight = USER_GRAPH_HEIGHT - (USER_GRAPH_PADDING * 2);
+
+  return rows.map((row, index) => {
+    const x = USER_GRAPH_PADDING + (rows.length === 1
+      ? usableWidth / 2
+      : (index / (rows.length - 1)) * usableWidth);
+    const y = USER_GRAPH_PADDING + usableHeight - ((Number(row[key] || 0) / maxValue) * usableHeight);
+    return `${x},${y}`;
+  }).join(' ');
+};
 
 export default function Admin() {
   const [requests, setRequests] = useState([]);
@@ -74,6 +99,7 @@ export default function Admin() {
   const [productAnalytics, setProductAnalytics] = useState(null);
   const [productAnalyticsLoading, setProductAnalyticsLoading] = useState(true);
   const [productAnalyticsError, setProductAnalyticsError] = useState('');
+  const [analyticsUpdatedAt, setAnalyticsUpdatedAt] = useState('');
   const [agencyBookings, setAgencyBookings] = useState([]);
   const [agencyLoading, setAgencyLoading] = useState(true);
   const [agencyError, setAgencyError] = useState('');
@@ -185,12 +211,13 @@ export default function Admin() {
     }
   };
 
-  const fetchProductAnalytics = async () => {
+  const fetchProductAnalytics = async ({ silent = false } = {}) => {
     try {
-      setProductAnalyticsLoading(true);
+      if (!silent) setProductAnalyticsLoading(true);
       setProductAnalyticsError('');
       const res = await api.get('/product-analytics/admin/summary');
       setProductAnalytics(res.data || null);
+      setAnalyticsUpdatedAt(res.data?.refreshedAt || new Date().toISOString());
     } catch (err) {
       console.log(err);
       setProductAnalyticsError('Could not load product analytics.');
@@ -256,6 +283,14 @@ export default function Admin() {
     fetchAgencyBookings();
   }, []);
 
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      fetchProductAnalytics({ silent: true });
+    }, 30000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
   const monthlyAmount = pricing?.plans?.monthly ?? null;
   const yearlyAmount = pricing?.plans?.yearly ?? null;
   const pricingReady = Number(monthlyAmount || 0) > 0 && Number(yearlyAmount || 0) > 0;
@@ -285,6 +320,14 @@ export default function Admin() {
   const paidMembers = Number(productTotals.paidMembers || 0);
   const signupRate = uniqueVisitors > 0 ? (registeredMembers / uniqueVisitors) * 100 : 0;
   const paidRate = registeredMembers > 0 ? (paidMembers / registeredMembers) * 100 : 0;
+  const dailyActivity = productAnalytics?.dailyActivity || [];
+  const userGraphMax = getUserGraphMax(dailyActivity);
+  const latestDailyActivity = dailyActivity[dailyActivity.length - 1] || {};
+  const userGraphLines = [
+    { key: 'visitors', label: 'Unique viewers', color: '#38bdf8' },
+    { key: 'members', label: 'Logged-in members', color: '#34d399' },
+    { key: 'featureEvents', label: 'Feature actions', color: '#facc15' }
+  ];
   const platformEarnings = revenue?.platformEarnings || {};
   const earningSources = platformEarnings.sources || {};
   const paidUsersList = revenue?.paidUsers || [];
@@ -341,6 +384,141 @@ export default function Admin() {
                 </p>
               </div>
             ))}
+          </div>
+
+          <div className="px-5 pb-5 sm:px-8 sm:pb-8">
+            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-5 sm:p-6">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Real-Time User Graph</p>
+                  <h3 className="mt-2 text-2xl font-black tracking-tight text-white">14-day user activity</h3>
+                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                    Auto-refreshes from live product analytics and keeps repeated users counted once per day.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-sky-400/10 bg-sky-400/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-sky-300">
+                    Auto 30s
+                  </span>
+                  <span className="rounded-full border border-white/5 bg-white/[0.03] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                    {formatDateTime(analyticsUpdatedAt || productAnalytics?.refreshedAt)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => fetchProductAnalytics()}
+                    disabled={productAnalyticsLoading}
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-200 transition hover:border-sky-400/30 hover:text-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {productAnalyticsLoading ? 'Refreshing' : 'Refresh'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_240px]">
+                <div className="min-w-0 overflow-hidden rounded-[1.5rem] border border-white/5 bg-white/[0.025] p-4">
+                  {dailyActivity.length > 0 ? (
+                    <>
+                      <div className="overflow-x-auto">
+                        <svg
+                          viewBox={`0 0 ${USER_GRAPH_WIDTH} ${USER_GRAPH_HEIGHT}`}
+                          className="h-64 min-w-[640px] w-full sm:min-w-0"
+                          role="img"
+                          aria-label="Fourteen day user activity graph"
+                        >
+                          {[0, 1, 2, 3].map((line) => {
+                            const y = USER_GRAPH_PADDING + ((USER_GRAPH_HEIGHT - (USER_GRAPH_PADDING * 2)) / 3) * line;
+                            return (
+                              <line
+                                key={line}
+                                x1={USER_GRAPH_PADDING}
+                                y1={y}
+                                x2={USER_GRAPH_WIDTH - USER_GRAPH_PADDING}
+                                y2={y}
+                                stroke="rgba(255,255,255,0.08)"
+                                strokeWidth="1"
+                              />
+                            );
+                          })}
+
+                          <text x="4" y={USER_GRAPH_PADDING + 4} fill="rgba(255,255,255,0.45)" fontSize="12" fontWeight="700">
+                            {formatNumber(userGraphMax)}
+                          </text>
+                          <text x="12" y={USER_GRAPH_HEIGHT - USER_GRAPH_PADDING + 4} fill="rgba(255,255,255,0.45)" fontSize="12" fontWeight="700">
+                            0
+                          </text>
+
+                          {userGraphLines.map((line) => (
+                            <polyline
+                              key={line.key}
+                              points={buildUserGraphPoints(dailyActivity, line.key, userGraphMax)}
+                              fill="none"
+                              stroke={line.color}
+                              strokeWidth="4"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              opacity="0.95"
+                            />
+                          ))}
+
+                          {dailyActivity.map((row, index) => {
+                            const shouldShow = index === 0 || index === dailyActivity.length - 1 || index % 3 === 0;
+                            if (!shouldShow) return null;
+                            const x = USER_GRAPH_PADDING + (dailyActivity.length === 1
+                              ? (USER_GRAPH_WIDTH - (USER_GRAPH_PADDING * 2)) / 2
+                              : (index / (dailyActivity.length - 1)) * (USER_GRAPH_WIDTH - (USER_GRAPH_PADDING * 2)));
+                            return (
+                              <text
+                                key={row.date}
+                                x={x}
+                                y={USER_GRAPH_HEIGHT - 6}
+                                textAnchor={index === 0 ? 'start' : index === dailyActivity.length - 1 ? 'end' : 'middle'}
+                                fill="rgba(255,255,255,0.45)"
+                                fontSize="11"
+                                fontWeight="700"
+                              >
+                                {row.label}
+                              </text>
+                            );
+                          })}
+                        </svg>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        {userGraphLines.map((line) => (
+                          <div key={line.key} className="flex items-center gap-2 rounded-full border border-white/5 bg-black/20 px-3 py-2">
+                            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: line.color }} />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">{line.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex min-h-64 items-center justify-center rounded-2xl border border-white/5 bg-black/10 p-6 text-center">
+                      <p className="text-sm font-semibold text-zinc-500">
+                        {productAnalyticsLoading ? 'Loading live graph...' : 'No graph data yet.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid gap-3">
+                  {[
+                    { label: 'Latest Viewers', value: latestDailyActivity.visitors, tone: 'text-sky-300' },
+                    { label: 'Latest Members', value: latestDailyActivity.members, tone: 'text-emerald-300' },
+                    { label: 'Latest Actions', value: latestDailyActivity.featureEvents, tone: 'text-yellow-300' },
+                    { label: 'Latest Signups', value: latestDailyActivity.signups, tone: 'text-white' }
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
+                      <p className={`mt-2 text-3xl font-black tracking-tight ${item.tone}`}>
+                        {productAnalyticsLoading ? '--' : formatNumber(item.value)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-6 px-5 pb-5 sm:px-8 sm:pb-8 lg:grid-cols-3">

@@ -90,6 +90,32 @@ const countFirstSeen = async(match, field, since) => {
     return Number(result[0]?.count || 0);
 };
 
+const toDayKey = (date) => date.toISOString().slice(0, 10);
+
+const buildDailySeries = (rows, startDate, days = 14) => {
+    const byDay = rows.reduce((acc, row) => {
+        acc[row.date] = row;
+        return acc;
+    }, {});
+
+    return Array.from({ length: days }, (_, index) => {
+        const date = new Date(startDate);
+        date.setUTCDate(date.getUTCDate() + index);
+        const key = toDayKey(date);
+        const row = byDay[key] || {};
+
+        return {
+            date: key,
+            label: date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+            visitors: Number(row.visitors || 0),
+            members: Number(row.members || 0),
+            pageViews: Number(row.pageViews || 0),
+            featureEvents: Number(row.featureEvents || 0),
+            signups: Number(row.signups || 0)
+        };
+    });
+};
+
 router.post('/event', async(req, res) => {
     try {
         const visitorId = limitText(req.body?.visitorId, 100);
@@ -130,6 +156,10 @@ router.get('/admin/summary', protect, async(req, res) => {
         const last7Days = new Date(now);
         last7Days.setDate(last7Days.getDate() - 7);
 
+        const last14Days = new Date(now);
+        last14Days.setDate(last14Days.getDate() - 13);
+        last14Days.setHours(0, 0, 0, 0);
+
         const pageViewMatch = {
             eventName: 'page_view',
             role: { $ne: 'admin' }
@@ -150,7 +180,8 @@ router.get('/admin/summary', protect, async(req, res) => {
             userSummary,
             recentActivity,
             topPages,
-            topEvents
+            topEvents,
+            dailyActivityRows
         ] = await Promise.all([
             ProductAnalyticsEvent.countDocuments(pageViewMatch),
             countUnique(pageViewMatch, 'visitorId'),
@@ -307,6 +338,63 @@ router.get('/admin/summary', protect, async(req, res) => {
                 },
                 { $sort: { events: -1 } },
                 { $limit: 8 }
+            ]),
+            ProductAnalyticsEvent.aggregate([
+                {
+                    $match: {
+                        role: { $ne: 'admin' },
+                        createdAt: { $gte: last14Days }
+                    }
+                },
+                {
+                    $project: {
+                        day: {
+                            $dateToString: {
+                                format: '%Y-%m-%d',
+                                date: '$createdAt'
+                            }
+                        },
+                        eventName: 1,
+                        visitorId: 1,
+                        user: 1
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$day',
+                        visitors: { $addToSet: '$visitorId' },
+                        members: { $addToSet: '$user' },
+                        pageViews: {
+                            $sum: { $cond: [{ $eq: ['$eventName', 'page_view'] }, 1, 0] }
+                        },
+                        featureEvents: {
+                            $sum: { $cond: [{ $ne: ['$eventName', 'page_view'] }, 1, 0] }
+                        },
+                        signups: {
+                            $sum: { $cond: [{ $in: ['$eventName', ['sign_up', 'signup', 'register']] }, 1, 0] }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        date: '$_id',
+                        visitors: { $size: '$visitors' },
+                        members: {
+                            $size: {
+                                $filter: {
+                                    input: '$members',
+                                    as: 'member',
+                                    cond: { $ne: ['$$member', null] }
+                                }
+                            }
+                        },
+                        pageViews: 1,
+                        featureEvents: 1,
+                        signups: 1,
+                        _id: 0
+                    }
+                },
+                { $sort: { date: 1 } }
             ])
         ]);
 
@@ -355,7 +443,9 @@ router.get('/admin/summary', protect, async(req, res) => {
                 createdAt: event.createdAt
             })),
             topPages,
-            topEvents
+            topEvents,
+            dailyActivity: buildDailySeries(dailyActivityRows, last14Days, 14),
+            refreshedAt: now
         });
     } catch (err) {
         console.error('PRODUCT ANALYTICS SUMMARY ERROR:', err.message);
