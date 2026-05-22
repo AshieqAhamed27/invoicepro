@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -212,6 +212,61 @@ const buyerPathCards = [
   }
 ];
 
+const fitAdvisorProblems = [
+  {
+    id: 'clients',
+    label: 'Finding clients',
+    title: 'Start with client flow and outreach.',
+    text: 'Build a list of target clients, prepare the first message, and keep follow-ups visible before leads go cold.',
+    tools: ['Client Flow', 'Client Finder', 'Lead Pipeline']
+  },
+  {
+    id: 'proposal',
+    label: 'Sending proposals',
+    title: 'Turn interest into a clear offer.',
+    text: 'Use proposal, deal room, and scope notes so the client sees price, timeline, deliverables, and next step clearly.',
+    tools: ['Proposal Writer', 'Deal Room', 'Client Workroom']
+  },
+  {
+    id: 'delivery',
+    label: 'Managing work',
+    title: 'Keep delivery proof in one place.',
+    text: 'Track tasks, client requests, files, approvals, teammates, and handover so work does not stay scattered in chat.',
+    tools: ['Client Workroom', 'Cloud Documents', 'DevOps Kit']
+  },
+  {
+    id: 'payment',
+    label: 'Getting paid',
+    title: 'Make pending money visible.',
+    text: 'Create invoices, track unpaid amounts, and prepare follow-up messages before delayed payments become normal.',
+    tools: ['Invoices', 'Payment Agent', 'Money GPS']
+  }
+];
+
+const fitAdvisorStages = [
+  {
+    id: 'new',
+    label: 'I am testing',
+    result: 'Start free first',
+    action: 'Start Free',
+    planId: 'free'
+  },
+  {
+    id: 'active',
+    label: 'I have real client work',
+    result: 'Pro is the better fit',
+    action: 'Buy Pro Monthly',
+    planId: 'monthly'
+  },
+  {
+    id: 'confused',
+    label: 'I need setup help',
+    result: 'Setup help is the fastest path',
+    action: 'Book Setup Help',
+    path: '/agency'
+  }
+];
+
 const trustBadges = [
   ['Udyam registered', UDYAM_REGISTRATION_NUMBER],
   ['Payments', 'Razorpay, UPI, and international payment support'],
@@ -353,6 +408,8 @@ const getExpiryState = (user) => {
 
 export default function Home() {
   const navigate = useNavigate();
+  const [advisorProblem, setAdvisorProblem] = useState('clients');
+  const [advisorStage, setAdvisorStage] = useState('active');
   const loggedIn = isLoggedIn();
   const currentUser = loggedIn ? getUser() : null;
   const planLabel = getPlanLabel(currentUser);
@@ -378,6 +435,8 @@ export default function Home() {
           ? `Your ${planLabel} is active until ${formatDate(expiryState.expiresAt)}.`
           : `Your ${planLabel} is active.`
         : 'You are using the Free version. Start the trial when you want Pro tools.';
+  const selectedAdvisorProblem = fitAdvisorProblems.find((item) => item.id === advisorProblem) || fitAdvisorProblems[0];
+  const selectedAdvisorStage = fitAdvisorStages.find((item) => item.id === advisorStage) || fitAdvisorStages[0];
 
   useDocumentMeta({
     title: `${COMPANY_NAME} - Get clients, manage work, and get paid`,
@@ -440,6 +499,16 @@ export default function Home() {
 
     trackCtaClick(`select_${planId}`, 'home_pricing', nextPath);
     navigate(nextPath);
+  };
+
+  const runAdvisorAction = () => {
+    if (selectedAdvisorStage.path) {
+      trackCtaClick(`advisor_${selectedAdvisorProblem.id}_${selectedAdvisorStage.id}`, 'home_fit_advisor', selectedAdvisorStage.path);
+      navigate(selectedAdvisorStage.path);
+      return;
+    }
+
+    selectPlan(selectedAdvisorStage.planId);
   };
 
   return (
@@ -618,6 +687,88 @@ export default function Home() {
                   </span>
                 </button>
               ))}
+            </div>
+
+            <div className="mt-8 rounded-[1.75rem] border border-emerald-300/20 bg-emerald-300/[0.045] p-5 sm:p-6">
+              <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">
+                    New feature
+                  </p>
+                  <h3 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">
+                    Freelancer Fit Advisor
+                  </h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+                    Pick the main problem and current stage. The advisor shows the best first path instead of making users guess.
+                  </p>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {fitAdvisorProblems.map((problem) => (
+                      <button
+                        key={problem.id}
+                        type="button"
+                        onClick={() => setAdvisorProblem(problem.id)}
+                        className={`rounded-2xl border p-4 text-left transition-all ${
+                          advisorProblem === problem.id
+                            ? 'border-emerald-300/35 bg-emerald-300/15 text-white'
+                            : 'border-white/8 bg-black/25 text-zinc-400 hover:border-emerald-300/20 hover:text-white'
+                        }`}
+                      >
+                        <span className="text-sm font-black">{problem.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Current stage</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    {fitAdvisorStages.map((stage) => (
+                      <button
+                        key={stage.id}
+                        type="button"
+                        onClick={() => setAdvisorStage(stage.id)}
+                        className={`rounded-2xl border px-4 py-3 text-left text-xs font-black uppercase tracking-widest transition-all ${
+                          advisorStage === stage.id
+                            ? 'border-yellow-300/35 bg-yellow-300/15 text-yellow-100'
+                            : 'border-white/8 bg-white/[0.03] text-zinc-500 hover:border-yellow-300/20 hover:text-white'
+                        }`}
+                      >
+                        {stage.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.04] p-5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">
+                      {selectedAdvisorStage.result}
+                    </p>
+                    <h4 className="mt-3 text-2xl font-black leading-tight text-white">
+                      {selectedAdvisorProblem.title}
+                    </h4>
+                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+                      {selectedAdvisorProblem.text}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {selectedAdvisorProblem.tools.map((tool) => (
+                        <span
+                          key={tool}
+                          className="rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-100"
+                        >
+                          {tool}
+                        </span>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={runAdvisorAction}
+                      className="mt-5 w-full rounded-2xl bg-yellow-400 px-5 py-4 text-sm font-black uppercase tracking-widest text-black transition hover:-translate-y-0.5 hover:bg-yellow-300 active:scale-95"
+                    >
+                      {selectedAdvisorStage.action}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
