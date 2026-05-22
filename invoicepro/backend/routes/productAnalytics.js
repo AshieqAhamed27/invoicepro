@@ -150,6 +150,29 @@ router.get('/admin/summary', protect, async(req, res) => {
         if (!requireAdmin(req, res)) return;
 
         const now = new Date();
+        const isActivePlan = (user) => !user.planExpiresAt || user.planExpiresAt > now;
+        const getAccessType = (user) => {
+            const plan = user.plan || 'free';
+            if (PAID_PLANS.includes(plan) && isActivePlan(user)) return 'paid';
+            if (FREE_ACCESS_PLANS.includes(plan)) return 'free';
+            return 'free';
+        };
+        const serializeAccessUser = (user) => {
+            const accessType = getAccessType(user);
+            return {
+                id: user._id,
+                name: user.name || 'Unnamed user',
+                email: user.email || '',
+                plan: user.plan || 'free',
+                accessType,
+                subscriptionStatus: user.subscriptionStatus || '',
+                subscriptionProvider: user.subscriptionProvider || '',
+                planStartedAt: user.planStartedAt || null,
+                planExpiresAt: user.planExpiresAt || null,
+                lastPaymentAt: user.lastPaymentAt || null,
+                createdAt: user.createdAt || null
+            };
+        };
         const last30Days = new Date(now);
         last30Days.setDate(last30Days.getDate() - 30);
 
@@ -178,6 +201,7 @@ router.get('/admin/summary', protect, async(req, res) => {
             activeMembers30d,
             newMembers7d,
             userSummary,
+            accessUsers,
             recentActivity,
             topPages,
             topEvents,
@@ -249,6 +273,11 @@ router.get('/admin/summary', protect, async(req, res) => {
                     }
                 }
             ]),
+            User.find({ role: { $ne: 'admin' } })
+                .select('name email plan subscriptionStatus subscriptionProvider planStartedAt planExpiresAt lastPaymentAt createdAt')
+                .sort({ createdAt: -1 })
+                .limit(500)
+                .lean(),
             ProductAnalyticsEvent.aggregate([
                 {
                     $match: {
@@ -408,7 +437,14 @@ router.get('/admin/summary', protect, async(req, res) => {
         };
 
         const registeredMembers = Number(members.registeredMembers || 0);
-        const paidMembers = Number(members.paidMembers || 0);
+        const accessUserList = accessUsers.map(serializeAccessUser);
+        const accessSummary = {
+            total: accessUserList.length,
+            free: accessUserList.filter((user) => user.accessType === 'free').length,
+            paid: accessUserList.filter((user) => user.accessType === 'paid').length
+        };
+        const paidMembers = accessSummary.paid;
+        const freeAccessMembers = accessSummary.free;
 
         res.json({
             totals: {
@@ -420,7 +456,7 @@ router.get('/admin/summary', protect, async(req, res) => {
                 activeMembers30d,
                 newMembers7d,
                 registeredMembers,
-                freeAccessMembers: Number(members.freeAccessMembers || 0),
+                freeAccessMembers,
                 paidMembers,
                 trialMembers: Number(members.trialMembers || 0),
                 earlyAccessMembers: Number(members.earlyAccessMembers || 0),
@@ -445,6 +481,10 @@ router.get('/admin/summary', protect, async(req, res) => {
             topPages,
             topEvents,
             dailyActivity: buildDailySeries(dailyActivityRows, last14Days, 14),
+            userAccess: {
+                summary: accessSummary,
+                users: accessUserList
+            },
             refreshedAt: now
         });
     } catch (err) {

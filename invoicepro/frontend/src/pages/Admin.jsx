@@ -351,8 +351,20 @@ export default function Admin() {
   const platformEarnings = revenue?.platformEarnings || {};
   const earningSources = platformEarnings.sources || {};
   const paidUsersList = revenue?.paidUsers || [];
-  const userAccess = revenue?.userAccess || {};
-  const userAccessUsers = userAccess.users || [];
+  const revenueUserAccess = revenue?.userAccess || {};
+  const analyticsUserAccess = productAnalytics?.userAccess || {};
+  const revenueAccessUsers = Array.isArray(revenueUserAccess.users) ? revenueUserAccess.users : [];
+  const analyticsAccessUsers = Array.isArray(analyticsUserAccess.users) ? analyticsUserAccess.users : [];
+  const userAccessUsers = revenueAccessUsers.length > 0 ? revenueAccessUsers : analyticsAccessUsers;
+  const userAccessSummary = userAccessUsers.length > 0
+    ? {
+      total: userAccessUsers.length,
+      free: userAccessUsers.filter((user) => user.accessType !== 'paid').length,
+      paid: userAccessUsers.filter((user) => user.accessType === 'paid').length
+    }
+    : revenueUserAccess.summary || analyticsUserAccess.summary || {};
+  const userAccessLoading = revenueLoading || (revenueAccessUsers.length === 0 && productAnalyticsLoading);
+  const hasUserAccessSummaryOnly = userAccessUsers.length === 0 && Number(userAccessSummary.total || 0) > 0;
   const normalizedUserAccessSearch = userAccessSearch.trim().toLowerCase();
   const filteredUserAccessUsers = userAccessUsers.filter((user) => {
     if (!normalizedUserAccessSearch) return true;
@@ -908,12 +920,12 @@ export default function Admin() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div className="grid grid-cols-3 gap-2 text-center">
                   {[
-                    ['Total', userAccess.summary?.total],
-                    ['Free', userAccess.summary?.free],
-                    ['Paid', userAccess.summary?.paid]
+                    ['Total', userAccessSummary.total],
+                    ['Free', userAccessSummary.free],
+                    ['Paid', userAccessSummary.paid]
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-2xl border border-white/5 bg-black/10 px-4 py-3">
-                      <p className="text-lg font-black text-white">{revenueLoading ? '--' : formatNumber(value)}</p>
+                      <p className="text-lg font-black text-white">{userAccessLoading ? '--' : formatNumber(value)}</p>
                       <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
                     </div>
                   ))}
@@ -924,10 +936,19 @@ export default function Admin() {
                   placeholder="Search email, name, plan"
                   className="h-12 w-full min-w-0 rounded-2xl border border-white/10 bg-black/20 px-4 text-sm font-bold text-white outline-none transition focus:border-red-500/60 sm:w-72"
                 />
+                {userAccessSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setUserAccessSearch('')}
+                    className="h-12 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-red-500/30 hover:text-white"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
             </div>
 
-            {revenueLoading ? (
+            {userAccessLoading ? (
               <div className="mt-5 space-y-3">
                 {[1, 2, 3].map((item) => (
                   <div key={item} className="h-20 animate-pulse rounded-2xl border border-white/5 bg-white/[0.03]" />
@@ -935,7 +956,9 @@ export default function Admin() {
               </div>
             ) : filteredUserAccessUsers.length === 0 ? (
               <div className="mt-5 rounded-2xl border border-white/5 bg-black/10 p-6 text-sm font-semibold text-zinc-500">
-                No user found for this search.
+                {hasUserAccessSummaryOnly
+                  ? 'User counts are loaded, but the email list is not available from the current backend response yet.'
+                  : normalizedUserAccessSearch ? 'No user found for this search. Clear the search to show all users.' : 'No users found yet.'}
               </div>
             ) : (
               <div className="mt-5 overflow-hidden rounded-2xl border border-white/5 bg-black/10">
@@ -958,7 +981,7 @@ export default function Admin() {
                       <div>
                         <p className="text-sm font-black text-white">{getPlanLabel(user.plan)}</p>
                         <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                          {user.accessType === 'paid' ? formatMoney(user.amount) : 'Rs 0'}
+                          {user.accessType === 'paid' ? formatMoney(user.amount || pricing?.plans?.[user.plan]) : 'Rs 0'}
                         </p>
                       </div>
                       <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
