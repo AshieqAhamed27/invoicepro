@@ -24,6 +24,7 @@ const Portfolio = lazy(() => import('./pages/Portfolio'));
 const LinkedInPortfolio = lazy(() => import('./pages/LinkedInPortfolio'));
 const AgencyServices = lazy(() => import('./pages/AgencyServices'));
 const DevOpsDelivery = lazy(() => import('./pages/DevOpsDelivery'));
+const FreelanceFitAdvisor = lazy(() => import('./pages/FreelanceFitAdvisor'));
 const FeatureDetail = lazy(() => import('./pages/FeatureDetail'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -201,6 +202,7 @@ const appRoutePrefixes = [
   '/create-invoice',
   '/dashboard',
   '/deal-room',
+  '/freelance-fit-advisor',
   '/growth-plan',
   '/invoice/',
   '/launch',
@@ -310,6 +312,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <DevOpsDelivery />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/freelance-fit-advisor"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <FreelanceFitAdvisor />
             </Suspense>
           }
         />

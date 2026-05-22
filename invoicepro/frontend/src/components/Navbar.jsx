@@ -5,6 +5,7 @@ import BrandLogo from './BrandLogo';
 
 const appLinks = [
   { to: '/client-flow', label: 'Client Flow', detail: 'Lead to payment workflow' },
+  { to: '/freelance-fit-advisor', label: 'Fit Advisor', detail: 'Choose Free, Pro, or setup help' },
   { to: '/money-gps', label: 'Money GPS', detail: 'One best action today' },
   { to: '/business-autopilot', label: 'Autopilot', detail: 'Lead to payment automation', requiresPro: true },
   { to: '/profit-tracker', label: 'Profit Tracker', detail: 'AI/software cost and project profit', requiresPro: true },
@@ -22,6 +23,7 @@ const appLinks = [
 
 const primaryAppLinks = [
   { to: '/client-flow', label: 'Client Flow' },
+  { to: '/freelance-fit-advisor', label: 'Fit Advisor' },
   { to: '/business-autopilot', label: 'Autopilot', requiresPro: true },
   { to: '/money-gps', label: 'Money GPS' },
   { to: '/client-workroom', label: 'Workroom' },
@@ -30,6 +32,7 @@ const primaryAppLinks = [
 
 const moreAppLinks = [
   { to: '/client-flow', label: 'Client Flow', detail: 'Lead to payment workflow' },
+  { to: '/freelance-fit-advisor', label: 'Freelance Fit Advisor', detail: 'Plan and workflow recommendation' },
   { to: '/business-autopilot', label: 'Business Autopilot', detail: 'Lead to payment automation', requiresPro: true },
   { to: '/profit-tracker', label: 'Profit Tracker', detail: 'AI tool cost and project profit', requiresPro: true },
   { to: '/growth-plan', label: 'Growth Plan', detail: 'Income stability plan', requiresPro: true },

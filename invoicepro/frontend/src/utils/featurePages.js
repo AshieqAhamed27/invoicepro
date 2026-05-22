@@ -1,4 +1,29 @@
 export const featurePages = {
+  'freelance-fit-advisor': {
+    path: '/work/freelance-fit-advisor',
+    appPath: '/freelance-fit-advisor',
+    title: 'Freelance Fit Advisor',
+    eyebrow: 'Choose the right path',
+    benefit: 'Shows whether Free, Pro, or setup help fits the user.',
+    detail: 'Freelance Fit Advisor asks quick questions about client finding, proposal, delivery, payment, workload, and setup comfort, then recommends the first workflow to use.',
+    problem: 'New users can get confused by many features and may not know whether they should start free, buy Pro, or ask for setup help.',
+    outcome: 'The user gets a simple fit score, honest plan recommendation, and next actions based on their freelance stage.',
+    bestFor: 'Freelancers who want to understand what to use first before paying.',
+    appCta: 'Open Fit Advisor',
+    workflow: [
+      'Answer five fit questions',
+      'Review Free, Pro, or setup recommendation',
+      'See the first workflow to use',
+      'Follow the suggested next actions',
+      'Start the right path without guessing'
+    ],
+    included: [
+      'Fit score',
+      'Plan recommendation',
+      'Workflow recommendation',
+      'Honest no-income-guarantee guidance'
+    ]
+  },
   'client-flow': {
     path: '/work/client-flow',
     appPath: '/client-flow',

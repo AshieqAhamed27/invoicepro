@@ -696,10 +696,10 @@ export default function Home() {
                     New feature
                   </p>
                   <h3 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">
-                    Freelancer Fit Advisor
+                    Freelance Fit Advisor
                   </h3>
                   <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
-                    Pick the main problem and current stage. The advisor shows the best first path instead of making users guess.
+                    Pick the main problem and current stage. The full advisor shows whether Free, Pro, or setup help is the right first path.
                   </p>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -766,6 +766,13 @@ export default function Home() {
                     >
                       {selectedAdvisorStage.action}
                     </button>
+                    <Link
+                      to="/freelance-fit-advisor"
+                      className="mt-3 inline-flex w-full justify-center rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-5 py-4 text-sm font-black uppercase tracking-widest text-emerald-100 transition hover:-translate-y-0.5 hover:border-emerald-300/35"
+                      onClick={() => trackCtaClick('open_full_fit_advisor', 'home_fit_advisor', '/freelance-fit-advisor')}
+                    >
+                      Open full advisor
+                    </Link>
                   </div>
                 </div>
               </div>
