@@ -1170,16 +1170,25 @@ router.get('/admin/revenue', protect, async(req, res) => {
 
         const agencyPaidStatuses = ['paid', 'in_progress', 'delivered'];
         const activeSubscriptionStatuses = ['active', 'authenticated'];
+        const now = new Date();
         const paidPlanIds = ['pro', ...Object.keys(planDetails)];
+        const freeAccessPlanIds = ['free', 'trial', 'early_access'];
+        const isActivePlan = (user) => !user.planExpiresAt || user.planExpiresAt > now;
+        const getAccessType = (user) => {
+            const plan = user.plan || 'free';
+            if (paidPlanIds.includes(plan) && isActivePlan(user)) return 'paid';
+            if (freeAccessPlanIds.includes(plan)) return 'free';
+            return 'free';
+        };
         const paidUserMatch = {
             role: { $ne: 'admin' },
             plan: { $in: paidPlanIds },
             $or: [
                 { planExpiresAt: null },
-                { planExpiresAt: { $gt: new Date() } }
+                { planExpiresAt: { $gt: now } }
             ]
         };
-        const [userStats, invoiceStatsResult, activeSubscriptions, billingSubscriptions, manualPaymentRequests, directCheckoutUsers, agencyEarningsResult, paidUsers, recentSubscriptions, recentPaidInvoices] = await Promise.all([
+        const [userStats, invoiceStatsResult, activeSubscriptions, billingSubscriptions, manualPaymentRequests, directCheckoutUsers, agencyEarningsResult, paidUsers, allAccessUsers, recentSubscriptions, recentPaidInvoices] = await Promise.all([
             User.aggregate([
                 {
                     $group: {
@@ -1244,6 +1253,11 @@ router.get('/admin/revenue', protect, async(req, res) => {
                 .select('name email plan subscriptionStatus subscriptionProvider planStartedAt planExpiresAt lastPaymentAt createdAt')
                 .sort({ lastPaymentAt: -1, planStartedAt: -1, createdAt: -1 })
                 .limit(100)
+                .lean(),
+            User.find({ role: { $ne: 'admin' } })
+                .select('name email plan subscriptionStatus subscriptionProvider planStartedAt planExpiresAt lastPaymentAt createdAt')
+                .sort({ createdAt: -1 })
+                .limit(300)
                 .lean(),
             BillingSubscription.find()
                 .select('plan amount currency status currentEnd providerSubscriptionId latestEvent lastPaymentId updatedAt createdAt')
@@ -1335,6 +1349,31 @@ router.get('/admin/revenue', protect, async(req, res) => {
                 lastPaymentAt: user.lastPaymentAt || null,
                 createdAt: user.createdAt || null
             })),
+            userAccess: {
+                summary: {
+                    total: allAccessUsers.length,
+                    paid: allAccessUsers.filter((user) => getAccessType(user) === 'paid').length,
+                    free: allAccessUsers.filter((user) => getAccessType(user) === 'free').length
+                },
+                users: allAccessUsers.map((user) => {
+                    const accessType = getAccessType(user);
+                    return {
+                        id: user._id,
+                        name: user.name || 'Unnamed user',
+                        email: user.email || '',
+                        plan: user.plan || 'free',
+                        accessType,
+                        amount: accessType === 'paid' ? getPlanAmount(user.plan) : 0,
+                        currency: 'INR',
+                        subscriptionStatus: user.subscriptionStatus || '',
+                        subscriptionProvider: user.subscriptionProvider || '',
+                        planStartedAt: user.planStartedAt || null,
+                        planExpiresAt: user.planExpiresAt || null,
+                        lastPaymentAt: user.lastPaymentAt || null,
+                        createdAt: user.createdAt || null
+                    };
+                })
+            },
             recentPaidInvoices
         });
     } catch (err) {

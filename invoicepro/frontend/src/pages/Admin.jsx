@@ -48,6 +48,9 @@ const getAiTestClass = (result) => {
     : 'border-yellow-400/10 bg-yellow-400/5 text-yellow-300';
 };
 const getPlanLabel = (plan) => {
+  if (plan === 'free') return 'Free';
+  if (plan === 'trial') return 'Trial';
+  if (plan === 'early_access') return 'Early Access';
   if (plan === 'monthly') return 'Pro Monthly';
   if (plan === 'yearly') return 'Pro Yearly';
   if (plan === 'founder90') return 'Founder 90';
@@ -55,6 +58,10 @@ const getPlanLabel = (plan) => {
   return plan || 'Paid';
 };
 const getStatusLabel = (status) => String(status || 'paid').replaceAll('_', ' ');
+const getAccessLabel = (accessType) => accessType === 'paid' ? 'Paid' : 'Free';
+const getAccessClass = (accessType) => accessType === 'paid'
+  ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-300'
+  : 'border-yellow-400/10 bg-yellow-400/5 text-yellow-300';
 const USER_GRAPH_WIDTH = 720;
 const USER_GRAPH_HEIGHT = 220;
 const USER_GRAPH_PADDING = 30;
@@ -103,6 +110,7 @@ export default function Admin() {
   const [revenue, setRevenue] = useState(null);
   const [revenueLoading, setRevenueLoading] = useState(true);
   const [revenueError, setRevenueError] = useState('');
+  const [userAccessSearch, setUserAccessSearch] = useState('');
   const [productAnalytics, setProductAnalytics] = useState(null);
   const [productAnalyticsLoading, setProductAnalyticsLoading] = useState(true);
   const [productAnalyticsError, setProductAnalyticsError] = useState('');
@@ -343,6 +351,15 @@ export default function Admin() {
   const platformEarnings = revenue?.platformEarnings || {};
   const earningSources = platformEarnings.sources || {};
   const paidUsersList = revenue?.paidUsers || [];
+  const userAccess = revenue?.userAccess || {};
+  const userAccessUsers = userAccess.users || [];
+  const normalizedUserAccessSearch = userAccessSearch.trim().toLowerCase();
+  const filteredUserAccessUsers = userAccessUsers.filter((user) => {
+    if (!normalizedUserAccessSearch) return true;
+    return [user.email, user.name, user.plan, user.accessType]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(normalizedUserAccessSearch));
+  });
 
   return (
     <div className="premium-page min-h-screen text-white">
@@ -874,6 +891,83 @@ export default function Admin() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-white/5 p-5 sm:p-8">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Free/Paid Users By Email</p>
+                <h3 className="mt-2 text-xl font-black text-white">Plan access checker</h3>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                  Search any user email to see whether they are using the free version or an active paid plan.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  {[
+                    ['Total', userAccess.summary?.total],
+                    ['Free', userAccess.summary?.free],
+                    ['Paid', userAccess.summary?.paid]
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-2xl border border-white/5 bg-black/10 px-4 py-3">
+                      <p className="text-lg font-black text-white">{revenueLoading ? '--' : formatNumber(value)}</p>
+                      <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <input
+                  value={userAccessSearch}
+                  onChange={(event) => setUserAccessSearch(event.target.value)}
+                  placeholder="Search email, name, plan"
+                  className="h-12 w-full min-w-0 rounded-2xl border border-white/10 bg-black/20 px-4 text-sm font-bold text-white outline-none transition focus:border-red-500/60 sm:w-72"
+                />
+              </div>
+            </div>
+
+            {revenueLoading ? (
+              <div className="mt-5 space-y-3">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="h-20 animate-pulse rounded-2xl border border-white/5 bg-white/[0.03]" />
+                ))}
+              </div>
+            ) : filteredUserAccessUsers.length === 0 ? (
+              <div className="mt-5 rounded-2xl border border-white/5 bg-black/10 p-6 text-sm font-semibold text-zinc-500">
+                No user found for this search.
+              </div>
+            ) : (
+              <div className="mt-5 overflow-hidden rounded-2xl border border-white/5 bg-black/10">
+                <div className="hidden grid-cols-[minmax(0,1.4fr)_110px_130px_150px] gap-3 border-b border-white/5 bg-white/[0.02] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 md:grid">
+                  <span>User email</span>
+                  <span>Access</span>
+                  <span>Plan</span>
+                  <span>Dates</span>
+                </div>
+                <div className="divide-y divide-white/5">
+                  {filteredUserAccessUsers.map((user) => (
+                    <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.4fr)_110px_130px_150px] md:items-center">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-white">{user.email || 'No email'}</p>
+                        <p className="mt-1 truncate text-xs font-bold text-zinc-500">{user.name || 'Unnamed user'}</p>
+                      </div>
+                      <span className={`inline-flex w-fit rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${getAccessClass(user.accessType)}`}>
+                        {getAccessLabel(user.accessType)}
+                      </span>
+                      <div>
+                        <p className="text-sm font-black text-white">{getPlanLabel(user.plan)}</p>
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                          {user.accessType === 'paid' ? formatMoney(user.amount) : 'Rs 0'}
+                        </p>
+                      </div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                        <p>Joined: {formatDate(user.createdAt)}</p>
+                        <p>Expire: {formatDate(user.planExpiresAt)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
