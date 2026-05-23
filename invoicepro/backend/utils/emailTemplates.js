@@ -238,6 +238,71 @@ const invoiceReminder = ({ invoice, publicUrl, senderName }) => {
     return { subject, html, text };
 };
 
+const proposalReminder = ({ invoice, publicUrl, senderName }) => {
+    const fromName = senderName || 'ClientFlow AI';
+    const clientName = escapeHtml(invoice.clientName);
+    const invoiceNumber = escapeHtml(invoice.invoiceNumber);
+    const amount = formatCurrency(invoice.amount, invoice.currency);
+    const validUntil = formatDate(invoice.validUntil);
+    const delta = daysUntil(invoice.validUntil);
+
+    const timingLine = delta === null
+        ? 'This proposal is waiting for review.'
+        : delta > 0
+            ? `This proposal is valid for ${delta} more day${delta === 1 ? '' : 's'}.`
+            : delta === 0
+                ? 'This proposal is valid until today.'
+                : `This proposal validity passed ${Math.abs(delta)} day${Math.abs(delta) === 1 ? '' : 's'} ago.`;
+
+    const subject = `Reminder: Proposal ${invoice.invoiceNumber} is waiting for review`;
+    const preheader = `Proposal ${invoice.invoiceNumber} from ${fromName} needs review.`;
+
+    const bodyHtml = `
+      <p style="margin:0 0 14px;color:#374151;font-size:14px;line-height:1.6;">
+        Hi ${clientName},
+      </p>
+      <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6;">
+        Quick follow-up from <strong>${escapeHtml(fromName)}</strong>.
+      </p>
+      <p style="margin:0 0 18px;color:#6b7280;font-size:13px;line-height:1.6;">
+        ${escapeHtml(timingLine)} Please review the scope and approve it if everything looks good.
+      </p>
+
+      <div style="border:1px solid #e5e7eb;border-radius:14px;padding:14px 16px;background:#ffffff;">
+        <p style="margin:0 0 8px;color:#6b7280;font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;">
+          Proposal Details
+        </p>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:6px 0;color:#6b7280;font-size:13px;">Proposal No</td>
+            <td style="padding:6px 0;color:#111827;font-size:13px;font-weight:800;text-align:right;">${invoiceNumber}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;color:#6b7280;font-size:13px;">Total</td>
+            <td style="padding:6px 0;color:#111827;font-size:13px;font-weight:800;text-align:right;">${escapeHtml(amount)}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;color:#6b7280;font-size:13px;">Valid Until</td>
+            <td style="padding:6px 0;color:#111827;font-size:13px;font-weight:800;text-align:right;">${escapeHtml(validUntil)}</td>
+          </tr>
+        </table>
+      </div>
+    `;
+
+    const html = baseLayout({
+        preheader,
+        title: 'Proposal follow-up',
+        bodyHtml,
+        ctaHref: publicUrl,
+        ctaLabel: 'Review Proposal',
+        footerHtml: `<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">Sent by ${escapeHtml(fromName)} via ClientFlow AI.</p>`
+    });
+
+    const text = `Hi ${invoice.clientName},\n\nReminder: proposal ${invoice.invoiceNumber} from ${fromName} is waiting for review (${amount}). Valid until: ${validUntil}.\nReview proposal: ${publicUrl}\n`;
+
+    return { subject, html, text };
+};
+
 const paymentConfirmed = ({ invoice, publicUrl, senderName }) => {
     const fromName = senderName || 'ClientFlow AI';
     const clientName = escapeHtml(invoice.clientName);
@@ -291,8 +356,56 @@ const paymentConfirmed = ({ invoice, publicUrl, senderName }) => {
     return { subject, html, text };
 };
 
+const userDailyDigest = ({ user, items = [], dashboardUrl }) => {
+    const name = user?.name || user?.companyName || 'there';
+    const safeName = escapeHtml(name);
+    const visibleItems = items.slice(0, 8);
+    const subject = `ClientFlow AI: ${visibleItems.length || 0} action${visibleItems.length === 1 ? '' : 's'} need attention`;
+    const preheader = 'Your leads, invoices, proposals, and project tasks that need attention today.';
+
+    const bodyHtml = `
+      <p style="margin:0 0 14px;color:#374151;font-size:14px;line-height:1.6;">
+        Hi ${safeName},
+      </p>
+      <p style="margin:0 0 18px;color:#374151;font-size:14px;line-height:1.6;">
+        ClientFlow AI found these actions that may need attention today. Review them before they slow down your client workflow.
+      </p>
+      <div style="border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;background:#ffffff;">
+        ${visibleItems.map((item) => `
+          <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6;">
+            <p style="margin:0 0 4px;color:#111827;font-size:14px;font-weight:800;">${escapeHtml(item.title)}</p>
+            <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.5;">${escapeHtml(item.detail)}</p>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    const html = baseLayout({
+        preheader,
+        title: 'Today\'s client workflow actions',
+        bodyHtml,
+        ctaHref: dashboardUrl,
+        ctaLabel: 'Open Dashboard',
+        footerHtml: '<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">You are receiving this because automated ClientFlow AI reminders are enabled for your workspace.</p>'
+    });
+
+    const text = [
+        `Hi ${name},`,
+        '',
+        'ClientFlow AI found these actions that may need attention today:',
+        '',
+        ...visibleItems.map((item) => `- ${item.title}: ${item.detail}`),
+        '',
+        `Open dashboard: ${dashboardUrl}`
+    ].join('\n');
+
+    return { subject, html, text };
+};
+
 module.exports = {
     invoiceCreated,
     invoiceReminder,
-    paymentConfirmed
+    proposalReminder,
+    paymentConfirmed,
+    userDailyDigest
 };

@@ -147,9 +147,9 @@ const automationSettings = [
     state: 'Enabled'
   },
   {
-    title: 'Email Reminders',
-    detail: 'Paused until a verified sending domain is connected. WhatsApp sharing remains available.',
-    state: 'Paused'
+    title: 'Automated User & Client Email Reminders',
+    detail: 'Backend automation can send users a daily action digest and send clients invoice reminders before/during/after due dates when the cron endpoint runs.',
+    state: 'Cron Ready'
   }
 ];
 
