@@ -32,4 +32,4 @@ Disallow: /signup
 Disallow: /team-invite
 Disallow: /team-workspace
 
-Sitemap: https://invoicepro-lime.vercel.app/sitemap.xml
+Sitemap: https://www.clientflowai.in/sitemap.xml

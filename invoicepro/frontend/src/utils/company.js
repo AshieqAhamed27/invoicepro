@@ -11,5 +11,5 @@ export const SUPPORT_PHONE_DISPLAY = '+91 90809 63704';
 export const SUPPORT_PHONE_TEL = '+919080963704';
 export const LINKEDIN_PROFILE_URL = 'https://www.linkedin.com/in/ashieq-ahamed-s-a-1a37332a8';
 export const COMPANY_LOCATION = 'India';
-export const SITE_URL = 'https://invoicepro-lime.vercel.app';
+export const SITE_URL = 'https://www.clientflowai.in';
 export const LEGAL_EFFECTIVE_DATE = 'April 23, 2026';
