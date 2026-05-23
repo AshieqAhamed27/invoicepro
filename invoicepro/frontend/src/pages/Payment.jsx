@@ -74,6 +74,15 @@ const globalPlanDetails = {
 const getSafePlan = (value) => (planDetails[value] ? value : 'monthly');
 const getSafeMarket = (value) => (String(value || '').toLowerCase() === 'global' ? 'global' : 'india');
 
+const getMarketFromSearch = (search = '') => {
+  try {
+    const value = new URLSearchParams(search).get('market');
+    return value ? getSafeMarket(value) : '';
+  } catch {
+    return '';
+  }
+};
+
 const detectBillingMarket = () => {
   try {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
@@ -87,6 +96,12 @@ const detectBillingMarket = () => {
 };
 
 const getFallbackPlanDetails = (market) => (getSafeMarket(market) === 'global' ? globalPlanDetails : planDetails);
+
+const getInitialBillingMarket = () => {
+  if (typeof window === 'undefined') return 'india';
+  return getMarketFromSearch(window.location.search) ||
+    getSafeMarket(localStorage.getItem('billingMarket') || detectBillingMarket());
+};
 
 const formatMoney = (amount, currency = 'INR') => {
   const numeric = Number(amount || 0);
@@ -148,11 +163,11 @@ const checkoutValueCards = [
 export default function Payment() {
   const location = useLocation();
   const [plan, setPlan] = useState('monthly');
-  const [market, setMarket] = useState(() => getSafeMarket(localStorage.getItem('billingMarket') || detectBillingMarket()));
+  const [market, setMarket] = useState(getInitialBillingMarket);
   const [loading, setLoading] = useState(false);
   const [earlyAccessLoading, setEarlyAccessLoading] = useState(false);
   const [pricingLoading, setPricingLoading] = useState(true);
-  const [serverPlanDetails, setServerPlanDetails] = useState(() => getFallbackPlanDetails(localStorage.getItem('billingMarket') || detectBillingMarket()));
+  const [serverPlanDetails, setServerPlanDetails] = useState(() => getFallbackPlanDetails(getInitialBillingMarket()));
   const [pricingWarning, setPricingWarning] = useState('');
   const [pricingBlocked, setPricingBlocked] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
@@ -163,12 +178,13 @@ export default function Payment() {
 
   useEffect(() => {
     const selectedPlan = getSafePlan(localStorage.getItem("plan") || "monthly");
-    const selectedMarket = getSafeMarket(localStorage.getItem('billingMarket') || detectBillingMarket());
+    const selectedMarket = getMarketFromSearch(location.search) ||
+      getSafeMarket(localStorage.getItem('billingMarket') || detectBillingMarket());
     localStorage.setItem("plan", selectedPlan);
     localStorage.setItem('billingMarket', selectedMarket);
     setPlan(selectedPlan);
     setMarket(selectedMarket);
-  }, []);
+  }, [location.search]);
 
   useEffect(() => {
     const loadPricing = async () => {
@@ -242,6 +258,8 @@ export default function Payment() {
   }, []);
 
   const fallbackPlanDetails = getFallbackPlanDetails(market);
+  const alternateMarket = market === 'global' ? 'india' : 'global';
+  const alternatePlanDetails = getFallbackPlanDetails(alternateMarket);
   const current = serverPlanDetails[getSafePlan(plan)] || fallbackPlanDetails[getSafePlan(plan)];
   const currentPlanReady = current.checkoutType === 'one_time' || current.subscriptionReady;
   const checkoutDisabled = loading || pricingLoading || pricingBlocked || !currentPlanReady;
@@ -599,9 +617,9 @@ export default function Payment() {
 
             <div className="mb-6 grid gap-3 sm:grid-cols-2">
               {[
-                ['india', 'India billing', 'INR checkout with cards, UPI, and Razorpay subscriptions.'],
-                ['global', 'International billing', 'USD checkout for customers outside India using supported global cards.']
-              ].map(([id, title, text]) => (
+                ['india', 'India billing', 'INR checkout with cards, UPI, and Razorpay subscriptions.', planDetails.monthly],
+                ['global', 'International billing', 'USD checkout for customers outside India using supported global cards.', globalPlanDetails.monthly]
+              ].map(([id, title, text, price]) => (
                 <button
                   key={id}
                   type="button"
@@ -612,7 +630,12 @@ export default function Payment() {
                       : 'border-white/10 bg-black/20 text-zinc-400 hover:border-white/20 hover:bg-white/5 hover:text-white'
                   }`}
                 >
-                  <p className="text-[10px] font-black uppercase tracking-widest">{title}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest">{title}</p>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                      {formatMoney(price.amount, price.currency)}
+                    </span>
+                  </div>
                   <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{text}</p>
                 </button>
               ))}
@@ -743,6 +766,9 @@ export default function Payment() {
                      <p className="mt-2 text-2xl font-black text-white">{formatMoney(details.amount, details.currency)}</p>
                      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">
                        {details.duration}
+                     </p>
+                     <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-cyan-200/80">
+                       {alternateMarket === 'global' ? 'USD option' : 'INR option'}: {formatMoney(alternatePlanDetails[id]?.amount || 0, alternatePlanDetails[id]?.currency || 'USD')}
                      </p>
                      {details.checkoutType !== 'one_time' && !details.subscriptionReady && (
                        <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-yellow-300">
