@@ -1,0 +1,257 @@
+{
+  "name": "ClientFlow AI - Daily Notification Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "ClientFlow AI n8n helper\n\nUse this workflow behind the scenes. It calls your backend once per day so ClientFlow AI can send user daily digests, client invoice reminders, and proposal follow-ups.\n\nRequired n8n variables:\nCLIENTFLOW_API_BASE_URL=https://invoicepro-527e.onrender.com\nCLIENTFLOW_CRON_SECRET=same value as Render CRON_SECRET\n\nOptional:\nCLIENTFLOW_ADMIN_ALERT_WEBHOOK=Slack/Discord/Telegram webhook URL\n\nThe workflow reads $vars first, then $env for self-hosted n8n.",
+        "height": 280,
+        "width": 420
+      },
+      "id": "f5a9c30c-4f61-4d23-98c7-77f4b7912f70",
+      "name": "Setup note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        -220
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "87c87752-54f1-4a55-a3a8-c1f177737a75",
+      "name": "Manual dry run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "04a03f62-5c3f-4c42-973c-f105a5cc6a01",
+      "name": "Every day at 9 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -520,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$vars.CLIENTFLOW_API_BASE_URL || $env.CLIENTFLOW_API_BASE_URL}}/api/notifications/automation/status",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "c8360df9-7465-4f44-a1a5-daf8a4a5f9f0",
+      "name": "Check automation status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -220,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.CLIENTFLOW_API_BASE_URL || $env.CLIENTFLOW_API_BASE_URL}}/api/notifications/automation/run",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "dryRun",
+              "value": "true"
+            },
+            {
+              "name": "limit",
+              "value": "25"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-cron-secret",
+              "value": "={{$vars.CLIENTFLOW_CRON_SECRET || $env.CLIENTFLOW_CRON_SECRET}}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "de985fcb-3c7b-4908-b52e-a918fc1c3e02",
+      "name": "Dry run reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.CLIENTFLOW_API_BASE_URL || $env.CLIENTFLOW_API_BASE_URL}}/api/notifications/automation/run",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-cron-secret",
+              "value": "={{$vars.CLIENTFLOW_CRON_SECRET || $env.CLIENTFLOW_CRON_SECRET}}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "d58af4b2-7ca7-4721-9357-e2a921d4ff89",
+      "name": "Run real reminders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -220,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.failed || 0}}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "f85dcf97-a638-4641-a52a-a039e0584511",
+      "name": "Any failures?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        80,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.CLIENTFLOW_ADMIN_ALERT_WEBHOOK || $env.CLIENTFLOW_ADMIN_ALERT_WEBHOOK}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"text\":\"ClientFlow AI notification automation had failures\",\"summary\":$json}",
+        "options": {}
+      },
+      "disabled": true,
+      "id": "801ab7c6-9de5-4d3a-9a2a-443848ea6fd4",
+      "name": "Optional admin alert webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        380,
+        360
+      ]
+    }
+  ],
+  "connections": {
+    "Manual dry run": {
+      "main": [
+        [
+          {
+            "node": "Check automation status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check automation status": {
+      "main": [
+        [
+          {
+            "node": "Dry run reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every day at 9 AM": {
+      "main": [
+        [
+          {
+            "node": "Run real reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run real reminders": {
+      "main": [
+        [
+          {
+            "node": "Any failures?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any failures?": {
+      "main": [
+        [
+          {
+            "node": "Optional admin alert webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": []
+}

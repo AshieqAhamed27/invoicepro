@@ -156,6 +156,12 @@ Visit **http://localhost:5173** in your browser.
 2. Build command: `npm run build`
 3. Output directory: `dist`
 
+### n8n Automation
+Use n8n only as a behind-the-scenes scheduler for reminders and admin operations.
+
+- Setup guide: [docs/N8N_AUTOMATION.md](docs/N8N_AUTOMATION.md)
+- Importable workflow: [automation/n8n/clientflow-daily-notifications.json](automation/n8n/clientflow-daily-notifications.json)
+
 ---
 
 ## 🛠️ Tech Stack
