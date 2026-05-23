@@ -123,7 +123,9 @@ const getEnvSanity = () => {
             razorpayKeySecret: hasUsableValue('RAZORPAY_KEY_SECRET'),
             razorpayWebhookSecret: hasUsableValue('RAZORPAY_WEBHOOK_SECRET'),
             razorpayMonthlyPlanId: hasUsableValue('RAZORPAY_MONTHLY_PLAN_ID'),
-            razorpayYearlyPlanId: hasUsableValue('RAZORPAY_YEARLY_PLAN_ID')
+            razorpayYearlyPlanId: hasUsableValue('RAZORPAY_YEARLY_PLAN_ID'),
+            razorpayMonthlyUsdPlanId: hasUsableValue('RAZORPAY_MONTHLY_USD_PLAN_ID'),
+            razorpayYearlyUsdPlanId: hasUsableValue('RAZORPAY_YEARLY_USD_PLAN_ID')
         },
         ai: getAiProviderStatus(),
         email: {
@@ -164,6 +166,9 @@ const getIntegrationReadiness = () => {
         envSanity.payments.razorpayMonthlyPlanId &&
         envSanity.payments.razorpayYearlyPlanId &&
         !envSanity.payments.simulationEnabled;
+    const razorpayGlobalReady = razorpayLiveReady &&
+        envSanity.payments.razorpayMonthlyUsdPlanId &&
+        envSanity.payments.razorpayYearlyUsdPlanId;
     const selectedAnthropic = ai.selectedProvider === 'anthropic';
     const selectedOpenAi = ai.selectedProvider === 'openai';
     const anthropicOptional = !ai.anthropicKey && !selectedAnthropic;
@@ -240,7 +245,9 @@ const getIntegrationReadiness = () => {
                     'RAZORPAY_KEY_SECRET',
                     'RAZORPAY_WEBHOOK_SECRET',
                     'RAZORPAY_MONTHLY_PLAN_ID',
-                    'RAZORPAY_YEARLY_PLAN_ID'
+                    'RAZORPAY_YEARLY_PLAN_ID',
+                    'RAZORPAY_MONTHLY_USD_PLAN_ID',
+                    'RAZORPAY_YEARLY_USD_PLAN_ID'
                 ])
             }),
             ready: razorpayCoreReady || envSanity.payments.simulationEnabled,
@@ -248,10 +255,14 @@ const getIntegrationReadiness = () => {
             detail: envSanity.payments.simulationEnabled
                 ? 'Payment simulation is enabled, so checkout can be tested without real collection.'
                 : razorpayLiveReady
-                    ? 'Live keys, webhook secret, and subscription plan IDs are configured.'
+                    ? razorpayGlobalReady
+                        ? 'Live INR and USD checkout plan IDs are configured.'
+                        : 'Live INR checkout is configured. Add USD plan IDs after Razorpay enables international payments.'
                     : 'Razorpay is not fully live until keys, webhook secret, and plan IDs are configured.',
             action: razorpayLiveReady
-                ? 'Run a real low-value payment test before paid launch.'
+                ? razorpayGlobalReady
+                    ? 'Run real low-value INR and USD payment tests before global launch.'
+                    : 'Run an INR payment test now; add USD subscription plan IDs for global recurring checkout.'
                 : envSanity.payments.simulationEnabled
                     ? 'Set PAYMENT_SIMULATION=false and add live Razorpay values before real sales.'
                     : 'Add Razorpay key ID, key secret, webhook secret, monthly plan ID, and yearly plan ID.',
@@ -261,7 +272,9 @@ const getIntegrationReadiness = () => {
                 'RAZORPAY_KEY_SECRET',
                 'RAZORPAY_WEBHOOK_SECRET',
                 'RAZORPAY_MONTHLY_PLAN_ID',
-                'RAZORPAY_YEARLY_PLAN_ID'
+                'RAZORPAY_YEARLY_PLAN_ID',
+                'RAZORPAY_MONTHLY_USD_PLAN_ID',
+                'RAZORPAY_YEARLY_USD_PLAN_ID'
             ]
         },
         {

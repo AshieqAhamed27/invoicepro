@@ -49,29 +49,75 @@ const planDetails = {
   }
 };
 
-const getSafePlan = (value) => (planDetails[value] ? value : 'monthly');
+const globalPlanDetails = {
+  monthly: {
+    ...planDetails.monthly,
+    amount: 9,
+    currency: "USD",
+    amountSource: "fallback"
+  },
+  yearly: {
+    ...planDetails.yearly,
+    amount: 89,
+    currency: "USD",
+    amountSource: "fallback"
+  },
+  founder90: {
+    ...planDetails.founder90,
+    amount: 19,
+    currency: "USD",
+    amountSource: "fallback",
+    checkoutType: "one_time"
+  }
+};
 
-const getDurationLabel = (durationDays = 30) => {
+const getSafePlan = (value) => (planDetails[value] ? value : 'monthly');
+const getSafeMarket = (value) => (String(value || '').toLowerCase() === 'global' ? 'global' : 'india');
+
+const detectBillingMarket = () => {
+  try {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const locale = navigator.language || '';
+    if (timeZone === 'Asia/Kolkata' || timeZone === 'Asia/Calcutta' || locale.toLowerCase().endsWith('-in')) {
+      return 'india';
+    }
+  } catch {}
+
+  return 'global';
+};
+
+const getFallbackPlanDetails = (market) => (getSafeMarket(market) === 'global' ? globalPlanDetails : planDetails);
+
+const formatMoney = (amount, currency = 'INR') => {
+  const numeric = Number(amount || 0);
+  if (currency === 'INR') return `Rs ${numeric.toLocaleString('en-IN')}`;
+  if (currency === 'USD') return `$${numeric.toLocaleString('en-US')}`;
+  return `${currency} ${numeric.toLocaleString('en-US')}`;
+};
+
+const getDurationLabel = (durationDays = 30, checkoutType = 'subscription') => {
   const days = Number(durationDays || 30);
+  if (checkoutType === 'one_time') return `Valid for ${days} days`;
   if (days === 365) return "Billed every 365 days";
   if (days === 90) return "Valid for 90 days";
   if (days === 7) return "Valid for 7 days";
   return "Billed every 30 days";
 };
 
-const mapPlansById = (plans = []) =>
+const mapPlansById = (plans = [], fallbackPlans = planDetails) =>
   plans.reduce((acc, plan) => {
     if (plan?.id) {
       acc[plan.id] = {
-        ...planDetails[plan.id],
+        ...fallbackPlans[plan.id],
         amount: Number(plan.amount || 0),
-        currency: plan.currency || "INR",
+        currency: plan.currency || fallbackPlans[plan.id]?.currency || "INR",
         label: plan.label || plan.id,
-        duration: getDurationLabel(plan.durationDays),
+        duration: getDurationLabel(plan.durationDays, plan.checkoutType || fallbackPlans[plan.id]?.checkoutType || "subscription"),
         amountSource: plan.amountSource || "backend",
-        checkoutType: plan.checkoutType || planDetails[plan.id]?.checkoutType || "subscription",
+        checkoutType: plan.checkoutType || fallbackPlans[plan.id]?.checkoutType || "subscription",
         subscriptionReady: Boolean(plan.subscriptionReady),
-        warning: plan.warning || ""
+        warning: plan.warning || "",
+        market: plan.market || "india"
       };
     }
     return acc;
@@ -102,10 +148,11 @@ const checkoutValueCards = [
 export default function Payment() {
   const location = useLocation();
   const [plan, setPlan] = useState('monthly');
+  const [market, setMarket] = useState(() => getSafeMarket(localStorage.getItem('billingMarket') || detectBillingMarket()));
   const [loading, setLoading] = useState(false);
   const [earlyAccessLoading, setEarlyAccessLoading] = useState(false);
   const [pricingLoading, setPricingLoading] = useState(true);
-  const [serverPlanDetails, setServerPlanDetails] = useState(planDetails);
+  const [serverPlanDetails, setServerPlanDetails] = useState(() => getFallbackPlanDetails(localStorage.getItem('billingMarket') || detectBillingMarket()));
   const [pricingWarning, setPricingWarning] = useState('');
   const [pricingBlocked, setPricingBlocked] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState(null);
@@ -116,24 +163,35 @@ export default function Payment() {
 
   useEffect(() => {
     const selectedPlan = getSafePlan(localStorage.getItem("plan") || "monthly");
+    const selectedMarket = getSafeMarket(localStorage.getItem('billingMarket') || detectBillingMarket());
     localStorage.setItem("plan", selectedPlan);
+    localStorage.setItem('billingMarket', selectedMarket);
     setPlan(selectedPlan);
+    setMarket(selectedMarket);
   }, []);
 
   useEffect(() => {
     const loadPricing = async () => {
       try {
+        const fallbackPlans = getFallbackPlanDetails(market);
         setPricingLoading(true);
         setPricingBlocked(false);
-        const res = await api.get('/payment/plans');
-        const nextPlans = mapPlansById(res.data?.plans || []);
+        setServerPlanDetails(fallbackPlans);
+        const res = await api.get(`/payment/plans?market=${market}`);
+        const nextPlans = mapPlansById(res.data?.plans || [], fallbackPlans);
 
         if (nextPlans.monthly?.amount && nextPlans.yearly?.amount) {
           setServerPlanDetails((prev) => ({
             ...prev,
             ...nextPlans
           }));
-          setPricingWarning((res.data?.warnings || []).join(' '));
+          const missingRecurring = Object.values(nextPlans)
+            .filter((item) => item.checkoutType !== 'one_time' && !item.subscriptionReady)
+            .map((item) => item.label);
+          const readinessWarning = missingRecurring.length
+            ? `${missingRecurring.join(', ')} checkout needs Razorpay ${market === 'global' ? 'USD' : 'INR'} subscription plan IDs before recurring billing can start.`
+            : '';
+          setPricingWarning([(res.data?.warnings || []).join(' '), readinessWarning].filter(Boolean).join(' '));
         } else {
           setPricingWarning('Backend did not return both monthly and yearly checkout prices.');
           setPricingBlocked(true);
@@ -147,7 +205,7 @@ export default function Payment() {
     };
 
     loadPricing();
-  }, []);
+  }, [market]);
 
   useEffect(() => {
     const loadSubscription = async () => {
@@ -183,7 +241,10 @@ export default function Payment() {
     loadEarlyAccessStatus();
   }, []);
 
-  const current = serverPlanDetails[getSafePlan(plan)] || planDetails[getSafePlan(plan)];
+  const fallbackPlanDetails = getFallbackPlanDetails(market);
+  const current = serverPlanDetails[getSafePlan(plan)] || fallbackPlanDetails[getSafePlan(plan)];
+  const currentPlanReady = current.checkoutType === 'one_time' || current.subscriptionReady;
+  const checkoutDisabled = loading || pricingLoading || pricingBlocked || !currentPlanReady;
   const earlyAccessAlreadyUsed = Boolean(accountUser?.earlyAccessUsedAt);
   const earlyAccessClosed = earlyAccessStatus?.enabled === false || Number(earlyAccessStatus?.seatsRemaining || 0) <= 0;
   const activePlanLabel = getPlanLabel(accountUser);
@@ -203,9 +264,18 @@ export default function Payment() {
     setPlan(safePlan);
     trackEvent('select_subscription_plan', {
       plan: safePlan,
-      value: Number(serverPlanDetails[safePlan]?.amount || planDetails[safePlan].amount),
-      currency: 'INR'
+      market,
+      value: Number(serverPlanDetails[safePlan]?.amount || fallbackPlanDetails[safePlan].amount),
+      currency: serverPlanDetails[safePlan]?.currency || fallbackPlanDetails[safePlan].currency || 'INR'
     });
+  };
+
+  const selectMarket = (nextMarket) => {
+    const safeMarket = getSafeMarket(nextMarket);
+    localStorage.setItem('billingMarket', safeMarket);
+    setMarket(safeMarket);
+    setServerPlanDetails(getFallbackPlanDetails(safeMarket));
+    trackEvent('select_billing_market', { market: safeMarket });
   };
 
   const handleEarlyAccessStart = async () => {
@@ -240,13 +310,15 @@ export default function Payment() {
       setLoading(true);
       trackEvent('begin_checkout', {
         plan: selectedPlan,
+        market,
         value: Number(current.amount || 0),
         currency: current.currency || 'INR',
         checkout_type: 'one_time'
       });
 
       const orderRes = await api.post('/payment/razorpay/order', {
-        plan: selectedPlan
+        plan: selectedPlan,
+        market
       });
 
       const keyId = orderRes.data?.keyId;
@@ -264,7 +336,7 @@ export default function Payment() {
           [serverPlan.id]: {
             ...prev[serverPlan.id],
             ...serverPlan,
-            duration: getDurationLabel(serverPlan.durationDays)
+            duration: getDurationLabel(serverPlan.durationDays, serverPlan.checkoutType)
           }
         }));
       }
@@ -325,6 +397,7 @@ export default function Payment() {
             trackEvent('purchase', {
               transaction_id: response.razorpay_payment_id,
               plan: selectedPlan,
+              market,
               value: Number(serverPlan?.amount || current.amount || 0),
               currency: serverPlan?.currency || current.currency || 'INR',
               checkout_type: 'one_time'
@@ -357,7 +430,7 @@ export default function Payment() {
     setPlan(selectedPlan);
     localStorage.setItem("plan", selectedPlan);
 
-    if ((serverPlanDetails[selectedPlan] || planDetails[selectedPlan])?.checkoutType === 'one_time') {
+    if (current.checkoutType === 'one_time') {
       await handleOneTimePayment(selectedPlan);
       return;
     }
@@ -366,12 +439,14 @@ export default function Payment() {
       setLoading(true);
       trackEvent('begin_checkout', {
         plan: selectedPlan,
+        market,
         value: Number(current.amount || 0),
         currency: current.currency || 'INR'
       });
 
       const subscriptionRes = await api.post('/payment/razorpay/subscription', {
-        plan: selectedPlan
+        plan: selectedPlan,
+        market
       });
 
       const keyId = subscriptionRes.data?.keyId;
@@ -389,7 +464,7 @@ export default function Payment() {
           [serverPlan.id]: {
             ...prev[serverPlan.id],
             ...serverPlan,
-            duration: getDurationLabel(serverPlan.durationDays)
+            duration: getDurationLabel(serverPlan.durationDays, serverPlan.checkoutType)
           }
         }));
       }
@@ -403,6 +478,7 @@ export default function Payment() {
         trackEvent('purchase', {
           transaction_id: subscription.id,
           plan: selectedPlan,
+          market,
           value: Number(serverPlan?.amount || current.amount || 0),
           currency: serverPlan?.currency || current.currency || 'INR'
         });
@@ -448,6 +524,7 @@ export default function Payment() {
             trackEvent('purchase', {
               transaction_id: response.razorpay_payment_id,
               plan: selectedPlan,
+              market,
               value: Number(serverPlan?.amount || current.amount || 0),
               currency: serverPlan?.currency || current.currency || 'INR'
             });
@@ -520,24 +597,50 @@ export default function Payment() {
               Pro unlocks the full lead-to-payment system: find clients, send proposals, manage delivery, create invoices, and follow up pending money.
             </p>
 
+            <div className="mb-6 grid gap-3 sm:grid-cols-2">
+              {[
+                ['india', 'India billing', 'INR checkout with cards, UPI, and Razorpay subscriptions.'],
+                ['global', 'International billing', 'USD checkout for customers outside India using supported global cards.']
+              ].map(([id, title, text]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => selectMarket(id)}
+                  className={`rounded-2xl border p-4 text-left transition-all ${
+                    market === id
+                      ? 'border-cyan-300/40 bg-cyan-300/10 text-white'
+                      : 'border-white/10 bg-black/20 text-zinc-400 hover:border-white/20 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <p className="text-[10px] font-black uppercase tracking-widest">{title}</p>
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{text}</p>
+                </button>
+              ))}
+            </div>
+
             <div className="mb-6 rounded-[1.75rem] border border-yellow-300/25 bg-yellow-300/[0.08] p-5 sm:p-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">You are buying</p>
                   <h2 className="mt-2 text-2xl font-black text-white">
-                    {current.label} for {pricingLoading ? 'live price check' : `Rs ${current.amount}`}
+                    {current.label} for {pricingLoading ? 'live price check' : formatMoney(current.amount, current.currency)}
                   </h2>
                   <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
-                    Choose the plan, click the payment button, complete Razorpay checkout, and Pro access opens in your workspace.
+                    Choose the billing market, pick a plan, complete Razorpay checkout, and Pro access opens in your workspace.
                   </p>
+                  {market === 'global' && (
+                    <p className="mt-3 text-xs font-bold leading-relaxed text-cyan-100/80">
+                      International checkout needs international payments enabled on your Razorpay account. USD recurring subscriptions also need USD plan IDs in Render.
+                    </p>
+                  )}
                 </div>
                 <button
                   type="button"
                   onClick={handleRazorpayPayment}
-                  disabled={loading || pricingLoading || pricingBlocked}
+                  disabled={checkoutDisabled}
                   className="rounded-2xl bg-yellow-400 px-6 py-4 text-sm font-black uppercase tracking-widest text-black shadow-xl shadow-yellow-950/20 transition-all hover:-translate-y-0.5 hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {pricingLoading ? 'Checking Price' : loading ? 'Opening Checkout' : 'Buy Now'}
+                  {pricingLoading ? 'Checking Price' : loading ? 'Opening Checkout' : currentPlanReady ? 'Buy Now' : 'Setup Required'}
                 </button>
               </div>
 
@@ -637,10 +740,15 @@ export default function Payment() {
                      }`}
                    >
                      <p className="text-[10px] font-black uppercase tracking-widest">{details.label}</p>
-                     <p className="mt-2 text-2xl font-black text-white">Rs {details.amount}</p>
+                     <p className="mt-2 text-2xl font-black text-white">{formatMoney(details.amount, details.currency)}</p>
                      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">
                        {details.duration}
                      </p>
+                     {details.checkoutType !== 'one_time' && !details.subscriptionReady && (
+                       <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+                         Plan ID needed
+                       </p>
+                     )}
                    </button>
                  ))}
                </div>
@@ -652,7 +760,7 @@ export default function Payment() {
                   </div>
                   <div className="text-left sm:text-right">
                     <p className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                      {pricingLoading ? 'Checking...' : `Rs ${current.amount}`}
+                      {pricingLoading ? 'Checking...' : formatMoney(current.amount, current.currency)}
                     </p>
                     <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">Subscription Price</p>
                   </div>
@@ -680,16 +788,16 @@ export default function Payment() {
                     <span className="text-zinc-600 uppercase tracking-widest">
                       {current.checkoutType === 'one_time' ? 'One-Time Plan' : 'Recurring Plan'}
                     </span>
-                    <span className="text-white">{pricingLoading ? 'Checking...' : `Rs ${current.amount}.00`}</span>
+                    <span className="text-white">{pricingLoading ? 'Checking...' : formatMoney(current.amount, current.currency)}</span>
                   </div>
                   <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-sm font-bold">
                     <span className="text-zinc-600 uppercase tracking-widest">Payment Processing</span>
-                    <span className="text-emerald-400 italic">Included</span>
+                    <span className="text-emerald-400 italic">{market === 'global' ? 'Global card' : 'Included'}</span>
                   </div>
                   <div className="pt-6 border-t border-white/5 flex flex-col items-end">
                     <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em] mb-2">Plan Amount</p>
                     <p className="text-4xl sm:text-5xl font-black text-white tracking-tight">
-                      {pricingLoading ? '--' : `Rs ${current.amount}`}
+                      {pricingLoading ? '--' : formatMoney(current.amount, current.currency)}
                     </p>
                     <p className="text-xs font-bold text-zinc-500 mt-2">{current.duration}</p>
                   </div>
@@ -711,16 +819,20 @@ export default function Payment() {
 
                <button
                  onClick={handleRazorpayPayment}
-                 disabled={loading || pricingLoading || pricingBlocked}
+                 disabled={checkoutDisabled}
                  className="btn btn-primary w-full py-5 text-lg shadow-xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all"
                >
                  {pricingLoading
                    ? 'Verifying Price...'
                    : loading
                      ? 'Starting Checkout...'
-                     : current.checkoutType === 'one_time'
-                       ? 'Pay Once with Razorpay'
-                       : 'Buy Pro with Razorpay'}
+                     : !currentPlanReady
+                       ? 'Checkout Setup Needed'
+                       : current.checkoutType === 'one_time'
+                         ? `Pay ${market === 'global' ? 'Internationally' : 'Once'} with Razorpay`
+                         : market === 'global'
+                           ? 'Buy Pro with Global Card'
+                           : 'Buy Pro with Razorpay'}
                </button>
 
                <button

@@ -51,31 +51,49 @@ const getConfiguredPositiveInt = (envName, fallback) => {
 
 const EARLY_ACCESS_DAYS = getConfiguredPositiveInt('EARLY_ACCESS_DAYS', 30);
 const EARLY_ACCESS_SEAT_LIMIT = getConfiguredPositiveInt('EARLY_ACCESS_SEAT_LIMIT', 50);
+const DEFAULT_GLOBAL_CURRENCY = 'USD';
+
+const normalizeMarket = (market) => {
+    const safeMarket = String(market || '').trim().toLowerCase();
+    return safeMarket === 'global' || safeMarket === 'international' ? 'global' : 'india';
+};
 
 const planDetails = {
     monthly: {
         amount: getConfiguredAmount('PRO_MONTHLY_AMOUNT', 499),
+        globalAmount: getConfiguredAmount('PRO_MONTHLY_USD_AMOUNT', 9),
+        globalCurrency: DEFAULT_GLOBAL_CURRENCY,
         label: 'Pro Monthly',
         durationDays: 30,
         subscriptionCycles: 120,
         planEnv: 'RAZORPAY_MONTHLY_PLAN_ID',
-        amountEnv: 'PRO_MONTHLY_AMOUNT'
+        globalPlanEnv: 'RAZORPAY_MONTHLY_USD_PLAN_ID',
+        amountEnv: 'PRO_MONTHLY_AMOUNT',
+        globalAmountEnv: 'PRO_MONTHLY_USD_AMOUNT'
     },
     yearly: {
         amount: getConfiguredAmount('PRO_YEARLY_AMOUNT', 4999),
+        globalAmount: getConfiguredAmount('PRO_YEARLY_USD_AMOUNT', 89),
+        globalCurrency: DEFAULT_GLOBAL_CURRENCY,
         label: 'Pro Annual',
         durationDays: 365,
         subscriptionCycles: 10,
         planEnv: 'RAZORPAY_YEARLY_PLAN_ID',
-        amountEnv: 'PRO_YEARLY_AMOUNT'
+        globalPlanEnv: 'RAZORPAY_YEARLY_USD_PLAN_ID',
+        amountEnv: 'PRO_YEARLY_AMOUNT',
+        globalAmountEnv: 'PRO_YEARLY_USD_AMOUNT'
     },
     founder90: {
         amount: getConfiguredAmount('FOUNDER_90_AMOUNT', 999),
+        globalAmount: getConfiguredAmount('FOUNDER_90_USD_AMOUNT', 19),
+        globalCurrency: DEFAULT_GLOBAL_CURRENCY,
         label: 'Founder 90 Days',
         durationDays: 90,
         subscriptionCycles: 1,
         planEnv: '',
+        globalPlanEnv: '',
         amountEnv: 'FOUNDER_90_AMOUNT',
+        globalAmountEnv: 'FOUNDER_90_USD_AMOUNT',
         checkoutType: 'one_time'
     }
 };
@@ -85,11 +103,15 @@ const normalizePlan = (plan) => {
     return planDetails[safePlan] ? safePlan : null;
 };
 
-const getPlanAmount = (plan, fallbackAmount = 0) => {
+const getPlanAmount = (plan, fallbackAmount = 0, market = 'india') => {
     const normalizedPlan = normalizePlan(plan);
     const amount = Number(fallbackAmount || 0);
     if (Number.isFinite(amount) && amount > 0) return amount;
-    return normalizedPlan ? Number(planDetails[normalizedPlan]?.amount || 0) : 0;
+    if (!normalizedPlan) return 0;
+    const details = planDetails[normalizedPlan];
+    return normalizeMarket(market) === 'global'
+        ? Number(details?.globalAmount || details?.amount || 0)
+        : Number(details?.amount || 0);
 };
 
 const getSubscriptionPaidCycles = (subscription = {}) => {
@@ -99,25 +121,41 @@ const getSubscriptionPaidCycles = (subscription = {}) => {
     return 0;
 };
 
-const getRazorpaySubscriptionPlanId = (plan) => {
+const getRazorpaySubscriptionPlanId = (plan, market = 'india') => {
     const normalizedPlan = normalizePlan(plan);
     if (!normalizedPlan) return '';
-    return process.env[planDetails[normalizedPlan].planEnv] || '';
+    const details = planDetails[normalizedPlan];
+    const envName = normalizeMarket(market) === 'global' ? details.globalPlanEnv : details.planEnv;
+    return envName ? (process.env[envName] || '') : '';
 };
 
-const serializePlan = (id, details, overrides = {}) => ({
-    id,
-    amount: overrides.amount ?? details.amount,
-    currency: overrides.currency || 'INR',
-    label: overrides.label || details.label,
-    durationDays: details.durationDays,
-    period: overrides.period || (id === 'yearly' ? 'yearly' : id === 'founder90' ? '90_days' : 'monthly'),
-    checkoutType: overrides.checkoutType || details.checkoutType || 'subscription',
-    providerPlanId: overrides.providerPlanId || getRazorpaySubscriptionPlanId(id) || '',
-    amountSource: overrides.amountSource || 'configured',
-    subscriptionReady: details.checkoutType === 'one_time' || process.env.PAYMENT_SIMULATION === 'true' || Boolean(getRazorpaySubscriptionPlanId(id)),
-    warning: overrides.warning || ''
-});
+const serializePlan = (id, details, overrides = {}) => {
+    const market = normalizeMarket(overrides.market);
+    const providerPlanId = overrides.providerPlanId || getRazorpaySubscriptionPlanId(id, market) || '';
+    const configuredCheckoutType = overrides.checkoutType || details.checkoutType || 'subscription';
+    const shouldUseGlobalOneTimeFallback = market === 'global' &&
+        configuredCheckoutType === 'subscription' &&
+        !providerPlanId &&
+        process.env.PAYMENT_SIMULATION !== 'true';
+    const checkoutType = shouldUseGlobalOneTimeFallback ? 'one_time' : configuredCheckoutType;
+
+    return {
+        id,
+        market,
+        amount: overrides.amount ?? (market === 'global' ? details.globalAmount : details.amount),
+        currency: overrides.currency || (market === 'global' ? (details.globalCurrency || DEFAULT_GLOBAL_CURRENCY) : 'INR'),
+        label: overrides.label || details.label,
+        durationDays: details.durationDays,
+        period: overrides.period || (id === 'yearly' ? 'yearly' : id === 'founder90' ? '90_days' : 'monthly'),
+        checkoutType,
+        providerPlanId,
+        amountSource: overrides.amountSource || 'configured',
+        subscriptionReady: checkoutType === 'one_time' || process.env.PAYMENT_SIMULATION === 'true' || Boolean(providerPlanId),
+        warning: overrides.warning || (shouldUseGlobalOneTimeFallback
+            ? 'Global recurring plan ID is missing, so this plan will use one-time checkout for the selected access period.'
+            : '')
+    };
+};
 
 const serializeUser = (user) => ({
     id: user._id,
@@ -271,10 +309,11 @@ const amountFromRazorpayItem = (item = {}) => {
 
 const resolvePlanPricing = async(normalizedPlan, options = {}) => {
     const details = planDetails[normalizedPlan];
-    const providerPlanId = getRazorpaySubscriptionPlanId(normalizedPlan);
+    const market = normalizeMarket(options.market);
+    const providerPlanId = getRazorpaySubscriptionPlanId(normalizedPlan, market);
     const authHeader = getRazorpayAuthHeader();
-    const fallback = serializePlan(normalizedPlan, details);
-    const shouldFetchLivePlan = process.env.PAYMENT_SIMULATION !== 'true' && providerPlanId && authHeader;
+    const fallback = serializePlan(normalizedPlan, details, { market });
+    const shouldFetchLivePlan = details.checkoutType !== 'one_time' && process.env.PAYMENT_SIMULATION !== 'true' && providerPlanId && authHeader;
 
     if (!shouldFetchLivePlan) {
         return fallback;
@@ -292,6 +331,7 @@ const resolvePlanPricing = async(normalizedPlan, options = {}) => {
         }
 
         return serializePlan(normalizedPlan, details, {
+            market,
             warning: 'Could not fetch live Razorpay plan amount. Showing configured fallback amount.'
         });
     }
@@ -303,13 +343,15 @@ const resolvePlanPricing = async(normalizedPlan, options = {}) => {
         }
 
         return serializePlan(normalizedPlan, details, {
+            market,
             warning: 'Razorpay plan amount is missing. Showing configured fallback amount.'
         });
     }
 
     return serializePlan(normalizedPlan, details, {
+        market,
         amount: liveAmount,
-        currency: razorpayRes.body?.item?.currency || 'INR',
+        currency: razorpayRes.body?.item?.currency || fallback.currency,
         label: razorpayRes.body?.item?.name || details.label,
         period: razorpayRes.body?.period || fallback.period,
         providerPlanId,
@@ -317,8 +359,8 @@ const resolvePlanPricing = async(normalizedPlan, options = {}) => {
     });
 };
 
-const resolveAllPlanPricing = async() => Promise.all(
-    Object.keys(planDetails).map((id) => resolvePlanPricing(id))
+const resolveAllPlanPricing = async(market = 'india') => Promise.all(
+    Object.keys(planDetails).map((id) => resolvePlanPricing(id, { market }))
 );
 
 const mapSubscriptionEntity = (entity = {}) => ({
@@ -463,9 +505,11 @@ const getRazorpayErrorMessage = (body) => {
 
 router.get('/plans', async(req, res) => {
     try {
-        const plans = await resolveAllPlanPricing();
+        const market = normalizeMarket(req.query?.market);
+        const plans = await resolveAllPlanPricing(market);
         res.json({
             pricingVersion: PRICING_VERSION,
+            market,
             plans,
             warnings: plans.map((plan) => plan.warning).filter(Boolean)
         });
@@ -604,6 +648,7 @@ router.post('/trial/start', protect, async(req, res) => {
 router.post('/razorpay/subscription', protect, async(req, res) => {
     try {
         const { plan } = req.body;
+        const market = normalizeMarket(req.body?.market);
         const normalizedPlan = normalizePlan(plan);
         if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
         if (planDetails[normalizedPlan].checkoutType === 'one_time') {
@@ -613,6 +658,7 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
         let selectedPlan;
         try {
             selectedPlan = await resolvePlanPricing(normalizedPlan, {
+                market,
                 requireLive: process.env.PAYMENT_SIMULATION !== 'true'
             });
         } catch (pricingErr) {
@@ -621,7 +667,7 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
             });
         }
 
-        const providerPlanId = getRazorpaySubscriptionPlanId(normalizedPlan);
+        const providerPlanId = getRazorpaySubscriptionPlanId(normalizedPlan, market);
         const authHeader = getRazorpayAuthHeader();
 
         if (process.env.PAYMENT_SIMULATION === 'true') {
@@ -633,7 +679,7 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
                 providerSubscriptionId: subscriptionId,
                 providerPlanId: 'simulation',
                 amount: selectedPlan.amount,
-                currency: 'INR',
+                currency: selectedPlan.currency,
                 status: 'active',
                 currentStart: new Date(),
                 currentEnd: expiresAt,
@@ -662,14 +708,18 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
                     status: record.status
                 },
                 plan: selectedPlan,
+                market,
                 user: serializeUser(user)
             });
         }
 
         if (!authHeader) return res.status(500).json({ message: 'Razorpay keys not configured' });
         if (!providerPlanId) {
+            const planEnvName = market === 'global'
+                ? planDetails[normalizedPlan].globalPlanEnv
+                : planDetails[normalizedPlan].planEnv;
             return res.status(500).json({
-                message: `${planDetails[normalizedPlan].planEnv} is not configured. Create Razorpay Subscription plans and add their IDs to the backend environment.`
+                message: `${planEnvName} is not configured. Create a Razorpay ${selectedPlan.currency} subscription plan and add its ID to the backend environment.`
             });
         }
 
@@ -683,7 +733,10 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
                 customer_notify: true,
                 notes: {
                     userId: String(req.user._id),
-                    plan: normalizedPlan
+                    plan: normalizedPlan,
+                    market,
+                    currency: selectedPlan.currency,
+                    checkoutType: selectedPlan.checkoutType
                 }
             }
         });
@@ -702,7 +755,7 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
             provider: 'razorpay',
             providerSubscriptionId: razorpayRes.body.id,
             amount: selectedPlan.amount,
-            currency: 'INR',
+            currency: selectedPlan.currency,
             latestEvent: 'subscription.created',
             ...mapSubscriptionEntity(razorpayRes.body)
         }, {
@@ -715,6 +768,7 @@ router.post('/razorpay/subscription', protect, async(req, res) => {
             keyId: process.env.RAZORPAY_KEY_ID,
             subscription: razorpayRes.body,
             plan: selectedPlan,
+            market,
             checkoutType: 'subscription',
             pricingVersion: PRICING_VERSION
         });
@@ -861,11 +915,13 @@ router.post('/razorpay/subscription/cancel', protect, async(req, res) => {
 router.post('/razorpay/order', protect, async(req, res) => {
     try {
         const { plan } = req.body;
+        const market = normalizeMarket(req.body?.market);
         const normalizedPlan = normalizePlan(plan);
         if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
         let selectedPlan;
         try {
             selectedPlan = await resolvePlanPricing(normalizedPlan, {
+                market,
                 requireLive: process.env.PAYMENT_SIMULATION !== 'true'
             });
         } catch (pricingErr) {
@@ -879,18 +935,25 @@ router.post('/razorpay/order', protect, async(req, res) => {
             return res.json({
                 simulation: true,
                 keyId: 'rzp_test_simulation',
-                order: { id: 'order_sim_' + Date.now(), amount: selectedPlan.amount * 100, currency: 'INR' },
-                plan: selectedPlan
+                order: { id: 'order_sim_' + Date.now(), amount: Math.round(selectedPlan.amount * 100), currency: selectedPlan.currency },
+                plan: selectedPlan,
+                market
             });
         }
 
         if (!authHeader) return res.status(500).json({ message: 'Razorpay keys not configured' });
 
         const razorpayRes = await createRazorpayOrder({
-            amount: selectedPlan.amount * 100,
-            currency: 'INR',
+            amount: Math.round(selectedPlan.amount * 100),
+            currency: selectedPlan.currency,
             receipt: `plan_${normalizedPlan}_${Date.now()}`,
-            notes: { userId: String(req.user._id), plan: normalizedPlan }
+            notes: {
+                userId: String(req.user._id),
+                plan: normalizedPlan,
+                market,
+                currency: selectedPlan.currency,
+                checkoutType: selectedPlan.checkoutType
+            }
         }, authHeader);
 
         if (!razorpayRes.ok) {
@@ -903,6 +966,7 @@ router.post('/razorpay/order', protect, async(req, res) => {
             keyId: process.env.RAZORPAY_KEY_ID,
             order: razorpayRes.body,
             plan: selectedPlan,
+            market,
             pricingVersion: PRICING_VERSION
         });
     } catch (err) {
@@ -1427,6 +1491,7 @@ const syncSubscriptionFromWebhook = async(event, subscriptionEntity, paymentEnti
 
     const normalizedPlan = normalizePlan(subscription?.plan || notes.plan);
     const userId = subscription?.user || notes.userId;
+    const market = normalizeMarket(notes.market);
 
     if (!normalizedPlan || !userId || !isValidObjectId(userId)) return;
 
@@ -1436,8 +1501,8 @@ const syncSubscriptionFromWebhook = async(event, subscriptionEntity, paymentEnti
             plan: normalizedPlan,
             provider: 'razorpay',
             providerSubscriptionId: subscriptionEntity.id,
-            amount: planDetails[normalizedPlan].amount,
-            currency: 'INR'
+            amount: getPlanAmount(normalizedPlan, 0, market),
+            currency: paymentEntity?.currency || notes.currency || (market === 'global' ? DEFAULT_GLOBAL_CURRENCY : 'INR')
         });
     }
 
@@ -1548,7 +1613,7 @@ router.post('/webhook', async (req, res) => {
                 if (normalizedPlan) {
                     const u = await User.findById(notes.userId);
                     if (u) await setUserPlan(u, normalizedPlan, {
-                        subscriptionStatus: planDetails[normalizedPlan].checkoutType === 'one_time' ? 'one_time_payment' : 'webhook_payment',
+                        subscriptionStatus: notes.checkoutType === 'one_time' || planDetails[normalizedPlan].checkoutType === 'one_time' ? 'one_time_payment' : 'webhook_payment',
                         lastPaymentAt: new Date()
                     });
                 }
