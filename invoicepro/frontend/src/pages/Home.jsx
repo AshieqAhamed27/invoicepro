@@ -94,8 +94,8 @@ const serviceOffers = [
   {
     title: 'ClientFlow AI Software',
     label: 'Self-serve product',
-    text: 'Freelancers use the web app to find clients, send proposals, manage projects, create invoices, and collect payments.',
-    cta: 'Start free',
+    text: 'Freelancers create a free account to find clients, send proposals, manage projects, create invoices, and collect payments.',
+    cta: 'Create free account',
     path: '/signup'
   },
   {
@@ -165,8 +165,8 @@ const plans = [
     id: 'free',
     name: 'Free',
     price: 'Rs 0',
-    note: 'Use before you pay',
-    features: ['Try the lead to payment flow', 'Create limited invoices', 'Understand if the product fits your work'],
+    note: 'Login or signup required',
+    features: ['Free account saves your workspace', 'Try the lead to payment flow', 'Create limited invoices', 'Understand if the product fits your work'],
     cta: 'Create Free Account'
   },
   {
@@ -191,7 +191,7 @@ const buyerPathCards = [
   {
     title: 'Try it first',
     price: 'Rs 0',
-    text: 'Use the workflow, create invoices, and understand if ClientFlow AI fits your freelance work.',
+    text: 'Create a free account, use the workflow, create invoices, and understand if ClientFlow AI fits your freelance work.',
     action: 'Create Free Account',
     planId: 'free'
   },
@@ -487,6 +487,10 @@ export default function Home() {
 
     if (planId !== 'free') {
       localStorage.setItem('plan', planId);
+    }
+
+    if (planId === 'free' && !loggedIn) {
+      setPostLoginRedirect('/client-flow');
     }
 
     const nextPath = planId === 'free'
@@ -894,7 +898,7 @@ export default function Home() {
                 One product, plus setup help when freelancers need guidance.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                ClientFlow AI is the software. Agency Setup is the support service for freelancers who want help setting up their workflow.
+                ClientFlow AI is the software. Free access still needs login or signup so each freelancer gets their own saved workspace. Agency Setup is the support service for freelancers who want help setting up their workflow.
               </p>
             </div>
 
@@ -1121,7 +1125,7 @@ export default function Home() {
                 Start free or buy Pro when you want the full workflow.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                Free is for testing. Pro is for freelancers who want daily client, delivery, invoice, and payment actions.
+                Free is for testing after signup. Pro is for freelancers who want daily client, delivery, invoice, and payment actions.
               </p>
             </div>
 

@@ -151,9 +151,9 @@ const getFitResult = ({ problem, stage, workload, urgency, setup }) => {
       label: 'Free is enough for now',
       plan: 'Free',
       path: '/signup',
-      action: 'Start free',
+      action: 'Create free account',
       tone: 'yellow',
-      reason: 'You mainly need to test the product or create a simple invoice. Do not pay until you have real client workflow pain.'
+      reason: 'You mainly need to test the product or create a simple invoice. Create a free account first so your workspace is saved. Do not pay until you have real client workflow pain.'
     };
   }
 
@@ -186,9 +186,9 @@ const getFitResult = ({ problem, stage, workload, urgency, setup }) => {
     label: 'Good free trial fit',
     plan: 'Free first',
     path: '/signup',
-    action: 'Start free',
+    action: 'Create free account',
     tone: 'yellow',
-    reason: 'Start free, use the workflow, and upgrade only when leads, proposals, projects, and payments become active.'
+    reason: 'Create a free account, use the workflow, and upgrade only when leads, proposals, projects, and payments become active.'
   };
 };
 
@@ -227,6 +227,17 @@ export default function FreelanceFitAdvisor() {
 
   const openPath = (path, label, requiresPro = false) => {
     trackCtaClick(label, 'freelance_fit_advisor', path);
+
+    if (path === '/signup') {
+      if (loggedIn) {
+        navigate('/client-flow');
+        return;
+      }
+
+      setPostLoginRedirect('/client-flow');
+      navigate('/signup');
+      return;
+    }
 
     if (path === '/payment') {
       localStorage.setItem('plan', 'monthly');

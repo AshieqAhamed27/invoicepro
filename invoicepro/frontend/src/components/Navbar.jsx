@@ -114,6 +114,12 @@ export default function Navbar() {
     closeAllMenus();
   };
 
+  const openStartFree = () => {
+    setPostLoginRedirect('/client-flow');
+    navigate('/signup');
+    closeAllMenus();
+  };
+
   useEffect(() => {
     setMenuOpen(false);
     setUseCasesOpen(false);
@@ -234,7 +240,7 @@ export default function Navbar() {
               >
                 Buy Pro
               </button>
-              <button type="button" onClick={() => navigate('/signup')} className="btn btn-primary">
+              <button type="button" onClick={openStartFree} className="btn btn-primary">
                 Start Free
               </button>
             </>
@@ -516,10 +522,7 @@ export default function Navbar() {
                   </NavLink>
                   <button
                     type="button"
-                    onClick={() => {
-                      navigate('/signup');
-                      closeMenu();
-                    }}
+                    onClick={openStartFree}
                     className="rounded-xl bg-yellow-300 px-5 py-4 text-sm font-black uppercase tracking-widest text-slate-950 shadow-xl shadow-yellow-950/20 transition active:scale-[0.98] sm:rounded-2xl"
                   >
                     Create Free Account
