@@ -164,6 +164,10 @@ const getIntegrationReadiness = () => {
         envSanity.payments.razorpayMonthlyPlanId &&
         envSanity.payments.razorpayYearlyPlanId &&
         !envSanity.payments.simulationEnabled;
+    const selectedAnthropic = ai.selectedProvider === 'anthropic';
+    const selectedOpenAi = ai.selectedProvider === 'openai';
+    const anthropicOptional = !ai.anthropicKey && !selectedAnthropic;
+    const openAiOptional = !ai.openAiKey && !selectedOpenAi;
 
     const stripeCore = ['STRIPE_SECRET_KEY'];
     const stripeFull = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'];
@@ -180,7 +184,8 @@ const getIntegrationReadiness = () => {
             name: 'Anthropic',
             status: getIntegrationStatus({
                 connected: ai.anthropicKey,
-                active: ai.activeProvider === 'anthropic'
+                active: ai.activeProvider === 'anthropic',
+                optional: anthropicOptional
             }),
             ready: ai.anthropicKey,
             live: ai.anthropicKey,
@@ -188,10 +193,14 @@ const getIntegrationReadiness = () => {
                 ? `Active AI provider using ${ai.anthropicModel}.`
                 : ai.anthropicKey
                     ? `Configured with ${ai.anthropicModel}; available for failover or provider switch.`
-                    : 'Missing ANTHROPIC_API_KEY in backend environment.',
+                    : selectedAnthropic
+                        ? 'Anthropic is selected but ANTHROPIC_API_KEY is missing in backend environment.'
+                        : 'Optional Claude provider. Current AI can run with another configured provider.',
             action: ai.anthropicKey
                 ? 'Keep model and token limits reviewed as usage grows.'
-                : 'Set AI_PROVIDER=anthropic, ANTHROPIC_API_KEY, and ANTHROPIC_MODEL when using Claude.',
+                : selectedAnthropic
+                    ? 'Set AI_PROVIDER=anthropic, ANTHROPIC_API_KEY, and ANTHROPIC_MODEL in Render.'
+                    : 'Add Anthropic only when you want Claude or AI provider failover.',
             env: ['AI_PROVIDER', 'ANTHROPIC_API_KEY', 'ANTHROPIC_MODEL']
         },
         {
@@ -200,7 +209,8 @@ const getIntegrationReadiness = () => {
             name: 'OpenAI',
             status: getIntegrationStatus({
                 connected: ai.openAiKey,
-                active: ai.activeProvider === 'openai'
+                active: ai.activeProvider === 'openai',
+                optional: openAiOptional
             }),
             ready: ai.openAiKey,
             live: ai.openAiKey,
@@ -208,10 +218,14 @@ const getIntegrationReadiness = () => {
                 ? `Active AI provider using ${ai.openAiModel}.`
                 : ai.openAiKey
                     ? `Configured with ${ai.openAiModel}; available for failover or provider switch.`
-                    : 'Missing OPENAI_API_KEY in backend environment.',
+                    : selectedOpenAi
+                        ? 'OpenAI is selected but OPENAI_API_KEY is missing in backend environment.'
+                        : 'Optional OpenAI provider. Current AI can run with another configured provider.',
             action: ai.openAiKey
                 ? 'Use AI_PROVIDER=auto when you want fallback between configured providers.'
-                : 'Set OPENAI_API_KEY and OPENAI_MODEL when using OpenAI.',
+                : selectedOpenAi
+                    ? 'Set OPENAI_API_KEY and OPENAI_MODEL in Render when using OpenAI.'
+                    : 'Add OpenAI only when you want OpenAI models or AI provider failover.',
             env: ['AI_PROVIDER', 'OPENAI_API_KEY', 'OPENAI_MODEL']
         },
         {
@@ -256,13 +270,14 @@ const getIntegrationReadiness = () => {
             name: 'Stripe',
             status: getIntegrationStatus({
                 connected: hasAllUsableValues(stripeFull),
-                partial: hasAnyUsableValue(stripeCore) || hasAnyUsableValue(stripeFull)
+                partial: hasAnyUsableValue(stripeCore) || hasAnyUsableValue(stripeFull),
+                optional: true
             }),
             ready: hasAllUsableValues(stripeFull),
             live: hasAllUsableValues(stripeFull),
             detail: hasAllUsableValues(stripeFull)
                 ? 'Stripe secret and webhook secret are present for a future billing route.'
-                : 'Stripe is not wired into the product checkout yet; this checks env readiness only.',
+                : 'Optional for now. Razorpay can handle current checkout, so Stripe is only needed for future global card billing.',
             action: 'Add Stripe checkout routes only when global card billing is selected for launch.',
             env: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_PRICE_MONTHLY', 'STRIPE_PRICE_YEARLY']
         },
@@ -272,7 +287,8 @@ const getIntegrationReadiness = () => {
             name: 'AWS',
             status: getIntegrationStatus({
                 connected: hasAllUsableValues(awsFull),
-                partial: hasAnyUsableValue(awsCore) || hasUsableValue('AWS_REGION')
+                partial: hasAnyUsableValue(awsCore) || hasUsableValue('AWS_REGION'),
+                optional: true
             }),
             ready: hasAllUsableValues(awsFull),
             live: hasAllUsableValues(awsFull),
@@ -288,7 +304,8 @@ const getIntegrationReadiness = () => {
             name: 'Azure',
             status: getIntegrationStatus({
                 connected: hasAllUsableValues(azureCore) || hasAnyUsableValue(azureStorage),
-                partial: hasAnyUsableValue(azureCore) || hasAnyUsableValue(azureStorage)
+                partial: hasAnyUsableValue(azureCore) || hasAnyUsableValue(azureStorage),
+                optional: true
             }),
             ready: hasAllUsableValues(azureCore) || hasAnyUsableValue(azureStorage),
             live: hasAllUsableValues(azureCore) || hasAnyUsableValue(azureStorage),
@@ -304,7 +321,8 @@ const getIntegrationReadiness = () => {
             name: 'GCP',
             status: getIntegrationStatus({
                 connected: hasAnyUsableValue(gcpCore) && hasAnyUsableValue(gcpProject),
-                partial: hasAnyUsableValue(gcpCore) || hasAnyUsableValue(gcpProject)
+                partial: hasAnyUsableValue(gcpCore) || hasAnyUsableValue(gcpProject),
+                optional: true
             }),
             ready: hasAnyUsableValue(gcpCore) && hasAnyUsableValue(gcpProject),
             live: hasAnyUsableValue(gcpCore) && hasAnyUsableValue(gcpProject),
@@ -316,14 +334,17 @@ const getIntegrationReadiness = () => {
         }
     ];
 
-    const requiredForCurrentProduct = integrations.filter((item) => ['anthropic', 'openai', 'razorpay'].includes(item.id));
+    const currentProductChecks = [
+        { id: 'ai-provider', ready: ai.ready },
+        { id: 'razorpay', ready: razorpayCoreReady || envSanity.payments.simulationEnabled }
+    ];
     const liveCount = integrations.filter((item) => item.live).length;
     const readyCount = integrations.filter((item) => item.ready).length;
-    const currentReadyCount = requiredForCurrentProduct.filter((item) => item.ready).length;
+    const currentReadyCount = currentProductChecks.filter((item) => item.ready).length;
 
     return {
         score: Math.round((readyCount / integrations.length) * 100),
-        currentProductScore: Math.round((currentReadyCount / requiredForCurrentProduct.length) * 100),
+        currentProductScore: Math.round((currentReadyCount / currentProductChecks.length) * 100),
         liveCount,
         readyCount,
         total: integrations.length,

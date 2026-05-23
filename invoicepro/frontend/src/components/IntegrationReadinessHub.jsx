@@ -36,28 +36,56 @@ const buildFallbackReadiness = (health) => {
   const ai = env.ai || {};
   const payments = env.payments || {};
   const razorpayReady = Boolean(payments.razorpayKeyId && payments.razorpayKeySecret);
+  const aiReady = Boolean(ai.ready || ai.activeProvider || ai.openAiKey || ai.anthropicKey);
+  const selectedProvider = ai.selectedProvider || ai.provider || 'openai';
+  const anthropicSelected = selectedProvider === 'anthropic';
+  const openAiSelected = selectedProvider === 'openai';
 
   const integrations = [
     {
       id: 'anthropic',
       group: 'AI',
       name: 'Anthropic',
-      status: ai.activeProvider === 'anthropic' ? 'active' : ai.anthropicKey ? 'connected' : 'missing-key',
+      status: ai.activeProvider === 'anthropic'
+        ? 'active'
+        : ai.anthropicKey
+          ? 'connected'
+          : anthropicSelected
+            ? 'missing-key'
+            : 'optional',
       ready: Boolean(ai.anthropicKey),
       live: Boolean(ai.anthropicKey),
-      detail: ai.anthropicKey ? `Configured with ${ai.anthropicModel || 'configured model'}.` : 'Missing ANTHROPIC_API_KEY.',
-      action: 'Add AI_PROVIDER, ANTHROPIC_API_KEY, and ANTHROPIC_MODEL in backend environment.',
+      detail: ai.anthropicKey
+        ? `Configured with ${ai.anthropicModel || 'configured model'}.`
+        : anthropicSelected
+          ? 'Anthropic is selected but ANTHROPIC_API_KEY is missing.'
+          : 'Optional Claude provider. Add it only when you want Claude or failover.',
+      action: anthropicSelected && !ai.anthropicKey
+        ? 'Add AI_PROVIDER, ANTHROPIC_API_KEY, and ANTHROPIC_MODEL in backend environment.'
+        : 'No action needed unless you want Claude as an AI provider.',
       env: ['AI_PROVIDER', 'ANTHROPIC_API_KEY', 'ANTHROPIC_MODEL']
     },
     {
       id: 'openai',
       group: 'AI',
       name: 'OpenAI',
-      status: ai.activeProvider === 'openai' ? 'active' : ai.openAiKey ? 'connected' : 'missing-key',
+      status: ai.activeProvider === 'openai'
+        ? 'active'
+        : ai.openAiKey
+          ? 'connected'
+          : openAiSelected
+            ? 'missing-key'
+            : 'optional',
       ready: Boolean(ai.openAiKey),
       live: Boolean(ai.openAiKey),
-      detail: ai.openAiKey ? `Configured with ${ai.openAiModel || 'configured model'}.` : 'Missing OPENAI_API_KEY.',
-      action: 'Add OPENAI_API_KEY and OPENAI_MODEL in backend environment.',
+      detail: ai.openAiKey
+        ? `Configured with ${ai.openAiModel || 'configured model'}.`
+        : openAiSelected
+          ? 'OpenAI is selected but OPENAI_API_KEY is missing.'
+          : 'Optional OpenAI provider. Add it only when you want OpenAI or failover.',
+      action: openAiSelected && !ai.openAiKey
+        ? 'Add OPENAI_API_KEY and OPENAI_MODEL in backend environment.'
+        : 'No action needed unless you want OpenAI as an AI provider.',
       env: ['AI_PROVIDER', 'OPENAI_API_KEY', 'OPENAI_MODEL']
     },
     {
@@ -75,10 +103,10 @@ const buildFallbackReadiness = (health) => {
       id: 'stripe',
       group: 'Billing API',
       name: 'Stripe',
-      status: 'missing-key',
+      status: 'optional',
       ready: false,
       live: false,
-      detail: 'Stripe readiness is not detected on this backend yet.',
+      detail: 'Optional for now. Razorpay can handle current checkout; Stripe is only needed for future global card billing.',
       action: 'Add Stripe env values only when global card billing is selected.',
       env: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET']
     },
@@ -122,7 +150,7 @@ const buildFallbackReadiness = (health) => {
 
   return {
     score: Math.round((readyCount / integrations.length) * 100),
-    currentProductScore: Math.round((integrations.slice(0, 3).filter((item) => item.ready).length / 3) * 100),
+    currentProductScore: Math.round(([aiReady, razorpayReady || Boolean(payments.simulationEnabled)].filter(Boolean).length / 2) * 100),
     readyCount,
     liveCount,
     total: integrations.length,

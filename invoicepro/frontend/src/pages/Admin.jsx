@@ -1263,8 +1263,20 @@ export default function Admin() {
             <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
               <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Key Readiness</p>
               <div className="space-y-2 text-xs font-bold text-zinc-400">
-                <p>Anthropic: {aiChecks.anthropicKey ? 'Configured' : 'Missing'}</p>
-                <p>OpenAI: {aiChecks.openAiKey ? 'Configured' : 'Missing'}</p>
+                <p>
+                  Anthropic: {aiChecks.anthropicKey
+                    ? 'Configured'
+                    : aiChecks.selectedProvider === 'anthropic'
+                      ? 'Missing selected key'
+                      : 'Optional'}
+                </p>
+                <p>
+                  OpenAI: {aiChecks.openAiKey
+                    ? 'Configured'
+                    : aiChecks.selectedProvider === 'openai'
+                      ? 'Missing selected key'
+                      : 'Optional'}
+                </p>
                 <p>Failover: {aiChecks.fallbackAvailable ? 'Available' : aiReady ? 'Not needed' : 'Unavailable'}</p>
               </div>
             </div>
