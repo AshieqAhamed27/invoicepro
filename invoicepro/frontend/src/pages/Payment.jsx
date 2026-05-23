@@ -138,6 +138,21 @@ const mapPlansById = (plans = [], fallbackPlans = planDetails) =>
     return acc;
   }, {});
 
+const getPricingNotice = ({ warnings = [], readinessWarning = '', market = 'india' }) => {
+  const warningText = warnings.filter(Boolean).join(' ');
+  const hasRazorpayPlanFetchWarning = /Could not fetch live Razorpay plan amount|Razorpay plan amount is missing/i.test(warningText);
+
+  if (hasRazorpayPlanFetchWarning) {
+    return [
+      `Owner setup notice: live Razorpay ${market === 'global' ? 'USD' : 'INR'} plan price could not be verified, so this page is using the configured fallback price.`,
+      'Before real sales, check that the Razorpay plan ID is correct and uses the same test/live mode as your Razorpay keys.',
+      readinessWarning
+    ].filter(Boolean).join(' ');
+  }
+
+  return [warningText, readinessWarning].filter(Boolean).join(' ');
+};
+
 const proValueItems = [
   'Money GPS: one best revenue action each day',
   'AI Client Coach: find, talk, close, and collect',
@@ -207,7 +222,11 @@ export default function Payment() {
           const readinessWarning = missingRecurring.length
             ? `${missingRecurring.join(', ')} checkout needs Razorpay ${market === 'global' ? 'USD' : 'INR'} subscription plan IDs before recurring billing can start.`
             : '';
-          setPricingWarning([(res.data?.warnings || []).join(' '), readinessWarning].filter(Boolean).join(' '));
+          setPricingWarning(getPricingNotice({
+            warnings: res.data?.warnings || [],
+            readinessWarning,
+            market
+          }));
         } else {
           setPricingWarning('Backend did not return both monthly and yearly checkout prices.');
           setPricingBlocked(true);
