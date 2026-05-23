@@ -22,6 +22,21 @@ export default function FreelancerProfile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [inquiryForm, setInquiryForm] = useState({
+    contactName: '',
+    email: '',
+    phone: '',
+    businessName: '',
+    service: '',
+    budget: '',
+    timeline: '',
+    projectNeed: ''
+  });
+  const [inquiryStatus, setInquiryStatus] = useState({
+    loading: false,
+    message: '',
+    error: ''
+  });
 
   useDocumentMeta(
     'Freelancer Profile | ClientFlow AI',
@@ -61,6 +76,48 @@ export default function FreelancerProfile() {
 
     return profile?.email ? `mailto:${profile.email}?subject=${subject}&body=${body}` : '';
   }, [profile]);
+
+  const updateInquiryField = (field, value) => {
+    setInquiryForm((prev) => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const submitInquiry = async (event) => {
+    event.preventDefault();
+
+    try {
+      setInquiryStatus({ loading: true, message: '', error: '' });
+
+      const res = await api.post(`/leads/public-profile/${id}/enquiry`, {
+        ...inquiryForm,
+        budget: inquiryForm.budget ? Number(inquiryForm.budget) : 0
+      });
+
+      setInquiryStatus({
+        loading: false,
+        message: res.data?.message || 'Project enquiry sent.',
+        error: ''
+      });
+      setInquiryForm({
+        contactName: '',
+        email: '',
+        phone: '',
+        businessName: '',
+        service: '',
+        budget: '',
+        timeline: '',
+        projectNeed: ''
+      });
+    } catch (err) {
+      setInquiryStatus({
+        loading: false,
+        message: '',
+        error: err?.response?.data?.message || 'Unable to send enquiry right now.'
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -135,13 +192,91 @@ export default function FreelancerProfile() {
 
           <aside className="rounded-[2rem] border border-white/8 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Contact</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Start a project conversation</h2>
+            <h2 className="mt-2 text-2xl font-black text-white">Start a project enquiry</h2>
             <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">
-              Share your project need, budget, and timeline. A clear scope can become a proposal before work starts.
+              Share your project need, budget, and timeline. The enquiry becomes a saved lead in the freelancer workflow.
             </p>
+
+            <form onSubmit={submitInquiry} className="mt-5 grid gap-3">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <input
+                  value={inquiryForm.contactName}
+                  onChange={(event) => updateInquiryField('contactName', event.target.value)}
+                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  placeholder="Your name"
+                />
+                <input
+                  type="email"
+                  value={inquiryForm.email}
+                  onChange={(event) => updateInquiryField('email', event.target.value)}
+                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  placeholder="Email"
+                />
+                <input
+                  value={inquiryForm.phone}
+                  onChange={(event) => updateInquiryField('phone', event.target.value)}
+                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  placeholder="Phone or WhatsApp"
+                />
+                <input
+                  value={inquiryForm.businessName}
+                  onChange={(event) => updateInquiryField('businessName', event.target.value)}
+                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  placeholder="Business name"
+                />
+                <input
+                  value={inquiryForm.service}
+                  onChange={(event) => updateInquiryField('service', event.target.value)}
+                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  placeholder="Service needed"
+                />
+                <input
+                  type="number"
+                  min="0"
+                  value={inquiryForm.budget}
+                  onChange={(event) => updateInquiryField('budget', event.target.value)}
+                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  placeholder="Budget"
+                />
+              </div>
+              <input
+                value={inquiryForm.timeline}
+                onChange={(event) => updateInquiryField('timeline', event.target.value)}
+                className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                placeholder="Timeline"
+              />
+              <textarea
+                value={inquiryForm.projectNeed}
+                onChange={(event) => updateInquiryField('projectNeed', event.target.value)}
+                rows={4}
+                className="min-h-[112px] resize-none rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                placeholder="What do you need help with?"
+              />
+
+              {inquiryStatus.error && (
+                <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-3 text-xs font-bold leading-relaxed text-red-200">
+                  {inquiryStatus.error}
+                </div>
+              )}
+
+              {inquiryStatus.message && (
+                <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-3 text-xs font-bold leading-relaxed text-emerald-100">
+                  {inquiryStatus.message}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={inquiryStatus.loading}
+                className="rounded-2xl bg-yellow-300 px-5 py-4 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-yellow-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {inquiryStatus.loading ? 'Sending Enquiry...' : 'Send Project Enquiry'}
+              </button>
+            </form>
+
             {mailtoUrl && (
-              <a href={mailtoUrl} className="btn btn-primary mt-5 w-full">
-                Contact Freelancer
+              <a href={mailtoUrl} className="mt-3 block rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-center text-xs font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/[0.07] hover:text-white">
+                Email Instead
               </a>
             )}
             <div className="mt-5 grid gap-3">

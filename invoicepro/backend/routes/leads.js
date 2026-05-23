@@ -2,6 +2,7 @@ const express = require('express');
 const Lead = require('../models/Lead');
 const Client = require('../models/Client');
 const Invoice = require('../models/Invoice');
+const User = require('../models/User');
 const { protect, requirePro } = require('../middleware/auth');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 
@@ -32,6 +33,10 @@ const UPDATABLE_FIELDS = [
 const cleanString = (value) => String(value || '').trim();
 
 const normalizeUrl = (value) => cleanString(value);
+
+const truncateString = (value, maxLength) => cleanString(value).slice(0, maxLength);
+
+const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || ''));
 
 const normalizeDate = (value) => {
     if (!value) return null;
@@ -67,6 +72,37 @@ const normalizeLeadPayload = (body = {}) => {
         source: cleanString(body.source) || 'manual',
         nextFollowUpAt: normalizeDate(body.nextFollowUpAt),
         lastContactedAt: normalizeDate(body.lastContactedAt)
+    };
+};
+
+const normalizePublicInquiryPayload = (body = {}) => {
+    const contactName = truncateString(body.contactName || body.name, 120);
+    const email = truncateString(body.email, 160).toLowerCase();
+    const phone = truncateString(body.phone, 60);
+    const businessName = truncateString(body.businessName || body.companyName, 160);
+    const service = truncateString(body.service || body.niche, 160);
+    const timeline = truncateString(body.timeline, 160);
+    const projectNeed = truncateString(body.projectNeed || body.pain || body.message, 1200);
+    const budget = normalizeNumber(body.budget);
+    const requestedUrgency = ['low', 'normal', 'high'].includes(body.urgency) ? body.urgency : '';
+    const urgency = requestedUrgency || (/urgent|asap|today|tomorrow|this week/i.test(timeline) ? 'high' : 'normal');
+    const notes = [
+        service ? `Service: ${service}` : '',
+        timeline ? `Timeline: ${timeline}` : '',
+        projectNeed ? `Project need: ${projectNeed}` : ''
+    ].filter(Boolean).join('\n');
+
+    return {
+        contactName,
+        email,
+        phone,
+        businessName,
+        service,
+        timeline,
+        projectNeed,
+        budget,
+        urgency,
+        notes
     };
 };
 
@@ -110,6 +146,70 @@ const isOpenLead = (lead) => !['won', 'lost'].includes(lead.status);
 const isOpenProposal = (proposal) =>
     proposal.documentType === 'proposal' &&
     !['accepted', 'rejected', 'expired'].includes(proposal.proposalStatus);
+
+router.post('/public-profile/:id/enquiry', async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'profile');
+        }
+
+        const owner = await User.findById(req.params.id)
+            .select('_id name companyName email')
+            .lean();
+
+        if (!owner) {
+            return res.status(404).json({ message: 'Freelancer profile not found.' });
+        }
+
+        const payload = normalizePublicInquiryPayload(req.body);
+
+        if (!payload.contactName) {
+            return res.status(400).json({ message: 'Please add your name.' });
+        }
+
+        if (!payload.email && !payload.phone) {
+            return res.status(400).json({ message: 'Please add email or phone so the freelancer can reply.' });
+        }
+
+        if (payload.email && !isValidEmail(payload.email)) {
+            return res.status(400).json({ message: 'Please add a valid email address.' });
+        }
+
+        if (!payload.projectNeed) {
+            return res.status(400).json({ message: 'Please describe what you need help with.' });
+        }
+
+        const lead = await Lead.create({
+            user: owner._id,
+            businessName: payload.businessName,
+            contactName: payload.contactName,
+            email: payload.email,
+            phone: payload.phone,
+            niche: payload.service,
+            pain: payload.projectNeed,
+            budget: payload.budget,
+            urgency: payload.urgency,
+            status: 'new',
+            fitScore: payload.budget > 0 ? 65 : 45,
+            fitLabel: 'Public profile enquiry',
+            notes: payload.notes,
+            source: 'public_profile',
+            nextFollowUpAt: new Date()
+        });
+
+        res.status(201).json({
+            message: 'Project enquiry sent. The freelancer can review it inside ClientFlow AI.',
+            lead: {
+                id: lead._id,
+                status: lead.status,
+                createdAt: lead.createdAt
+            }
+        });
+    } catch (err) {
+        console.error('PUBLIC PROFILE ENQUIRY ERROR:', err);
+        res.status(500).json({ message: 'Unable to send enquiry right now.' });
+    }
+});
 
 router.get('/', protect, requirePro, async(req, res) => {
     try {
