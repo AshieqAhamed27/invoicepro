@@ -187,6 +187,39 @@ const plans = [
   }
 ];
 
+const billingMarkets = {
+  india: {
+    label: 'Indian payment',
+    shortLabel: 'India',
+    detail: 'Pay in INR using Razorpay, cards, UPI, and supported India methods.'
+  },
+  global: {
+    label: 'International payment',
+    shortLabel: 'International',
+    detail: 'Pay in USD using supported international cards through Razorpay.'
+  }
+};
+
+const planPrices = {
+  early_access: { india: 'Rs 0', global: '$0' },
+  free: { india: 'Rs 0', global: '$0' },
+  monthly: { india: 'Rs 499', global: '$9' },
+  yearly: { india: 'Rs 4999', global: '$89' }
+};
+
+const getSafeBillingMarket = (value) => (
+  String(value || '').toLowerCase() === 'global' ? 'global' : 'india'
+);
+
+const getInitialBillingMarket = () => {
+  if (typeof window === 'undefined') return 'india';
+  return getSafeBillingMarket(window.localStorage?.getItem('billingMarket'));
+};
+
+const getPlanPrice = (planId, market) => (
+  planPrices[planId]?.[getSafeBillingMarket(market)] || planPrices[planId]?.india || ''
+);
+
 const buyerPathCards = [
   {
     title: 'Try it first',
@@ -410,6 +443,7 @@ export default function Home() {
   const navigate = useNavigate();
   const [advisorProblem, setAdvisorProblem] = useState('clients');
   const [advisorStage, setAdvisorStage] = useState('active');
+  const [billingMarket, setBillingMarket] = useState(getInitialBillingMarket);
   const loggedIn = isLoggedIn();
   const currentUser = loggedIn ? getUser() : null;
   const planLabel = getPlanLabel(currentUser);
@@ -473,9 +507,18 @@ export default function Home() {
     goToApp(path, `feature_${title}`);
   };
 
+  const selectBillingMarket = (market) => {
+    const safeMarket = getSafeBillingMarket(market);
+    localStorage.setItem('billingMarket', safeMarket);
+    setBillingMarket(safeMarket);
+    trackCtaClick(`select_${safeMarket}_billing`, 'home_billing_switch', `/payment?market=${safeMarket}`);
+  };
+
+  const getPaymentPath = (extra = '') => `/payment?market=${billingMarket}${extra ? `&${extra}` : ''}`;
+
   const selectPlan = (planId) => {
     if (planId === 'early_access') {
-      const earlyAccessPath = '/payment?early=1';
+      const earlyAccessPath = getPaymentPath('early=1');
       if (!loggedIn) {
         setPostLoginRedirect(earlyAccessPath);
       }
@@ -487,6 +530,7 @@ export default function Home() {
 
     if (planId !== 'free') {
       localStorage.setItem('plan', planId);
+      localStorage.setItem('billingMarket', billingMarket);
     }
 
     if (planId === 'free' && !loggedIn) {
@@ -495,10 +539,10 @@ export default function Home() {
 
     const nextPath = planId === 'free'
       ? (loggedIn ? '/client-flow' : '/signup')
-      : (loggedIn ? '/payment' : '/signup');
+      : (loggedIn ? getPaymentPath() : '/signup');
 
     if (!loggedIn && planId !== 'free') {
-      setPostLoginRedirect('/payment');
+      setPostLoginRedirect(getPaymentPath());
     }
 
     trackCtaClick(`select_${planId}`, 'home_pricing', nextPath);
@@ -561,7 +605,7 @@ export default function Home() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => goToApp(hasActivePro && !showExpiryAlert ? '/client-flow' : '/payment', 'home_plan_status')}
+                      onClick={() => goToApp(hasActivePro && !showExpiryAlert ? '/client-flow' : getPaymentPath(), 'home_plan_status')}
                       className="shrink-0 rounded-2xl bg-white px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
                     >
                       {showExpiryAlert ? 'Renew Pro' : hasActivePro ? 'Open Flow' : 'Start Trial'}
@@ -570,13 +614,33 @@ export default function Home() {
                 </div>
               )}
 
+              <div className="mt-7 flex max-w-xl flex-col gap-3 rounded-[1.25rem] border border-white/8 bg-black/25 p-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="px-2 text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Billing</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {Object.entries(billingMarkets).map(([id, option]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => selectBillingMarket(id)}
+                      className={`rounded-xl px-4 py-3 text-left text-xs font-black uppercase tracking-widest transition-all ${
+                        billingMarket === id
+                          ? 'bg-yellow-400 text-black'
+                          : 'border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      {option.shortLabel}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button
                   type="button"
                   onClick={() => selectPlan('monthly')}
                   className="rounded-2xl bg-yellow-400 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-black shadow-xl shadow-yellow-950/20 transition-all hover:-translate-y-0.5 hover:bg-yellow-300 active:scale-95"
                 >
-                  Buy Pro Rs 499/month
+                  Buy Pro {getPlanPrice('monthly', billingMarket)}/month
                 </button>
                 <button
                   type="button"
@@ -673,7 +737,13 @@ export default function Home() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="text-2xl font-black text-white">{card.title}</h3>
-                      <p className="mt-2 text-3xl font-black tracking-tight text-yellow-200">{card.price}</p>
+                      <p className="mt-2 text-3xl font-black tracking-tight text-yellow-200">
+                        {card.planId === 'monthly'
+                          ? `${getPlanPrice('monthly', billingMarket)}/month`
+                          : card.planId === 'free'
+                            ? getPlanPrice('free', billingMarket)
+                            : card.price}
+                      </p>
                     </div>
                     {card.recommended && (
                       <span className="rounded-full border border-yellow-300/20 bg-yellow-300/15 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-100">
@@ -1129,6 +1199,29 @@ export default function Home() {
               </p>
             </div>
 
+            <div className="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-2">
+              {Object.entries(billingMarkets).map(([id, option]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => selectBillingMarket(id)}
+                  className={`rounded-[1.25rem] border p-4 text-left transition-all hover:-translate-y-0.5 ${
+                    billingMarket === id
+                      ? 'border-yellow-300/45 bg-yellow-300/10 text-white'
+                      : 'border-white/8 bg-black/25 text-zinc-400 hover:border-white/15 hover:bg-white/[0.05] hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em]">{option.label}</p>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                      {getPlanPrice('monthly', id)}/mo
+                    </span>
+                  </div>
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{option.detail}</p>
+                </button>
+              ))}
+            </div>
+
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {plans.map((plan) => (
                 <div
@@ -1142,7 +1235,12 @@ export default function Home() {
                   }`}
                 >
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">{plan.name}</p>
-                  <p className="mt-4 text-4xl font-black text-white">{plan.price}</p>
+                  <p className="mt-4 text-4xl font-black text-white">{getPlanPrice(plan.id, billingMarket)}</p>
+                  {plan.id !== 'free' && plan.id !== 'early_access' && (
+                    <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-cyan-200/80">
+                      {billingMarket === 'india' ? 'International' : 'India'}: {getPlanPrice(plan.id, billingMarket === 'india' ? 'global' : 'india')}
+                    </p>
+                  )}
                   <p className="mt-2 text-sm font-semibold text-zinc-400">{plan.note}</p>
                   <div className="mt-6 space-y-3">
                     {plan.features.map((feature) => (
