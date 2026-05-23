@@ -74,6 +74,7 @@ export default function Login() {
       })
       .catch(() => {
         clearAuth();
+        trackEvent('login_error', { method: provider });
         setError('Social login could not be completed. Please try again or use email login.');
       })
       .finally(() => setLoading(false));
@@ -85,6 +86,7 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    trackEvent('login_submit', { method: 'email' });
 
     try {
       const res = await api.post('/auth/login', form);
@@ -96,6 +98,7 @@ export default function Login() {
         err.response?.data?.message ||
           'Login failed. Please try again.'
       );
+      trackEvent('login_error', { method: 'email' });
     } finally {
       setLoading(false);
     }

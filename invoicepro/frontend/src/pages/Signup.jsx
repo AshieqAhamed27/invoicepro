@@ -73,6 +73,7 @@ export default function Signup() {
       })
       .catch(() => {
         clearAuth();
+        trackEvent('signup_error', { method: provider });
         setError('Social signup could not be completed. Please try again or use email signup.');
       })
       .finally(() => setLoading(false));
@@ -90,6 +91,7 @@ export default function Signup() {
     }
 
     setLoading(true);
+    trackEvent('signup_submit', { method: 'email' });
 
     try {
       const res = await api.post('/auth/signup', form);
@@ -104,6 +106,7 @@ export default function Signup() {
         err.response?.data?.message ||
           'Signup failed. Please try again.'
       );
+      trackEvent('signup_error', { method: 'email' });
     } finally {
       setLoading(false);
     }
@@ -223,7 +226,7 @@ export default function Signup() {
                     type="password"
                     required
                     autoComplete="new-password"
-                    placeholder="6+ characters"
+                    placeholder="8+ characters"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../utils/api';
 import { peekPostLoginRedirect } from '../utils/auth';
+import { trackEvent } from '../utils/analytics';
 
 const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim();
 
@@ -77,6 +78,7 @@ export default function AuthProviderButtons({
 
       onAuthenticated(res.data.token, res.data.user, 'google');
     } catch (err) {
+      trackEvent('auth_provider_error', { provider: 'google', mode });
       onError(
         err.response?.data?.message ||
         'Google login failed. Please use email login or try again.'
@@ -119,6 +121,8 @@ export default function AuthProviderButtons({
   }, [handleGoogleCredential, mode, onError]);
 
   const startOAuthLogin = (providerId) => {
+    trackEvent('auth_provider_start', { provider: providerId, mode });
+
     const returnTo = getSafeReturnPath(
       getLocationStateReturnPath(location.state) ||
       peekPostLoginRedirect() ||

@@ -77,6 +77,19 @@ const sendProductAnalytics = (payload) => {
   });
 };
 
+const safeEventPart = (value) => String(value || 'unknown')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '_')
+  .replace(/^_+|_+$/g, '')
+  .slice(0, 52) || 'unknown';
+
+export const trackProductEvent = (eventName, params = {}) => {
+  sendProductAnalytics({
+    eventName,
+    ...params
+  });
+};
+
 export const trackEvent = (eventName, params = {}) => {
   if (!ensureAnalytics()) return;
 
@@ -84,6 +97,10 @@ export const trackEvent = (eventName, params = {}) => {
     app_name: 'ClientFlow AI',
     ...params
   });
+
+  if (eventName !== 'select_content' && eventName !== 'page_view') {
+    trackProductEvent(eventName, params);
+  }
 };
 
 export const trackPageView = (path, title = document.title) => {
@@ -103,7 +120,17 @@ export const trackPageView = (path, title = document.title) => {
 };
 
 export const trackCtaClick = (label, location, destination = '') => {
-  trackEvent('select_content', {
+  if (ensureAnalytics()) {
+    window.gtag('event', 'select_content', {
+      app_name: 'ClientFlow AI',
+      content_type: 'cta',
+      item_id: label,
+      location,
+      destination
+    });
+  }
+
+  trackProductEvent(`cta_click:${safeEventPart(label)}`, {
     content_type: 'cta',
     item_id: label,
     location,

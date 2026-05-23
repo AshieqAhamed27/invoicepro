@@ -637,10 +637,10 @@ export default function Home() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button
                   type="button"
-                  onClick={() => selectPlan('monthly')}
+                  onClick={() => goToApp('/client-flow', loggedIn ? 'hero_open_client_flow' : 'hero_start_free')}
                   className="rounded-2xl bg-yellow-400 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-black shadow-xl shadow-yellow-950/20 transition-all hover:-translate-y-0.5 hover:bg-yellow-300 active:scale-95"
                 >
-                  Buy Pro {getPlanPrice('monthly', billingMarket)}/month
+                  {loggedIn ? 'Open Client Flow' : 'Start Free'}
                 </button>
                 <button
                   type="button"
@@ -651,17 +651,17 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => goToApp('/client-flow', loggedIn ? 'hero_open_client_flow' : 'hero_start_free')}
+                  onClick={() => selectPlan('monthly')}
                   className="btn btn-primary px-7 py-4 text-sm"
                 >
-                  {loggedIn ? 'Open Client Flow' : 'Start Free'}
+                  Buy Pro {getPlanPrice('monthly', billingMarket)}/month
                 </button>
                 <Link to="/agency" className="btn btn-dark px-7 py-4 text-center text-sm">
                   Need Setup Help?
                 </Link>
               </div>
               <p className="mt-4 max-w-xl text-xs font-bold leading-relaxed text-zinc-600">
-                New users can start free. Serious freelancers can buy Pro. Confused beginners can choose setup help.
+                No card required for free access. Login or signup saves the workspace; Pro is for serious freelancers who want the full workflow.
               </p>
             </div>
 
