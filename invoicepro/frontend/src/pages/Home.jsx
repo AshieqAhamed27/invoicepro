@@ -67,13 +67,17 @@ const paymentExplanationCards = [
   {
     title: 'Enterprise seats',
     detail: 'For companies or small teams that need members, roles, SSO settings, audit exports, backup exports, and per-user seat planning.'
+  },
+  {
+    title: 'Enterprise team setup',
+    detail: 'For companies that want hands-on help setting up organization workspace, roles, security, SSO planning, audit export, backup policy, and first team workrooms.'
   }
 ];
 
 const paymentReasonCards = [
   ['Software access', 'Users pay for the full business workflow when it helps them manage real leads, projects, invoices, and follow-ups.'],
   ['Setup help', 'Some users do not need more buttons; they need someone to set up their first clear client workflow.'],
-  ['Team control', 'Companies pay for organization workspace, permissions, audit records, and seat-based team access.'],
+  ['Enterprise setup', 'Companies can pay for guided setup when they need the team workflow configured correctly from day one.'],
   ['Payment provider cost', 'Checkout, subscriptions, invoice payment links, and international billing depend on real payment providers.']
 ];
 

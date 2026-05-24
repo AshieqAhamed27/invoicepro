@@ -15,6 +15,7 @@ const markets = {
     yearly: 'Rs 4,999',
     founder: 'Rs 999',
     setupStart: 'Rs 999',
+    teamSetup: 'Rs 4,999',
     enterpriseSeat: 'Rs 299/user'
   },
   global: {
@@ -24,6 +25,7 @@ const markets = {
     yearly: '$89',
     founder: '$19',
     setupStart: '$19',
+    teamSetup: '$99',
     enterpriseSeat: '$5/user'
   }
 };
@@ -89,6 +91,13 @@ const servicePayments = [
     detail: 'Company workspace with members, roles, SSO settings, audit exports, backup export, and seat billing preview.',
     path: '/enterprise',
     cta: 'View Enterprise'
+  },
+  {
+    title: 'Enterprise Team Setup',
+    priceKey: 'teamSetup',
+    detail: 'Hands-on setup for a team: organization workspace, member roles, security settings, SSO domain planning, audit exports, backup policy, and first company workrooms.',
+    path: '/contact',
+    cta: 'Request Team Setup'
   }
 ];
 
@@ -100,7 +109,7 @@ const whyPay = [
 ];
 
 const checkoutSteps = [
-  ['Choose payment type', 'Free, Pro, Founder access, Agency Setup, or Enterprise Seats.'],
+  ['Choose payment type', 'Free, Pro, Founder access, Agency Setup, Enterprise Seats, or Enterprise Team Setup.'],
   ['Login or signup', 'A workspace account is required so access can be attached to the correct user.'],
   ['Pay securely', 'Checkout runs through configured payment providers such as Razorpay.'],
   ['Use the workflow', 'After payment, Pro tools open inside your ClientFlow AI workspace.']
