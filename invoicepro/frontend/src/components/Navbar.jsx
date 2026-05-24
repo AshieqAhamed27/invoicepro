@@ -44,6 +44,7 @@ const moreAppLinks = [
   { to: '/client-workroom', label: 'Client Workroom', detail: 'Scope, tasks, files, proof, payment' },
   { to: '/devops-delivery', label: 'DevOps Delivery Kit', detail: 'Linux/VPS, GitHub, SSL, backup, handover' },
   { to: '/cloud-documents', label: 'Cloud Documents', detail: 'Invoices, contracts, files' },
+  { to: '/enterprise', label: 'Enterprise', detail: 'Team-ready business workflow' },
   { to: '/agency', label: 'Agency Setup', detail: 'Done-for-you freelancer system' },
   { to: '/settings', label: 'Settings', detail: 'Profile, logo, payments' }
 ];
@@ -54,6 +55,7 @@ const useCaseLinks = [
   { to: '/devops-delivery', label: 'DevOps Kit', detail: 'Linux/VPS delivery for developers' },
   { to: '/designers', label: 'Designers', detail: 'Handle revisions and approvals' },
   { to: '/agencies', label: 'Agencies', detail: 'Run teams and retainers' },
+  { to: '/enterprise', label: 'Enterprise', detail: 'Team workflow and pilot setup' },
   { to: '/consultants', label: 'Consultants', detail: 'Close retainers and invoices' }
 ];
 
@@ -227,6 +229,9 @@ export default function Navbar() {
               <a href="/#pricing" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 hover:bg-white/[0.06] hover:text-white">
                 Pricing
               </a>
+              <NavLink to="/enterprise" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
+                Enterprise
+              </NavLink>
               <NavLink to="/agency" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Agency Setup
               </NavLink>

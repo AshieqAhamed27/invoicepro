@@ -15,6 +15,7 @@ import {
 import useDocumentMeta from '../utils/useDocumentMeta';
 
 const contactTopics = [
+  'Enterprise or team pilot setup for ClientFlow AI',
   'Agency setup help for your freelancer offer and client workflow',
   'Getting started with your ClientFlow AI workspace',
   'Questions about invoices, payment links, or client payments',

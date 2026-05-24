@@ -23,6 +23,7 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
 const LinkedInPortfolio = lazy(() => import('./pages/LinkedInPortfolio'));
 const AgencyServices = lazy(() => import('./pages/AgencyServices'));
+const Enterprise = lazy(() => import('./pages/Enterprise'));
 const DevOpsDelivery = lazy(() => import('./pages/DevOpsDelivery'));
 const FreelanceFitAdvisor = lazy(() => import('./pages/FreelanceFitAdvisor'));
 const FeatureDetail = lazy(() => import('./pages/FeatureDetail'));
@@ -303,6 +304,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <AgencyServices />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/enterprise"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <Enterprise />
             </Suspense>
           }
         />
