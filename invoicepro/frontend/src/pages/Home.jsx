@@ -141,6 +141,14 @@ const serviceOffers = [
     text: 'We help freelancers set up their offer, lead plan, proposal flow, project workspace, invoice, and 7-day action plan.',
     cta: 'See agency setup',
     path: '/agency'
+  },
+  {
+    title: 'Enterprise Team Setup',
+    label: 'Guided team setup',
+    text: 'We help agencies and small companies set up organization workspace, team roles, permissions, security settings, audit habits, and first team workrooms.',
+    cta: 'See enterprise setup',
+    path: '/enterprise#enterprise-team-setup',
+    featured: true
   }
 ];
 
@@ -895,14 +903,14 @@ export default function Home() {
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">What we provide</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                One product, plus setup help when freelancers need guidance.
+                One product, plus guided setup for freelancers and teams.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                ClientFlow AI is the software. Free access still needs login or signup so each freelancer gets their own saved workspace. Agency Setup is the support service for freelancers who want help setting up their workflow.
+                ClientFlow AI is the software. Agency Setup helps solo freelancers start faster. Enterprise Team Setup helps agencies and small companies configure roles, security, workrooms, and the team rollout path.
               </p>
             </div>
 
-            <div className="mx-auto mt-8 grid max-w-6xl gap-5 md:grid-cols-3">
+            <div className="mx-auto mt-8 grid max-w-6xl gap-5 md:grid-cols-2 xl:grid-cols-4">
               {serviceOffers.map((offer) => {
                 const offerPath = offer.path === '/signup' && loggedIn
                   ? '/client-flow'
@@ -915,9 +923,18 @@ export default function Home() {
                   <Link
                     key={offer.title}
                     to={offerPath}
-                    className="rounded-[1.75rem] border border-white/8 bg-black/25 p-6 transition-all hover:-translate-y-1 hover:border-yellow-300/30 hover:bg-yellow-300/[0.06]"
+                    className={`rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${
+                      offer.featured
+                        ? 'border-emerald-300/35 bg-emerald-300/[0.1] shadow-2xl shadow-emerald-950/20 hover:border-emerald-300/50'
+                        : 'border-white/8 bg-black/25 hover:border-yellow-300/30 hover:bg-yellow-300/[0.06]'
+                    }`}
                   >
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">{offer.label}</p>
+                    {offer.featured && (
+                      <span className="mb-3 inline-flex rounded-full border border-emerald-300/20 bg-emerald-300/15 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-100">
+                        Team setup service
+                      </span>
+                    )}
+                    <p className={`text-[10px] font-black uppercase tracking-[0.22em] ${offer.featured ? 'text-emerald-200' : 'text-yellow-300'}`}>{offer.label}</p>
                     <h3 className="mt-4 text-2xl font-black text-white">{offer.title}</h3>
                     <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{offer.text}</p>
                     <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-white">{offerCta}</p>
@@ -1080,6 +1097,33 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="border-b border-white/5 bg-emerald-400/[0.04] py-14 sm:py-16">
+          <div className="container-custom responsive-heading-grid">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Need team setup?</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Enterprise Team Setup is for agencies and small companies.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                Use this when more than one person needs access to client work, roles, permissions, admin visibility, audit exports, backup habits, and a clear rollout plan.
+              </p>
+              <Link to="/enterprise#enterprise-team-setup" className="mt-6 inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
+                See Enterprise Team Setup
+              </Link>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-emerald-300/25 bg-black/25 p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Team setup result</p>
+              <p className="mt-3 text-2xl font-black leading-tight text-white">
+                The team knows who owns sales, delivery, finance, approvals, invoices, and payment follow-up.
+              </p>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                This keeps the normal freelancer workflow simple while giving teams a separate path when they need company-level control.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
           <div className="container-custom">
             <div className="responsive-heading-grid">
@@ -1097,12 +1141,46 @@ export default function Home() {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                {paymentExplanationCards.map((item) => (
-                  <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25">
-                    <h3 className="text-lg font-black text-white">{item.title}</h3>
-                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
-                  </div>
-                ))}
+                {paymentExplanationCards.map((item) => {
+                  const isAgencySetup = item.title === 'Agency setup';
+                  const isEnterpriseTeamSetup = item.title === 'Enterprise team setup';
+
+                  return (
+                    <div
+                      key={item.title}
+                      className={`rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 ${
+                        isAgencySetup
+                          ? 'border-yellow-300/35 bg-yellow-300/[0.1] hover:border-yellow-300/50'
+                          : isEnterpriseTeamSetup
+                            ? 'border-emerald-300/35 bg-emerald-300/[0.1] hover:border-emerald-300/50'
+                            : 'border-white/8 bg-black/25 hover:border-sky-300/25'
+                      }`}
+                    >
+                      {isAgencySetup && (
+                        <span className="mb-3 inline-flex rounded-full border border-yellow-300/20 bg-yellow-300/15 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-100">
+                          Paid setup service
+                        </span>
+                      )}
+                      {isEnterpriseTeamSetup && (
+                        <span className="mb-3 inline-flex rounded-full border border-emerald-300/20 bg-emerald-300/15 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-100">
+                          Team setup service
+                        </span>
+                      )}
+                      <h3 className="text-lg font-black text-white">{item.title}</h3>
+                      <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
+                      {isAgencySetup && (
+                        <Link to="/agency#agency-booking" className="mt-4 inline-flex text-[10px] font-black uppercase tracking-widest text-yellow-200">
+                          Book agency setup
+                        </Link>
+                      )}
+                      {isEnterpriseTeamSetup && (
+                        <Link to="/enterprise#enterprise-team-setup" className="mt-4 inline-flex text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                          View enterprise setup
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

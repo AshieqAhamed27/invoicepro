@@ -339,6 +339,50 @@ export default function Enterprise() {
           </div>
         </section>
 
+        <section id="enterprise-team-setup" className="border-b border-white/5 bg-emerald-400/[0.04]">
+          <div className="container-custom grid gap-8 py-12 sm:py-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Enterprise Team Setup</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Guided setup for agencies and company teams.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                This is the paid setup service for teams that need ClientFlow AI configured correctly before inviting members. It is separate from normal Pro software access.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI Enterprise Team Setup`}
+                  onClick={() => trackEnterpriseCta('enterprise_team_setup_email', `mailto:${SUPPORT_EMAIL}`)}
+                  className="rounded-2xl bg-emerald-300 px-6 py-3 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200"
+                >
+                  Request Team Setup
+                </a>
+                <Link
+                  to="/payments"
+                  onClick={() => trackEnterpriseCta('enterprise_team_setup_payments', '/payments')}
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-center text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                >
+                  View Payments
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                ['Workspace setup', 'Create the company workspace path, first projects, and team-ready client workrooms.'],
+                ['Roles and security', 'Plan owner, manager, delivery, finance, and viewer access without exposing everything.'],
+                ['Audit and backup habits', 'Set audit export, backup export, retention notes, and admin review habits.'],
+                ['Rollout plan', 'Prepare the first 30-day pilot so the team knows what to use and when to expand.']
+              ].map(([title, text]) => (
+                <div key={title} className="rounded-[1.5rem] border border-emerald-300/20 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/35">
+                  <p className="text-base font-black text-white">{title}</p>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="container-custom py-12 sm:py-16">
           <div className="grid gap-6 lg:grid-cols-3">
             {teamProblems.map((problem) => (

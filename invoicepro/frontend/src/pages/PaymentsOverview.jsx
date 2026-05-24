@@ -83,7 +83,10 @@ const servicePayments = [
     priceKey: 'setupStart',
     detail: 'Done-for-you help to set up offer, lead plan, proposal flow, workroom, invoice, payment follow-up, and 7-day action plan.',
     path: '/agency#agency-booking',
-    cta: 'View Agency Setup'
+    cta: 'View Agency Setup',
+    featured: true,
+    badge: 'Freelancer setup service',
+    highlight: 'agency'
   },
   {
     title: 'Enterprise Seats',
@@ -96,8 +99,11 @@ const servicePayments = [
     title: 'Enterprise Team Setup',
     priceKey: 'teamSetup',
     detail: 'Hands-on setup for a team: organization workspace, member roles, security settings, SSO domain planning, audit exports, backup policy, and first company workrooms.',
-    path: '/contact',
-    cta: 'Request Team Setup'
+    path: '/enterprise#enterprise-team-setup',
+    cta: 'Request Team Setup',
+    featured: true,
+    badge: 'Team setup service',
+    highlight: 'enterprise'
   }
 ];
 
@@ -280,33 +286,67 @@ export default function PaymentsOverview() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+        <section className="border-b border-white/5 bg-yellow-400/[0.04] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Other payments</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Setup services</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Setup and company plans are separate from Pro checkout.
+                Setup help is available for solo freelancers and company teams.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                Use Pro when you want self-serve software. Use Agency Setup when you need help. Use Enterprise when a company needs members, permissions, SSO, audit, and seats.
+                Use Agency Setup when one freelancer needs help starting. Use Enterprise Team Setup when a team needs roles, permissions, security settings, audit/export habits, and first company workrooms configured.
               </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link to="/agency#agency-booking" className="inline-flex btn btn-primary px-6 py-3 text-sm">
+                  Book Agency Setup
+                </Link>
+                <Link to="/enterprise#enterprise-team-setup" className="inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
+                  View Enterprise Team Setup
+                </Link>
+              </div>
             </div>
 
             <div className="grid gap-4">
-              {servicePayments.map((item) => (
-                <Link key={item.title} to={item.path} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <h3 className="text-xl font-black text-white">{item.title}</h3>
-                      <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
+              {servicePayments.map((item) => {
+                const isAgencySetup = item.highlight === 'agency';
+                const isEnterpriseSetup = item.highlight === 'enterprise';
+
+                return (
+                  <Link
+                    key={item.title}
+                    to={item.path}
+                    className={`rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 ${
+                      isAgencySetup
+                        ? 'border-yellow-300/35 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/20 hover:border-yellow-300/50'
+                        : isEnterpriseSetup
+                          ? 'border-emerald-300/35 bg-emerald-300/[0.1] shadow-2xl shadow-emerald-950/20 hover:border-emerald-300/50'
+                          : 'border-white/8 bg-black/25 hover:border-sky-300/25'
+                    }`}
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        {item.badge && (
+                          <span className={`mb-3 inline-flex rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
+                            isEnterpriseSetup
+                              ? 'border-emerald-300/20 bg-emerald-300/15 text-emerald-100'
+                              : 'border-yellow-300/20 bg-yellow-300/15 text-yellow-100'
+                          }`}>
+                            {item.badge}
+                          </span>
+                        )}
+                        <h3 className="text-xl font-black text-white">{item.title}</h3>
+                        <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
+                      </div>
+                      <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
+                        From {currentMarket[item.priceKey]}
+                      </span>
                     </div>
-                    <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
-                      From {currentMarket[item.priceKey]}
-                    </span>
-                  </div>
-                  <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-sky-300">{item.cta}</p>
-                </Link>
-              ))}
+                    <p className={`mt-4 text-[10px] font-black uppercase tracking-widest ${
+                      isAgencySetup ? 'text-yellow-200' : isEnterpriseSetup ? 'text-emerald-200' : 'text-sky-300'
+                    }`}>{item.cta}</p>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
