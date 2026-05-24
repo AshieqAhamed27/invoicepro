@@ -49,21 +49,29 @@ const paymentOptions = [
     id: 'monthly',
     label: 'Pro Workflow',
     title: 'Monthly access for active freelancers',
-    detail: 'Unlock client finder, proposal support, workroom, AI coach, payment follow-up, profit tracking, and growth actions.',
+    detail: 'Monthly access to the full lead-to-payment workflow. Best when you want to pay month by month while using the product on real client work.',
     bestFor: 'Freelancers who are actively finding clients, sending proposals, managing delivery, and collecting money.',
     cta: 'Buy Pro Monthly',
     tone: 'yellow',
-    points: ['Full lead-to-payment workflow', 'Best when one closed client can cover the plan', 'Cancel from payment management when subscription is active']
+    points: [
+      'AI Client Coach, Client Finder, Sales Agent, Proposal Writer, Deal Room, Workroom, invoices, payment follow-up, Money GPS, Growth Plan, Profit Tracker',
+      'Best for active freelancers who want flexibility and monthly billing',
+      'Cancel from payment management when subscription is active'
+    ]
   },
   {
     id: 'yearly',
     label: 'Pro Annual',
     title: 'Yearly access for stable workflow',
-    detail: 'Use the same Pro workflow for the year with better long-term value.',
+    detail: 'Same full Pro workflow as Monthly, but paid once for the year. Best when you want one stable workflow for repeat clients and retainers.',
     bestFor: 'Freelancers and small teams building a stable direct-client system.',
     cta: 'Buy Pro Yearly',
     tone: 'emerald',
-    points: ['Everything in Pro Monthly', 'Better yearly value', 'Useful for repeat clients and retainers']
+    points: [
+      'Everything in Pro Monthly for 12 months',
+      'Better value than paying monthly for a full year',
+      'Best for repeat clients, retainers, long projects, and stable income tracking'
+    ]
   },
   {
     id: 'founder90',

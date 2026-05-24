@@ -26,7 +26,7 @@ const planDetails = {
     amount: 499,
     currency: "INR",
     label: "Pro Monthly",
-    note: "Daily money actions, client coach, proposals, Client Workroom, and payment collection.",
+    note: "Full Pro workflow with monthly billing for active freelancers who want flexibility.",
     duration: "Billed every 30 days",
     amountSource: "fallback"
   },
@@ -34,7 +34,7 @@ const planDetails = {
     amount: 4999,
     currency: "INR",
     label: "Pro Annual",
-    note: "Best value for freelancers building stable income, repeat clients, and long-term cashflow.",
+    note: "Same full Pro workflow as Monthly, paid once for a full year of stable client work.",
     duration: "Billed every 365 days",
     amountSource: "fallback"
   },
@@ -161,6 +161,38 @@ const proValueItems = [
   'Unlimited INR and international invoices',
   'Payment tracking, UPI/Razorpay links, and cashflow control'
 ];
+
+const planFeatureDetails = {
+  monthly: {
+    title: 'Monthly includes',
+    fit: 'Best when you are actively testing or using ClientFlow AI month by month.',
+    features: [
+      'AI Client Coach for what to do next with leads, proposals, delivery, and payments',
+      'Client Finder, Sales Agent, and Outbound Autopilot for finding and following up with prospects',
+      'Proposal Writer, Deal Room, and Client Workroom for closing and managing client work',
+      'Invoices, payment links, payment follow-up, Money GPS, Growth Plan, and Profit Tracker'
+    ]
+  },
+  yearly: {
+    title: 'Yearly includes',
+    fit: 'Best when you want the same workflow for a full year with better long-term value.',
+    features: [
+      'Everything included in Pro Monthly for 12 months',
+      'Better value than paying monthly for the whole year',
+      'Useful for repeat clients, retainers, long projects, and stable income tracking',
+      'Keeps the same client-to-payment system active without monthly decision pressure'
+    ]
+  },
+  founder90: {
+    title: 'Founder access includes',
+    fit: 'Best when you want a short paid test before monthly or yearly.',
+    features: [
+      'Full workflow access for 90 days',
+      'One-time checkout instead of recurring billing',
+      'Enough time to test the workflow with real client work'
+    ]
+  }
+};
 
 const directClientValueItems = [
   ['No bidding credits', 'Pay for a workflow you control, not for every proposal attempt.'],
@@ -1039,6 +1071,23 @@ export default function Payment() {
                      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">
                        {details.duration}
                      </p>
+                     {planFeatureDetails[id] && (
+                       <div className="mt-4 rounded-xl border border-white/8 bg-black/20 p-3">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                           {planFeatureDetails[id].title}
+                         </p>
+                         <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-400">
+                           {planFeatureDetails[id].fit}
+                         </p>
+                         <div className="mt-3 grid gap-2">
+                           {planFeatureDetails[id].features.slice(0, 3).map((feature) => (
+                             <p key={feature} className="text-[11px] font-semibold leading-relaxed text-zinc-500">
+                               {feature}
+                             </p>
+                           ))}
+                         </div>
+                       </div>
+                     )}
                      <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-cyan-200/80">
                        {alternateMarket === 'global' ? 'USD option' : 'INR option'}: {formatMoney(alternatePlanDetails[id]?.amount || 0, alternatePlanDetails[id]?.currency || 'USD')}
                      </p>
@@ -1063,6 +1112,24 @@ export default function Payment() {
                     <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">Subscription Price</p>
                   </div>
                </div>
+
+               {planFeatureDetails[getSafePlan(plan)] && (
+                 <div className="mb-8 rounded-[1.5rem] border border-yellow-300/15 bg-yellow-300/[0.05] p-5">
+                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">
+                     {planFeatureDetails[getSafePlan(plan)].title}
+                   </p>
+                   <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+                     {planFeatureDetails[getSafePlan(plan)].fit}
+                   </p>
+                   <div className="mt-4 grid gap-3">
+                     {planFeatureDetails[getSafePlan(plan)].features.map((feature) => (
+                       <p key={feature} className="text-xs font-semibold leading-relaxed text-zinc-500">
+                         {feature}
+                       </p>
+                     ))}
+                   </div>
+                 </div>
+               )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8 text-[10px] font-black uppercase tracking-widest text-zinc-500">
                   {proValueItems.map((item) => (

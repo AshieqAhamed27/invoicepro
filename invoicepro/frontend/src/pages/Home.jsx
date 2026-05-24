@@ -212,7 +212,11 @@ const plans = [
     name: 'Pro Monthly',
     price: 'Rs 499',
     note: 'For active freelancers',
-    features: ['Daily money action', 'Client finder, proposals, workroom, and payment agent', 'Unlimited invoices and profit tracking'],
+    features: [
+      'AI Client Coach, Client Finder, Sales Agent, and Outbound Autopilot',
+      'Proposal Writer, Deal Room, Client Workroom, invoices, and payment follow-up',
+      'Money GPS, Growth Plan, Profit Tracker, and monthly flexibility'
+    ],
     cta: 'Buy Pro Monthly'
   },
   {
@@ -220,7 +224,11 @@ const plans = [
     name: 'Pro Yearly',
     price: 'Rs 4999',
     note: 'For serious freelance growth',
-    features: ['Everything in Pro Monthly', 'Best yearly value', 'For freelancers building stable monthly income'],
+    features: [
+      'Everything in Pro Monthly for 12 months',
+      'Better value than paying monthly for a full year',
+      'Best for repeat clients, retainers, long projects, and stable income tracking'
+    ],
     cta: 'Buy Pro Yearly'
   }
 ];
