@@ -13,6 +13,13 @@ const oauthProviders = [
     shortLabel: 'G',
     clientId: (import.meta.env.VITE_GITHUB_CLIENT_ID || '').trim(),
     className: 'hover:border-white/30 hover:bg-white/10'
+  },
+  {
+    id: 'microsoft',
+    label: 'Microsoft',
+    shortLabel: 'M',
+    clientId: (import.meta.env.VITE_MICROSOFT_CLIENT_ID || '').trim(),
+    className: 'hover:border-sky-300/30 hover:bg-sky-300/10'
   }
 ];
 

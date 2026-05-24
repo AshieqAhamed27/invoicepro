@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const https = require('https');
 const crypto = require('crypto');
 const User = require('../models/User');
+const Organization = require('../models/Organization');
 const sendEmail = require('../utils/sendEmail');
 const { getJwtSecret, normalizeUrl } = require('../utils/env');
 const {
@@ -13,6 +14,11 @@ const {
 const router = express.Router();
 
 const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
+
+const getEmailDomain = (email) => {
+    const parts = normalizeEmail(email).split('@');
+    return parts.length === 2 ? parts[1] : '';
+};
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ''));
 
@@ -157,6 +163,7 @@ const requestJson = ({ url, method = 'GET', headers = {}, body = '' }) => {
 };
 
 const getOAuthProviderConfig = (provider) => {
+    const microsoftTenant = String(process.env.MICROSOFT_TENANT_ID || 'common').trim() || 'common';
     const providers = {
         github: {
             label: 'GitHub',
@@ -165,6 +172,14 @@ const getOAuthProviderConfig = (provider) => {
             authUrl: 'https://github.com/login/oauth/authorize',
             tokenUrl: 'https://github.com/login/oauth/access_token',
             scope: 'read:user user:email'
+        },
+        microsoft: {
+            label: 'Microsoft',
+            clientId: process.env.MICROSOFT_CLIENT_ID,
+            clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+            authUrl: `https://login.microsoftonline.com/${encodeURIComponent(microsoftTenant)}/oauth2/v2.0/authorize`,
+            tokenUrl: `https://login.microsoftonline.com/${encodeURIComponent(microsoftTenant)}/oauth2/v2.0/token`,
+            scope: 'openid profile email User.Read'
         }
     };
 
@@ -247,13 +262,137 @@ const getGithubProfile = async(accessToken) => {
     };
 };
 
+const getMicrosoftProfile = async(accessToken) => {
+    const profile = await requestJson({
+        url: 'https://graph.microsoft.com/v1.0/me',
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    });
+    const email = normalizeEmail(profile.mail || profile.userPrincipalName);
+
+    if (!email) {
+        throw authError('Microsoft account did not return an email address.', 401);
+    }
+
+    return {
+        name: profile.displayName || email.split('@')[0],
+        email
+    };
+};
+
 const fetchOAuthProfile = async(provider, accessToken) => {
     if (provider === 'github') return getGithubProfile(accessToken);
+    if (provider === 'microsoft') return getMicrosoftProfile(accessToken);
 
     throw authError('Unsupported OAuth provider.', 404);
 };
 
-const findOrCreateOAuthUser = async(profile) => {
+const getOrganizationMemberRole = (organization, user) => {
+    const userId = String(user?._id || '');
+    const email = normalizeEmail(user?.email);
+
+    if (String(organization.owner || '') === userId) return 'owner';
+
+    const member = (organization.members || []).find((item) => {
+        const sameUser = item.user && String(item.user) === userId;
+        const sameEmail = normalizeEmail(item.email) === email;
+        return sameUser || sameEmail;
+    });
+
+    return member?.role || 'member';
+};
+
+const addOrganizationAuthLog = (organization, user, provider, action) => {
+    if (!organization) return;
+    if (!Array.isArray(organization.auditLogs)) organization.auditLogs = [];
+
+    organization.auditLogs.push({
+        action,
+        label: `${user.email} joined with ${provider}`,
+        targetType: 'sso',
+        targetId: provider,
+        actor: {
+            user: user._id,
+            name: user.name || user.email,
+            email: normalizeEmail(user.email),
+            role: getOrganizationMemberRole(organization, user)
+        },
+        details: { provider, domain: getEmailDomain(user.email) },
+        createdAt: new Date()
+    });
+
+    if (organization.auditLogs.length > 400) {
+        organization.auditLogs = organization.auditLogs.slice(-400);
+    }
+};
+
+const syncEnterpriseSsoMembership = async(user, provider) => {
+    const providerMap = {
+        google: 'google_workspace',
+        microsoft: 'microsoft_entra'
+    };
+    const ssoProvider = providerMap[provider];
+    const domain = getEmailDomain(user?.email);
+
+    if (!user || !ssoProvider || !domain) return user;
+
+    const organization = await Organization.findOne({
+        'sso.enabled': true,
+        'sso.allowedDomains': domain,
+        $or: [
+            { 'sso.provider': ssoProvider },
+            { 'sso.provider': '' }
+        ]
+    });
+
+    if (!organization) return user;
+
+    const existingMember = (organization.members || []).find((member) =>
+        normalizeEmail(member.email) === normalizeEmail(user.email) ||
+        (member.user && String(member.user) === String(user._id))
+    );
+
+    if (existingMember) {
+        existingMember.user = user._id;
+        existingMember.name = user.name || existingMember.name;
+        existingMember.status = 'active';
+        existingMember.joinedAt = existingMember.joinedAt || new Date();
+    } else {
+        organization.members.push({
+            user: user._id,
+            name: user.name,
+            email: user.email,
+            role: 'member',
+            status: 'active',
+            joinedAt: new Date()
+        });
+    }
+
+    const role = getOrganizationMemberRole(organization, user);
+    user.enterpriseOrganization = organization._id;
+    user.enterpriseRole = role;
+    user.enterpriseJoinedAt = user.enterpriseJoinedAt || new Date();
+
+    addOrganizationAuthLog(organization, user, provider, 'organization.sso_joined');
+
+    await organization.save();
+    await user.save();
+    return user;
+};
+
+const getRequiredSsoOrganization = async(email) => {
+    const domain = getEmailDomain(email);
+    if (!domain) return null;
+
+    return Organization.findOne({
+        'sso.enabled': true,
+        'security.requireSso': true,
+        'sso.allowedDomains': domain
+    }).select('name sso.provider');
+};
+
+const findOrCreateOAuthUser = async(profile, provider = '') => {
     let user = await User.findOne({ email: profile.email });
 
     if (!user) {
@@ -268,6 +407,7 @@ const findOrCreateOAuthUser = async(profile) => {
     }
 
     await syncAdminRole(user);
+    await syncEnterpriseSsoMembership(user, provider);
     return user;
 };
 
@@ -345,6 +485,9 @@ const serializeUser = (user) => ({
     upiId: user.upiId,
     address: user.address,
     logo: user.logo,
+    enterpriseOrganization: user.enterpriseOrganization,
+    enterpriseRole: user.enterpriseRole,
+    enterpriseJoinedAt: user.enterpriseJoinedAt,
     role: user.role
 });
 
@@ -383,6 +526,13 @@ router.post(
             if (String(password).length < 8) {
                 return res.status(400).json({
                     message: 'Password must be at least 8 characters.'
+                });
+            }
+
+            const requiredSsoOrganization = await getRequiredSsoOrganization(normalizedEmail);
+            if (requiredSsoOrganization) {
+                return res.status(403).json({
+                    message: `${requiredSsoOrganization.name} requires company SSO. Please use Google Workspace or Microsoft login.`
                 });
             }
 
@@ -453,6 +603,13 @@ router.post(
                     });
             }
 
+            const requiredSsoOrganization = await getRequiredSsoOrganization(normalizedEmail);
+            if (requiredSsoOrganization) {
+                return res.status(403).json({
+                    message: `${requiredSsoOrganization.name} requires company SSO. Please use Google Workspace or Microsoft login.`
+                });
+            }
+
             const user =
                 await User.findOne({
                     email: normalizedEmail
@@ -480,6 +637,7 @@ router.post(
             }
 
             await syncAdminRole(user);
+            await syncEnterpriseSsoMembership(user, 'google');
 
             res.json({
                 message: 'Login successful!',
@@ -630,7 +788,7 @@ router.get(
                 redirectUri: getOAuthCallbackUrl(req, provider)
             });
             const profile = await fetchOAuthProfile(provider, accessToken);
-            const user = await findOrCreateOAuthUser(profile);
+            const user = await findOrCreateOAuthUser(profile, provider);
             const appToken = generateToken(user._id);
             const redirectUrl = new URL(`${getFrontendBaseUrl()}/${safeAuthMode(statePayload.mode)}`);
 

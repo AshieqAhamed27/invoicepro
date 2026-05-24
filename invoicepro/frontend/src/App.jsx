@@ -48,6 +48,7 @@ const ProposalWriter = lazy(() => import('./pages/ProposalWriter'));
 const DealClosureRoom = lazy(() => import('./pages/DealClosureRoom'));
 const TeamWorkspace = lazy(() => import('./pages/TeamWorkspace'));
 const TeamInvite = lazy(() => import('./pages/TeamInvite'));
+const OrganizationWorkspace = lazy(() => import('./pages/OrganizationWorkspace'));
 const LeadPipeline = lazy(() => import('./pages/LeadPipeline'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
@@ -210,6 +211,7 @@ const appRoutePrefixes = [
   '/leads',
   '/login',
   '/money-gps',
+  '/organization',
   '/outbound-autopilot',
   '/payment',
   '/profit-tracker',
@@ -654,6 +656,17 @@ export default function App() {
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
                 <TeamWorkspace />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/organization"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <OrganizationWorkspace />
               </Suspense>
             </PrivateRoute>
           }

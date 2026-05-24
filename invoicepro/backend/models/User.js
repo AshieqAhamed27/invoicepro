@@ -150,6 +150,21 @@ const userSchema = new mongoose.Schema({
             default: null
         }
     },
+    enterpriseOrganization: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organization',
+        default: null,
+        index: true
+    },
+    enterpriseRole: {
+        type: String,
+        enum: ['', 'owner', 'admin', 'billing', 'security', 'member', 'viewer'],
+        default: ''
+    },
+    enterpriseJoinedAt: {
+        type: Date,
+        default: null
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],

@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const TeamProject = require('../models/TeamProject');
 const User = require('../models/User');
+const Organization = require('../models/Organization');
 const { protect, requirePro, hasPaidPlan } = require('../middleware/auth');
 const { isValidObjectId, rejectInvalidObjectId } = require('../utils/objectId');
 const { getJwtSecret } = require('../utils/env');
@@ -234,6 +235,18 @@ const addAuditLog = (project, user, role, entry = {}) => {
     }
 
     return log;
+};
+
+const getPrimaryOrganizationForUser = async(user) => {
+    if (!user?._id) return null;
+
+    return Organization.findOne({
+        $or: [
+            { owner: user._id },
+            { 'members.user': user._id },
+            { 'members.email': normalizeEmail(user.email) }
+        ]
+    }).select('_id').lean();
 };
 
 const getTokenFromRequest = (req) => {
@@ -1186,9 +1199,11 @@ router.post('/', protect, requirePro, async(req, res) => {
         }
 
         const aiPlan = buildTeamAiPlan(payload);
+        const organization = await getPrimaryOrganizationForUser(req.user);
         const project = new TeamProject({
             ...payload,
             user: req.user._id,
+            organization: organization?._id || null,
             members: [{
                 user: req.user._id,
                 name: req.user.name,

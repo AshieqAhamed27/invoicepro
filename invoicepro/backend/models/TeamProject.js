@@ -648,6 +648,12 @@ const teamProjectSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    organization: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organization',
+        default: null,
+        index: true
+    },
     title: {
         type: String,
         required: true,
@@ -809,6 +815,7 @@ const teamProjectSchema = new mongoose.Schema({
 
 teamProjectSchema.index({ user: 1, status: 1, updatedAt: -1 });
 teamProjectSchema.index({ user: 1, deadline: 1 });
+teamProjectSchema.index({ organization: 1, updatedAt: -1 });
 teamProjectSchema.index({ 'members.user': 1, updatedAt: -1 });
 teamProjectSchema.index({ 'inviteTokens.tokenHash': 1 });
 teamProjectSchema.index({ 'auditLogs.createdAt': -1 });

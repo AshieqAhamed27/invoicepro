@@ -176,7 +176,10 @@ const serializeUser = (user) => ({
     gstNumber: user.gstNumber,
     upiId: user.upiId,
     address: user.address,
-    logo: user.logo
+    logo: user.logo,
+    enterpriseOrganization: user.enterpriseOrganization,
+    enterpriseRole: user.enterpriseRole,
+    enterpriseJoinedAt: user.enterpriseJoinedAt
 });
 
 const unixToDate = (value) => value ? new Date(Number(value) * 1000) : null;

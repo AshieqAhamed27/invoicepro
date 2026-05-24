@@ -38,6 +38,7 @@ const agencyRoutes = require('./routes/agency');
 const cloudDocumentRoutes = require('./routes/cloudDocuments');
 const productAnalyticsRoutes = require('./routes/productAnalytics');
 const notificationRoutes = require('./routes/notifications');
+const organizationRoutes = require('./routes/organizations');
 
 const app = express();
 const securityConfig = getSecurityConfig();
@@ -163,6 +164,7 @@ app.use('/api/agency', agencyRoutes);
 app.use('/api/cloud-documents', cloudDocumentRoutes);
 app.use('/api/product-analytics', productAnalyticsRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/organizations', organizationRoutes);
 
 app.get('/api', (req, res) => {
     res.json({
@@ -182,6 +184,7 @@ app.get('/api', (req, res) => {
             cloudDocuments: '/api/cloud-documents',
             productAnalytics: '/api/product-analytics',
             notifications: '/api/notifications',
+            organizations: '/api/organizations',
             codeRunnerStatus: '/api/team-projects/code-runner/status'
         }
     });
