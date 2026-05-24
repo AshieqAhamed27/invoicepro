@@ -975,7 +975,7 @@ export default function AgencyServices() {
               <Link to="/contact" className="btn btn-primary px-7 py-4 text-sm">
                 Request Setup Help
               </Link>
-              <Link to="/payment" className="btn btn-secondary px-7 py-4 text-sm">
+              <Link to="/payments" className="btn btn-secondary px-7 py-4 text-sm">
                 View Pro Plan
               </Link>
             </div>

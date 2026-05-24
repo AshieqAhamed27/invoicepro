@@ -53,6 +53,7 @@ const LeadPipeline = lazy(() => import('./pages/LeadPipeline'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 const Payment = lazy(() => import('./pages/Payment'));
+const PaymentsOverview = lazy(() => import('./pages/PaymentsOverview'));
 const Admin = lazy(() => import('./pages/Admin'));
 const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
 const FreelancerProfile = lazy(() => import('./pages/FreelancerProfile'));
@@ -214,6 +215,7 @@ const appRoutePrefixes = [
   '/organization',
   '/outbound-autopilot',
   '/payment',
+  '/payments',
   '/profit-tracker',
   '/proposal-writer',
   '/public/invoice',
@@ -724,6 +726,15 @@ export default function App() {
                 <Payment />
               </Suspense>
             </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/payments"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <PaymentsOverview />
+            </Suspense>
           }
         />
 

@@ -30,7 +30,7 @@ export default function Footer() {
             <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Explore</h3>
             <div className="grid gap-4 font-medium text-zinc-400">
               <a className="transition-colors hover:text-yellow-300" href="/#trust">Why Teams Trust It</a>
-              <a className="transition-colors hover:text-yellow-300" href="/#pricing">Pricing</a>
+              <Link className="transition-colors hover:text-yellow-300" to="/payments">Payments</Link>
               <a className="transition-colors hover:text-yellow-300" href="/#faq">FAQ</a>
               <Link to="/blog/gst-invoice-format-india" className="transition-colors hover:text-yellow-300">
                 GST Invoice Format

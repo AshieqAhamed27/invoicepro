@@ -34,11 +34,11 @@ export default function ProFeatureGate({
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                to="/payment"
+                to="/payments"
                 state={{ from: redirectPath }}
                 className="btn btn-primary px-8 py-4 text-base font-black"
               >
-                Upgrade Pro
+                View Payments
               </Link>
               <Link
                 to="/dashboard"

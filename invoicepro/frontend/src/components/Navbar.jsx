@@ -106,15 +106,7 @@ export default function Navbar() {
   };
 
   const openBuyPro = () => {
-    localStorage.setItem('plan', 'monthly');
-
-    if (!loggedIn) {
-      setPostLoginRedirect('/payment');
-      navigate('/signup');
-    } else {
-      navigate('/payment');
-    }
-
+    navigate('/payments');
     closeAllMenus();
   };
 
@@ -228,9 +220,9 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-              <a href="/#pricing" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 hover:bg-white/[0.06] hover:text-white">
-                Pricing
-              </a>
+              <NavLink to="/payments" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
+                Payments
+              </NavLink>
               <NavLink to="/enterprise" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Enterprise
               </NavLink>
@@ -245,7 +237,7 @@ export default function Navbar() {
                 onClick={openBuyPro}
                 className="rounded-lg border border-yellow-300/25 bg-yellow-300/10 px-3 py-2 font-semibold text-yellow-100 transition hover:bg-yellow-300/15"
               >
-                Buy Pro
+                Payments
               </button>
               <button type="button" onClick={openStartFree} className="btn btn-primary">
                 Start Free
@@ -326,7 +318,7 @@ export default function Navbar() {
                 )}
               </div>
               {!isPro ? (
-                <NavLink to="/payment" className="rounded-lg border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 font-semibold text-yellow-200 hover:bg-yellow-400/15">
+                <NavLink to="/payments" className="rounded-lg border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 font-semibold text-yellow-200 hover:bg-yellow-400/15">
                   Upgrade
                 </NavLink>
               ) : (
@@ -349,7 +341,7 @@ export default function Navbar() {
                 onClick={openBuyPro}
                 className="rounded-lg border border-yellow-300/25 bg-yellow-300/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15"
               >
-                Buy Pro
+                Payments
               </button>
               <button
                 type="button"
@@ -376,7 +368,7 @@ export default function Navbar() {
             </NavLink>
           ) : !isPro ? (
             <NavLink
-              to="/payment"
+              to="/payments"
               onClick={closeAllMenus}
               className="rounded-lg border border-yellow-300/20 bg-yellow-300/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-yellow-200 hover:bg-yellow-300/15"
             >
@@ -480,10 +472,10 @@ export default function Navbar() {
               </div>
               {!loggedIn ? (
                 <>
-                  <a href="/#pricing" onClick={closeMenu} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white">
-                    <span className="block text-sm font-black">Pricing</span>
+                  <NavLink to="/payments" onClick={closeMenu} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white">
+                    <span className="block text-sm font-black">Payments</span>
                     <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Free, monthly, yearly</span>
-                  </a>
+                  </NavLink>
                   <a href="/#faq" onClick={closeMenu} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white">
                     <span className="block text-sm font-black">FAQ</span>
                     <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Common questions</span>
@@ -541,13 +533,13 @@ export default function Navbar() {
                     }}
                     className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-4 text-sm font-black uppercase tracking-widest text-emerald-200 transition active:scale-[0.98] sm:rounded-2xl"
                   >
-                    Buy Pro
+                    Payments
                   </button>
                 </>
               ) : (
                 <>
                   {!isPro ? (
-                    <NavLink to="/payment" onClick={closeMenu} className="rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 font-black text-yellow-200 hover:bg-yellow-300/15 sm:rounded-2xl">
+                    <NavLink to="/payments" onClick={closeMenu} className="rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 font-black text-yellow-200 hover:bg-yellow-300/15 sm:rounded-2xl">
                       Upgrade Pro
                       <span className="mt-0.5 block text-xs font-semibold text-yellow-100/60">Unlock AI growth tools</span>
                     </NavLink>

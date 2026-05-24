@@ -373,26 +373,10 @@ const homeStructuredData = [
       '@type': 'Audience',
       audienceType: 'Freelancers, consultants, developers, designers, and small agencies'
     },
-    offers: [
-      {
-        '@type': 'Offer',
-        name: 'Free',
-        price: '0',
-        priceCurrency: 'INR'
-      },
-      {
-        '@type': 'Offer',
-        name: 'Pro Monthly',
-        price: '499',
-        priceCurrency: 'INR'
-      },
-      {
-        '@type': 'Offer',
-        name: 'Pro Yearly',
-        price: '4999',
-        priceCurrency: 'INR'
-      }
-    ]
+    offers: {
+      '@type': 'AggregateOffer',
+      url: `${SITE_URL}/payments`
+    }
   },
   {
     '@context': 'https://schema.org',
@@ -468,7 +452,7 @@ export default function Home() {
         ? expiryState.expiresAt
           ? `Your ${planLabel} is active until ${formatDate(expiryState.expiresAt)}.`
           : `Your ${planLabel} is active.`
-        : 'You are using the Free version. Start the trial when you want Pro tools.';
+        : 'You are using the Free version. Open the payments page only when you want to compare Pro, setup, or enterprise options.';
   const selectedAdvisorProblem = fitAdvisorProblems.find((item) => item.id === advisorProblem) || fitAdvisorProblems[0];
   const selectedAdvisorStage = fitAdvisorStages.find((item) => item.id === advisorStage) || fitAdvisorStages[0];
 
@@ -514,17 +498,14 @@ export default function Home() {
     trackCtaClick(`select_${safeMarket}_billing`, 'home_billing_switch', `/payment?market=${safeMarket}`);
   };
 
-  const getPaymentPath = (extra = '') => `/payment?market=${billingMarket}${extra ? `&${extra}` : ''}`;
+  const getPaymentsPath = (extra = '') => `/payments?market=${billingMarket}${extra ? `&${extra}` : ''}`;
 
   const selectPlan = (planId) => {
     if (planId === 'early_access') {
-      const earlyAccessPath = getPaymentPath('early=1');
-      if (!loggedIn) {
-        setPostLoginRedirect(earlyAccessPath);
-      }
+      const earlyAccessPath = getPaymentsPath('plan=early_access');
 
-      trackCtaClick('select_early_access', 'home_pricing', loggedIn ? earlyAccessPath : '/signup');
-      navigate(loggedIn ? earlyAccessPath : '/signup');
+      trackCtaClick('select_early_access', 'home_payments_redirect', earlyAccessPath);
+      navigate(earlyAccessPath);
       return;
     }
 
@@ -539,13 +520,9 @@ export default function Home() {
 
     const nextPath = planId === 'free'
       ? (loggedIn ? '/client-flow' : '/signup')
-      : (loggedIn ? getPaymentPath() : '/signup');
+      : getPaymentsPath(`plan=${planId}`);
 
-    if (!loggedIn && planId !== 'free') {
-      setPostLoginRedirect(getPaymentPath());
-    }
-
-    trackCtaClick(`select_${planId}`, 'home_pricing', nextPath);
+    trackCtaClick(`select_${planId}`, 'home_payments_redirect', nextPath);
     navigate(nextPath);
   };
 
@@ -605,34 +582,18 @@ export default function Home() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => goToApp(hasActivePro && !showExpiryAlert ? '/client-flow' : getPaymentPath(), 'home_plan_status')}
+                      onClick={() => {
+                        const nextPath = hasActivePro && !showExpiryAlert ? '/client-flow' : '/payments';
+                        trackCtaClick('home_plan_status', 'home', nextPath);
+                        navigate(nextPath);
+                      }}
                       className="shrink-0 rounded-2xl bg-white px-5 py-3 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-95"
                     >
-                      {showExpiryAlert ? 'Renew Pro' : hasActivePro ? 'Open Flow' : 'Start Trial'}
+                      {hasActivePro && !showExpiryAlert ? 'Open Flow' : 'View Plans'}
                     </button>
                   </div>
                 </div>
               )}
-
-              <div className="mt-7 flex max-w-xl flex-col gap-3 rounded-[1.25rem] border border-white/8 bg-black/25 p-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="px-2 text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Billing</p>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {Object.entries(billingMarkets).map(([id, option]) => (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => selectBillingMarket(id)}
-                      className={`rounded-xl px-4 py-3 text-left text-xs font-black uppercase tracking-widest transition-all ${
-                        billingMarket === id
-                          ? 'bg-yellow-400 text-black'
-                          : 'border border-white/10 text-zinc-300 hover:bg-white/10 hover:text-white'
-                      }`}
-                    >
-                      {option.shortLabel}
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button
@@ -642,26 +603,15 @@ export default function Home() {
                 >
                   {loggedIn ? 'Open Client Flow' : 'Start Free'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => selectPlan('early_access')}
-                  className="rounded-2xl bg-emerald-300 px-7 py-4 text-sm font-black uppercase tracking-widest text-slate-950 transition-all hover:-translate-y-0.5 hover:bg-emerald-200 active:scale-95"
-                >
-                  Try 30 Days Free
-                </button>
-                <button
-                  type="button"
-                  onClick={() => selectPlan('monthly')}
-                  className="btn btn-primary px-7 py-4 text-sm"
-                >
-                  Buy Pro {getPlanPrice('monthly', billingMarket)}/month
-                </button>
+                <Link to="/payments" className="btn btn-primary px-7 py-4 text-center text-sm">
+                  View Payments
+                </Link>
                 <Link to="/agency" className="btn btn-dark px-7 py-4 text-center text-sm">
                   Need Setup Help?
                 </Link>
               </div>
               <p className="mt-4 max-w-xl text-xs font-bold leading-relaxed text-zinc-600">
-                No card required for free access. Login or signup saves the workspace; Pro is for serious freelancers who want the full workflow.
+                The home page explains the product. Payment choices are handled on the separate payments page so new users do not feel pushed too early.
               </p>
             </div>
 
@@ -700,67 +650,17 @@ export default function Home() {
 
         <section className="border-b border-white/5 bg-yellow-400/[0.035] py-12 sm:py-14">
           <div className="container-custom">
-            <div className="responsive-heading-grid">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Choose today</p>
-                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  New users should understand the product and know where to buy.
-                </h2>
-                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                  ClientFlow AI is not only an invoice maker. It is a daily business workflow for freelancers who want clients, cleaner delivery, invoices, and payment follow-up in one place.
-                </p>
-              </div>
-
-              <div className="rounded-[1.75rem] border border-yellow-300/20 bg-black/25 p-5">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">What users buy</p>
-                <p className="mt-3 text-2xl font-black leading-tight text-white">
-                  Pro gives the full lead-to-payment system. Setup help gives a beginner a clear starting plan.
-                </p>
-                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
-                  No income guarantee. The value is making money actions visible and easier to execute.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8 grid gap-5 md:grid-cols-3">
-              {buyerPathCards.map((card) => (
-                <button
-                  key={card.title}
-                  type="button"
-                  onClick={() => card.path ? navigate(card.path) : selectPlan(card.planId)}
-                  className={`rounded-[1.75rem] border p-6 text-left transition-all hover:-translate-y-1 ${
-                    card.recommended
-                      ? 'border-yellow-300/35 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/20'
-                      : 'border-white/8 bg-black/25 hover:border-yellow-300/25 hover:bg-yellow-300/[0.05]'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-2xl font-black text-white">{card.title}</h3>
-                      <p className="mt-2 text-3xl font-black tracking-tight text-yellow-200">
-                        {card.planId === 'monthly'
-                          ? `${getPlanPrice('monthly', billingMarket)}/month`
-                          : card.planId === 'free'
-                            ? getPlanPrice('free', billingMarket)
-                            : card.price}
-                      </p>
-                    </div>
-                    {card.recommended && (
-                      <span className="rounded-full border border-yellow-300/20 bg-yellow-300/15 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-100">
-                        Best next step
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">{card.text}</p>
-                  <span className={`mt-6 inline-flex w-full justify-center rounded-2xl px-5 py-4 text-sm font-black uppercase tracking-widest transition ${
-                    card.recommended
-                      ? 'bg-yellow-400 text-black hover:bg-yellow-300'
-                      : 'border border-white/10 text-white hover:bg-white/10'
-                  }`}>
-                    {card.action}
-                  </span>
-                </button>
-              ))}
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Choose the right workflow</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                New users should understand what problem they are solving first.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                ClientFlow AI is not only an invoice maker. It is a daily business workflow for freelancers who want clients, cleaner delivery, invoices, and payment follow-up in one place.
+              </p>
+              <Link to="/payments" className="mt-6 inline-flex btn btn-secondary px-6 py-3 text-sm">
+                View payments separately
+              </Link>
             </div>
 
             <div className="mt-8 rounded-[1.75rem] border border-emerald-300/20 bg-emerald-300/[0.045] p-5 sm:p-6">
@@ -1183,87 +1083,6 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="pricing" className="border-b border-white/5 bg-zinc-950/55 py-14 sm:py-16">
-          <div className="container-custom">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Pricing</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Start free or buy Pro when you want the full workflow.
-              </h2>
-              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                Free is for testing after signup. Pro is for freelancers who want daily client, delivery, invoice, and payment actions.
-              </p>
-            </div>
-
-            <div className="mx-auto mt-8 grid max-w-3xl gap-3 sm:grid-cols-2">
-              {Object.entries(billingMarkets).map(([id, option]) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => selectBillingMarket(id)}
-                  className={`rounded-[1.25rem] border p-4 text-left transition-all hover:-translate-y-0.5 ${
-                    billingMarket === id
-                      ? 'border-yellow-300/45 bg-yellow-300/10 text-white'
-                      : 'border-white/8 bg-black/25 text-zinc-400 hover:border-white/15 hover:bg-white/[0.05] hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em]">{option.label}</p>
-                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
-                      {getPlanPrice('monthly', id)}/mo
-                    </span>
-                  </div>
-                  <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{option.detail}</p>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {plans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${
-                    plan.id === 'early_access'
-                      ? 'border-emerald-300/35 bg-emerald-300/[0.08] shadow-2xl shadow-emerald-950/20'
-                      : plan.id === 'monthly'
-                      ? 'border-yellow-300/35 bg-yellow-300/[0.08] shadow-2xl shadow-yellow-950/20'
-                      : 'border-white/8 bg-white/[0.03]'
-                  }`}
-                >
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">{plan.name}</p>
-                  <p className="mt-4 text-4xl font-black text-white">{getPlanPrice(plan.id, billingMarket)}</p>
-                  {plan.id !== 'free' && plan.id !== 'early_access' && (
-                    <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-cyan-200/80">
-                      {billingMarket === 'india' ? 'International' : 'India'}: {getPlanPrice(plan.id, billingMarket === 'india' ? 'global' : 'india')}
-                    </p>
-                  )}
-                  <p className="mt-2 text-sm font-semibold text-zinc-400">{plan.note}</p>
-                  <div className="mt-6 space-y-3">
-                    {plan.features.map((feature) => (
-                      <p key={feature} className="rounded-xl border border-white/8 bg-black/20 p-3 text-sm font-semibold leading-relaxed text-zinc-300">
-                        {feature}
-                      </p>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => selectPlan(plan.id)}
-                    className={`mt-6 w-full rounded-2xl px-5 py-4 text-sm font-black transition-all active:scale-95 ${
-                      plan.id === 'early_access'
-                        ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
-                        : plan.id === 'monthly'
-                        ? 'bg-yellow-400 text-black hover:bg-yellow-300'
-                        : 'border border-white/10 text-white hover:bg-white/10'
-                    }`}
-                  >
-                    {plan.cta}
-                  </button>
-                </div>
-              ))}
             </div>
           </div>
         </section>

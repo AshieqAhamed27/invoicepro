@@ -183,8 +183,8 @@ export default function FeatureDetail() {
               <Link to={primaryPath} className="btn btn-primary px-7 py-4 text-sm">
                 {primaryLabel}
               </Link>
-              <Link to="/#pricing" className="btn btn-secondary px-7 py-4 text-sm">
-                See Pricing
+              <Link to="/payments" className="btn btn-secondary px-7 py-4 text-sm">
+                See Payments
               </Link>
             </div>
           </div>

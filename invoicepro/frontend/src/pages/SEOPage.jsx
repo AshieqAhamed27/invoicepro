@@ -84,8 +84,8 @@ const pages = {
     headline: 'Follow up on unpaid invoices without sounding unprofessional.',
     subhead: 'ClientFlow AI shows pending and overdue invoices, prepares WhatsApp-ready reminder text, and keeps the public payment link attached.',
     primaryCta: 'Track Pending Payments',
-    secondaryCta: 'See Pricing',
-    secondaryPath: '/#pricing',
+    secondaryCta: 'See Payments',
+    secondaryPath: '/payments',
     keywords: ['payment reminder software', 'invoice reminder India', 'overdue invoice tracking', 'WhatsApp payment reminder'],
     features: [
       'See pending, paid, and overdue status clearly in the dashboard.',
