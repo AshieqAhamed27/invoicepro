@@ -44,6 +44,24 @@ const setupPackages = {
         globalCurrency: 'USD',
         currency: 'INR',
         delivery: 'Pilot setup planning'
+    },
+    enterprise_pilot: {
+        id: 'enterprise_pilot',
+        name: 'Enterprise Pilot Setup',
+        amount: Number(process.env.ENTERPRISE_PILOT_SETUP_AMOUNT || 9999),
+        globalAmount: Number(process.env.ENTERPRISE_PILOT_SETUP_USD_AMOUNT || 199),
+        globalCurrency: 'USD',
+        currency: 'INR',
+        delivery: '30-day pilot rollout'
+    },
+    enterprise_rollout: {
+        id: 'enterprise_rollout',
+        name: 'Enterprise Rollout Support',
+        amount: Number(process.env.ENTERPRISE_ROLLOUT_SETUP_AMOUNT || 19999),
+        globalAmount: Number(process.env.ENTERPRISE_ROLLOUT_SETUP_USD_AMOUNT || 399),
+        globalCurrency: 'USD',
+        currency: 'INR',
+        delivery: 'Team rollout support'
     }
 };
 

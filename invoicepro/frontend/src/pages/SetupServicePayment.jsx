@@ -65,10 +65,19 @@ const serviceConfig = {
         packageId: 'starter',
         workflowType: 'freelancers',
         label: 'Starter Setup',
-        badge: 'Start from zero',
+        badge: 'Starter',
+        title: 'Setup for first clear workflow',
         amount: { india: 999, global: 19 },
         currency: { india: 'INR', global: 'USD' },
-        detail: 'One clear offer, profile checklist, invoice/payment workflow, and one proposal template.',
+        priceNote: 'one-time setup',
+        detail: 'Get your offer, profile checklist, invoice/payment path, and first proposal template ready.',
+        bestFor: 'New freelancers who know their skill but need a clean client-ready workflow.',
+        points: [
+          'Clear service offer and positioning',
+          'Profile checklist and trust points',
+          'Invoice and payment workflow setup',
+          'One proposal template to start faster'
+        ],
         defaultSkill: 'Freelancer service setup'
       },
       {
@@ -77,9 +86,18 @@ const serviceConfig = {
         workflowType: 'freelancers',
         label: 'Growth Setup',
         badge: 'Recommended',
+        title: 'Setup for finding and closing clients',
         amount: { india: 2999, global: 59 },
         currency: { india: 'INR', global: 'USD' },
-        detail: 'Lead plan, outreach messages, proposal/pricing support, Money GPS setup, and workspace handover.',
+        priceNote: 'one-time setup',
+        detail: 'Build the lead plan, outreach, pricing, proposal flow, Money GPS, and workspace handover.',
+        bestFor: 'Freelancers ready to find clients, send proposals, and follow a 7-day action plan.',
+        points: [
+          'Lead source and outreach plan',
+          'Proposal and pricing support',
+          'Money GPS and payment follow-up setup',
+          'Workspace handover with next actions'
+        ],
         defaultSkill: 'Freelancer growth setup',
         recommended: true
       },
@@ -89,9 +107,18 @@ const serviceConfig = {
         workflowType: 'agencies',
         label: 'Managed Growth',
         badge: 'Monthly support',
+        title: 'Setup plus guided growth support',
         amount: { india: 4999, global: 99 },
         currency: { india: 'INR', global: 'USD' },
-        detail: 'Weekly client action plan, proposal review, payment checks, and monthly growth report.',
+        priceNote: 'first month support',
+        detail: 'Weekly client actions, proposal review, payment checks, and monthly growth reporting.',
+        bestFor: 'Freelancers or small agencies who want guided support after the setup is created.',
+        points: [
+          'Weekly client action plan',
+          'Proposal and follow-up review',
+          'Delivery and payment workflow checks',
+          'Monthly growth report and next steps'
+        ],
         defaultSkill: 'Managed freelancer growth setup'
       }
     ],
@@ -118,11 +145,60 @@ const serviceConfig = {
         workflowType: 'enterprise',
         label: 'Enterprise Team Setup',
         badge: 'Team setup',
+        title: 'Team workspace setup',
         amount: { india: 4999, global: 99 },
         currency: { india: 'INR', global: 'USD' },
-        detail: 'Organization workspace, member roles, security settings, audit/export habits, backup policy, and first team workrooms.',
+        priceNote: 'one-time setup',
+        detail: 'Create the company workspace, roles, security settings, and first team workrooms.',
+        bestFor: 'Small teams that need one shared ClientFlow AI workspace with clear access rules.',
+        points: [
+          'Organization workspace setup',
+          'Owner, manager, finance, and member roles',
+          'Admin security setting guidance',
+          'First team workrooms and handover'
+        ],
         defaultSkill: 'Enterprise team workflow setup',
         recommended: true
+      },
+      {
+        id: 'enterprise_pilot',
+        packageId: 'enterprise_pilot',
+        workflowType: 'enterprise',
+        label: 'Enterprise Pilot Setup',
+        badge: '30-day pilot',
+        title: 'Pilot for one team or department',
+        amount: { india: 9999, global: 199 },
+        currency: { india: 'INR', global: 'USD' },
+        priceNote: 'pilot rollout',
+        detail: 'Plan one department rollout with permissions, audit habits, backup policy, and admin review.',
+        bestFor: 'Agencies or companies testing ClientFlow AI with one team before a wider rollout.',
+        points: [
+          '30-day pilot workflow plan',
+          'Audit log and export routine',
+          'Backup and retention policy checklist',
+          'Admin review routine for team adoption'
+        ],
+        defaultSkill: 'Enterprise pilot workflow setup'
+      },
+      {
+        id: 'enterprise_rollout',
+        packageId: 'enterprise_rollout',
+        workflowType: 'enterprise',
+        label: 'Enterprise Rollout Support',
+        badge: 'Rollout support',
+        title: 'Guided rollout for company teams',
+        amount: { india: 19999, global: 399 },
+        currency: { india: 'INR', global: 'USD' },
+        priceNote: 'rollout support',
+        detail: 'Support multiple workrooms, onboarding, permissions review, and rollout reporting.',
+        bestFor: 'Teams that want guided onboarding, permission review, and a clearer company workflow.',
+        points: [
+          'Multiple workroom rollout planning',
+          'Team onboarding checklist',
+          'Workflow and permission review',
+          'Rollout support report with next actions'
+        ],
+        defaultSkill: 'Enterprise rollout workflow setup'
       }
     ],
     steps: [
@@ -197,6 +273,16 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
       ...current,
       [name]: value
     }));
+  };
+
+  const chooseOption = (optionId) => {
+    setSelectedOptionId(optionId);
+    window.requestAnimationFrame(() => {
+      document.getElementById('setup-payment-form')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
   };
 
   const confirmSimulationPayment = async(booking, order) => {
@@ -370,62 +456,102 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
         </section>
 
         <section className="border-b border-white/5 py-14 sm:py-16">
-          <div className="container-custom grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,1.05fr)]">
-            <div>
+          <div className="container-custom">
+            <div className="mb-8 max-w-3xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Choose payment</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                {isEnterprise ? 'One enterprise setup option. No freelancer plans here.' : 'Agency setup packages only. No Pro subscription here.'}
+                {isEnterprise ? 'Enterprise setup packages only.' : 'Agency setup packages only.'}
               </h2>
-              <div className="mt-6 grid gap-4">
-                {config.options.map((option) => {
-                  const selected = selectedOption.id === option.id;
-                  const amount = formatMoney(option.amount[market], option.currency[market]);
-
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => setSelectedOptionId(option.id)}
-                      className={`rounded-[1.5rem] border p-5 text-left transition-all hover:-translate-y-1 ${
-                        selected
-                          ? isEnterprise
-                            ? 'border-emerald-300/40 bg-emerald-300/[0.1]'
-                            : 'border-yellow-300/40 bg-yellow-300/[0.1]'
-                          : 'border-white/8 bg-black/25 hover:border-white/15 hover:bg-white/[0.04]'
-                      }`}
-                    >
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <span className={`inline-flex rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
-                            isEnterprise
-                              ? 'border-emerald-300/20 bg-emerald-300/15 text-emerald-100'
-                              : 'border-yellow-300/20 bg-yellow-300/15 text-yellow-100'
-                          }`}>
-                            {selected ? 'Selected' : option.badge}
-                          </span>
-                          <h3 className="mt-3 text-xl font-black text-white">{option.label}</h3>
-                          <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{option.detail}</p>
-                        </div>
-                        <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
-                          {amount}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {config.steps.map(([step, label]) => (
-                  <div key={step} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                    <p className={`text-[10px] font-black uppercase tracking-widest ${isEnterprise ? 'text-emerald-300' : 'text-yellow-300'}`}>{step}</p>
-                    <p className="mt-2 text-sm font-black text-white">{label}</p>
-                  </div>
-                ))}
-              </div>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                {isEnterprise
+                  ? 'These cards are for company setup services: workspace, roles, security, pilot rollout, and team onboarding. Freelancer Pro plans are separate.'
+                  : 'These cards are for done-for-you freelancer setup services. Software access and Pro subscription plans are separate.'}
+              </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="rounded-[1.75rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/25 sm:p-6">
+            <div className={`grid gap-5 ${config.options.length > 2 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
+              {config.options.map((option) => {
+                const selected = selectedOption.id === option.id;
+                const amount = formatMoney(option.amount[market], option.currency[market]);
+                const selectedClass = isEnterprise
+                  ? 'border-emerald-300/45 bg-emerald-300/[0.1] shadow-2xl shadow-emerald-950/25'
+                  : 'border-yellow-300/45 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/25';
+                const idleClass = option.recommended
+                  ? isEnterprise
+                    ? 'border-emerald-300/30 bg-emerald-300/[0.065] hover:border-emerald-300/45'
+                    : 'border-yellow-300/35 bg-yellow-300/[0.075] hover:border-yellow-300/50'
+                  : 'border-white/10 bg-white/[0.04] hover:border-white/20 hover:bg-white/[0.06]';
+
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => chooseOption(option.id)}
+                    className={`flex min-h-[560px] flex-col rounded-[1.75rem] border p-6 text-left transition-all hover:-translate-y-1 active:scale-[0.99] ${
+                      selected ? selectedClass : idleClass
+                    }`}
+                  >
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">
+                        {selected ? 'Selected' : option.badge}
+                      </p>
+                      <h3 className="mt-5 text-2xl font-black leading-tight text-white">
+                        {option.title}
+                      </h3>
+                      <div className="mt-6">
+                        <p className="text-4xl font-black tracking-tight text-white">
+                          {amount}
+                        </p>
+                        <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                          {option.priceNote}
+                        </p>
+                      </div>
+                      <p className="mt-5 text-sm font-semibold leading-relaxed text-zinc-400">
+                        {option.detail}
+                      </p>
+                      <p className="mt-6 rounded-xl border border-white/8 bg-black/25 p-4 text-xs font-bold leading-relaxed text-zinc-300">
+                        {option.bestFor}
+                      </p>
+                    </div>
+
+                    <div className="mt-6 grid gap-3">
+                      {option.points.map((point) => (
+                        <p key={point} className="text-xs font-semibold leading-relaxed text-zinc-500">
+                          {point}
+                        </p>
+                      ))}
+                    </div>
+
+                    <div
+                      className={`mt-auto rounded-2xl px-5 py-4 text-center text-sm font-black transition-all ${
+                        selected
+                          ? isEnterprise
+                            ? 'bg-emerald-300 text-slate-950'
+                            : 'bg-yellow-400 text-black'
+                          : 'border border-white/10 bg-white/[0.04] text-white'
+                      }`}
+                    >
+                      {selected ? `Continue with ${option.label}` : option.label}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {config.steps.map(([step, label]) => (
+                <div key={step} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                  <p className={`text-[10px] font-black uppercase tracking-widest ${isEnterprise ? 'text-emerald-300' : 'text-yellow-300'}`}>{step}</p>
+                  <p className="mt-2 text-sm font-black text-white">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <form
+              id="setup-payment-form"
+              onSubmit={handleSubmit}
+              className="mt-10 rounded-[1.75rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/25 sm:p-6 lg:p-8"
+            >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Payment form</p>
@@ -446,7 +572,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
                 <input name="targetClient" value={form.targetClient} onChange={updateField} placeholder={fieldCopy.targetClient} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
                 <input name="skill" value={form.skill} onChange={updateField} placeholder={fieldCopy.skill} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
                 <input name="incomeGoal" value={form.incomeGoal} onChange={updateField} placeholder={fieldCopy.incomeGoal} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
-                <textarea name="problem" value={form.problem} onChange={updateField} placeholder={fieldCopy.problem} rows={5} className="sm:col-span-2 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
+                <textarea name="problem" value={form.problem} onChange={updateField} placeholder={fieldCopy.problem} rows={5} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50 sm:col-span-2" />
               </div>
 
               {error && (
