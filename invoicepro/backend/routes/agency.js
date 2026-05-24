@@ -13,6 +13,8 @@ const setupPackages = {
         id: 'starter',
         name: 'Starter Setup',
         amount: Number(process.env.AGENCY_STARTER_AMOUNT || 999),
+        globalAmount: Number(process.env.AGENCY_STARTER_USD_AMOUNT || 19),
+        globalCurrency: 'USD',
         currency: 'INR',
         delivery: '2-3 working days'
     },
@@ -20,6 +22,8 @@ const setupPackages = {
         id: 'growth',
         name: 'Growth Setup',
         amount: Number(process.env.AGENCY_GROWTH_AMOUNT || 2999),
+        globalAmount: Number(process.env.AGENCY_GROWTH_USD_AMOUNT || 59),
+        globalCurrency: 'USD',
         currency: 'INR',
         delivery: '3-5 working days'
     },
@@ -27,8 +31,19 @@ const setupPackages = {
         id: 'managed',
         name: 'Managed Growth',
         amount: Number(process.env.AGENCY_MANAGED_AMOUNT || 4999),
+        globalAmount: Number(process.env.AGENCY_MANAGED_USD_AMOUNT || 99),
+        globalCurrency: 'USD',
         currency: 'INR',
         delivery: 'First month support'
+    },
+    enterprise_team: {
+        id: 'enterprise_team',
+        name: 'Enterprise Team Setup',
+        amount: Number(process.env.ENTERPRISE_TEAM_SETUP_AMOUNT || 4999),
+        globalAmount: Number(process.env.ENTERPRISE_TEAM_SETUP_USD_AMOUNT || 99),
+        globalCurrency: 'USD',
+        currency: 'INR',
+        delivery: 'Pilot setup planning'
     }
 };
 
@@ -46,10 +61,30 @@ const sanitizeText = (value, max = 500) => String(value || '').trim().slice(0, m
 const sanitizeEmail = (value) => sanitizeText(value, 160).toLowerCase();
 const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-const getPackage = (packageId) => setupPackages[String(packageId || '').toLowerCase()] || null;
+const normalizeMarket = (value) => {
+    const market = String(value || '').trim().toLowerCase();
+    return market === 'global' || market === 'international' ? 'global' : 'india';
+};
+
+const serializePackage = (setupPackage, market = 'india') => {
+    const safeMarket = normalizeMarket(market);
+    const useGlobal = safeMarket === 'global';
+
+    return {
+        ...setupPackage,
+        market: safeMarket,
+        amount: useGlobal ? Number(setupPackage.globalAmount || setupPackage.amount || 0) : Number(setupPackage.amount || 0),
+        currency: useGlobal ? (setupPackage.globalCurrency || 'USD') : (setupPackage.currency || 'INR')
+    };
+};
+
+const getPackage = (packageId, market = 'india') => {
+    const setupPackage = setupPackages[String(packageId || '').toLowerCase()] || null;
+    return setupPackage ? serializePackage(setupPackage, market) : null;
+};
 const normalizeWorkflowType = (value) => {
     const workflow = String(value || '').toLowerCase();
-    return ['freelancers', 'developers', 'designers', 'agencies', 'consultants'].includes(workflow)
+    return ['freelancers', 'developers', 'designers', 'agencies', 'consultants', 'enterprise'].includes(workflow)
         ? workflow
         : 'freelancers';
 };
@@ -113,14 +148,16 @@ const requireAdmin = (req, res, next) => {
 };
 
 router.get('/packages', (req, res) => {
+    const market = normalizeMarket(req.query?.market);
     res.json({
-        packages: Object.values(setupPackages)
+        market,
+        packages: Object.values(setupPackages).map((setupPackage) => serializePackage(setupPackage, market))
     });
 });
 
 router.post('/bookings', async(req, res) => {
     try {
-        const selectedPackage = getPackage(req.body.packageId);
+        const selectedPackage = getPackage(req.body.packageId, req.body.market);
         if (!selectedPackage) {
             return res.status(400).json({ message: 'Choose a valid setup package.' });
         }

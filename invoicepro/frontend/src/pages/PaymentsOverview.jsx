@@ -82,8 +82,8 @@ const servicePayments = [
     title: 'Agency Setup',
     priceKey: 'setupStart',
     detail: 'Done-for-you help to set up offer, lead plan, proposal flow, workroom, invoice, payment follow-up, and 7-day action plan.',
-    path: '/agency#agency-booking',
-    cta: 'View Agency Setup',
+    path: '/payment?service=agency',
+    cta: 'Pay Agency Setup',
     featured: true,
     badge: 'Freelancer setup service',
     highlight: 'agency'
@@ -99,8 +99,8 @@ const servicePayments = [
     title: 'Enterprise Team Setup',
     priceKey: 'teamSetup',
     detail: 'Hands-on setup for a team: organization workspace, member roles, security settings, SSO domain planning, audit exports, backup policy, and first company workrooms.',
-    path: '/enterprise#enterprise-team-setup',
-    cta: 'Request Team Setup',
+    path: '/payment?service=enterprise',
+    cta: 'Pay Enterprise Team Setup',
     featured: true,
     badge: 'Team setup service',
     highlight: 'enterprise'
@@ -300,11 +300,11 @@ export default function PaymentsOverview() {
                 Use Agency Setup when one freelancer needs help starting. Use Enterprise Team Setup when a team needs roles, permissions, security settings, audit/export habits, and first company workrooms configured.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link to="/agency#agency-booking" className="inline-flex btn btn-primary px-6 py-3 text-sm">
-                  Book Agency Setup
+                <Link to="/payment?service=agency" className="inline-flex btn btn-primary px-6 py-3 text-sm">
+                  Pay Agency Setup
                 </Link>
-                <Link to="/enterprise#enterprise-team-setup" className="inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
-                  View Enterprise Team Setup
+                <Link to="/payment?service=enterprise" className="inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
+                  Pay Enterprise Team Setup
                 </Link>
               </div>
             </div>

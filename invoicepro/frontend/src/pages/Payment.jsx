@@ -177,32 +177,73 @@ const checkoutValueCards = [
 
 const setupPaymentOptions = [
   {
-    id: 'agency-setup',
-    label: 'Agency Setup',
-    badge: 'Freelancer setup payment',
-    price: { india: 'From Rs 999', global: 'From $19' },
-    detail: 'For solo freelancers who want help setting up offer, outreach, proposal, workroom, invoice, payment follow-up, and 7-day action plan.',
-    cta: 'Book and pay Agency Setup',
-    path: '/agency#agency-booking',
+    id: 'agency-starter',
+    packageId: 'starter',
+    workflowType: 'freelancers',
+    label: 'Agency Starter Setup',
+    badge: 'Freelancer setup',
+    amount: { india: 999, global: 19 },
+    currency: { india: 'INR', global: 'USD' },
+    detail: 'For freelancers starting from zero: one offer, profile checklist, invoice/payment workflow, and proposal template.',
+    cta: 'Pay Starter Setup',
+    defaultSkill: 'Freelancer service setup',
+    tone: 'yellow'
+  },
+  {
+    id: 'agency-growth',
+    packageId: 'growth',
+    workflowType: 'freelancers',
+    label: 'Agency Growth Setup',
+    badge: 'Recommended setup',
+    amount: { india: 2999, global: 59 },
+    currency: { india: 'INR', global: 'USD' },
+    detail: 'For freelancers ready to get clients: lead plan, outreach messages, pricing, proposal flow, and workspace handover.',
+    cta: 'Pay Growth Setup',
+    defaultSkill: 'Freelancer growth setup',
+    recommended: true,
+    tone: 'yellow'
+  },
+  {
+    id: 'agency-managed',
+    packageId: 'managed',
+    workflowType: 'agencies',
+    label: 'Managed Growth Setup',
+    badge: 'Monthly support',
+    amount: { india: 4999, global: 99 },
+    currency: { india: 'INR', global: 'USD' },
+    detail: 'For ongoing weekly business support with client actions, proposal review, payment checks, and monthly growth report.',
+    cta: 'Pay Managed Setup',
+    defaultSkill: 'Managed freelancer growth setup',
     tone: 'yellow'
   },
   {
     id: 'enterprise-team-setup',
+    packageId: 'enterprise_team',
+    workflowType: 'enterprise',
     label: 'Enterprise Team Setup',
-    badge: 'Team setup request',
-    price: { india: 'From Rs 4,999', global: 'From $99' },
+    badge: 'Team setup payment',
+    amount: { india: 4999, global: 99 },
+    currency: { india: 'INR', global: 'USD' },
     detail: 'For agencies and small companies that need organization workspace, roles, security settings, audit/export habits, and first team workrooms configured.',
-    cta: 'Request Enterprise Team Setup',
-    path: '/enterprise#enterprise-team-setup',
+    cta: 'Pay Enterprise Setup',
+    defaultSkill: 'Enterprise team workflow setup',
     tone: 'emerald'
   }
 ];
+
+const getSafeSetupService = (value) => {
+  const service = String(value || '').toLowerCase();
+  if (service === 'agency') return 'agency-growth';
+  if (service === 'enterprise') return 'enterprise-team-setup';
+  return setupPaymentOptions.some((option) => option.id === service) ? service : 'agency-growth';
+};
 
 export default function Payment() {
   const location = useLocation();
   const [plan, setPlan] = useState('monthly');
   const [market, setMarket] = useState(getInitialBillingMarket);
   const [loading, setLoading] = useState(false);
+  const [setupLoading, setSetupLoading] = useState(false);
   const [earlyAccessLoading, setEarlyAccessLoading] = useState(false);
   const [pricingLoading, setPricingLoading] = useState(true);
   const [serverPlanDetails, setServerPlanDetails] = useState(() => getFallbackPlanDetails(getInitialBillingMarket()));
@@ -212,17 +253,46 @@ export default function Payment() {
   const [earlyAccessStatus, setEarlyAccessStatus] = useState(null);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [accountUser, setAccountUser] = useState(() => getUser() || {});
+  const [setupServiceId, setSetupServiceId] = useState(() => {
+    if (typeof window === 'undefined') return 'agency-growth';
+    return getSafeSetupService(new URLSearchParams(window.location.search).get('service'));
+  });
+  const [setupForm, setSetupForm] = useState(() => {
+    const user = getUser() || {};
+    return {
+      customerName: user.name || '',
+      email: user.email || '',
+      whatsapp: '',
+      skill: '',
+      problem: '',
+      targetClient: '',
+      incomeGoal: ''
+    };
+  });
+  const [setupError, setSetupError] = useState('');
+  const [setupSuccess, setSetupSuccess] = useState('');
   const earlyIntent = new URLSearchParams(location.search).get('early') === '1';
+  const selectedSetupOption = setupPaymentOptions.find((option) => option.id === setupServiceId) || setupPaymentOptions[1];
 
   useEffect(() => {
     const selectedPlan = getSafePlan(localStorage.getItem("plan") || "monthly");
     const selectedMarket = getMarketFromSearch(location.search) ||
       getSafeMarket(localStorage.getItem('billingMarket') || detectBillingMarket());
+    const selectedService = getSafeSetupService(new URLSearchParams(location.search).get('service'));
     localStorage.setItem("plan", selectedPlan);
     localStorage.setItem('billingMarket', selectedMarket);
     setPlan(selectedPlan);
     setMarket(selectedMarket);
+    setSetupServiceId(selectedService);
   }, [location.search]);
+
+  useEffect(() => {
+    setSetupForm((current) => ({
+      ...current,
+      customerName: current.customerName || accountUser?.name || '',
+      email: current.email || accountUser?.email || ''
+    }));
+  }, [accountUser?.email, accountUser?.name]);
 
   useEffect(() => {
     const loadPricing = async () => {
@@ -336,6 +406,148 @@ export default function Payment() {
     setMarket(safeMarket);
     setServerPlanDetails(getFallbackPlanDetails(safeMarket));
     trackEvent('select_billing_market', { market: safeMarket });
+  };
+
+  const selectSetupService = (serviceId) => {
+    const safeService = getSafeSetupService(serviceId);
+    setSetupServiceId(safeService);
+    setSetupError('');
+    setSetupSuccess('');
+    trackEvent('select_setup_service', {
+      service: safeService,
+      market
+    });
+  };
+
+  const updateSetupForm = (event) => {
+    const { name, value } = event.target;
+    setSetupForm((current) => ({
+      ...current,
+      [name]: value
+    }));
+  };
+
+  const confirmSetupSimulationPayment = async(booking, order) => {
+    const verifyRes = await api.post(`/agency/bookings/${booking._id}/verify`, {
+      razorpay_order_id: order.id
+    });
+
+    setSetupSuccess(`Payment received for ${verifyRes.data?.booking?.packageName || selectedSetupOption.label}. We will contact you on WhatsApp/email for setup.`);
+    setSetupLoading(false);
+  };
+
+  const handleSetupPayment = async(event) => {
+    event.preventDefault();
+    setSetupError('');
+    setSetupSuccess('');
+
+    const name = setupForm.customerName.trim();
+    const email = setupForm.email.trim();
+    const whatsapp = setupForm.whatsapp.trim();
+    const problem = setupForm.problem.trim();
+
+    if (!name || !email || !whatsapp || !problem) {
+      setSetupError('Name, email, WhatsApp, and setup problem are required before payment.');
+      return;
+    }
+
+    try {
+      setSetupLoading(true);
+      trackEvent('begin_setup_checkout', {
+        service: selectedSetupOption.id,
+        package_id: selectedSetupOption.packageId,
+        market,
+        value: Number(selectedSetupOption.amount[market] || 0),
+        currency: selectedSetupOption.currency[market] || 'INR'
+      });
+
+      const bookingRes = await api.post('/agency/bookings', {
+        packageId: selectedSetupOption.packageId,
+        market,
+        workflowType: selectedSetupOption.workflowType,
+        customerName: name,
+        email,
+        whatsapp,
+        skill: setupForm.skill.trim() || selectedSetupOption.defaultSkill,
+        problem,
+        targetClient: setupForm.targetClient.trim(),
+        incomeGoal: setupForm.incomeGoal.trim(),
+        preferredPlatform: selectedSetupOption.workflowType === 'enterprise' ? 'Team rollout' : 'LinkedIn',
+        source: 'payment_page'
+      });
+
+      const booking = bookingRes.data?.booking;
+      if (!booking?._id) {
+        throw new Error('Setup booking was not created. Please try again.');
+      }
+
+      const orderRes = await api.post(`/agency/bookings/${booking._id}/order`);
+      const { keyId, order, simulation } = orderRes.data || {};
+      if (!order?.id) {
+        throw new Error('Setup payment order was not created. Please contact support.');
+      }
+
+      if (simulation) {
+        await confirmSetupSimulationPayment(booking, order);
+        return;
+      }
+
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        throw new Error('Razorpay checkout failed to load. Please retry.');
+      }
+
+      const checkout = new window.Razorpay({
+        key: keyId,
+        amount: order.amount,
+        currency: order.currency || selectedSetupOption.currency[market] || 'INR',
+        name: COMPANY_SHORT_NAME,
+        description: selectedSetupOption.label,
+        order_id: order.id,
+        prefill: {
+          name,
+          email,
+          contact: whatsapp.replace(/\D/g, '')
+        },
+        notes: {
+          agencySetupId: booking._id,
+          packageId: selectedSetupOption.packageId,
+          setupService: selectedSetupOption.id
+        },
+        modal: {
+          ondismiss: () => {
+            setSetupLoading(false);
+          }
+        },
+        handler: async(response) => {
+          try {
+            const verifyRes = await api.post(`/agency/bookings/${booking._id}/verify`, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+
+            setSetupSuccess(`Payment received for ${verifyRes.data?.booking?.packageName || selectedSetupOption.label}. We will contact you on WhatsApp/email for setup.`);
+            trackEvent('setup_payment_success', {
+              service: selectedSetupOption.id,
+              package_id: selectedSetupOption.packageId,
+              market,
+              value: Number(booking.amount || selectedSetupOption.amount[market] || 0),
+              currency: booking.currency || selectedSetupOption.currency[market] || 'INR'
+            });
+          } catch (verifyErr) {
+            setSetupError(verifyErr?.response?.data?.message || 'Payment verification failed. Please contact support.');
+          } finally {
+            setSetupLoading(false);
+          }
+        }
+      });
+
+      checkout.open();
+    } catch (err) {
+      setSetupError(err?.response?.data?.message || err?.message || 'Unable to create setup payment.');
+      setSetupLoading(false);
+    }
   };
 
   const handleEarlyAccessStart = async () => {
@@ -673,43 +885,138 @@ export default function Payment() {
                 </Link>
               </div>
 
-              <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {setupPaymentOptions.map((option) => {
                   const isEnterprise = option.tone === 'emerald';
+                  const isSelected = selectedSetupOption.id === option.id;
 
                   return (
-                    <Link
+                    <button
                       key={option.id}
-                      to={option.path}
+                      type="button"
+                      onClick={() => selectSetupService(option.id)}
                       className={`rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 ${
-                        isEnterprise
+                        isSelected && isEnterprise
                           ? 'border-emerald-300/35 bg-emerald-300/[0.1] hover:border-emerald-300/50'
-                          : 'border-yellow-300/35 bg-yellow-300/[0.1] hover:border-yellow-300/50'
+                          : isSelected
+                            ? 'border-yellow-300/35 bg-yellow-300/[0.1] hover:border-yellow-300/50'
+                            : 'border-white/8 bg-black/20 text-left hover:border-white/20 hover:bg-white/[0.04]'
                       }`}
                     >
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <span className={`inline-flex rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
-                            isEnterprise
-                              ? 'border-emerald-300/20 bg-emerald-300/15 text-emerald-100'
-                              : 'border-yellow-300/20 bg-yellow-300/15 text-yellow-100'
-                          }`}>
-                            {option.badge}
-                          </span>
-                          <h3 className="mt-3 text-xl font-black text-white">{option.label}</h3>
-                          <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{option.detail}</p>
-                        </div>
-                        <span className="shrink-0 rounded-full border border-white/10 bg-black/25 px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
-                          {option.price[market]}
-                        </span>
-                      </div>
+                      <span className={`inline-flex rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
+                        isEnterprise
+                          ? 'border-emerald-300/20 bg-emerald-300/15 text-emerald-100'
+                          : 'border-yellow-300/20 bg-yellow-300/15 text-yellow-100'
+                      }`}>
+                        {isSelected ? 'Selected' : option.badge}
+                      </span>
+                      <h3 className="mt-3 text-xl font-black text-white">{option.label}</h3>
+                      <p className="mt-3 text-2xl font-black text-white">
+                        {formatMoney(option.amount[market], option.currency[market])}
+                      </p>
+                      <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{option.detail}</p>
                       <p className={`mt-4 text-[10px] font-black uppercase tracking-widest ${isEnterprise ? 'text-emerald-200' : 'text-yellow-200'}`}>
                         {option.cta}
                       </p>
-                    </Link>
+                    </button>
                   );
                 })}
               </div>
+
+              <form onSubmit={handleSetupPayment} className="mt-6 rounded-[1.5rem] border border-white/10 bg-black/25 p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Selected setup payment</p>
+                    <h3 className="mt-2 text-2xl font-black text-white">{selectedSetupOption.label}</h3>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
+                      Fill this once, pay securely with Razorpay, and the setup booking appears in admin.
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Amount</p>
+                    <p className="mt-1 text-2xl font-black text-white">
+                      {formatMoney(selectedSetupOption.amount[market], selectedSetupOption.currency[market])}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  <input
+                    name="customerName"
+                    value={setupForm.customerName}
+                    onChange={updateSetupForm}
+                    placeholder="Your name"
+                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
+                  />
+                  <input
+                    name="email"
+                    type="email"
+                    value={setupForm.email}
+                    onChange={updateSetupForm}
+                    placeholder="Email"
+                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
+                  />
+                  <input
+                    name="whatsapp"
+                    value={setupForm.whatsapp}
+                    onChange={updateSetupForm}
+                    placeholder="WhatsApp number"
+                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
+                  />
+                  <input
+                    name="targetClient"
+                    value={setupForm.targetClient}
+                    onChange={updateSetupForm}
+                    placeholder={selectedSetupOption.workflowType === 'enterprise' ? 'Team size / company type' : 'Target client type'}
+                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
+                  />
+                  <input
+                    name="skill"
+                    value={setupForm.skill}
+                    onChange={updateSetupForm}
+                    placeholder={selectedSetupOption.workflowType === 'enterprise' ? 'Business/service type' : 'Your skill or service'}
+                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
+                  />
+                  <input
+                    name="incomeGoal"
+                    value={setupForm.incomeGoal}
+                    onChange={updateSetupForm}
+                    placeholder={selectedSetupOption.workflowType === 'enterprise' ? 'Setup goal' : 'Monthly income goal'}
+                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
+                  />
+                  <textarea
+                    name="problem"
+                    value={setupForm.problem}
+                    onChange={updateSetupForm}
+                    placeholder={selectedSetupOption.workflowType === 'enterprise' ? 'What is messy in your team workflow now?' : 'What is confusing in your freelancer workflow now?'}
+                    rows={4}
+                    className="md:col-span-2 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
+                  />
+                </div>
+
+                {setupError && (
+                  <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                    {setupError}
+                  </div>
+                )}
+                {setupSuccess && (
+                  <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm font-bold text-emerald-200">
+                    {setupSuccess}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={setupLoading}
+                  className={`mt-5 w-full rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+                    selectedSetupOption.tone === 'emerald'
+                      ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
+                      : 'bg-yellow-400 text-black hover:bg-yellow-300'
+                  }`}
+                >
+                  {setupLoading ? 'Opening Setup Checkout...' : selectedSetupOption.cta}
+                </button>
+              </form>
             </div>
 
             <div className="mb-6 grid gap-3 sm:grid-cols-2">
@@ -1012,12 +1319,20 @@ export default function Payment() {
                    Agency Setup and Enterprise Team Setup are separate from Pro checkout.
                  </p>
                  <div className="mt-4 grid gap-3">
-                   <Link to="/agency#agency-booking" className="rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15">
+                   <button
+                     type="button"
+                     onClick={() => selectSetupService('agency-growth')}
+                     className="rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15"
+                   >
                      Agency Setup Payment
-                   </Link>
-                   <Link to="/enterprise#enterprise-team-setup" className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/15">
+                   </button>
+                   <button
+                     type="button"
+                     onClick={() => selectSetupService('enterprise-team-setup')}
+                     className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/15"
+                   >
                      Enterprise Team Setup
-                   </Link>
+                   </button>
                  </div>
                </div>
 
