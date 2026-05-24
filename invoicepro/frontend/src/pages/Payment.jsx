@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getPlanLabel, getUser, hasProAccess } from '../utils/auth';
@@ -173,6 +173,29 @@ const checkoutValueCards = [
   ['Find and follow up', 'Keep leads, next messages, and daily money actions visible.'],
   ['Sell and deliver', 'Use proposals, deal room, workroom, files, proof, and client notes.'],
   ['Invoice and collect', 'Create invoices, track payment status, and prepare follow-up messages.']
+];
+
+const setupPaymentOptions = [
+  {
+    id: 'agency-setup',
+    label: 'Agency Setup',
+    badge: 'Freelancer setup payment',
+    price: { india: 'From Rs 999', global: 'From $19' },
+    detail: 'For solo freelancers who want help setting up offer, outreach, proposal, workroom, invoice, payment follow-up, and 7-day action plan.',
+    cta: 'Book and pay Agency Setup',
+    path: '/agency#agency-booking',
+    tone: 'yellow'
+  },
+  {
+    id: 'enterprise-team-setup',
+    label: 'Enterprise Team Setup',
+    badge: 'Team setup request',
+    price: { india: 'From Rs 4,999', global: 'From $99' },
+    detail: 'For agencies and small companies that need organization workspace, roles, security settings, audit/export habits, and first team workrooms configured.',
+    cta: 'Request Enterprise Team Setup',
+    path: '/enterprise#enterprise-team-setup',
+    tone: 'emerald'
+  }
 ];
 
 export default function Payment() {
@@ -634,6 +657,61 @@ export default function Payment() {
               Pro unlocks the full lead-to-payment system: find clients, send proposals, manage delivery, create invoices, and follow up pending money.
             </p>
 
+            <div className="mb-6 rounded-[1.75rem] border border-white/10 bg-black/25 p-5 sm:p-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Setup payments</p>
+                  <h2 className="mt-2 text-2xl font-black text-white">
+                    Need Agency Setup or Enterprise Team Setup instead?
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                    Pro is self-serve software. Setup services are paid help when users want us to configure the workflow for them.
+                  </p>
+                </div>
+                <Link to="/payments" className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10">
+                  View all options
+                </Link>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                {setupPaymentOptions.map((option) => {
+                  const isEnterprise = option.tone === 'emerald';
+
+                  return (
+                    <Link
+                      key={option.id}
+                      to={option.path}
+                      className={`rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 ${
+                        isEnterprise
+                          ? 'border-emerald-300/35 bg-emerald-300/[0.1] hover:border-emerald-300/50'
+                          : 'border-yellow-300/35 bg-yellow-300/[0.1] hover:border-yellow-300/50'
+                      }`}
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <span className={`inline-flex rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
+                            isEnterprise
+                              ? 'border-emerald-300/20 bg-emerald-300/15 text-emerald-100'
+                              : 'border-yellow-300/20 bg-yellow-300/15 text-yellow-100'
+                          }`}>
+                            {option.badge}
+                          </span>
+                          <h3 className="mt-3 text-xl font-black text-white">{option.label}</h3>
+                          <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{option.detail}</p>
+                        </div>
+                        <span className="shrink-0 rounded-full border border-white/10 bg-black/25 px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
+                          {option.price[market]}
+                        </span>
+                      </div>
+                      <p className={`mt-4 text-[10px] font-black uppercase tracking-widest ${isEnterprise ? 'text-emerald-200' : 'text-yellow-200'}`}>
+                        {option.cta}
+                      </p>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="mb-6 grid gap-3 sm:grid-cols-2">
               {[
                 ['india', 'India billing', 'INR checkout with cards, UPI, and Razorpay subscriptions.', planDetails.monthly],
@@ -925,6 +1003,21 @@ export default function Payment() {
                    >
                      Request Refund Support
                    </a>
+                 </div>
+               </div>
+
+               <div className="mt-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] p-4">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Setup service payments</p>
+                 <p className="mt-2 text-xs font-bold leading-relaxed text-emerald-50/70">
+                   Agency Setup and Enterprise Team Setup are separate from Pro checkout.
+                 </p>
+                 <div className="mt-4 grid gap-3">
+                   <Link to="/agency#agency-booking" className="rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15">
+                     Agency Setup Payment
+                   </Link>
+                   <Link to="/enterprise#enterprise-team-setup" className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/15">
+                     Enterprise Team Setup
+                   </Link>
                  </div>
                </div>
 

@@ -213,6 +213,9 @@ export default function PaymentsOverview() {
                 <button type="button" onClick={startFree} className="btn btn-primary px-7 py-4 text-sm">
                   {loggedIn ? 'Open Workspace' : 'Start Free'}
                 </button>
+                <a href="#setup-service-payments" className="rounded-2xl bg-emerald-300 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
+                  Setup Payments
+                </a>
                 <Link to="/contact" className="btn btn-secondary px-7 py-4 text-sm">
                   Ask Before Paying
                 </Link>
@@ -286,7 +289,7 @@ export default function PaymentsOverview() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-yellow-400/[0.04] py-14 sm:py-16">
+        <section id="setup-service-payments" className="border-b border-white/5 bg-yellow-400/[0.04] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Setup services</p>
