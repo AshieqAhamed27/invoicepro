@@ -82,7 +82,7 @@ const servicePayments = [
     title: 'Agency Setup',
     priceKey: 'setupStart',
     detail: 'Done-for-you help to set up offer, lead plan, proposal flow, workroom, invoice, payment follow-up, and 7-day action plan.',
-    path: '/payment?service=agency',
+    path: '/payments/agency-setup',
     cta: 'Pay Agency Setup',
     featured: true,
     badge: 'Freelancer setup service',
@@ -99,7 +99,7 @@ const servicePayments = [
     title: 'Enterprise Team Setup',
     priceKey: 'teamSetup',
     detail: 'Hands-on setup for a team: organization workspace, member roles, security settings, SSO domain planning, audit exports, backup policy, and first company workrooms.',
-    path: '/payment?service=enterprise',
+    path: '/payments/enterprise',
     cta: 'Pay Enterprise Team Setup',
     featured: true,
     badge: 'Team setup service',
@@ -127,6 +127,33 @@ const toneClass = {
   emerald: 'border-emerald-300/30 bg-emerald-300/[0.07]',
   purple: 'border-purple-300/25 bg-purple-300/[0.06]'
 };
+
+const paymentPages = [
+  {
+    title: 'Freelance Workflow',
+    label: 'Software subscription',
+    detail: 'Use this page only for Free, Pro Monthly, Pro Annual, and Founder 90 Days access.',
+    path: '/payments/freelance-workflow',
+    cta: 'Open Workflow Payment',
+    tone: 'yellow'
+  },
+  {
+    title: 'Agency Setup',
+    label: 'Done-for-you freelancer setup',
+    detail: 'Use this page only for setup packages: Starter Setup, Growth Setup, and Managed Growth.',
+    path: '/payments/agency-setup',
+    cta: 'Open Agency Payment',
+    tone: 'sky'
+  },
+  {
+    title: 'Enterprise Team Setup',
+    label: 'Guided team setup',
+    detail: 'Use this page only for team setup: roles, security, audit/export habits, and first workrooms.',
+    path: '/payments/enterprise',
+    cta: 'Open Enterprise Payment',
+    tone: 'emerald'
+  }
+];
 
 export default function PaymentsOverview() {
   const navigate = useNavigate();
@@ -173,7 +200,7 @@ export default function PaymentsOverview() {
 
     localStorage.setItem('plan', planId);
     localStorage.setItem('billingMarket', market);
-    const checkoutPath = `/payment?market=${market}`;
+    const checkoutPath = `/payments/freelance-workflow?market=${market}`;
 
     if (!loggedIn) {
       setPostLoginRedirect(checkoutPath);
@@ -207,15 +234,18 @@ export default function PaymentsOverview() {
                 Choose how you want to use ClientFlow AI.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400">
-                This page keeps all payment choices separate from the home page: Free access, Pro workflow, founder access, agency setup, and enterprise seats.
+                Choose one clear payment page. Freelance workflow, Agency Setup, and Enterprise Team Setup now have separate checkout paths.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <button type="button" onClick={startFree} className="btn btn-primary px-7 py-4 text-sm">
                   {loggedIn ? 'Open Workspace' : 'Start Free'}
                 </button>
-                <a href="#setup-service-payments" className="rounded-2xl bg-emerald-300 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
-                  Setup Payments
-                </a>
+                <Link to="/payments/agency-setup" className="rounded-2xl bg-yellow-400 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-black transition hover:bg-yellow-300">
+                  Agency Setup
+                </Link>
+                <Link to="/payments/enterprise" className="rounded-2xl bg-emerald-300 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
+                  Enterprise Setup
+                </Link>
                 <Link to="/contact" className="btn btn-secondary px-7 py-4 text-sm">
                   Ask Before Paying
                 </Link>
@@ -244,6 +274,39 @@ export default function PaymentsOverview() {
               <p className="mt-4 text-xs font-semibold leading-6 text-zinc-600">
                 Checkout verifies live backend pricing before payment. International payments also need international payments enabled in the payment provider account.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mb-8 max-w-3xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Separate payment pages</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Pick the correct payment page first.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                This avoids mixing subscription software, freelancer setup, and company setup in one checkout screen.
+              </p>
+            </div>
+
+            <div className="grid gap-5 lg:grid-cols-3">
+              {paymentPages.map((item) => {
+                const className = item.tone === 'emerald'
+                  ? 'border-emerald-300/30 bg-emerald-300/[0.08] hover:border-emerald-300/45'
+                  : item.tone === 'sky'
+                    ? 'border-sky-300/30 bg-sky-300/[0.08] hover:border-sky-300/45'
+                    : 'border-yellow-300/35 bg-yellow-300/[0.08] hover:border-yellow-300/50';
+
+                return (
+                  <Link key={item.title} to={item.path} className={`rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${className}`}>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">{item.label}</p>
+                    <h3 className="mt-3 text-2xl font-black text-white">{item.title}</h3>
+                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
+                    <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-white">{item.cta}</p>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -300,10 +363,10 @@ export default function PaymentsOverview() {
                 Use Agency Setup when one freelancer needs help starting. Use Enterprise Team Setup when a team needs roles, permissions, security settings, audit/export habits, and first company workrooms configured.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link to="/payment?service=agency" className="inline-flex btn btn-primary px-6 py-3 text-sm">
+                <Link to="/payments/agency-setup" className="inline-flex btn btn-primary px-6 py-3 text-sm">
                   Pay Agency Setup
                 </Link>
-                <Link to="/payment?service=enterprise" className="inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
+                <Link to="/payments/enterprise" className="inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
                   Pay Enterprise Team Setup
                 </Link>
               </div>

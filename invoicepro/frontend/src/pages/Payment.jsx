@@ -869,154 +869,22 @@ export default function Payment() {
               Pro unlocks the full lead-to-payment system: find clients, send proposals, manage delivery, create invoices, and follow up pending money.
             </p>
 
-            <div className="mb-6 rounded-[1.75rem] border border-white/10 bg-black/25 p-5 sm:p-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Setup payments</p>
-                  <h2 className="mt-2 text-2xl font-black text-white">
-                    Need Agency Setup or Enterprise Team Setup instead?
-                  </h2>
-                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                    Pro is self-serve software. Setup services are paid help when users want us to configure the workflow for them.
-                  </p>
-                </div>
-                <Link to="/payments" className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10">
-                  View all options
+            <div className="mb-6 rounded-[1.75rem] border border-yellow-300/20 bg-yellow-300/[0.06] p-5 sm:p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Freelance workflow payment only</p>
+              <h2 className="mt-2 text-2xl font-black text-white">
+                This page is only for Pro software access.
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                Agency Setup and Enterprise Team Setup have their own separate payment pages now.
+              </p>
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <Link to="/payments/agency-setup" className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15">
+                  Agency Setup Payment
+                </Link>
+                <Link to="/payments/enterprise" className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/15">
+                  Enterprise Setup Payment
                 </Link>
               </div>
-
-              <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {setupPaymentOptions.map((option) => {
-                  const isEnterprise = option.tone === 'emerald';
-                  const isSelected = selectedSetupOption.id === option.id;
-
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => selectSetupService(option.id)}
-                      className={`rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 ${
-                        isSelected && isEnterprise
-                          ? 'border-emerald-300/35 bg-emerald-300/[0.1] hover:border-emerald-300/50'
-                          : isSelected
-                            ? 'border-yellow-300/35 bg-yellow-300/[0.1] hover:border-yellow-300/50'
-                            : 'border-white/8 bg-black/20 text-left hover:border-white/20 hover:bg-white/[0.04]'
-                      }`}
-                    >
-                      <span className={`inline-flex rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
-                        isEnterprise
-                          ? 'border-emerald-300/20 bg-emerald-300/15 text-emerald-100'
-                          : 'border-yellow-300/20 bg-yellow-300/15 text-yellow-100'
-                      }`}>
-                        {isSelected ? 'Selected' : option.badge}
-                      </span>
-                      <h3 className="mt-3 text-xl font-black text-white">{option.label}</h3>
-                      <p className="mt-3 text-2xl font-black text-white">
-                        {formatMoney(option.amount[market], option.currency[market])}
-                      </p>
-                      <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{option.detail}</p>
-                      <p className={`mt-4 text-[10px] font-black uppercase tracking-widest ${isEnterprise ? 'text-emerald-200' : 'text-yellow-200'}`}>
-                        {option.cta}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <form onSubmit={handleSetupPayment} className="mt-6 rounded-[1.5rem] border border-white/10 bg-black/25 p-5">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Selected setup payment</p>
-                    <h3 className="mt-2 text-2xl font-black text-white">{selectedSetupOption.label}</h3>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
-                      Fill this once, pay securely with Razorpay, and the setup booking appears in admin.
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Amount</p>
-                    <p className="mt-1 text-2xl font-black text-white">
-                      {formatMoney(selectedSetupOption.amount[market], selectedSetupOption.currency[market])}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-5 grid gap-4 md:grid-cols-2">
-                  <input
-                    name="customerName"
-                    value={setupForm.customerName}
-                    onChange={updateSetupForm}
-                    placeholder="Your name"
-                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
-                  />
-                  <input
-                    name="email"
-                    type="email"
-                    value={setupForm.email}
-                    onChange={updateSetupForm}
-                    placeholder="Email"
-                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
-                  />
-                  <input
-                    name="whatsapp"
-                    value={setupForm.whatsapp}
-                    onChange={updateSetupForm}
-                    placeholder="WhatsApp number"
-                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
-                  />
-                  <input
-                    name="targetClient"
-                    value={setupForm.targetClient}
-                    onChange={updateSetupForm}
-                    placeholder={selectedSetupOption.workflowType === 'enterprise' ? 'Team size / company type' : 'Target client type'}
-                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
-                  />
-                  <input
-                    name="skill"
-                    value={setupForm.skill}
-                    onChange={updateSetupForm}
-                    placeholder={selectedSetupOption.workflowType === 'enterprise' ? 'Business/service type' : 'Your skill or service'}
-                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
-                  />
-                  <input
-                    name="incomeGoal"
-                    value={setupForm.incomeGoal}
-                    onChange={updateSetupForm}
-                    placeholder={selectedSetupOption.workflowType === 'enterprise' ? 'Setup goal' : 'Monthly income goal'}
-                    className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
-                  />
-                  <textarea
-                    name="problem"
-                    value={setupForm.problem}
-                    onChange={updateSetupForm}
-                    placeholder={selectedSetupOption.workflowType === 'enterprise' ? 'What is messy in your team workflow now?' : 'What is confusing in your freelancer workflow now?'}
-                    rows={4}
-                    className="md:col-span-2 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50"
-                  />
-                </div>
-
-                {setupError && (
-                  <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
-                    {setupError}
-                  </div>
-                )}
-                {setupSuccess && (
-                  <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm font-bold text-emerald-200">
-                    {setupSuccess}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={setupLoading}
-                  className={`mt-5 w-full rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
-                    selectedSetupOption.tone === 'emerald'
-                      ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
-                      : 'bg-yellow-400 text-black hover:bg-yellow-300'
-                  }`}
-                >
-                  {setupLoading ? 'Opening Setup Checkout...' : selectedSetupOption.cta}
-                </button>
-              </form>
             </div>
 
             <div className="mb-6 grid gap-3 sm:grid-cols-2">
@@ -1310,29 +1178,6 @@ export default function Payment() {
                    >
                      Request Refund Support
                    </a>
-                 </div>
-               </div>
-
-               <div className="mt-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] p-4">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Setup service payments</p>
-                 <p className="mt-2 text-xs font-bold leading-relaxed text-emerald-50/70">
-                   Agency Setup and Enterprise Team Setup are separate from Pro checkout.
-                 </p>
-                 <div className="mt-4 grid gap-3">
-                   <button
-                     type="button"
-                     onClick={() => selectSetupService('agency-growth')}
-                     className="rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15"
-                   >
-                     Agency Setup Payment
-                   </button>
-                   <button
-                     type="button"
-                     onClick={() => selectSetupService('enterprise-team-setup')}
-                     className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/15"
-                   >
-                     Enterprise Team Setup
-                   </button>
                  </div>
                </div>
 

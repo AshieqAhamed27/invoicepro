@@ -1169,13 +1169,13 @@ export default function Home() {
                       <h3 className="text-lg font-black text-white">{item.title}</h3>
                       <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
                       {isAgencySetup && (
-                        <Link to="/agency#agency-booking" className="mt-4 inline-flex text-[10px] font-black uppercase tracking-widest text-yellow-200">
-                          Book agency setup
+                        <Link to="/payments/agency-setup" className="mt-4 inline-flex text-[10px] font-black uppercase tracking-widest text-yellow-200">
+                          Pay agency setup
                         </Link>
                       )}
                       {isEnterpriseTeamSetup && (
-                        <Link to="/enterprise#enterprise-team-setup" className="mt-4 inline-flex text-[10px] font-black uppercase tracking-widest text-emerald-200">
-                          View enterprise setup
+                        <Link to="/payments/enterprise" className="mt-4 inline-flex text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                          Pay enterprise setup
                         </Link>
                       )}
                     </div>

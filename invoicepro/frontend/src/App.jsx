@@ -54,6 +54,7 @@ const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 const Payment = lazy(() => import('./pages/Payment'));
 const PaymentsOverview = lazy(() => import('./pages/PaymentsOverview'));
+const SetupServicePayment = lazy(() => import('./pages/SetupServicePayment'));
 const Admin = lazy(() => import('./pages/Admin'));
 const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
 const FreelancerProfile = lazy(() => import('./pages/FreelancerProfile'));
@@ -726,6 +727,35 @@ export default function App() {
                 <Payment />
               </Suspense>
             </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/payments/freelance-workflow"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<RouteLoader />}>
+                <Payment />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/payments/agency-setup"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <SetupServicePayment serviceType="agency" />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/payments/enterprise"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <SetupServicePayment serviceType="enterprise" />
+            </Suspense>
           }
         />
 

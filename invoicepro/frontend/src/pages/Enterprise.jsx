@@ -358,11 +358,11 @@ export default function Enterprise() {
                   Request Team Setup
                 </a>
                 <Link
-                  to="/payments"
-                  onClick={() => trackEnterpriseCta('enterprise_team_setup_payments', '/payments')}
+                  to="/payments/enterprise"
+                  onClick={() => trackEnterpriseCta('enterprise_team_setup_payments', '/payments/enterprise')}
                   className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-center text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/10"
                 >
-                  View Payments
+                  Pay Enterprise Setup
                 </Link>
               </div>
             </div>
