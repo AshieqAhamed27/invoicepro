@@ -52,6 +52,15 @@ const defaultNoteForm = {
   content: ''
 };
 
+const fallbackRoleOptions = [
+  { role: 'manager', label: 'Manager', description: 'Controls project progress, delivery, finance follow-up, invites, and audit review.' },
+  { role: 'delivery', label: 'Delivery', description: 'Updates tasks, proof links, docs, issues, releases, and handover.' },
+  { role: 'finance', label: 'Finance', description: 'Reviews project context and handles invoice or payment follow-up.' },
+  { role: 'editor', label: 'Editor', description: 'Legacy role for updating workroom content.' },
+  { role: 'viewer', label: 'Viewer', description: 'Can view project status and send simple updates.' },
+  { role: 'client_viewer', label: 'Client Viewer', description: 'Client-safe view for reviewing status and payment context.' }
+];
+
 const formatCurrency = (amount, currency = 'INR') => {
   const prefix = currency === 'INR' ? 'Rs ' : `${currency} `;
   return `${prefix}${Number(amount || 0).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US')}`;
@@ -69,8 +78,26 @@ const formatDate = (value) => {
   });
 };
 
+const formatDateTime = (value) => {
+  if (!value) return 'Not recorded';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Not recorded';
+
+  return date.toLocaleString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
 const statusLabel = (value = '') =>
-  String(value).replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+  String(value).replace(/[_.]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+const getRoleLabel = (role, roleOptions = fallbackRoleOptions) => {
+  if (role === 'owner') return 'Owner';
+  return (roleOptions || []).find((option) => option.role === role)?.label || statusLabel(role || 'viewer');
+};
 
 const getStatusClass = (status) => {
   if (status === 'completed' || status === 'done') {
@@ -246,7 +273,15 @@ export default function TeamWorkspace() {
   const docs = activeProject?.wikiPages || [];
   const members = activeProject?.members || [];
   const messages = (activeProject?.messages || []).slice(-8);
-  const canEdit = Boolean(activeProject?.canEdit || ['owner', 'editor'].includes(activeProject?.accessRole));
+  const auditLogs = activeProject?.auditLogs || [];
+  const roleOptions = activeProject?.roleOptions?.length ? activeProject.roleOptions : fallbackRoleOptions;
+  const permissions = activeProject?.permissions || {};
+  const canEdit = Boolean(activeProject?.canEdit || ['owner', 'manager', 'delivery', 'editor'].includes(activeProject?.accessRole));
+  const canManageDelivery = Boolean(permissions.manageDelivery || canEdit);
+  const canManageFinance = Boolean(permissions.manageFinance || ['owner', 'manager', 'editor'].includes(activeProject?.accessRole));
+  const canRunAgents = Boolean(permissions.runAgents || canEdit);
+  const canViewAudit = Boolean(permissions.viewAudit);
+  const canChat = permissions.chat !== false;
   const canInvite = Boolean(activeProject?.canInvite);
 
   const replaceProject = (updatedProject) => {
@@ -328,7 +363,7 @@ export default function TeamWorkspace() {
 
   const updateProject = async (updates, loadingKey = 'project') => {
     if (!activeProject?._id || !canEdit) {
-      setError('Only owners and editors can update this workroom.');
+      setError('Only owners, managers, delivery members, and editors can update this workroom.');
       return;
     }
 
@@ -437,7 +472,7 @@ export default function TeamWorkspace() {
     setMessage('');
 
     if (!canInvite) {
-      setError('Only the paid project owner can create invite links.');
+      setError('Only paid owners or managers can create invite links.');
       return;
     }
 
@@ -476,6 +511,11 @@ export default function TeamWorkspace() {
     setError('');
     setMessage('');
 
+    if (!canChat) {
+      setError('Your role can view this workroom but cannot post updates.');
+      return;
+    }
+
     if (!chatMessage.trim()) return;
 
     try {
@@ -496,6 +536,11 @@ export default function TeamWorkspace() {
   const generateWorkroomPlan = async () => {
     setError('');
     setMessage('');
+
+    if (!canRunAgents) {
+      setError('Your role cannot refresh the team AI plan.');
+      return;
+    }
 
     try {
       setActionLoading('plan');
@@ -536,6 +581,11 @@ export default function TeamWorkspace() {
 
   const sharePaymentFollowUp = () => {
     if (!activeProject) return;
+
+    if (!canManageFinance) {
+      setError('Your role cannot prepare payment follow-up from this workroom.');
+      return;
+    }
 
     openWhatsAppShare([
       `Hi ${activeProject.clientName || ''},`,
@@ -741,7 +791,7 @@ export default function TeamWorkspace() {
                           {statusLabel(activeProject.status)}
                         </span>
                         <span className="rounded-full border border-white/8 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                          {activeProject.accessRole || 'owner'}
+                          {getRoleLabel(activeProject.accessRole || 'owner', roleOptions)}
                         </span>
                       </div>
                       <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
@@ -771,16 +821,16 @@ export default function TeamWorkspace() {
                   </div>
 
                   <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <button type="button" onClick={generateWorkroomPlan} disabled={actionLoading === 'plan'} className="btn btn-secondary">
+                    <button type="button" onClick={generateWorkroomPlan} disabled={!canRunAgents || actionLoading === 'plan'} className="btn btn-secondary">
                       {actionLoading === 'plan' ? 'Refreshing...' : 'Refresh Plan'}
                     </button>
                     <button type="button" onClick={copyClientSummary} className="btn btn-secondary">
                       Copy Client Summary
                     </button>
-                    <button type="button" onClick={() => navigate('/create-invoice')} className="btn btn-primary">
+                    <button type="button" onClick={() => navigate('/create-invoice')} disabled={!canManageFinance} className="btn btn-primary">
                       Create Invoice
                     </button>
-                    <button type="button" onClick={sharePaymentFollowUp} className="btn btn-dark">
+                    <button type="button" onClick={sharePaymentFollowUp} disabled={!canManageFinance} className="btn btn-dark">
                       WhatsApp Follow-up
                     </button>
                   </div>
@@ -813,7 +863,7 @@ export default function TeamWorkspace() {
                               <select
                                 className="input"
                                 value={task.status || 'todo'}
-                                disabled={!canEdit || actionLoading === `task-${task._id}`}
+                                disabled={!canManageDelivery || actionLoading === `task-${task._id}`}
                                 onChange={(event) => updateTaskStatus(task._id, event.target.value)}
                               >
                                 {taskStatuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
@@ -839,7 +889,7 @@ export default function TeamWorkspace() {
                           <input className="input" type="date" value={taskForm.dueDate} onChange={(event) => setTaskForm({ ...taskForm, dueDate: event.target.value })} />
                         </div>
                         <textarea className="input min-h-[88px]" value={taskForm.notes} onChange={(event) => setTaskForm({ ...taskForm, notes: event.target.value })} placeholder="Notes or acceptance criteria" />
-                        <button type="submit" disabled={!canEdit || actionLoading === 'task'} className="btn btn-secondary w-full">
+                        <button type="submit" disabled={!canManageDelivery || actionLoading === 'task'} className="btn btn-secondary w-full">
                           {actionLoading === 'task' ? 'Adding...' : 'Add Milestone'}
                         </button>
                       </form>
@@ -889,7 +939,7 @@ export default function TeamWorkspace() {
                         </div>
                         <input className="input" value={resourceForm.url} onChange={(event) => setResourceForm({ ...resourceForm, url: event.target.value })} placeholder="https://..." />
                         <textarea className="input min-h-[80px]" value={resourceForm.notes} onChange={(event) => setResourceForm({ ...resourceForm, notes: event.target.value })} placeholder="Why this link matters" />
-                        <button type="submit" disabled={!canEdit || actionLoading === 'resource'} className="btn btn-secondary w-full">
+                        <button type="submit" disabled={!canManageDelivery || actionLoading === 'resource'} className="btn btn-secondary w-full">
                           {actionLoading === 'resource' ? 'Saving...' : 'Add Proof Link'}
                         </button>
                       </form>
@@ -922,14 +972,14 @@ export default function TeamWorkspace() {
                           <option value="other">Other</option>
                         </select>
                         <textarea className="input min-h-[110px]" value={noteForm.content} onChange={(event) => setNoteForm({ ...noteForm, content: event.target.value })} placeholder="Write the decision, proof, approval, or handover note" />
-                        <button type="submit" disabled={!canEdit || actionLoading === 'note'} className="btn btn-secondary w-full">
+                        <button type="submit" disabled={!canManageDelivery || actionLoading === 'note'} className="btn btn-secondary w-full">
                           {actionLoading === 'note' ? 'Saving...' : 'Save Note'}
                         </button>
                       </form>
                     </div>
                   </div>
 
-                  <aside className="grid gap-6 xl:grid-cols-3">
+                  <aside className={`grid gap-6 ${canViewAudit ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
                     <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
                       <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Payment path</p>
                       <h3 className="mt-2 text-2xl font-black text-white">Get paid without confusion</h3>
@@ -947,10 +997,10 @@ export default function TeamWorkspace() {
                         ))}
                       </div>
                       <div className="mt-5 grid gap-3">
-                        <button type="button" onClick={() => navigate('/create-invoice')} className="btn btn-primary w-full">
+                        <button type="button" onClick={() => navigate('/create-invoice')} disabled={!canManageFinance} className="btn btn-primary w-full">
                           Create Invoice
                         </button>
-                        <button type="button" onClick={sharePaymentFollowUp} className="btn btn-secondary w-full">
+                        <button type="button" onClick={sharePaymentFollowUp} disabled={!canManageFinance} className="btn btn-secondary w-full">
                           Prepare WhatsApp Follow-up
                         </button>
                       </div>
@@ -958,21 +1008,28 @@ export default function TeamWorkspace() {
 
                     <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
                       <p className="text-[10px] font-black uppercase tracking-[0.22em] text-purple-300">Collaborators</p>
-                      <h3 className="mt-2 text-2xl font-black text-white">Bring another freelancer</h3>
+                      <h3 className="mt-2 text-2xl font-black text-white">Enterprise roles</h3>
                       <div className="mt-5 space-y-3">
                         {members.map((member) => (
                           <div key={member._id || member.email || member.name} className="rounded-2xl border border-white/8 bg-black/20 p-4">
                             <p className="text-sm font-black text-white">{member.name || member.email || 'Team member'}</p>
-                            <p className="mt-1 text-xs font-semibold text-zinc-500">{member.email || 'No email'} - {member.role}</p>
+                            <p className="mt-1 text-xs font-semibold text-zinc-500">{member.email || 'No email'}</p>
+                            <p className="mt-2 inline-flex rounded-full border border-purple-300/20 bg-purple-300/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-purple-100">
+                              {getRoleLabel(member.role, roleOptions)}
+                            </p>
                           </div>
                         ))}
                       </div>
                       <form onSubmit={createInvite} className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
                         <input className="input" value={inviteForm.email} onChange={(event) => setInviteForm({ ...inviteForm, email: event.target.value })} placeholder="Freelancer email optional" />
-                        <select className="input" value={inviteForm.role} onChange={(event) => setInviteForm({ ...inviteForm, role: event.target.value })}>
-                          <option value="viewer">Viewer</option>
-                          <option value="editor">Editor</option>
+                        <select className="input" value={inviteForm.role} disabled={!canInvite} onChange={(event) => setInviteForm({ ...inviteForm, role: event.target.value })}>
+                          {roleOptions.map((option) => (
+                            <option key={option.role} value={option.role}>{option.label}</option>
+                          ))}
                         </select>
+                        <p className="text-xs font-semibold leading-relaxed text-zinc-500">
+                          {roleOptions.find((option) => option.role === inviteForm.role)?.description || 'Choose what this person can do.'}
+                        </p>
                         <button type="submit" disabled={!canInvite || actionLoading === 'invite'} className="btn btn-secondary w-full">
                           {actionLoading === 'invite' ? 'Creating...' : 'Create Invite Link'}
                         </button>
@@ -996,7 +1053,7 @@ export default function TeamWorkspace() {
                           <div key={item._id || `${item.senderName}-${item.createdAt}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
                             <p className="text-xs font-black uppercase tracking-widest text-sky-300">{item.senderName || 'Team member'}</p>
                             <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{item.message}</p>
-                            <p className="mt-2 text-[10px] font-semibold text-zinc-600">{formatDate(item.createdAt)}</p>
+                            <p className="mt-2 text-[10px] font-semibold text-zinc-600">{formatDateTime(item.createdAt)}</p>
                           </div>
                         )) : (
                           <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
@@ -1006,11 +1063,34 @@ export default function TeamWorkspace() {
                       </div>
                       <form onSubmit={sendProjectMessage} className="mt-5 grid gap-3">
                         <textarea className="input min-h-[90px]" value={chatMessage} onChange={(event) => setChatMessage(event.target.value)} placeholder="Write project update" />
-                        <button type="submit" disabled={actionLoading === 'message'} className="btn btn-secondary w-full">
+                        <button type="submit" disabled={!canChat || actionLoading === 'message'} className="btn btn-secondary w-full">
                           {actionLoading === 'message' ? 'Sending...' : 'Send Update'}
                         </button>
                       </form>
                     </div>
+
+                    {canViewAudit && (
+                      <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Audit trail</p>
+                        <h3 className="mt-2 text-2xl font-black text-white">Who changed what</h3>
+                        <div className="mt-5 max-h-96 space-y-3 overflow-y-auto pr-1">
+                          {auditLogs.length ? auditLogs.slice(0, 12).map((log) => (
+                            <div key={log.id || `${log.action}-${log.createdAt}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{statusLabel(log.action)}</p>
+                              <p className="mt-2 text-sm font-black text-white">{log.label || 'Project activity'}</p>
+                              <p className="mt-1 text-xs font-semibold text-zinc-500">
+                                {log.actor?.name || log.actor?.email || 'Team member'} - {getRoleLabel(log.actor?.role, roleOptions)}
+                              </p>
+                              <p className="mt-2 text-[10px] font-semibold text-zinc-600">{formatDateTime(log.createdAt)}</p>
+                            </div>
+                          )) : (
+                            <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                              <p className="text-sm font-semibold text-zinc-500">Audit entries will appear after project changes, invites, messages, files, docs, and AI actions.</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </aside>
                 </section>
               </div>

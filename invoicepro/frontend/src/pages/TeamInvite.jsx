@@ -15,8 +15,12 @@ const formatDate = (date) => {
 };
 
 const roleCopy = {
+  manager: 'You can manage project progress, delivery, payment follow-up, invites, and audit review.',
+  delivery: 'You can update tasks, proof links, project docs, issues, releases, and delivery handover.',
+  finance: 'You can review project context and help with invoice or payment follow-up.',
   editor: 'You can update project tasks, generate AI delivery plans, and send group chat messages.',
-  viewer: 'You can view your project work and send group chat messages.'
+  viewer: 'You can view your project work and send group chat messages.',
+  client_viewer: 'You can review project status and payment context without editing internal delivery work.'
 };
 
 export default function TeamInvite() {
@@ -116,7 +120,7 @@ export default function TeamInvite() {
                   </div>
                   <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Your role</p>
-                    <p className="mt-2 text-lg font-black text-white">{invite?.role === 'editor' ? 'Editor' : 'Viewer'}</p>
+                    <p className="mt-2 text-lg font-black text-white">{invite?.roleLabel || String(invite?.role || 'viewer').replace(/_/g, ' ')}</p>
                   </div>
                   <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Group</p>
@@ -126,7 +130,7 @@ export default function TeamInvite() {
 
                 <div className="mt-6 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-5">
                   <p className="text-sm font-semibold leading-relaxed text-sky-100">
-                    {roleCopy[invite?.role] || roleCopy.viewer}
+                    {invite?.roleDescription || roleCopy[invite?.role] || roleCopy.viewer}
                   </p>
                 </div>
 

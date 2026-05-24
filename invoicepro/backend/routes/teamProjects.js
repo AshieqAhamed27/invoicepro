@@ -30,13 +30,211 @@ const RELEASE_STATUSES = ['planned', 'in_progress', 'shipped'];
 const WIKI_CATEGORIES = ['setup', 'client', 'delivery', 'qa', 'handover', 'other'];
 const CODE_OS_OPTIONS = ['linux', 'windows', 'macos', 'android', 'ios', 'server', 'other'];
 const CODE_SNIPPET_STATUSES = ['draft', 'review', 'approved'];
-const MEMBER_ROLES = ['owner', 'editor', 'viewer'];
-const INVITE_ROLES = ['editor', 'viewer'];
+const MEMBER_ROLES = ['owner', 'manager', 'delivery', 'finance', 'editor', 'viewer', 'client_viewer'];
+const INVITE_ROLES = ['manager', 'delivery', 'finance', 'editor', 'viewer', 'client_viewer'];
+const MAX_AUDIT_LOGS = 150;
+const ROLE_DEFINITIONS = {
+    owner: {
+        label: 'Owner',
+        description: 'Full control over project, members, delivery, finance, audit logs, and deletion.',
+        permissions: {
+            view: true,
+            editProject: true,
+            manageDelivery: true,
+            manageFinance: true,
+            manageCode: true,
+            createInvites: true,
+            updateMembers: true,
+            viewAudit: true,
+            runAgents: true,
+            deleteProject: true,
+            chat: true
+        }
+    },
+    manager: {
+        label: 'Manager',
+        description: 'Controls delivery workflow, client progress, team invites, and audit review without deleting the project.',
+        permissions: {
+            view: true,
+            editProject: true,
+            manageDelivery: true,
+            manageFinance: true,
+            manageCode: true,
+            createInvites: true,
+            updateMembers: false,
+            viewAudit: true,
+            runAgents: true,
+            deleteProject: false,
+            chat: true
+        }
+    },
+    delivery: {
+        label: 'Delivery',
+        description: 'Updates delivery tasks, proof links, docs, issues, releases, and technical handover.',
+        permissions: {
+            view: true,
+            editProject: true,
+            manageDelivery: true,
+            manageFinance: false,
+            manageCode: true,
+            createInvites: false,
+            updateMembers: false,
+            viewAudit: false,
+            runAgents: true,
+            deleteProject: false,
+            chat: true
+        }
+    },
+    finance: {
+        label: 'Finance',
+        description: 'Views project context and handles invoice/payment follow-up without changing delivery work.',
+        permissions: {
+            view: true,
+            editProject: false,
+            manageDelivery: false,
+            manageFinance: true,
+            manageCode: false,
+            createInvites: false,
+            updateMembers: false,
+            viewAudit: true,
+            runAgents: false,
+            deleteProject: false,
+            chat: true
+        }
+    },
+    editor: {
+        label: 'Editor',
+        description: 'Legacy editor access for users who can update workroom content.',
+        permissions: {
+            view: true,
+            editProject: true,
+            manageDelivery: true,
+            manageFinance: true,
+            manageCode: true,
+            createInvites: false,
+            updateMembers: false,
+            viewAudit: false,
+            runAgents: true,
+            deleteProject: false,
+            chat: true
+        }
+    },
+    viewer: {
+        label: 'Viewer',
+        description: 'Can view project status and send simple updates.',
+        permissions: {
+            view: true,
+            editProject: false,
+            manageDelivery: false,
+            manageFinance: false,
+            manageCode: false,
+            createInvites: false,
+            updateMembers: false,
+            viewAudit: false,
+            runAgents: false,
+            deleteProject: false,
+            chat: true
+        }
+    },
+    client_viewer: {
+        label: 'Client Viewer',
+        description: 'Client-safe view for reviewing project status and payment context.',
+        permissions: {
+            view: true,
+            editProject: false,
+            manageDelivery: false,
+            manageFinance: false,
+            manageCode: false,
+            createInvites: false,
+            updateMembers: false,
+            viewAudit: false,
+            runAgents: false,
+            deleteProject: false,
+            chat: true
+        }
+    }
+};
 const projectEventClients = new Map();
 
 const cleanString = (value) => String(value || '').trim();
 
 const normalizeEmail = (value) => cleanString(value).toLowerCase();
+
+const getRoleDefinition = (role) => ROLE_DEFINITIONS[role] || ROLE_DEFINITIONS.viewer;
+
+const getRolePermissions = (role) => ({
+    ...ROLE_DEFINITIONS.viewer.permissions,
+    ...getRoleDefinition(role).permissions
+});
+
+const hasPermission = (role, permission) => Boolean(getRolePermissions(role)[permission]);
+
+const canEditProject = (role) => hasPermission(role, 'editProject');
+
+const canManageDelivery = (role) => hasPermission(role, 'manageDelivery');
+
+const canManageFinance = (role) => hasPermission(role, 'manageFinance');
+
+const canManageCode = (role) => hasPermission(role, 'manageCode');
+
+const canCreateInvites = (role) => hasPermission(role, 'createInvites');
+
+const canViewAudit = (role) => hasPermission(role, 'viewAudit');
+
+const canRunAgents = (role) => hasPermission(role, 'runAgents');
+
+const getRoleOptions = () => INVITE_ROLES.map((role) => ({
+    role,
+    label: getRoleDefinition(role).label,
+    description: getRoleDefinition(role).description,
+    permissions: getRolePermissions(role)
+}));
+
+const serializeAuditLogs = (logs = []) =>
+    (Array.isArray(logs) ? logs : [])
+        .slice(-80)
+        .reverse()
+        .map((log) => ({
+            id: log._id,
+            action: log.action,
+            label: log.label,
+            targetType: log.targetType,
+            targetId: log.targetId,
+            actor: log.actor || {},
+            details: log.details || {},
+            createdAt: log.createdAt
+        }));
+
+const getActorSnapshot = (user, role) => ({
+    user: user?._id || null,
+    name: cleanString(user?.name) || cleanString(user?.email) || 'Team member',
+    email: normalizeEmail(user?.email),
+    role: role || ''
+});
+
+const addAuditLog = (project, user, role, entry = {}) => {
+    if (!project) return null;
+    if (!Array.isArray(project.auditLogs)) {
+        project.auditLogs = [];
+    }
+
+    const log = {
+        action: cleanString(entry.action).slice(0, 80) || 'project.updated',
+        label: cleanString(entry.label).slice(0, 160),
+        targetType: cleanString(entry.targetType).slice(0, 60),
+        targetId: cleanString(entry.targetId).slice(0, 80),
+        actor: getActorSnapshot(user, role),
+        details: entry.details && typeof entry.details === 'object' ? entry.details : {},
+        createdAt: new Date()
+    };
+
+    project.auditLogs.push(log);
+    if (project.auditLogs.length > MAX_AUDIT_LOGS) {
+        project.auditLogs = project.auditLogs.slice(-MAX_AUDIT_LOGS);
+    }
+
+    return log;
+};
 
 const getTokenFromRequest = (req) => {
     const authHeader = req.headers.authorization || '';
@@ -127,11 +325,10 @@ const getMemberRole = (project, userId) => {
     return member?.role || null;
 };
 
-const canEditProject = (role) => role === 'owner' || role === 'editor';
-
 const serializeProjectForUser = (project, user) => {
     const plain = typeof project.toObject === 'function' ? project.toObject() : project;
     const accessRole = getMemberRole(plain, user?._id);
+    const permissions = getRolePermissions(accessRole);
     const inviteTokens = plain.inviteTokens || [];
     const members = [...(plain.members || [])];
     const activeInvites = inviteTokens.filter((invite) =>
@@ -155,12 +352,17 @@ const serializeProjectForUser = (project, user) => {
         members,
         inviteTokens: undefined,
         accessRole,
+        accessLabel: getRoleDefinition(accessRole).label,
+        permissions,
         canEdit: canEditProject(accessRole),
-        canInvite: accessRole === 'owner' && hasPaidPlan(user),
+        canInvite: canCreateInvites(accessRole) && hasPaidPlan(user),
+        roleOptions: accessRole === 'owner' || accessRole === 'manager' ? getRoleOptions() : [],
+        auditLogs: canViewAudit(accessRole) ? serializeAuditLogs(plain.auditLogs) : [],
         activeInvites: activeInvites.map((invite) => ({
             id: invite._id,
             email: invite.email,
             role: invite.role,
+            roleLabel: getRoleDefinition(invite.role).label,
             groupName: invite.groupName,
             expiresAt: invite.expiresAt
         }))
@@ -747,8 +949,8 @@ router.post('/:id/github/link', protect, requirePro, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can link GitHub repositories.' });
+        if (!canManageCode(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can link GitHub repositories.' });
         }
 
         const token = getUserGitHubToken(req.user);
@@ -791,6 +993,17 @@ router.post('/:id/github/link', protect, requirePro, async(req, res) => {
             });
         }
 
+        addAuditLog(project, req.user, accessRole, {
+            action: 'github.linked',
+            label: `Linked GitHub repository ${parsed.fullName}`,
+            targetType: 'github',
+            targetId: parsed.fullName,
+            details: {
+                private: Boolean(repo.private),
+                language: repo.language || ''
+            }
+        });
+
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
@@ -823,6 +1036,10 @@ router.post('/:id/github/sync', protect, async(req, res) => {
             return res.status(403).json({ message: 'You are not a member of this project.' });
         }
 
+        if (!canManageCode(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can sync GitHub data.' });
+        }
+
         if (!project.githubRepo?.owner || !project.githubRepo?.name) {
             return res.status(400).json({ message: 'Link a GitHub repository first.' });
         }
@@ -841,6 +1058,13 @@ router.post('/:id/github/sync', protect, async(req, res) => {
         project.githubRepo.defaultBranch = snapshot.repo?.defaultBranch || project.githubRepo.defaultBranch;
         project.githubRepo.language = snapshot.repo?.language || project.githubRepo.language;
         project.githubRepo.private = Boolean(snapshot.repo?.private);
+
+        addAuditLog(project, req.user, accessRole, {
+            action: 'github.synced',
+            label: `Synced GitHub repository ${project.githubRepo.fullName || `${project.githubRepo.owner}/${project.githubRepo.name}`}`,
+            targetType: 'github',
+            targetId: project.githubRepo.fullName || `${project.githubRepo.owner}/${project.githubRepo.name}`
+        });
 
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
@@ -926,6 +1150,33 @@ router.get('/:id/events', async(req, res) => {
     }
 });
 
+router.get('/:id/audit-logs', protect, async(req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'team project');
+        }
+
+        const project = await TeamProject.findById(req.params.id).lean();
+        if (!project) {
+            return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canViewAudit(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, and finance members can view audit logs.' });
+        }
+
+        res.json({
+            auditLogs: serializeAuditLogs(project.auditLogs),
+            accessRole,
+            permissions: getRolePermissions(accessRole)
+        });
+    } catch (err) {
+        console.error('GET TEAM AUDIT LOGS ERROR:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+});
+
 router.post('/', protect, requirePro, async(req, res) => {
     try {
         const payload = normalizeProjectPayload(req.body);
@@ -935,7 +1186,7 @@ router.post('/', protect, requirePro, async(req, res) => {
         }
 
         const aiPlan = buildTeamAiPlan(payload);
-        const project = await TeamProject.create({
+        const project = new TeamProject({
             ...payload,
             user: req.user._id,
             members: [{
@@ -948,6 +1199,19 @@ router.post('/', protect, requirePro, async(req, res) => {
             }],
             aiPlan
         });
+
+        addAuditLog(project, req.user, 'owner', {
+            action: 'project.created',
+            label: `Created workroom "${payload.title}"`,
+            targetType: 'project',
+            details: {
+                clientName: payload.clientName,
+                status: payload.status,
+                currency: payload.currency
+            }
+        });
+
+        await project.save();
 
         res.status(201).json({ project: serializeProjectForUser(project, req.user) });
     } catch (err) {
@@ -984,6 +1248,8 @@ router.get('/invites/:token', async(req, res) => {
             invite: {
                 email: invite.email,
                 role: invite.role,
+                roleLabel: getRoleDefinition(invite.role).label,
+                roleDescription: getRoleDefinition(invite.role).description,
                 groupName: invite.groupName,
                 expiresAt: invite.expiresAt
             },
@@ -1067,6 +1333,17 @@ router.post('/invites/:token/accept', protect, async(req, res) => {
             message: `${req.user.name || req.user.email} joined the project as ${invite.role}.`
         });
 
+        addAuditLog(project, req.user, invite.role, {
+            action: 'member.joined',
+            label: `${req.user.name || req.user.email} accepted invite as ${getRoleDefinition(invite.role).label}`,
+            targetType: 'member',
+            targetId: String(req.user._id),
+            details: {
+                role: invite.role,
+                groupName: invite.groupName
+            }
+        });
+
         await project.save();
         const joinedMessage = project.messages[project.messages.length - 1];
         broadcastProjectEvent(project._id, 'message', {
@@ -1074,6 +1351,7 @@ router.post('/invites/:token/accept', protect, async(req, res) => {
             message: joinedMessage,
             messageCount: project.messages.length
         });
+        broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
         res.json({
             message: 'Invite accepted.',
@@ -1108,6 +1386,15 @@ router.patch('/:id', protect, async(req, res) => {
         }
 
         Object.assign(project, payload);
+        addAuditLog(project, req.user, accessRole, {
+            action: 'project.updated',
+            label: 'Updated workroom details',
+            targetType: 'project',
+            targetId: String(project._id),
+            details: {
+                fields: Object.keys(payload)
+            }
+        });
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
@@ -1124,13 +1411,15 @@ router.post('/:id/invites', protect, requirePro, async(req, res) => {
             return rejectInvalidObjectId(res, 'team project');
         }
 
-        const project = await TeamProject.findOne({
-            _id: req.params.id,
-            user: req.user._id
-        });
+        const project = await TeamProject.findById(req.params.id);
 
         if (!project) {
             return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!canCreateInvites(accessRole)) {
+            return res.status(403).json({ message: 'Only owners and managers can create invite links.' });
         }
 
         const email = normalizeEmail(req.body.email);
@@ -1148,14 +1437,24 @@ router.post('/:id/invites', protect, requirePro, async(req, res) => {
             expiresAt
         });
 
+        addAuditLog(project, req.user, accessRole, {
+            action: 'invite.created',
+            label: `Created ${getRoleDefinition(role).label} invite${email ? ` for ${email}` : ''}`,
+            targetType: 'invite',
+            details: {
+                email,
+                role,
+                groupName,
+                expiresAt
+            }
+        });
+
         await project.save();
 
         const inviteUrl = getInviteUrl(req, token);
         const shareText = [
             `You are invited to join "${project.title}" on ClientFlow AI.`,
-            role === 'editor'
-                ? 'You can view tasks, update work, and send team chat messages.'
-                : 'You can view assigned work and send team chat messages.',
+            getRoleDefinition(role).description,
             groupName ? `Group: ${groupName}` : '',
             inviteUrl
         ].filter(Boolean).join('\n');
@@ -1185,13 +1484,15 @@ router.patch('/:id/members/:memberId', protect, requirePro, async(req, res) => {
             return rejectInvalidObjectId(res, 'team member');
         }
 
-        const project = await TeamProject.findOne({
-            _id: req.params.id,
-            user: req.user._id
-        });
+        const project = await TeamProject.findById(req.params.id);
 
         if (!project) {
             return res.status(404).json({ message: 'Team project not found.' });
+        }
+
+        const accessRole = getMemberRole(project, req.user._id);
+        if (!hasPermission(accessRole, 'updateMembers')) {
+            return res.status(403).json({ message: 'Only the project owner can change member permissions.' });
         }
 
         const member = project.members.id(req.params.memberId);
@@ -1204,6 +1505,11 @@ router.patch('/:id/members/:memberId', protect, requirePro, async(req, res) => {
         }
 
         const removingUserId = req.body.status === 'removed' ? member.user : null;
+        const before = {
+            role: member.role,
+            groupName: member.groupName,
+            status: member.status
+        };
 
         if (Object.prototype.hasOwnProperty.call(req.body, 'role')) {
             member.role = INVITE_ROLES.includes(req.body.role) ? req.body.role : member.role;
@@ -1216,6 +1522,21 @@ router.patch('/:id/members/:memberId', protect, requirePro, async(req, res) => {
         if (Object.prototype.hasOwnProperty.call(req.body, 'status')) {
             member.status = ['active', 'removed'].includes(req.body.status) ? req.body.status : member.status;
         }
+
+        addAuditLog(project, req.user, accessRole, {
+            action: member.status === 'removed' ? 'member.removed' : 'member.updated',
+            label: `${member.name || member.email || 'Team member'} permission updated`,
+            targetType: 'member',
+            targetId: String(member._id),
+            details: {
+                before,
+                after: {
+                    role: member.role,
+                    groupName: member.groupName,
+                    status: member.status
+                }
+            }
+        });
 
         await project.save();
         if (removingUserId) {
@@ -1244,8 +1565,8 @@ router.post('/:id/resources', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can add build links.' });
+        if (!canManageDelivery(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can add proof links.' });
         }
 
         const resource = normalizeResources([{
@@ -1258,6 +1579,14 @@ router.post('/:id/resources', protect, async(req, res) => {
         }
 
         project.resources.push(resource);
+        addAuditLog(project, req.user, accessRole, {
+            action: 'resource.created',
+            label: `Added proof link "${resource.label}"`,
+            targetType: 'resource',
+            details: {
+                type: resource.type
+            }
+        });
         await project.save();
         const savedResource = project.resources[project.resources.length - 1];
         broadcastProjectEvent(project._id, 'resource', {
@@ -1287,8 +1616,8 @@ router.post('/:id/issues', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can add issues.' });
+        if (!canManageDelivery(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can add issues.' });
         }
 
         const issue = normalizeMaintenanceIssues([{
@@ -1301,6 +1630,16 @@ router.post('/:id/issues', protect, async(req, res) => {
         }
 
         project.maintenanceIssues.push(issue);
+        addAuditLog(project, req.user, accessRole, {
+            action: 'issue.created',
+            label: `Added issue "${issue.title}"`,
+            targetType: 'issue',
+            details: {
+                priority: issue.priority,
+                status: issue.status,
+                type: issue.type
+            }
+        });
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
@@ -1326,8 +1665,8 @@ router.patch('/:id/issues/:issueId', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can update issues.' });
+        if (!canManageDelivery(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can update issues.' });
         }
 
         const issue = project.maintenanceIssues.id(req.params.issueId);
@@ -1343,6 +1682,17 @@ router.patch('/:id/issues/:issueId', protect, async(req, res) => {
         if (Object.prototype.hasOwnProperty.call(req.body, 'groupName')) issue.groupName = cleanString(req.body.groupName);
         if (Object.prototype.hasOwnProperty.call(req.body, 'dueDate')) issue.dueDate = normalizeDate(req.body.dueDate);
         if (Object.prototype.hasOwnProperty.call(req.body, 'notes')) issue.notes = cleanString(req.body.notes);
+
+        addAuditLog(project, req.user, accessRole, {
+            action: 'issue.updated',
+            label: `Updated issue "${issue.title}"`,
+            targetType: 'issue',
+            targetId: String(issue._id),
+            details: {
+                status: issue.status,
+                priority: issue.priority
+            }
+        });
 
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
@@ -1369,8 +1719,8 @@ router.post('/:id/releases', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can add releases.' });
+        if (!canManageDelivery(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can add releases.' });
         }
 
         const release = normalizeReleases([{
@@ -1383,6 +1733,15 @@ router.post('/:id/releases', protect, async(req, res) => {
         }
 
         project.releases.push(release);
+        addAuditLog(project, req.user, accessRole, {
+            action: 'release.created',
+            label: `Added release "${release.version}"`,
+            targetType: 'release',
+            details: {
+                status: release.status,
+                title: release.title
+            }
+        });
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
@@ -1408,8 +1767,8 @@ router.patch('/:id/releases/:releaseId', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can update releases.' });
+        if (!canManageDelivery(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can update releases.' });
         }
 
         const release = project.releases.id(req.params.releaseId);
@@ -1422,6 +1781,17 @@ router.patch('/:id/releases/:releaseId', protect, async(req, res) => {
         if (Object.prototype.hasOwnProperty.call(req.body, 'status')) release.status = RELEASE_STATUSES.includes(req.body.status) ? req.body.status : release.status;
         if (Object.prototype.hasOwnProperty.call(req.body, 'targetDate')) release.targetDate = normalizeDate(req.body.targetDate);
         if (Object.prototype.hasOwnProperty.call(req.body, 'summary')) release.summary = cleanString(req.body.summary);
+
+        addAuditLog(project, req.user, accessRole, {
+            action: 'release.updated',
+            label: `Updated release "${release.version}"`,
+            targetType: 'release',
+            targetId: String(release._id),
+            details: {
+                status: release.status,
+                title: release.title
+            }
+        });
 
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
@@ -1448,8 +1818,8 @@ router.post('/:id/wiki-pages', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can add project docs.' });
+        if (!canManageDelivery(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can add project docs.' });
         }
 
         const page = normalizeWikiPages([{
@@ -1462,6 +1832,14 @@ router.post('/:id/wiki-pages', protect, async(req, res) => {
         }
 
         project.wikiPages.push(page);
+        addAuditLog(project, req.user, accessRole, {
+            action: 'wiki.created',
+            label: `Saved project doc "${page.title}"`,
+            targetType: 'wiki',
+            details: {
+                category: page.category
+            }
+        });
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
@@ -1487,11 +1865,17 @@ router.post('/:id/maintenance-agent', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!accessRole) {
-            return res.status(403).json({ message: 'You are not a member of this project.' });
+        if (!canRunAgents(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can refresh maintenance intelligence.' });
         }
 
         project.maintenanceAgent = buildMaintenanceAgentPlan(project.toObject());
+        addAuditLog(project, req.user, accessRole, {
+            action: 'agent.maintenance_refreshed',
+            label: 'Refreshed maintenance agent',
+            targetType: 'agent',
+            targetId: 'maintenance'
+        });
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
@@ -1517,8 +1901,8 @@ router.post('/:id/code-environments', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can add Code Arena environments.' });
+        if (!canManageCode(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can add Code Arena environments.' });
         }
 
         const environment = normalizeCodeEnvironments([{
@@ -1531,6 +1915,15 @@ router.post('/:id/code-environments', protect, async(req, res) => {
         }
 
         project.codeEnvironments.push(environment);
+        addAuditLog(project, req.user, accessRole, {
+            action: 'code_environment.created',
+            label: `Added code environment "${environment.name}"`,
+            targetType: 'code_environment',
+            details: {
+                os: environment.os,
+                runtime: environment.runtime
+            }
+        });
         await project.save();
         const savedEnvironment = project.codeEnvironments[project.codeEnvironments.length - 1];
         broadcastProjectEvent(project._id, 'code_environment', {
@@ -1560,8 +1953,8 @@ router.post('/:id/code-snippets', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can add code snippets.' });
+        if (!canManageCode(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can add code snippets.' });
         }
 
         const snippet = normalizeCodeSnippets([{
@@ -1574,6 +1967,15 @@ router.post('/:id/code-snippets', protect, async(req, res) => {
         }
 
         project.codeSnippets.push(snippet);
+        addAuditLog(project, req.user, accessRole, {
+            action: 'code_snippet.created',
+            label: `Added code snippet "${snippet.title}"`,
+            targetType: 'code_snippet',
+            details: {
+                language: snippet.language,
+                status: snippet.status
+            }
+        });
         await project.save();
         const savedSnippet = project.codeSnippets[project.codeSnippets.length - 1];
         broadcastProjectEvent(project._id, 'code_snippet', {
@@ -1603,8 +2005,8 @@ router.post('/:id/code-snippets/:snippetId/run', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can run sandbox code.' });
+        if (!canManageCode(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can run sandbox code.' });
         }
 
         const snippet = project.codeSnippets.id(req.params.snippetId);
@@ -1642,6 +2044,18 @@ router.post('/:id/code-snippets/:snippetId/run', protect, async(req, res) => {
         if (project.codeRuns.length > 30) {
             project.codeRuns = project.codeRuns.slice(-30);
         }
+
+        addAuditLog(project, req.user, accessRole, {
+            action: 'code_run.created',
+            label: `Ran code snippet "${snippet.title}"`,
+            targetType: 'code_run',
+            targetId: String(snippet._id),
+            details: {
+                status: result.status,
+                language: result.language,
+                exitCode: result.exitCode
+            }
+        });
 
         await project.save();
         const savedRun = project.codeRuns[project.codeRuns.length - 1];
@@ -1689,8 +2103,8 @@ router.post('/:id/messages', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!accessRole) {
-            return res.status(403).json({ message: 'You are not a member of this project.' });
+        if (!hasPermission(accessRole, 'chat')) {
+            return res.status(403).json({ message: 'You do not have permission to send project updates.' });
         }
 
         project.messages.push({
@@ -1702,6 +2116,15 @@ router.post('/:id/messages', protect, async(req, res) => {
         if (project.messages.length > 250) {
             project.messages = project.messages.slice(-250);
         }
+
+        addAuditLog(project, req.user, accessRole, {
+            action: 'message.created',
+            label: 'Posted project update',
+            targetType: 'message',
+            details: {
+                groupName
+            }
+        });
 
         await project.save();
         const savedMessage = project.messages[project.messages.length - 1];
@@ -1734,11 +2157,17 @@ router.post('/:id/ai-plan', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!canEditProject(accessRole)) {
-            return res.status(403).json({ message: 'Only owners and editors can generate the AI plan.' });
+        if (!canRunAgents(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can generate the AI plan.' });
         }
 
         project.aiPlan = buildTeamAiPlan(project.toObject());
+        addAuditLog(project, req.user, accessRole, {
+            action: 'agent.ai_plan_refreshed',
+            label: 'Refreshed team AI plan',
+            targetType: 'agent',
+            targetId: 'team_ai_plan'
+        });
         await project.save();
         broadcastProjectEvent(project._id, 'project_update', getProjectCollabSnapshot(project));
 
@@ -1765,11 +2194,17 @@ router.post('/:id/dev-agent', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!accessRole) {
-            return res.status(403).json({ message: 'You are not a member of this project.' });
+        if (!canRunAgents(accessRole)) {
+            return res.status(403).json({ message: 'Only owners, managers, delivery members, and editors can refresh developer intelligence.' });
         }
 
         project.developerAgent = buildDeveloperAgentPlan(project.toObject());
+        addAuditLog(project, req.user, accessRole, {
+            action: 'agent.dev_refreshed',
+            label: 'Refreshed developer agent',
+            targetType: 'agent',
+            targetId: 'developer'
+        });
         await project.save();
         broadcastProjectEvent(project._id, 'developer_agent', {
             projectId: String(project._id),

@@ -516,7 +516,7 @@ const memberSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['owner', 'editor', 'viewer'],
+        enum: ['owner', 'manager', 'delivery', 'finance', 'editor', 'viewer', 'client_viewer'],
         default: 'viewer'
     },
     groupName: {
@@ -549,7 +549,7 @@ const inviteSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['editor', 'viewer'],
+        enum: ['manager', 'delivery', 'finance', 'editor', 'viewer', 'client_viewer'],
         default: 'viewer'
     },
     groupName: {
@@ -578,6 +578,67 @@ const inviteSchema = new mongoose.Schema({
     revokedAt: {
         type: Date,
         default: null
+    }
+}, { _id: true });
+
+const auditLogSchema = new mongoose.Schema({
+    action: {
+        type: String,
+        required: true,
+        trim: true,
+        maxlength: 80
+    },
+    label: {
+        type: String,
+        default: '',
+        trim: true,
+        maxlength: 160
+    },
+    targetType: {
+        type: String,
+        default: '',
+        trim: true,
+        maxlength: 60
+    },
+    targetId: {
+        type: String,
+        default: '',
+        trim: true,
+        maxlength: 80
+    },
+    actor: {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            default: null
+        },
+        name: {
+            type: String,
+            default: '',
+            trim: true,
+            maxlength: 120
+        },
+        email: {
+            type: String,
+            default: '',
+            lowercase: true,
+            trim: true,
+            maxlength: 160
+        },
+        role: {
+            type: String,
+            default: '',
+            trim: true,
+            maxlength: 40
+        }
+    },
+    details: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {}
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 }, { _id: true });
 
@@ -638,6 +699,7 @@ const teamProjectSchema = new mongoose.Schema({
     messages: [messageSchema],
     members: [memberSchema],
     inviteTokens: [inviteSchema],
+    auditLogs: [auditLogSchema],
     aiPlan: {
         summary: {
             type: String,
@@ -749,5 +811,6 @@ teamProjectSchema.index({ user: 1, status: 1, updatedAt: -1 });
 teamProjectSchema.index({ user: 1, deadline: 1 });
 teamProjectSchema.index({ 'members.user': 1, updatedAt: -1 });
 teamProjectSchema.index({ 'inviteTokens.tokenHash': 1 });
+teamProjectSchema.index({ 'auditLogs.createdAt': -1 });
 
 module.exports = mongoose.model('TeamProject', teamProjectSchema);
