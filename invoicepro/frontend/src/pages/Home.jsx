@@ -51,6 +51,32 @@ const proWorthReasons = [
   ['If the freelancer wants stable monthly income', 'Growth Plan and Money GPS turn income goals into weekly actions instead of guesswork.']
 ];
 
+const paymentExplanationCards = [
+  {
+    title: 'Free access',
+    detail: 'For users who want to create an account, test the workflow, and understand if ClientFlow AI fits their work before paying.'
+  },
+  {
+    title: 'Pro workflow',
+    detail: 'For freelancers who want the full client finder, proposals, workroom, AI coach, invoices, payment follow-up, and growth actions.'
+  },
+  {
+    title: 'Agency setup',
+    detail: 'For beginners or busy freelancers who want help setting up their offer, outreach, proposal, workroom, invoice, and 7-day action plan.'
+  },
+  {
+    title: 'Enterprise seats',
+    detail: 'For companies or small teams that need members, roles, SSO settings, audit exports, backup exports, and per-user seat planning.'
+  }
+];
+
+const paymentReasonCards = [
+  ['Software access', 'Users pay for the full business workflow when it helps them manage real leads, projects, invoices, and follow-ups.'],
+  ['Setup help', 'Some users do not need more buttons; they need someone to set up their first clear client workflow.'],
+  ['Team control', 'Companies pay for organization workspace, permissions, audit records, and seat-based team access.'],
+  ['Payment provider cost', 'Checkout, subscriptions, invoice payment links, and international billing depend on real payment providers.']
+];
+
 const marketplaceDifference = [
   {
     label: 'Upwork/Fiverr model',
@@ -1046,6 +1072,43 @@ export default function Home() {
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
                 This is a setup and action plan service. It does not guarantee income, but it gives the freelancer a clearer system to execute.
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="responsive-heading-grid">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Payments explained</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Payment is separate from the product story.
+                </h2>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  The home page explains what ClientFlow AI solves. The payments page explains exact plans, region options, and checkout. This keeps new users clear before they decide to pay.
+                </p>
+                <Link to="/payments" className="mt-6 inline-flex btn btn-secondary px-6 py-3 text-sm">
+                  View all payment options
+                </Link>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {paymentExplanationCards.map((item) => (
+                  <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25">
+                    <h3 className="text-lg font-black text-white">{item.title}</h3>
+                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {paymentReasonCards.map(([title, text]) => (
+                <div key={title} className="rounded-[1.5rem] border border-sky-300/15 bg-sky-300/[0.045] p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">{title}</p>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">{text}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
