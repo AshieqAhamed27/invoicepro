@@ -7,6 +7,8 @@ const Organization = require('../models/Organization');
 const sendEmail = require('../utils/sendEmail');
 const { getJwtSecret, normalizeUrl } = require('../utils/env');
 const {
+    ensureFreeAccessWindow,
+    getFreeAccessState,
     protect,
     syncAdminRole
 } = require('../middleware/auth');
@@ -467,29 +469,37 @@ const generateToken = (id) => {
     );
 };
 
-const serializeUser = (user) => ({
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    plan: user.plan,
-    planExpiresAt: user.planExpiresAt,
-    subscriptionProvider: user.subscriptionProvider,
-    subscriptionStatus: user.subscriptionStatus,
-    razorpaySubscriptionId: user.razorpaySubscriptionId,
-    planStartedAt: user.planStartedAt,
-    lastPaymentAt: user.lastPaymentAt,
-    trialStartedAt: user.trialStartedAt,
-    trialUsedAt: user.trialUsedAt,
-    companyName: user.companyName,
-    gstNumber: user.gstNumber,
-    upiId: user.upiId,
-    address: user.address,
-    logo: user.logo,
-    enterpriseOrganization: user.enterpriseOrganization,
-    enterpriseRole: user.enterpriseRole,
-    enterpriseJoinedAt: user.enterpriseJoinedAt,
-    role: user.role
-});
+const serializeUser = (user) => {
+    const freeAccess = getFreeAccessState(user);
+
+    return {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        plan: user.plan,
+        planExpiresAt: user.planExpiresAt,
+        subscriptionProvider: user.subscriptionProvider,
+        subscriptionStatus: user.subscriptionStatus,
+        razorpaySubscriptionId: user.razorpaySubscriptionId,
+        planStartedAt: user.planStartedAt,
+        lastPaymentAt: user.lastPaymentAt,
+        trialStartedAt: user.trialStartedAt,
+        trialUsedAt: user.trialUsedAt,
+        freeAccessStartedAt: user.freeAccessStartedAt,
+        freeAccessExpiresAt: user.freeAccessExpiresAt,
+        freeAccess,
+        createdAt: user.createdAt,
+        companyName: user.companyName,
+        gstNumber: user.gstNumber,
+        upiId: user.upiId,
+        address: user.address,
+        logo: user.logo,
+        enterpriseOrganization: user.enterpriseOrganization,
+        enterpriseRole: user.enterpriseRole,
+        enterpriseJoinedAt: user.enterpriseJoinedAt,
+        role: user.role
+    };
+};
 
 // ==========================
 // SIGNUP
@@ -558,6 +568,7 @@ router.post(
                 });
 
             await syncAdminRole(user);
+            await ensureFreeAccessWindow(user);
 
             res.status(201).json({
                 message: 'Account created successfully!',
@@ -638,6 +649,7 @@ router.post(
 
             await syncAdminRole(user);
             await syncEnterpriseSsoMembership(user, 'google');
+            await ensureFreeAccessWindow(user);
 
             res.json({
                 message: 'Login successful!',
@@ -686,6 +698,7 @@ router.post(
             }
 
             await syncAdminRole(user);
+            await ensureFreeAccessWindow(user);
 
             res.json({
                 token: generateToken(

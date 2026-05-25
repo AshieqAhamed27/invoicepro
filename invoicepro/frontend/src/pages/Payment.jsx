@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
-import { getPlanLabel, getUser, hasProAccess } from '../utils/auth';
+import { getFreeAccessState, getPlanLabel, getUser, hasProAccess, isFreeFullAccessEnabled } from '../utils/auth';
 import { COMPANY_SHORT_NAME, SUPPORT_EMAIL } from '../utils/company';
 import { trackEvent } from '../utils/analytics';
 
@@ -402,16 +402,21 @@ export default function Payment() {
   }, []);
 
   const fallbackPlanDetails = getFallbackPlanDetails(market);
+  const freeFullAccessEnabled = isFreeFullAccessEnabled();
+  const freeAccessState = getFreeAccessState(accountUser);
+  const freeAccessActive = Boolean(freeFullAccessEnabled && freeAccessState.active);
   const alternateMarket = market === 'global' ? 'india' : 'global';
   const alternatePlanDetails = getFallbackPlanDetails(alternateMarket);
   const current = serverPlanDetails[getSafePlan(plan)] || fallbackPlanDetails[getSafePlan(plan)];
   const currentPlanReady = current.checkoutType === 'one_time' || current.subscriptionReady;
-  const checkoutDisabled = loading || pricingLoading || pricingBlocked || !currentPlanReady;
+  const checkoutDisabled = freeAccessActive ? false : loading || pricingLoading || pricingBlocked || !currentPlanReady;
   const earlyAccessAlreadyUsed = Boolean(accountUser?.earlyAccessUsedAt);
   const earlyAccessClosed = earlyAccessStatus?.enabled === false || Number(earlyAccessStatus?.seatsRemaining || 0) <= 0;
   const activePlanLabel = getPlanLabel(accountUser);
-  const earlyAccessDisabled = earlyAccessLoading || loading || hasProAccess(accountUser) || earlyAccessAlreadyUsed || earlyAccessClosed;
-  const earlyAccessButtonLabel = hasProAccess(accountUser)
+  const earlyAccessDisabled = freeAccessActive || earlyAccessLoading || loading || hasProAccess(accountUser) || earlyAccessAlreadyUsed || earlyAccessClosed;
+  const earlyAccessButtonLabel = freeAccessActive
+    ? `${freeAccessState.daysLeft || 30} Days Left`
+    : hasProAccess(accountUser)
     ? `${activePlanLabel} Active`
     : earlyAccessAlreadyUsed
       ? 'Early Access Already Used'
@@ -734,6 +739,15 @@ export default function Payment() {
     setPlan(selectedPlan);
     localStorage.setItem("plan", selectedPlan);
 
+    if (freeAccessActive) {
+      trackEvent('open_free_full_access_from_payment', {
+        plan: selectedPlan,
+        market
+      });
+      window.location.href = '/client-flow';
+      return;
+    }
+
     if (current.checkoutType === 'one_time') {
       await handleOneTimePayment(selectedPlan);
       return;
@@ -894,20 +908,35 @@ export default function Payment() {
                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Secure Checkout</p>
             </div>
             <h1 className="text-4xl font-bold sm:text-5xl xl:text-7xl tracking-tight text-white mb-6 leading-none">
-              Buy ClientFlow AI Pro <br /> <span className="text-zinc-600">for your freelance workflow.</span>
+              ClientFlow AI is free now <br /> <span className="text-zinc-600">for your freelance workflow.</span>
             </h1>
 
             <p className="max-w-xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed mb-8 sm:mb-10">
-              Pro unlocks the full lead-to-payment system: find clients, send proposals, manage delivery, create invoices, and follow up pending money.
+              All logged-in users currently get the full lead-to-payment system: find clients, send proposals, manage delivery, create invoices, and follow up pending money.
             </p>
+
+            {freeAccessActive && (
+              <div className="mb-6 rounded-[1.75rem] border border-emerald-300/25 bg-emerald-300/[0.08] p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">30-day free access is active</p>
+                <h2 className="mt-2 text-2xl font-black text-white">
+                  You have {freeAccessState.daysLeft || 30} day{(freeAccessState.daysLeft || 30) === 1 ? '' : 's'} left.
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-300">
+                  Use the full software workflow during this window. Paid Agency Setup and Enterprise Team Setup are still available if a user wants hands-on setup help.
+                </p>
+                <Link to="/client-flow" className="mt-5 inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
+                  Open Free Workspace
+                </Link>
+              </div>
+            )}
 
             <div className="mb-6 rounded-[1.75rem] border border-yellow-300/20 bg-yellow-300/[0.06] p-5 sm:p-6">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Freelance workflow payment only</p>
               <h2 className="mt-2 text-2xl font-black text-white">
-                This page is only for Pro software access.
+                This page is only for software access.
               </h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                Agency Setup and Enterprise Team Setup have their own separate payment pages now.
+                New users get 30 days of free software access. Agency Setup and Enterprise Team Setup have their own separate payment pages.
               </p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Link to="/payments/agency-setup" className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15">
@@ -953,7 +982,7 @@ export default function Payment() {
                     {current.label} for {pricingLoading ? 'live price check' : formatMoney(current.amount, current.currency)}
                   </h2>
                   <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
-                    Choose the billing market, pick a plan, complete Razorpay checkout, and Pro access opens in your workspace.
+                    Free software access lasts 30 days. After that, users can choose a paid software checkout plan without changing the product workflow.
                   </p>
                   {market === 'global' && (
                     <p className="mt-3 text-xs font-bold leading-relaxed text-cyan-100/80">
@@ -967,7 +996,7 @@ export default function Payment() {
                   disabled={checkoutDisabled}
                   className="rounded-2xl bg-yellow-400 px-6 py-4 text-sm font-black uppercase tracking-widest text-black shadow-xl shadow-yellow-950/20 transition-all hover:-translate-y-0.5 hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {pricingLoading ? 'Checking Price' : loading ? 'Opening Checkout' : currentPlanReady ? 'Buy Now' : 'Setup Required'}
+                  {freeAccessActive ? 'Open Free Workspace' : pricingLoading ? 'Checking Price' : loading ? 'Opening Checkout' : currentPlanReady ? 'Buy Now' : 'Setup Required'}
                 </button>
               </div>
 
@@ -1021,7 +1050,7 @@ export default function Payment() {
                     Early-user free access
                   </p>
                   <h2 className="mt-2 text-2xl font-black text-white">
-                    First {earlyAccessStatus?.seatLimit || 50} freelancers get {earlyAccessStatus?.days || 30} days of Pro free.
+                    Full software access is open for 30 days after signup.
                   </h2>
                   <p className="mt-2 text-sm font-semibold leading-relaxed text-emerald-50/70">
                     No card needed. Use the full workflow, then share honest feedback so ClientFlow AI can improve for real freelancers.
@@ -1069,7 +1098,7 @@ export default function Payment() {
                      <p className="text-[10px] font-black uppercase tracking-widest">{details.label}</p>
                      <p className="mt-2 text-2xl font-black text-white">{formatMoney(details.amount, details.currency)}</p>
                      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">
-                       {details.duration}
+                       {freeAccessActive ? 'Free trial active' : details.duration}
                      </p>
                      {planFeatureDetails[id] && (
                        <div className="mt-4 rounded-xl border border-white/8 bg-black/20 p-3">
@@ -1107,9 +1136,11 @@ export default function Payment() {
                   </div>
                   <div className="text-left sm:text-right">
                     <p className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                      {pricingLoading ? 'Checking...' : formatMoney(current.amount, current.currency)}
+                      {freeAccessActive ? 'Rs 0 / $0' : pricingLoading ? 'Checking...' : formatMoney(current.amount, current.currency)}
                     </p>
-                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">Subscription Price</p>
+                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">
+                      {freeAccessActive ? 'Current software price' : 'Subscription Price'}
+                    </p>
                   </div>
                </div>
 
@@ -1153,7 +1184,7 @@ export default function Payment() {
                     <span className="text-zinc-600 uppercase tracking-widest">
                       {current.checkoutType === 'one_time' ? 'One-Time Plan' : 'Recurring Plan'}
                     </span>
-                    <span className="text-white">{pricingLoading ? 'Checking...' : formatMoney(current.amount, current.currency)}</span>
+                    <span className="text-white">{freeAccessActive ? 'Free now' : pricingLoading ? 'Checking...' : formatMoney(current.amount, current.currency)}</span>
                   </div>
                   <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-sm font-bold">
                     <span className="text-zinc-600 uppercase tracking-widest">Payment Processing</span>
@@ -1162,9 +1193,9 @@ export default function Payment() {
                   <div className="pt-6 border-t border-white/5 flex flex-col items-end">
                     <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em] mb-2">Plan Amount</p>
                     <p className="text-4xl sm:text-5xl font-black text-white tracking-tight">
-                      {pricingLoading ? '--' : formatMoney(current.amount, current.currency)}
+                      {freeAccessActive ? 'Free' : pricingLoading ? '--' : formatMoney(current.amount, current.currency)}
                     </p>
-                    <p className="text-xs font-bold text-zinc-500 mt-2">{current.duration}</p>
+                    <p className="text-xs font-bold text-zinc-500 mt-2">{freeAccessActive ? `${freeAccessState.daysLeft || 30} days left` : current.duration}</p>
                   </div>
                </div>
 
@@ -1189,7 +1220,9 @@ export default function Payment() {
                >
                  {pricingLoading
                    ? 'Verifying Price...'
-                   : loading
+                   : freeAccessActive
+                     ? 'Open Free Workspace'
+                     : loading
                      ? 'Starting Checkout...'
                      : !currentPlanReady
                        ? 'Checkout Setup Needed'

@@ -520,10 +520,10 @@ const routeGuides = [
   {
     match: (pathname) => pathname.startsWith('/payment'),
     label: 'Plan Guide',
-    starter: `You are checking plans. Honest rule: use free for simple invoices, use Pro only if you need client workflow, follow-ups, proposals, and payment tracking.`,
+    starter: 'You are checking plans. Software access is free for 30 days after signup. Pay only after that, or if you want Agency Setup or Enterprise Team Setup help.',
     questions: [
-      'Should I upgrade to Pro?',
-      'What does Pro unlock?',
+      'What is free now?',
+      'What setup services are paid?',
       'Can I start free?',
       'How does payment tracking work?',
       'How can this save time?',

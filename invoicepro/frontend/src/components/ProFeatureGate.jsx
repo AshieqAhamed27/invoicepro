@@ -10,8 +10,8 @@ const proBenefits = [
 ];
 
 export default function ProFeatureGate({
-  title = 'This is a Pro feature',
-  description = 'Upgrade to unlock the growth and automation tools that help you find clients, close deals, and collect payment faster.'
+  title = 'This feature needs active access',
+  description = 'New users get 30 days of full access after signup. After that window ends, choose a paid software plan to keep these workflow tools active.'
 }) {
   const location = useLocation();
   const redirectPath = `${location.pathname}${location.search || ''}${location.hash || ''}`;
@@ -23,7 +23,7 @@ export default function ProFeatureGate({
         <section className="mx-auto grid w-full max-w-5xl gap-8">
           <div className="premium-panel p-6 sm:p-10">
             <div className="mb-5 inline-flex rounded-full border border-yellow-300/20 bg-yellow-300/10 px-3 py-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">Pro Only</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">30-Day Free Access</span>
             </div>
             <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">
               {title}
@@ -38,7 +38,7 @@ export default function ProFeatureGate({
                 state={{ from: redirectPath }}
                 className="btn btn-primary px-8 py-4 text-base font-black"
               >
-                View Payments
+                View Plans
               </Link>
               <Link
                 to="/dashboard"
@@ -50,7 +50,7 @@ export default function ProFeatureGate({
           </div>
 
           <aside className="premium-panel p-6 sm:p-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">What unlocks after payment</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">What unlocks after login</p>
             <div className="mt-6 grid gap-4">
               {proBenefits.map((benefit) => (
                 <div key={benefit} className="flex gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
@@ -60,7 +60,7 @@ export default function ProFeatureGate({
               ))}
             </div>
             <p className="mt-6 text-xs font-semibold leading-relaxed text-zinc-500">
-              Free users can still use the basic dashboard and limited invoice creation. Pro unlocks the tools designed to help users earn more, not just create documents.
+              Software access is free for 30 days after signup. Paid setup services remain optional for users who want hands-on help.
             </p>
           </aside>
         </section>

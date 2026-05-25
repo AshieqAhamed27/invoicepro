@@ -53,7 +53,7 @@ const teamProblems = [
 const enterpriseSignals = [
   ['Trust', 'Clear support contact, business registration display, security readiness page, honest certification status, and policy pages.'],
   ['Control', 'Admin-only pages, protected routes, payment verification, and configurable automation secrets.'],
-  ['Scale path', 'Free users can start simple, Pro users can grow, and teams can request managed enterprise setup.'],
+  ['Scale path', 'Logged-in users can use the full workflow for free now, and teams can request managed enterprise setup when they need help.'],
   ['Global readiness', 'India-first billing with international payment direction for non-India customers when payment provider setup is enabled.']
 ];
 

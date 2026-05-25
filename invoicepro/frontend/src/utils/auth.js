@@ -2,6 +2,8 @@ import { jwtDecode } from 'jwt-decode';
 
 const POST_LOGIN_REDIRECT_KEY = 'postLoginRedirect';
 const FREE_FULL_ACCESS_ENABLED = String(import.meta.env?.VITE_FREE_FULL_ACCESS_ENABLED ?? 'true').toLowerCase() !== 'false';
+const FREE_FULL_ACCESS_DAYS = Math.max(1, Number.parseInt(import.meta.env?.VITE_FREE_FULL_ACCESS_DAYS || '30', 10) || 30);
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export const getUser = () => {
   try {
@@ -76,11 +78,58 @@ export const isLoggedIn = () => {
 };
 
 export const isFreeFullAccessEnabled = () => FREE_FULL_ACCESS_ENABLED;
+export const getFreeFullAccessDays = () => FREE_FULL_ACCESS_DAYS;
+
+const parseDate = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+export const getFreeAccessState = (user = getUser()) => {
+  if (!user || user.role === 'admin' || (user.plan && user.plan !== 'free')) {
+    return {
+      enabled: FREE_FULL_ACCESS_ENABLED,
+      days: FREE_FULL_ACCESS_DAYS,
+      startedAt: null,
+      expiresAt: null,
+      provisional: false,
+      active: false,
+      expired: false,
+      daysLeft: 0
+    };
+  }
+
+  const startedAt = parseDate(user?.freeAccessStartedAt || user?.createdAt);
+  const configuredExpiry = parseDate(user?.freeAccessExpiresAt);
+  const provisional = FREE_FULL_ACCESS_ENABLED && user && !startedAt && !configuredExpiry;
+  const expiresAt = configuredExpiry || (startedAt ? new Date(startedAt.getTime() + FREE_FULL_ACCESS_DAYS * DAY_MS) : null);
+  const daysLeft = expiresAt ? Math.ceil((expiresAt.getTime() - Date.now()) / DAY_MS) : FREE_FULL_ACCESS_DAYS;
+  const active = Boolean(
+    FREE_FULL_ACCESS_ENABLED &&
+    user &&
+    (
+      provisional ||
+      (startedAt && expiresAt && expiresAt > new Date())
+    )
+  );
+
+  return {
+    enabled: FREE_FULL_ACCESS_ENABLED,
+    days: FREE_FULL_ACCESS_DAYS,
+    startedAt,
+    expiresAt,
+    provisional,
+    active,
+    expired: Boolean(FREE_FULL_ACCESS_ENABLED && user && expiresAt && expiresAt <= new Date()),
+    daysLeft: Math.max(daysLeft, 0)
+  };
+};
 
 export const hasProAccess = (user = getUser()) => {
   if (!user) return false;
-  if (FREE_FULL_ACCESS_ENABLED) return true;
   if (user.role === 'admin') return true;
+  if (getFreeAccessState(user).active) return true;
   if (!user.plan || user.plan === 'free') return false;
 
   if (user.planExpiresAt) {
@@ -95,7 +144,8 @@ export const hasProAccess = (user = getUser()) => {
 
 export const getPlanLabel = (user = getUser()) => {
   if (user?.role === 'admin') return 'Admin';
-  if (FREE_FULL_ACCESS_ENABLED && user) return 'Free Full Access';
+  if (getFreeAccessState(user).active) return `${FREE_FULL_ACCESS_DAYS}-Day Free Access`;
+  if (getFreeAccessState(user).expired) return 'Free Access Expired';
   if (!user?.plan || user.plan === 'free') return 'Free';
   if (user.plan === 'trial') return 'Pro Trial';
   if (user.plan === 'early_access') return 'Early Access';

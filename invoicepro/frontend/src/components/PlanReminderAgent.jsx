@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { formatDate, getPlanLabel, getUser, hasProAccess, isLoggedIn } from '../utils/auth';
+import { formatDate, getPlanLabel, getUser, isFreeFullAccessEnabled, isLoggedIn } from '../utils/auth';
 
 const DEVICE_REMINDER_KEY = 'clientflow_plan_device_reminders_enabled';
 const PLAN_EXPIRY_REMINDER_DAYS = 2;
@@ -81,7 +81,7 @@ export default function PlanReminderAgent() {
   }, [location.pathname]);
 
   const expiryState = useMemo(() => getExpiryState(user), [user]);
-  const hasPlanWithExpiry = Boolean(user?.plan && user.plan !== 'free' && expiryState.expiresAt);
+  const hasPlanWithExpiry = Boolean(!isFreeFullAccessEnabled() && user?.plan && user.plan !== 'free' && expiryState.expiresAt);
   const shouldRemind = Boolean(user && hasPlanWithExpiry && (expiryState.expiringSoon || expiryState.expired));
   const todayKey = getDateKey();
   const reminder = useMemo(() => getReminderCopy(user, expiryState), [user, expiryState]);

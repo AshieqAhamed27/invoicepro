@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { getUser, hasProAccess, isLoggedIn, setPostLoginRedirect } from '../utils/auth';
+import { getFreeAccessState, getUser, hasProAccess, isFreeFullAccessEnabled, isLoggedIn, setPostLoginRedirect } from '../utils/auth';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { COMPANY_NAME, SUPPORT_EMAIL } from '../utils/company';
 import { trackCtaClick } from '../utils/analytics';
@@ -38,12 +38,12 @@ const paymentOptions = [
   {
     id: 'free',
     label: 'Free Access',
-    title: 'Test the workflow first',
-    detail: 'Use the product, understand the lead-to-payment flow, and create your workspace before paying.',
-    bestFor: 'New users who are checking whether ClientFlow AI fits their freelance workflow.',
+    title: '30 days full software access',
+    detail: 'Use the product, understand the lead-to-payment flow, create your workspace, and use the full workflow for 30 days after login.',
+    bestFor: 'New users who want to try ClientFlow AI seriously before paying for software access.',
     cta: 'Start Free',
     tone: 'sky',
-    points: ['Login or signup required', 'Good for learning the workflow', 'Upgrade only when the full workflow is useful']
+    points: ['Login or signup required', 'Full workflow access for 30 days', 'Paid setup services stay optional']
   },
   {
     id: 'monthly',
@@ -126,7 +126,7 @@ const checkoutSteps = [
   ['Choose payment type', 'Free, Pro, Founder access, Agency Setup, Enterprise Seats, or Enterprise Team Setup.'],
   ['Login or signup', 'A workspace account is required so access can be attached to the correct user.'],
   ['Pay securely', 'Checkout runs through configured payment providers such as Razorpay.'],
-  ['Use the workflow', 'After payment, Pro tools open inside your ClientFlow AI workspace.']
+  ['Use the workflow', 'New users get 30 days free. After that, paid software plans or setup services can be used when needed.']
 ];
 
 const toneClass = {
@@ -169,6 +169,8 @@ export default function PaymentsOverview() {
   const loggedIn = isLoggedIn();
   const user = loggedIn ? getUser() : null;
   const isPro = hasProAccess(user);
+  const freeFullAccessEnabled = isFreeFullAccessEnabled();
+  const freeAccessState = getFreeAccessState(user);
   const [market, setMarket] = useState(() => {
     const queryMarket = new URLSearchParams(location.search).get('market');
     return getSafeMarket(queryMarket || localStorage.getItem('billingMarket'));
@@ -201,7 +203,7 @@ export default function PaymentsOverview() {
   };
 
   const startCheckout = (planId) => {
-    if (planId === 'free') {
+    if (planId === 'free' || (freeFullAccessEnabled && (!loggedIn || isPro))) {
       startFree();
       return;
     }
@@ -242,7 +244,7 @@ export default function PaymentsOverview() {
                 Choose how you want to use ClientFlow AI.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400">
-                Choose one clear payment page. Freelance workflow, Agency Setup, and Enterprise Team Setup now have separate checkout paths.
+                Software access is free for 30 days after signup. Agency Setup and Enterprise Team Setup remain separate optional paid services.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <button type="button" onClick={startFree} className="btn btn-primary px-7 py-4 text-sm">
@@ -324,8 +326,16 @@ export default function PaymentsOverview() {
             <div className="mb-8 max-w-3xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Software access</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Pay only when the full workflow helps your business.
+                Start with 30 days of full software access.
               </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                Create an account to use the workflow for 30 days. After the free window ends, users can choose a paid software plan.
+              </p>
+              {loggedIn && freeAccessState.active && (
+                <p className="mt-3 text-sm font-black text-emerald-200">
+                  Your free access has {freeAccessState.daysLeft} day{freeAccessState.daysLeft === 1 ? '' : 's'} left.
+                </p>
+              )}
             </div>
 
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -352,7 +362,11 @@ export default function PaymentsOverview() {
                         : 'border border-white/10 bg-white/[0.04] text-white hover:bg-white/10'
                     }`}
                   >
-                    {option.id === 'monthly' && isPro ? 'Manage Pro' : option.cta}
+                    {freeFullAccessEnabled && option.id !== 'free' && freeAccessState.active
+                      ? 'Free Window Active'
+                      : option.id === 'monthly' && isPro
+                        ? 'Open Workspace'
+                        : option.cta}
                   </button>
                 </div>
               ))}

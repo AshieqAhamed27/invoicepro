@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BrandLogo from '../components/BrandLogo';
-import { formatDate, getPlanLabel, getUser, hasProAccess, isLoggedIn, setPostLoginRedirect } from '../utils/auth';
+import { formatDate, getFreeAccessState, getPlanLabel, getUser, hasProAccess, isFreeFullAccessEnabled, isLoggedIn, setPostLoginRedirect } from '../utils/auth';
 import { trackCtaClick } from '../utils/analytics';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { featurePageCards } from '../utils/featurePages';
@@ -54,7 +54,7 @@ const proWorthReasons = [
 const paymentExplanationCards = [
   {
     title: 'Free access',
-    detail: 'For users who want to create an account, test the workflow, and understand if ClientFlow AI fits their work before paying.'
+    detail: 'For users who want to create an account and use the full ClientFlow AI workflow for 30 days before paying.'
   },
   {
     title: 'Pro workflow',
@@ -159,7 +159,7 @@ const whyPathCards = [
     tone: 'yellow',
     problem: 'Freelancers lose leads and money when replies, proposals, work, invoices, and follow-ups stay in separate places.',
     solution: 'ClientFlow AI gives one daily flow: find client, send proposal, manage work, create invoice, follow up payment, and track income.',
-    useWhen: 'Use this when you want to run your own client workflow and upgrade only when Pro helps real work.',
+    useWhen: 'Use this when you want to run your own client workflow with login-required free access.',
     cta: 'Start Freelance Workflow',
     path: '/client-flow'
   },
@@ -228,16 +228,16 @@ const plans = [
     id: 'early_access',
     name: 'Early Access',
     price: 'Rs 0',
-    note: '30 days Pro free for first 50 freelancers',
-    features: ['Full Pro workflow for 30 days', 'No card required', 'Give feedback and help shape the product'],
-    cta: 'Get Early Access'
+    note: '30 days full access after signup',
+    features: ['Full workflow for 30 days', 'No card required', 'Give feedback and help shape the product'],
+    cta: 'Start 30-Day Free Access'
   },
   {
     id: 'free',
     name: 'Free',
     price: 'Rs 0',
-    note: 'Login or signup required',
-    features: ['Free account saves your workspace', 'Try the lead to payment flow', 'Create limited invoices', 'Understand if the product fits your work'],
+    note: '30 days full software access',
+    features: ['Free account saves your workspace', 'Use the lead to payment flow', 'Create invoices and proposals', 'Use AI workflow tools during the 30-day free window'],
     cta: 'Create Free Account'
   },
   {
@@ -303,7 +303,7 @@ const buyerPathCards = [
   {
     title: 'Try it first',
     price: 'Rs 0',
-    text: 'Create a free account, use the workflow, create invoices, and understand if ClientFlow AI fits your freelance work.',
+    text: 'Create a free account and use the full workflow for 30 days. After that, paid software access can be enabled.',
     action: 'Create Free Account',
     planId: 'free'
   },
@@ -366,9 +366,9 @@ const fitAdvisorStages = [
   {
     id: 'active',
     label: 'I have real client work',
-    result: 'Pro is the better fit',
-    action: 'Buy Pro Monthly',
-    planId: 'monthly'
+    result: 'Use 30-day free access now',
+    action: 'Open Workflow',
+    planId: 'free'
   },
   {
     id: 'confused',
@@ -511,15 +511,19 @@ export default function Home() {
   const [billingMarket, setBillingMarket] = useState(getInitialBillingMarket);
   const loggedIn = isLoggedIn();
   const currentUser = loggedIn ? getUser() : null;
+  const freeFullAccessEnabled = isFreeFullAccessEnabled();
+  const freeAccessState = getFreeAccessState(currentUser);
   const planLabel = getPlanLabel(currentUser);
   const hasActivePro = hasProAccess(currentUser);
   const expiryState = getExpiryState(currentUser);
-  const hasPlanWithExpiry = Boolean(currentUser?.plan && currentUser.plan !== 'free' && expiryState.expiresAt);
+  const hasPlanWithExpiry = Boolean(!freeFullAccessEnabled && currentUser?.plan && currentUser.plan !== 'free' && expiryState.expiresAt);
   const showExpiryAlert = loggedIn && hasPlanWithExpiry && (expiryState.expiringSoon || expiryState.expired);
   const accountStatus = !loggedIn
     ? null
     : showExpiryAlert && expiryState.expired
       ? `${planLabel} expired`
+      : freeAccessState.expired
+        ? '30-day free access ended'
       : hasActivePro
         ? `${planLabel} active`
         : 'Free version active';
@@ -529,10 +533,14 @@ export default function Home() {
       ? expiryState.expired
         ? 'Your Pro access has expired. Renew to keep AI tools, unlimited invoices, and team workspace active.'
         : `Your ${planLabel} expires in ${expiryState.daysLeft} day${expiryState.daysLeft === 1 ? '' : 's'}. Renew early so your workflow does not stop.`
+      : freeAccessState.expired
+        ? 'Your 30-day free software window has ended. You can choose a paid software plan or continue with free basics.'
       : hasActivePro
         ? expiryState.expiresAt
           ? `Your ${planLabel} is active until ${formatDate(expiryState.expiresAt)}.`
-          : `Your ${planLabel} is active.`
+          : freeFullAccessEnabled
+            ? `${freeAccessState.daysLeft || 30} day${(freeAccessState.daysLeft || 30) === 1 ? '' : 's'} left in your free full-access window.`
+            : `Your ${planLabel} is active.`
         : 'You are using the Free version. Open the payments page only when you want to compare Pro, setup, or enterprise options.';
   const selectedAdvisorProblem = fitAdvisorProblems.find((item) => item.id === advisorProblem) || fitAdvisorProblems[0];
   const selectedAdvisorStage = fitAdvisorStages.find((item) => item.id === advisorStage) || fitAdvisorStages[0];
@@ -582,6 +590,14 @@ export default function Home() {
   const getPaymentsPath = (extra = '') => `/payments?market=${billingMarket}${extra ? `&${extra}` : ''}`;
 
   const selectPlan = (planId) => {
+    if (freeFullAccessEnabled && (!loggedIn || hasActivePro)) {
+      const nextPath = loggedIn ? '/client-flow' : '/signup';
+      if (!loggedIn) setPostLoginRedirect('/client-flow');
+      trackCtaClick(`select_${planId}_free_full_access`, 'home_payments_redirect', nextPath);
+      navigate(nextPath);
+      return;
+    }
+
     if (planId === 'early_access') {
       const earlyAccessPath = getPaymentsPath('plan=early_access');
 

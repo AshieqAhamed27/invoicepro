@@ -80,6 +80,16 @@ const userSchema = new mongoose.Schema({
         default: null
     },
 
+    freeAccessStartedAt: {
+        type: Date,
+        default: null
+    },
+
+    freeAccessExpiresAt: {
+        type: Date,
+        default: null
+    },
+
     companyName: {
         type: String,
         default: ''

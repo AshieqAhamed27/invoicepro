@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import IntegrationReadinessHub from '../components/IntegrationReadinessHub';
 import api from '../utils/api';
-import { getUser } from '../utils/auth';
+import { getUser, hasProAccess } from '../utils/auth';
 
 const statusClass = (ready) =>
   ready
@@ -161,7 +161,7 @@ export default function LaunchCenter() {
   const stats = dashboard?.stats || {};
   const readiness = health?.readiness || {};
   const runtimeChecks = readiness.checks || [];
-  const isPro = user?.plan && user.plan !== 'free';
+  const isPro = hasProAccess(user);
 
   const workspaceChecks = useMemo(() => ([
     {
@@ -220,10 +220,10 @@ export default function LaunchCenter() {
     {
       id: 'pro-plan',
       category: 'Monetization',
-      label: 'Founder account on Pro',
+      label: 'Founder account has full access',
       ready: Boolean(isPro || subscription),
-      action: 'Test the upgrade path and confirm Pro access changes in the dashboard.',
-      doneText: 'Pro access is active or a subscription record exists.',
+      action: 'Confirm the account can open the full workflow.',
+      doneText: 'Full software access is active or a subscription record exists.',
       path: '/payment'
     }
   ]), [isPro, stats.paid, stats.paymentLinks, stats.total, subscription, user?.companyName, user?.name, user?.upiId]);

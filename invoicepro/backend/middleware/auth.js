@@ -4,6 +4,8 @@ const { getJwtSecret } = require('../utils/env');
 
 const DEFAULT_ADMIN_EMAILS = ['ashieqahamed4@gmail.com'];
 const FREE_FULL_ACCESS_ENABLED = String(process.env.FREE_FULL_ACCESS_ENABLED ?? 'true').toLowerCase() !== 'false';
+const FREE_FULL_ACCESS_DAYS = Math.max(1, Number.parseInt(process.env.FREE_FULL_ACCESS_DAYS || '30', 10) || 30);
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
 
@@ -24,6 +26,59 @@ const syncAdminRole = async (user) => {
   }
 
   user.role = 'admin';
+  await user.save();
+  return user;
+};
+
+const hasCurrentPaidPlan = (user) => {
+  if (!user || !user.plan || user.plan === 'free') return false;
+
+  if (user.planExpiresAt) {
+    const expiresAt = new Date(user.planExpiresAt);
+    if (!Number.isNaN(expiresAt.getTime()) && expiresAt <= new Date()) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const getFreeAccessState = (user) => {
+  const startedAt = user?.freeAccessStartedAt ? new Date(user.freeAccessStartedAt) : null;
+  const configuredExpiry = user?.freeAccessExpiresAt ? new Date(user.freeAccessExpiresAt) : null;
+  const validStart = startedAt && !Number.isNaN(startedAt.getTime()) ? startedAt : null;
+  const expiresAt = configuredExpiry && !Number.isNaN(configuredExpiry.getTime())
+    ? configuredExpiry
+    : validStart
+      ? new Date(validStart.getTime() + FREE_FULL_ACCESS_DAYS * DAY_MS)
+      : null;
+  const daysLeft = expiresAt ? Math.ceil((expiresAt.getTime() - Date.now()) / DAY_MS) : 0;
+
+  return {
+    enabled: FREE_FULL_ACCESS_ENABLED,
+    days: FREE_FULL_ACCESS_DAYS,
+    startedAt: validStart,
+    expiresAt,
+    active: Boolean(FREE_FULL_ACCESS_ENABLED && validStart && expiresAt && expiresAt > new Date()),
+    expired: Boolean(FREE_FULL_ACCESS_ENABLED && expiresAt && expiresAt <= new Date()),
+    daysLeft: Math.max(daysLeft, 0)
+  };
+};
+
+const ensureFreeAccessWindow = async (user) => {
+  if (!FREE_FULL_ACCESS_ENABLED || !user || user.role === 'admin' || hasCurrentPaidPlan(user)) {
+    return user;
+  }
+
+  const currentState = getFreeAccessState(user);
+
+  if (currentState.startedAt && currentState.expiresAt) {
+    return user;
+  }
+
+  const startedAt = currentState.startedAt || new Date();
+  user.freeAccessStartedAt = startedAt;
+  user.freeAccessExpiresAt = currentState.expiresAt || new Date(startedAt.getTime() + FREE_FULL_ACCESS_DAYS * DAY_MS);
   await user.save();
   return user;
 };
@@ -61,6 +116,8 @@ const protect = async (req, res, next) => {
       await req.user.save();
     }
 
+    await ensureFreeAccessWindow(req.user);
+
     next();
   } catch (err) {
     const expired = err?.name === 'TokenExpiredError';
@@ -73,18 +130,9 @@ const protect = async (req, res, next) => {
 
 const hasPaidPlan = (user) => {
   if (!user) return false;
-  if (FREE_FULL_ACCESS_ENABLED) return true;
   if (user.role === 'admin') return true;
-  if (!user.plan || user.plan === 'free') return false;
-
-  if (user.planExpiresAt) {
-    const expiresAt = new Date(user.planExpiresAt);
-    if (!Number.isNaN(expiresAt.getTime()) && expiresAt <= new Date()) {
-      return false;
-    }
-  }
-
-  return true;
+  if (hasCurrentPaidPlan(user)) return true;
+  return getFreeAccessState(user).active;
 };
 
 const requirePro = (req, res, next) => {
@@ -101,4 +149,13 @@ const requirePro = (req, res, next) => {
 
 const isFreeFullAccessEnabled = () => FREE_FULL_ACCESS_ENABLED;
 
-module.exports = { protect, requirePro, hasPaidPlan, isAdminEmail, isFreeFullAccessEnabled, syncAdminRole };
+module.exports = {
+  ensureFreeAccessWindow,
+  getFreeAccessState,
+  protect,
+  requirePro,
+  hasPaidPlan,
+  isAdminEmail,
+  isFreeFullAccessEnabled,
+  syncAdminRole
+};

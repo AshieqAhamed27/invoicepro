@@ -48,7 +48,7 @@ const pages = {
     ],
     workflow: ['Enter client', 'Add service items', 'Preview total', 'Share invoice'],
     faqs: [
-      ['Is ClientFlow AI free to start?', 'Yes. You can start with the free workspace and upgrade when you need Pro features.'],
+      ['Is ClientFlow AI free to start?', 'Yes. Current launch access gives logged-in users the full software workflow free for 30 days.'],
       ['Can clients open invoices without login?', 'Yes. Public invoice links open in a normal browser.'],
       ['Can I use it on mobile?', 'Yes. The website is responsive for desktop and mobile screens.']
     ]
@@ -113,7 +113,7 @@ const pages = {
     features: [
       'Use public invoice pages that show totals, due date, and payment options.',
       'Keep manual paid marking blocked so payment status stays connected to verification.',
-      'Upgrade through Razorpay subscriptions for Pro billing features.'
+      'Use Razorpay subscriptions for paid software plans later when Pro checkout is enabled again.'
     ],
     workflow: ['Share invoice link', 'Client pays securely', 'Payment verifies', 'Dashboard updates'],
     faqs: [
