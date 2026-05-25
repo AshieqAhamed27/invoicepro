@@ -28,6 +28,14 @@ const sections = [
     body: 'If you use online payments, payment collection may be handled through third-party processors such as Razorpay. Those processors may apply their own terms, policies, and verification requirements.'
   },
   {
+    title: 'Security and compliance status',
+    body: `${COMPANY_NAME} provides product security controls such as authentication, protected routes, role-based organization access, audit exports, backup exports, rate limits, and payment-provider handling. ${COMPANY_NAME} is not SOC 2 certified or ISO 27001 certified unless that certification is explicitly published after a completed external audit.`
+  },
+  {
+    title: 'Enterprise controls',
+    body: 'Organization workspace controls depend on correct setup by the account owner or admin. You are responsible for inviting the right people, assigning the correct roles, reviewing exports, and keeping your own login provider account secure.'
+  },
+  {
     title: 'Availability and updates',
     body: 'We work to keep the service available and useful, but we may improve, update, or change parts of the product over time. We may also suspend access in cases of misuse, fraud risk, or actions that threaten the stability of the service.'
   },

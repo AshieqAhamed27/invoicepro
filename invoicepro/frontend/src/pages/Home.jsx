@@ -382,6 +382,7 @@ const fitAdvisorStages = [
 const trustBadges = [
   ['Udyam registered', UDYAM_REGISTRATION_NUMBER],
   ['Payments', 'Razorpay, UPI, and international payment support'],
+  ['Security', 'Protected accounts, role controls, audit exports, backup exports, and honest SOC 2/ISO status'],
   ['India-first', 'Built for Indian freelancers, usable with global clients'],
   ['Support', SUPPORT_EMAIL]
 ];
@@ -425,6 +426,7 @@ const faqs = [
   ['Can beginners use it?', 'Yes. Beginners can use the free software or choose Agency Setup if they want help setting up their offer and client workflow.'],
   ['Is this another Upwork or Fiverr?', 'No. ClientFlow AI is not a job marketplace. It is a direct-client business system for freelancers who want to manage their own leads, proposals, work, invoices, and payments.'],
   ['Can foreign clients pay?', 'Yes, if the seller has international payments enabled in Razorpay. Invoices can support INR, USD, EUR, GBP, AED, SGD, AUD, and CAD.'],
+  ['Is ClientFlow AI SOC 2 or ISO certified?', 'Not yet. ClientFlow AI has a security-ready foundation with protected accounts, role controls, audit exports, backup exports, and payment-provider handling, but SOC 2 and ISO 27001 require external audits.'],
   ['Do you guarantee income?', 'No. ClientFlow AI does not guarantee income. It gives freelancers a clearer system, daily actions, and payment workflow so they can execute better.']
 ];
 

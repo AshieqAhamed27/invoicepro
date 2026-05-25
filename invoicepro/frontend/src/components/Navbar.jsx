@@ -19,6 +19,7 @@ const appLinks = [
   { to: '/organization', label: 'Organization', detail: 'Company members, seats, SSO, audit' },
   { to: '/devops-delivery', label: 'DevOps Kit', detail: 'Linux, GitHub, deployment, handover' },
   { to: '/cloud-documents', label: 'Cloud Docs', detail: 'Store invoices, contracts, and project files' },
+  { to: '/security', label: 'Security', detail: 'Security readiness and compliance status' },
   { to: '/create-invoice', label: 'Invoice', detail: 'Proposal or invoice' }
 ];
 
@@ -47,6 +48,7 @@ const moreAppLinks = [
   { to: '/devops-delivery', label: 'DevOps Delivery Kit', detail: 'Linux/VPS, GitHub, SSL, backup, handover' },
   { to: '/cloud-documents', label: 'Cloud Documents', detail: 'Invoices, contracts, files' },
   { to: '/enterprise', label: 'Enterprise', detail: 'Team-ready business workflow' },
+  { to: '/security', label: 'Security', detail: 'Controls, SOC 2/ISO status, disclosure contact' },
   { to: '/agency', label: 'Agency Setup', detail: 'Done-for-you freelancer system' },
   { to: '/settings', label: 'Settings', detail: 'Profile, logo, payments' }
 ];
@@ -456,6 +458,10 @@ export default function Navbar() {
               <NavLink to="/agency" onClick={closeMenu} className={mobileItemClass}>
                 <span className="block text-sm font-black">Agency Setup</span>
                 <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Done-for-you freelancer system</span>
+              </NavLink>
+              <NavLink to="/security" onClick={closeMenu} className={mobileItemClass}>
+                <span className="block text-sm font-black">Security</span>
+                <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Controls and compliance status</span>
               </NavLink>
               <NavLink to="/portfolio" onClick={closeMenu} className={mobileItemClass}>
                 <span className="block text-sm font-black">Portfolio</span>

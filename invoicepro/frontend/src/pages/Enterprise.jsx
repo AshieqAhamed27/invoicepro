@@ -31,7 +31,8 @@ const enterpriseRoadmap = [
   ['Seat billing activation', 'Owners or billing leads can refresh seats and pay the current billing cycle with Razorpay order checkout.'],
   ['Security policy controls', 'Admins can control who can invite, who can pay, who can view clients, whether SSO is required, and whether email domains are locked.'],
   ['Audit and backup handling', 'Admins can export CSV/PDF audit logs and a JSON backup of organization data and company workrooms.'],
-  ['Guided setup payments', 'Enterprise Team Setup, Pilot Setup, and Rollout Support have separate payment cards for teams that want hands-on help.']
+  ['Guided setup payments', 'Enterprise Team Setup, Pilot Setup, and Rollout Support have separate payment cards for teams that want hands-on help.'],
+  ['Security readiness page', 'The /security page explains current controls, SOC 2/ISO status, user responsibilities, and manual certification steps.']
 ];
 
 const teamProblems = [
@@ -50,7 +51,7 @@ const teamProblems = [
 ];
 
 const enterpriseSignals = [
-  ['Trust', 'Clear support contact, business registration display, honest feature status, and policy pages.'],
+  ['Trust', 'Clear support contact, business registration display, security readiness page, honest certification status, and policy pages.'],
   ['Control', 'Admin-only pages, protected routes, payment verification, and configurable automation secrets.'],
   ['Scale path', 'Free users can start simple, Pro users can grow, and teams can request managed enterprise setup.'],
   ['Global readiness', 'India-first billing with international payment direction for non-India customers when payment provider setup is enabled.']

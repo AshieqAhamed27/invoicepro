@@ -94,6 +94,7 @@ export default function Footer() {
             <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Company</h3>
             <div className="grid gap-4 font-medium text-zinc-400">
               <Link className="transition-colors hover:text-yellow-300" to="/portfolio">Builder Portfolio</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/security">Security</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/privacy">Privacy</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/terms">Terms</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/refund-policy">
@@ -137,6 +138,7 @@ export default function Footer() {
           <p className="text-center md:text-left">Copyright {new Date().getFullYear()} {COMPANY_NAME}</p>
           <div className="mt-0 flex flex-wrap items-center justify-center gap-4 sm:gap-8 md:justify-end">
             <Link className="transition-colors hover:text-zinc-500" to="/privacy">Privacy</Link>
+            <Link className="transition-colors hover:text-zinc-500" to="/security">Security</Link>
             <Link className="transition-colors hover:text-zinc-500" to="/terms">Terms</Link>
             <Link className="transition-colors hover:text-zinc-500" to="/refund-policy">Refund</Link>
             <Link className="transition-colors hover:text-zinc-500" to="/shipping-policy">Delivery</Link>

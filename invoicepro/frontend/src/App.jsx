@@ -28,6 +28,7 @@ const DevOpsDelivery = lazy(() => import('./pages/DevOpsDelivery'));
 const FreelanceFitAdvisor = lazy(() => import('./pages/FreelanceFitAdvisor'));
 const FeatureDetail = lazy(() => import('./pages/FeatureDetail'));
 const Privacy = lazy(() => import('./pages/Privacy'));
+const Security = lazy(() => import('./pages/Security'));
 const Terms = lazy(() => import('./pages/Terms'));
 const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
 const DigitalDeliveryPolicy = lazy(() => import('./pages/DigitalDeliveryPolicy'));
@@ -381,6 +382,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <Privacy />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/security"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <Security />
             </Suspense>
           }
         />

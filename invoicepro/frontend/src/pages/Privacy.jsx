@@ -28,6 +28,18 @@ const sections = [
     body: 'When online payments are enabled, payment processing may be handled by third-party providers such as Razorpay. We may also rely on infrastructure, email, and hosting providers to run the product. These providers only receive the information needed for their part of the service.'
   },
   {
+    title: 'Security controls',
+    body: 'We use product controls such as account authentication, protected routes, admin-only access, organization roles, audit exports, backup exports, API rate limits, CORS origin checks, request IDs, and unsafe request rejection to protect normal product usage. No online service can guarantee absolute security.'
+  },
+  {
+    title: 'AI and automation providers',
+    body: 'When AI or automation features are configured, selected workflow content may be sent to configured AI, email, hosting, payment, analytics, or automation providers only as needed to deliver the requested feature. Users should avoid adding passwords, private keys, or unnecessary sensitive client information into notes, prompts, or messages.'
+  },
+  {
+    title: 'Retention and exports',
+    body: 'Organization workspaces can support audit exports and backup exports for business review. Users can also contact support for account-related data questions, correction requests, or deletion requests where applicable.'
+  },
+  {
     title: 'Your control over account data',
     body: 'You can update your account details, business profile, and invoice content from within the product. If you need help with account access or a support request related to your data, contact us directly.'
   },
