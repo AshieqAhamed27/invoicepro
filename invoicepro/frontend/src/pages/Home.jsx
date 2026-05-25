@@ -152,6 +152,39 @@ const serviceOffers = [
   }
 ];
 
+const whyPathCards = [
+  {
+    title: 'Why Freelance Workflow?',
+    label: 'For self-serve freelancers',
+    tone: 'yellow',
+    problem: 'Freelancers lose leads and money when replies, proposals, work, invoices, and follow-ups stay in separate places.',
+    solution: 'ClientFlow AI gives one daily flow: find client, send proposal, manage work, create invoice, follow up payment, and track income.',
+    useWhen: 'Use this when you want to run your own client workflow and upgrade only when Pro helps real work.',
+    cta: 'Start Freelance Workflow',
+    path: '/client-flow'
+  },
+  {
+    title: 'Why Agency Setup?',
+    label: 'For users who need help',
+    tone: 'sky',
+    problem: 'Some freelancers do not need more features first. They need someone to set up their offer, proposal flow, invoice path, and next actions.',
+    solution: 'Agency Setup helps create the offer, lead plan, proposal template, workroom, invoice/payment flow, and 7-day action plan.',
+    useWhen: 'Use this when the freelancer is confused, new, busy, or wants a ready client workflow faster.',
+    cta: 'See Agency Setup',
+    path: '/payments/agency-setup'
+  },
+  {
+    title: 'Why Enterprise Setup?',
+    label: 'For agencies and teams',
+    tone: 'emerald',
+    problem: 'Teams need more than one login. They need roles, permissions, admin visibility, audit habits, backup policy, and clear ownership.',
+    solution: 'Enterprise Setup helps teams configure organization workspace, member roles, security settings, team workrooms, and rollout support.',
+    useWhen: 'Use this when an agency or company needs company-level workflow control before adding more team members.',
+    cta: 'See Enterprise Setup',
+    path: '/payments/enterprise'
+  }
+];
+
 const earlyUserClarity = [
   {
     title: 'What we provide',
@@ -690,6 +723,66 @@ export default function Home() {
                   These are example values for understanding the product. Your real dashboard uses your own leads, proposals, projects, invoices, and payments.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="why-clientflow-paths" className="border-b border-white/5 bg-slate-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Pick the right path</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Why Freelance Workflow, Agency Setup, and Enterprise Setup exist.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                Every visitor should quickly understand which part is for them before seeing pricing.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-5 lg:grid-cols-3">
+              {whyPathCards.map((card) => {
+                const toneClass = card.tone === 'emerald'
+                  ? 'border-emerald-300/30 bg-emerald-300/[0.08] hover:border-emerald-300/45'
+                  : card.tone === 'sky'
+                    ? 'border-sky-300/30 bg-sky-300/[0.08] hover:border-sky-300/45'
+                    : 'border-yellow-300/35 bg-yellow-300/[0.08] hover:border-yellow-300/50';
+                const buttonClass = card.tone === 'emerald'
+                  ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
+                  : card.tone === 'sky'
+                    ? 'bg-sky-300 text-slate-950 hover:bg-sky-200'
+                    : 'bg-yellow-400 text-black hover:bg-yellow-300';
+                const finalPath = card.path === '/client-flow' && !loggedIn ? '/signup' : card.path;
+
+                return (
+                  <div key={card.title} className={`flex min-h-[500px] flex-col rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${toneClass}`}>
+                    <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">{card.label}</p>
+                    <h3 className="mt-4 text-2xl font-black leading-tight text-white">{card.title}</h3>
+
+                    <div className="mt-6 grid gap-4">
+                      <div className="rounded-2xl border border-white/8 bg-black/25 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Problem</p>
+                        <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{card.problem}</p>
+                      </div>
+                      <div className="rounded-2xl border border-white/8 bg-black/25 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">What it solves</p>
+                        <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{card.solution}</p>
+                      </div>
+                    </div>
+
+                    <p className="mt-5 text-sm font-bold leading-relaxed text-zinc-400">
+                      {card.useWhen}
+                    </p>
+
+                    <Link
+                      to={finalPath}
+                      className={`mt-auto rounded-2xl px-5 py-4 text-center text-sm font-black uppercase tracking-widest transition-all active:scale-95 ${buttonClass}`}
+                      onClick={() => trackCtaClick(`home_${card.tone}_path`, 'home_path_explainer', finalPath)}
+                    >
+                      {card.path === '/client-flow' && loggedIn ? 'Open Freelance Workflow' : card.cta}
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
