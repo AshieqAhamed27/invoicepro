@@ -1,4 +1,6 @@
 const express = require('express');
+const crypto = require('crypto');
+const https = require('https');
 const Organization = require('../models/Organization');
 const TeamProject = require('../models/TeamProject');
 const User = require('../models/User');
@@ -215,7 +217,109 @@ const calculateSeatBilling = (organization) => {
         status: billing.status || 'preview',
         provider: billing.provider || 'razorpay',
         providerSubscriptionId: billing.providerSubscriptionId || '',
+        providerOrderId: billing.providerOrderId || '',
+        providerPaymentId: billing.providerPaymentId || '',
+        activatedAt: billing.activatedAt || null,
+        currentPeriodStart: billing.currentPeriodStart || null,
+        currentPeriodEnd: billing.currentPeriodEnd || null,
         lastCalculatedAt: billing.lastCalculatedAt || null
+    };
+};
+
+const addDays = (date, days) => {
+    const next = new Date(date);
+    next.setDate(next.getDate() + days);
+    return next;
+};
+
+const getEnterpriseReadiness = (organization, projectCount = 0) => {
+    const members = uniqueMembers(organization?.members || []);
+    const activeMembers = members.filter((member) => member.status === 'active');
+    const nonOwnerMembers = members.filter((member) => member.role !== 'owner');
+    const billing = calculateSeatBilling(organization);
+    const ssoDomains = (organization?.sso?.allowedDomains || []).map(normalizeDomain).filter(Boolean);
+    const auditCount = Array.isArray(organization?.auditLogs) ? organization.auditLogs.length : 0;
+    const retention = organization?.retention || {};
+    const security = organization?.security || {};
+
+    const items = [
+        {
+            id: 'workspace',
+            label: 'Organization workspace',
+            detail: 'Company account, owner, domain, and workspace identity are created.',
+            done: Boolean(organization?.name && organization?.owner && activeMembers.length >= 1),
+            action: 'Create organization'
+        },
+        {
+            id: 'members',
+            label: 'Team members and roles',
+            detail: 'Invite at least one non-owner member and assign owner/admin/billing/security/member/viewer roles.',
+            done: nonOwnerMembers.length >= 1,
+            action: 'Add a member'
+        },
+        {
+            id: 'billing',
+            label: 'Seat billing',
+            detail: 'Billable seats, currency, cycle, and payment status are ready for company billing.',
+            done: billing.status === 'active' || Boolean(billing.providerPaymentId),
+            action: 'Pay seat billing'
+        },
+        {
+            id: 'security',
+            label: 'Admin security settings',
+            detail: 'Invite policy, payment control, client visibility, and domain restrictions are configured.',
+            done: Boolean(security.invitePolicy && security.paymentPolicy && security.clientVisibility),
+            action: 'Save security settings'
+        },
+        {
+            id: 'sso',
+            label: 'SSO and domain control',
+            detail: 'Google Workspace or Microsoft Entra domain access is configured for company users.',
+            done: Boolean(organization?.sso?.enabled && organization?.sso?.provider && ssoDomains.length),
+            action: 'Configure SSO'
+        },
+        {
+            id: 'audit',
+            label: 'Audit history',
+            detail: 'Organization actions are logged and exportable as CSV, PDF, or JSON.',
+            done: auditCount > 0,
+            action: 'Export audit'
+        },
+        {
+            id: 'backup',
+            label: 'Backup and retention',
+            detail: 'Backup export, data retention, and audit retention are configured.',
+            done: Boolean(retention.backupEnabled && retention.auditLogRetentionDays && retention.dataRetentionDays),
+            action: 'Export backup'
+        },
+        {
+            id: 'workrooms',
+            label: 'Company workrooms',
+            detail: 'At least one client workroom is attached to the organization.',
+            done: Number(projectCount || 0) > 0,
+            action: 'Attach workrooms'
+        }
+    ];
+
+    const completed = items.filter((item) => item.done).length;
+    const score = Math.round((completed / items.length) * 100);
+    const level = score >= 90 ? 'enterprise_ready' : score >= 65 ? 'pilot_ready' : score >= 35 ? 'setup_needed' : 'foundation_needed';
+    const label = score >= 90
+        ? 'Enterprise ready'
+        : score >= 65
+            ? 'Pilot ready'
+            : score >= 35
+                ? 'Setup in progress'
+                : 'Foundation needed';
+
+    return {
+        score,
+        level,
+        label,
+        completed,
+        total: items.length,
+        nextAction: items.find((item) => !item.done) || null,
+        items
     };
 };
 
@@ -271,6 +375,7 @@ const serializeOrganization = async(organization, user) => {
         security: organization.security || {},
         sso: organization.sso || {},
         retention: organization.retention || {},
+        enterpriseReadiness: getEnterpriseReadiness(organization, projectCount),
         auditLogs: hasOrgPermission(organization, accessRole, 'exportAudit') ? serializeAuditLogs(organization.auditLogs).slice(0, 50) : [],
         projectCount,
         createdAt: organization.createdAt,
@@ -342,6 +447,56 @@ const buildSimplePdf = (title, rows) => {
 
     return Buffer.from(pdf, 'utf8');
 };
+
+const getRazorpayAuthHeader = () => {
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) return null;
+    return `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString('base64')}`;
+};
+
+const createRazorpayOrder = (payload, authHeader) => new Promise((resolve, reject) => {
+    const data = JSON.stringify(payload);
+    const req = https.request({
+        hostname: 'api.razorpay.com',
+        path: '/v1/orders',
+        method: 'POST',
+        headers: {
+            Authorization: authHeader,
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(data)
+        }
+    }, (res) => {
+        let body = '';
+        res.on('data', (chunk) => { body += chunk; });
+        res.on('end', () => {
+            try {
+                resolve({
+                    ok: res.statusCode >= 200 && res.statusCode < 300,
+                    status: res.statusCode,
+                    body: body ? JSON.parse(body) : {}
+                });
+            } catch (err) {
+                resolve({
+                    ok: false,
+                    status: res.statusCode || 500,
+                    body: { message: body || 'Invalid Razorpay response' }
+                });
+            }
+        });
+    });
+
+    req.on('error', reject);
+    req.write(data);
+    req.end();
+});
+
+const getRazorpayErrorMessage = (body) => (
+    body?.error?.description ||
+    body?.error?.reason ||
+    body?.message ||
+    'Failed to create organization billing order'
+);
 
 const getExportRows = async(organization) => {
     const orgRows = serializeAuditLogs(organization.auditLogs).map((log) => ({
@@ -866,6 +1021,175 @@ router.get('/:id/billing/preview', protect, async(req, res) => {
     } catch (err) {
         console.error('ORGANIZATION BILLING PREVIEW ERROR:', err);
         res.status(500).json({ message: 'Unable to calculate seat billing.' });
+    }
+});
+
+router.post('/:id/billing/order', protect, async(req, res) => {
+    try {
+        const organization = await getOrganizationForUser(req.params.id, req.user);
+        if (!organization) {
+            if (!isValidObjectId(req.params.id)) return rejectInvalidObjectId(res, 'organization');
+            return res.status(404).json({ message: 'Organization not found.' });
+        }
+
+        const role = getMemberRole(organization, req.user) || (req.user.role === 'admin' ? 'admin' : '');
+        if (!hasOrgPermission(organization, role, 'manageBilling')) {
+            return res.status(403).json({ message: 'Your organization role cannot pay seat billing.' });
+        }
+
+        const billing = calculateSeatBilling(organization);
+        const amount = Number(billing.cycleTotal || 0);
+        if (!Number.isFinite(amount) || amount <= 0) {
+            return res.status(400).json({ message: 'Organization billing amount is not valid.' });
+        }
+
+        const orderPayload = {
+            amount: Math.round(amount * 100),
+            currency: billing.currency || 'INR',
+            receipt: `org_${String(organization._id).slice(-8)}_${Date.now()}`,
+            notes: {
+                organizationId: String(organization._id),
+                organizationName: organization.name,
+                billableSeats: String(billing.billableSeats || 0),
+                cycle: billing.cycle || 'monthly',
+                checkoutType: 'enterprise_seat_billing'
+            }
+        };
+
+        const authHeader = getRazorpayAuthHeader();
+        if (process.env.PAYMENT_SIMULATION === 'true') {
+            const simulatedOrder = {
+                id: `order_sim_org_${Date.now()}`,
+                amount: orderPayload.amount,
+                currency: orderPayload.currency,
+                receipt: orderPayload.receipt,
+                notes: orderPayload.notes
+            };
+
+            organization.billing.providerOrderId = simulatedOrder.id;
+            organization.billing.lastCalculatedAt = new Date();
+            addAuditLog(organization, req.user, role, {
+                action: 'organization.billing_order_created',
+                label: `Created simulated seat billing order for ${billing.billableSeats} seats`,
+                targetType: 'billing',
+                targetId: simulatedOrder.id,
+                details: { amount, currency: billing.currency, cycle: billing.cycle }
+            });
+            await organization.save();
+
+            return res.json({
+                keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_simulation',
+                order: simulatedOrder,
+                billing: calculateSeatBilling(organization),
+                simulation: true
+            });
+        }
+
+        if (!authHeader) {
+            return res.status(500).json({ message: 'Razorpay keys are not configured for enterprise seat billing.' });
+        }
+
+        const razorpayRes = await createRazorpayOrder(orderPayload, authHeader);
+        if (!razorpayRes.ok) {
+            return res.status(502).json({ message: getRazorpayErrorMessage(razorpayRes.body) });
+        }
+
+        organization.billing.providerOrderId = razorpayRes.body.id || '';
+        organization.billing.lastCalculatedAt = new Date();
+        addAuditLog(organization, req.user, role, {
+            action: 'organization.billing_order_created',
+            label: `Created seat billing order for ${billing.billableSeats} seats`,
+            targetType: 'billing',
+            targetId: razorpayRes.body.id || '',
+            details: { amount, currency: billing.currency, cycle: billing.cycle }
+        });
+        await organization.save();
+
+        res.json({
+            keyId: process.env.RAZORPAY_KEY_ID,
+            order: razorpayRes.body,
+            billing: calculateSeatBilling(organization),
+            simulation: false
+        });
+    } catch (err) {
+        console.error('ORGANIZATION BILLING ORDER ERROR:', err);
+        res.status(500).json({ message: 'Unable to create organization billing order.' });
+    }
+});
+
+router.post('/:id/billing/verify', protect, async(req, res) => {
+    try {
+        const organization = await getOrganizationForUser(req.params.id, req.user);
+        if (!organization) {
+            if (!isValidObjectId(req.params.id)) return rejectInvalidObjectId(res, 'organization');
+            return res.status(404).json({ message: 'Organization not found.' });
+        }
+
+        const role = getMemberRole(organization, req.user) || (req.user.role === 'admin' ? 'admin' : '');
+        if (!hasOrgPermission(organization, role, 'manageBilling')) {
+            return res.status(403).json({ message: 'Your organization role cannot verify seat billing.' });
+        }
+
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature
+        } = req.body || {};
+
+        if (!razorpay_order_id) {
+            return res.status(400).json({ message: 'Missing organization billing order id.' });
+        }
+
+        const isSimulation = process.env.PAYMENT_SIMULATION === 'true' && String(razorpay_order_id).startsWith('order_sim_org_');
+        if (!isSimulation) {
+            if (!razorpay_payment_id || !razorpay_signature) {
+                return res.status(400).json({ message: 'Missing Razorpay payment verification fields.' });
+            }
+            if (!process.env.RAZORPAY_KEY_SECRET) {
+                return res.status(500).json({ message: 'Razorpay key secret is not configured.' });
+            }
+
+            const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+            shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+            const digest = shasum.digest('hex');
+            if (digest !== razorpay_signature) {
+                return res.status(400).json({ message: 'Invalid organization billing payment signature.' });
+            }
+        }
+
+        const now = new Date();
+        const billing = calculateSeatBilling(organization);
+        organization.billing.status = 'active';
+        organization.billing.providerOrderId = razorpay_order_id;
+        organization.billing.providerPaymentId = razorpay_payment_id || `pay_sim_org_${Date.now()}`;
+        organization.billing.activatedAt = organization.billing.activatedAt || now;
+        organization.billing.currentPeriodStart = now;
+        organization.billing.currentPeriodEnd = addDays(now, billing.cycle === 'yearly' ? 365 : 30);
+        organization.billing.lastCalculatedAt = now;
+
+        addAuditLog(organization, req.user, role, {
+            action: 'organization.billing_paid',
+            label: `Seat billing paid for ${billing.billableSeats} seats`,
+            targetType: 'billing',
+            targetId: razorpay_order_id,
+            details: {
+                paymentId: razorpay_payment_id || '',
+                amount: billing.cycleTotal,
+                currency: billing.currency,
+                cycle: billing.cycle,
+                billableSeats: billing.billableSeats
+            }
+        });
+
+        await organization.save();
+
+        res.json({
+            organization: await serializeOrganization(organization, req.user),
+            message: 'Enterprise seat billing is active for this cycle.'
+        });
+    } catch (err) {
+        console.error('ORGANIZATION BILLING VERIFY ERROR:', err);
+        res.status(500).json({ message: 'Unable to verify organization billing payment.' });
     }
 });
 

@@ -13,6 +13,11 @@ import {
 
 const availableNow = [
   ['Direct-client workspace', 'Manage leads, proposals, workrooms, invoices, and payment follow-ups without using a marketplace.'],
+  ['Organization workspace', 'Create one company account, attach workrooms, invite members, and manage company-level controls.'],
+  ['Seat billing checkout', 'Preview billable seats and pay the current organization billing cycle through Razorpay order checkout.'],
+  ['Advanced role packs', 'Use owner, admin, billing, security, member, and viewer roles for company access control.'],
+  ['SSO and domain controls', 'Configure Google Workspace or Microsoft Entra domain access, SSO requirement, and allowed-domain lock.'],
+  ['Audit and backup exports', 'Export organization and workroom audit history as CSV/PDF, and export backup data as JSON.'],
   ['Team delivery flow', 'Use workrooms, collaborator invites, delivery notes, proof links, invoices, and payment status in one project path.'],
   ['Admin visibility', 'View product usage, free and paid access, revenue signals, AI status, and user activity from the admin page.'],
   ['Payment-ready invoices', 'Create professional invoices with PDF, public links, Razorpay/UPI-friendly flow, and international payment direction.'],
@@ -21,12 +26,12 @@ const availableNow = [
 ];
 
 const enterpriseRoadmap = [
-  ['Advanced role packs', 'Current workroom roles support owner, editor, and viewer. Next enterprise step is manager, finance, delivery lead, and client approver packs.'],
-  ['SSO and policy controls', 'SAML/OIDC login, domain controls, and stricter session policies for company teams.'],
-  ['Audit trail', 'Track who created, changed, sent, approved, or paid key client workflow records.'],
-  ['Custom workflows', 'Company-specific proposal stages, invoice approval rules, notification templates, and client handover steps.'],
-  ['Data export and API', 'CSV exports, reporting endpoints, webhooks, and deeper integrations with finance and CRM systems.'],
-  ['Enterprise support', 'Setup calls, migration help, documented onboarding, and priority issue review.']
+  ['Organization control center', 'The /organization workspace manages members, roles, billing, SSO, audit exports, backup exports, and workroom attachment.'],
+  ['Enterprise readiness score', 'Company admins can see which controls are complete and which setup action should happen next.'],
+  ['Seat billing activation', 'Owners or billing leads can refresh seats and pay the current billing cycle with Razorpay order checkout.'],
+  ['Security policy controls', 'Admins can control who can invite, who can pay, who can view clients, whether SSO is required, and whether email domains are locked.'],
+  ['Audit and backup handling', 'Admins can export CSV/PDF audit logs and a JSON backup of organization data and company workrooms.'],
+  ['Guided setup payments', 'Enterprise Team Setup, Pilot Setup, and Rollout Support have separate payment cards for teams that want hands-on help.']
 ];
 
 const teamProblems = [
@@ -85,9 +90,9 @@ const enterpriseWorkflow = [
     title: 'Roles and access',
     owner: 'Owner or manager',
     problem: 'Everyone should not have the same access. Finance, delivery, and viewers need different control.',
-    productAction: 'Use owner, editor, and viewer roles now; expand later into manager, finance, delivery lead, and client approver.',
-    userSees: 'Invite people with simple access instead of exposing everything.',
-    available: 'Foundation live'
+    productAction: 'Use organization roles for owner, admin, billing, security, member, and viewer access.',
+    userSees: 'Invite people with the right company access instead of exposing everything.',
+    available: 'Available now'
   },
   {
     id: 'proposal',
@@ -145,32 +150,32 @@ const roleMatrix = [
   {
     role: 'Owner',
     responsibility: 'Create workspace, invite team, approve proposal/payment flow, see admin-level business status.',
-    current: 'Owner role exists in team projects.',
-    next: 'Company-level controls and policy settings.'
+    current: 'Owner role controls organization settings, members, billing, security, audit, backup, and workrooms.',
+    next: 'Use for company owner or founder.'
   },
   {
     role: 'Manager',
     responsibility: 'Track leads, proposals, delivery progress, blockers, and daily team actions.',
-    current: 'Use editor role and workroom visibility now.',
-    next: 'Dedicated manager role with team reporting.'
+    current: 'Admin role can manage company projects, members, billing, security, and exports.',
+    next: 'Use admin role for trusted operations managers.'
   },
   {
     role: 'Delivery',
     responsibility: 'Update tasks, proof links, releases, project notes, bugs, and handover status.',
-    current: 'Use editor role, tasks, resources, wiki, releases, and issues now.',
-    next: 'Delivery-only permissions.'
+    current: 'Member role can work inside company projects and assigned workflow data.',
+    next: 'Use member role for delivery contributors.'
   },
   {
     role: 'Finance',
     responsibility: 'Create invoices, track pending payments, review paid users, and manage collection messages.',
-    current: 'Owner/admin can manage invoices and payment tracking now.',
-    next: 'Finance-only invoice and payment permissions.'
+    current: 'Billing role manages seat billing, payments, billing exports, audit visibility, and client visibility by policy.',
+    next: 'Use billing role for finance users.'
   },
   {
-    role: 'Client viewer',
-    responsibility: 'Review agreed work, proof, invoice, and payment link without editing internal work.',
-    current: 'Public invoice/proposal pages and viewer invite foundation.',
-    next: 'Dedicated client portal view.'
+    role: 'Security / viewer',
+    responsibility: 'Security manages SSO, access rules, retention, backup, and audit exports. Viewer gets read-only workspace access.',
+    current: 'Security and viewer roles exist in the organization workspace.',
+    next: 'Use for IT/security and read-only stakeholders.'
   }
 ];
 
@@ -192,10 +197,11 @@ const userRouting = [
   },
   {
     title: 'Agency or company',
-    decision: 'Request pilot setup',
-    detail: 'Use this when the buyer needs guided setup, roles, reporting, and a team rollout plan.',
-    path: '/agency?workflow=agencies#agency-booking',
-    cta: 'Request Setup'
+    decision: 'Create organization',
+    detail: 'Use this when the buyer needs company members, roles, billing, SSO, audit exports, backup, and team rollout.',
+    path: '/organization',
+    cta: 'Open Organization',
+    requiresLogin: true
   }
 ];
 
@@ -290,11 +296,14 @@ export default function Enterprise() {
                   Request Team Setup
                 </a>
                 <Link
-                  to="/agency?workflow=agencies#agency-booking"
-                  onClick={() => trackEnterpriseCta('enterprise_agency_setup', '/agency?workflow=agencies#agency-booking')}
+                  to={loggedIn ? '/organization' : '/signup'}
+                  onClick={() => {
+                    if (!loggedIn) setPostLoginRedirect('/organization');
+                    trackEnterpriseCta('enterprise_open_organization', loggedIn ? '/organization' : '/signup');
+                  }}
                   className="btn btn-dark px-7 py-4 text-center text-sm"
                 >
-                  See Setup Service
+                  Open Organization
                 </Link>
               </div>
             </div>
@@ -514,9 +523,9 @@ export default function Enterprise() {
             </div>
 
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Roadmap for enterprise</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Enterprise control center</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Add these only when team demand is real.
+                These company controls are now part of the enterprise workflow.
               </h2>
               <div className="mt-8 grid gap-4">
                 {enterpriseRoadmap.map(([title, text]) => (
@@ -527,7 +536,7 @@ export default function Enterprise() {
                         <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
                       </div>
                       <span className="shrink-0 rounded-full border border-sky-300/20 bg-sky-300/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-sky-200">
-                        Next
+                        Live
                       </span>
                     </div>
                   </div>

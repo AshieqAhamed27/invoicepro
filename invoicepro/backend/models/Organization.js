@@ -181,6 +181,28 @@ const organizationSchema = new mongoose.Schema({
             default: '',
             trim: true
         },
+        providerOrderId: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        providerPaymentId: {
+            type: String,
+            default: '',
+            trim: true
+        },
+        activatedAt: {
+            type: Date,
+            default: null
+        },
+        currentPeriodStart: {
+            type: Date,
+            default: null
+        },
+        currentPeriodEnd: {
+            type: Date,
+            default: null
+        },
         lastCalculatedAt: {
             type: Date,
             default: null

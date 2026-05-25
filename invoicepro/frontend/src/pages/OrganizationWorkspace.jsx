@@ -3,10 +3,24 @@ import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 import { getUser } from '../utils/auth';
+import { COMPANY_SHORT_NAME } from '../utils/company';
 
 const inputClass = 'w-full rounded-xl border border-white/10 bg-black/25 px-3 py-3 text-sm font-semibold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/40 focus:bg-black/35';
 const labelClass = 'text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500';
 const panelClass = 'rounded-2xl border border-white/10 bg-white/[0.035] p-5 shadow-xl shadow-black/10';
+
+const loadRazorpayScript = () => new Promise((resolve) => {
+  if (window.Razorpay) {
+    resolve(true);
+    return;
+  }
+
+  const script = document.createElement('script');
+  script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+  script.onload = () => resolve(true);
+  script.onerror = () => resolve(false);
+  document.body.appendChild(script);
+});
 
 const formatMoney = (amount, currency = 'INR') => {
   const value = Number(amount || 0);
@@ -58,6 +72,7 @@ export default function OrganizationWorkspace() {
 
   const roleOptions = organization?.roleOptions?.length ? organization.roleOptions : defaults.roleOptions || [];
   const billing = organization?.billing || {};
+  const readiness = organization?.enterpriseReadiness || { score: 0, label: 'Foundation needed', completed: 0, total: 0, items: [] };
   const canManageOrganization = getPermission(organization, 'manageOrganization');
   const canManageMembers = getPermission(organization, 'manageMembers');
   const canManageBilling = getPermission(organization, 'manageBilling');
@@ -256,6 +271,74 @@ export default function OrganizationWorkspace() {
     }
   };
 
+  const verifySeatBilling = async(order, response = {}) => {
+    const verifyRes = await api.post(`/organizations/${organization.id}/billing/verify`, {
+      razorpay_order_id: response.razorpay_order_id || order.id,
+      razorpay_payment_id: response.razorpay_payment_id,
+      razorpay_signature: response.razorpay_signature
+    });
+
+    setOrganization(verifyRes.data?.organization || organization);
+    setMessage(verifyRes.data?.message || 'Enterprise seat billing is active.');
+    await loadOrganization();
+  };
+
+  const paySeatBilling = async() => {
+    if (!organization?.id) return;
+    setError('');
+    setMessage('');
+    setSaving('seat-billing-payment');
+
+    try {
+      const orderRes = await api.post(`/organizations/${organization.id}/billing/order`);
+      const { keyId, order, simulation } = orderRes.data || {};
+      if (!order?.id) throw new Error('Organization billing order was not created.');
+
+      if (simulation) {
+        await verifySeatBilling(order);
+        setSaving('');
+        return;
+      }
+
+      const loaded = await loadRazorpayScript();
+      if (!loaded) throw new Error('Razorpay checkout failed to load. Please retry.');
+
+      const checkout = new window.Razorpay({
+        key: keyId,
+        amount: order.amount,
+        currency: order.currency || billing.currency || 'INR',
+        name: COMPANY_SHORT_NAME,
+        description: `${organization.name} seat billing`,
+        order_id: order.id,
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || ''
+        },
+        notes: {
+          organizationId: organization.id,
+          checkoutType: 'enterprise_seat_billing'
+        },
+        modal: {
+          ondismiss: () => setSaving('')
+        },
+        handler: async(response) => {
+          try {
+            await verifySeatBilling(order, response);
+          } catch (err) {
+            setError(err?.response?.data?.message || err?.friendlyMessage || 'Could not verify organization billing payment.');
+          } finally {
+            setSaving('');
+          }
+        }
+      });
+
+      checkout.open();
+    } catch (err) {
+      setError(err?.response?.data?.message || err?.friendlyMessage || err?.message || 'Could not start organization billing payment.');
+      setSaving('');
+    }
+  };
+
   const downloadExport = async(path, filename) => {
     if (!organization?.id) return;
     setError('');
@@ -367,9 +450,10 @@ export default function OrganizationWorkspace() {
               <div className="mt-5 grid gap-3 text-sm font-semibold text-zinc-400">
                 {[
                   'One company owner account',
-                  'Seat billing preview',
+                  'Razorpay seat billing checkout',
                   'Google Workspace domain SSO setting',
                   'Microsoft company login setting',
+                  'Enterprise readiness score',
                   'CSV/PDF audit export',
                   'Manual JSON backup export'
                 ].map((item) => (
@@ -393,6 +477,53 @@ export default function OrganizationWorkspace() {
                   <p className="mt-2 text-xs font-semibold text-zinc-500">{detail}</p>
                 </div>
               ))}
+            </section>
+
+            <section className={panelClass}>
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className={labelClass}>Enterprise readiness</p>
+                  <h2 className="mt-2 text-2xl font-black text-white">{readiness.label}</h2>
+                  <p className="mt-2 text-sm font-semibold leading-7 text-zinc-500">
+                    {readiness.completed || 0} of {readiness.total || 0} enterprise controls are complete. This tells a company what is ready before more people use the workspace.
+                  </p>
+                  {readiness.nextAction && (
+                    <p className="mt-3 rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 text-sm font-bold text-yellow-100">
+                      Next: {readiness.nextAction.action}
+                    </p>
+                  )}
+                </div>
+
+                <div className="min-w-full rounded-2xl border border-white/8 bg-black/20 p-5 lg:min-w-[260px]">
+                  <div className="flex items-end justify-between gap-4">
+                    <p className="text-5xl font-black text-white">{readiness.score || 0}%</p>
+                    <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                      {readiness.level || 'foundation_needed'}
+                    </span>
+                  </div>
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/8">
+                    <div className="h-full rounded-full bg-emerald-300" style={{ width: `${readiness.score || 0}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {(readiness.items || []).map((item) => (
+                  <div key={item.id} className={`rounded-xl border p-4 ${
+                    item.done
+                      ? 'border-emerald-300/20 bg-emerald-300/[0.08]'
+                      : 'border-white/8 bg-black/20'
+                  }`}>
+                    <p className={`text-[10px] font-black uppercase tracking-widest ${
+                      item.done ? 'text-emerald-200' : 'text-zinc-600'
+                    }`}>
+                      {item.done ? 'Complete' : 'Needed'}
+                    </p>
+                    <h3 className="mt-2 text-sm font-black text-white">{item.label}</h3>
+                    <p className="mt-2 text-xs font-semibold leading-6 text-zinc-500">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
             </section>
 
             <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
@@ -623,7 +754,19 @@ export default function OrganizationWorkspace() {
                   <button type="button" onClick={refreshBilling} disabled={!canManageBilling || saving === 'billing-preview'} className="btn btn-secondary mt-5 w-full">
                     {saving === 'billing-preview' ? 'Refreshing...' : 'Refresh Billing'}
                   </button>
-                  <Link to="/payment" className="btn btn-primary mt-3 w-full">Open Payment</Link>
+                  <button
+                    type="button"
+                    onClick={paySeatBilling}
+                    disabled={!canManageBilling || saving === 'seat-billing-payment'}
+                    className="btn btn-primary mt-3 w-full"
+                  >
+                    {saving === 'seat-billing-payment' ? 'Opening Checkout...' : 'Pay Seat Billing'}
+                  </button>
+                  {billing.currentPeriodEnd && (
+                    <p className="mt-3 text-xs font-semibold leading-6 text-zinc-600">
+                      Active until {formatDateTime(billing.currentPeriodEnd)}
+                    </p>
+                  )}
                 </section>
 
                 <section className={panelClass}>
