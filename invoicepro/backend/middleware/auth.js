@@ -3,6 +3,7 @@ const User = require('../models/User');
 const { getJwtSecret } = require('../utils/env');
 
 const DEFAULT_ADMIN_EMAILS = ['ashieqahamed4@gmail.com'];
+const FREE_FULL_ACCESS_ENABLED = String(process.env.FREE_FULL_ACCESS_ENABLED ?? 'true').toLowerCase() !== 'false';
 
 const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
 
@@ -72,6 +73,7 @@ const protect = async (req, res, next) => {
 
 const hasPaidPlan = (user) => {
   if (!user) return false;
+  if (FREE_FULL_ACCESS_ENABLED) return true;
   if (user.role === 'admin') return true;
   if (!user.plan || user.plan === 'free') return false;
 
@@ -97,4 +99,6 @@ const requirePro = (req, res, next) => {
   next();
 };
 
-module.exports = { protect, requirePro, hasPaidPlan, isAdminEmail, syncAdminRole };
+const isFreeFullAccessEnabled = () => FREE_FULL_ACCESS_ENABLED;
+
+module.exports = { protect, requirePro, hasPaidPlan, isAdminEmail, isFreeFullAccessEnabled, syncAdminRole };

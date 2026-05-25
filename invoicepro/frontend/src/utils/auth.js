@@ -1,6 +1,7 @@
 import { jwtDecode } from 'jwt-decode';
 
 const POST_LOGIN_REDIRECT_KEY = 'postLoginRedirect';
+const FREE_FULL_ACCESS_ENABLED = String(import.meta.env?.VITE_FREE_FULL_ACCESS_ENABLED ?? 'true').toLowerCase() !== 'false';
 
 export const getUser = () => {
   try {
@@ -74,8 +75,11 @@ export const isLoggedIn = () => {
   return true;
 };
 
+export const isFreeFullAccessEnabled = () => FREE_FULL_ACCESS_ENABLED;
+
 export const hasProAccess = (user = getUser()) => {
   if (!user) return false;
+  if (FREE_FULL_ACCESS_ENABLED) return true;
   if (user.role === 'admin') return true;
   if (!user.plan || user.plan === 'free') return false;
 
@@ -90,6 +94,8 @@ export const hasProAccess = (user = getUser()) => {
 };
 
 export const getPlanLabel = (user = getUser()) => {
+  if (user?.role === 'admin') return 'Admin';
+  if (FREE_FULL_ACCESS_ENABLED && user) return 'Free Full Access';
   if (!user?.plan || user.plan === 'free') return 'Free';
   if (user.plan === 'trial') return 'Pro Trial';
   if (user.plan === 'early_access') return 'Early Access';

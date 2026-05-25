@@ -2,7 +2,7 @@ const express = require('express');
 const https = require('https');
 const Invoice = require('../models/Invoice');
 const Lead = require('../models/Lead');
-const { protect, requirePro } = require('../middleware/auth');
+const { protect, requirePro, hasPaidPlan } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -2706,7 +2706,7 @@ router.get('/insights', protect, async(req, res) => {
             });
         }
 
-        if (req.user?.plan === 'free') {
+        if (!hasPaidPlan(req.user)) {
             moneyActions.push({
                 title: 'Turn billing into a paid workflow',
                 description: 'Upgrade Pro for unlimited invoices, recurring billing, Razorpay checkout, and AI collection prompts.',
@@ -2785,7 +2785,7 @@ router.get('/insights', protect, async(req, res) => {
                 dueNowAmount: promisesDue.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0),
                 active: pendingInvoices.filter((invoice) => invoice.paymentPromise?.promisedDate).length
             },
-            proUpsell: req.user?.plan === 'free' ? {
+            proUpsell: !hasPaidPlan(req.user) ? {
                 title: 'Unlock ClientFlow AI Revenue Coach',
                 description: 'Use Pro to pair payment links, recurring billing, and collection prompts with unlimited invoices.',
                 path: '/payment'
