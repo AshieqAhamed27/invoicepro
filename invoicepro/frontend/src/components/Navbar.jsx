@@ -53,22 +53,11 @@ const moreAppLinks = [
   { to: '/settings', label: 'Settings', detail: 'Profile, logo, payments' }
 ];
 
-const useCaseLinks = [
-  { to: '/freelancers', label: 'Freelancers', detail: 'Find clients and get paid' },
-  { to: '/developers', label: 'Developers', detail: 'Manage builds and releases' },
-  { to: '/devops-delivery', label: 'DevOps Kit', detail: 'Linux/VPS delivery for developers' },
-  { to: '/designers', label: 'Designers', detail: 'Handle revisions and approvals' },
-  { to: '/agencies', label: 'Agencies', detail: 'Run teams and retainers' },
-  { to: '/enterprise', label: 'Enterprise', detail: 'Team workflow and pilot setup' },
-  { to: '/consultants', label: 'Consultants', detail: 'Close retainers and invoices' }
-];
-
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const loggedIn = isLoggedIn();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [useCasesOpen, setUseCasesOpen] = useState(false);
   const [appMenuOpen, setAppMenuOpen] = useState(false);
 
   const user = getUser();
@@ -90,26 +79,7 @@ export default function Navbar() {
   const closeMenu = () => setMenuOpen(false);
   const closeAllMenus = () => {
     setMenuOpen(false);
-    setUseCasesOpen(false);
     setAppMenuOpen(false);
-  };
-
-  const openEarlyAccess = () => {
-    const earlyAccessPath = '/payment?early=1';
-
-    if (!loggedIn) {
-      setPostLoginRedirect(earlyAccessPath);
-      navigate('/signup');
-    } else {
-      navigate(earlyAccessPath);
-    }
-
-    closeAllMenus();
-  };
-
-  const openBuyPro = () => {
-    navigate('/payments');
-    closeAllMenus();
   };
 
   const openStartFree = () => {
@@ -120,7 +90,6 @@ export default function Navbar() {
 
   useEffect(() => {
     setMenuOpen(false);
-    setUseCasesOpen(false);
     setAppMenuOpen(false);
   }, [location.pathname]);
 
@@ -160,6 +129,7 @@ export default function Navbar() {
         ? 'border-white/15 bg-white/10 text-white'
         : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white'
     }`;
+  const mobileStaticItemClass = 'rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-3 text-zinc-300 transition-all hover:border-white/15 hover:bg-white/[0.07] hover:text-white sm:px-4';
   const moreMenuActive = moreAppLinks.some((link) => location.pathname === link.to) || (isAdmin && location.pathname === '/admin');
 
   return (
@@ -183,66 +153,20 @@ export default function Navbar() {
               <NavLink to="/" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Home
               </NavLink>
-              <NavLink to="/portfolio" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
-                Portfolio
-              </NavLink>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAppMenuOpen(false);
-                    setUseCasesOpen((open) => !open);
-                  }}
-                  className={`rounded-lg border px-3 py-2 font-semibold transition ${
-                    useCaseLinks.some((link) => location.pathname === link.to)
-                      ? 'border-white/15 bg-white/10 text-white'
-                      : 'border-transparent text-zinc-400 hover:bg-white/[0.06] hover:text-white'
-                  }`}
-                  aria-expanded={useCasesOpen}
-                >
-                  Use Cases
-                </button>
-                {useCasesOpen && (
-                  <div className="absolute left-0 top-full mt-3 w-72 rounded-2xl border border-white/10 bg-[#090d14] p-2 shadow-2xl shadow-black/40">
-                    {useCaseLinks.map((link) => (
-                      <NavLink
-                        key={link.to}
-                        to={link.to}
-                        onClick={closeAllMenus}
-                        className={(state) => `block rounded-xl px-4 py-3 transition ${
-                          state.isActive
-                            ? 'bg-white/10 text-white'
-                            : 'text-zinc-300 hover:bg-white/[0.06] hover:text-white'
-                        }`}
-                      >
-                        <span className="block text-sm font-black">{link.label}</span>
-                        <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
-                      </NavLink>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <a href="/#how-it-works" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white">
+                How it works
+              </a>
+              <a href="/#who-for" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white">
+                Who it helps
+              </a>
               <NavLink to="/payments" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Payments
-              </NavLink>
-              <NavLink to="/enterprise" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
-                Enterprise
-              </NavLink>
-              <NavLink to="/agency" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
-                Agency Setup
               </NavLink>
               <NavLink to="/login" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                 Login
               </NavLink>
-              <button
-                type="button"
-                onClick={openBuyPro}
-                className="rounded-lg border border-yellow-300/25 bg-yellow-300/10 px-3 py-2 font-semibold text-yellow-100 transition hover:bg-yellow-300/15"
-              >
-                Payments
-              </button>
               <button type="button" onClick={openStartFree} className="btn btn-primary">
-                Start Free
+                Start 30 Days Free
               </button>
             </>
           ) : (
@@ -271,7 +195,6 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={() => {
-                    setUseCasesOpen(false);
                     setAppMenuOpen((open) => !open);
                   }}
                   className={`rounded-lg border px-3 py-2 font-semibold transition ${
@@ -340,20 +263,10 @@ export default function Navbar() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={openBuyPro}
+                onClick={openStartFree}
                 className="rounded-lg border border-yellow-300/25 bg-yellow-300/10 px-3 py-2 text-xs font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15"
               >
-                Payments
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  navigate('/signup');
-                  closeAllMenus();
-                }}
-                className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.08]"
-              >
-                Free
+                Start Free
               </button>
             </div>
           ) : isAdmin ? (
@@ -455,47 +368,40 @@ export default function Navbar() {
                 <span className="block text-sm font-black">Home</span>
                 <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Product overview</span>
               </NavLink>
-              <NavLink to="/agency" onClick={closeMenu} className={mobileItemClass}>
-                <span className="block text-sm font-black">Agency Setup</span>
-                <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Done-for-you freelancer system</span>
-              </NavLink>
-              <NavLink to="/security" onClick={closeMenu} className={mobileItemClass}>
-                <span className="block text-sm font-black">Security</span>
-                <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Controls and compliance status</span>
-              </NavLink>
-              <NavLink to="/portfolio" onClick={closeMenu} className={mobileItemClass}>
-                <span className="block text-sm font-black">Portfolio</span>
-                <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Builder and product work</span>
-              </NavLink>
-              <div className="grid gap-2 rounded-xl border border-white/8 bg-white/[0.03] p-3 sm:col-span-2 sm:grid-cols-2 sm:rounded-2xl">
-                <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:col-span-2">Use cases</p>
-                {useCaseLinks.map((link) => (
-                  <NavLink key={link.to} to={link.to} onClick={closeMenu} className={mobileItemClass}>
-                    <span className="block text-sm font-black">{link.label}</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
-                  </NavLink>
-                ))}
-              </div>
               {!loggedIn ? (
                 <>
-                  <NavLink to="/payments" onClick={closeMenu} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white">
-                    <span className="block text-sm font-black">Payments</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Free, monthly, yearly</span>
-                  </NavLink>
-                  <a href="/#faq" onClick={closeMenu} className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white">
-                    <span className="block text-sm font-black">FAQ</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Common questions</span>
+                  <a href="/#how-it-works" onClick={closeMenu} className={mobileStaticItemClass}>
+                    <span className="block text-sm font-black">How it works</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Lead to payment steps</span>
                   </a>
-                  <NavLink to="/contact" onClick={closeMenu} className={mobileItemClass}>
-                    <span className="block text-sm font-black">Contact</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Support and business details</span>
+                  <a href="/#who-for" onClick={closeMenu} className={mobileStaticItemClass}>
+                    <span className="block text-sm font-black">Who it helps</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Freelancers, agencies, and teams</span>
+                  </a>
+                  <NavLink to="/payments" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Payments</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Free, Pro, setup, enterprise</span>
                   </NavLink>
                 </>
               ) : (
-                <NavLink to="/client-flow" onClick={closeMenu} className={`${mobileItemClass({ isActive: location.pathname === '/client-flow' })} sm:col-span-2`}>
-                  <span className="block text-sm font-black">Client Flow</span>
-                  <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Lead to payment workflow</span>
-                </NavLink>
+                <>
+                  <NavLink to="/agency" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Agency Setup</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Done-for-you freelancer system</span>
+                  </NavLink>
+                  <NavLink to="/security" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Security</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Controls and compliance status</span>
+                  </NavLink>
+                  <NavLink to="/portfolio" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Portfolio</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Builder and product work</span>
+                  </NavLink>
+                  <NavLink to="/client-flow" onClick={closeMenu} className={`${mobileItemClass({ isActive: location.pathname === '/client-flow' })} sm:col-span-2`}>
+                    <span className="block text-sm font-black">Client Flow</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Lead to payment workflow</span>
+                  </NavLink>
+                </>
               )}
             </div>
 
@@ -531,15 +437,6 @@ export default function Navbar() {
                     className="rounded-xl bg-yellow-300 px-5 py-4 text-sm font-black uppercase tracking-widest text-slate-950 shadow-xl shadow-yellow-950/20 transition active:scale-[0.98] sm:rounded-2xl"
                   >
                     Create Free Account
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      openBuyPro();
-                    }}
-                    className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-4 text-sm font-black uppercase tracking-widest text-emerald-200 transition active:scale-[0.98] sm:rounded-2xl"
-                  >
-                    Payments
                   </button>
                 </>
               ) : (

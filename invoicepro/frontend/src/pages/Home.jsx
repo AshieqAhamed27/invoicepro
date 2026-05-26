@@ -234,7 +234,7 @@ const heroClarityCards = [
 
 const heroPathCards = [
   {
-    label: 'Test the software',
+    label: 'Step 1 for new users',
     title: '30-day free access',
     text: 'Use the full lead-to-payment workflow after signup. Good first step for almost every new user.',
     cta: 'Start Free',
@@ -243,7 +243,7 @@ const heroPathCards = [
     tone: 'yellow'
   },
   {
-    label: 'Need setup help',
+    label: 'Optional help',
     title: 'Agency Setup',
     text: 'For freelancers who want help creating their offer, proposal flow, invoice path, and 7-day action plan.',
     cta: 'See Agency Setup',
@@ -251,13 +251,37 @@ const heroPathCards = [
     tone: 'sky'
   },
   {
-    label: 'Team or company',
+    label: 'Company path',
     title: 'Enterprise Setup',
     text: 'For agencies and small companies that need team workspace, roles, permissions, audit, and backup habits.',
     cta: 'See Enterprise Setup',
     path: '/payments/enterprise',
     tone: 'emerald'
   }
+];
+
+const newUserSteps = [
+  {
+    step: '01',
+    title: 'Create your free account',
+    text: 'Signup first. Your 30-day free access, clients, invoices, proposals, and workroom stay saved to your account.'
+  },
+  {
+    step: '02',
+    title: 'Open Client Flow',
+    text: 'Start with one real lead, one proposal, or one invoice. You do not need to understand every feature on day one.'
+  },
+  {
+    step: '03',
+    title: 'Follow the next action',
+    text: 'ClientFlow AI shows what to do next: follow up a lead, send proposal, manage work, or collect payment.'
+  }
+];
+
+const notConfusingAnswers = [
+  ['Is it a job marketplace?', 'No. It does not give random gigs. It helps you manage your own direct-client workflow.'],
+  ['Is it only an invoice maker?', 'No. Invoices are one part. The main product is lead, proposal, work, invoice, and payment workflow.'],
+  ['Should users pay first?', 'No. New users should start with 30 days free, then pay only if the workflow helps their real business.']
 ];
 
 const PLAN_EXPIRY_REMINDER_DAYS = 2;
@@ -829,6 +853,54 @@ export default function Home() {
           </div>
         </section>
 
+        <section id="how-it-works" className="border-b border-white/5 bg-emerald-400/[0.035] py-12 sm:py-14">
+          <div className="container-custom">
+            <div className="responsive-heading-grid">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">
+                  What should I do next?
+                </p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  New users only need three steps.
+                </h2>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  This keeps the website simple: start free, open Client Flow, add one real client action, then let the product guide the next step.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => goToApp('/client-flow', loggedIn ? 'start_section_open_flow' : 'start_section_signup')}
+                  className="mt-6 rounded-2xl bg-yellow-400 px-7 py-4 text-sm font-black uppercase tracking-widest text-black transition-all hover:-translate-y-0.5 hover:bg-yellow-300 active:scale-95"
+                >
+                  {loggedIn ? 'Open Client Flow' : 'Start 30-Day Free Access'}
+                </button>
+              </div>
+
+              <div className="grid gap-3">
+                {newUserSteps.map((item) => (
+                  <div key={item.step} className="grid gap-4 rounded-2xl border border-white/8 bg-black/25 p-4 sm:grid-cols-[auto_1fr]">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-300 text-sm font-black text-slate-950">
+                      {item.step}
+                    </span>
+                    <div>
+                      <h3 className="text-base font-black text-white">{item.title}</h3>
+                      <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-400">{item.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {notConfusingAnswers.map(([question, answer]) => (
+                <div key={question} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
+                  <h3 className="text-base font-black text-white">{question}</h3>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="why-clientflow-paths" className="border-b border-white/5 bg-slate-400/[0.035] py-14 sm:py-16">
           <div className="container-custom">
             <div className="mx-auto max-w-3xl text-center">
@@ -1250,7 +1322,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="border-y border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+        <section id="who-for" className="border-y border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Who should use it</p>
