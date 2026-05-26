@@ -214,11 +214,50 @@ const devOpsHighlights = [
   ['Maintenance upsell', 'Turn finished website/app delivery into monthly support, monitoring, backups, and small fixes.']
 ];
 
-const previewActions = [
-  ['Today', 'Message 3 warm leads'],
-  ['Proposal', 'Follow up website package'],
-  ['Project', 'Finish client delivery task'],
-  ['Payment', 'Collect pending invoice']
+const heroClarityCards = [
+  {
+    label: 'What it is',
+    title: 'Client workflow workspace',
+    text: 'Manage leads, proposals, workrooms, invoices, payment follow-up, and growth from one account.'
+  },
+  {
+    label: 'Who it is for',
+    title: 'Freelancers, agencies, service teams',
+    text: 'Best for people selling client services: developers, designers, consultants, agencies, and small teams.'
+  },
+  {
+    label: 'Next action',
+    title: 'Start with 30 days free',
+    text: 'Create an account, open Client Flow, add one real lead or invoice, then decide if Pro or setup help is useful.'
+  }
+];
+
+const heroPathCards = [
+  {
+    label: 'Test the software',
+    title: '30-day free access',
+    text: 'Use the full lead-to-payment workflow after signup. Good first step for almost every new user.',
+    cta: 'Start Free',
+    path: '/client-flow',
+    requiresLogin: true,
+    tone: 'yellow'
+  },
+  {
+    label: 'Need setup help',
+    title: 'Agency Setup',
+    text: 'For freelancers who want help creating their offer, proposal flow, invoice path, and 7-day action plan.',
+    cta: 'See Agency Setup',
+    path: '/payments/agency-setup',
+    tone: 'sky'
+  },
+  {
+    label: 'Team or company',
+    title: 'Enterprise Setup',
+    text: 'For agencies and small companies that need team workspace, roles, permissions, audit, and backup habits.',
+    cta: 'See Enterprise Setup',
+    path: '/payments/enterprise',
+    tone: 'emerald'
+  }
 ];
 
 const PLAN_EXPIRY_REMINDER_DAYS = 2;
@@ -558,6 +597,17 @@ export default function Home() {
     navigate(nextPath);
   };
 
+  const openHeroPath = (card) => {
+    const nextPath = card.requiresLogin && !loggedIn ? '/signup' : card.path;
+
+    if (card.requiresLogin && !loggedIn) {
+      setPostLoginRedirect(card.path);
+    }
+
+    trackCtaClick(`hero_path_${card.tone}`, 'home_hero_paths', nextPath);
+    navigate(nextPath);
+  };
+
   const openFeature = (path, title) => {
     if (path.startsWith('/work/')) {
       trackCtaClick(`feature_${title}`, 'home_features', path);
@@ -645,21 +695,31 @@ export default function Home() {
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-yellow-300/20 bg-yellow-300/10 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
                 <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">
-                  Freelancer business system
+                  For freelancers, agencies, and service teams
                 </span>
               </div>
 
               <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Run your freelance business without losing leads, work, or payments.
+                ClientFlow AI is the workspace to find clients, manage work, send invoices, and get paid.
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-semibold leading-relaxed text-zinc-300 sm:text-lg">
-                ClientFlow AI helps freelancers turn conversations into proposals, manage delivery, create invoices, and collect payment without keeping the whole business in memory.
+                It helps freelancers, developers, designers, consultants, agencies, and small teams move from client inquiry to proposal, delivery, invoice, and payment follow-up in one clear flow.
               </p>
 
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-                Simple promise: know who to contact, what to send, what to deliver, and which payment to collect next.
+                New users should start with the 30-day free workflow. Setup help and enterprise setup are separate paths for users who need hands-on support or team controls.
               </p>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {heroClarityCards.map((card) => (
+                  <div key={card.label} className="rounded-2xl border border-white/8 bg-white/[0.035] p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-300">{card.label}</p>
+                    <h2 className="mt-2 text-sm font-black leading-tight text-white">{card.title}</h2>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{card.text}</p>
+                  </div>
+                ))}
+              </div>
 
               {loggedIn && (
                 <div className={`mt-6 rounded-[1.5rem] border p-4 sm:max-w-2xl sm:p-5 ${
@@ -698,49 +758,73 @@ export default function Home() {
                   onClick={() => goToApp('/client-flow', loggedIn ? 'hero_open_client_flow' : 'hero_start_free')}
                   className="rounded-2xl bg-yellow-400 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-black shadow-xl shadow-yellow-950/20 transition-all hover:-translate-y-0.5 hover:bg-yellow-300 active:scale-95"
                 >
-                  {loggedIn ? 'Open Client Flow' : 'Start Free'}
+                  {loggedIn ? 'Open Client Flow' : 'Start 30-Day Free Access'}
                 </button>
-                <Link to="/payments" className="btn btn-primary px-7 py-4 text-center text-sm">
-                  View Payments
+                <Link to="/freelance-fit-advisor" className="btn btn-primary px-7 py-4 text-center text-sm">
+                  Find My Best Path
                 </Link>
-                <Link to="/agency" className="btn btn-dark px-7 py-4 text-center text-sm">
-                  Need Setup Help?
+                <Link to="/payments" className="btn btn-dark px-7 py-4 text-center text-sm">
+                  Compare Payments
                 </Link>
               </div>
               <p className="mt-4 max-w-xl text-xs font-bold leading-relaxed text-zinc-600">
-                The home page explains the product. Payment choices are handled on the separate payments page so new users do not feel pushed too early.
+                Login or signup is required so the 30-day free access, invoices, proposals, and project workspace stay connected to the correct user.
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-4 shadow-2xl shadow-black/30">
-              <div className="rounded-[1.5rem] border border-white/8 bg-black/30 p-5">
-                <div className="flex items-center justify-between gap-4">
-                  <BrandLogo showText={false} markClassName="h-12 w-12" />
-                  <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
-                    Example preview
-                  </span>
-                </div>
-
-                <div className="mt-6 rounded-2xl border border-yellow-300/20 bg-yellow-300/10 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Next business action</p>
-                  <p className="mt-2 text-xl font-black leading-tight text-white">
-                    Follow up the pending proposal before creating new work.
+            <div className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/30 sm:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">
+                    Start here
+                  </p>
+                  <h2 className="mt-3 text-3xl font-black leading-tight text-white">
+                    Choose the path that matches your situation.
+                  </h2>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+                    Most visitors should test the software first. Users who are confused can buy setup help. Teams can use enterprise setup.
                   </p>
                 </div>
-
-                <div className="mt-5 space-y-3">
-                  {previewActions.map(([label, title]) => (
-                    <div key={title} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                      <p className="mt-1 text-sm font-black text-white">{title}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="mt-5 rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-xs font-bold leading-relaxed text-zinc-400">
-                  These are example values for understanding the product. Your real dashboard uses your own leads, proposals, projects, invoices, and payments.
-                </p>
+                <BrandLogo showText={false} markClassName="hidden h-12 w-12 shrink-0 sm:block" />
               </div>
+
+              <div className="mt-6 space-y-3">
+                {heroPathCards.map((card) => {
+                  const toneClass = card.tone === 'emerald'
+                    ? 'border-emerald-300/25 bg-emerald-300/[0.07] hover:border-emerald-300/40'
+                    : card.tone === 'sky'
+                      ? 'border-sky-300/25 bg-sky-300/[0.07] hover:border-sky-300/40'
+                      : 'border-yellow-300/30 bg-yellow-300/[0.08] hover:border-yellow-300/45';
+                  const buttonClass = card.tone === 'emerald'
+                    ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
+                    : card.tone === 'sky'
+                      ? 'bg-sky-300 text-slate-950 hover:bg-sky-200'
+                      : 'bg-yellow-400 text-black hover:bg-yellow-300';
+
+                  return (
+                    <div key={card.title} className={`rounded-2xl border p-4 transition-all hover:-translate-y-0.5 ${toneClass}`}>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">{card.label}</p>
+                      <div className="mt-2 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+                        <div>
+                          <h3 className="text-lg font-black leading-tight text-white">{card.title}</h3>
+                          <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-400">{card.text}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openHeroPath(card)}
+                          className={`rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest transition-all active:scale-95 ${buttonClass}`}
+                        >
+                          {card.cta}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <p className="mt-5 rounded-2xl border border-white/8 bg-white/[0.04] p-4 text-xs font-bold leading-relaxed text-zinc-400">
+                Demo values may appear only to explain the workflow. Real accounts use the user&apos;s own leads, clients, projects, invoices, payments, and team data.
+              </p>
             </div>
           </div>
         </section>
