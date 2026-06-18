@@ -201,11 +201,11 @@ const earlyUserClarity = [
 ];
 
 const whoFor = [
-  ['Freelancers', 'Build stable client flow, proposals, invoices, and payments.'],
-  ['Developers', 'Manage client requirements, GitHub delivery, Linux/VPS launch, handover, maintenance, and payment.'],
-  ['Designers', 'Handle briefs, revisions, approvals, proposals, and final invoice.'],
-  ['Consultants', 'Turn conversations into proposals, retainers, and paid milestones.'],
-  ['Small agencies', 'Bring other freelancers into bigger projects and manage delivery together.']
+  ['Service freelancers', 'Use one system for leads, proposals, client work, invoices, and payment follow-up.'],
+  ['Creative freelancers', 'Useful for writers, designers, video editors, photographers, marketers, and branding freelancers.'],
+  ['Professional freelancers', 'Useful for consultants, coaches, trainers, accountants, virtual assistants, and business service providers.'],
+  ['Technical freelancers', 'Useful for developers, automation experts, IT support, website builders, and maintenance providers.'],
+  ['Small agencies and teams', 'Bring other freelancers into bigger projects and manage delivery, roles, invoices, and handover together.']
 ];
 
 const devOpsHighlights = [
@@ -222,8 +222,8 @@ const heroClarityCards = [
   },
   {
     label: 'Who it is for',
-    title: 'Freelancers, agencies, service teams',
-    text: 'Best for people selling client services: developers, designers, consultants, agencies, and small teams.'
+    title: 'All service freelancers',
+    text: 'Best for anyone selling client work: writing, marketing, design, consulting, coaching, tech, admin, creative, or agency services.'
   },
   {
     label: 'Next action',
@@ -407,7 +407,7 @@ const fitAdvisorProblems = [
     label: 'Managing work',
     title: 'Keep delivery proof in one place.',
     text: 'Track tasks, client requests, files, approvals, teammates, and handover so work does not stay scattered in chat.',
-    tools: ['Client Workroom', 'Cloud Documents', 'DevOps Kit']
+    tools: ['Client Workroom', 'Cloud Documents', 'Delivery Proof']
   },
   {
     id: 'payment',
@@ -464,8 +464,8 @@ const operatingStandards = [
     text: 'Workrooms, proposal details, invoice links, proof notes, and DevOps handover items make the freelancer look more organized to clients.'
   },
   {
-    title: 'Technical delivery option',
-    text: 'Developers can add GitHub, Linux/VPS, SSL, backup, release evidence, and maintenance notes when the project needs real deployment.'
+    title: 'Optional technical delivery',
+    text: 'Technical freelancers can add GitHub, Linux/VPS, SSL, backup, release evidence, and maintenance notes only when the project needs real deployment.'
   }
 ];
 
@@ -485,7 +485,7 @@ const faqs = [
   ['Why should freelancers use it?', 'Because freelancers lose time and money when leads, proposals, projects, and payment follow-ups are scattered. ClientFlow AI puts the process in one place.'],
   ['When is Pro worth paying for?', 'Pro makes sense when the freelancer is actively trying to win clients, send proposals, manage projects, collect payments, and grow monthly income. If it helps close one client or collect one delayed payment, it can be worth more than the subscription.'],
   ['When should someone stay on Free?', 'Stay on Free if you only want to test the product, create a few invoices, or you are not yet managing real leads and client work.'],
-  ['Is the Linux/DevOps feature for everyone?', 'No. DevOps Delivery Kit is optional and mainly useful for developers, technical freelancers, and small agencies who deliver websites, apps, VPS, GitHub, or maintenance work.'],
+  ['Is the Linux/DevOps feature for everyone?', 'No. DevOps Delivery Kit is optional and mainly useful for technical freelancers, website builders, IT providers, developers, and small agencies who deliver websites, apps, VPS, GitHub, or maintenance work.'],
   ['Can beginners use it?', 'Yes. Beginners can use the free software or choose Agency Setup if they want help setting up their offer and client workflow.'],
   ['Is this another Upwork or Fiverr?', 'No. ClientFlow AI is not a job marketplace. It is a direct-client business system for freelancers who want to manage their own leads, proposals, work, invoices, and payments.'],
   ['Can foreign clients pay?', 'Yes, if the seller has international payments enabled in Razorpay. Invoices can support INR, USD, EUR, GBP, AED, SGD, AUD, and CAD.'],
@@ -515,7 +515,7 @@ const homeStructuredData = [
     description: 'ClientFlow AI helps freelancers find clients, send proposals, manage projects, create invoices, and collect payments in one workspace.',
     audience: {
       '@type': 'Audience',
-      audienceType: 'Freelancers, consultants, developers, designers, and small agencies'
+      audienceType: 'Service freelancers, consultants, coaches, writers, marketers, designers, developers, virtual assistants, and small agencies'
     },
     offers: {
       '@type': 'AggregateOffer',
@@ -719,16 +719,16 @@ export default function Home() {
               <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-yellow-300/20 bg-yellow-300/10 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
                 <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">
-                  For freelancers, agencies, and service teams
+                  For all service freelancers and client teams
                 </span>
               </div>
 
               <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                ClientFlow AI is the workspace to find clients, manage work, send invoices, and get paid.
+                One simple workspace for freelancers to get clients, manage work, and get paid.
               </h1>
 
               <p className="mt-6 max-w-2xl text-base font-semibold leading-relaxed text-zinc-300 sm:text-lg">
-                It helps freelancers, developers, designers, consultants, agencies, and small teams move from client inquiry to proposal, delivery, invoice, and payment follow-up in one clear flow.
+                ClientFlow AI is for any freelancer who sells services to clients: writers, marketers, editors, consultants, coaches, designers, developers, virtual assistants, agencies, and small teams.
               </p>
 
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
@@ -1269,12 +1269,12 @@ export default function Home() {
         <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Optional for developers</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Optional technical add-on</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Linux-powered delivery when the project needs real deployment.
+                Technical delivery tools are available only when the freelancer needs them.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                This is not the main product for every freelancer. It is an extra workflow for developers and agencies who deliver websites/apps and need GitHub, Linux/VPS, SSL, backups, handover, and maintenance.
+                The main product is for all freelancers. GitHub, Linux/VPS, SSL, backups, handover, and maintenance are extra workflows for technical freelancers, website builders, IT providers, and agencies.
               </p>
               <Link to="/devops-delivery" className="mt-6 inline-flex btn btn-secondary px-6 py-3 text-sm">
                 See DevOps Delivery Kit
