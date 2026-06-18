@@ -18,7 +18,7 @@ import DeviceReminderAgent from './components/DeviceReminderAgent';
 import SupportChatWidget from './components/SupportChatWidget';
 
 // ✅ Lazy load ALL pages (important)
-const Home = lazy(() => import('./pages/Home'));
+const Home = lazy(() => import('./pages/HomeClear'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Portfolio = lazy(() => import('./pages/Portfolio'));
 const LinkedInPortfolio = lazy(() => import('./pages/LinkedInPortfolio'));

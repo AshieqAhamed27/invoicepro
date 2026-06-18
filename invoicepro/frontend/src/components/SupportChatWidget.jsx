@@ -417,7 +417,7 @@ export default function SupportChatWidget() {
   const recognitionRef = useRef(null);
   const lastSpokenMessageRef = useRef('');
 
-  const hiddenOnCurrentRoute = hiddenRoutePrefixes.some((prefix) => pathname.startsWith(prefix));
+  const hiddenOnCurrentRoute = pathname === '/' || hiddenRoutePrefixes.some((prefix) => pathname.startsWith(prefix));
   const selectedLanguage = ENGLISH_LANGUAGE;
   const avatarMode = isListening ? 'listening' : isSpeaking ? 'speaking' : 'idle';
   const voiceHasActiveSpeech = isSpeaking || isVoicePaused;

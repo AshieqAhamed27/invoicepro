@@ -14,106 +14,49 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-[#07090d]/90 pt-16 pb-28 sm:py-20">
+    <footer className="border-t border-white/10 bg-[#07090d] pb-24 pt-14 sm:py-16">
       <div className="container-custom">
-        <div className="mb-16 grid grid-cols-1 gap-10 rounded-lg border border-white/10 bg-white/[0.035] p-6 text-sm shadow-2xl shadow-black/20 sm:grid-cols-2 sm:p-8 md:mb-12 md:grid-cols-3 md:gap-12 xl:grid-cols-5 lg:p-10">
-          <div className="col-span-1">
-            <div className="mb-6">
+        <div className="grid gap-10 text-sm sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+          <div>
+            <div className="mb-5">
               <BrandLogo showText={true} />
             </div>
-            <p className="max-w-xs text-zinc-400 font-medium leading-relaxed">
+            <p className="max-w-sm font-medium leading-6 text-zinc-400">
               {COMPANY_TAGLINE}
+            </p>
+            <p className="mt-4 max-w-sm text-xs font-semibold leading-5 text-zinc-600">
+              {COMPANY_LEGAL_DESCRIPTION}
             </p>
           </div>
 
           <div>
-            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Explore</h3>
-            <div className="grid gap-4 font-medium text-zinc-400">
-              <a className="transition-colors hover:text-yellow-300" href="/#trust">Why Teams Trust It</a>
-              <Link className="transition-colors hover:text-yellow-300" to="/payments">Payments</Link>
-              <a className="transition-colors hover:text-yellow-300" href="/#faq">FAQ</a>
-              <Link to="/blog/gst-invoice-format-india" className="transition-colors hover:text-yellow-300">
-                GST Invoice Format
-              </Link>
-              <Link
-                to="/blog/how-to-create-invoice-india"
-                className="transition-colors hover:text-yellow-300"
-              >
-                How to Create Invoice
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/client-finder">
-                AI Client Finder
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/leads">
-                Lead Pipeline
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/deal-room">
-                Deal Closure Room
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/client-workroom">
-                Client Workroom
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/devops-delivery">
-                DevOps Delivery Kit
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/agency">
-                Agency Setup
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/payments/automation-setup">
-                Automation Setup
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/invoice-generator">
-                Invoice Generator
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/gst-invoice-generator">
-                GST Invoice Generator
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/online-invoice-maker-india">
-                Online Invoice Maker
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/freelance-invoice-software">
-                Freelancer Billing
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/payment-reminder-software">
-                Payment Reminders
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/contact">Contact Support</Link>
+            <h3 className="mb-5 font-black uppercase text-white">Product</h3>
+            <div className="grid gap-3 font-medium text-zinc-400">
+              <a className="transition-colors hover:text-yellow-300" href="/#how-it-works">How it works</a>
+              <Link className="transition-colors hover:text-yellow-300" to="/client-flow">Client Flow</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/client-workroom">Client Workroom</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/create-invoice">Invoices</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/payments">Plans and payments</Link>
             </div>
           </div>
 
           <div>
-            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Use Cases</h3>
-            <div className="grid gap-4 font-medium text-zinc-400">
-              <Link className="transition-colors hover:text-yellow-300" to="/freelancers">For Freelancers</Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/developers">For Developers</Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/devops-delivery">Linux/VPS Delivery</Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/designers">For Designers</Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/agencies">For Agencies</Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/consultants">For Consultants</Link>
+            <h3 className="mb-5 font-black uppercase text-white">Setup services</h3>
+            <div className="grid gap-3 font-medium text-zinc-400">
+              <Link className="transition-colors hover:text-yellow-300" to="/payments/agency-setup">Agency Setup</Link>
+              <Link className="transition-colors hover:text-cyan-300" to="/payments/automation-setup">Automation Setup</Link>
+              <Link className="transition-colors hover:text-emerald-300" to="/payments/enterprise">Enterprise Setup</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/devops-delivery">Technical delivery</Link>
             </div>
           </div>
 
           <div>
-            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Company</h3>
-            <div className="grid gap-4 font-medium text-zinc-400">
-              <Link className="transition-colors hover:text-yellow-300" to="/portfolio">Builder Portfolio</Link>
+            <h3 className="mb-5 font-black uppercase text-white">Company and support</h3>
+            <div className="grid gap-3 font-medium text-zinc-400">
+              <Link className="transition-colors hover:text-yellow-300" to="/contact">Contact</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/security">Security</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/privacy">Privacy</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/terms">Terms</Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/refund-policy">
-                Refund Policy
-              </Link>
-              <Link className="transition-colors hover:text-yellow-300" to="/shipping-policy">
-                Digital Delivery
-              </Link>
-              <p>{COMPANY_LEGAL_DESCRIPTION}</p>
-              <p className="break-all text-xs font-bold text-zinc-500">Udyam No: {UDYAM_REGISTRATION_NUMBER}</p>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="mb-6 text-[10px] font-black uppercase tracking-widest text-white">Contact</h3>
-            <div className="grid gap-4 font-medium text-zinc-400">
               <a href={`mailto:${SUPPORT_EMAIL}`} className="break-all font-bold text-white transition-colors hover:text-yellow-300 sm:break-normal">
                 {SUPPORT_EMAIL}
               </a>
@@ -128,24 +71,17 @@ export default function Footer() {
               >
                 LinkedIn
               </a>
-              <p className="text-xs">
-                Based in India.
-                <br />
-                Built for freelancers, agencies, and consultants.
-              </p>
+              <p className="text-xs font-semibold text-zinc-600">Udyam: {UDYAM_REGISTRATION_NUMBER}</p>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 md:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-7 text-xs font-bold uppercase text-zinc-600 md:flex-row">
           <p className="text-center md:text-left">Copyright {new Date().getFullYear()} {COMPANY_NAME}</p>
-          <div className="mt-0 flex flex-wrap items-center justify-center gap-4 sm:gap-8 md:justify-end">
-            <Link className="transition-colors hover:text-zinc-500" to="/privacy">Privacy</Link>
-            <Link className="transition-colors hover:text-zinc-500" to="/security">Security</Link>
-            <Link className="transition-colors hover:text-zinc-500" to="/terms">Terms</Link>
-            <Link className="transition-colors hover:text-zinc-500" to="/refund-policy">Refund</Link>
-            <Link className="transition-colors hover:text-zinc-500" to="/shipping-policy">Delivery</Link>
-            <Link className="transition-colors hover:text-zinc-500" to="/contact">Contact</Link>
+          <div className="flex flex-wrap items-center justify-center gap-5 md:justify-end">
+            <Link className="transition-colors hover:text-zinc-300" to="/refund-policy">Refund policy</Link>
+            <Link className="transition-colors hover:text-zinc-300" to="/shipping-policy">Digital delivery</Link>
+            <Link className="transition-colors hover:text-zinc-300" to="/portfolio">Builder</Link>
           </div>
         </div>
       </div>

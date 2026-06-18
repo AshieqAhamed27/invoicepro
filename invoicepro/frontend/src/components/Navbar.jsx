@@ -387,7 +387,7 @@ export default function Navbar() {
                   </a>
                   <NavLink to="/payments" onClick={closeMenu} className={mobileItemClass}>
                     <span className="block text-sm font-black">Payments</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Free, Pro, setup, enterprise</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Free, Pro, and optional setup services</span>
                   </NavLink>
                 </>
               ) : (
