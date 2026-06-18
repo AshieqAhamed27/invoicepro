@@ -1902,38 +1902,11 @@ const sanitizeSupportPageContext = (value) => {
 };
 
 const supportLanguageInstructions = {
-    auto: 'Detect the user language and reply in the same natural style. If the user mixes languages, reply in that same mixed style. If the user uses another language, answer in that language when possible.',
-    english: 'Reply in simple, friendly Indian English.',
-    hindi: 'Reply in natural friendly Hindi. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    hinglish: 'Reply in conversational Hindi + English. Keep it natural like an Indian coach talking to a beginner.',
-    tamil: 'Reply in natural friendly Tamil. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    tanglish: 'Reply in conversational Tamil + English. Use simple English words mixed with Tamil-style phrasing when the user writes or speaks mixed language.',
-    telugu: 'Reply in natural friendly Telugu. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    kannada: 'Reply in natural friendly Kannada. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    malayalam: 'Reply in natural friendly Malayalam. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    bengali: 'Reply in natural friendly Bengali. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    marathi: 'Reply in natural friendly Marathi. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    gujarati: 'Reply in natural friendly Gujarati. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    punjabi: 'Reply in natural friendly Punjabi. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    urdu: 'Reply in natural friendly Urdu. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    arabic: 'Reply in natural friendly Arabic. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    french: 'Reply in natural friendly French. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    spanish: 'Reply in natural friendly Spanish. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    german: 'Reply in natural friendly German. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    portuguese: 'Reply in natural friendly Portuguese. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    indonesian: 'Reply in natural friendly Indonesian. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    malay: 'Reply in natural friendly Malay. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    chinese: 'Reply in natural friendly Simplified Chinese. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    japanese: 'Reply in natural friendly Japanese. Keep product names, UI labels, and technical terms in English when that is clearer.',
-    korean: 'Reply in natural friendly Korean. Keep product names, UI labels, and technical terms in English when that is clearer.'
+    english: 'Reply only in simple, friendly Indian English. Do not reply in any other language or mixed-language style.'
 };
 
-const getSupportLanguageInstruction = (mode = 'auto', label = '') => {
-    const cleanMode = compactText(mode, 'auto').toLowerCase();
-    const cleanLabel = compactText(label, '');
-    if (supportLanguageInstructions[cleanMode]) return supportLanguageInstructions[cleanMode];
-    if (cleanLabel) return `Reply in natural friendly ${cleanLabel}. Keep product names, UI labels, and technical terms in English when that is clearer.`;
-    return supportLanguageInstructions.auto;
+const getSupportLanguageInstruction = () => {
+    return supportLanguageInstructions.english;
 };
 
 const supportCoachStyleGuide = [
@@ -1946,7 +1919,7 @@ const supportCoachStyleGuide = [
     'When the user asks about setup or errors, explain the cause in plain language and give exact steps.',
     'Never sound like marketing copy. Never give a long feature dump unless the user asks for a full list.',
     'Do not over-apologize. Do not say "As an AI". Do not end every answer with the same question.',
-    'If the user writes in broken English, reply respectfully in simple natural English or their selected language. Do not correct their grammar.'
+    'If the user writes in broken English or another language, reply respectfully in simple natural English. Do not correct their grammar.'
 ].join('\n');
 
 const supportCoachExamples = [
@@ -2212,12 +2185,12 @@ const normalizeSupportCoachAnswer = (answer = '', fallback = '') => {
     return text.slice(0, 3000);
 };
 
-const callAiSupportAssistant = async({ messages, page, pageContext = '', fallback, languageMode = 'auto', languageLabel = '', voiceMode = 'text' }) => {
+const callAiSupportAssistant = async({ messages, page, pageContext = '', fallback, voiceMode = 'text' }) => {
     const latestQuestion = messages[messages.length - 1]?.content || '';
     const history = messages
         .map((message) => `${message.role}: ${message.content}`)
         .join('\n');
-    const languageInstruction = getSupportLanguageInstruction(languageMode, languageLabel);
+    const languageInstruction = getSupportLanguageInstruction();
     const pageGuide = getSupportPageGuide(page);
 
     const prompt = [
@@ -2370,8 +2343,6 @@ router.post('/support-chat', async(req, res) => {
     const messages = sanitizeSupportMessages(req.body?.messages);
     const latestQuestion = messages[messages.length - 1]?.content || '';
     const fallback = buildSupportFallback(latestQuestion);
-    const languageMode = compactText(req.body?.languageMode, 'auto').toLowerCase().slice(0, 30);
-    const languageLabel = compactText(req.body?.languageLabel, '').slice(0, 60);
     const voiceMode = compactText(req.body?.voiceMode, 'text').toLowerCase().slice(0, 20);
     const pageContext = sanitizeSupportPageContext(req.body?.pageContext);
 
@@ -2389,8 +2360,6 @@ router.post('/support-chat', async(req, res) => {
             page: req.body?.page,
             pageContext,
             fallback,
-            languageMode,
-            languageLabel,
             voiceMode
         });
 
