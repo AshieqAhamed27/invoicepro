@@ -15,6 +15,7 @@ const markets = {
     yearly: 'Rs 4,999',
     founder: 'Rs 999',
     setupStart: 'Rs 999',
+    automationStart: 'Rs 1,499',
     teamSetup: 'Rs 4,999',
     enterpriseSeat: 'Rs 299/user'
   },
@@ -25,6 +26,7 @@ const markets = {
     yearly: '$89',
     founder: '$19',
     setupStart: '$19',
+    automationStart: '$29',
     teamSetup: '$99',
     enterpriseSeat: '$5/user'
   }
@@ -97,6 +99,16 @@ const servicePayments = [
     highlight: 'agency'
   },
   {
+    title: 'Automation Setup',
+    priceKey: 'automationStart',
+    detail: 'Hands-on setup for reminders and connected client workflows using ClientFlow AI or n8n, including testing, failure handling, activation, and handover.',
+    path: '/payments/automation-setup',
+    cta: 'Pay Automation Setup',
+    featured: true,
+    badge: 'Workflow automation service',
+    highlight: 'automation'
+  },
+  {
     title: 'Enterprise Seats',
     priceKey: 'enterpriseSeat',
     detail: 'Company workspace with members, roles, SSO settings, audit exports, backup export, and seat billing preview.',
@@ -123,7 +135,7 @@ const whyPay = [
 ];
 
 const checkoutSteps = [
-  ['Choose payment type', 'Free, Pro, Founder access, Agency Setup, Enterprise Seats, or Enterprise Team Setup.'],
+  ['Choose payment type', 'Free, Pro, Founder access, Agency Setup, Automation Setup, Enterprise Seats, or Enterprise Team Setup.'],
   ['Login or signup', 'A workspace account is required so access can be attached to the correct user.'],
   ['Pay securely', 'Checkout runs through configured payment providers such as Razorpay.'],
   ['Use the workflow', 'New users get 30 days free. After that, paid software plans or setup services can be used when needed.']
@@ -154,6 +166,14 @@ const paymentPages = [
     tone: 'sky'
   },
   {
+    title: 'Automation Setup',
+    label: 'Done-for-you automation',
+    detail: 'Use this page only for reminder automation, connected client workflow automation, and managed automation support.',
+    path: '/payments/automation-setup',
+    cta: 'Open Automation Payment',
+    tone: 'purple'
+  },
+  {
     title: 'Enterprise Team Setup',
     label: 'Guided team setup',
     detail: 'Use this page only for team setup: roles, security, audit/export habits, and first workrooms.',
@@ -178,8 +198,8 @@ export default function PaymentsOverview() {
   const currentMarket = markets[market];
 
   useDocumentMeta({
-    title: `${COMPANY_NAME} Payments - Free, Pro, Agency Setup, and Enterprise`,
-    description: 'See ClientFlow AI payment options for free access, Pro workflow, agency setup, and enterprise seat billing.',
+    title: `${COMPANY_NAME} Payments - Software, Setup, Automation, and Enterprise`,
+    description: 'See ClientFlow AI payment options for free access, Pro workflow, agency setup, automation setup, and enterprise services.',
     path: '/payments'
   });
 
@@ -244,14 +264,17 @@ export default function PaymentsOverview() {
                 Choose how you want to use ClientFlow AI.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400">
-                Software access is free for 30 days after signup. Agency Setup and Enterprise Team Setup remain separate optional paid services.
+                Software access is free for 30 days after signup. Agency, Automation, and Enterprise setup remain separate optional paid services.
               </p>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button type="button" onClick={startFree} className="btn btn-primary px-7 py-4 text-sm">
                   {loggedIn ? 'Open Workspace' : 'Start Free'}
                 </button>
                 <Link to="/payments/agency-setup" className="rounded-2xl bg-yellow-400 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-black transition hover:bg-yellow-300">
                   Agency Setup
+                </Link>
+                <Link to="/payments/automation-setup" className="rounded-2xl bg-sky-300 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-sky-200">
+                  Automation Setup
                 </Link>
                 <Link to="/payments/enterprise" className="rounded-2xl bg-emerald-300 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
                   Enterprise Setup
@@ -296,16 +319,18 @@ export default function PaymentsOverview() {
                 Pick the correct payment page first.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                This avoids mixing subscription software, freelancer setup, and company setup in one checkout screen.
+                This avoids mixing subscription software, freelancer setup, automation work, and company setup in one checkout screen.
               </p>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {paymentPages.map((item) => {
                 const className = item.tone === 'emerald'
                   ? 'border-emerald-300/30 bg-emerald-300/[0.08] hover:border-emerald-300/45'
                   : item.tone === 'sky'
                     ? 'border-sky-300/30 bg-sky-300/[0.08] hover:border-sky-300/45'
+                    : item.tone === 'purple'
+                      ? 'border-purple-300/30 bg-purple-300/[0.08] hover:border-purple-300/45'
                     : 'border-yellow-300/35 bg-yellow-300/[0.08] hover:border-yellow-300/50';
 
                 return (
@@ -379,14 +404,17 @@ export default function PaymentsOverview() {
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Setup services</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Setup help is available for solo freelancers and company teams.
+                Setup help is available for freelancers, automations, and company teams.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                Use Agency Setup when one freelancer needs help starting. Use Enterprise Team Setup when a team needs roles, permissions, security settings, audit/export habits, and first company workrooms configured.
+                Use Agency Setup for a freelancer business workflow, Automation Setup for repetitive client tasks, and Enterprise Team Setup for roles, security, audit/export habits, and company workrooms.
               </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link to="/payments/agency-setup" className="inline-flex btn btn-primary px-6 py-3 text-sm">
                   Pay Agency Setup
+                </Link>
+                <Link to="/payments/automation-setup" className="inline-flex rounded-2xl bg-sky-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-sky-200">
+                  Pay Automation Setup
                 </Link>
                 <Link to="/payments/enterprise" className="inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
                   Pay Enterprise Team Setup
@@ -397,6 +425,7 @@ export default function PaymentsOverview() {
             <div className="grid gap-4">
               {servicePayments.map((item) => {
                 const isAgencySetup = item.highlight === 'agency';
+                const isAutomationSetup = item.highlight === 'automation';
                 const isEnterpriseSetup = item.highlight === 'enterprise';
 
                 return (
@@ -406,6 +435,8 @@ export default function PaymentsOverview() {
                     className={`rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 ${
                       isAgencySetup
                         ? 'border-yellow-300/35 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/20 hover:border-yellow-300/50'
+                        : isAutomationSetup
+                          ? 'border-sky-300/35 bg-sky-300/[0.1] shadow-2xl shadow-sky-950/20 hover:border-sky-300/50'
                         : isEnterpriseSetup
                           ? 'border-emerald-300/35 bg-emerald-300/[0.1] shadow-2xl shadow-emerald-950/20 hover:border-emerald-300/50'
                           : 'border-white/8 bg-black/25 hover:border-sky-300/25'
@@ -417,6 +448,8 @@ export default function PaymentsOverview() {
                           <span className={`mb-3 inline-flex rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
                             isEnterpriseSetup
                               ? 'border-emerald-300/20 bg-emerald-300/15 text-emerald-100'
+                              : isAutomationSetup
+                                ? 'border-sky-300/20 bg-sky-300/15 text-sky-100'
                               : 'border-yellow-300/20 bg-yellow-300/15 text-yellow-100'
                           }`}>
                             {item.badge}
@@ -430,7 +463,7 @@ export default function PaymentsOverview() {
                       </span>
                     </div>
                     <p className={`mt-4 text-[10px] font-black uppercase tracking-widest ${
-                      isAgencySetup ? 'text-yellow-200' : isEnterpriseSetup ? 'text-emerald-200' : 'text-sky-300'
+                      isAgencySetup ? 'text-yellow-200' : isAutomationSetup ? 'text-sky-200' : isEnterpriseSetup ? 'text-emerald-200' : 'text-sky-300'
                     }`}>{item.cta}</p>
                   </Link>
                 );

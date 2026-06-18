@@ -770,6 +770,15 @@ export default function App() {
         />
 
         <Route
+          path="/payments/automation-setup"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <SetupServicePayment serviceType="automation" />
+            </Suspense>
+          }
+        />
+
+        <Route
           path="/payments"
           element={
             <Suspense fallback={<RouteLoader />}>

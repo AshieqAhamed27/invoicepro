@@ -12,6 +12,7 @@ const setupPackages = {
     starter: {
         id: 'starter',
         name: 'Starter Setup',
+        workflowType: 'freelancers',
         amount: Number(process.env.AGENCY_STARTER_AMOUNT || 999),
         globalAmount: Number(process.env.AGENCY_STARTER_USD_AMOUNT || 19),
         globalCurrency: 'USD',
@@ -21,6 +22,7 @@ const setupPackages = {
     growth: {
         id: 'growth',
         name: 'Growth Setup',
+        workflowType: 'freelancers',
         amount: Number(process.env.AGENCY_GROWTH_AMOUNT || 2999),
         globalAmount: Number(process.env.AGENCY_GROWTH_USD_AMOUNT || 59),
         globalCurrency: 'USD',
@@ -30,6 +32,7 @@ const setupPackages = {
     managed: {
         id: 'managed',
         name: 'Managed Growth',
+        workflowType: 'agencies',
         amount: Number(process.env.AGENCY_MANAGED_AMOUNT || 4999),
         globalAmount: Number(process.env.AGENCY_MANAGED_USD_AMOUNT || 99),
         globalCurrency: 'USD',
@@ -39,6 +42,7 @@ const setupPackages = {
     enterprise_team: {
         id: 'enterprise_team',
         name: 'Enterprise Team Setup',
+        workflowType: 'enterprise',
         amount: Number(process.env.ENTERPRISE_TEAM_SETUP_AMOUNT || 4999),
         globalAmount: Number(process.env.ENTERPRISE_TEAM_SETUP_USD_AMOUNT || 99),
         globalCurrency: 'USD',
@@ -48,6 +52,7 @@ const setupPackages = {
     enterprise_pilot: {
         id: 'enterprise_pilot',
         name: 'Enterprise Pilot Setup',
+        workflowType: 'enterprise',
         amount: Number(process.env.ENTERPRISE_PILOT_SETUP_AMOUNT || 9999),
         globalAmount: Number(process.env.ENTERPRISE_PILOT_SETUP_USD_AMOUNT || 199),
         globalCurrency: 'USD',
@@ -57,15 +62,46 @@ const setupPackages = {
     enterprise_rollout: {
         id: 'enterprise_rollout',
         name: 'Enterprise Rollout Support',
+        workflowType: 'enterprise',
         amount: Number(process.env.ENTERPRISE_ROLLOUT_SETUP_AMOUNT || 19999),
         globalAmount: Number(process.env.ENTERPRISE_ROLLOUT_SETUP_USD_AMOUNT || 399),
         globalCurrency: 'USD',
         currency: 'INR',
         delivery: 'Team rollout support'
+    },
+    automation_starter: {
+        id: 'automation_starter',
+        name: 'Reminder Automation Setup',
+        workflowType: 'automation',
+        amount: Number(process.env.AUTOMATION_STARTER_AMOUNT || 1499),
+        globalAmount: Number(process.env.AUTOMATION_STARTER_USD_AMOUNT || 29),
+        globalCurrency: 'USD',
+        currency: 'INR',
+        delivery: '2-3 working days'
+    },
+    automation_workflow: {
+        id: 'automation_workflow',
+        name: 'Client Workflow Automation',
+        workflowType: 'automation',
+        amount: Number(process.env.AUTOMATION_WORKFLOW_AMOUNT || 3999),
+        globalAmount: Number(process.env.AUTOMATION_WORKFLOW_USD_AMOUNT || 79),
+        globalCurrency: 'USD',
+        currency: 'INR',
+        delivery: '3-5 working days'
+    },
+    automation_managed: {
+        id: 'automation_managed',
+        name: 'Managed Automation Support',
+        workflowType: 'automation',
+        amount: Number(process.env.AUTOMATION_MANAGED_AMOUNT || 7999),
+        globalAmount: Number(process.env.AUTOMATION_MANAGED_USD_AMOUNT || 159),
+        globalCurrency: 'USD',
+        currency: 'INR',
+        delivery: 'First month support'
     }
 };
 
-const defaultChecklist = [
+const freelancerChecklist = [
     { key: 'intake', label: 'Review skill, niche, goal, and current problem' },
     { key: 'offer', label: 'Create clear service offer and positioning' },
     { key: 'lead_plan', label: 'Create lead source and outreach plan' },
@@ -74,6 +110,32 @@ const defaultChecklist = [
     { key: 'payment', label: 'Set up invoice, payment, and collection workflow' },
     { key: 'handover', label: 'Send handover notes and next 7-day action plan' }
 ];
+
+const enterpriseChecklist = [
+    { key: 'intake', label: 'Review team structure, workflow, and rollout goal' },
+    { key: 'workspace', label: 'Configure organization workspace and first workrooms' },
+    { key: 'roles', label: 'Confirm owner, manager, finance, member, and viewer access' },
+    { key: 'security', label: 'Review invite, payment, client visibility, and SSO settings' },
+    { key: 'audit', label: 'Set up audit export and admin review routine' },
+    { key: 'backup', label: 'Confirm backup and retention checklist' },
+    { key: 'handover', label: 'Deliver rollout notes and team onboarding actions' }
+];
+
+const automationChecklist = [
+    { key: 'intake', label: 'Map the repetitive task, trigger, and expected outcome' },
+    { key: 'access', label: 'Confirm required app access without sharing passwords in chat' },
+    { key: 'build', label: 'Build the ClientFlow AI or n8n automation workflow' },
+    { key: 'dry_run', label: 'Run a safe test with sample data' },
+    { key: 'failure_path', label: 'Add failure handling and admin alert steps' },
+    { key: 'activate', label: 'Activate the approved schedule or event trigger' },
+    { key: 'handover', label: 'Send workflow notes, ownership, and maintenance guidance' }
+];
+
+const getDeliveryChecklist = (workflowType) => {
+    if (workflowType === 'enterprise') return enterpriseChecklist;
+    if (workflowType === 'automation') return automationChecklist;
+    return freelancerChecklist;
+};
 
 const sanitizeText = (value, max = 500) => String(value || '').trim().slice(0, max);
 const sanitizeEmail = (value) => sanitizeText(value, 160).toLowerCase();
@@ -102,7 +164,7 @@ const getPackage = (packageId, market = 'india') => {
 };
 const normalizeWorkflowType = (value) => {
     const workflow = String(value || '').toLowerCase();
-    return ['freelancers', 'developers', 'designers', 'agencies', 'consultants', 'enterprise'].includes(workflow)
+    return ['freelancers', 'developers', 'designers', 'agencies', 'consultants', 'enterprise', 'automation'].includes(workflow)
         ? workflow
         : 'freelancers';
 };
@@ -199,7 +261,7 @@ router.post('/bookings', async(req, res) => {
             packageName: selectedPackage.name,
             amount: selectedPackage.amount,
             currency: selectedPackage.currency,
-            workflowType: normalizeWorkflowType(req.body.workflowType),
+            workflowType: selectedPackage.workflowType || normalizeWorkflowType(req.body.workflowType),
             customerName,
             email,
             whatsapp,
@@ -213,13 +275,13 @@ router.post('/bookings', async(req, res) => {
         });
 
         res.status(201).json({
-            message: 'Agency setup booking created',
+            message: 'Setup service booking created',
             booking,
             package: selectedPackage
         });
     } catch (err) {
         console.error('AGENCY BOOKING ERROR:', err.message);
-        res.status(500).json({ message: 'Unable to create agency setup booking.' });
+        res.status(500).json({ message: 'Unable to create setup service booking.' });
     }
 });
 
@@ -261,9 +323,10 @@ router.post('/bookings/:id/order', async(req, res) => {
         const razorpayRes = await createRazorpayOrder({
             amount: Math.round(amount * 100),
             currency: booking.currency || 'INR',
-            receipt: `agency_${booking._id}`.slice(0, 40),
+            receipt: `setup_${booking._id}`.slice(0, 40),
             notes: {
                 agencySetupId: String(booking._id),
+                setupBookingId: String(booking._id),
                 packageId: booking.packageId,
                 packageName: booking.packageName,
                 email: booking.email
@@ -327,12 +390,12 @@ router.post('/bookings/:id/verify', async(req, res) => {
         booking.payment.status = 'paid';
         booking.payment.paidAt = new Date();
         if (!booking.deliveryChecklist?.length) {
-            booking.deliveryChecklist = defaultChecklist;
+            booking.deliveryChecklist = getDeliveryChecklist(booking.workflowType);
         }
         await booking.save();
 
         res.json({
-            message: 'Agency setup payment confirmed',
+            message: 'Setup service payment confirmed',
             booking
         });
     } catch (err) {

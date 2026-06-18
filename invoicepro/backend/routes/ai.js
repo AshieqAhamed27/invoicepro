@@ -1809,7 +1809,7 @@ const callAiJson = async({ prompt, timeout = 12000, maxTokens = 1200 }) => {
 const supportAssistantKnowledge = {
     product: 'ClientFlow AI is a freelancer business system for finding clients, managing deals, writing proposals, working with collaborators, creating invoices, sharing payment links, and tracking cashflow.',
     positioning: 'It is built India-first with Rs invoices, Razorpay/UPI-friendly payment flow, WhatsApp sharing, Udyam trust messaging, and support for global clients through international payment links when Razorpay is enabled.',
-    pricing: 'Free access is available for starting users. Pro is Rs 499 monthly or Rs 4999 yearly. Agency setup services are separate if the user wants done-with-you setup.',
+    pricing: 'Free access is available for starting users. Pro is Rs 499 monthly or Rs 4999 yearly. Agency Setup, Automation Setup, and Enterprise Setup are separate optional hands-on services. Automation Setup starts at Rs 1499 or $29.',
     honestLimits: 'Do not promise guaranteed clients, guaranteed income, automatic payment approval, or real server automation unless a connected integration exists. Voice quality depends on the user browser and device voices. AI answers require a configured provider; fallback rules are used when the provider is unavailable.',
     features: [
         'AI coach for finding clients and talking to prospects',

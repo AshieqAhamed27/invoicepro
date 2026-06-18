@@ -59,6 +59,9 @@ export default function Footer() {
               <Link className="transition-colors hover:text-yellow-300" to="/agency">
                 Agency Setup
               </Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/payments/automation-setup">
+                Automation Setup
+              </Link>
               <Link className="transition-colors hover:text-yellow-300" to="/invoice-generator">
                 Invoice Generator
               </Link>

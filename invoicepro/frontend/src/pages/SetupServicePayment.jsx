@@ -57,6 +57,8 @@ const serviceConfig = {
     description: 'Choose one setup package, share your basic details, and complete Razorpay checkout. After payment, we contact you on WhatsApp/email and start the setup.',
     path: '/payments/agency-setup',
     supportSubject: 'ClientFlow AI Agency Setup payment support',
+    paymentTitle: 'Agency setup packages only.',
+    paymentDetail: 'These cards are for done-for-you freelancer setup services. Software access and Pro subscription plans are separate.',
     defaultOptionId: 'growth',
     tone: 'yellow',
     options: [
@@ -129,6 +131,87 @@ const serviceConfig = {
       ['4', 'Receive setup plan']
     ]
   },
+  automation: {
+    eyebrow: 'Automation setup payment',
+    title: 'Pay for Automation Setup.',
+    subtitle: 'For freelancers and teams that want repetitive client tasks configured for them.',
+    description: 'Choose an automation package, explain the repetitive task, and complete Razorpay checkout. We map, test, and hand over the approved ClientFlow AI or n8n workflow.',
+    path: '/payments/automation-setup',
+    supportSubject: 'ClientFlow AI Automation Setup payment support',
+    paymentTitle: 'Automation setup packages only.',
+    paymentDetail: 'These cards pay for hands-on workflow design, testing, activation, and handover. ClientFlow AI software access and third-party app fees remain separate.',
+    defaultOptionId: 'automation_workflow',
+    tone: 'sky',
+    options: [
+      {
+        id: 'automation_starter',
+        packageId: 'automation_starter',
+        workflowType: 'automation',
+        label: 'Reminder Automation',
+        badge: 'Starter',
+        title: 'Automate one reminder workflow',
+        amount: { india: 1499, global: 29 },
+        currency: { india: 'INR', global: 'USD' },
+        priceNote: 'one-time setup',
+        detail: 'Set up one approved reminder flow for invoices, proposals, tasks, or client follow-ups.',
+        bestFor: 'Freelancers who repeatedly check dates and send the same reminder manually.',
+        points: [
+          'One trigger and reminder workflow',
+          'Safe dry run with sample data',
+          'Failure alert and retry guidance',
+          'Simple handover notes'
+        ],
+        defaultSkill: 'Client reminder automation setup'
+      },
+      {
+        id: 'automation_workflow',
+        packageId: 'automation_workflow',
+        workflowType: 'automation',
+        label: 'Workflow Automation',
+        badge: 'Recommended',
+        title: 'Automate a client workflow',
+        amount: { india: 3999, global: 79 },
+        currency: { india: 'INR', global: 'USD' },
+        priceNote: 'one-time setup',
+        detail: 'Connect up to three approved steps such as lead intake, proposal follow-up, task creation, invoice reminder, or admin notification.',
+        bestFor: 'Active freelancers and small teams losing time between disconnected client tasks.',
+        points: [
+          'Workflow map with trigger and actions',
+          'Up to three connected automation steps',
+          'Testing, failure path, and activation',
+          'Owner handover and maintenance checklist'
+        ],
+        defaultSkill: 'Client workflow automation setup',
+        recommended: true
+      },
+      {
+        id: 'automation_managed',
+        packageId: 'automation_managed',
+        workflowType: 'automation',
+        label: 'Managed Automation',
+        badge: 'First month support',
+        title: 'Build and monitor key automations',
+        amount: { india: 7999, global: 159 },
+        currency: { india: 'INR', global: 'USD' },
+        priceNote: 'setup plus first month',
+        detail: 'Configure priority workflows, review failures, and provide guided improvements during the first month.',
+        bestFor: 'Small agencies or teams that need support after automation goes live.',
+        points: [
+          'Up to three priority workflow builds',
+          'Activation and failure monitoring setup',
+          'Two workflow review sessions',
+          'First-month improvement report'
+        ],
+        defaultSkill: 'Managed client workflow automation'
+      }
+    ],
+    steps: [
+      ['1', 'Choose workflow'],
+      ['2', 'Explain manual task'],
+      ['3', 'Pay setup fee'],
+      ['4', 'Test and activate']
+    ]
+  },
   enterprise: {
     eyebrow: 'Enterprise setup payment',
     title: 'Pay for Enterprise Team Setup.',
@@ -136,6 +219,8 @@ const serviceConfig = {
     description: 'This page is only for Enterprise Team Setup. It does not sell freelancer Pro access. Share team details, pay once, and we start the pilot setup process.',
     path: '/payments/enterprise',
     supportSubject: 'ClientFlow AI Enterprise Team Setup payment support',
+    paymentTitle: 'Enterprise setup packages only.',
+    paymentDetail: 'These cards are for company setup services: workspace, roles, security, pilot rollout, and team onboarding. Freelancer Pro plans are separate.',
     defaultOptionId: 'enterprise_team',
     tone: 'emerald',
     options: [
@@ -220,6 +305,15 @@ const getFieldCopy = (serviceType) => {
     };
   }
 
+  if (serviceType === 'automation') {
+    return {
+      targetClient: 'Trigger or app involved',
+      skill: 'Your business or service type',
+      incomeGoal: 'Hours you want to save each week',
+      problem: 'Which repetitive task should we automate?'
+    };
+  }
+
   return {
     targetClient: 'Target client type',
     skill: 'Your skill or service',
@@ -253,6 +347,42 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
   );
   const fieldCopy = getFieldCopy(serviceType);
   const isEnterprise = serviceType === 'enterprise';
+  const isAutomation = serviceType === 'automation';
+  const theme = isEnterprise
+    ? {
+        hero: 'bg-emerald-400/[0.035]',
+        eyebrow: 'text-emerald-300',
+        selected: 'border-emerald-300/45 bg-emerald-300/[0.1] shadow-2xl shadow-emerald-950/25',
+        recommended: 'border-emerald-300/30 bg-emerald-300/[0.065] hover:border-emerald-300/45',
+        step: 'text-emerald-300',
+        action: 'bg-emerald-300 text-slate-950',
+        submit: 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
+      }
+    : isAutomation
+      ? {
+          hero: 'bg-sky-400/[0.035]',
+          eyebrow: 'text-sky-300',
+          selected: 'border-sky-300/45 bg-sky-300/[0.1] shadow-2xl shadow-sky-950/25',
+          recommended: 'border-sky-300/30 bg-sky-300/[0.065] hover:border-sky-300/45',
+          step: 'text-sky-300',
+          action: 'bg-sky-300 text-slate-950',
+          submit: 'bg-sky-300 text-slate-950 hover:bg-sky-200'
+        }
+      : {
+          hero: 'bg-yellow-400/[0.04]',
+          eyebrow: 'text-yellow-300',
+          selected: 'border-yellow-300/45 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/25',
+          recommended: 'border-yellow-300/35 bg-yellow-300/[0.075] hover:border-yellow-300/50',
+          step: 'text-yellow-300',
+          action: 'bg-yellow-400 text-black',
+          submit: 'bg-yellow-400 text-black hover:bg-yellow-300'
+        };
+  const relatedPaymentPages = [
+    { id: 'software', path: '/payments/freelance-workflow', label: 'Freelance Workflow' },
+    { id: 'agency', path: '/payments/agency-setup', label: 'Agency Setup' },
+    { id: 'automation', path: '/payments/automation-setup', label: 'Automation Setup' },
+    { id: 'enterprise', path: '/payments/enterprise', label: 'Enterprise Setup' }
+  ].filter((item) => item.id !== serviceType);
 
   useDocumentMeta({
     title: `${config.title} - ${COMPANY_NAME}`,
@@ -330,7 +460,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
         problem,
         targetClient: form.targetClient.trim(),
         incomeGoal: form.incomeGoal.trim(),
-        preferredPlatform: isEnterprise ? 'Team rollout' : 'LinkedIn',
+        preferredPlatform: isEnterprise ? 'Team rollout' : isAutomation ? 'ClientFlow AI / n8n' : 'LinkedIn',
         source: `${serviceType}_payment_page`
       });
 
@@ -363,6 +493,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
         },
         notes: {
           agencySetupId: booking._id,
+          setupBookingId: booking._id,
           packageId: selectedOption.packageId,
           setupService: selectedOption.id
         },
@@ -405,10 +536,10 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
       <Navbar />
 
       <main>
-        <section className={`border-b border-white/5 py-14 sm:py-16 lg:py-20 ${isEnterprise ? 'bg-emerald-400/[0.035]' : 'bg-yellow-400/[0.04]'}`}>
+        <section className={`border-b border-white/5 py-14 sm:py-16 lg:py-20 ${theme.hero}`}>
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className={`text-[10px] font-black uppercase tracking-[0.24em] ${isEnterprise ? 'text-emerald-300' : 'text-yellow-300'}`}>
+              <p className={`text-[10px] font-black uppercase tracking-[0.24em] ${theme.eyebrow}`}>
                 {config.eyebrow}
               </p>
               <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-5xl">
@@ -417,13 +548,12 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
               <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400">
                 {config.description}
               </p>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                <Link to="/payments/freelance-workflow" className="btn btn-secondary px-6 py-3 text-sm">
-                  Freelance Workflow Payment
-                </Link>
-                <Link to={isEnterprise ? '/payments/agency-setup' : '/payments/enterprise'} className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-center text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/10">
-                  {isEnterprise ? 'Agency Setup Payment' : 'Enterprise Setup Payment'}
-                </Link>
+              <div className="mt-7 flex flex-wrap gap-3">
+                {relatedPaymentPages.map((item) => (
+                  <Link key={item.id} to={item.path} className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10">
+                    {item.label}
+                  </Link>
+                ))}
               </div>
             </div>
 
@@ -459,13 +589,9 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
           <div className="container-custom">
             <div className="mb-8 max-w-3xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Choose payment</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                {isEnterprise ? 'Enterprise setup packages only.' : 'Agency setup packages only.'}
-              </h2>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">{config.paymentTitle}</h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                {isEnterprise
-                  ? 'These cards are for company setup services: workspace, roles, security, pilot rollout, and team onboarding. Freelancer Pro plans are separate.'
-                  : 'These cards are for done-for-you freelancer setup services. Software access and Pro subscription plans are separate.'}
+                {config.paymentDetail}
               </p>
             </div>
 
@@ -473,13 +599,9 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
               {config.options.map((option) => {
                 const selected = selectedOption.id === option.id;
                 const amount = formatMoney(option.amount[market], option.currency[market]);
-                const selectedClass = isEnterprise
-                  ? 'border-emerald-300/45 bg-emerald-300/[0.1] shadow-2xl shadow-emerald-950/25'
-                  : 'border-yellow-300/45 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/25';
+                const selectedClass = theme.selected;
                 const idleClass = option.recommended
-                  ? isEnterprise
-                    ? 'border-emerald-300/30 bg-emerald-300/[0.065] hover:border-emerald-300/45'
-                    : 'border-yellow-300/35 bg-yellow-300/[0.075] hover:border-yellow-300/50'
+                  ? theme.recommended
                   : 'border-white/10 bg-white/[0.04] hover:border-white/20 hover:bg-white/[0.06]';
 
                 return (
@@ -525,9 +647,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
                     <div
                       className={`mt-auto rounded-2xl px-5 py-4 text-center text-sm font-black transition-all ${
                         selected
-                          ? isEnterprise
-                            ? 'bg-emerald-300 text-slate-950'
-                            : 'bg-yellow-400 text-black'
+                          ? theme.action
                           : 'border border-white/10 bg-white/[0.04] text-white'
                       }`}
                     >
@@ -541,7 +661,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
             <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {config.steps.map(([step, label]) => (
                 <div key={step} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                  <p className={`text-[10px] font-black uppercase tracking-widest ${isEnterprise ? 'text-emerald-300' : 'text-yellow-300'}`}>{step}</p>
+                  <p className={`text-[10px] font-black uppercase tracking-widest ${theme.step}`}>{step}</p>
                   <p className="mt-2 text-sm font-black text-white">{label}</p>
                 </div>
               ))}
@@ -589,11 +709,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
               <button
                 type="submit"
                 disabled={loading}
-                className={`mt-5 w-full rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
-                  isEnterprise
-                    ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
-                    : 'bg-yellow-400 text-black hover:bg-yellow-300'
-                }`}
+                className={`mt-5 w-full rounded-2xl px-6 py-4 text-sm font-black uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60 ${theme.submit}`}
               >
                 {loading ? 'Opening Razorpay...' : `Pay ${formatMoney(selectedOption.amount[market], selectedOption.currency[market])}`}
               </button>

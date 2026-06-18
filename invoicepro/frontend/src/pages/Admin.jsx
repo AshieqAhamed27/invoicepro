@@ -5,7 +5,11 @@ import Navbar from '../components/Navbar';
 const API_BASE_URL = api.defaults.baseURL || '';
 const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
 const formatNumber = (value) => Number(value || 0).toLocaleString('en-IN');
-const formatMoney = (amount) => `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
+const formatMoney = (amount, currency = 'INR') => (
+  String(currency || 'INR').toUpperCase() === 'USD'
+    ? `$${Number(amount || 0).toLocaleString('en-US')}`
+    : `Rs ${Number(amount || 0).toLocaleString('en-IN')}`
+);
 const formatPercent = (value) => `${Number(value || 0).toLocaleString('en-IN', {
   maximumFractionDigits: 1
 })}%`;
@@ -789,7 +793,7 @@ export default function Admin() {
                 <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-emerald-300">Admin-only earnings</p>
                 <h2 className="text-2xl font-black tracking-tight text-white">How much this product earned</h2>
                 <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-                  Counts ClientFlow AI plan money and agency setup money. Users&apos; paid invoices are shown separately because that money belongs to their clients/business.
+                  Counts ClientFlow AI plan money and paid setup services. Users&apos; paid invoices are shown separately because that money belongs to their clients/business.
                 </p>
               </div>
               <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
@@ -804,7 +808,7 @@ export default function Admin() {
             {[
               { label: 'Total Product Earned', value: formatMoney(platformEarnings.totalEarned), tone: 'text-emerald-300' },
               { label: 'Plan Earnings', value: formatMoney(platformEarnings.planRevenue), tone: 'text-white' },
-              { label: 'Agency Setup Earned', value: formatMoney(platformEarnings.agencyRevenue), tone: 'text-yellow-300' },
+              { label: 'Setup Services Earned', value: formatMoney(platformEarnings.agencyRevenue), tone: 'text-yellow-300' },
               { label: 'MRR Estimate', value: formatMoney(revenue?.subscriptions?.mrr), tone: 'text-sky-300' }
             ].map((item) => (
               <div key={item.label} className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
@@ -822,7 +826,7 @@ export default function Admin() {
                   ['Subscriptions', formatMoney(earningSources.subscriptions?.collected)],
                   ['Manual Plans', formatMoney(earningSources.manualApprovals?.collected)],
                   ['Direct Checkout', formatMoney(earningSources.directCheckoutEstimate?.collected)],
-                  ['Agency Setup', formatMoney(earningSources.agencySetup?.collected)]
+                  ['Setup Services', formatMoney(earningSources.agencySetup?.collected)]
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
                     <p className="text-xl font-black text-white">{revenueLoading ? '--' : value}</p>
@@ -1024,7 +1028,7 @@ export default function Admin() {
           <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Agency Setup</p>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Paid Setup Services</p>
                 <h2 className="text-2xl font-black tracking-tight text-white">Setup clients and delivery checklist</h2>
                 <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
                   Track paid setup clients, complete each delivery step, and keep the service outcome visible.
@@ -1060,8 +1064,8 @@ export default function Admin() {
           ) : agencyBookings.length === 0 ? (
             <div className="p-5 sm:p-8">
               <div className="rounded-[2rem] border border-white/5 bg-black/10 p-8 text-center">
-                <h3 className="text-xl font-black text-white">No agency setup clients yet</h3>
-                <p className="mt-2 text-sm font-semibold text-zinc-500">When someone books from /agency, they will appear here.</p>
+                <h3 className="text-xl font-black text-white">No setup-service clients yet</h3>
+                <p className="mt-2 text-sm font-semibold text-zinc-500">Agency, Automation, and Enterprise setup bookings will appear here.</p>
               </div>
             </div>
           ) : (
@@ -1085,7 +1089,7 @@ export default function Admin() {
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Amount</p>
-                      <p className="mt-2 text-xl font-black text-emerald-300">{formatMoney(booking.amount)}</p>
+                      <p className="mt-2 text-xl font-black text-emerald-300">{formatMoney(booking.amount, booking.currency)}</p>
                     </div>
                     <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Booked</p>
