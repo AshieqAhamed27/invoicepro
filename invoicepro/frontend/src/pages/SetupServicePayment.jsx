@@ -140,6 +140,21 @@ const serviceConfig = {
     supportSubject: 'ClientFlow AI Automation Setup payment support',
     paymentTitle: 'Automation setup packages only.',
     paymentDetail: 'These cards pay for hands-on workflow design, testing, activation, and handover. ClientFlow AI software access and third-party app fees remain separate.',
+    fitChecks: [
+      {
+        title: 'The task repeats',
+        detail: 'You manually do the same reminder, follow-up, notification, or handoff every week.'
+      },
+      {
+        title: 'The trigger is clear',
+        detail: 'You can describe exactly when it should start, such as an unpaid invoice reaching its due date.'
+      },
+      {
+        title: 'The result is valuable',
+        detail: 'Saving time, preventing a missed follow-up, or collecting money is worth more than the setup fee.'
+      }
+    ],
+    notFor: 'Do not buy Automation Setup for a process that changes every time, has no clear trigger, or is still only an idea. Start by testing the manual workflow first.',
     defaultOptionId: 'automation_workflow',
     tone: 'sky',
     options: [
@@ -584,6 +599,36 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
             </div>
           </div>
         </section>
+
+        {isAutomation && (
+          <section className="border-b border-white/5 bg-sky-400/[0.025] py-12 sm:py-14">
+            <div className="container-custom">
+              <div className="mx-auto max-w-3xl text-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Buy only when it solves real repetition</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Automation should remove one clear manual problem.
+                </h2>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  Do not pay because automation sounds advanced. Pay when you can name the task you repeat, what starts it, and the useful result you expect.
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-4 md:grid-cols-3">
+                {config.fitChecks.map((item, index) => (
+                  <div key={item.title} className="rounded-[1.5rem] border border-sky-300/15 bg-black/25 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Check {index + 1}</p>
+                    <h3 className="mt-3 text-lg font-black text-white">{item.title}</h3>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+
+              <p className="mt-5 rounded-2xl border border-yellow-300/15 bg-yellow-300/[0.06] p-5 text-sm font-bold leading-relaxed text-yellow-100">
+                {config.notFor}
+              </p>
+            </div>
+          </section>
+        )}
 
         <section className="border-b border-white/5 py-14 sm:py-16">
           <div className="container-custom">

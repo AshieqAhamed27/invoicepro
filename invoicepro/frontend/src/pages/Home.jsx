@@ -65,6 +65,10 @@ const paymentExplanationCards = [
     detail: 'For beginners or busy freelancers who want help setting up their offer, outreach, proposal, workroom, invoice, and 7-day action plan.'
   },
   {
+    title: 'Automation setup',
+    detail: 'For freelancers or teams that repeatedly send the same reminders, follow-ups, notifications, or handoffs and want that clear task configured for them.'
+  },
+  {
     title: 'Enterprise seats',
     detail: 'For companies or small teams that need members, roles, SSO settings, audit exports, backup exports, and per-user seat planning.'
   },
@@ -76,7 +80,7 @@ const paymentExplanationCards = [
 
 const paymentReasonCards = [
   ['Software access', 'Users pay for the full business workflow when it helps them manage real leads, projects, invoices, and follow-ups.'],
-  ['Setup help', 'Some users do not need more buttons; they need someone to set up their first clear client workflow.'],
+  ['Setup and automation help', 'Some users need someone to set up their first client workflow or remove one repetitive task that already wastes time.'],
   ['Enterprise setup', 'Companies can pay for guided setup when they need the team workflow configured correctly from day one.'],
   ['Payment provider cost', 'Checkout, subscriptions, invoice payment links, and international billing depend on real payment providers.']
 ];
@@ -143,6 +147,13 @@ const serviceOffers = [
     path: '/agency'
   },
   {
+    title: 'Automation Setup',
+    label: 'Done-for-you automation',
+    text: 'We map and automate one clear repetitive client task such as an invoice reminder, proposal follow-up, task alert, or admin notification.',
+    cta: 'See automation setup',
+    path: '/payments/automation-setup'
+  },
+  {
     title: 'Enterprise Team Setup',
     label: 'Guided team setup',
     text: 'We help agencies and small companies set up organization workspace, team roles, permissions, security settings, audit habits, and first team workrooms.',
@@ -174,6 +185,16 @@ const whyPathCards = [
     path: '/payments/agency-setup'
   },
   {
+    title: 'Why Automation Setup?',
+    label: 'For repetitive client tasks',
+    tone: 'cyan',
+    problem: 'Freelancers and teams lose time checking dates and repeating the same reminders, follow-ups, notifications, and handoffs.',
+    solution: 'Automation Setup maps one clear trigger and result, tests the workflow safely, activates it, and provides handover notes.',
+    useWhen: 'Use this only when the task repeats, the trigger is clear, and the saved time or protected payment is worth the setup fee.',
+    cta: 'See Automation Setup',
+    path: '/payments/automation-setup'
+  },
+  {
     title: 'Why Enterprise Setup?',
     label: 'For agencies and teams',
     tone: 'emerald',
@@ -182,6 +203,24 @@ const whyPathCards = [
     useWhen: 'Use this when an agency or company needs company-level workflow control before adding more team members.',
     cta: 'See Enterprise Setup',
     path: '/payments/enterprise'
+  }
+];
+
+const automationSetupExamples = [
+  {
+    title: 'Unpaid invoice reminder',
+    repeatedProblem: 'You check due dates and write the same payment reminder manually.',
+    automatedResult: 'When an invoice becomes due, the workflow prepares or sends the approved reminder and records the action.'
+  },
+  {
+    title: 'Proposal follow-up',
+    repeatedProblem: 'You send proposals, then forget which client needs a follow-up.',
+    automatedResult: 'After the chosen waiting period, the workflow alerts you or starts the approved follow-up step.'
+  },
+  {
+    title: 'Project and task alert',
+    repeatedProblem: 'You repeatedly check delivery dates, task owners, or client approvals.',
+    automatedResult: 'The workflow notifies the right person when the chosen date or project condition is reached.'
   }
 ];
 
@@ -268,7 +307,7 @@ const websiteGuideCards = [
   },
   {
     title: 'Choose your path',
-    text: 'Start free, use setup help if confused, or choose enterprise setup for teams.',
+    text: 'Start free, use Agency Setup for business setup, Automation Setup for repeated tasks, or Enterprise Setup for teams.',
     anchor: '#why-clientflow-paths'
   },
   {
@@ -533,6 +572,7 @@ const faqs = [
   ['When should someone stay on Free?', 'Stay on Free if you only want to test the product, create a few invoices, or you are not yet managing real leads and client work.'],
   ['Is the Linux/DevOps feature for everyone?', 'No. DevOps Delivery Kit is optional and mainly useful for technical freelancers, website builders, IT providers, developers, and small agencies who deliver websites, apps, VPS, GitHub, or maintenance work.'],
   ['Can beginners use it?', 'Yes. Beginners can use the free software or choose Agency Setup if they want help setting up their offer and client workflow.'],
+  ['When should I pay for Automation Setup?', 'Pay only when one manual reminder, follow-up, notification, or handoff repeats regularly, has a clear trigger, and costs enough time or money to justify setup.'],
   ['Is this another Upwork or Fiverr?', 'No. ClientFlow AI is not a job marketplace. It is a direct-client business system for freelancers who want to manage their own leads, proposals, work, invoices, and payments.'],
   ['Can foreign clients pay?', 'Yes, if the seller has international payments enabled in Razorpay. Invoices can support INR, USD, EUR, GBP, AED, SGD, AUD, and CAD.'],
   ['Is ClientFlow AI SOC 2 or ISO certified?', 'Not yet. ClientFlow AI has a security-ready foundation with protected accounts, role controls, audit exports, backup exports, and payment-provider handling, but SOC 2 and ISO 27001 require external audits.'],
@@ -1034,22 +1074,26 @@ export default function Home() {
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Pick the right path</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Why Freelance Workflow, Agency Setup, and Enterprise Setup exist.
+                Choose software, business setup, automation, or team setup.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
                 Every visitor should quickly understand which part is for them before seeing pricing.
               </p>
             </div>
 
-            <div className="mt-8 grid gap-5 lg:grid-cols-3">
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {whyPathCards.map((card) => {
                 const toneClass = card.tone === 'emerald'
                   ? 'border-emerald-300/30 bg-emerald-300/[0.08] hover:border-emerald-300/45'
+                  : card.tone === 'cyan'
+                    ? 'border-cyan-300/30 bg-cyan-300/[0.08] hover:border-cyan-300/45'
                   : card.tone === 'sky'
                     ? 'border-sky-300/30 bg-sky-300/[0.08] hover:border-sky-300/45'
                     : 'border-yellow-300/35 bg-yellow-300/[0.08] hover:border-yellow-300/50';
                 const buttonClass = card.tone === 'emerald'
                   ? 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
+                  : card.tone === 'cyan'
+                    ? 'bg-cyan-300 text-slate-950 hover:bg-cyan-200'
                   : card.tone === 'sky'
                     ? 'bg-sky-300 text-slate-950 hover:bg-sky-200'
                     : 'bg-yellow-400 text-black hover:bg-yellow-300';
@@ -1306,10 +1350,10 @@ export default function Home() {
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">What we provide</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                One product, plus guided setup for freelancers and teams.
+                One product, plus guided business, automation, and team setup.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                ClientFlow AI is the software. Agency Setup helps solo freelancers start faster. Enterprise Team Setup helps agencies and small companies configure roles, security, workrooms, and the team rollout path.
+                ClientFlow AI is the software. Agency Setup helps freelancers start faster. Automation Setup removes one clear repetitive task. Enterprise Team Setup configures roles, security, workrooms, and team rollout.
               </p>
             </div>
 
@@ -1500,6 +1544,53 @@ export default function Home() {
           </div>
         </section>
 
+        <section id="automation-setup" className="border-b border-white/5 bg-cyan-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom responsive-heading-grid">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-cyan-300">Automation Setup</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                Pay only when one manual task keeps repeating.
+              </h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                Automation Setup is not for buying technology because it sounds advanced. It is for removing a reminder, follow-up, notification, or handoff that already repeats and wastes time or risks money.
+              </p>
+
+              <div className="mt-6 grid gap-3">
+                {[
+                  'The same task happens every week or after the same event.',
+                  'You can clearly describe what starts it and what should happen next.',
+                  'The time saved or payment protected is worth more than the setup cost.'
+                ].map((item, index) => (
+                  <p key={item} className="flex items-start gap-3 text-sm font-bold leading-relaxed text-zinc-200">
+                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-300 text-[10px] font-black text-slate-950">{index + 1}</span>
+                    <span>{item}</span>
+                  </p>
+                ))}
+              </div>
+
+              <p className="mt-6 rounded-2xl border border-yellow-300/15 bg-yellow-300/[0.06] p-4 text-sm font-bold leading-relaxed text-yellow-100">
+                Not ready to pay when the process changes every time or you cannot name the trigger yet. Run it manually first, then automate the stable version.
+              </p>
+
+              <Link to="/payments/automation-setup" className="mt-6 inline-flex rounded-2xl bg-cyan-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-cyan-200">
+                See Automation Setup
+              </Link>
+            </div>
+
+            <div className="grid gap-4">
+              {automationSetupExamples.map((item) => (
+                <div key={item.title} className="rounded-[1.5rem] border border-cyan-300/15 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-cyan-300/30">
+                  <h3 className="text-lg font-black text-white">{item.title}</h3>
+                  <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Repeated problem</p>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.repeatedProblem}</p>
+                  <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-cyan-300">Useful result</p>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-200">{item.automatedResult}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="border-b border-white/5 bg-emerald-400/[0.04] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
@@ -1546,6 +1637,7 @@ export default function Home() {
               <div className="grid gap-4 sm:grid-cols-2">
                 {paymentExplanationCards.map((item) => {
                   const isAgencySetup = item.title === 'Agency setup';
+                  const isAutomationSetup = item.title === 'Automation setup';
                   const isEnterpriseTeamSetup = item.title === 'Enterprise team setup';
 
                   return (
@@ -1554,6 +1646,8 @@ export default function Home() {
                       className={`rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 ${
                         isAgencySetup
                           ? 'border-yellow-300/35 bg-yellow-300/[0.1] hover:border-yellow-300/50'
+                          : isAutomationSetup
+                            ? 'border-cyan-300/35 bg-cyan-300/[0.1] hover:border-cyan-300/50'
                           : isEnterpriseTeamSetup
                             ? 'border-emerald-300/35 bg-emerald-300/[0.1] hover:border-emerald-300/50'
                             : 'border-white/8 bg-black/25 hover:border-sky-300/25'
@@ -1569,6 +1663,11 @@ export default function Home() {
                           Team setup service
                         </span>
                       )}
+                      {isAutomationSetup && (
+                        <span className="mb-3 inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/15 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-cyan-100">
+                          Repetitive task setup
+                        </span>
+                      )}
                       <h3 className="text-lg font-black text-white">{item.title}</h3>
                       <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
                       {isAgencySetup && (
@@ -1579,6 +1678,11 @@ export default function Home() {
                       {isEnterpriseTeamSetup && (
                         <Link to="/payments/enterprise" className="mt-4 inline-flex text-[10px] font-black uppercase tracking-widest text-emerald-200">
                           Pay enterprise setup
+                        </Link>
+                      )}
+                      {isAutomationSetup && (
+                        <Link to="/payments/automation-setup" className="mt-4 inline-flex text-[10px] font-black uppercase tracking-widest text-cyan-200">
+                          Pay automation setup
                         </Link>
                       )}
                     </div>
