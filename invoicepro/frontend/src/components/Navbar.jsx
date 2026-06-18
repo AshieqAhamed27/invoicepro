@@ -156,6 +156,9 @@ export default function Navbar() {
               <a href="/#how-it-works" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white">
                 How it works
               </a>
+              <a href="/#freelancer-protection" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white">
+                Protection
+              </a>
               <a href="/#who-for" className="rounded-lg border border-transparent px-3 py-2 font-semibold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white">
                 Who it helps
               </a>
@@ -373,6 +376,10 @@ export default function Navbar() {
                   <a href="/#how-it-works" onClick={closeMenu} className={mobileStaticItemClass}>
                     <span className="block text-sm font-black">How it works</span>
                     <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Lead to payment steps</span>
+                  </a>
+                  <a href="/#freelancer-protection" onClick={closeMenu} className={mobileStaticItemClass}>
+                    <span className="block text-sm font-black">Protection</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Risk, scope, and payment guard</span>
                   </a>
                   <a href="/#who-for" onClick={closeMenu} className={mobileStaticItemClass}>
                     <span className="block text-sm font-black">Who it helps</span>

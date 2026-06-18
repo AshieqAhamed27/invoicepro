@@ -260,6 +260,29 @@ const heroPathCards = [
   }
 ];
 
+const websiteGuideCards = [
+  {
+    title: 'Understand the product',
+    text: 'ClientFlow AI is a guided workspace for client work, not a marketplace and not only invoice software.',
+    anchor: '#how-it-works'
+  },
+  {
+    title: 'Choose your path',
+    text: 'Start free, use setup help if confused, or choose enterprise setup for teams.',
+    anchor: '#why-clientflow-paths'
+  },
+  {
+    title: 'See what makes it different',
+    text: 'Freelancer Protection helps spot risky clients, unclear scope, weak proposals, and delayed payments.',
+    anchor: '#freelancer-protection'
+  },
+  {
+    title: 'Compare payments',
+    text: 'Pricing and checkout choices live on a separate payments page so users can decide after understanding the workflow.',
+    anchor: '/payments'
+  }
+];
+
 const newUserSteps = [
   {
     step: '01',
@@ -282,6 +305,29 @@ const notConfusingAnswers = [
   ['Is it a job marketplace?', 'No. It does not give random gigs. It helps you manage your own direct-client workflow.'],
   ['Is it only an invoice maker?', 'No. Invoices are one part. The main product is lead, proposal, work, invoice, and payment workflow.'],
   ['Should users pay first?', 'No. New users should start with 30 days free, then pay only if the workflow helps their real business.']
+];
+
+const freelancerProtectionFeatures = [
+  {
+    title: 'Client Risk Shield',
+    problem: 'Freelancers often accept clients without checking red flags: vague scope, urgent pressure, low budget, no deposit, or late replies.',
+    result: 'Before starting, the workflow can show risk signals and the safer next question to ask.'
+  },
+  {
+    title: 'Scope Creep Guard',
+    problem: 'Extra requests become free work when scope, revisions, approval, and handover are not written clearly.',
+    result: 'The workroom keeps scope, milestones, revision notes, proof, and invoice timing connected.'
+  },
+  {
+    title: 'Payment Promise Timeline',
+    problem: 'Freelancers forget who promised to pay, when they promised, and what follow-up should be sent.',
+    result: 'The payment flow keeps pending money visible and prepares a professional reminder.'
+  },
+  {
+    title: 'Next Best Money Action',
+    problem: 'Freelancers do busy work while a lead, proposal, or invoice needs attention.',
+    result: 'Money GPS and Business Autopilot point to the action most likely to protect income today.'
+  }
 ];
 
 const PLAN_EXPIRY_REMINDER_DAYS = 2;
@@ -512,7 +558,7 @@ const homeStructuredData = [
     operatingSystem: 'Web',
     url: SITE_URL,
     image: `${SITE_URL}/logo-1200.png`,
-    description: 'ClientFlow AI helps freelancers find clients, send proposals, manage projects, create invoices, and collect payments in one workspace.',
+    description: 'ClientFlow AI helps freelancers find clients, send proposals, manage projects, protect scope, create invoices, and collect payments in one guided workspace.',
     audience: {
       '@type': 'Audience',
       audienceType: 'Service freelancers, consultants, coaches, writers, marketers, designers, developers, virtual assistants, and small agencies'
@@ -609,8 +655,8 @@ export default function Home() {
   const selectedAdvisorStage = fitAdvisorStages.find((item) => item.id === advisorStage) || fitAdvisorStages[0];
 
   useDocumentMeta({
-    title: `${COMPANY_NAME} - Get clients, manage work, and get paid`,
-    description: 'ClientFlow AI helps freelancers find clients, send proposals, manage projects, create invoices, and collect payments in one workspace.',
+    title: `${COMPANY_NAME} - Freelancer workflow, client risk, and payment follow-up`,
+    description: 'ClientFlow AI helps all service freelancers find clients, send proposals, manage work, protect scope, create invoices, and collect payments in one guided workspace.',
     path: '/',
     jsonLd: homeStructuredData
   });
@@ -853,6 +899,46 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="border-b border-white/5 bg-zinc-950/70 py-10 sm:py-12">
+          <div className="container-custom">
+            <div className="responsive-heading-grid">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">
+                  Website guide
+                </p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  The page is structured so new users know where to go.
+                </h2>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  First understand the product, then choose a path, then compare payments. No waitlist confusion and no hidden main action.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {websiteGuideCards.map((card) => {
+                  const isRoute = card.anchor.startsWith('/');
+                  const content = (
+                    <>
+                      <h3 className="text-base font-black text-white">{card.title}</h3>
+                      <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{card.text}</p>
+                    </>
+                  );
+
+                  return isRoute ? (
+                    <Link key={card.title} to={card.anchor} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/25 hover:bg-yellow-300/[0.05]">
+                      {content}
+                    </Link>
+                  ) : (
+                    <a key={card.title} href={card.anchor} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/25 hover:bg-yellow-300/[0.05]">
+                      {content}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="how-it-works" className="border-b border-white/5 bg-emerald-400/[0.035] py-12 sm:py-14">
           <div className="container-custom">
             <div className="responsive-heading-grid">
@@ -897,6 +983,48 @@ export default function Home() {
                   <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{answer}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="freelancer-protection" className="border-b border-white/5 bg-yellow-400/[0.04] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="responsive-heading-grid">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">
+                  What freelancers actually need
+                </p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  A protection system for risky clients, scope creep, and unpaid work.
+                </h2>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                  Most tools store client data after the problem happens. ClientFlow AI is positioned to help freelancers prevent the painful parts earlier: unclear scope, weak commitment, delayed payment, and forgotten follow-up.
+                </p>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <Link to="/work/client-risk-shield" className="btn btn-primary px-6 py-3 text-sm">
+                    See Client Risk Shield
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => goToApp('/business-autopilot', loggedIn ? 'protection_open_autopilot' : 'protection_signup')}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/[0.08]"
+                  >
+                    {loggedIn ? 'Open Protection Workflow' : 'Start Free First'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid gap-4">
+                {freelancerProtectionFeatures.map((item) => (
+                  <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
+                    <h3 className="text-lg font-black text-white">{item.title}</h3>
+                    <p className="mt-3 text-xs font-black uppercase tracking-widest text-zinc-600">Freelancer pain</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.problem}</p>
+                    <p className="mt-4 text-xs font-black uppercase tracking-widest text-yellow-300">How ClientFlow helps</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-200">{item.result}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

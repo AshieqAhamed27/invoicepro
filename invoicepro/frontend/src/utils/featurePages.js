@@ -74,6 +74,31 @@ export const featurePages = {
       'Cashflow-focused guidance'
     ]
   },
+  'client-risk-shield': {
+    path: '/work/client-risk-shield',
+    appPath: '/business-autopilot',
+    title: 'Client Risk Shield',
+    eyebrow: 'Freelancer protection',
+    benefit: 'Warns before bad client work becomes unpaid work.',
+    detail: 'Client Risk Shield is a freelancer protection workflow for spotting risky client signals, unclear scope, missing deposits, weak proposals, late replies, and payment risk before work becomes painful.',
+    problem: 'Freelancers often accept work too quickly and later face scope creep, unclear approval, delayed payment, or clients who never commit properly.',
+    outcome: 'The user gets safer next questions, clearer scope notes, deposit reminders, payment timing, and risk-aware follow-up actions before starting or continuing client work.',
+    bestFor: 'Freelancers who want to protect time, scope, payment, and client trust before saying yes.',
+    appCta: 'Open Risk Shield',
+    workflow: [
+      'Add client request or proposal context',
+      'Check scope, budget, timeline, and payment signals',
+      'Spot red flags before work starts',
+      'Prepare the safer next question or deposit step',
+      'Connect the client to proposal, workroom, invoice, and follow-up'
+    ],
+    included: [
+      'Client red-flag checklist',
+      'Scope creep warning signals',
+      'Deposit and payment timing reminders',
+      'Risk-aware next action guidance'
+    ]
+  },
   'client-finder': {
     path: '/work/client-finder',
     appPath: '/client-finder',
