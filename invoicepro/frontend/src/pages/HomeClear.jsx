@@ -49,8 +49,8 @@ const servicePaths = [
     title: 'Agency Setup',
     text: 'We help set up the offer, lead plan, proposal flow, workroom, invoice path, and first seven days of action.',
     fit: 'Choose this when the business workflow is unclear.',
-    cta: 'Review Agency Setup',
-    path: '/payments/agency-setup',
+    cta: 'Open Payment Center',
+    path: '/payments#setup-service-payments',
     tone: 'yellow'
   },
   {
@@ -58,8 +58,8 @@ const servicePaths = [
     title: 'Automation Setup',
     text: 'We map and test one clear reminder, follow-up, notification, or handoff using ClientFlow AI or n8n.',
     fit: 'Choose this only when the trigger and useful result are clear.',
-    cta: 'Review Automation Setup',
-    path: '/payments/automation-setup',
+    cta: 'Open Payment Center',
+    path: '/payments#setup-service-payments',
     tone: 'cyan'
   },
   {
@@ -67,8 +67,8 @@ const servicePaths = [
     title: 'Enterprise Setup',
     text: 'We help configure the organization workspace, roles, security controls, audit habits, and first team workrooms.',
     fit: 'Choose this when multiple people need controlled access.',
-    cta: 'Review Enterprise Setup',
-    path: '/payments/enterprise',
+    cta: 'Open Payment Center',
+    path: '/payments#setup-service-payments',
     tone: 'emerald'
   }
 ];
@@ -318,7 +318,7 @@ export default function HomeClear() {
               <p className="text-xs font-black uppercase text-zinc-500">Optional paid help</p>
               <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Use the software yourself, or ask us to set up a specific part.</h2>
               <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                Start with the free software first. Choose a setup service only when you can identify the outcome you need.
+                Start with the free software first. The Payment Center keeps software plans and setup services in one place so users do not hunt through separate payment pages.
               </p>
             </div>
 

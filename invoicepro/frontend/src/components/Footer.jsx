@@ -43,9 +43,9 @@ export default function Footer() {
           <div>
             <h3 className="mb-5 font-black uppercase text-white">Setup services</h3>
             <div className="grid gap-3 font-medium text-zinc-400">
-              <Link className="transition-colors hover:text-yellow-300" to="/payments/agency-setup">Agency Setup</Link>
-              <Link className="transition-colors hover:text-cyan-300" to="/payments/automation-setup">Automation Setup</Link>
-              <Link className="transition-colors hover:text-emerald-300" to="/payments/enterprise">Enterprise Setup</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/payments#setup-service-payments">Agency Setup</Link>
+              <Link className="transition-colors hover:text-cyan-300" to="/payments#setup-service-payments">Automation Setup</Link>
+              <Link className="transition-colors hover:text-emerald-300" to="/payments#setup-service-payments">Enterprise Setup</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/devops-delivery">Technical delivery</Link>
             </div>
           </div>

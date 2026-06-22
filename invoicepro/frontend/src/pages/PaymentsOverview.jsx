@@ -148,11 +148,11 @@ const toneClass = {
   purple: 'border-purple-300/25 bg-purple-300/[0.06]'
 };
 
-const paymentPages = [
+const checkoutTypes = [
   {
     title: 'Freelance Workflow',
     label: 'Software subscription',
-    detail: 'Use this page only for Free, Pro Monthly, Pro Annual, and Founder 90 Days access.',
+    detail: 'Free, Pro Monthly, Pro Annual, and Founder 90 Days software access.',
     path: '/payments/freelance-workflow',
     cta: 'Open Workflow Payment',
     tone: 'yellow'
@@ -160,7 +160,7 @@ const paymentPages = [
   {
     title: 'Agency Setup',
     label: 'Done-for-you freelancer setup',
-    detail: 'Use this page only for setup packages: Starter Setup, Growth Setup, and Managed Growth.',
+    detail: 'Starter Setup, Growth Setup, and Managed Growth for freelancer workflow setup.',
     path: '/payments/agency-setup',
     cta: 'Open Agency Payment',
     tone: 'sky'
@@ -168,7 +168,7 @@ const paymentPages = [
   {
     title: 'Automation Setup',
     label: 'Done-for-you automation',
-    detail: 'Use this page only for reminder automation, connected client workflow automation, and managed automation support.',
+    detail: 'Reminder automation, connected client workflow automation, and managed automation support.',
     path: '/payments/automation-setup',
     cta: 'Open Automation Payment',
     tone: 'purple'
@@ -176,7 +176,7 @@ const paymentPages = [
   {
     title: 'Enterprise Team Setup',
     label: 'Guided team setup',
-    detail: 'Use this page only for team setup: roles, security, audit/export habits, and first workrooms.',
+    detail: 'Team setup for roles, security, audit/export habits, and first workrooms.',
     path: '/payments/enterprise',
     cta: 'Open Enterprise Payment',
     tone: 'emerald'
@@ -198,8 +198,8 @@ export default function PaymentsOverview() {
   const currentMarket = markets[market];
 
   useDocumentMeta({
-    title: `${COMPANY_NAME} Payments - Software, Setup, Automation, and Enterprise`,
-    description: 'See ClientFlow AI payment options for free access, Pro workflow, agency setup, automation setup, and enterprise services.',
+    title: `${COMPANY_NAME} Payment Center`,
+    description: 'One ClientFlow AI payment center for free access, Pro workflow, agency setup, automation setup, and enterprise services.',
     path: '/payments'
   });
 
@@ -264,7 +264,7 @@ export default function PaymentsOverview() {
                 Choose how you want to use ClientFlow AI.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400">
-                Software access is free for 30 days after signup. Agency, Automation, and Enterprise setup remain separate optional paid services.
+                Start here for every payment choice: software access, Agency Setup, Automation Setup, and Enterprise Setup.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button type="button" onClick={startFree} className="btn btn-primary px-7 py-4 text-sm">
@@ -314,17 +314,17 @@ export default function PaymentsOverview() {
         <section className="border-b border-white/5 py-14 sm:py-16">
           <div className="container-custom">
             <div className="mb-8 max-w-3xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Separate payment pages</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">One Payment Center</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Pick the correct payment page first.
+                Choose the payment type first.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                This avoids mixing subscription software, freelancer setup, automation work, and company setup in one checkout screen.
+                Users do not need to search for different payment features. This single page explains each option, then sends them to the exact checkout only after they choose.
               </p>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {paymentPages.map((item) => {
+              {checkoutTypes.map((item) => {
                 const className = item.tone === 'emerald'
                   ? 'border-emerald-300/30 bg-emerald-300/[0.08] hover:border-emerald-300/45'
                   : item.tone === 'sky'
@@ -402,7 +402,7 @@ export default function PaymentsOverview() {
         <section id="setup-service-payments" className="border-b border-white/5 bg-yellow-400/[0.04] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Setup services</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Setup service checkouts</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
                 Setup help is available for freelancers, automations, and company teams.
               </h2>
