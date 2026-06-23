@@ -1185,4 +1185,263 @@ router.post('/:id/reminder', protect, async(req, res) => {
     }
 });
 
+// ==========================================
+// AI UPI PAYMENT SCREENSHOT VERIFICATION
+// ==========================================
+const multer = require('multer');
+const https = require('https');
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+const callVisionApi = async ({ imageBuffer, mimeType, prompt }) => {
+    const provider = process.env.AI_PROVIDER || 'openai';
+    const base64Image = imageBuffer.toString('base64');
+
+    if (provider === 'anthropic' || provider === 'claude') {
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        const model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022';
+        if (!apiKey) throw new Error('Anthropic API key not configured');
+
+        const payload = JSON.stringify({
+            model,
+            max_tokens: 1000,
+            messages: [{
+                role: 'user',
+                content: [
+                    {
+                        type: 'image',
+                        source: {
+                            type: 'base64',
+                            media_type: mimeType,
+                            data: base64Image
+                        }
+                    },
+                    {
+                        type: 'text',
+                        text: prompt
+                    }
+                ]
+            }]
+        });
+
+        return new Promise((resolve, reject) => {
+            const req = https.request({
+                hostname: 'api.anthropic.com',
+                path: '/v1/messages',
+                method: 'POST',
+                headers: {
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01',
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(payload)
+                },
+                timeout: 25000
+            }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const body = JSON.parse(data);
+                        if (res.statusCode < 200 || res.statusCode >= 300) {
+                            return reject(new Error(body?.error?.message || 'Anthropic API failed'));
+                        }
+                        const text = body.content?.map(c => c.text).join('\n') || '';
+                        resolve(text.trim());
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
+            });
+            req.on('error', reject);
+            req.write(payload);
+            req.end();
+        });
+    } else {
+        // OpenAI Vision
+        const apiKey = process.env.OPENAI_API_KEY;
+        const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+        if (!apiKey) throw new Error('OpenAI API key not configured');
+
+        const payload = JSON.stringify({
+            model,
+            max_tokens: 1000,
+            messages: [{
+                role: 'user',
+                content: [
+                    {
+                        type: 'text',
+                        text: prompt
+                    },
+                    {
+                        type: 'image_url',
+                        image_url: {
+                            url: `data:${mimeType};base64,${base64Image}`
+                        }
+                    }
+                ]
+            }]
+        });
+
+        return new Promise((resolve, reject) => {
+            const req = https.request({
+                hostname: 'api.openai.com',
+                path: '/v1/chat/completions',
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(payload)
+                },
+                timeout: 25000
+            }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const body = JSON.parse(data);
+                        if (res.statusCode < 200 || res.statusCode >= 300) {
+                            return reject(new Error(body?.error?.message || 'OpenAI API failed'));
+                        }
+                        const text = body.choices?.[0]?.message?.content || '';
+                        resolve(text.trim());
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
+            });
+            req.on('error', reject);
+            req.write(payload);
+            req.end();
+        });
+    }
+};
+
+router.post('/public/:id/verify-screenshot', upload.single('screenshot'), async (req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'invoice');
+        }
+
+        const invoice = await Invoice.findById(req.params.id).populate('user');
+        if (!invoice) {
+            return res.status(404).json({ message: 'Invoice not found.' });
+        }
+
+        if (invoice.status === 'paid') {
+            return res.status(400).json({ message: 'Invoice is already marked paid.' });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ message: 'Please upload a payment screenshot.' });
+        }
+
+        const prompt = [
+            'Analyze this image of a payment receipt or confirmation (e.g. from GPay, PhonePe, Paytm, net banking, or other bank transfers).',
+            'Extract the following details:',
+            '1. Payment Status (e.g. Success, Pending, Failed, Completed).',
+            '2. Paid Amount (as a number).',
+            '3. Currency (e.g. INR, USD).',
+            '4. Transaction/Reference/UTR ID (as a string).',
+            '5. Transaction Date (as a string).',
+            '',
+            `Determine if this is a valid, successful transaction matching the expected invoice amount of ${invoice.amount} and currency of ${invoice.currency || 'INR'}.`,
+            'Return ONLY a raw JSON object (no markdown formatting, no ```json wrapper) with this structure:',
+            '{',
+            '  "isValid": true/false,',
+            '  "amount": number,',
+            '  "transactionId": "string",',
+            '  "date": "string",',
+            '  "reasoning": "string"',
+            '}'
+        ].join('\n');
+
+        const aiResponseText = await callVisionApi({
+            imageBuffer: req.file.buffer,
+            mimeType: req.file.mimetype,
+            prompt
+        });
+
+        // Parse JSON safely
+        let result;
+        try {
+            const cleanText = aiResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
+            result = JSON.parse(cleanText);
+        } catch (err) {
+            console.error('Failed to parse AI vision response:', aiResponseText);
+            return res.status(422).json({
+                message: 'AI was unable to parse the screenshot format. Please make sure the receipt details are clearly visible.',
+                rawResponse: aiResponseText
+            });
+        }
+
+        if (result.isValid) {
+            invoice.status = 'paid';
+            invoice.paidAt = new Date();
+            
+            // Add a payment event recording this automated AI verification
+            if (!invoice.paymentEvents) {
+                invoice.paymentEvents = [];
+            }
+            invoice.paymentEvents.push({
+                type: 'payment.captured',
+                status: 'paid',
+                amount: result.amount || invoice.amount,
+                currency: invoice.currency || 'INR',
+                occurredAt: new Date(),
+                providerPaymentId: result.transactionId || 'UPI-AI-VERIFIED',
+                message: `Automated UPI screenshot verification: ${result.reasoning}`
+            });
+
+            await invoice.save();
+
+            // Send confirmation email in background to both freelancer & client
+            setImmediate(async () => {
+                try {
+                    const senderName = invoice.user?.companyName || DEFAULT_COMPANY_NAME;
+                    const template = paymentConfirmed({
+                        invoice,
+                        amount: result.amount || invoice.amount,
+                        transactionId: result.transactionId || 'UPI-AI-VERIFIED',
+                        date: new Date().toLocaleDateString('en-IN')
+                    });
+                    
+                    // Email to client
+                    await sendEmail(invoice.clientEmail, `Payment Confirmed - Invoice #${invoice.invoiceNumber}`, template);
+                    // Email to freelancer
+                    if (invoice.user?.email) {
+                        await sendEmail(
+                            invoice.user.email,
+                            `Payment Received - Invoice #${invoice.invoiceNumber}`,
+                            {
+                                ...template,
+                                html: `<p>Great news! Your client has paid Invoice #${invoice.invoiceNumber} via UPI. The AI has verified their screenshot.</p>` + template.html
+                            }
+                        );
+                    }
+                } catch (e) {
+                    console.error('Failed to send payment confirmation email:', e);
+                }
+            });
+
+            return res.json({
+                success: true,
+                message: 'Payment verified and invoice marked as paid!',
+                transactionId: result.transactionId,
+                amount: result.amount
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: `Verification failed: ${result.reasoning || 'Payment details do not match the expected amount/currency.'}`
+            });
+        }
+    } catch (err) {
+        console.error('VERIFY SCREENSHOT ERROR:', err);
+        res.status(500).json({ message: 'Server error during screenshot verification.' });
+    }
+});
+
 module.exports = router;
