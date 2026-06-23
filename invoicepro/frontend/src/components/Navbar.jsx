@@ -3,54 +3,56 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel, setPostLoginRedirect } from '../utils/auth';
 import BrandLogo from './BrandLogo';
 
-const appLinks = [
-  { to: '/client-flow', label: 'Client Flow', detail: 'Lead to payment workflow' },
-  { to: '/freelance-fit-advisor', label: 'Fit Advisor', detail: 'Choose Free, Pro, or setup help' },
-  { to: '/money-gps', label: 'Money GPS', detail: 'One best action today' },
-  { to: '/business-autopilot', label: 'Autopilot', detail: 'Lead to payment automation', requiresPro: true },
-  { to: '/profit-tracker', label: 'Profit Tracker', detail: 'AI/software cost and project profit', requiresPro: true },
-  { to: '/growth-plan', label: 'Growth', detail: 'Stability and daily plan', requiresPro: true },
-  { to: '/ai-coach', label: 'AI Coach', detail: 'Find, talk, close, collect', requiresPro: true },
-  { to: '/client-finder', label: 'Find Clients', detail: 'Find client opportunities', requiresPro: true },
-  { to: '/proposal-writer', label: 'Proposal', detail: 'Write and improve proposals', requiresPro: true },
-  { to: '/deal-room', label: 'Deal Room', detail: 'Move leads to paid work', requiresPro: true },
-  { to: '/leads', label: 'Lead Pipeline', detail: 'Track prospects and follow-up', requiresPro: true },
-  { to: '/client-workroom', label: 'Workroom', detail: 'Scope, tasks, files, proof, payment' },
-  { to: '/organization', label: 'Organization', detail: 'Company members, seats, SSO, audit' },
-  { to: '/devops-delivery', label: 'DevOps Kit', detail: 'Linux, GitHub, deployment, handover' },
-  { to: '/cloud-documents', label: 'Cloud Docs', detail: 'Store invoices, contracts, and project files' },
-  { to: '/security', label: 'Security', detail: 'Security readiness and compliance status' },
-  { to: '/create-invoice', label: 'Invoice', detail: 'Proposal or invoice' }
+// ─── Core work actions (always visible in mobile + desktop) ───
+const coreWorkLinks = [
+  { to: '/client-flow', label: 'Client Flow', detail: 'Lead → proposal → payment workflow' },
+  { to: '/create-invoice', label: 'Invoice', detail: 'Create invoices and proposals' },
+  { to: '/client-workroom', label: 'Workroom', detail: 'Tasks, files, delivery, and handover' },
+  { to: '/money-gps', label: 'Money GPS', detail: 'Your next best money action' }
 ];
 
+// ─── AI & growth tools (Pro) ───
+const growthLinks = [
+  { to: '/business-autopilot', label: 'Autopilot', detail: 'AI picks your next action', requiresPro: true },
+  { to: '/client-finder', label: 'Find Clients', detail: 'Discover client opportunities', requiresPro: true },
+  { to: '/proposal-writer', label: 'Proposals', detail: 'AI-assisted proposal writing', requiresPro: true },
+  { to: '/ai-coach', label: 'AI Coach', detail: 'Coaching for sales and follow-up', requiresPro: true },
+  { to: '/leads', label: 'Leads', detail: 'Track prospects and follow-up', requiresPro: true },
+  { to: '/deal-room', label: 'Deal Room', detail: 'Close serious leads', requiresPro: true },
+  { to: '/growth-plan', label: 'Growth Plan', detail: 'Income targets and daily actions', requiresPro: true },
+  { to: '/profit-tracker', label: 'Profit Tracker', detail: 'Revenue vs cost tracking', requiresPro: true }
+];
+
+// ─── Business & settings ───
+const businessLinks = [
+  { to: '/cloud-documents', label: 'Documents', detail: 'Invoices, contracts, and files' },
+  { to: '/organization', label: 'Organization', detail: 'Team members, roles, and access' },
+  { to: '/devops-delivery', label: 'DevOps Kit', detail: 'GitHub, deployment, and handover' },
+  { to: '/security', label: 'Security', detail: 'Controls and compliance status' },
+  { to: '/settings', label: 'Settings', detail: 'Profile, logo, and payment setup' }
+];
+
+// Combined flat list for mobile menu
+const appLinks = [...coreWorkLinks, ...growthLinks, ...businessLinks];
+
+// Desktop top bar — only the 4 most important actions
 const primaryAppLinks = [
   { to: '/client-flow', label: 'Client Flow' },
-  { to: '/freelance-fit-advisor', label: 'Fit Advisor' },
-  { to: '/business-autopilot', label: 'Autopilot', requiresPro: true },
-  { to: '/money-gps', label: 'Money GPS' },
+  { to: '/create-invoice', label: 'Invoice' },
   { to: '/client-workroom', label: 'Workroom' },
-  { to: '/create-invoice', label: 'Invoice' }
+  { to: '/money-gps', label: 'Money GPS' }
 ];
 
+// Desktop "More" dropdown — grouped with section headers
 const moreAppLinks = [
-  { to: '/client-flow', label: 'Client Flow', detail: 'Lead to payment workflow' },
-  { to: '/freelance-fit-advisor', label: 'Freelance Fit Advisor', detail: 'Plan and workflow recommendation' },
-  { to: '/business-autopilot', label: 'Business Autopilot', detail: 'Lead to payment automation', requiresPro: true },
-  { to: '/profit-tracker', label: 'Profit Tracker', detail: 'AI tool cost and project profit', requiresPro: true },
-  { to: '/growth-plan', label: 'Growth Plan', detail: 'Income stability plan', requiresPro: true },
-  { to: '/ai-coach', label: 'AI Coach', detail: 'Find, talk, close, collect', requiresPro: true },
-  { to: '/client-finder', label: 'Find Clients', detail: 'Client opportunities', requiresPro: true },
-  { to: '/proposal-writer', label: 'Proposal Writer', detail: 'AI proposal support', requiresPro: true },
-  { to: '/deal-room', label: 'Deal Room', detail: 'Close serious leads', requiresPro: true },
-  { to: '/leads', label: 'Lead Pipeline', detail: 'Manage prospects', requiresPro: true },
-  { to: '/client-workroom', label: 'Client Workroom', detail: 'Scope, tasks, files, proof, payment' },
-  { to: '/organization', label: 'Organization Workspace', detail: 'Company seats, SSO, security, audit exports' },
-  { to: '/devops-delivery', label: 'DevOps Delivery Kit', detail: 'Linux/VPS, GitHub, SSL, backup, handover' },
-  { to: '/cloud-documents', label: 'Cloud Documents', detail: 'Invoices, contracts, files' },
+  { section: 'AI Growth Tools' },
+  ...growthLinks,
+  { section: 'Business' },
+  ...businessLinks,
+  { section: 'Services' },
+  { to: '/freelance-fit-advisor', label: 'Fit Advisor', detail: 'Find your best workflow path' },
   { to: '/enterprise', label: 'Enterprise', detail: 'Team-ready business workflow' },
-  { to: '/security', label: 'Security', detail: 'Controls, SOC 2/ISO status, disclosure contact' },
-  { to: '/agency', label: 'Agency Setup', detail: 'Done-for-you freelancer system' },
-  { to: '/settings', label: 'Settings', detail: 'Profile, logo, payments' }
+  { to: '/agency', label: 'Agency Setup', detail: 'Done-for-you freelancer system' }
 ];
 
 export default function Navbar() {
@@ -130,7 +132,7 @@ export default function Navbar() {
         : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:border-white/15 hover:bg-white/[0.07] hover:text-white'
     }`;
   const mobileStaticItemClass = 'rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-3 text-zinc-300 transition-all hover:border-white/15 hover:bg-white/[0.07] hover:text-white sm:px-4';
-  const moreMenuActive = moreAppLinks.some((link) => location.pathname === link.to) || (isAdmin && location.pathname === '/admin');
+  const moreMenuActive = moreAppLinks.some((link) => link.to && location.pathname === link.to) || (isAdmin && location.pathname === '/admin');
 
   return (
     <nav className="sticky top-0 z-50 px-2 pb-0 pt-[max(0.55rem,env(safe-area-inset-top))] sm:px-4 sm:pt-4">
@@ -211,28 +213,37 @@ export default function Navbar() {
                 </button>
                 {appMenuOpen && (
                   <div className="absolute right-0 top-full mt-3 max-h-[min(32rem,calc(100vh-6rem))] w-80 overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-[#090d14] p-2 shadow-2xl shadow-black/40">
-                    {moreAppLinks.map((link) => (
-                      <NavLink
-                        key={link.to}
-                        to={link.to}
-                        onClick={closeAllMenus}
-                        className={(state) => `block rounded-xl px-4 py-3 transition ${
-                          state.isActive
-                            ? 'bg-white/10 text-white'
-                            : 'text-zinc-300 hover:bg-white/[0.06] hover:text-white'
-                        }`}
-                      >
-                        <span className="flex items-center justify-between gap-3">
-                          <span className="text-sm font-black">{link.label}</span>
-                          {link.requiresPro && !isPro && (
-                            <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-yellow-200">
-                              Pro
-                            </span>
-                          )}
-                        </span>
-                        <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
-                      </NavLink>
-                    ))}
+                    {moreAppLinks.map((link, index) => {
+                      if (link.section) {
+                        return (
+                          <p key={`section-${link.section}`} className={`px-4 pb-1 text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600 ${index > 0 ? 'mt-3 border-t border-white/8 pt-3' : 'pt-1'}`}>
+                            {link.section}
+                          </p>
+                        );
+                      }
+                      return (
+                        <NavLink
+                          key={link.to}
+                          to={link.to}
+                          onClick={closeAllMenus}
+                          className={(state) => `block rounded-xl px-4 py-3 transition ${
+                            state.isActive
+                              ? 'bg-white/10 text-white'
+                              : 'text-zinc-300 hover:bg-white/[0.06] hover:text-white'
+                          }`}
+                        >
+                          <span className="flex items-center justify-between gap-3">
+                            <span className="text-sm font-black">{link.label}</span>
+                            {link.requiresPro && !isPro && (
+                              <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-yellow-200">
+                                Pro
+                              </span>
+                            )}
+                          </span>
+                          <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
+                        </NavLink>
+                      );
+                    })}
                     {isAdmin && (
                       <NavLink
                         to="/admin"
@@ -413,22 +424,46 @@ export default function Navbar() {
             </div>
 
             {loggedIn && (
-              <div className="grid gap-2 sm:grid-cols-2">
-                <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:col-span-2">Core workflow</p>
-                {appLinks.map((link) => (
-                  <NavLink key={link.to} to={link.to} onClick={closeMenu} className={mobileItemClass}>
-                    <span className="flex items-center justify-between gap-3">
+              <>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <p className="px-1 text-[10px] font-black uppercase tracking-widest text-cyan-400 sm:col-span-2">Core work</p>
+                  {coreWorkLinks.map((link) => (
+                    <NavLink key={link.to} to={link.to} onClick={closeMenu} className={mobileItemClass}>
+                      <span className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-black">{link.label}</span>
+                      </span>
+                      <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
+                    </NavLink>
+                  ))}
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <p className="px-1 text-[10px] font-black uppercase tracking-widest text-yellow-400 sm:col-span-2">AI growth tools</p>
+                  {growthLinks.map((link) => (
+                    <NavLink key={link.to} to={link.to} onClick={closeMenu} className={mobileItemClass}>
+                      <span className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-black">{link.label}</span>
+                        {link.requiresPro && !isPro && (
+                          <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-200">
+                            Pro
+                          </span>
+                        )}
+                      </span>
+                      <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
+                    </NavLink>
+                  ))}
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-500 sm:col-span-2">Business & settings</p>
+                  {businessLinks.map((link) => (
+                    <NavLink key={link.to} to={link.to} onClick={closeMenu} className={mobileItemClass}>
                       <span className="text-sm font-black">{link.label}</span>
-                      {link.requiresPro && !isPro && (
-                        <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-200">
-                          Pro
-                        </span>
-                      )}
-                    </span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
-                  </NavLink>
-                ))}
-              </div>
+                      <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{link.detail}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              </>
             )}
 
             <div className="grid gap-2 border-t border-white/5 pt-4 sm:grid-cols-2">

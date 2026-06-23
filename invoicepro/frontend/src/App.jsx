@@ -122,7 +122,7 @@ const PrivateRoute = ({ children }) => {
 const PublicRoute = ({ children }) => {
   return !isLoggedIn()
     ? children
-    : <Navigate to="/client-flow" replace />;
+    : <Navigate to="/dashboard" replace />;
 };
 
 const isAdmin = () => {

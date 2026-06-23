@@ -76,94 +76,55 @@ const killerActionExamples = [
 
 const simpleWorkflowOptions = [
   {
-    id: 'business-autopilot',
-    title: 'Automate my day',
-    promise: 'Let ClientFlow AI choose the next lead, proposal, invoice, or payment action.',
-    cta: 'Open Autopilot',
-    route: '/business-autopilot',
-    tone: 'emerald',
-    steps: [
-      'Scan leads, proposals, invoices, and payment status',
-      'Show the next best business action',
-      'Open the right tool while you approve every send or payment step'
-    ]
-  },
-  {
     id: 'find-clients',
-    title: 'Find clients',
-    promise: 'Pick the right client type, prepare a message, and start outreach.',
-    cta: 'Open Client Finder',
-    route: '/client-finder',
+    title: 'Find & win clients',
+    promise: 'Discover opportunities, prepare outreach, and move leads toward paid work.',
+    cta: 'Open Client Flow',
+    route: '/client-flow',
     tone: 'sky',
     steps: [
-      'Choose a service and target client',
-      'Generate a first message',
-      'Add interested leads to your pipeline'
-    ]
-  },
-  {
-    id: 'write-proposal',
-    title: 'Write proposal',
-    promise: 'Turn a client conversation into a clear offer with price, scope, and next step.',
-    cta: 'Create Proposal',
-    route: '/create-invoice?type=proposal',
-    tone: 'emerald',
-    steps: [
-      'Add client problem and scope',
-      'Set price, timeline, and validity',
-      'Share the proposal link with the client'
-    ]
-  },
-  {
-    id: 'manage-project',
-    title: 'Manage project',
-    promise: 'Keep client requests, team work, delivery notes, and handover organized.',
-    cta: 'Open Workroom',
-    route: '/client-workroom',
-    tone: 'purple',
-    steps: [
-      'Create or open a project',
-      'Add tasks, requests, and collaborators',
-      'Track delivery until handover'
+      'Find a target client and prepare your message',
+      'Send a clear proposal with price and scope',
+      'Follow up until the deal is won'
     ]
   },
   {
     id: 'create-invoice',
-    title: 'Create invoice',
-    promise: 'Create a professional invoice with PDF, public link, and payment status.',
+    title: 'Create & send',
+    promise: 'Create professional invoices or proposals with PDF, public link, and payment tracking.',
     cta: 'Create Invoice',
     route: '/create-invoice',
     tone: 'yellow',
     steps: [
       'Select or add a client',
-      'Add items, tax, and currency',
-      'Share PDF or payment link'
+      'Add items, tax, currency, and due date',
+      'Share PDF or payment link via WhatsApp or email'
+    ]
+  },
+  {
+    id: 'manage-project',
+    title: 'Manage & deliver',
+    promise: 'Keep client requests, tasks, delivery notes, and handover organized in one workroom.',
+    cta: 'Open Workroom',
+    route: '/client-workroom',
+    tone: 'purple',
+    steps: [
+      'Create or open a project workspace',
+      'Add tasks, client requests, and files',
+      'Track delivery milestones and proof'
     ]
   },
   {
     id: 'collect-payment',
-    title: 'Collect payment',
-    promise: 'Find pending money and prepare the right follow-up action.',
+    title: 'Collect & grow',
+    promise: 'Track pending money, send follow-ups, and plan your income growth.',
     cta: 'Review Payments',
     route: '/dashboard#payment-collection-agent',
-    tone: 'orange',
+    tone: 'emerald',
     steps: [
-      'Check pending and overdue invoices',
-      'Open the highest priority invoice',
-      'Send WhatsApp follow-up or payment link'
-    ]
-  },
-  {
-    id: 'grow-income',
-    title: 'Grow income',
-    promise: 'Convert your monthly target into leads, proposals, deals, and follow-ups.',
-    cta: 'Open Growth Plan',
-    route: '/growth-plan',
-    tone: 'red',
-    steps: [
-      'Set your monthly income goal',
-      'Calculate required leads and proposals',
-      'Follow the daily action plan'
+      'See pending and overdue invoices at a glance',
+      'Send WhatsApp reminder or payment link',
+      'Set income goals and follow the daily action plan'
     ]
   }
 ];
