@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = path.join(__dirname, 'dist');
+const gitPrerenderDir = path.join(__dirname, 'prerendered-html');
 
 const PORT = 5188;
 
@@ -46,6 +47,22 @@ const routes = [
   '/workflows/consultants'
 ];
 
+function copyFolderSync(from, to) {
+  if (!fs.existsSync(from)) return;
+  if (!fs.existsSync(to)) {
+    fs.mkdirSync(to, { recursive: true });
+  }
+  fs.readdirSync(from).forEach(element => {
+    const fromPath = path.join(from, element);
+    const toPath = path.join(to, element);
+    if (fs.lstatSync(fromPath).isDirectory()) {
+      copyFolderSync(fromPath, toPath);
+    } else {
+      fs.copyFileSync(fromPath, toPath);
+    }
+  });
+}
+
 // Simple native file server to serve built SPA files
 const server = http.createServer((req, res) => {
   let requestedPath = req.url || '/';
@@ -84,6 +101,20 @@ const server = http.createServer((req, res) => {
 });
 
 async function run() {
+  const IS_CI_BUILD = !!(process.env.VERCEL || process.env.NETLIFY || process.env.CI || process.env.GITHUB_ACTIONS);
+
+  if (IS_CI_BUILD) {
+    console.log('[Prerender] CI Build detected (Vercel/CI). Skipping Puppeteer rendering.');
+    if (fs.existsSync(gitPrerenderDir)) {
+      console.log(`[Prerender] Copying pre-rendered static pages from ${gitPrerenderDir} to ${distDir}...`);
+      copyFolderSync(gitPrerenderDir, distDir);
+      console.log('[Prerender] Copy complete.');
+    } else {
+      console.warn('[Prerender] Warning: pre-rendered static pages directory does not exist. No static pages copied.');
+    }
+    process.exit(0);
+  }
+
   console.log(`[Prerender] Starting server on port ${PORT}...`);
   await new Promise((resolve) => server.listen(PORT, resolve));
 
@@ -94,6 +125,12 @@ async function run() {
   });
 
   const page = await browser.newPage();
+
+  // Clear or recreate the git backup directory locally
+  if (fs.existsSync(gitPrerenderDir)) {
+    fs.rmSync(gitPrerenderDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(gitPrerenderDir, { recursive: true });
 
   for (const route of routes) {
     console.log(`[Prerender] Render route: ${route}`);
@@ -110,26 +147,32 @@ async function run() {
     // Extract the fully rendered HTML
     const content = await page.content();
 
-    // Write to corresponding output directory/file
+    // Write to standard output dist directory
     let targetPath;
+    let backupPath;
     if (route === '/') {
       targetPath = path.join(distDir, 'index.html');
+      backupPath = path.join(gitPrerenderDir, 'index.html');
     } else {
       const outputDir = path.join(distDir, route);
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-      }
+      const backupDir = path.join(gitPrerenderDir, route);
+      
+      if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+      if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
+
       targetPath = path.join(outputDir, 'index.html');
+      backupPath = path.join(backupDir, 'index.html');
     }
 
     fs.writeFileSync(targetPath, content);
-    console.log(`[Prerender] Wrote html: ${targetPath}`);
+    fs.writeFileSync(backupPath, content);
+    console.log(`[Prerender] Wrote html to dist and copy to git: ${targetPath}`);
   }
 
   console.log('[Prerender] Cleaning up...');
   await browser.close();
   server.close();
-  console.log('[Prerender] Done successfully!');
+  console.log('[Prerender] Done successfully! Pre-rendered pages are cached in git history.');
 }
 
 run().catch((err) => {
