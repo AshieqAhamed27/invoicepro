@@ -14,8 +14,8 @@ const setMeta = (selector, attribute, value) => {
   return tag;
 };
 
-const defaultTitle = 'ClientFlow AI | Freelancer Business System';
-const defaultDescription = 'ClientFlow AI helps freelancers get clients, manage projects, send proposals, create invoices, and collect payments.';
+const defaultTitle = 'ClientFlow AI | GST Invoice & Client Workflow for Indian Freelancers';
+const defaultDescription = 'The client-to-cash workspace built for Indian freelancers. Create GST invoices, send Razorpay payment links, manage leads to payments — all in one place.';
 
 const normalizeMetaArgs = (titleOrConfig, description, options = {}) => {
   if (titleOrConfig && typeof titleOrConfig === 'object') {

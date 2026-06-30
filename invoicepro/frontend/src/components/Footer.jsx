@@ -16,6 +16,21 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#07090d] pb-24 pt-14 sm:py-16">
       <div className="container-custom">
+        {/* Trust badges */}
+        <div className="mb-10 grid grid-cols-2 gap-4 border-b border-white/10 pb-8 sm:grid-cols-4">
+          {[
+            { label: 'Razorpay Payments', sub: 'UPI · Cards · Netbanking' },
+            { label: 'Udyam Registered', sub: UDYAM_REGISTRATION_NUMBER },
+            { label: 'SSL Encrypted', sub: '256-bit HTTPS' },
+            { label: 'Made in India 🇮🇳', sub: 'Built for ₹ and GST' }
+          ].map((badge) => (
+            <div key={badge.label} className="flex flex-col items-center gap-1 text-center">
+              <p className="text-xs font-black uppercase text-zinc-300">{badge.label}</p>
+              <p className="text-[11px] font-medium text-zinc-600">{badge.sub}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="grid gap-10 text-sm sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
           <div>
             <div className="mb-5">
@@ -77,7 +92,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-7 text-xs font-bold uppercase text-zinc-600 md:flex-row">
-          <p className="text-center md:text-left">Copyright {new Date().getFullYear()} {COMPANY_NAME}</p>
+          <p className="text-center md:text-left">Copyright {new Date().getFullYear()} {COMPANY_NAME} · Made in India 🇮🇳</p>
           <div className="flex flex-wrap items-center justify-center gap-5 md:justify-end">
             <Link className="transition-colors hover:text-zinc-300" to="/refund-policy">Refund policy</Link>
             <Link className="transition-colors hover:text-zinc-300" to="/shipping-policy">Digital delivery</Link>

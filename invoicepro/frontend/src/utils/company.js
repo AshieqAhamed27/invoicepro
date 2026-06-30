@@ -1,11 +1,11 @@
 export const PRODUCT_NAME = 'ClientFlow AI';
 export const COMPANY_NAME = 'ClientFlow AI';
 export const COMPANY_SHORT_NAME = 'ClientFlow AI';
-export const COMPANY_TAGLINE = 'Freelancer business system to get clients, manage projects, and collect payment.';
+export const COMPANY_TAGLINE = 'The client-to-cash workspace built for Indian freelancers — GST invoices, Razorpay payments, and lead-to-payment workflow in one place.';
 export const COMPANY_LOGO = '/logo.svg';
 export const COMPANY_LEGAL_TYPE = 'Udyam-registered sole proprietorship';
 export const UDYAM_REGISTRATION_NUMBER = 'UDYAM-TN-37-0055272';
-export const COMPANY_LEGAL_DESCRIPTION = `${PRODUCT_NAME} is operated by a ${COMPANY_LEGAL_TYPE} business in India.`;
+export const COMPANY_LEGAL_DESCRIPTION = `${PRODUCT_NAME} is operated by a ${COMPANY_LEGAL_TYPE} business in India. Not a marketplace — a direct-client business system.`;
 export const SUPPORT_EMAIL = 'ashieqahamed4@gmail.com';
 export const SUPPORT_PHONE_DISPLAY = '+91 90809 63704';
 export const SUPPORT_PHONE_TEL = '+919080963704';
