@@ -91,30 +91,6 @@ const faqs = [
   ['What payment methods are supported?', 'Razorpay payment links — UPI, debit/credit cards, netbanking, and wallets. No USD conversion headaches.']
 ];
 
-// Early access testimonials — honest framing, replace with real users as they come
-const earlyAccessStories = [
-  {
-    quote: 'I was tracking invoices in a Google Sheet and follow-ups in WhatsApp. Setting up ClientFlow AI took 10 minutes and now everything is in one place.',
-    name: 'Beta Tester',
-    role: 'Freelance Web Developer',
-    city: 'Bengaluru',
-    tag: 'Early access user'
-  },
-  {
-    quote: 'The GST invoice feature is what I needed. I was using a generic invoice tool that did not understand CGST/SGST splits at all.',
-    name: 'Beta Tester',
-    role: 'Marketing Consultant',
-    city: 'Mumbai',
-    tag: 'Early access user'
-  },
-  {
-    quote: 'I sent my first proposal through ClientFlow AI and closed the project in 3 days. The follow-up reminder actually worked.',
-    name: 'Beta Tester',
-    role: 'Graphic Designer',
-    city: 'Chennai',
-    tag: 'Early access user'
-  }
-];
 
 const trustBadges = [
   { label: 'Udyam Registered', detail: 'UDYAM-TN-37-0055272' },
@@ -376,40 +352,7 @@ export default function HomeClear() {
           </section>
         )}
 
-        {/* ═══════ EARLY ACCESS TESTIMONIALS ═══════ */}
-        <section className="border-b border-white/10 py-16 sm:py-20">
-          <div className="container-custom">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-emerald-300">Early access feedback</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">What early users are saying.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                ClientFlow AI is in early access. These are real reactions from beta testers who tried the workflow.
-              </p>
-            </div>
 
-            <div className="mt-10 grid gap-5 lg:grid-cols-3">
-              {earlyAccessStories.map((story, index) => (
-                <article
-                  key={index}
-                  className="flex flex-col rounded-lg border border-white/10 bg-white/[0.035] p-6 transition-colors hover:border-emerald-300/20"
-                >
-                  <p className="mb-1 text-xs font-bold uppercase text-emerald-300/70">{story.tag}</p>
-                  <blockquote className="flex-1 text-base font-medium leading-7 text-zinc-200">
-                    "{story.quote}"
-                  </blockquote>
-                  <div className="mt-5 border-t border-white/10 pt-4">
-                    <p className="text-sm font-black text-white">{story.name}</p>
-                    <p className="text-xs font-medium text-zinc-500">{story.role} · {story.city}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            <p className="mt-6 text-xs font-medium text-zinc-600">
-              These are from early beta testers. As more freelancers use ClientFlow AI, verified results will replace this section.
-            </p>
-          </div>
-        </section>
 
         {/* ═══════ WHY NOT UPWORK? COMPARISON ═══════ */}
         <section id="comparison" className="border-b border-white/10 bg-[#0d1119] py-16 sm:py-20">
