@@ -13,7 +13,7 @@ const LiveFeedback = () => {
 
     setStatus('loading');
     try {
-      await api.post('/api/feedback', { category, message });
+      await api.post('/feedback', { category, message });
       setStatus('success');
       setTimeout(() => {
         setIsOpen(false);
