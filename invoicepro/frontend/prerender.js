@@ -118,11 +118,25 @@ async function run() {
   console.log(`[Prerender] Starting server on port ${PORT}...`);
   await new Promise((resolve) => server.listen(PORT, resolve));
 
-  console.log('[Prerender] Launching headless browser...');
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  let browser;
+  try {
+    console.log('[Prerender] Launching headless browser...');
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+  } catch (err) {
+    console.warn('[Prerender] Failed to launch Chrome (expected in Vercel/CI environments). Falling back to pre-rendered git cache.');
+    if (fs.existsSync(gitPrerenderDir)) {
+      console.log(`[Prerender] Copying pre-rendered static pages from ${gitPrerenderDir} to ${distDir}...`);
+      copyFolderSync(gitPrerenderDir, distDir);
+      console.log('[Prerender] Copy complete.');
+    } else {
+      console.warn('[Prerender] Warning: pre-rendered static pages directory does not exist. No static pages copied.');
+    }
+    server.close();
+    return;
+  }
 
   const page = await browser.newPage();
 
