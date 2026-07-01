@@ -16,6 +16,7 @@ import ProFeatureGate from './components/ProFeatureGate';
 import PlanReminderAgent from './components/PlanReminderAgent';
 import DeviceReminderAgent from './components/DeviceReminderAgent';
 import SupportChatWidget from './components/SupportChatWidget';
+import LiveFeedback from './components/LiveFeedback';
 
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/HomeClear'));
@@ -1004,6 +1005,7 @@ export default function App() {
       <PlanReminderAgent />
       <SupportChatWidget />
       <WhatsAppFloatingButton />
+      {isLoggedIn() && <LiveFeedback />}
     </BrowserRouter>
   );
 }
