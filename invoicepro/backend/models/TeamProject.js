@@ -817,7 +817,7 @@ teamProjectSchema.index({ user: 1, status: 1, updatedAt: -1 });
 teamProjectSchema.index({ user: 1, deadline: 1 });
 teamProjectSchema.index({ organization: 1, updatedAt: -1 });
 teamProjectSchema.index({ 'members.user': 1, updatedAt: -1 });
-teamProjectSchema.index({ 'inviteTokens.tokenHash': 1 });
 teamProjectSchema.index({ 'auditLogs.createdAt': -1 });
 
 module.exports = mongoose.model('TeamProject', teamProjectSchema);
+
