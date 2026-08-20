@@ -297,10 +297,10 @@ const organizationSchema = new mongoose.Schema({
 });
 
 organizationSchema.index({ owner: 1, createdAt: -1 });
-organizationSchema.index({ 'members.user': 1 });
 organizationSchema.index({ 'members.email': 1 });
 organizationSchema.index({ 'sso.allowedDomains': 1 });
 organizationSchema.index({ 'auditLogs.createdAt': -1 });
 
 module.exports = mongoose.model('Organization', organizationSchema);
 module.exports.ORG_ROLES = ORG_ROLES;
+
