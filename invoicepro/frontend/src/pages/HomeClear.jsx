@@ -88,6 +88,8 @@ const faqs = [
   ['Do I need to pay before trying it?', 'No. New accounts receive 30 days of full software access. Paid setup services are optional.'],
   ['Does ClientFlow AI guarantee clients or income?', 'No. It provides structure, practical actions, and clearer follow-up. Results still depend on the user, their offer, and their client work.'],
   ['Does it support GST invoicing?', 'Yes. You can add your GSTIN, HSN/SAC codes, CGST/SGST/IGST splits, and generate invoices that follow Indian GST rules.'],
+  ['Can I leave with my data?', 'Yes. Your invoices and client records are your business data. ClientFlow AI is committed to providing a practical export path, with no data lock-in.'],
+  ['What does the free plan include?', 'New accounts receive 30 days of full software access with no card required. Before the trial ends, pricing and next steps are shown clearly; paid setup services are always optional.'],
   ['What payment methods are supported?', 'Razorpay payment links — UPI, debit/credit cards, netbanking, and wallets. No USD conversion headaches.']
 ];
 
@@ -251,14 +253,39 @@ export default function HomeClear() {
                   {loggedIn ? 'Open Client Flow' : 'Start 30 Days Free →'}
                 </button>
                 <a
-                  href="#how-it-works"
+                  href="/payments"
                   className="rounded-lg border border-white/15 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.09] focus:outline-none focus:ring-2 focus:ring-white/40"
                 >
-                  See how it works
+                  View pricing first
                 </a>
               </div>
 
               <p className="mt-5 text-sm font-bold text-zinc-500">{accessMessage}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════ CLEAR PRICING ═══════ */}
+        <section id="pricing" className="border-b border-white/10 bg-[#0d1119] py-16 sm:py-20">
+          <div className="container-custom">
+            <div className="max-w-3xl">
+              <p className="text-xs font-black uppercase text-yellow-300">Clear pricing, before signup</p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Know the cost before you create an account.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">No commission on your client payments. No card required for the free-access period. Choose a paid plan only when the workflow is useful to you.</p>
+            </div>
+            <div className="mt-10 grid gap-5 md:grid-cols-2">
+              <div className="rounded-2xl border border-sky-300/25 bg-sky-300/[0.06] p-7">
+                <p className="text-xs font-black uppercase tracking-widest text-sky-200">Free access</p>
+                <h3 className="mt-3 text-3xl font-black text-white">₹0 for 30 days</h3>
+                <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">Full software access for 30 days. No card required. Paid setup services are optional and never required to use the trial.</p>
+                <p className="mt-5 text-xs font-bold leading-5 text-zinc-500">After 30 days, choose Pro to continue. Your plan and next steps are shown before checkout.</p>
+              </div>
+              <div className="rounded-2xl border border-yellow-300/35 bg-yellow-300/[0.08] p-7">
+                <p className="text-xs font-black uppercase tracking-widest text-yellow-200">Pro workflow</p>
+                <h3 className="mt-3 text-3xl font-black text-white">₹499/month</h3>
+                <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">Full lead-to-payment workflow, invoices, payment follow-up, and Pro tools. Annual access is ₹4,999/year.</p>
+                <Link to="/payments" className="mt-6 inline-flex rounded-lg bg-yellow-300 px-5 py-3 text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200">See every plan</Link>
+              </div>
             </div>
           </div>
         </section>
@@ -273,6 +300,31 @@ export default function HomeClear() {
                   <p className="text-xs font-medium text-zinc-500">{badge.detail}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════ INVOICE PREVIEW ═══════ */}
+        <section className="border-b border-white/10 py-16 sm:py-20">
+          <div className="container-custom grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase text-cyan-300">See the output first</p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">A clean invoice your client can trust.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Preview the PDF-style layout before you sign up: your business details, GST fields, line items, totals, and payment details stay easy to read.</p>
+              <Link to="/gst-compliance" className="mt-6 inline-flex rounded-lg border border-white/15 px-5 py-3 text-sm font-black uppercase text-white transition hover:bg-white/[0.06]">Read GST details</Link>
+            </div>
+            <div className="rounded-2xl bg-zinc-200 p-4 shadow-2xl shadow-black/30 sm:p-7">
+              <div className="min-h-[430px] rounded bg-white p-6 text-slate-800 shadow-lg sm:p-9">
+                <div className="flex items-start justify-between border-b border-slate-200 pb-6">
+                  <div><p className="text-xl font-black">YOUR STUDIO</p><p className="mt-1 text-xs text-slate-500">GSTIN: 33ABCDE1234F1Z5</p></div>
+                  <div className="text-right"><p className="text-2xl font-black text-slate-950">INVOICE</p><p className="mt-1 text-xs text-slate-500">INV-2026-014</p></div>
+                </div>
+                <div className="mt-7 grid grid-cols-2 gap-6 text-xs"><div><p className="font-bold text-slate-400">BILL TO</p><p className="mt-2 font-black">Acme Creative Pvt. Ltd.</p><p className="mt-1 text-slate-500">Chennai, Tamil Nadu</p></div><div className="text-right"><p className="font-bold text-slate-400">DUE DATE</p><p className="mt-2 font-black">30 Aug 2026</p><p className="mt-1 text-slate-500">Payment via UPI / Razorpay</p></div></div>
+                <div className="mt-8 border-y border-slate-200 py-3 text-xs font-bold text-slate-400"><div className="grid grid-cols-[1fr_auto] gap-4"><span>Service</span><span>Amount</span></div></div>
+                <div className="py-4 text-sm"><div className="grid grid-cols-[1fr_auto] gap-4"><div><p className="font-black">Website design — milestone 1</p><p className="mt-1 text-xs text-slate-500">HSN/SAC: 998313</p></div><span className="font-black">₹25,000</span></div></div>
+                <div className="ml-auto mt-3 max-w-[15rem] border-t border-slate-200 pt-3 text-sm"><div className="flex justify-between text-slate-500"><span>GST</span><span>₹4,500</span></div><div className="mt-3 flex justify-between text-lg font-black"><span>Total due</span><span>₹29,500</span></div></div>
+                <p className="mt-9 border-t border-slate-200 pt-4 text-xs text-slate-500">Thank you for your business. This is a visual preview of the invoice PDF layout.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -297,6 +349,13 @@ export default function HomeClear() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/10 bg-emerald-300/[0.04] py-12">
+          <div className="container-custom flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div><p className="text-xs font-black uppercase tracking-widest text-emerald-200">Your data stays yours</p><p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-zinc-300">Export your invoices and client records anytime. No lock-in: your business history should remain portable even if you stop using ClientFlow AI.</p></div>
+            <Link to="/security" className="shrink-0 text-sm font-black uppercase text-emerald-200 hover:text-white">Our data promise →</Link>
           </div>
         </section>
 

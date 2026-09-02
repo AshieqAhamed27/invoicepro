@@ -52,6 +52,8 @@ export default function Footer() {
               <Link className="transition-colors hover:text-yellow-300" to="/client-workroom">Client Workroom</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/create-invoice">Invoices</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/payments">Plans and payments</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/gst-compliance">GST compliance</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/changelog">Product changelog</Link>
             </div>
           </div>
 
@@ -96,6 +98,7 @@ export default function Footer() {
           <div className="flex flex-wrap items-center justify-center gap-5 md:justify-end">
             <Link className="transition-colors hover:text-zinc-300" to="/refund-policy">Refund policy</Link>
             <Link className="transition-colors hover:text-zinc-300" to="/shipping-policy">Digital delivery</Link>
+            <Link className="transition-colors hover:text-zinc-300" to="/changelog">Changelog</Link>
             <Link className="transition-colors hover:text-zinc-300" to="/portfolio">Builder</Link>
           </div>
         </div>

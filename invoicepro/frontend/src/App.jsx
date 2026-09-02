@@ -71,6 +71,8 @@ const WorkflowMode = lazy(() => import('./pages/WorkflowMode'));
 const InvoiceGenerator = lazy(() => import('./pages/InvoiceGenerator'));
 const HowToCreateInvoiceIndia = lazy(() => import('./pages/blog/HowToCreateInvoiceIndia'));
 const GSTInvoiceFormatIndia = lazy(() => import('./pages/blog/GSTInvoiceFormatIndia'));
+const GSTCompliance = lazy(() => import('./pages/GSTCompliance'));
+const Changelog = lazy(() => import('./pages/Changelog'));
 
 // Loader
 const RouteLoader = () => (
@@ -392,6 +394,24 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <Security />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/gst-compliance"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <GSTCompliance />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/changelog"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <Changelog />
             </Suspense>
           }
         />
