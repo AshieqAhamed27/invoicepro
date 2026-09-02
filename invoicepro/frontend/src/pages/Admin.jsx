@@ -120,6 +120,7 @@ export default function Admin() {
   const [productAnalyticsError, setProductAnalyticsError] = useState('');
   const [analyticsUpdatedAt, setAnalyticsUpdatedAt] = useState('');
   const [hoveredGraphIndex, setHoveredGraphIndex] = useState(null);
+  const [selectedGraphIndex, setSelectedGraphIndex] = useState(null);
   const [agencyBookings, setAgencyBookings] = useState([]);
   const [agencyLoading, setAgencyLoading] = useState(true);
   const [agencyError, setAgencyError] = useState('');
@@ -343,8 +344,24 @@ export default function Admin() {
   const dailyActivity = productAnalytics?.dailyActivity || [];
   const userGraphMax = getUserGraphMax(dailyActivity);
   const latestDailyActivity = dailyActivity[dailyActivity.length - 1] || {};
-  const activeGraphIndex = hoveredGraphIndex ?? (dailyActivity.length > 0 ? dailyActivity.length - 1 : -1);
+  const activeGraphIndex = hoveredGraphIndex ?? selectedGraphIndex ?? (dailyActivity.length > 0 ? dailyActivity.length - 1 : -1);
   const activeDailyActivity = dailyActivity[activeGraphIndex] || latestDailyActivity;
+  const selectedDailyActivity = selectedGraphIndex === null ? null : dailyActivity[selectedGraphIndex];
+  const selectedDayActions = Array.isArray(selectedDailyActivity?.actions) ? selectedDailyActivity.actions : [];
+  const commonActionDetails = Array.isArray(productAnalytics?.topEvents) ? productAnalytics.topEvents : [];
+  const activitySummaryItems = selectedDailyActivity
+    ? [
+      { label: 'Viewers', value: selectedDailyActivity.visitors, tone: 'text-sky-300' },
+      { label: 'Members', value: selectedDailyActivity.members, tone: 'text-emerald-300' },
+      { label: 'Actions', value: selectedDailyActivity.featureEvents, tone: 'text-yellow-300' },
+      { label: 'Signups', value: selectedDailyActivity.signups, tone: 'text-white' }
+    ]
+    : [
+      { label: 'All viewers', value: productTotals.uniqueVisitors, tone: 'text-sky-300' },
+      { label: 'All members', value: productTotals.registeredMembers, tone: 'text-emerald-300' },
+      { label: 'Feature actions', value: commonActionDetails.reduce((sum, item) => sum + Number(item.events || 0), 0), tone: 'text-yellow-300' },
+      { label: 'Paid users', value: productTotals.paidMembers, tone: 'text-white' }
+    ];
   const activeGraphX = activeGraphIndex >= 0 ? getUserGraphX(dailyActivity, activeGraphIndex) : USER_GRAPH_PADDING;
   const activeTooltipX = Math.max(44, Math.min(USER_GRAPH_WIDTH - 190, activeGraphX - 78));
   const userGraphLines = [
@@ -438,7 +455,7 @@ export default function Admin() {
                   <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Real-Time User Graph</p>
                   <h3 className="mt-2 text-2xl font-black tracking-tight text-white">14-day user activity</h3>
                   <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-                    Auto-refreshes from live product analytics and keeps repeated users counted once per day.
+                    Click a day to inspect only that day&apos;s user actions. Without a selection, the panel shows the overall product summary.
                   </p>
                 </div>
 
@@ -457,6 +474,15 @@ export default function Admin() {
                   >
                     {productAnalyticsLoading ? 'Refreshing' : 'Refresh'}
                   </button>
+                  {selectedGraphIndex !== null && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedGraphIndex(null)}
+                      className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-yellow-200 transition hover:bg-yellow-400/15"
+                    >
+                      Show all activity
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -603,7 +629,15 @@ export default function Admin() {
                                 tabIndex="0"
                                 onMouseEnter={() => setHoveredGraphIndex(index)}
                                 onFocus={() => setHoveredGraphIndex(index)}
-                                style={{ cursor: 'crosshair' }}
+                                onClick={() => setSelectedGraphIndex(index)}
+                                onKeyDown={(event) => {
+                                  if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault();
+                                    setSelectedGraphIndex(index);
+                                  }
+                                }}
+                                aria-label={`Show activity for ${row.label}`}
+                                style={{ cursor: 'pointer' }}
                               />
                             );
                           })}
@@ -630,24 +664,19 @@ export default function Admin() {
 
                 <div className="grid gap-3">
                   <div className={`rounded-2xl border p-4 transition duration-300 ${
-                    hoveredGraphIndex === null
+                    selectedGraphIndex === null
                       ? 'border-white/5 bg-white/[0.03]'
                       : 'border-sky-400/20 bg-sky-400/10 shadow-lg shadow-sky-950/20'
                   }`}>
                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">
-                      {hoveredGraphIndex === null ? 'Latest Day' : 'Selected Day'}
+                      {selectedGraphIndex === null ? 'Common overview' : 'Selected day'}
                     </p>
                     <p className="mt-2 text-lg font-black tracking-tight text-white">
-                      {activeDailyActivity.label || '--'}
+                      {selectedDailyActivity?.label || 'All tracked activity'}
                     </p>
                   </div>
 
-                  {[
-                    { label: 'Viewers', value: activeDailyActivity.visitors, tone: 'text-sky-300' },
-                    { label: 'Members', value: activeDailyActivity.members, tone: 'text-emerald-300' },
-                    { label: 'Actions', value: activeDailyActivity.featureEvents, tone: 'text-yellow-300' },
-                    { label: 'Signups', value: activeDailyActivity.signups, tone: 'text-white' }
-                  ].map((item) => (
+                  {activitySummaryItems.map((item) => (
                     <div key={item.label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-white/10">
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
                       <p className={`mt-2 text-3xl font-black tracking-tight ${item.tone}`}>
@@ -655,6 +684,23 @@ export default function Admin() {
                       </p>
                     </div>
                   ))}
+
+                  <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                      {selectedDailyActivity ? 'Actions on this day' : 'Common feature actions'}
+                    </p>
+                    <div className="mt-3 grid gap-2">
+                      {(selectedDailyActivity ? selectedDayActions : commonActionDetails).slice(0, 5).map((item) => (
+                        <div key={item.name || item.eventName} className="flex items-center justify-between gap-3 text-xs">
+                          <span className="min-w-0 truncate font-bold text-zinc-300">{item.name || item.eventName}</span>
+                          <span className="shrink-0 font-black text-yellow-200">{formatNumber(item.events)}</span>
+                        </div>
+                      ))}
+                      {(selectedDailyActivity ? selectedDayActions : commonActionDetails).length === 0 && (
+                        <p className="text-xs font-semibold text-zinc-600">No tracked feature actions for this view.</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

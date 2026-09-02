@@ -92,9 +92,19 @@ const countFirstSeen = async(match, field, since) => {
 
 const toDayKey = (date) => date.toISOString().slice(0, 10);
 
-const buildDailySeries = (rows, startDate, days = 14) => {
+const buildDailySeries = (rows, actionRows, startDate, days = 14) => {
     const byDay = rows.reduce((acc, row) => {
         acc[row.date] = row;
+        return acc;
+    }, {});
+    const actionsByDay = actionRows.reduce((acc, row) => {
+        if (!acc[row.date]) acc[row.date] = [];
+        acc[row.date].push({
+            name: row.eventName,
+            events: Number(row.events || 0),
+            members: Number(row.members || 0),
+            visitors: Number(row.visitors || 0)
+        });
         return acc;
     }, {});
 
@@ -111,7 +121,8 @@ const buildDailySeries = (rows, startDate, days = 14) => {
             members: Number(row.members || 0),
             pageViews: Number(row.pageViews || 0),
             featureEvents: Number(row.featureEvents || 0),
-            signups: Number(row.signups || 0)
+            signups: Number(row.signups || 0),
+            actions: actionsByDay[key] || []
         };
     });
 };
@@ -205,7 +216,8 @@ router.get('/admin/summary', protect, async(req, res) => {
             recentActivity,
             topPages,
             topEvents,
-            dailyActivityRows
+            dailyActivityRows,
+            dailyActionRows
         ] = await Promise.all([
             ProductAnalyticsEvent.countDocuments(pageViewMatch),
             countUnique(pageViewMatch, 'visitorId'),
@@ -424,6 +436,50 @@ router.get('/admin/summary', protect, async(req, res) => {
                     }
                 },
                 { $sort: { date: 1 } }
+            ]),
+            ProductAnalyticsEvent.aggregate([
+                {
+                    $match: {
+                        role: { $ne: 'admin' },
+                        createdAt: { $gte: last14Days },
+                        eventName: { $nin: [null, '', 'page_view'] }
+                    }
+                },
+                {
+                    $group: {
+                        _id: {
+                            date: {
+                                $dateToString: {
+                                    format: '%Y-%m-%d',
+                                    date: '$createdAt'
+                                }
+                            },
+                            eventName: '$eventName'
+                        },
+                        events: { $sum: 1 },
+                        members: { $addToSet: '$user' },
+                        visitors: { $addToSet: '$visitorId' }
+                    }
+                },
+                {
+                    $project: {
+                        date: '$_id.date',
+                        eventName: '$_id.eventName',
+                        events: 1,
+                        members: {
+                            $size: {
+                                $filter: {
+                                    input: '$members',
+                                    as: 'member',
+                                    cond: { $ne: ['$$member', null] }
+                                }
+                            }
+                        },
+                        visitors: { $size: '$visitors' },
+                        _id: 0
+                    }
+                },
+                { $sort: { date: 1, events: -1 } }
             ])
         ]);
 
@@ -480,7 +536,7 @@ router.get('/admin/summary', protect, async(req, res) => {
             })),
             topPages,
             topEvents,
-            dailyActivity: buildDailySeries(dailyActivityRows, last14Days, 14),
+            dailyActivity: buildDailySeries(dailyActivityRows, dailyActionRows, last14Days, 14),
             userAccess: {
                 summary: accessSummary,
                 users: accessUserList

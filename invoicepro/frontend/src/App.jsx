@@ -73,6 +73,7 @@ const HowToCreateInvoiceIndia = lazy(() => import('./pages/blog/HowToCreateInvoi
 const GSTInvoiceFormatIndia = lazy(() => import('./pages/blog/GSTInvoiceFormatIndia'));
 const GSTCompliance = lazy(() => import('./pages/GSTCompliance'));
 const Changelog = lazy(() => import('./pages/Changelog'));
+const HowToUse = lazy(() => import('./pages/HowToUse'));
 
 // Loader
 const RouteLoader = () => (
@@ -412,6 +413,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <Changelog />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/how-to-use"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <HowToUse />
             </Suspense>
           }
         />
