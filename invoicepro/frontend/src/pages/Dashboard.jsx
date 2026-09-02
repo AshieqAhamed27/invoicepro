@@ -334,6 +334,7 @@ export default function Dashboard() {
     }
   });
   const [showHeavySections, setShowHeavySections] = useState(false);
+  const [showWorkspaceSetup, setShowWorkspaceSetup] = useState(false);
   const [autopilotEnabled, setAutopilotEnabled] = useState(() => {
     try {
       return localStorage.getItem('clientflow_autopilot_enabled') === '1';
@@ -1432,24 +1433,39 @@ export default function Dashboard() {
         )}
 
         {!dashboardError && !loading && (
-          <ClientSetupWizard
-            onApplySetup={applySetupProfile}
-            onOpenAutopilot={enableAutopilot}
-            selectedWorkflowId={selectedWorkflowId}
-            stats={stats}
-          />
-        )}
+          <>
+            <section className="reveal reveal-delay-1 mb-6 rounded-2xl border border-white/8 bg-white/[0.025] p-5 sm:flex sm:items-center sm:justify-between sm:gap-6">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Optional workspace setup</p>
+                <h2 className="mt-2 text-lg font-black text-white">Need to customize your business profile or integrations?</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-zinc-500">You can do this later. First, choose one goal below and complete a real action.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowWorkspaceSetup((open) => !open)}
+                className="mt-4 shrink-0 rounded-xl border border-sky-300/20 bg-sky-300/[0.08] px-5 py-3 text-xs font-black uppercase tracking-widest text-sky-200 transition hover:bg-sky-300/[0.14] sm:mt-0"
+              >
+                {showWorkspaceSetup ? 'Hide setup tools' : 'Customize workspace'}
+              </button>
+            </section>
 
-        {!dashboardError && !loading && (
-          <GlobalFreelancerAccessCenter
-            stats={stats}
-            leadSummary={leadDashboard.summary}
-            onOpenWorkflow={openGlobalAccessWorkflow}
-          />
-        )}
-
-        {!dashboardError && !loading && (
-          <IntegrationReadinessHub />
+            {showWorkspaceSetup && (
+              <div className="animate-menu-drop">
+                <ClientSetupWizard
+                  onApplySetup={applySetupProfile}
+                  onOpenAutopilot={enableAutopilot}
+                  selectedWorkflowId={selectedWorkflowId}
+                  stats={stats}
+                />
+                <GlobalFreelancerAccessCenter
+                  stats={stats}
+                  leadSummary={leadDashboard.summary}
+                  onOpenWorkflow={openGlobalAccessWorkflow}
+                />
+                <IntegrationReadinessHub />
+              </div>
+            )}
+          </>
         )}
 
         {!dashboardError && (

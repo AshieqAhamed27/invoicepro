@@ -133,6 +133,12 @@ const indiaValueProps = [
   }
 ];
 
+const whyClientFlow = [
+  ['Get clients in one place', 'Track leads, plan outreach, write proposals, and know the next follow-up instead of losing opportunities across notes and chats.'],
+  ['Get paid without chasing', 'Create GST-ready invoices, share Razorpay payment links, and keep overdue-payment follow-up visible.'],
+  ['Build a stronger freelance career', 'Use income goals, delivery workflows, and repeatable client systems to make your work more professional and predictable.']
+];
+
 const structuredData = [
   {
     '@context': 'https://schema.org',
@@ -235,13 +241,13 @@ export default function HomeClear() {
             <div className="max-w-4xl">
               <p className="text-xs font-black uppercase text-cyan-300">Built for Indian freelancers</p>
               <h1 className="mt-5 text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">
-                ClientFlow AI
+                Get clients. Get paid. Build a freelance career that earns more.
               </h1>
               <p className="mt-6 max-w-2xl text-xl font-bold leading-relaxed text-zinc-200 sm:text-2xl">
-                The only freelancer workspace that handles GST invoices, Razorpay payment links, and the full lead-to-payment workflow.
+                One simple workspace for finding clients, winning work, sending GST invoices, and collecting payments.
               </p>
               <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-zinc-400">
-                Not a marketplace. Not another invoice maker. A complete business system for freelancers who sell directly to clients in India.
+                Stop switching between spreadsheets, WhatsApp, invoice tools, and reminders. ClientFlow AI keeps your direct-client business in one clear flow.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -258,10 +264,24 @@ export default function HomeClear() {
                 >
                   View pricing first
                 </a>
+                <Link
+                  to="/how-to-use"
+                  className="rounded-lg border border-cyan-300/20 bg-cyan-300/[0.06] px-7 py-4 text-center text-sm font-black uppercase text-cyan-100 transition hover:bg-cyan-300/[0.12] focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                >
+                  See how it works
+                </Link>
               </div>
 
               <p className="mt-5 text-sm font-bold text-zinc-500">{accessMessage}</p>
+              {!loggedIn && <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-200">If you like this product, you can continue using it with advanced features in subscriptions.</p>}
             </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/10 bg-[#0a0e15] py-14 sm:py-16">
+          <div className="container-custom">
+            <div className="max-w-3xl"><p className="text-xs font-black uppercase text-cyan-300">Why use ClientFlow AI?</p><h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Everything a freelancer needs to turn work into income.</h2><p className="mt-4 text-base font-medium leading-7 text-zinc-400">Most tools solve only one small part of freelancing. ClientFlow AI connects the client journey from the first message to payment.</p></div>
+            <div className="mt-9 grid gap-5 md:grid-cols-3">{whyClientFlow.map(([title, text], index) => <article key={title} className="rounded-2xl border border-white/10 bg-white/[0.035] p-6"><p className="text-xs font-black text-yellow-300">0{index + 1}</p><h3 className="mt-4 text-xl font-black text-white">{title}</h3><p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{text}</p></article>)}</div>
           </div>
         </section>
 
