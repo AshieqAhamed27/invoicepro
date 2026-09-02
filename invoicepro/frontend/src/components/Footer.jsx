@@ -9,10 +9,13 @@ import {
   SUPPORT_EMAIL,
   SUPPORT_PHONE_DISPLAY,
   SUPPORT_PHONE_TEL,
+  SUPPORT_WHATSAPP_PHONE,
   UDYAM_REGISTRATION_NUMBER
 } from '../utils/company';
 
 export default function Footer() {
+  const feedbackWhatsAppUrl = `https://wa.me/${SUPPORT_WHATSAPP_PHONE}?text=${encodeURIComponent('Hi ClientFlow AI, I would like to share feedback about the product.')}`;
+
   return (
     <footer className="border-t border-white/10 bg-[#07090d] pb-24 pt-14 sm:py-16">
       <div className="container-custom">
@@ -72,6 +75,7 @@ export default function Footer() {
             <h3 className="mb-5 font-black uppercase text-white">Contact Us</h3>
             <div className="grid gap-3 font-medium text-zinc-400">
               <Link className="transition-colors hover:text-yellow-300" to="/contact">Contact</Link>
+              <a href={feedbackWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="font-bold text-emerald-300 transition-colors hover:text-emerald-200">Send feedback on WhatsApp</a>
               <Link className="transition-colors hover:text-yellow-300" to="/security">Security</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/privacy">Privacy</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/terms">Terms</Link>

@@ -9,6 +9,7 @@ export const COMPANY_LEGAL_DESCRIPTION = `${PRODUCT_NAME} is operated by a ${COM
 export const SUPPORT_EMAIL = 'ashieqahamed4@gmail.com';
 export const SUPPORT_PHONE_DISPLAY = '+91 90809 63704';
 export const SUPPORT_PHONE_TEL = '+919080963704';
+export const SUPPORT_WHATSAPP_PHONE = '919080963704';
 export const LINKEDIN_PROFILE_URL = 'https://www.linkedin.com/in/ashieq-ahamed-s-a-1a37332a8';
 export const COMPANY_LOCATION = 'India';
 export const SITE_URL = 'https://www.clientflowai.in';

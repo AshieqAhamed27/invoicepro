@@ -10,6 +10,7 @@ import {
 import { isLoggedIn, getUser, hasProAccess } from './utils/auth';
 import api from './utils/api';
 import { getWhatsAppShareUrl } from './utils/whatsapp';
+import { SUPPORT_WHATSAPP_PHONE } from './utils/company';
 import { trackPageView } from './utils/analytics';
 import ScrollAnimator from './components/ScrollAnimator';
 import ProFeatureGate from './components/ProFeatureGate';
@@ -197,7 +198,7 @@ const ProRoute = ({ children, title }) => {
   return children;
 };
 
-const supportMessage = 'Hi I am interested in ClientFlow AI';
+const supportMessage = 'Hi ClientFlow AI, I would like to share feedback about the product.';
 const appRoutePrefixes = [
   '/admin',
   '/ai-coach',
@@ -240,7 +241,7 @@ const WhatsAppFloatingButton = () => {
 
   if (hiddenOnCurrentRoute) return null;
 
-  const supportWhatsAppUrl = getWhatsAppShareUrl(supportMessage, '919080963704');
+  const supportWhatsAppUrl = getWhatsAppShareUrl(supportMessage, SUPPORT_WHATSAPP_PHONE);
 
   return (
     <a
@@ -248,7 +249,7 @@ const WhatsAppFloatingButton = () => {
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 z-40 print:hidden sm:right-5"
-      aria-label="Chat with ClientFlow AI on WhatsApp"
+      aria-label="Send feedback to ClientFlow AI on WhatsApp"
     >
       <div className="rounded-full bg-green-500 p-3.5 shadow-lg shadow-black/25 transition hover:scale-110 sm:p-4">
         <svg

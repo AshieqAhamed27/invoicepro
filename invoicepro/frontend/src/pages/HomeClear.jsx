@@ -13,12 +13,14 @@ import {
 } from '../utils/auth';
 import { trackCtaClick } from '../utils/analytics';
 import useDocumentMeta from '../utils/useDocumentMeta';
+import { getWhatsAppShareUrl } from '../utils/whatsapp';
 import {
   COMPANY_NAME,
   COMPANY_TAGLINE,
   SITE_URL,
   SUPPORT_EMAIL,
-  UDYAM_REGISTRATION_NUMBER
+  UDYAM_REGISTRATION_NUMBER,
+  SUPPORT_WHATSAPP_PHONE
 } from '../utils/company';
 
 const workflowSteps = [
@@ -102,12 +104,13 @@ const trustBadges = [
 ];
 
 const comparisonRows = [
-  { feature: 'Commission per project', upwork: '10–20% cut from every payment', clientflow: '₹0 — you keep 100% of your earnings' },
-  { feature: 'Client ownership', upwork: 'Platform owns the relationship', clientflow: 'You own the client, conversation, and history' },
-  { feature: 'GST compliance', upwork: 'No Indian GST invoice support', clientflow: 'GSTIN, HSN/SAC, CGST/SGST/IGST built in' },
-  { feature: 'Payment method', upwork: 'Platform-controlled, USD conversion', clientflow: 'Razorpay — UPI, cards, netbanking in ₹' },
-  { feature: 'Brand visibility', upwork: 'You are one of thousands on a listing', clientflow: 'Your own proposals, invoices, payment pages' },
-  { feature: 'Pricing', upwork: 'Free to join, but 10–20% per project', clientflow: '30 days free, then ₹499/month — no commission' }
+  { feature: 'Lead tracking and follow-up', basic: 'Usually a spreadsheet or separate CRM', marketplace: 'Built around bidding for platform jobs', clientflow: 'Leads, follow-up dates, proposals, and next actions in one flow' },
+  { feature: 'Client relationship', basic: 'Client details sit apart from invoices', marketplace: 'Platform controls the relationship', clientflow: 'You own the client, conversation, work history, and data' },
+  { feature: 'Proposals and delivery', basic: 'Often needs separate docs and project tools', marketplace: 'Limited to platform workflow', clientflow: 'Proposals, workrooms, approvals, and delivery proof stay connected' },
+  { feature: 'GST invoices', basic: 'May require manual tax fields or another tool', marketplace: 'Not designed for Indian GST invoices', clientflow: 'GSTIN, HSN/SAC, CGST/SGST/IGST, and PDF invoices' },
+  { feature: 'Getting paid', basic: 'Manual payment follow-up', marketplace: 'Platform-controlled payment flow', clientflow: 'Razorpay links, ₹ payments, invoice status, and reminder tools' },
+  { feature: 'Business visibility', basic: 'Income and client progress are fragmented', marketplace: 'Focuses on marketplace activity', clientflow: 'One view of leads, work, invoices, payments, and income goals' },
+  { feature: 'Your data', basic: 'Data is split between multiple services', marketplace: 'Platform account and rules apply', clientflow: 'Export invoices and client records anytime — no lock-in' }
 ];
 
 const indiaValueProps = [
@@ -224,6 +227,7 @@ export default function HomeClear() {
       : freeAccess.active
         ? `${freeAccess.daysLeft} day${freeAccess.daysLeft === 1 ? '' : 's'} left in your free access.`
         : 'Your free access has ended. Review plans when you are ready.';
+  const feedbackWhatsAppUrl = getWhatsAppShareUrl('Hi ClientFlow AI, I would like to share feedback about the product.', SUPPORT_WHATSAPP_PHONE);
 
   return (
     <div className="min-h-screen bg-[#080b11] text-white">
@@ -282,6 +286,17 @@ export default function HomeClear() {
           <div className="container-custom">
             <div className="max-w-3xl"><p className="text-xs font-black uppercase text-cyan-300">Why use ClientFlow AI?</p><h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Everything a freelancer needs to turn work into income.</h2><p className="mt-4 text-base font-medium leading-7 text-zinc-400">Most tools solve only one small part of freelancing. ClientFlow AI connects the client journey from the first message to payment.</p></div>
             <div className="mt-9 grid gap-5 md:grid-cols-3">{whyClientFlow.map(([title, text], index) => <article key={title} className="rounded-2xl border border-white/10 bg-white/[0.035] p-6"><p className="text-xs font-black text-yellow-300">0{index + 1}</p><h3 className="mt-4 text-xl font-black text-white">{title}</h3><p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{text}</p></article>)}</div>
+          </div>
+        </section>
+
+        <section className="border-b border-emerald-300/15 bg-emerald-300/[0.04] py-10">
+          <div className="container-custom flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest text-emerald-200">Built with freelancers</p>
+              <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">Have an idea, a problem, or feedback? Message us directly.</h2>
+              <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-zinc-300">Your feedback goes straight to the ClientFlow AI team on WhatsApp — no support ticket required.</p>
+            </div>
+            <a href={feedbackWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-lg bg-emerald-300 px-5 py-3 text-center text-sm font-black uppercase text-slate-950 transition hover:bg-emerald-200">Send feedback on WhatsApp</a>
           </div>
         </section>
 
@@ -433,23 +448,24 @@ export default function HomeClear() {
 
 
 
-        {/* ═══════ WHY NOT UPWORK? COMPARISON ═══════ */}
+        {/* ═══════ FEATURE COMPARISON ═══════ */}
         <section id="comparison" className="border-b border-white/10 bg-[#0d1119] py-16 sm:py-20">
           <div className="container-custom">
             <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-cyan-300">Why not a marketplace?</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Upwork takes 10–20%. You keep 100%.</h2>
+              <p className="text-xs font-black uppercase text-cyan-300">Why these features belong together</p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">More than invoicing. A complete client-to-cash system.</h2>
               <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                Marketplaces make you compete for visibility and take a cut of every payment. ClientFlow AI gives you the tools to sell directly — you own the client, the relationship, and the money.
+                Most products solve one task at a time. We include these features so you can manage a direct client from the first follow-up to the final payment without losing context or paying marketplace commission.
               </p>
             </div>
 
             <div className="mt-10 overflow-x-auto">
-              <table className="w-full min-w-[600px] border-collapse text-sm">
+              <table className="w-full min-w-[820px] border-collapse text-sm">
                 <thead>
                   <tr className="border-b-2 border-white/15">
                     <th className="py-4 pr-6 text-left font-black uppercase text-zinc-500">Feature</th>
-                    <th className="py-4 pr-6 text-left font-black uppercase text-red-300/70">Upwork / Fiverr</th>
+                    <th className="py-4 pr-6 text-left font-black uppercase text-zinc-500">Basic invoice tools</th>
+                    <th className="py-4 pr-6 text-left font-black uppercase text-zinc-500">Marketplaces</th>
                     <th className="py-4 text-left font-black uppercase text-emerald-300">ClientFlow AI</th>
                   </tr>
                 </thead>
@@ -457,7 +473,8 @@ export default function HomeClear() {
                   {comparisonRows.map((row) => (
                     <tr key={row.feature} className="border-b border-white/10">
                       <td className="py-4 pr-6 font-bold text-white">{row.feature}</td>
-                      <td className="py-4 pr-6 font-medium text-zinc-400">{row.upwork}</td>
+                      <td className="py-4 pr-6 font-medium text-zinc-400">{row.basic}</td>
+                      <td className="py-4 pr-6 font-medium text-zinc-400">{row.marketplace}</td>
                       <td className="py-4 font-bold text-emerald-200">{row.clientflow}</td>
                     </tr>
                   ))}
