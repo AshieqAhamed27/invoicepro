@@ -733,7 +733,7 @@ export default function Payment() {
         }
 
         alert('Founder offer activated');
-        window.location.href = '/dashboard';
+        window.location.href = '/client-flow';
         return;
       }
 
@@ -783,7 +783,7 @@ export default function Payment() {
             });
 
             alert('Founder offer activated');
-            window.location.href = '/dashboard';
+            window.location.href = '/client-flow';
           } catch (verifyErr) {
             alert(verifyErr?.response?.data?.message || 'Payment verification failed');
             setLoading(false);
@@ -870,7 +870,7 @@ export default function Payment() {
           value: Number(serverPlan?.amount || current.amount || 0),
           currency: serverPlan?.currency || current.currency || 'INR'
         });
-        window.location.href = "/dashboard";
+        window.location.href = "/client-flow";
         return;
       }
 
@@ -916,7 +916,7 @@ export default function Payment() {
               value: Number(serverPlan?.amount || current.amount || 0),
               currency: serverPlan?.currency || current.currency || 'INR'
             });
-            window.location.href = "/dashboard";
+            window.location.href = "/client-flow";
           } catch (verifyErr) {
             const verifyMessage = verifyErr?.response?.data?.message || "Subscription verification failed";
             alert(verifyMessage);
