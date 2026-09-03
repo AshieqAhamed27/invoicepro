@@ -1365,49 +1365,71 @@ export default function Dashboard() {
         <section className="reveal mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-5">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">{isPro ? 'Pro Plan' : 'Free Plan'}</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+                {isPro ? '✨ Pro Plan' : '⏱️ Free 30-Day Access'}
+              </span>
+              {!isPro && (
+                <Link to="/checkout/monthly" className="text-[10px] font-black text-yellow-400 hover:underline ml-1">
+                  • Upgrade to Pro (₹499/mo) →
+                </Link>
+              )}
             </div>
             <h1 className="text-4xl font-bold sm:text-5xl lg:text-6xl tracking-tight text-white leading-none">
               Good morning, {user.name?.split(' ')[0] || 'there'}.
             </h1>
-            <p className="mt-4 text-base sm:text-xl text-zinc-500 font-medium">
+            <p className="mt-4 text-base sm:text-xl text-zinc-400 font-medium">
               Run your client-to-cash system: find leads, close proposals, collect payments, and build repeat revenue.
             </p>
           </div>
 
-          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2 md:flex md:flex-wrap md:gap-4">
+          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2 md:flex md:flex-wrap md:gap-3">
             <Link
-              to="/business-autopilot"
-              className="btn btn-primary px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
+              to="/create-invoice"
+              className="rounded-xl bg-gradient-to-r from-yellow-400 to-amber-300 px-6 py-4 font-black uppercase text-xs tracking-widest text-slate-950 shadow-lg shadow-yellow-500/10 hover:from-yellow-300 hover:to-amber-200 transition-all text-center flex items-center justify-center gap-1.5"
             >
-              Autopilot
-            </Link>
-            <Link
-              to="/launch"
-              className="btn btn-dark px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
-            >
-              Launch Center
+              <span>+ Create GST Invoice</span>
             </Link>
             <Link
               to="/client-finder"
-              className="btn btn-dark px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
+              className="btn btn-dark px-5 py-4 font-black uppercase text-xs tracking-widest text-center"
             >
-              Find Clients
+              + Find Clients
             </Link>
             <Link
               to="/create-invoice?type=proposal"
-              className="btn btn-secondary px-5 sm:px-8 py-4 sm:py-5 font-black uppercase text-xs tracking-widest"
+              className="btn btn-secondary px-5 py-4 font-black uppercase text-xs tracking-widest text-center"
             >
               New Proposal
             </Link>
             <Link
-              to="/create-invoice"
-              className="btn btn-secondary px-5 sm:px-10 py-4 sm:py-5 shadow-2xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all font-black uppercase text-xs tracking-widest"
+              to="/business-autopilot"
+              className="btn btn-dark px-5 py-4 font-black uppercase text-xs tracking-widest text-center"
             >
-              New Deal
+              Autopilot
             </Link>
           </div>
         </section>
+
+        {overdueInvoiceList.length > 0 && (
+          <section className="reveal mb-8 rounded-2xl border border-red-500/30 bg-red-500/10 p-5 sm:flex sm:items-center sm:justify-between shadow-xl">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <h3 className="text-base font-black text-white">
+                  You have {overdueInvoiceList.length} overdue invoice{overdueInvoiceList.length === 1 ? '' : 's'} worth {formatCurrency(overdueInvoiceList.reduce((acc, i) => acc + Number(i.amount || 0), 0))}
+                </h3>
+                <p className="text-xs text-red-200/80 mt-1">Send a quick WhatsApp reminder to collect your pending payment faster.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => sendWhatsAppReminder(overdueInvoiceList[0])}
+              className="mt-4 sm:mt-0 px-5 py-3 rounded-xl bg-red-500 text-white font-black text-xs uppercase tracking-wider hover:bg-red-400 transition-all shrink-0 shadow-lg shadow-red-500/20"
+            >
+              Send WhatsApp Reminder Now →
+            </button>
+          </section>
+        )}
 
         {!dashboardError && (
           <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-5 shadow-2xl shadow-black/20 sm:p-8">
