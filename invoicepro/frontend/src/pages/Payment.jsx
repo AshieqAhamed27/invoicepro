@@ -270,6 +270,76 @@ const getSafeSetupService = (value) => {
   return setupPaymentOptions.some((option) => option.id === service) ? service : 'agency-growth';
 };
 
+const SimplePaymentCheckout = ({
+  plan,
+  market,
+  plans,
+  current,
+  pricingLoading,
+  pricingWarning,
+  pricingBlocked,
+  checkoutDisabled,
+  loading,
+  freeAccessActive,
+  freeAccessState,
+  subscriptionStatus,
+  canCancelSubscription,
+  cancelLoading,
+  onSelectPlan,
+  onSelectMarket,
+  onCheckout,
+  onCancel
+}) => {
+  const checkoutLabel = freeAccessActive
+    ? 'Open my free workspace'
+    : pricingLoading
+      ? 'Checking secure price…'
+      : loading
+        ? 'Opening Razorpay…'
+        : current.checkoutType === 'one_time'
+          ? `Pay ${formatMoney(current.amount, current.currency)} once`
+          : `Pay securely with Razorpay`;
+
+  return (
+    <div className="premium-page min-h-screen text-white">
+      <Navbar />
+      <main className="container-custom py-10 sm:py-14 lg:py-18">
+        <section className="mx-auto max-w-5xl">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-300">Simple, secure subscription</p>
+          <h1 className="mt-4 text-4xl font-black leading-tight text-white sm:text-5xl">Choose a plan. Pay securely. Start working.</h1>
+          <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-zinc-400">You do not need to pay to try ClientFlow AI. New users get 30 days of free access. When you are ready, choose one plan below and complete payment with Razorpay.</p>
+
+          <ol className="mt-8 grid gap-3 sm:grid-cols-3">
+            {[
+              ['1', 'Try free first', 'Use the complete workflow for 30 days.'],
+              ['2', 'Choose your plan', 'Pick monthly, yearly, or the 90-day offer.'],
+              ['3', 'Pay with Razorpay', 'Use UPI, cards, netbanking, or supported global cards.']
+            ].map(([number, title, text]) => <li key={number} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-300 text-sm font-black text-slate-950">{number}</span><h2 className="mt-4 text-lg font-black text-white">{title}</h2><p className="mt-2 text-sm font-medium leading-6 text-zinc-400">{text}</p></li>)}
+          </ol>
+
+          {freeAccessActive && <div className="mt-6 rounded-2xl border border-emerald-300/30 bg-emerald-300/[0.08] p-6"><p className="text-xs font-black uppercase tracking-widest text-emerald-200">Your free access is active</p><h2 className="mt-2 text-2xl font-black">You have {freeAccessState.daysLeft || 30} days left — no payment needed today.</h2><p className="mt-2 text-sm font-medium text-zinc-300">Keep using ClientFlow AI. You can return here when you are ready to subscribe.</p><Link to="/client-flow" className="mt-5 inline-flex rounded-xl bg-emerald-300 px-5 py-3 text-sm font-black uppercase text-slate-950">Open workspace</Link></div>}
+
+          <section className="mt-10 rounded-3xl border border-white/10 bg-[#0d1119] p-5 sm:p-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-black uppercase tracking-widest text-cyan-300">Step 2 of 3</p><h2 className="mt-2 text-2xl font-black">Choose software access</h2><p className="mt-2 text-sm font-medium text-zinc-400">All plans include the same core client-to-payment workflow. Choose how long you want access.</p></div><div className="flex rounded-xl border border-white/10 p-1 text-xs font-black"><button type="button" onClick={() => onSelectMarket('india')} className={`rounded-lg px-3 py-2 ${market === 'india' ? 'bg-white text-slate-950' : 'text-zinc-400'}`}>India (₹)</button><button type="button" onClick={() => onSelectMarket('global')} className={`rounded-lg px-3 py-2 ${market === 'global' ? 'bg-white text-slate-950' : 'text-zinc-400'}`}>International ($)</button></div></div>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">{Object.entries(plans).map(([id, details]) => <button key={id} type="button" onClick={() => onSelectPlan(id)} className={`rounded-2xl border p-5 text-left transition ${plan === id ? 'border-yellow-300 bg-yellow-300/[0.09] ring-1 ring-yellow-300/50' : 'border-white/10 bg-black/20 hover:border-white/30'}`}><div className="flex items-start justify-between gap-3"><p className="text-base font-black text-white">{details.label}</p>{plan === id && <span className="rounded-full bg-yellow-300 px-2 py-1 text-[10px] font-black text-slate-950">SELECTED</span>}</div><p className="mt-4 text-3xl font-black text-white">{pricingLoading ? '…' : formatMoney(details.amount, details.currency)}</p><p className="mt-2 text-xs font-bold text-zinc-400">{details.duration}</p><p className="mt-4 text-sm font-medium leading-6 text-zinc-400">{planFeatureDetails[id]?.fit || details.note}</p></button>)}</div>
+          </section>
+
+          <section className="mt-6 grid gap-6 rounded-3xl border border-yellow-300/25 bg-yellow-300/[0.06] p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div><p className="text-xs font-black uppercase tracking-widest text-yellow-200">Step 3 of 3</p><h2 className="mt-2 text-2xl font-black text-white">Pay for {current.label}</h2><p className="mt-2 text-sm font-medium leading-6 text-zinc-300">{pricingLoading ? 'We are checking the current price.' : `${formatMoney(current.amount, current.currency)} · ${current.duration}.`} After payment, your Pro access starts immediately.</p><p className="mt-4 text-xs font-bold text-zinc-500">Secure checkout by Razorpay. You can use UPI, cards, and netbanking in India. You can manage or cancel an active subscription from this page.</p></div>
+            <button type="button" onClick={onCheckout} disabled={checkoutDisabled} className="rounded-xl bg-yellow-300 px-7 py-4 text-sm font-black uppercase tracking-wide text-slate-950 transition hover:bg-yellow-200 disabled:cursor-not-allowed disabled:opacity-60">{checkoutLabel}</button>
+          </section>
+
+          {pricingWarning && <div className={`mt-5 rounded-2xl border p-4 text-sm font-semibold ${pricingBlocked ? 'border-red-400/30 bg-red-400/10 text-red-200' : 'border-yellow-300/30 bg-yellow-300/[0.07] text-yellow-100'}`}>{pricingWarning}</div>}
+
+          {subscriptionStatus && <section className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.05] p-5"><p className="text-xs font-black uppercase tracking-widest text-emerald-200">Your current subscription</p><p className="mt-2 font-black text-white">{subscriptionStatus.plan} · {subscriptionStatus.status}</p>{subscriptionStatus.currentEnd && <p className="mt-1 text-sm text-zinc-400">Access until {new Date(subscriptionStatus.currentEnd).toLocaleDateString('en-IN')}</p>}{canCancelSubscription && <button type="button" onClick={onCancel} disabled={cancelLoading} className="mt-4 rounded-lg border border-red-400/30 px-4 py-2 text-xs font-black uppercase text-red-200 disabled:opacity-60">{cancelLoading ? 'Cancelling…' : 'Cancel renewal'}</button>}</section>}
+
+          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-zinc-400 sm:flex-row sm:items-center sm:justify-between"><p>Need a person to set up your workflow? That is optional and separate from your subscription.</p><div className="flex gap-4 font-bold"><Link to="/payments/agency-setup" className="text-yellow-200 hover:text-white">Agency setup</Link><Link to="/payments/enterprise" className="text-emerald-200 hover:text-white">Team setup</Link><a href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI billing support`} className="text-cyan-200 hover:text-white">Billing help</a></div></div>
+        </section>
+      </main>
+    </div>
+  );
+};
+
 export default function Payment() {
   const location = useLocation();
   const [plan, setPlan] = useState('monthly');
@@ -895,6 +965,27 @@ export default function Payment() {
 
   const canCancelSubscription = subscriptionStatus?.providerSubscriptionId &&
     !['cancelled', 'cancel_scheduled', 'completed', 'expired'].includes(String(subscriptionStatus.status || '').toLowerCase());
+
+  return <SimplePaymentCheckout
+    plan={plan}
+    market={market}
+    plans={serverPlanDetails}
+    current={current}
+    pricingLoading={pricingLoading}
+    pricingWarning={pricingWarning}
+    pricingBlocked={pricingBlocked}
+    checkoutDisabled={checkoutDisabled}
+    loading={loading}
+    freeAccessActive={freeAccessActive}
+    freeAccessState={freeAccessState}
+    subscriptionStatus={subscriptionStatus}
+    canCancelSubscription={canCancelSubscription}
+    cancelLoading={cancelLoading}
+    onSelectPlan={selectPlan}
+    onSelectMarket={selectMarket}
+    onCheckout={handleRazorpayPayment}
+    onCancel={handleCancelSubscription}
+  />;
 
   return (
     <div className="premium-page min-h-screen text-white">
