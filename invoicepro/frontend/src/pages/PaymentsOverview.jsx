@@ -89,41 +89,14 @@ const paymentOptions = [
 
 const servicePayments = [
   {
-    title: 'Agency Setup',
+    title: '1-on-1 Managed Growth Setup (Done-For-You)',
     priceKey: 'setupStart',
-    detail: 'Done-for-you help to set up offer, lead plan, proposal flow, workroom, invoice, payment follow-up, and 7-day action plan.',
+    detail: 'Complete done-for-you setup: offer structure, lead tracking pipeline, proposal templates, workrooms, GST invoicing, payment reminders, and 7-day action plan with direct founder support.',
     path: '/payments/agency-setup',
-    cta: 'Pay Agency Setup',
+    cta: 'Book 1-on-1 Managed Setup',
     featured: true,
-    badge: 'Freelancer setup service',
+    badge: 'Done-For-You Setup Service',
     highlight: 'agency'
-  },
-  {
-    title: 'Automation Setup',
-    priceKey: 'automationStart',
-    detail: 'Hands-on setup for reminders and connected client workflows using ClientFlow AI or n8n, including testing, failure handling, activation, and handover.',
-    path: '/payments/automation-setup',
-    cta: 'Pay Automation Setup',
-    featured: true,
-    badge: 'Workflow automation service',
-    highlight: 'automation'
-  },
-  {
-    title: 'Enterprise Seats',
-    priceKey: 'enterpriseSeat',
-    detail: 'Company workspace with members, roles, SSO settings, audit exports, backup export, and seat billing preview.',
-    path: '/enterprise',
-    cta: 'View Enterprise'
-  },
-  {
-    title: 'Enterprise Team Setup',
-    priceKey: 'teamSetup',
-    detail: 'Hands-on setup for a team: organization workspace, member roles, security settings, SSO domain planning, audit exports, backup policy, and first company workrooms.',
-    path: '/payments/enterprise',
-    cta: 'Pay Enterprise Team Setup',
-    featured: true,
-    badge: 'Team setup service',
-    highlight: 'enterprise'
   }
 ];
 
@@ -397,22 +370,16 @@ export default function PaymentsOverview() {
         <section id="setup-service-payments" className="border-b border-white/5 bg-yellow-400/[0.04] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Setup service checkouts</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">1-on-1 Setup Service</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Setup help is available for freelancers, automations, and company teams.
+                Need hands-on help setting up your freelance business workflow?
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                Use Agency Setup for a freelancer business workflow, Automation Setup for repetitive client tasks, and Enterprise Team Setup for roles, security, audit/export habits, and company workrooms.
+                Get direct 1-on-1 done-for-you setup: we help configure your offer, lead pipeline, proposal templates, GST invoicing, payment follow-up, and 7-day growth plan.
               </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div className="mt-6">
                 <Link to="/payments/agency-setup" className="inline-flex btn btn-primary px-6 py-3 text-sm">
-                  Pay Agency Setup
-                </Link>
-                <Link to="/payments/automation-setup" className="inline-flex rounded-2xl bg-sky-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-sky-200">
-                  Pay Automation Setup
-                </Link>
-                <Link to="/payments/enterprise" className="inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
-                  Pay Enterprise Team Setup
+                  Book 1-on-1 Managed Setup →
                 </Link>
               </div>
             </div>
