@@ -877,14 +877,6 @@ export default function App() {
         />
 
         <Route
-          path="*"
-          element={
-            <Suspense fallback={<RouteLoader />}>
-              <NotFound />
-            </Suspense>
-          }
-        />
-        <Route
           path="/invoice-generator"
           element={
             <Suspense fallback={<RouteLoader />}>
@@ -1026,6 +1018,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <WorkflowMode modeKey="consultants" />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="*"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <NotFound />
             </Suspense>
           }
         />

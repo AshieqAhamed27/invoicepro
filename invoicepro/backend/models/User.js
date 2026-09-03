@@ -18,7 +18,10 @@ const userSchema = new mongoose.Schema({
 
     password: {
         type: String,
-        required: [true, 'Password is required'],
+        required: function() {
+            // Password is required only if they haven't connected Google or GitHub
+            return !this.googleId && !this.github?.connected;
+        },
         minlength: 8
     },
 

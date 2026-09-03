@@ -74,6 +74,18 @@ const createRateLimiter = ({
     };
 };
 
+// Periodic cleanup of expired rate limit entries to prevent memory leaks
+setInterval(() => {
+    const now = Date.now();
+    for (const [keyPrefix, store] of rateLimitStores.entries()) {
+        for (const [key, value] of store.entries()) {
+            if (value.resetAt <= now) {
+                store.delete(key);
+            }
+        }
+    }
+}, 5 * 60 * 1000); // Run cleanup every 5 minutes
+
 const hasUnsafeKey = (value, depth = 0) => {
     if (!value || typeof value !== 'object') return false;
     if (depth > 12) return true;

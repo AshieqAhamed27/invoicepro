@@ -15,6 +15,10 @@ services:
         sync: false
       - key: CORS_ORIGINS
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: ADMIN_EMAILS
+        value: ashieqahamed4@gmail.com
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET
@@ -25,16 +29,38 @@ services:
         sync: false
       - key: RAZORPAY_YEARLY_PLAN_ID
         sync: false
+      - key: RAZORPAY_MONTHLY_USD_PLAN_ID
+        sync: false
+      - key: RAZORPAY_YEARLY_USD_PLAN_ID
+        sync: false
       - key: PRO_MONTHLY_AMOUNT
         sync: false
       - key: PRO_YEARLY_AMOUNT
         sync: false
+      - key: PRO_MONTHLY_USD_AMOUNT
+        sync: false
+      - key: PRO_YEARLY_USD_AMOUNT
+        sync: false
       - key: PAYMENT_SIMULATION
         value: "false"
+      - key: AI_PROVIDER
+        value: "openai"
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_MODEL
         value: gpt-5-mini
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-20250514
+      - key: RESEND_API_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
       - key: EMAIL_USER
         sync: false
       - key: EMAIL_PASS

@@ -44,6 +44,7 @@ const isAllowedOrigin = (origin) => {
 };
 
 const isDevOrigin = (origin) => {
+    if (process.env.NODE_ENV === 'production') return false;
     return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
         /^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
         /^http:\/\/172\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
