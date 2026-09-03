@@ -258,9 +258,9 @@ export default function HomeClear() {
                 <button
                   type="button"
                   onClick={() => startWorkspace('hero_start')}
-                  className="group relative rounded-lg bg-yellow-300 px-7 py-4 text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-100"
+                  className="group relative rounded-lg bg-yellow-300 px-7 py-4 text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-100 shadow-lg shadow-yellow-300/10"
                 >
-                  {loggedIn ? 'Open Client Flow' : 'Start 30 Days Free →'}
+                  {loggedIn ? 'Open Client Flow' : 'Start Free Access for 30 Days →'}
                 </button>
                 <a
                   href="/payments"
@@ -277,7 +277,11 @@ export default function HomeClear() {
               </div>
 
               <p className="mt-5 text-sm font-bold text-zinc-500">{accessMessage}</p>
-              {!loggedIn && <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-200">If you like this product, you can continue using it with advanced features in subscriptions.</p>}
+              {!loggedIn && (
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-300">
+                  If you like the product you can continue using paid version with best features to turn your freelancer career to a smart freelancer career.
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -309,17 +313,33 @@ export default function HomeClear() {
               <p className="mt-4 text-base font-medium leading-7 text-zinc-400">No commission on your client payments. No card required for the free-access period. Choose a paid plan only when the workflow is useful to you.</p>
             </div>
             <div className="mt-10 grid gap-5 md:grid-cols-2">
-              <div className="rounded-2xl border border-sky-300/25 bg-sky-300/[0.06] p-7">
-                <p className="text-xs font-black uppercase tracking-widest text-sky-200">Free access</p>
-                <h3 className="mt-3 text-3xl font-black text-white">₹0 for 30 days</h3>
-                <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">Full software access for 30 days. No card required. Paid setup services are optional and never required to use the trial.</p>
-                <p className="mt-5 text-xs font-bold leading-5 text-zinc-500">After 30 days, choose Pro to continue. Your plan and next steps are shown before checkout.</p>
+              <div className="rounded-2xl border border-sky-300/25 bg-sky-300/[0.06] p-7 flex flex-col justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-sky-200">Free access</p>
+                  <h3 className="mt-3 text-3xl font-black text-white">₹0 for 30 days</h3>
+                  <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">Full software access for 30 days. No card required. Paid setup services are optional and never required to use the trial.</p>
+                </div>
+                <div className="mt-6">
+                  <Link
+                    to="/checkout/free"
+                    className="inline-block rounded-lg bg-sky-300 px-5 py-3 text-sm font-black uppercase text-slate-950 transition hover:bg-sky-200"
+                  >
+                    Start Free Access for 30 Days
+                  </Link>
+                  <p className="mt-3 text-xs font-semibold leading-5 text-emerald-300">
+                    If you like the product you can continue using paid version with best features to turn your freelancer career to a smart freelancer career.
+                  </p>
+                </div>
               </div>
-              <div className="rounded-2xl border border-yellow-300/35 bg-yellow-300/[0.08] p-7">
-                <p className="text-xs font-black uppercase tracking-widest text-yellow-200">Pro workflow</p>
-                <h3 className="mt-3 text-3xl font-black text-white">₹499/month</h3>
-                <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">Full lead-to-payment workflow, invoices, payment follow-up, and Pro tools. Annual access is ₹4,999/year.</p>
-                <Link to="/payments" className="mt-6 inline-flex rounded-lg bg-yellow-300 px-5 py-3 text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200">See every plan</Link>
+              <div className="rounded-2xl border border-yellow-300/35 bg-yellow-300/[0.08] p-7 flex flex-col justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-yellow-200">Pro workflow</p>
+                  <h3 className="mt-3 text-3xl font-black text-white">₹499/month</h3>
+                  <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">Full lead-to-payment workflow, invoices, payment follow-up, and Pro tools. Annual access is ₹4,999/year.</p>
+                </div>
+                <div className="mt-6">
+                  <Link to="/payments" className="inline-flex rounded-lg bg-yellow-300 px-5 py-3 text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200">See every plan</Link>
+                </div>
               </div>
             </div>
           </div>
