@@ -1257,6 +1257,7 @@ router.get('/admin/revenue', protect, async(req, res) => {
         };
         const [userStats, invoiceStatsResult, activeSubscriptions, billingSubscriptions, manualPaymentRequests, directCheckoutUsers, agencyEarningsResult, paidUsers, allAccessUsers, recentSubscriptions, recentPaidInvoices] = await Promise.all([
             User.aggregate([
+                { $match: { role: { $ne: 'admin' } } },
                 {
                     $group: {
                         _id: null,
@@ -1302,6 +1303,7 @@ router.get('/admin/revenue', protect, async(req, res) => {
                 .select('user plan amount currency status approvedAt updatedAt createdAt')
                 .lean(),
             User.find({
+                role: { $ne: 'admin' },
                 lastPaymentAt: { $ne: null },
                 plan: { $in: Object.keys(planDetails) },
                 subscriptionStatus: { $in: ['one_time_payment', 'webhook_payment'] }
