@@ -56,6 +56,7 @@ const LeadPipeline = lazy(() => import('./pages/LeadPipeline'));
 const CreateInvoice = lazy(() => import('./pages/CreateInvoice'));
 const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 const Payment = lazy(() => import('./pages/Payment'));
+const PlanCheckout = lazy(() => import('./pages/PlanCheckout'));
 const PaymentsOverview = lazy(() => import('./pages/PaymentsOverview'));
 const SetupServicePayment = lazy(() => import('./pages/SetupServicePayment'));
 const Admin = lazy(() => import('./pages/Admin'));
@@ -758,6 +759,15 @@ export default function App() {
                 <InvoiceView />
               </Suspense>
             </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/checkout/:planId"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <PlanCheckout />
+            </Suspense>
           }
         />
 

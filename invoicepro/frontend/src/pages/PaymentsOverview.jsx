@@ -223,14 +223,9 @@ export default function PaymentsOverview() {
   };
 
   const startCheckout = (planId) => {
-    if (planId === 'free' || (freeFullAccessEnabled && (!loggedIn || isPro))) {
-      startFree();
-      return;
-    }
-
     localStorage.setItem('plan', planId);
     localStorage.setItem('billingMarket', market);
-    const checkoutPath = `/payments/freelance-workflow?market=${market}`;
+    const checkoutPath = `/checkout/${planId}?market=${market}`;
 
     if (!loggedIn) {
       setPostLoginRedirect(checkoutPath);
