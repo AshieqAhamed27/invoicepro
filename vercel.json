@@ -1,5 +1,5 @@
 {
-    "installCommand": "npm --prefix invoicepro/frontend ci",
+    "installCommand": "npm --prefix invoicepro/frontend install",
     "buildCommand": "npm --prefix invoicepro/frontend run build",
     "outputDirectory": "invoicepro/frontend/dist",
     "headers": [
