@@ -31,6 +31,15 @@ const workflowSteps = [
   ['05', 'Follow up payment', 'See what is pending and send a calm reminder before an invoice is forgotten.']
 ];
 
+const freeIncludes = [
+  { icon: '📋', title: 'Freelancer Workspace Setup', text: 'Pre-configured lead pipeline, proposal templates, and GST invoice flow — ready in 30 seconds.' },
+  { icon: '🔄', title: 'Automation Setup', text: 'Payment reminders, follow-up sequences, and recurring retainer invoices all set up automatically.' },
+  { icon: '🏢', title: 'Team & Agency Features', text: 'Multi-user workrooms, client delivery rooms, and shared pipeline for freelancers who work with a team.' },
+  { icon: '🤖', title: 'AI Tools', text: '10-second AI Proposal Generator, Client Coach for objection handling, and smart payment follow-up drafts.' },
+  { icon: '📊', title: 'GST & TDS Compliance', text: 'GSTIN, HSN/SAC codes, CGST/SGST/IGST auto-split, and 194J/194C TDS deduction tracking.' },
+  { icon: '📤', title: 'CA-Ready Export', text: '1-click Excel/CSV export of all invoices and income reports for your accountant at tax time.' }
+];
+
 const protectionItems = [
   {
     title: 'Check the client before starting',
@@ -303,41 +312,87 @@ export default function HomeClear() {
           </div>
         </section>
 
+        {/* ═══════ WHAT'S FREE ═══════ */}
+        <section id="whats-free" className="border-b border-white/10 bg-[#080b11] py-14 sm:py-18">
+          <div className="container-custom">
+            <div className="max-w-3xl">
+              <p className="text-xs font-black uppercase text-sky-300">Everything free for 30 days</p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">All features. Zero payment. 30 full days.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">When you sign up, every single feature is unlocked for 30 days — no credit card, no setup fee, no hidden charges. Not just basic invoicing. Everything.</p>
+            </div>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {freeIncludes.map((item) => (
+                <div key={item.title} className="flex gap-4 rounded-2xl border border-white/8 bg-white/[0.025] p-5 hover:border-sky-300/20 transition-colors">
+                  <span className="text-2xl shrink-0">{item.icon}</span>
+                  <div>
+                    <h3 className="text-sm font-black text-white">{item.title}</h3>
+                    <p className="mt-1 text-xs font-medium leading-5 text-zinc-400">{item.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/signup"
+                className="rounded-lg bg-sky-300 px-7 py-4 text-center text-sm font-black uppercase text-slate-950 transition hover:bg-sky-200"
+              >
+                Start Free — All Features Unlocked →
+              </Link>
+              <Link to="/payments" className="rounded-lg border border-white/15 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.09]">
+                See paid plans after trial
+              </Link>
+            </div>
+            <p className="mt-4 text-xs font-semibold text-zinc-500">No credit card required. After 30 days, pay ₹499/month to continue — or export your data and leave. Your choice.</p>
+          </div>
+        </section>
+
         {/* ═══════ CLEAR PRICING ═══════ */}
         <section id="pricing" className="border-b border-white/10 bg-[#0d1119] py-16 sm:py-20">
           <div className="container-custom">
             <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-yellow-300">Clear pricing, before signup</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Know the cost before you create an account.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">No commission on your client payments. No card required for the free-access period. Choose a paid plan only when the workflow is useful to you.</p>
+              <p className="text-xs font-black uppercase text-yellow-300">Simple pricing after the free trial</p>
+              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Try everything free. Pay only when it works for you.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">No commission on your client payments. No card required for the 30-day free trial. Every feature — Agency Setup, Automation, AI tools, and Team features — is included free.</p>
             </div>
             <div className="mt-10 grid gap-5 md:grid-cols-2">
-              <div className="rounded-2xl border border-sky-300/25 bg-sky-300/[0.06] p-7 flex flex-col justify-between">
+              <div className="rounded-2xl border-2 border-sky-300/50 bg-sky-300/[0.08] p-7 flex flex-col justify-between relative">
+                <span className="absolute -top-3 left-5 rounded-full bg-sky-300 px-3 py-1 text-[10px] font-black uppercase text-slate-950">Start Here</span>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-sky-200">Free access</p>
-                  <h3 className="mt-3 text-3xl font-black text-white">₹0 for 30 days</h3>
-                  <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">Full software access for 30 days. No card required. Paid setup services are optional and never required to use the trial.</p>
+                  <p className="text-xs font-black uppercase tracking-widest text-sky-200">30-Day Free Trial</p>
+                  <h3 className="mt-3 text-4xl font-black text-white">₹0</h3>
+                  <p className="mt-1 text-sm font-semibold text-sky-300">No credit card. No setup fee.</p>
+                  <ul className="mt-5 space-y-2">
+                    {['GST invoicing & Razorpay payment links', 'Lead pipeline & proposal templates', 'Automation & payment reminders', 'Team workrooms & agency features', 'AI Proposal Generator & Client Coach', 'TDS calculation & CA-ready Excel export'].map(f => (
+                      <li key={f} className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
+                        <span className="h-1.5 w-1.5 rounded-full bg-sky-400 shrink-0" />{f}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
                 <div className="mt-6">
-                  <Link
-                    to="/checkout/free"
-                    className="inline-block rounded-lg bg-sky-300 px-5 py-3 text-sm font-black uppercase text-slate-950 transition hover:bg-sky-200"
-                  >
-                    Start Free Access for 30 Days
+                  <Link to="/signup" className="block w-full rounded-lg bg-sky-300 px-5 py-4 text-center text-sm font-black uppercase text-slate-950 transition hover:bg-sky-200">
+                    Start Free Access for 30 Days →
                   </Link>
                   <p className="mt-3 text-xs font-semibold leading-5 text-emerald-300">
-                    If you like the product you can continue using paid version with best features to turn your freelancer career to a smart freelancer career.
+                    If you like the product, continue with paid Pro version to turn your freelancer career into a smart, growing business.
                   </p>
                 </div>
               </div>
               <div className="rounded-2xl border border-yellow-300/35 bg-yellow-300/[0.08] p-7 flex flex-col justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-yellow-200">Pro workflow</p>
-                  <h3 className="mt-3 text-3xl font-black text-white">₹499/month</h3>
-                  <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">Full lead-to-payment workflow, invoices, payment follow-up, and Pro tools. Annual access is ₹4,999/year.</p>
+                  <p className="text-xs font-black uppercase tracking-widest text-yellow-200">Pro — After Free Trial</p>
+                  <h3 className="mt-3 text-4xl font-black text-white">₹499<span className="text-lg font-bold text-zinc-400">/month</span></h3>
+                  <p className="mt-1 text-sm font-semibold text-yellow-300">Everything in Free Trial, forever.</p>
+                  <ul className="mt-5 space-y-2">
+                    {['All free trial features, continued', 'Unlimited invoices & clients', 'Priority support', 'Annual plan available at ₹4,999/yr (2 months free)', 'Founder 90-day pass at ₹899 (save 40%)'].map(f => (
+                      <li key={f} className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
+                        <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 shrink-0" />{f}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
                 <div className="mt-6">
-                  <Link to="/payments" className="inline-flex rounded-lg bg-yellow-300 px-5 py-3 text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200">See every plan</Link>
+                  <Link to="/payments" className="block w-full rounded-lg bg-yellow-300 px-5 py-4 text-center text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200">See all paid plans</Link>
                 </div>
               </div>
             </div>
