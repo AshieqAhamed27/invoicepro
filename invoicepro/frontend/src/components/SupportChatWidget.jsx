@@ -7,7 +7,7 @@ import {
   SUPPORT_PHONE_DISPLAY
 } from '../utils/company';
 
-const hiddenRoutePrefixes = ['/public/invoice', '/p/invoice'];
+const hiddenRoutePrefixes = ['/public/invoice', '/p/invoice', '/checkout'];
 
 const createLocalCoachFallback = (question = '', page = '/') => {
   const text = String(question || '').toLowerCase();
@@ -733,7 +733,7 @@ export default function SupportChatWidget() {
   if (hiddenOnCurrentRoute) return null;
 
   return (
-    <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-3 z-40 print:hidden sm:bottom-[max(1.25rem,env(safe-area-inset-bottom))] sm:left-5">
+    <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-50 print:hidden sm:bottom-[max(1.25rem,env(safe-area-inset-bottom))] sm:right-6">
       <style>{assistantStyles}</style>
       {isOpen && (
         <section
