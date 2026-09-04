@@ -261,6 +261,9 @@ export default function InvoiceView() {
   const subtotal = items.reduce((sum, item) => sum + getLineTotal(item), 0);
   const total = Number(invoice.amount || 0);
   const tax = Math.max(0, total - subtotal);
+  const tdsRate = Number(invoice.tdsPercent || 0);
+  const tdsAmount = (subtotal * tdsRate) / 100;
+  const netReceivable = total - tdsAmount;
   const finalUpi = invoice.currency === 'INR' ? (invoice.upiId || businessUpi || '') : '';
   const isInternationalInvoice = !meta.isProposal && invoice.currency !== 'INR';
   const publicDocumentUrl = `${window.location.origin}/public/invoice/${invoice._id}`;
@@ -1032,15 +1035,23 @@ export default function InvoiceView() {
                       </div>
                       {tax > 0 && (
                         <div className="flex justify-between gap-4 text-sm">
-                          <span className="text-slate-400">Tax</span>
+                          <span className="text-slate-400">GST Tax</span>
                           <span className="font-bold text-white">{formatCurrency(tax, invoice.currency)}</span>
+                        </div>
+                      )}
+                      {tdsAmount > 0 && (
+                        <div className="flex justify-between gap-4 text-sm text-yellow-300">
+                          <span>TDS Deducted ({tdsRate}%)</span>
+                          <span className="font-bold">-{formatCurrency(tdsAmount, invoice.currency)}</span>
                         </div>
                       )}
                       <div className="border-t border-white/10 pt-4">
                         <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
-                          {meta.isProposal ? 'Proposal Total' : 'Amount Due'}
+                          {meta.isProposal ? 'Proposal Total' : tdsAmount > 0 ? 'Net Bank Deposit' : 'Amount Due'}
                         </p>
-                        <p className="mt-2 break-words text-2xl font-black tracking-tight text-white sm:text-3xl">{formatCurrency(total, invoice.currency)}</p>
+                        <p className="mt-2 break-words text-2xl font-black tracking-tight text-white sm:text-3xl">
+                          {formatCurrency(tdsAmount > 0 ? netReceivable : total, invoice.currency)}
+                        </p>
                       </div>
                     </div>
                   </div>

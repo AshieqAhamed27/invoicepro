@@ -165,6 +165,9 @@ export default function PublicInvoice() {
   const cgst = Number(invoice.cgst || 0);
   const sgst = Number(invoice.sgst || 0);
   const total = subtotal + (subtotal * (cgst + sgst)) / 100;
+  const tdsPercent = Number(invoice.tdsPercent || 0);
+  const tdsAmount = (subtotal * tdsPercent) / 100;
+  const netReceivable = total - tdsAmount;
   const documentDate = invoiceMeta.isProposal ? invoice.validUntil : invoice.dueDate;
   const razorpayPaymentUrl = firstText(invoice.paymentLink?.shortUrl);
 
@@ -727,15 +730,24 @@ export default function PublicInvoice() {
               </div>
             )}
 
+            {tdsAmount > 0 && (
+              <div className="flex justify-between text-amber-700 text-sm font-semibold bg-amber-50 p-2 rounded-lg border border-amber-200">
+                <span>TDS Deducted ({tdsPercent}% u/s 194J/194C)</span>
+                <span>-{formatCurrency(tdsAmount, invoice.currency)}</span>
+              </div>
+            )}
+
             <div className="mt-5 flex flex-col gap-2 border-t border-gray-200 pt-5 sm:flex-row sm:items-baseline sm:justify-between">
               <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">
-                {invoiceMeta.isProposal ? 'Proposal Total' : 'Total Amount'}
+                {invoiceMeta.isProposal ? 'Proposal Total' : tdsAmount > 0 ? 'Net Bank Deposit' : 'Total Amount'}
               </span>
               <div className="text-right">
                 <span className="block text-4xl font-black text-slate-950">
-                  {formatCurrency(total, invoice.currency)}
+                  {formatCurrency(tdsAmount > 0 ? netReceivable : total, invoice.currency)}
                 </span>
-                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter mt-1">Inclusive of all taxes</p>
+                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter mt-1">
+                  {tdsAmount > 0 ? `Invoice Total: ${formatCurrency(total, invoice.currency)}` : 'Inclusive of all taxes'}
+                </p>
               </div>
             </div>
           </div>
