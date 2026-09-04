@@ -78,18 +78,18 @@ const planData = {
   },
   founder90: {
     id: 'founder90',
-    label: 'Founder 90-Day Offer',
-    badge: 'Special Early Access',
-    price: { INR: '₹999', USD: '$19' },
+    label: 'Founder 90-Day Pass',
+    badge: 'SAVE 40% (₹299/mo)',
+    price: { INR: '₹899', USD: '$16' },
     period: 'one-time payment (90 days access)',
     description: 'Exclusive 90-day access for early adopters. Enjoy 3 full months of full workspace capabilities with a single low payment.',
     features: [
-      'Full Pro workspace access for 90 days',
-      'One-time payment — NO recurring subscription',
-      'Includes all AI tools, invoice generator & payment tracking',
-      'Great for testing the workflow on live projects'
+      'Full Pro workspace access for 90 days (approx. ₹299/mo)',
+      'One-time payment — NO auto-recurring monthly subscription',
+      'Includes all AI tools, GST invoice generator & payment tracking',
+      'Save 40% compared to paying ₹499 monthly'
     ],
-    ctaText: 'Claim Founder Offer',
+    ctaText: 'Claim Founder Pass',
     checkoutType: 'one_time'
   }
 };

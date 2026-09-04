@@ -13,7 +13,7 @@ const markets = {
     detail: 'INR checkout with Razorpay, UPI, cards, and supported Indian payment methods.',
     monthly: 'Rs 499',
     yearly: 'Rs 4,999',
-    founder: 'Rs 999',
+    founder: 'Rs 899',
     setupStart: 'Rs 999',
     automationStart: 'Rs 1,499',
     teamSetup: 'Rs 4,999',
@@ -24,7 +24,7 @@ const markets = {
     detail: 'USD checkout for users outside India when international payments are enabled.',
     monthly: '$9',
     yearly: '$89',
-    founder: '$19',
+    founder: '$16',
     setupStart: '$19',
     automationStart: '$29',
     teamSetup: '$99',
@@ -39,51 +39,63 @@ const getSafeMarket = (value) => (
 const paymentOptions = [
   {
     id: 'free',
-    label: 'Free Access',
+    label: 'Free Trial',
+    badge: '30 DAYS FREE',
     title: '30 days full software access',
-    detail: 'Use the product, understand the lead-to-payment flow, create your workspace, and use the full workflow for 30 days after login.',
-    bestFor: 'New users who want to try ClientFlow AI seriously before paying for software access.',
-    cta: 'Start Free',
+    detail: 'Try the complete lead-to-payment workflow, create GST invoices, and test AI tools on real client work for 30 days after login.',
+    bestFor: 'New users testing ClientFlow AI before committing to a paid software plan.',
+    cta: 'Start Free Access',
     tone: 'sky',
-    points: ['Login or signup required', 'Full workflow access for 30 days', 'Paid setup services stay optional']
+    points: [
+      'Full software access for 30 days — no credit card needed',
+      'GST invoicing, Razorpay links & AI proposal generator',
+      'Data is never locked — free read-only access & export anytime'
+    ]
   },
   {
     id: 'monthly',
-    label: 'Pro Workflow',
-    title: 'Monthly access for active freelancers',
-    detail: 'Monthly access to the full lead-to-payment workflow. Best when you want to pay month by month while using the product on real client work.',
-    bestFor: 'Freelancers who are actively finding clients, sending proposals, managing delivery, and collecting money.',
-    cta: 'Buy Pro Monthly',
+    label: 'Pro Monthly',
+    badge: 'POPULAR',
+    title: 'Monthly flexible access',
+    detail: 'Full monthly access to all freelancer tools, GST invoicing, payment follow-up, and AI client workspace.',
+    bestFor: 'Active freelancers who want complete flexibility with monthly billing.',
+    cta: 'Get Pro Monthly',
     tone: 'yellow',
     points: [
-      'AI Client Coach, Client Finder, Sales Agent, Proposal Writer, Deal Room, Workroom, invoices, payment follow-up, Money GPS, Growth Plan, Profit Tracker',
-      'Best for active freelancers who want flexibility and monthly billing',
-      'Cancel from payment management when subscription is active'
+      'Includes all AI tools: Proposal Generator, Client Coach & Sales Agent',
+      'Unlimited GST invoices, Razorpay links & payment reminders',
+      'Cancel or pause your subscription anytime from settings'
+    ]
+  },
+  {
+    id: 'founder90',
+    label: 'Founder 90-Day Pass',
+    badge: 'SAVE 40%',
+    title: '3-Month quarterly access',
+    detail: 'Get 90 days of full Pro software access for just Rs 899 (approx. Rs 299/mo). One-time checkout with zero auto-recurring renewals.',
+    bestFor: 'Freelancers testing the full workflow across multiple project cycles.',
+    cta: 'Claim Founder Pass',
+    tone: 'purple',
+    points: [
+      '90 days of full Pro workspace access for Rs 899 (Rs 299/mo)',
+      'One-time payment — NO auto-recurring monthly charges',
+      'Save 40% compared to paying Rs 499 monthly for 3 months'
     ]
   },
   {
     id: 'yearly',
     label: 'Pro Annual',
-    title: 'Yearly access for stable workflow',
-    detail: 'Same full Pro workflow as Monthly, but paid once for the year. Best when you want one stable workflow for repeat clients and retainers.',
-    bestFor: 'Freelancers and small teams building a stable direct-client system.',
-    cta: 'Buy Pro Yearly',
+    badge: '2 MONTHS FREE',
+    title: 'Yearly stable workflow',
+    detail: 'Same complete Pro features as Monthly, billed once per year at Rs 4,999/yr (~Rs 416/mo). Best value for retainer & long-term work.',
+    bestFor: 'Established freelancers and small studios managing recurring retainers.',
+    cta: 'Get Pro Annual',
     tone: 'emerald',
     points: [
-      'Everything in Pro Monthly for 12 months',
-      'Better value than paying monthly for a full year',
-      'Best for repeat clients, retainers, long projects, and stable income tracking'
+      '12 full months of Pro workspace access for Rs 4,999/yr',
+      'Save over 17% compared to monthly billing (2 months free)',
+      'Best for retainer invoicing, long projects & stable income tracking'
     ]
-  },
-  {
-    id: 'founder90',
-    label: 'Founder 90 Days',
-    title: 'Short paid access for early users',
-    detail: 'Try the full product for 90 days without choosing a long subscription first.',
-    bestFor: 'Users who want enough time to test the full workflow on real client work.',
-    cta: 'Buy Founder Access',
-    tone: 'purple',
-    points: ['One-time checkout', '90 days full workflow', 'Good before committing monthly or yearly']
   }
 ];
 
@@ -227,34 +239,25 @@ export default function PaymentsOverview() {
         <section className="border-b border-white/5 bg-zinc-950/70 py-14 sm:py-16 lg:py-20">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Payments and plans</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Simple Freelancer Pricing</p>
               <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-5xl">
-                Choose how you want to use ClientFlow AI.
+                Transparent plans. Zero hidden fees.
               </h1>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400">
-                Start here for every payment choice: software access, Agency Setup, Automation Setup, and Enterprise Setup.
+                Start with 30 days of full software access — no credit card required. Pick a software plan when you're ready to power your freelance career.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button type="button" onClick={startFree} className="btn btn-primary px-7 py-4 text-sm">
-                  {loggedIn ? 'Open Workspace' : 'Start Free'}
+                  {loggedIn ? 'Open Workspace' : 'Start 30 Days Free →'}
                 </button>
-                <Link to="/payments/agency-setup" className="rounded-2xl bg-yellow-400 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-black transition hover:bg-yellow-300">
-                  Agency Setup
-                </Link>
-                <Link to="/payments/automation-setup" className="rounded-2xl bg-sky-300 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-sky-200">
-                  Automation Setup
-                </Link>
-                <Link to="/payments/enterprise" className="rounded-2xl bg-emerald-300 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
-                  Enterprise Setup
-                </Link>
-                <Link to="/contact" className="btn btn-secondary px-7 py-4 text-sm">
-                  Ask Before Paying
-                </Link>
+                <a href="#setup-service-payments" className="rounded-2xl border border-white/15 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/[0.09]">
+                  1-on-1 Setup Help →
+                </a>
               </div>
             </div>
 
             <div className="rounded-[1.75rem] border border-white/10 bg-black/30 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Billing region</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Select Currency / Region</p>
               <div className="mt-4 grid gap-3">
                 {Object.entries(markets).map(([id, option]) => (
                   <button
@@ -272,9 +275,6 @@ export default function PaymentsOverview() {
                   </button>
                 ))}
               </div>
-              <p className="mt-4 text-xs font-semibold leading-6 text-zinc-600">
-                Checkout verifies live backend pricing before payment. International payments also need international payments enabled in the payment provider account.
-              </p>
             </div>
           </div>
         </section>
@@ -282,76 +282,53 @@ export default function PaymentsOverview() {
         <section className="border-b border-white/5 py-14 sm:py-16">
           <div className="container-custom">
             <div className="mb-8 max-w-3xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">One Payment Center</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Software Access Plans</p>
               <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Choose the payment type first.
+                Choose the plan that fits your business.
               </h2>
               <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                Users do not need to search for different payment features. This single page explains each option, then sends them to the exact checkout only after they choose.
-              </p>
-            </div>
-
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {checkoutTypes.map((item) => {
-                const className = item.tone === 'emerald'
-                  ? 'border-emerald-300/30 bg-emerald-300/[0.08] hover:border-emerald-300/45'
-                  : item.tone === 'sky'
-                    ? 'border-sky-300/30 bg-sky-300/[0.08] hover:border-sky-300/45'
-                    : item.tone === 'purple'
-                      ? 'border-purple-300/30 bg-purple-300/[0.08] hover:border-purple-300/45'
-                    : 'border-yellow-300/35 bg-yellow-300/[0.08] hover:border-yellow-300/50';
-
-                return (
-                  <Link key={item.title} to={item.path} className={`rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${className}`}>
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">{item.label}</p>
-                    <h3 className="mt-3 text-2xl font-black text-white">{item.title}</h3>
-                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
-                    <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-white">{item.cta}</p>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-b border-white/5 py-14 sm:py-16">
-          <div className="container-custom">
-            <div className="mb-8 max-w-3xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Software access</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Start with 30 days of full software access.
-              </h2>
-              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                Create an account to use the workflow for 30 days. After the free window ends, users can choose a paid software plan.
+                All plans include full software capabilities: GST invoicing, Razorpay payment links, AI proposal writer, client deal rooms, and payment reminders.
               </p>
               {loggedIn && freeAccessState.active && (
                 <p className="mt-3 text-sm font-black text-emerald-200">
-                  Your free access has {freeAccessState.daysLeft} day{freeAccessState.daysLeft === 1 ? '' : 's'} left.
+                  Your free trial has {freeAccessState.daysLeft} day{freeAccessState.daysLeft === 1 ? '' : 's'} remaining.
                 </p>
               )}
             </div>
 
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {paymentOptions.map((option) => (
-                <div key={option.id} className={`rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${toneClass[option.tone] || toneClass.sky}`}>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">{option.label}</p>
-                  <h3 className="mt-3 text-xl font-black leading-tight text-white">{option.title}</h3>
-                  <p className="mt-4 text-3xl font-black text-white">{priceFor(option)}</p>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{option.detail}</p>
-                  <p className="mt-4 rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-bold leading-relaxed text-zinc-300">
-                    {option.bestFor}
-                  </p>
-                  <div className="mt-5 grid gap-2">
-                    {option.points.map((point) => (
-                      <p key={point} className="text-xs font-semibold leading-relaxed text-zinc-500">{point}</p>
-                    ))}
+                <div key={option.id} className={`relative flex flex-col justify-between rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${toneClass[option.tone] || toneClass.sky}`}>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-400">{option.label}</p>
+                      {option.badge && (
+                        <span className="rounded-full bg-yellow-400/20 border border-yellow-400/40 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-yellow-300">
+                          {option.badge}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="mt-3 text-xl font-black leading-tight text-white">{option.title}</h3>
+                    <p className="mt-4 text-3xl font-black text-white">{priceFor(option)}</p>
+                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">{option.detail}</p>
+                    <p className="mt-4 rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-bold leading-relaxed text-zinc-300">
+                      {option.bestFor}
+                    </p>
+                    <div className="mt-5 grid gap-2">
+                      {option.points.map((point) => (
+                        <p key={point} className="text-xs font-semibold leading-relaxed text-zinc-400 flex items-center gap-2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
+                          {point}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => startCheckout(option.id)}
                     className={`mt-6 w-full rounded-2xl px-5 py-4 text-sm font-black transition-all active:scale-95 ${
-                      option.id === 'monthly'
-                        ? 'bg-yellow-400 text-black hover:bg-yellow-300'
+                      option.id === 'monthly' || option.id === 'founder90'
+                        ? 'bg-yellow-400 text-black hover:bg-yellow-300 shadow-lg shadow-yellow-400/10'
                         : 'border border-white/10 bg-white/[0.04] text-white hover:bg-white/10'
                     }`}
                   >
