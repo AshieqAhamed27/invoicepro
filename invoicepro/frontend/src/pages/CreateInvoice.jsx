@@ -59,6 +59,7 @@ export default function CreateInvoice() {
     gst: '',
     cgst: '',
     sgst: '',
+    tdsPercent: '',
     currency: 'INR',
     upiId: '',
     dueDate: '',
@@ -177,6 +178,9 @@ export default function CreateInvoice() {
   const taxRate = (+form.cgst || 0) + (+form.sgst || 0);
   const tax = (subtotal * taxRate) / 100;
   const total = subtotal + tax;
+  const tdsRate = +form.tdsPercent || 0;
+  const tdsAmount = (subtotal * tdsRate) / 100;
+  const netReceivable = total - tdsAmount;
 
   const filledItems = items.filter((item) => item.name.trim() || Number(item.price || 0) > 0);
   const itemSummary = filledItems
@@ -777,7 +781,7 @@ export default function CreateInvoice() {
                     />
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-3">
                     <div className="space-y-1.5">
                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">CGST %</p>
                         <input
@@ -797,6 +801,17 @@ export default function CreateInvoice() {
                           value={form.sgst}
                           onChange={handleChange}
                           placeholder="0"
+                          className="input py-4 bg-black/20 border-white/5"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">TDS % (194J / 194C)</p>
+                        <input
+                          name="tdsPercent"
+                          type="number"
+                          value={form.tdsPercent}
+                          onChange={handleChange}
+                          placeholder="e.g. 10 or 2"
                           className="input py-4 bg-black/20 border-white/5"
                         />
                     </div>
@@ -849,18 +864,28 @@ export default function CreateInvoice() {
 
                <div className="space-y-4 mb-8">
                   <div className="flex justify-between items-center">
-                    <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">Gross</span>
+                    <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">Subtotal</span>
                     <span className="font-bold text-white text-lg">{formatCurrency(subtotal, form.currency)}</span>
                   </div>
                   {tax > 0 && (
                     <div className="flex justify-between items-center">
-                      <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">Tax ({taxRate}%)</span>
+                      <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">GST Tax ({taxRate}%)</span>
                       <span className="font-bold text-white text-lg">{formatCurrency(tax, form.currency)}</span>
                     </div>
                   )}
+                  {tdsAmount > 0 && (
+                    <div className="flex justify-between items-center text-yellow-300">
+                      <span className="font-bold text-xs uppercase tracking-tighter">TDS Deducted ({tdsRate}%)</span>
+                      <span className="font-bold text-sm">-{formatCurrency(tdsAmount, form.currency)}</span>
+                    </div>
+                  )}
                   <div className="pt-6 border-t border-white/5 flex flex-col items-end">
-                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2 text-right w-full">Final Total</span>
-                    <span className="text-3xl sm:text-5xl font-black text-emerald-400 tracking-tighter break-words text-right">{formatCurrency(total, form.currency)}</span>
+                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2 text-right w-full">
+                      {tdsAmount > 0 ? 'Net Bank Deposit' : 'Final Total'}
+                    </span>
+                    <span className="text-3xl sm:text-5xl font-black text-emerald-400 tracking-tighter break-words text-right">
+                      {formatCurrency(tdsAmount > 0 ? netReceivable : total, form.currency)}
+                    </span>
                   </div>
                </div>
 

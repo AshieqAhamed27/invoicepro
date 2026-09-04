@@ -85,54 +85,53 @@ const audienceGroups = [
 
 const faqs = [
   ['Is this a job marketplace?', 'No. ClientFlow AI does not sell leads or make freelancers bid for jobs. It helps you manage clients you find directly.'],
-  ['Is it only invoice software?', 'No. Invoicing is one step inside the lead, proposal, delivery, invoice, and payment workflow.'],
-  ['What should a new user do first?', 'Create an account, open Client Flow, and add one real lead or invoice. You do not need to configure every feature.'],
-  ['Do I need to pay before trying it?', 'No. New accounts receive 30 days of full software access. Paid setup services are optional.'],
-  ['Does ClientFlow AI guarantee clients or income?', 'No. It provides structure, practical actions, and clearer follow-up. Results still depend on the user, their offer, and their client work.'],
+  ['Is it only invoice software?', 'No. Invoicing is one step inside the lead, proposal, retainer management, invoice, and payment workflow.'],
+  ['How does TDS (Section 194J/194C) work?', 'Clients deducting 10% (technical/professional services) or 2% (contracts) TDS can be marked on any invoice. ClientFlow AI automatically calculates net receivable bank deposits and TDS deductions for easy CA reconciliation.'],
+  ['Does it support monthly retainers?', 'Yes! You can set up recurring retainer billing on weekly or monthly schedules with auto-generated invoices.'],
+  ['Can I export data for my CA at tax time?', 'Yes. Export all your invoices, income reports, and client ledgers to Excel/CSV with 1-click for easy handoff to your accountant (Tally / Zoho / Excel).'],
+  ['What happens to my data if my 30-day trial ends?', 'Your data is NEVER locked or deleted. If your trial ends and you choose not to subscribe right away, you retain full read-only access to view and export all your invoice history anytime.'],
   ['Does it support GST invoicing?', 'Yes. You can add your GSTIN, HSN/SAC codes, CGST/SGST/IGST splits, and generate invoices that follow Indian GST rules.'],
-  ['Can I leave with my data?', 'Yes. Your invoices and client records are your business data. ClientFlow AI is committed to providing a practical export path, with no data lock-in.'],
-  ['What does the free plan include?', 'New accounts receive 30 days of full software access with no card required. Before the trial ends, pricing and next steps are shown clearly; paid setup services are always optional.'],
-  ['What payment methods are supported?', 'Razorpay payment links — UPI, debit/credit cards, netbanking, and wallets. No USD conversion headaches.']
+  ['What payment methods are supported?', 'Razorpay payment links for Indian clients (UPI, cards, netbanking) plus multi-currency support (USD, GBP, EUR, etc.) for international clients.']
 ];
 
 
 const trustBadges = [
   { label: 'Udyam Registered', detail: 'UDYAM-TN-37-0055272' },
-  { label: 'Razorpay Payments', detail: 'UPI, Cards, Netbanking' },
-  { label: '256-bit Encryption', detail: 'HTTPS everywhere' },
-  { label: 'Made in India', detail: '🇮🇳 Built for ₹' }
+  { label: 'Razorpay & Multi-Currency', detail: 'UPI, Cards, USD/INR' },
+  { label: '256-bit SSL Data Safety', detail: 'Daily Cloud Backups' },
+  { label: 'No Data Hostage Policy', detail: 'Free Excel Export Anytime' }
 ];
 
 const comparisonRows = [
   { feature: 'Lead tracking and follow-up', basic: 'Usually a spreadsheet or separate CRM', marketplace: 'Built around bidding for platform jobs', clientflow: 'Leads, follow-up dates, proposals, and next actions in one flow' },
   { feature: 'Client relationship', basic: 'Client details sit apart from invoices', marketplace: 'Platform controls the relationship', clientflow: 'You own the client, conversation, work history, and data' },
   { feature: 'Proposals and delivery', basic: 'Often needs separate docs and project tools', marketplace: 'Limited to platform workflow', clientflow: 'Proposals, workrooms, approvals, and delivery proof stay connected' },
-  { feature: 'GST invoices', basic: 'May require manual tax fields or another tool', marketplace: 'Not designed for Indian GST invoices', clientflow: 'GSTIN, HSN/SAC, CGST/SGST/IGST, and PDF invoices' },
-  { feature: 'Getting paid', basic: 'Manual payment follow-up', marketplace: 'Platform-controlled payment flow', clientflow: 'Razorpay links, ₹ payments, invoice status, and reminder tools' },
-  { feature: 'Business visibility', basic: 'Income and client progress are fragmented', marketplace: 'Focuses on marketplace activity', clientflow: 'One view of leads, work, invoices, payments, and income goals' },
-  { feature: 'Your data', basic: 'Data is split between multiple services', marketplace: 'Platform account and rules apply', clientflow: 'Export invoices and client records anytime — no lock-in' }
+  { feature: 'GST & TDS tax compliance', basic: 'May require manual tax fields or another tool', marketplace: 'Not designed for Indian GST or 194J/194C TDS', clientflow: 'GSTIN, HSN/SAC, CGST/SGST/IGST, plus 194J/194C TDS calculation' },
+  { feature: 'Getting paid & retainers', basic: 'Manual payment follow-up', marketplace: 'Platform-controlled payment flow', clientflow: 'Razorpay links, ₹ & USD payments, monthly retainers, and reminder tools' },
+  { feature: 'Accountant handoff & export', basic: 'Manual copy-paste for tax filing', marketplace: 'Closed platform reporting', clientflow: '1-click Excel/CSV export for Tally, Zoho, and CA tax filing' },
+  { feature: 'Your data guarantee', basic: 'Data is split between multiple services', marketplace: 'Platform account and rules apply', clientflow: 'Read-only access & export guaranteed even if trial ends—no lock-in' }
 ];
 
 const indiaValueProps = [
   {
     icon: '📄',
-    title: 'GST-compliant invoices',
-    text: 'Add GSTIN, HSN/SAC codes, CGST/SGST/IGST auto-split. Generate invoices that follow Indian GST rules.'
+    title: 'GST & TDS ready',
+    text: 'Add GSTIN, HSN/SAC codes, CGST/SGST/IGST splits, and calculate 194J/194C TDS deductions automatically.'
   },
   {
     icon: '💳',
-    title: 'Razorpay payment links',
-    text: 'Accept UPI, debit/credit cards, netbanking, and wallets. No USD conversion. No international payment headaches.'
+    title: 'Razorpay + Multi-currency',
+    text: 'Accept UPI, debit/credit cards, netbanking for Indian clients, or collect in USD/EUR/GBP for global clients.'
   },
   {
-    icon: '₹',
-    title: 'Built for Rupees',
-    text: 'Pricing in ₹. Invoices in ₹. No exchange rate surprises. The entire system understands Indian currency.'
+    icon: '🔄',
+    title: 'Monthly retainer invoicing',
+    text: 'Schedule recurring invoices for retainer clients on monthly or weekly cycles so you never forget to bill.'
   },
   {
     icon: '🏢',
-    title: 'Udyam-registered business',
-    text: 'Not a side project. Registered under UDYAM-TN-37-0055272. Real business with real support.'
+    title: 'Udyam-registered & transparent',
+    text: 'Registered under UDYAM-TN-37-0055272. Daily backups, 256-bit encryption, and export to Excel for your CA anytime.'
   }
 ];
 
