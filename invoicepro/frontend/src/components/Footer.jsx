@@ -57,6 +57,7 @@ export default function Footer() {
               <Link className="transition-colors hover:text-yellow-300" to="/create-invoice">Invoices</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/payments">Plans and payments</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/gst-compliance">GST compliance</Link>
+              <Link className="transition-colors hover:text-yellow-300" to="/blog">Freelance Guides & Blog</Link>
               <Link className="transition-colors hover:text-yellow-300" to="/changelog">Product changelog</Link>
             </div>
           </div>

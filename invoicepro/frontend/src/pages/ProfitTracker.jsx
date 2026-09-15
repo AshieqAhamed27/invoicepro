@@ -214,6 +214,58 @@ export default function ProfitTracker() {
           ))}
         </section>
 
+        {/* ═══════ VISUAL PROFIT & REVENUE CHART ═══════ */}
+        <section className="mb-10 rounded-[2rem] border border-violet-500/20 bg-gradient-to-r from-violet-950/40 via-black to-fuchsia-950/20 p-6 shadow-2xl shadow-violet-500/10">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
+            <div>
+              <span className="violet-pill mb-2 inline-flex text-[10px]">Visual Breakdown</span>
+              <h2 className="text-xl font-black text-white sm:text-2xl">Financial Breakdown Chart</h2>
+            </div>
+            <div className="flex items-center gap-4 text-xs font-semibold text-zinc-400">
+              <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-emerald-400 inline-block" /> Revenue</span>
+              <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-rose-400 inline-block" /> Total Costs</span>
+              <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-violet-400 inline-block" /> Net Profit</span>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {/* Revenue Bar */}
+            <div>
+              <div className="flex justify-between text-xs font-bold text-zinc-300 mb-1.5">
+                <span>Client Revenue</span>
+                <span>{formatCurrency(numbers.revenue)} (100%)</span>
+              </div>
+              <div className="h-5 w-full rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/10">
+                <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500" style={{ width: '100%' }} />
+              </div>
+            </div>
+
+            {/* Total Costs Bar */}
+            <div>
+              <div className="flex justify-between text-xs font-bold text-zinc-300 mb-1.5">
+                <span>Total Costs (Collaborators + Tools + Fees + Expenses)</span>
+                <span>{formatCurrency(numbers.totalCosts)} ({numbers.revenue > 0 ? Math.round((numbers.totalCosts / numbers.revenue) * 100) : 0}%)</span>
+              </div>
+              <div className="h-5 w-full rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/10">
+                <div className="h-full rounded-full bg-gradient-to-r from-rose-500 to-amber-500 transition-all duration-500" style={{ width: `${Math.min(100, numbers.revenue > 0 ? (numbers.totalCosts / numbers.revenue) * 100 : 0)}%` }} />
+              </div>
+            </div>
+
+            {/* Net Profit Bar */}
+            <div>
+              <div className="flex justify-between text-xs font-bold text-zinc-300 mb-1.5">
+                <span>Net Take-Home Profit</span>
+                <span className={numbers.netProfit >= 0 ? 'text-violet-300 font-extrabold' : 'text-rose-400 font-extrabold'}>
+                  {formatCurrency(numbers.netProfit)} ({numbers.margin}%)
+                </span>
+              </div>
+              <div className="h-5 w-full rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/10">
+                <div className={`h-full rounded-full transition-all duration-500 ${numbers.netProfit >= 0 ? 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-400' : 'bg-rose-500'}`} style={{ width: `${Math.max(0, Math.min(100, numbers.revenue > 0 ? (numbers.netProfit / numbers.revenue) * 100 : 0))}%` }} />
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="grid gap-6 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
           <div className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-7">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

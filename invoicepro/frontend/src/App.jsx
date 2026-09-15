@@ -73,6 +73,7 @@ const WorkflowMode = lazy(() => import('./pages/WorkflowMode'));
 const InvoiceGenerator = lazy(() => import('./pages/InvoiceGenerator'));
 const HowToCreateInvoiceIndia = lazy(() => import('./pages/blog/HowToCreateInvoiceIndia'));
 const GSTInvoiceFormatIndia = lazy(() => import('./pages/blog/GSTInvoiceFormatIndia'));
+const BlogIndex = lazy(() => import('./pages/blog/BlogIndex'));
 const GSTCompliance = lazy(() => import('./pages/GSTCompliance'));
 const Changelog = lazy(() => import('./pages/Changelog'));
 const HowToUse = lazy(() => import('./pages/HowToUse'));
@@ -280,6 +281,15 @@ export default function App() {
           element={
             <Suspense fallback={<RouteLoader />}>
               <Home />
+            </Suspense>
+          }
+        />
+
+        <Route
+          path="/blog"
+          element={
+            <Suspense fallback={<RouteLoader />}>
+              <BlogIndex />
             </Suspense>
           }
         />

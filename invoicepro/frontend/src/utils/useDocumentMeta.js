@@ -7,7 +7,22 @@ const absoluteUrl = (path) => {
 };
 
 const setMeta = (selector, attribute, value) => {
-  const tag = document.querySelector(selector);
+  let tag = document.querySelector(selector);
+  if (!tag && value) {
+    if (selector.startsWith('link[')) {
+      tag = document.createElement('link');
+      const relMatch = selector.match(/rel="([^"]+)"/);
+      if (relMatch) tag.setAttribute('rel', relMatch[1]);
+      document.head.appendChild(tag);
+    } else {
+      tag = document.createElement('meta');
+      const nameMatch = selector.match(/name="([^"]+)"/);
+      const propMatch = selector.match(/property="([^"]+)"/);
+      if (nameMatch) tag.setAttribute('name', nameMatch[1]);
+      if (propMatch) tag.setAttribute('property', propMatch[1]);
+      document.head.appendChild(tag);
+    }
+  }
   if (tag && value) {
     tag.setAttribute(attribute, value);
   }
