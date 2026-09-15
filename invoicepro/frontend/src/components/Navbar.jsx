@@ -75,7 +75,7 @@ export default function Navbar() {
 
   const navClass = ({ isActive }) =>
     isActive
-      ? 'text-white bg-white/10 border-white/15'
+      ? 'text-white bg-violet-500/15 border-violet-500/35'
       : 'text-zinc-400 border-transparent hover:text-white hover:bg-white/[0.06]';
 
   const closeMenu = () => setMenuOpen(false);

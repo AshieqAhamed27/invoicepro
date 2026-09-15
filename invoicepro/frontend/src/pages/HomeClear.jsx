@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -72,7 +72,7 @@ const servicePaths = [
     fit: 'Choose this only when the trigger and useful result are clear.',
     cta: 'Open Payment Center',
     path: '/payments#setup-service-payments',
-    tone: 'cyan'
+    tone: 'violet'
   },
   {
     label: 'For an agency or company team',
@@ -81,7 +81,7 @@ const servicePaths = [
     fit: 'Choose this when multiple people need controlled access.',
     cta: 'Open Payment Center',
     path: '/payments#setup-service-payments',
-    tone: 'emerald'
+    tone: 'fuchsia'
   }
 ];
 
@@ -191,21 +191,51 @@ const structuredData = [
 
 const serviceTone = {
   yellow: {
-    border: 'border-yellow-300/30',
-    label: 'text-yellow-200',
-    button: 'bg-yellow-300 text-slate-950 hover:bg-yellow-200'
+    border: 'border-yellow-400/25',
+    label: 'text-yellow-300',
+    button: 'bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-950 hover:opacity-90'
   },
-  cyan: {
-    border: 'border-cyan-300/30',
-    label: 'text-cyan-200',
-    button: 'bg-cyan-300 text-slate-950 hover:bg-cyan-200'
+  violet: {
+    border: 'border-violet-500/25',
+    label: 'text-violet-300',
+    button: 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:opacity-90'
   },
-  emerald: {
-    border: 'border-emerald-300/30',
-    label: 'text-emerald-200',
-    button: 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
+  fuchsia: {
+    border: 'border-fuchsia-500/25',
+    label: 'text-fuchsia-300',
+    button: 'bg-gradient-to-r from-fuchsia-500 to-violet-500 text-white hover:opacity-90'
   }
 };
+
+// Scroll-reveal section wrapper using IntersectionObserver
+function RevealSection({ children, id, className = '' }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const srEls = el.querySelectorAll('.sr');
+    if (!srEls.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.07, rootMargin: '0px 0px -40px 0px' }
+    );
+    srEls.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <section ref={ref} id={id} className={className}>
+      {children}
+    </section>
+  );
+}
+
 
 export default function HomeClear() {
   const navigate = useNavigate();
@@ -238,220 +268,269 @@ export default function HomeClear() {
   const feedbackWhatsAppUrl = getWhatsAppShareUrl('Hi ClientFlow AI, I would like to share feedback about the product.', SUPPORT_WHATSAPP_PHONE);
 
   return (
-    <div className="min-h-screen bg-[#080b11] text-white">
+    <div className="min-h-screen bg-[#09090b] text-white">
       <Navbar />
 
       <main>
         {/* ═══════ HERO ═══════ */}
-        <section className="relative isolate overflow-hidden border-b border-white/10 bg-[#080b11]">
-          <img
-            src="/logo-1200.png"
-            alt=""
-            className="pointer-events-none absolute -right-24 top-1/2 z-0 h-[min(76vw,680px)] w-[min(76vw,680px)] -translate-y-1/2 object-contain opacity-[0.16] sm:-right-16"
-          />
-          <div className="container-custom relative z-10 flex min-h-[min(640px,calc(100svh-8rem))] items-center py-16 sm:py-20">
+        <section className="relative isolate overflow-hidden border-b border-violet-500/10 bg-[#09090b]">
+          {/* Floating orbs */}
+          <div className="orb orb-violet" style={{ width: 540, height: 540, top: '-140px', left: '-100px' }} aria-hidden="true" />
+          <div className="orb orb-fuchsia" style={{ width: 380, height: 380, top: '80px', right: '-80px' }} aria-hidden="true" />
+          <div className="orb orb-indigo" style={{ width: 320, height: 320, bottom: '-80px', left: '38%' }} aria-hidden="true" />
+
+          <div className="container-custom relative z-10 flex min-h-[min(660px,calc(100svh-8rem))] items-center py-20 sm:py-24">
             <div className="max-w-4xl">
-              <p className="text-xs font-black uppercase text-cyan-300">Built for Indian freelancers</p>
-              <h1 className="mt-5 text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">
-                Get clients. Get paid. Build a freelance career that earns more.
+              <span className="violet-pill mb-5 inline-flex gap-2">
+                <span className="relative flex h-2 w-2 shrink-0 mt-0.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-500" />
+                </span>
+                Built for Indian freelancers
+              </span>
+
+              <h1 className="mt-4 text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">
+                <span className="animated-gradient-text">Get clients.</span>{' '}
+                <span>Get paid.</span>{' '}
+                <span className="mt-1 block text-zinc-300">Build a freelance career that earns more.</span>
               </h1>
-              <p className="mt-6 max-w-2xl text-xl font-bold leading-relaxed text-zinc-200 sm:text-2xl">
-                One simple workspace for finding clients, winning work, sending GST invoices, and collecting payments.
+
+              <p className="mt-6 max-w-2xl text-xl font-semibold leading-relaxed text-zinc-300">
+                One workspace. Leads → proposals → GST invoices → Razorpay payments.
               </p>
-              <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-zinc-400">
+              <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-zinc-500">
                 Stop switching between spreadsheets, WhatsApp, invoice tools, and reminders. ClientFlow AI keeps your direct-client business in one clear flow.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button
                   type="button"
+                  id="hero-cta-btn"
                   onClick={() => startWorkspace('hero_start')}
-                  className="group relative rounded-lg bg-yellow-300 px-7 py-4 text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-100 shadow-lg shadow-yellow-300/10"
+                  className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-8 py-4 text-sm font-black uppercase text-white shadow-lg shadow-violet-500/25 transition hover:opacity-90 hover:scale-[1.02] hover:shadow-violet-500/40 focus:outline-none focus:ring-2 focus:ring-violet-400"
                 >
-                  {loggedIn ? 'Open Client Flow' : 'Start Free Access for 30 Days →'}
+                  {loggedIn ? 'Open Client Flow' : 'Start Free — 30 Days Unlocked →'}
                 </button>
                 <a
                   href="/payments"
-                  className="rounded-lg border border-white/15 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.09] focus:outline-none focus:ring-2 focus:ring-white/40"
+                  className="rounded-xl border border-white/10 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.08] hover:border-violet-500/25"
                 >
                   View pricing first
                 </a>
                 <Link
                   to="/how-to-use"
-                  className="rounded-lg border border-cyan-300/20 bg-cyan-300/[0.06] px-7 py-4 text-center text-sm font-black uppercase text-cyan-100 transition hover:bg-cyan-300/[0.12] focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                  className="rounded-xl border border-violet-500/20 bg-violet-500/[0.06] px-7 py-4 text-center text-sm font-black uppercase text-violet-200 transition hover:bg-violet-500/[0.12]"
                 >
                   See how it works
                 </Link>
               </div>
 
-              <p className="mt-5 text-sm font-bold text-zinc-500">{accessMessage}</p>
+              <p className="mt-5 text-sm font-bold text-zinc-600">{accessMessage}</p>
               {!loggedIn && (
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-emerald-300">
-                  If you like the product you can continue using paid version with best features to turn your freelancer career to a smart freelancer career.
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-violet-300/70">
+                  No credit card. No setup fee. All features free for 30 full days.
                 </p>
               )}
+
+              {/* Stats row */}
+              <div className="mt-10 flex flex-wrap gap-7 border-t border-white/[0.07] pt-8">
+                {[
+                  ['30 days', 'Full free access'],
+                  ['₹0', 'No card required'],
+                  ['GST + TDS', 'India tax ready'],
+                  ['Razorpay', 'UPI · Cards · Net']
+                ].map(([stat, label]) => (
+                  <div key={stat}>
+                    <p className="text-lg font-black text-white">{stat}</p>
+                    <p className="text-xs font-semibold text-zinc-600">{label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="border-b border-white/10 bg-[#0a0e15] py-14 sm:py-16">
+        {/* ═══════ WHY CLIENTFLOW ═══════ */}
+        <RevealSection className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
           <div className="container-custom">
-            <div className="max-w-3xl"><p className="text-xs font-black uppercase text-cyan-300">Why use ClientFlow AI?</p><h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Everything a freelancer needs to turn work into income.</h2><p className="mt-4 text-base font-medium leading-7 text-zinc-400">Most tools solve only one small part of freelancing. ClientFlow AI connects the client journey from the first message to payment.</p></div>
-            <div className="mt-9 grid gap-5 md:grid-cols-3">{whyClientFlow.map(([title, text], index) => <article key={title} className="rounded-2xl border border-white/10 bg-white/[0.035] p-6"><p className="text-xs font-black text-yellow-300">0{index + 1}</p><h3 className="mt-4 text-xl font-black text-white">{title}</h3><p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{text}</p></article>)}</div>
+            <div className="max-w-3xl sr">
+              <span className="violet-pill">Why use ClientFlow AI?</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Everything a freelancer needs to turn work into income.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Most tools solve only one small part of freelancing. ClientFlow AI connects the client journey from the first message to payment.</p>
+            </div>
+            <div className="mt-10 grid gap-5 md:grid-cols-3">
+              {whyClientFlow.map(([title, text], index) => (
+                <article key={title} className={`glow-card p-7 sr sr-delay-${index + 1}`}>
+                  <p className="font-mono text-sm font-black text-violet-400">0{index + 1}</p>
+                  <h3 className="mt-4 text-xl font-black text-white">{title}</h3>
+                  <p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{text}</p>
+                </article>
+              ))}
+            </div>
           </div>
-        </section>
+        </RevealSection>
 
-        <section className="border-b border-emerald-300/15 bg-emerald-300/[0.04] py-10">
+        {/* ═══════ FEEDBACK BAR ═══════ */}
+        <RevealSection className="border-b border-violet-500/12 bg-violet-500/[0.04] py-10">
           <div className="container-custom flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-widest text-emerald-200">Built with freelancers</p>
+            <div className="sr">
+              <span className="violet-pill mb-3 inline-flex">Built with freelancers</span>
               <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">Have an idea, a problem, or feedback? Message us directly.</h2>
               <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-zinc-300">Your feedback goes straight to the ClientFlow AI team on WhatsApp — no support ticket required.</p>
             </div>
-            <a href={feedbackWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-lg bg-emerald-300 px-5 py-3 text-center text-sm font-black uppercase text-slate-950 transition hover:bg-emerald-200">Send feedback on WhatsApp</a>
+            <a href={feedbackWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="sr shrink-0 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-center text-sm font-black uppercase text-white shadow-md shadow-violet-500/20 transition hover:opacity-90">
+              Send feedback on WhatsApp
+            </a>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ WHAT'S FREE ═══════ */}
-        <section id="whats-free" className="border-b border-white/10 bg-[#080b11] py-14 sm:py-18">
+        <RevealSection id="whats-free" className="border-b border-white/[0.07] bg-[#09090b] py-16 sm:py-20">
           <div className="container-custom">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-sky-300">Everything free for 30 days</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">All features. Zero payment. 30 full days.</h2>
+            <div className="max-w-3xl sr">
+              <span className="violet-pill">Everything free for 30 days</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">All features. Zero payment. 30 full days.</h2>
               <p className="mt-4 text-base font-medium leading-7 text-zinc-400">When you sign up, every single feature is unlocked for 30 days — no credit card, no setup fee, no hidden charges. Not just basic invoicing. Everything.</p>
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {freeIncludes.map((item) => (
-                <div key={item.title} className="flex gap-4 rounded-2xl border border-white/8 bg-white/[0.025] p-5 hover:border-sky-300/20 transition-colors">
-                  <span className="text-2xl shrink-0">{item.icon}</span>
+              {freeIncludes.map((item, i) => (
+                <div key={item.title} className={`glow-card p-5 flex gap-4 sr sr-delay-${Math.min(i + 1, 6)}`}>
+                  <span className="mt-0.5 shrink-0 text-2xl">{item.icon}</span>
                   <div>
                     <h3 className="text-sm font-black text-white">{item.title}</h3>
-                    <p className="mt-1 text-xs font-medium leading-5 text-zinc-400">{item.text}</p>
+                    <p className="mt-1.5 text-xs font-medium leading-5 text-zinc-400">{item.text}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sr">
               <Link
                 to="/signup"
-                className="rounded-lg bg-sky-300 px-7 py-4 text-center text-sm font-black uppercase text-slate-950 transition hover:bg-sky-200"
+                className="rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-8 py-4 text-center text-sm font-black uppercase text-white shadow-lg shadow-violet-500/20 transition hover:opacity-90 hover:shadow-violet-500/35"
               >
                 Start Free — All Features Unlocked →
               </Link>
-              <Link to="/payments" className="rounded-lg border border-white/15 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.09]">
+              <Link to="/payments" className="rounded-xl border border-white/10 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.08] hover:border-violet-500/20">
                 See paid plans after trial
               </Link>
             </div>
-            <p className="mt-4 text-xs font-semibold text-zinc-500">No credit card required. After 30 days, pay ₹499/month to continue — or export your data and leave. Your choice.</p>
+            <p className="mt-4 text-xs font-semibold text-zinc-700">No credit card required. After 30 days, pay ₹499/month to continue — or export your data and leave. Your choice.</p>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ CLEAR PRICING ═══════ */}
-        <section id="pricing" className="border-b border-white/10 bg-[#0d1119] py-16 sm:py-20">
+        <RevealSection id="pricing" className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
           <div className="container-custom">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-yellow-300">Simple pricing after the free trial</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Try everything free. Pay only when it works for you.</h2>
+            <div className="max-w-3xl sr">
+              <span className="violet-pill">Simple pricing after the free trial</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Try everything free. Pay only when it works for you.</h2>
               <p className="mt-4 text-base font-medium leading-7 text-zinc-400">No commission on your client payments. No card required for the 30-day free trial. Every feature — Agency Setup, Automation, AI tools, and Team features — is included free.</p>
             </div>
-            <div className="mt-10 grid gap-5 md:grid-cols-2">
-              <div className="rounded-2xl border-2 border-sky-300/50 bg-sky-300/[0.08] p-7 flex flex-col justify-between relative">
-                <span className="absolute -top-3 left-5 rounded-full bg-sky-300 px-3 py-1 text-[10px] font-black uppercase text-slate-950">Start Here</span>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              {/* Free tier */}
+              <div className="relative flex flex-col justify-between rounded-2xl border-2 border-violet-500/35 p-7 sr sr-delay-1" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10), rgba(9,9,11,0.95) 60%, rgba(232,121,249,0.05))' }}>
+                <span className="absolute -top-3.5 left-5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-1 text-[10px] font-black uppercase text-white shadow-lg shadow-violet-500/30">Start Here</span>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-sky-200">30-Day Free Trial</p>
-                  <h3 className="mt-3 text-4xl font-black text-white">₹0</h3>
-                  <p className="mt-1 text-sm font-semibold text-sky-300">No credit card. No setup fee.</p>
-                  <ul className="mt-5 space-y-2">
+                  <p className="text-xs font-black uppercase tracking-widest text-violet-300">30-Day Free Trial</p>
+                  <h3 className="mt-3 text-5xl font-black text-white">₹0</h3>
+                  <p className="mt-1 text-sm font-semibold text-violet-300/80">No credit card. No setup fee.</p>
+                  <ul className="mt-6 space-y-2.5">
                     {['GST invoicing & Razorpay payment links', 'Lead pipeline & proposal templates', 'Automation & payment reminders', 'Team workrooms & agency features', 'AI Proposal Generator & Client Coach', 'TDS calculation & CA-ready Excel export'].map(f => (
-                      <li key={f} className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
-                        <span className="h-1.5 w-1.5 rounded-full bg-sky-400 shrink-0" />{f}
+                      <li key={f} className="flex items-center gap-2.5 text-xs font-semibold text-zinc-200">
+                        <svg className="h-4 w-4 shrink-0 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                        {f}
                       </li>
                     ))}
                   </ul>
                 </div>
-                <div className="mt-6">
-                  <Link to="/signup" className="block w-full rounded-lg bg-sky-300 px-5 py-4 text-center text-sm font-black uppercase text-slate-950 transition hover:bg-sky-200">
+                <div className="mt-7">
+                  <Link to="/signup" className="block w-full rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-5 py-4 text-center text-sm font-black uppercase text-white shadow-lg shadow-violet-500/25 transition hover:opacity-90">
                     Start Free Access for 30 Days →
                   </Link>
-                  <p className="mt-3 text-xs font-semibold leading-5 text-emerald-300">
-                    If you like the product, continue with paid Pro version to turn your freelancer career into a smart, growing business.
+                  <p className="mt-3 text-xs font-semibold leading-5 text-violet-300/60">
+                    If you like the product, continue with paid Pro to grow your freelance career.
                   </p>
                 </div>
               </div>
-              <div className="rounded-2xl border border-yellow-300/35 bg-yellow-300/[0.08] p-7 flex flex-col justify-between">
+              {/* Pro tier */}
+              <div className="flex flex-col justify-between rounded-2xl border border-amber-400/22 p-7 sr sr-delay-2" style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.07), rgba(9,9,11,0.95) 60%, rgba(168,85,247,0.05))' }}>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-yellow-200">Pro — After Free Trial</p>
-                  <h3 className="mt-3 text-4xl font-black text-white">₹499<span className="text-lg font-bold text-zinc-400">/month</span></h3>
-                  <p className="mt-1 text-sm font-semibold text-yellow-300">Everything in Free Trial, forever.</p>
-                  <ul className="mt-5 space-y-2">
-                    {['All free trial features, continued', 'Unlimited invoices & clients', 'Priority support', 'Annual plan available at ₹4,999/yr (2 months free)', 'Founder 90-day pass at ₹899 (save 40%)'].map(f => (
-                      <li key={f} className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
-                        <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 shrink-0" />{f}
+                  <p className="text-xs font-black uppercase tracking-widest text-amber-300">Pro — After Free Trial</p>
+                  <h3 className="mt-3 text-5xl font-black text-white">₹499<span className="text-xl font-bold text-zinc-600">/month</span></h3>
+                  <p className="mt-1 text-sm font-semibold text-amber-300/80">Everything in Free Trial, forever.</p>
+                  <ul className="mt-6 space-y-2.5">
+                    {['All free trial features, continued', 'Unlimited invoices & clients', 'Priority support', 'Annual plan at ₹4,999/yr (2 months free)', 'Founder 90-day pass at ₹899 (save 40%)'].map(f => (
+                      <li key={f} className="flex items-center gap-2.5 text-xs font-semibold text-zinc-200">
+                        <svg className="h-4 w-4 shrink-0 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                        {f}
                       </li>
                     ))}
                   </ul>
                 </div>
-                <div className="mt-6">
-                  <Link to="/payments" className="block w-full rounded-lg bg-yellow-300 px-5 py-4 text-center text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200">See all paid plans</Link>
+                <div className="mt-7">
+                  <Link to="/payments" className="block w-full rounded-xl bg-gradient-to-r from-amber-400 to-yellow-300 px-5 py-4 text-center text-sm font-black uppercase text-zinc-950 shadow-lg shadow-amber-400/20 transition hover:opacity-90">See all paid plans</Link>
                 </div>
               </div>
             </div>
           </div>
-        </section>
+        </RevealSection>
 
-        {/* ═══════ TRUST BADGES BAR ═══════ */}
-        <section className="border-b border-white/10 bg-[#0a0e15]">
-          <div className="container-custom py-6">
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {trustBadges.map((badge) => (
-                <div key={badge.label} className="flex flex-col items-center gap-1 text-center">
+        {/* ═══════ TRUST BADGES ═══════ */}
+        <RevealSection className="border-b border-white/[0.07] bg-[#09090b]">
+          <div className="container-custom py-7">
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+              {trustBadges.map((badge, i) => (
+                <div key={badge.label} className={`flex flex-col items-center gap-1.5 text-center sr sr-delay-${i + 1}`}>
                   <p className="text-sm font-black text-white">{badge.label}</p>
-                  <p className="text-xs font-medium text-zinc-500">{badge.detail}</p>
+                  <p className="text-xs font-medium text-zinc-600">{badge.detail}</p>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ INVOICE PREVIEW ═══════ */}
-        <section className="border-b border-white/10 py-16 sm:py-20">
-          <div className="container-custom grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-            <div>
-              <p className="text-xs font-black uppercase text-cyan-300">See the output first</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">A clean invoice your client can trust.</h2>
+        <RevealSection className="border-b border-white/[0.07] py-16 sm:py-20">
+          <div className="container-custom grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+            <div className="sr sr-left">
+              <span className="violet-pill">See the output first</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">A clean invoice your client can trust.</h2>
               <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Preview the PDF-style layout before you sign up: your business details, GST fields, line items, totals, and payment details stay easy to read.</p>
-              <Link to="/gst-compliance" className="mt-6 inline-flex rounded-lg border border-white/15 px-5 py-3 text-sm font-black uppercase text-white transition hover:bg-white/[0.06]">Read GST details</Link>
+              <Link to="/gst-compliance" className="mt-6 inline-flex rounded-xl border border-violet-500/20 bg-violet-500/[0.06] px-5 py-3 text-sm font-black uppercase text-violet-200 transition hover:bg-violet-500/[0.12]">Read GST details</Link>
             </div>
-            <div className="rounded-2xl bg-zinc-200 p-4 shadow-2xl shadow-black/30 sm:p-7">
-              <div className="min-h-[430px] rounded bg-white p-6 text-slate-800 shadow-lg sm:p-9">
-                <div className="flex items-start justify-between border-b border-slate-200 pb-6">
-                  <div><p className="text-xl font-black">YOUR STUDIO</p><p className="mt-1 text-xs text-slate-500">GSTIN: 33ABCDE1234F1Z5</p></div>
-                  <div className="text-right"><p className="text-2xl font-black text-slate-950">INVOICE</p><p className="mt-1 text-xs text-slate-500">INV-2026-014</p></div>
+            <div className="sr sr-right rounded-2xl bg-zinc-100 p-4 shadow-2xl shadow-violet-500/10 sm:p-7">
+              <div className="min-h-[430px] rounded-xl bg-white p-6 text-slate-800 shadow-xl sm:p-9">
+                <div className="flex items-start justify-between border-b border-slate-100 pb-6">
+                  <div><p className="text-xl font-black text-slate-900">YOUR STUDIO</p><p className="mt-1 text-xs text-slate-400">GSTIN: 33ABCDE1234F1Z5</p></div>
+                  <div className="text-right"><p className="text-2xl font-black text-slate-900">INVOICE</p><p className="mt-1 text-xs text-slate-400">INV-2026-014</p></div>
                 </div>
-                <div className="mt-7 grid grid-cols-2 gap-6 text-xs"><div><p className="font-bold text-slate-400">BILL TO</p><p className="mt-2 font-black">Acme Creative Pvt. Ltd.</p><p className="mt-1 text-slate-500">Chennai, Tamil Nadu</p></div><div className="text-right"><p className="font-bold text-slate-400">DUE DATE</p><p className="mt-2 font-black">30 Aug 2026</p><p className="mt-1 text-slate-500">Payment via UPI / Razorpay</p></div></div>
-                <div className="mt-8 border-y border-slate-200 py-3 text-xs font-bold text-slate-400"><div className="grid grid-cols-[1fr_auto] gap-4"><span>Service</span><span>Amount</span></div></div>
-                <div className="py-4 text-sm"><div className="grid grid-cols-[1fr_auto] gap-4"><div><p className="font-black">Website design — milestone 1</p><p className="mt-1 text-xs text-slate-500">HSN/SAC: 998313</p></div><span className="font-black">₹25,000</span></div></div>
-                <div className="ml-auto mt-3 max-w-[15rem] border-t border-slate-200 pt-3 text-sm"><div className="flex justify-between text-slate-500"><span>GST</span><span>₹4,500</span></div><div className="mt-3 flex justify-between text-lg font-black"><span>Total due</span><span>₹29,500</span></div></div>
-                <p className="mt-9 border-t border-slate-200 pt-4 text-xs text-slate-500">Thank you for your business. This is a visual preview of the invoice PDF layout.</p>
+                <div className="mt-7 grid grid-cols-2 gap-6 text-xs">
+                  <div><p className="font-bold text-slate-400">BILL TO</p><p className="mt-2 font-black text-slate-900">Acme Creative Pvt. Ltd.</p><p className="mt-1 text-slate-400">Chennai, Tamil Nadu</p></div>
+                  <div className="text-right"><p className="font-bold text-slate-400">DUE DATE</p><p className="mt-2 font-black text-slate-900">30 Aug 2026</p><p className="mt-1 text-slate-400">Via UPI / Razorpay</p></div>
+                </div>
+                <div className="mt-8 border-y border-slate-100 py-3 text-xs font-bold text-slate-400"><div className="grid grid-cols-[1fr_auto] gap-4"><span>Service</span><span>Amount</span></div></div>
+                <div className="py-4 text-sm"><div className="grid grid-cols-[1fr_auto] gap-4"><div><p className="font-black text-slate-900">Website design — milestone 1</p><p className="mt-1 text-xs text-slate-400">HSN/SAC: 998313</p></div><span className="font-black text-slate-900">₹25,000</span></div></div>
+                <div className="ml-auto mt-3 max-w-[15rem] border-t border-slate-100 pt-3 text-sm">
+                  <div className="flex justify-between text-slate-400"><span>GST 18%</span><span>₹4,500</span></div>
+                  <div className="mt-3 flex justify-between text-lg font-black text-slate-900"><span>Total due</span><span>₹29,500</span></div>
+                </div>
+                <p className="mt-9 border-t border-slate-100 pt-4 text-xs text-slate-400">Thank you for your business. This is a visual preview of the invoice layout.</p>
               </div>
             </div>
           </div>
-        </section>
+        </RevealSection>
 
-        {/* ═══════ INDIA-SPECIFIC VALUE PROPS ═══════ */}
-        <section className="border-b border-white/10 bg-[#0d1119] py-16 sm:py-20">
+        {/* ═══════ INDIA VALUE PROPS ═══════ */}
+        <RevealSection className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
           <div className="container-custom">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-yellow-300">Why Indian freelancers choose this</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Built for how you actually work in India.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                Most freelancer tools are built for US/EU markets. ClientFlow AI is built for Indian currency, Indian tax rules, and Indian payment methods.
-              </p>
+            <div className="max-w-3xl sr">
+              <span className="violet-pill">Why Indian freelancers choose this</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Built for how you actually work in India.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Most freelancer tools are built for US/EU markets. ClientFlow AI is built for Indian currency, Indian tax rules, and Indian payment methods.</p>
             </div>
-
             <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {indiaValueProps.map((prop) => (
-                <div key={prop.title} className="rounded-lg border border-white/10 bg-white/[0.035] p-6 transition-colors hover:border-yellow-300/20 hover:bg-yellow-300/[0.03]">
+              {indiaValueProps.map((prop, i) => (
+                <div key={prop.title} className={`glow-card p-6 sr sr-delay-${i + 1}`}>
                   <span className="text-3xl" role="img" aria-label={prop.title}>{prop.icon}</span>
                   <h3 className="mt-4 text-lg font-black leading-snug text-white">{prop.title}</h3>
                   <p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{prop.text}</p>
@@ -459,177 +538,163 @@ export default function HomeClear() {
               ))}
             </div>
           </div>
-        </section>
+        </RevealSection>
 
-        <section className="border-b border-white/10 bg-emerald-300/[0.04] py-12">
+        {/* Data safety bar */}
+        <RevealSection className="border-b border-violet-500/10 bg-violet-500/[0.03] py-12">
           <div className="container-custom flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div><p className="text-xs font-black uppercase tracking-widest text-emerald-200">Your data stays yours</p><p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-zinc-300">Export your invoices and client records anytime. No lock-in: your business history should remain portable even if you stop using ClientFlow AI.</p></div>
-            <Link to="/security" className="shrink-0 text-sm font-black uppercase text-emerald-200 hover:text-white">Our data promise →</Link>
+            <div className="sr">
+              <span className="violet-pill mb-3 inline-flex">Your data stays yours</span>
+              <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-zinc-300">Export your invoices and client records anytime. No lock-in: your business history should remain portable even if you stop using ClientFlow AI.</p>
+            </div>
+            <Link to="/security" className="sr shrink-0 text-sm font-black uppercase text-violet-300 transition-colors hover:text-white">Our data promise →</Link>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ HOW IT WORKS ═══════ */}
-        <section id="how-it-works" className="border-b border-white/10 py-16 sm:py-20">
+        <RevealSection id="how-it-works" className="border-b border-white/[0.07] py-16 sm:py-20">
           <div className="container-custom">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-yellow-300">How it works</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">One workflow from lead to payment.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                Start with the step you need today. The product keeps the rest of the client journey connected.
-              </p>
+            <div className="max-w-3xl sr">
+              <span className="violet-pill">How it works</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">One workflow from lead to payment.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Start with the step you need today. The product keeps the rest of the client journey connected.</p>
             </div>
-
             <div className="mt-10 grid gap-x-7 gap-y-8 md:grid-cols-2 xl:grid-cols-5">
-              {workflowSteps.map(([step, title, text]) => (
-                <div key={step} className="border-t-2 border-white/15 pt-5">
-                  <p className="font-mono text-sm font-black text-yellow-300">{step}</p>
+              {workflowSteps.map(([step, title, text], i) => (
+                <div key={step} className={`relative border-t-2 border-violet-500/25 pt-5 sr sr-delay-${Math.min(i + 1, 5)}`}>
+                  <div className="absolute -top-px left-0 h-0.5 w-14 bg-gradient-to-r from-violet-500 to-fuchsia-500" />
+                  <p className="font-mono text-sm font-black text-violet-400">{step}</p>
                   <h3 className="mt-3 text-lg font-black leading-snug text-white">{title}</h3>
                   <p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{text}</p>
                 </div>
               ))}
             </div>
-
             <button
               type="button"
               onClick={() => startWorkspace('workflow_start')}
-              className="mt-10 rounded-lg bg-white px-6 py-3 text-sm font-black uppercase text-slate-950 transition hover:bg-zinc-200"
+              className="mt-10 sr rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-7 py-4 text-sm font-black uppercase text-white shadow-lg shadow-violet-500/20 transition hover:opacity-90"
             >
-              {loggedIn ? 'Continue your workflow' : 'Create your workspace'}
+              {loggedIn ? 'Continue your workflow' : 'Create your workspace →'}
             </button>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ MID-PAGE TRIAL PROMPT ═══════ */}
         {!loggedIn && (
-          <section className="border-b border-yellow-300/20 bg-gradient-to-r from-yellow-300/[0.06] via-[#0d1119] to-yellow-300/[0.06] py-12 sm:py-14">
-            <div className="container-custom flex flex-col items-center gap-6 text-center lg:flex-row lg:justify-between lg:text-left">
-              <div className="max-w-2xl">
+          <RevealSection className="relative overflow-hidden border-b border-violet-500/18 py-14 sm:py-16">
+            <div className="aurora-bar" aria-hidden="true" />
+            <div className="container-custom relative flex flex-col items-center gap-6 text-center lg:flex-row lg:justify-between lg:text-left">
+              <div className="max-w-2xl sr">
                 <h2 className="text-2xl font-black text-white sm:text-3xl">You've read enough. Try it with one real client.</h2>
-                <p className="mt-3 text-base font-medium text-zinc-400">
-                  Your first invoice, proposal, or lead entry is free. No card required. No commitment. Just add one real piece of work and see if the workflow fits.
-                </p>
+                <p className="mt-3 text-base font-medium text-zinc-400">Your first invoice, proposal, or lead entry is free. No card required. No commitment. Just add one real piece of work and see if the workflow fits.</p>
               </div>
               <button
                 type="button"
                 onClick={() => startWorkspace('midpage_trial')}
-                className="shrink-0 rounded-lg bg-yellow-300 px-8 py-4 text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200"
+                className="sr shrink-0 rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-9 py-5 text-sm font-black uppercase text-white shadow-lg shadow-violet-500/25 transition hover:opacity-90"
               >
                 Start 30 Days Free →
               </button>
             </div>
-          </section>
+          </RevealSection>
         )}
 
-
-
         {/* ═══════ FEATURE COMPARISON ═══════ */}
-        <section id="comparison" className="border-b border-white/10 bg-[#0d1119] py-16 sm:py-20">
+        <RevealSection id="comparison" className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
           <div className="container-custom">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-cyan-300">Why these features belong together</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">More than invoicing. A complete client-to-cash system.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                Most products solve one task at a time. We include these features so you can manage a direct client from the first follow-up to the final payment without losing context or paying marketplace commission.
-              </p>
+            <div className="max-w-3xl sr">
+              <span className="violet-pill">Why these features belong together</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">More than invoicing. A complete client-to-cash system.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Most products solve one task at a time. We include these features so you can manage a direct client from the first follow-up to the final payment without losing context or paying marketplace commission.</p>
             </div>
-
-            <div className="mt-10 overflow-x-auto">
+            <div className="mt-10 overflow-x-auto rounded-2xl border border-violet-500/15 sr">
               <table className="w-full min-w-[820px] border-collapse text-sm">
                 <thead>
-                  <tr className="border-b-2 border-white/15">
-                    <th className="py-4 pr-6 text-left font-black uppercase text-zinc-500">Feature</th>
+                  <tr className="border-b-2 border-violet-500/18" style={{ background: 'rgba(139,92,246,0.05)' }}>
+                    <th className="py-4 pl-5 pr-6 text-left font-black uppercase text-zinc-500">Feature</th>
                     <th className="py-4 pr-6 text-left font-black uppercase text-zinc-500">Basic invoice tools</th>
                     <th className="py-4 pr-6 text-left font-black uppercase text-zinc-500">Marketplaces</th>
-                    <th className="py-4 text-left font-black uppercase text-emerald-300">ClientFlow AI</th>
+                    <th className="py-4 pr-5 text-left font-black uppercase text-violet-300">ClientFlow AI</th>
                   </tr>
                 </thead>
                 <tbody>
                   {comparisonRows.map((row) => (
-                    <tr key={row.feature} className="border-b border-white/10">
-                      <td className="py-4 pr-6 font-bold text-white">{row.feature}</td>
-                      <td className="py-4 pr-6 font-medium text-zinc-400">{row.basic}</td>
-                      <td className="py-4 pr-6 font-medium text-zinc-400">{row.marketplace}</td>
-                      <td className="py-4 font-bold text-emerald-200">{row.clientflow}</td>
+                    <tr key={row.feature} className="border-b border-violet-500/8 transition-colors hover:bg-violet-500/[0.04]">
+                      <td className="py-4 pl-5 pr-6 font-bold text-white">{row.feature}</td>
+                      <td className="py-4 pr-6 font-medium text-zinc-500">{row.basic}</td>
+                      <td className="py-4 pr-6 font-medium text-zinc-500">{row.marketplace}</td>
+                      <td className="py-4 pr-5 font-bold text-violet-200">{row.clientflow}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ FIRST TEN MINUTES ═══════ */}
-        <section className="border-b border-white/10 py-16 sm:py-20">
+        <RevealSection className="border-b border-white/[0.07] py-16 sm:py-20">
           <div className="container-custom grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-            <div>
-              <p className="text-xs font-black uppercase text-cyan-300">Your first ten minutes</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">Do one real task first.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                You do not need to configure every feature. A useful account begins with one real lead, proposal, project, or invoice.
-              </p>
+            <div className="sr sr-left">
+              <span className="violet-pill">Your first ten minutes</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">Do one real task first.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">You do not need to configure every feature. A useful account begins with one real lead, proposal, project, or invoice.</p>
             </div>
-
-            <ol className="grid gap-4">
+            <ol className="sr sr-right grid gap-5">
               {[
                 ['Create your free account', 'Your client work and 30-day free access are attached to one secure workspace.'],
                 ['Open Client Flow', 'Choose the stage that matches your real work today — a lead to follow up, a proposal to send, or an invoice to create.'],
                 ['Complete one next action', 'Add the lead, send the proposal, organize delivery, or create the invoice. The system shows what to do next.']
               ].map(([title, text], index) => (
-                <li key={title} className="grid grid-cols-[2.5rem_1fr] gap-4 border-b border-white/10 pb-4 last:border-0">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-300 text-sm font-black text-slate-950">{index + 1}</span>
+                <li key={title} className="grid grid-cols-[3rem_1fr] gap-5 border-b border-violet-500/12 pb-5 last:border-0">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-sm font-black text-white shadow-lg shadow-violet-500/20">{index + 1}</span>
                   <div>
                     <h3 className="text-lg font-black text-white">{title}</h3>
-                    <p className="mt-1 text-sm font-medium leading-6 text-zinc-400">{text}</p>
+                    <p className="mt-1.5 text-sm font-medium leading-6 text-zinc-400">{text}</p>
                   </div>
                 </li>
               ))}
             </ol>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ FREELANCER PROTECTION ═══════ */}
-        <section id="freelancer-protection" className="border-b border-white/10 bg-[#0d1119] py-16 sm:py-20">
+        <RevealSection id="freelancer-protection" className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
           <div className="container-custom">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-red-300">Freelancer protection</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Protect scope, proof, and payment.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                The workflow is useful before a problem becomes a dispute, not only after an invoice is overdue.
-              </p>
+            <div className="max-w-3xl sr">
+              <span className="violet-pill" style={{ borderColor: 'rgba(248,113,113,0.3)', background: 'rgba(239,68,68,0.07)', color: '#fca5a5' }}>Freelancer protection</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Protect scope, proof, and payment.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">The workflow is useful before a problem becomes a dispute, not only after an invoice is overdue.</p>
             </div>
-
             <div className="mt-10 grid gap-5 md:grid-cols-3">
-              {protectionItems.map((item) => (
-                <div key={item.title} className="rounded-lg border border-white/10 bg-white/[0.035] p-6">
+              {protectionItems.map((item, i) => (
+                <div key={item.title} className={`glow-card p-7 sr sr-delay-${i + 1}`}>
                   <h3 className="text-xl font-black leading-snug text-white">{item.title}</h3>
                   <p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{item.text}</p>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ SERVICES ═══════ */}
-        <section id="services" className="border-b border-white/10 py-16 sm:py-20">
+        <RevealSection id="services" className="border-b border-white/[0.07] py-16 sm:py-20">
           <div className="container-custom">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-zinc-500">Optional paid help</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Use the software yourself, or ask us to set up a specific part.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                Start with the free software first. The Payment Center keeps software plans and setup services in one place so users do not hunt through separate payment pages.
-              </p>
+            <div className="max-w-3xl sr">
+              <span className="violet-pill" style={{ borderColor: 'rgba(161,161,170,0.2)', background: 'rgba(161,161,170,0.04)', color: '#a1a1aa' }}>Optional paid help</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Use the software yourself, or ask us to set up a specific part.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Start with the free software first. The Payment Center keeps software plans and setup services in one place so users do not hunt through separate payment pages.</p>
             </div>
-
             <div className="mt-10 grid gap-5 lg:grid-cols-3">
-              {servicePaths.map((service) => {
+              {servicePaths.map((service, i) => {
                 const tone = serviceTone[service.tone];
                 return (
-                  <article key={service.title} className={`flex min-h-[390px] flex-col rounded-lg border bg-black/25 p-6 ${tone.border}`}>
+                  <article key={service.title} className={`flex min-h-[390px] flex-col rounded-2xl border p-7 sr sr-delay-${i + 1} ${tone.border}`} style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.05), rgba(9,9,11,0.92))' }}>
                     <p className={`text-xs font-black uppercase ${tone.label}`}>{service.label}</p>
                     <h3 className="mt-4 text-2xl font-black text-white">{service.title}</h3>
                     <p className="mt-4 text-sm font-medium leading-6 text-zinc-400">{service.text}</p>
-                    <p className="mt-5 border-l-2 border-white/20 pl-4 text-sm font-bold leading-6 text-zinc-200">{service.fit}</p>
-                    <Link to={service.path} className={`mt-auto rounded-lg px-5 py-3 text-center text-sm font-black uppercase transition ${tone.button}`}>
+                    <p className="mt-5 border-l-2 border-violet-500/22 pl-4 text-sm font-bold leading-6 text-zinc-300">{service.fit}</p>
+                    <Link to={service.path} className={`mt-auto rounded-xl px-5 py-3 text-center text-sm font-black uppercase transition ${tone.button}`}>
                       {service.cta}
                     </Link>
                   </article>
@@ -637,26 +702,25 @@ export default function HomeClear() {
               })}
             </div>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ WHO IT'S FOR ═══════ */}
-        <section id="who-for" className="border-b border-white/10 bg-[#0d1119] py-16 sm:py-20">
+        <RevealSection id="who-for" className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
           <div className="container-custom grid gap-12 lg:grid-cols-2">
-            <div>
-              <p className="text-xs font-black uppercase text-emerald-300">Who it is for</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">Anyone selling a service directly to clients in India.</h2>
+            <div className="sr sr-left">
+              <span className="violet-pill" style={{ borderColor: 'rgba(110,231,183,0.28)', background: 'rgba(52,211,153,0.07)', color: '#6ee7b7' }}>Who it is for</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">Anyone selling a service directly to clients in India.</h2>
               <div className="mt-8 grid gap-5 sm:grid-cols-2">
-                {audienceGroups.map(([title, text]) => (
-                  <div key={title} className="border-t border-white/15 pt-4">
+                {audienceGroups.map(([title, text], i) => (
+                  <div key={title} className={`border-t border-violet-500/18 pt-4 sr sr-delay-${i + 1}`}>
                     <h3 className="text-base font-black text-white">{title}</h3>
                     <p className="mt-2 text-sm font-medium leading-6 text-zinc-400">{text}</p>
                   </div>
                 ))}
               </div>
             </div>
-
-            <div className="rounded-lg border border-yellow-300/20 bg-yellow-300/[0.055] p-6 sm:p-8">
-              <p className="text-xs font-black uppercase text-yellow-200">What it is not</p>
+            <div className="rounded-2xl border border-amber-400/18 p-7 sm:p-9 sr sr-right" style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.055), rgba(9,9,11,0.92))' }}>
+              <p className="text-xs font-black uppercase text-amber-300">What it is not</p>
               <ul className="mt-6 grid gap-5 text-sm font-medium leading-6 text-zinc-300">
                 <li><strong className="text-white">Not a job marketplace.</strong> It does not provide guaranteed gigs or client leads.</li>
                 <li><strong className="text-white">Not only an invoice maker.</strong> Billing is one step in the complete client workflow.</li>
@@ -665,30 +729,27 @@ export default function HomeClear() {
               </ul>
             </div>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ TRUST & FAQ ═══════ */}
-        <section className="border-b border-white/10 py-16 sm:py-20">
+        <RevealSection className="border-b border-white/[0.07] py-16 sm:py-20">
           <div className="container-custom grid gap-12 lg:grid-cols-[0.85fr_1.15fr]">
-            <div>
-              <p className="text-xs font-black uppercase text-cyan-300">Trust and support</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">Clear about what is real.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                ClientFlow AI is operated by a Udyam-registered Indian business. Payments use Razorpay, account data is encrypted, and support details are public.
-              </p>
+            <div className="sr sr-left">
+              <span className="violet-pill">Trust and support</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">Clear about what is real.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">ClientFlow AI is operated by a Udyam-registered Indian business. Payments use Razorpay, account data is encrypted, and support details are public.</p>
               <div className="mt-7 grid gap-3 text-sm font-bold text-zinc-300">
-                <p>Support: <a className="text-white hover:text-cyan-200" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a></p>
+                <p>Support: <a className="text-white transition-colors hover:text-violet-300" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a></p>
                 <p>Registration: <span className="text-white">{UDYAM_REGISTRATION_NUMBER}</span></p>
-                <p><Link className="text-white hover:text-cyan-200" to="/security">Read security and compliance status</Link></p>
+                <p><Link className="text-white transition-colors hover:text-violet-300" to="/security">Read security and compliance status</Link></p>
               </div>
             </div>
-
-            <div>
-              <p className="text-xs font-black uppercase text-zinc-500">Common questions</p>
-              <div className="mt-4 divide-y divide-white/10 border-y border-white/10">
+            <div className="sr sr-right">
+              <p className="text-xs font-black uppercase text-zinc-600">Common questions</p>
+              <div className="mt-4 divide-y divide-violet-500/10 border-y border-violet-500/10">
                 {faqs.map(([question, answer]) => (
                   <details key={question} className="group py-5">
-                    <summary className="cursor-pointer list-none pr-8 text-base font-black text-white marker:hidden">
+                    <summary className="cursor-pointer list-none pr-8 text-base font-black text-white transition-colors marker:hidden hover:text-violet-200">
                       {question}
                     </summary>
                     <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-zinc-400">{answer}</p>
@@ -697,34 +758,43 @@ export default function HomeClear() {
               </div>
             </div>
           </div>
-        </section>
+        </RevealSection>
 
         {/* ═══════ FINAL CTA ═══════ */}
-        <section className="py-16 sm:py-20">
-          <div className="container-custom flex flex-col gap-7 border-l-4 border-yellow-300 pl-6 sm:pl-10 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase text-yellow-300">Start with real work</p>
-              <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-5xl">Add one lead or invoice. Let the workflow show the next step.</h2>
-              {!loggedIn && (
-                <p className="mt-4 text-base font-medium text-zinc-400">
-                  30 days full access. No card. No commitment. Your first real client task is free.
-                </p>
-              )}
-            </div>
-            <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col">
-              <button
-                type="button"
-                onClick={() => startWorkspace('final_start')}
-                className="rounded-lg bg-yellow-300 px-7 py-4 text-sm font-black uppercase text-slate-950 transition hover:bg-yellow-200"
-              >
-                {loggedIn ? 'Open Client Flow' : 'Start 30 Days Free →'}
-              </button>
-              <Link to="/payments" className="rounded-lg border border-white/15 px-7 py-4 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.06]">
-                View plans later
-              </Link>
+        <RevealSection className="relative overflow-hidden py-20 sm:py-24">
+          <div className="orb orb-violet" style={{ width: 500, height: 500, top: '-80px', right: '-80px', opacity: 0.18 }} aria-hidden="true" />
+          <div className="orb orb-fuchsia" style={{ width: 350, height: 350, bottom: '-60px', left: '-50px', opacity: 0.12 }} aria-hidden="true" />
+          <div className="container-custom relative z-10">
+            <div className="rounded-3xl border border-violet-500/18 p-10 sm:p-14 sr" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10), rgba(9,9,11,0.92) 55%, rgba(232,121,249,0.07))' }}>
+              <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+                <div className="max-w-3xl">
+                  <span className="violet-pill mb-5 inline-flex">Start with real work</span>
+                  <h2 className="text-3xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
+                    Add one lead or invoice.<br />
+                    <span className="animated-gradient-text">Let the workflow show the next step.</span>
+                  </h2>
+                  {!loggedIn && (
+                    <p className="mt-5 text-base font-medium text-zinc-400">
+                      30 days full access. No card. No commitment. Your first real client task is free.
+                    </p>
+                  )}
+                </div>
+                <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col">
+                  <button
+                    type="button"
+                    onClick={() => startWorkspace('final_start')}
+                    className="rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-8 py-5 text-sm font-black uppercase text-white shadow-xl shadow-violet-500/28 transition hover:opacity-90 hover:scale-[1.02]"
+                  >
+                    {loggedIn ? 'Open Client Flow' : 'Start 30 Days Free →'}
+                  </button>
+                  <Link to="/payments" className="rounded-xl border border-white/10 bg-white/[0.04] px-8 py-5 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.08] hover:border-violet-500/20">
+                    View plans later
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
+        </RevealSection>
       </main>
 
       <Footer />
@@ -732,3 +802,4 @@ export default function HomeClear() {
     </div>
   );
 }
+
