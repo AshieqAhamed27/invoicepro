@@ -84,7 +84,7 @@ const planDetails = {
         globalAmountEnv: 'PRO_YEARLY_USD_AMOUNT'
     },
     founder90: {
-        amount: getConfiguredAmount('FOUNDER_90_AMOUNT', 999),
+        amount: getConfiguredAmount('FOUNDER_90_AMOUNT', 799),
         globalAmount: getConfiguredAmount('FOUNDER_90_USD_AMOUNT', 19),
         globalCurrency: DEFAULT_GLOBAL_CURRENCY,
         label: 'Founder 90 Days',

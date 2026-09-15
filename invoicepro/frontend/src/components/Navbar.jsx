@@ -7,20 +7,20 @@ import BrandLogo from './BrandLogo';
 const coreWorkLinks = [
   { to: '/client-flow', label: 'Client Flow', detail: 'Lead → proposal → payment workflow' },
   { to: '/create-invoice', label: 'Invoice', detail: 'Create invoices and proposals' },
-  { to: '/client-workroom', label: 'Workroom', detail: 'Tasks, files, delivery, and handover' },
-  { to: '/money-gps', label: 'Money GPS', detail: 'Your next best money action' }
+  { to: '/client-workroom', label: 'Workroom', detail: 'Manage tasks, approvals & delivery proof' },
+  { to: '/money-gps', label: 'Money GPS', detail: 'See what to collect or follow up next' }
 ];
 
 // ─── AI & growth tools (Pro) ───
 const growthLinks = [
-  { to: '/business-autopilot', label: 'Autopilot', detail: 'AI picks your next action', requiresPro: true },
-  { to: '/client-finder', label: 'Find Clients', detail: 'Discover client opportunities', requiresPro: true },
+  { to: '/business-autopilot', label: 'Autopilot', detail: 'AI suggests your most important next step', requiresPro: true },
+  { to: '/client-finder', label: 'Find Clients', detail: 'Find freelance leads & outreach targets', requiresPro: true },
   { to: '/proposal-writer', label: 'Proposals', detail: 'AI-assisted proposal writing', requiresPro: true },
   { to: '/ai-coach', label: 'AI Coach', detail: 'Coaching for sales and follow-up', requiresPro: true },
   { to: '/leads', label: 'Leads', detail: 'Track prospects and follow-up', requiresPro: true },
-  { to: '/deal-room', label: 'Deal Room', detail: 'Close serious leads', requiresPro: true },
-  { to: '/growth-plan', label: 'Growth Plan', detail: 'Income targets and daily actions', requiresPro: true },
-  { to: '/profit-tracker', label: 'Profit Tracker', detail: 'Revenue vs cost tracking', requiresPro: true }
+  { to: '/deal-room', label: 'Deal Room', detail: 'Convert active leads into paid work', requiresPro: true },
+  { to: '/growth-plan', label: 'Growth Plan', detail: 'Set income goals & daily action plan', requiresPro: true },
+  { to: '/profit-tracker', label: 'Profit Tracker', detail: 'Track income, expenses & net profit', requiresPro: true }
 ];
 
 // ─── Business & settings ───

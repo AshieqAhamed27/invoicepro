@@ -39,11 +39,11 @@ const planDetails = {
     amountSource: "fallback"
   },
   founder90: {
-    amount: 999,
+    amount: 799,
     currency: "INR",
     label: "Founder 90 Days",
-    note: "Early-user offer: 90 days of the full client-to-cashflow workspace.",
-    duration: "Valid for 90 days",
+    note: "90 days of full Pro access — saves ₹698 vs paying monthly (₹499 × 3 = ₹1,497). Best deal for freelancers starting out.",
+    duration: "Valid for 90 days · One-time payment",
     amountSource: "fallback",
     checkoutType: "one_time"
   }
