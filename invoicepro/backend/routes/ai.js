@@ -1,5 +1,6 @@
 const express = require('express');
 const https = require('https');
+const http = require('http');
 const Invoice = require('../models/Invoice');
 const Lead = require('../models/Lead');
 const { protect, requirePro, hasPaidPlan } = require('../middleware/auth');
@@ -1646,6 +1647,7 @@ const extractAnthropicText = (body) => {
 
 const normalizeAiProvider = (value = 'openai') => {
     const provider = String(value || 'openai').trim().toLowerCase();
+    if (provider === 'ollama') return 'ollama';
     if (provider === 'anthropic' || provider === 'claude') return 'anthropic';
     if (provider === 'auto') return 'auto';
     return 'openai';
@@ -1653,6 +1655,7 @@ const normalizeAiProvider = (value = 'openai') => {
 
 const getAiProviderOrder = () => {
     const preferred = normalizeAiProvider(process.env.AI_PROVIDER || 'openai');
+    if (preferred === 'ollama') return ['ollama', 'openai', 'anthropic'];
     const order = preferred === 'anthropic' || preferred === 'auto'
         ? ['anthropic', 'openai']
         : ['openai', 'anthropic'];
@@ -1661,6 +1664,32 @@ const getAiProviderOrder = () => {
 };
 
 const getAiProviderConfig = (provider) => {
+    if (provider === 'ollama') {
+        const baseUrl = process.env.OLLAMA_BASE_URL || process.env.OLLAMA_HOST || 'http://127.0.0.1:11434';
+        try {
+            const parsed = new URL(baseUrl);
+            return {
+                provider: 'ollama',
+                isHttp: parsed.protocol === 'http:',
+                hostname: parsed.hostname,
+                port: parsed.port || (parsed.protocol === 'http:' ? 80 : 443),
+                path: '/api/generate',
+                model: process.env.OLLAMA_MODEL || 'llama3.1',
+                apiKey: 'ollama_local'
+            };
+        } catch {
+            return {
+                provider: 'ollama',
+                isHttp: true,
+                hostname: '127.0.0.1',
+                port: 11434,
+                path: '/api/generate',
+                model: process.env.OLLAMA_MODEL || 'llama3.1',
+                apiKey: 'ollama_local'
+            };
+        }
+    }
+
     if (provider === 'anthropic') {
         return {
             provider,
@@ -1687,6 +1716,14 @@ const getAnthropicMaxTokens = (maxTokens = 1200) => {
 };
 
 const buildAiPayload = ({ provider, model, prompt, maxTokens }) => {
+    if (provider === 'ollama') {
+        return JSON.stringify({
+            model,
+            prompt,
+            stream: false
+        });
+    }
+
     if (provider === 'anthropic') {
         return JSON.stringify({
             model,
@@ -1705,6 +1742,13 @@ const buildAiPayload = ({ provider, model, prompt, maxTokens }) => {
 };
 
 const buildAiHeaders = ({ provider, apiKey, payload }) => {
+    if (provider === 'ollama') {
+        return {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload)
+        };
+    }
+
     if (provider === 'anthropic') {
         return {
             'x-api-key': apiKey,
@@ -1721,8 +1765,10 @@ const buildAiHeaders = ({ provider, apiKey, payload }) => {
     };
 };
 
-const extractAiText = (provider, body) =>
-    provider === 'anthropic' ? extractAnthropicText(body) : extractOpenAiText(body);
+const extractAiText = (provider, body) => {
+    if (provider === 'ollama') return body?.response || '';
+    return provider === 'anthropic' ? extractAnthropicText(body) : extractOpenAiText(body);
+};
 
 const callAiProviderText = ({ provider, prompt, timeout = 12000, maxTokens = 1200 }) => new Promise((resolve, reject) => {
     const config = getAiProviderConfig(provider);
@@ -1735,7 +1781,8 @@ const callAiProviderText = ({ provider, prompt, timeout = 12000, maxTokens = 120
         maxTokens
     });
 
-    const request = https.request({
+    const client = config.isHttp ? http : https;
+    const requestOptions = {
         hostname: config.hostname,
         path: config.path,
         method: 'POST',
@@ -1745,7 +1792,10 @@ const callAiProviderText = ({ provider, prompt, timeout = 12000, maxTokens = 120
             payload
         }),
         timeout
-    }, (response) => {
+    };
+    if (config.port) requestOptions.port = config.port;
+
+    const request = client.request(requestOptions, (response) => {
         let raw = '';
         response.on('data', (chunk) => { raw += chunk; });
         response.on('end', () => {
