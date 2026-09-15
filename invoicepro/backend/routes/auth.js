@@ -497,7 +497,8 @@ const serializeUser = (user) => {
         enterpriseOrganization: user.enterpriseOrganization,
         enterpriseRole: user.enterpriseRole,
         enterpriseJoinedAt: user.enterpriseJoinedAt,
-        role: user.role
+        role: user.role,
+        isDemo: Boolean(user.isDemo)
     };
 };
 
@@ -665,9 +666,101 @@ router.post(
                 err
             );
 
-            res.status(500).json({
-                message: 'Server error. Please try again.'
+        }
+    }
+);
+
+// ==========================
+// DEMO LOGIN
+// ==========================
+router.post(
+    '/demo-login',
+    async(req, res) => {
+        try {
+            const demoEmail = 'demo@clientflowai.in';
+            let user = await User.findOne({ email: demoEmail });
+
+            if (!user) {
+                user = await User.create({
+                    name: 'Demo Freelancer',
+                    email: demoEmail,
+                    companyName: 'Apex Design & Dev Studio',
+                    plan: 'pro',
+                    isDemo: true,
+                    googleId: 'demo_google_id_12345'
+                });
+            } else if (!user.isDemo) {
+                user.isDemo = true;
+                user.plan = 'pro';
+                await user.save();
+            }
+
+            // Seed sample data if none exists for demo user
+            const Invoice = require('../models/Invoice');
+            const Lead = require('../models/Lead');
+
+            const existingInvoicesCount = await Invoice.countDocuments({ user: user._id });
+            if (existingInvoicesCount === 0) {
+                await Invoice.create([
+                    {
+                        user: user._id,
+                        invoiceNumber: 'INV-2025-001',
+                        documentType: 'invoice',
+                        clientName: 'Acme Software Pvt Ltd',
+                        clientEmail: 'billing@acmesoftware.in',
+                        amount: 45000,
+                        currency: 'INR',
+                        status: 'paid',
+                        dueDate: new Date(Date.now() - 7 * 86400000),
+                        serviceDescription: 'Web Application UI/UX Redesign - Deposit'
+                    },
+                    {
+                        user: user._id,
+                        invoiceNumber: 'INV-2025-002',
+                        documentType: 'invoice',
+                        clientName: 'TechStart India',
+                        clientEmail: 'finance@techstart.io',
+                        amount: 60000,
+                        currency: 'INR',
+                        status: 'pending',
+                        dueDate: new Date(Date.now() + 5 * 86400000),
+                        serviceDescription: 'Mobile App Development - Milestone 1'
+                    }
+                ]);
+            }
+
+            const existingLeadsCount = await Lead.countDocuments({ user: user._id });
+            if (existingLeadsCount === 0) {
+                await Lead.create([
+                    {
+                        user: user._id,
+                        clientName: 'Rahul Verma',
+                        companyName: 'UrbanCart E-commerce',
+                        email: 'rahul@urbancart.in',
+                        estimatedValue: 85000,
+                        status: 'proposal_sent',
+                        notes: 'Requires full Next.js storefront + Razorpay integration.'
+                    },
+                    {
+                        user: user._id,
+                        clientName: 'Priya Sundaram',
+                        companyName: 'GreenLeaf Organics',
+                        email: 'priya@greenleaf.co',
+                        estimatedValue: 35000,
+                        status: 'lead',
+                        notes: 'Looking for brand strategy & Shopify setup.'
+                    }
+                ]);
+            }
+
+            res.json({
+                message: 'Welcome to ClientFlow AI Demo Mode!',
+                token: generateToken(user._id),
+                user: serializeUser(user)
             });
+        } catch (err) {
+            console.error('DEMO LOGIN ERROR:', err);
+            res.status(500).json({ message: 'Failed to start demo session. Please try again.' });
         }
     }
 );

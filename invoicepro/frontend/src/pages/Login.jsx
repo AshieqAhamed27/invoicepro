@@ -104,6 +104,24 @@ export default function Login() {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setError('');
+    setLoading(true);
+    trackEvent('login_submit', { method: 'demo' });
+
+    try {
+      const res = await api.post('/auth/demo-login');
+      setAuth(res.data.token, res.data.user);
+      trackEvent('login', { method: 'demo' });
+      navigate('/client-flow', { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to launch demo mode. Please try again.');
+      trackEvent('login_error', { method: 'demo' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="premium-page min-h-screen text-white">
       <Navbar />
@@ -150,8 +168,24 @@ export default function Login() {
                 Welcome.
               </h2>
               <p className="text-sm font-medium text-zinc-500">
-                Continue with your credentials.
+                Continue with your credentials or try our interactive demo.
               </p>
+            </div>
+
+            {/* Demo Mode CTA Card */}
+            <div className="mb-6 p-4 rounded-2xl border border-violet-500/25 bg-violet-500/10 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-black text-white">Want to evaluate without signing up?</p>
+                <p className="text-[11px] font-medium text-violet-300/80">Explore pre-filled leads, invoices & proposals in 1 click.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={loading}
+                className="shrink-0 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2.5 text-xs font-black uppercase text-white shadow-md transition hover:opacity-90 disabled:opacity-50"
+              >
+                Try Demo →
+              </button>
             </div>
 
             {error && (

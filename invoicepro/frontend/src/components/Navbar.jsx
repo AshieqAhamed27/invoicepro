@@ -135,7 +135,20 @@ export default function Navbar() {
   const moreMenuActive = moreAppLinks.some((link) => link.to && location.pathname === link.to) || (isAdmin && location.pathname === '/admin');
 
   return (
-    <nav className="sticky top-0 z-50 px-2 pb-0 pt-[max(0.55rem,env(safe-area-inset-top))] sm:px-4 sm:pt-4">
+    <>
+      {user?.isDemo && (
+        <div className="bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600 text-white text-xs font-bold py-2 px-4 text-center border-b border-white/10 flex items-center justify-center gap-3">
+          <span>👀 You are exploring ClientFlow AI in <strong>Interactive Demo Mode</strong>.</span>
+          <button
+            type="button"
+            onClick={() => navigate('/signup')}
+            className="bg-white text-violet-950 px-3 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider hover:bg-zinc-100 transition shadow-sm"
+          >
+            Start Your 30-Day Free Trial →
+          </button>
+        </div>
+      )}
+      <nav className="sticky top-0 z-50 px-2 pb-0 pt-[max(0.55rem,env(safe-area-inset-top))] sm:px-4 sm:pt-4">
       <div className="container-custom flex h-14 min-w-0 items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#090d14]/90 px-3 shadow-2xl shadow-black/35 backdrop-blur-2xl sm:h-16 sm:rounded-2xl sm:px-5 lg:px-6">
         <NavLink
           to="/"
@@ -514,5 +527,6 @@ export default function Navbar() {
         </>
       )}
     </nav>
+  </>
   );
 }

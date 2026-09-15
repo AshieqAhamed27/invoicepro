@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import StickyTrialBar from '../components/StickyTrialBar';
+import api from '../utils/api';
 import {
   getFreeAccessState,
   getPlanLabel,
   getUser,
   hasProAccess,
   isLoggedIn,
+  setAuth,
   setPostLoginRedirect
 } from '../utils/auth';
 import { trackCtaClick } from '../utils/analytics';
@@ -323,6 +325,23 @@ export default function HomeClear() {
                 >
                   See how it works
                 </Link>
+                {!loggedIn && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const res = await api.post('/auth/demo-login');
+                        setAuth(res.data.token, res.data.user);
+                        navigate('/client-flow');
+                      } catch {
+                        navigate('/login');
+                      }
+                    }}
+                    className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-500/10 px-7 py-4 text-center text-sm font-black uppercase text-fuchsia-200 transition hover:bg-fuchsia-500/20 hover:border-fuchsia-500/50"
+                  >
+                    Try Demo Account →
+                  </button>
+                )}
               </div>
 
               <p className="mt-5 text-sm font-bold text-zinc-600">{accessMessage}</p>

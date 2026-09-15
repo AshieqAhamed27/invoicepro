@@ -88,6 +88,11 @@ const userSchema = new mongoose.Schema({
         default: null
     },
 
+    isDemo: {
+        type: Boolean,
+        default: false
+    },
+
     freeAccessExpiresAt: {
         type: Date,
         default: null
