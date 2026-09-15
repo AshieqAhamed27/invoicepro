@@ -718,7 +718,7 @@ export default function InvoiceView() {
                 onClick={shareWhatsAppReminder}
                 className="rounded-xl border border-emerald-400/15 bg-emerald-400/10 px-6 py-3 text-xs font-black uppercase tracking-widest text-emerald-300 transition-all hover:bg-emerald-400/15 hover:text-emerald-200"
               >
-                WhatsApp
+                WhatsApp Reminder
               </button>
             )}
             {!meta.isProposal && invoice.status !== 'paid' && (
@@ -860,7 +860,7 @@ export default function InvoiceView() {
                     onClick={shareWhatsAppReminder}
                     className="rounded-xl border border-emerald-400/15 bg-emerald-400/10 px-6 py-3 text-xs font-black uppercase tracking-widest text-emerald-300 transition-all hover:bg-emerald-400/15 hover:text-emerald-200"
                   >
-                    WhatsApp
+                    WhatsApp Reminder
                   </button>
                 )}
               </div>

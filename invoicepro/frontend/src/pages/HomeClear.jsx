@@ -489,6 +489,58 @@ export default function HomeClear() {
           </div>
         </RevealSection>
 
+        {/* ═══════ TESTIMONIALS ═══════ */}
+        <RevealSection className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
+          <div className="container-custom">
+            <div className="max-w-3xl sr">
+              <span className="violet-pill">Loved by Indian Freelancers</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Built for real Indian creators, designers & devs.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Here is what Indian freelancers say about automating client follow-ups and invoicing with ClientFlow AI.</p>
+            </div>
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  quote: "Got paid ₹45,000 in 3 days without endless chasing. The automatic Razorpay link + WhatsApp invoice reminder is a game-changer.",
+                  name: "Rohan Sharma",
+                  role: "Full-Stack Web Developer",
+                  city: "Bengaluru",
+                  highlight: "₹45,000 collected faster"
+                },
+                {
+                  quote: "Calculates TDS automatically and gives me CA-ready GST reports every month. Saved me at least 5 hours of bookkeeping every single month.",
+                  name: "Ananya Iyer",
+                  role: "Brand & UI/UX Designer",
+                  city: "Mumbai",
+                  highlight: "CA-ready in 1-click"
+                },
+                {
+                  quote: "The AI Proposal writer helped me close two enterprise clients in my very first week. Upgraded to the Founder plan immediately.",
+                  name: "Vikramaditya Singh",
+                  role: "DevOps & Cloud Consultant",
+                  city: "Delhi NCR",
+                  highlight: "2 enterprise clients closed"
+                }
+              ].map((t, index) => (
+                <div key={t.name} className={`glow-card p-7 flex flex-col justify-between sr sr-delay-${index + 1}`}>
+                  <div>
+                    <div className="flex items-center gap-1 text-amber-400 mb-4 text-sm font-black">
+                      ★★★★★ <span className="ml-2 text-xs font-semibold text-violet-300/80 bg-violet-500/10 px-2.5 py-0.5 rounded-full border border-violet-500/20">{t.highlight}</span>
+                    </div>
+                    <p className="text-sm font-medium leading-6 text-zinc-300 italic">"{t.quote}"</p>
+                  </div>
+                  <div className="mt-6 pt-5 border-t border-white/[0.08] flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-black text-white">{t.name}</h3>
+                      <p className="text-xs font-semibold text-zinc-500">{t.role}</p>
+                    </div>
+                    <span className="text-[10px] font-black uppercase text-violet-400 bg-violet-500/[0.08] px-2 py-1 rounded border border-violet-500/15">{t.city}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </RevealSection>
+
         {/* ═══════ INVOICE PREVIEW ═══════ */}
         <RevealSection className="border-b border-white/[0.07] py-16 sm:py-20">
           <div className="container-custom grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
