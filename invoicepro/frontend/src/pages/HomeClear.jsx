@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -239,12 +239,126 @@ function RevealSection({ children, id, className = '' }) {
 }
 
 
+// Typewriter text animation
+function TypewriterText({ phrases, typingSpeed = 80, deletingSpeed = 40, pauseDuration = 2000 }) {
+  const [displayText, setDisplayText] = useState('');
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentPhrase = phrases[phraseIndex];
+    let timeout;
+
+    if (!isDeleting && displayText === currentPhrase) {
+      timeout = setTimeout(() => setIsDeleting(true), pauseDuration);
+    } else if (isDeleting && displayText === '') {
+      setIsDeleting(false);
+      setPhraseIndex((prev) => (prev + 1) % phrases.length);
+    } else {
+      timeout = setTimeout(() => {
+        setDisplayText(prev =>
+          isDeleting
+            ? prev.slice(0, -1)
+            : currentPhrase.slice(0, prev.length + 1)
+        );
+      }, isDeleting ? deletingSpeed : typingSpeed);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [displayText, isDeleting, phraseIndex, phrases, typingSpeed, deletingSpeed, pauseDuration]);
+
+  return (
+    <span>
+      <span className="animated-gradient-text">{displayText}</span>
+      <span className="typewriter-cursor" aria-hidden="true" />
+    </span>
+  );
+}
+
+// Animated counter that counts up from 0
+function AnimatedCounter({ target, prefix = '', suffix = '', duration = 1500 }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          const startTime = performance.now();
+          const animate = (now) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.round(eased * target));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return (
+    <span ref={ref} className="counter-number stat-glow">
+      {prefix}{typeof target === 'number' && target >= 1000 ? count.toLocaleString('en-IN') : count}{suffix}
+    </span>
+  );
+}
+
+// Particle constellation background
+function ParticleField({ count = 30 }) {
+  const particles = useRef(
+    Array.from({ length: count }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      size: 1 + Math.random() * 2,
+      duration: 8 + Math.random() * 16,
+      delay: Math.random() * 10,
+      opacity: 0.3 + Math.random() * 0.5,
+    }))
+  ).current;
+
+  return (
+    <div className="particle-field" aria-hidden="true">
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="particle"
+          style={{
+            left: `${p.left}%`,
+            bottom: '-10px',
+            width: p.size,
+            height: p.size,
+            opacity: p.opacity,
+            animationDuration: `${p.duration}s`,
+            animationDelay: `${p.delay}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function HomeClear() {
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
   const user = loggedIn ? getUser() : null;
   const isPro = hasProAccess(user);
   const freeAccess = getFreeAccessState(user);
+  const [mousePos, setMousePos] = useState({ x: -9999, y: -9999 });
+  const heroRef = useRef(null);
+  const handleMouseMove = useCallback((e) => {
+    if (!heroRef.current) return;
+    const rect = heroRef.current.getBoundingClientRect();
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  }, []);
 
   useDocumentMeta({
     title: `${COMPANY_NAME} | GST Invoice & Client Workflow for Indian Freelancers`,
@@ -275,11 +389,13 @@ export default function HomeClear() {
 
       <main>
         {/* ═══════ HERO ═══════ */}
-        <section className="relative isolate overflow-hidden border-b border-violet-500/10 bg-[#09090b]">
+        <section ref={heroRef} onMouseMove={handleMouseMove} className="relative isolate overflow-hidden border-b border-violet-500/10 bg-[#09090b]">
           {/* Floating orbs */}
           <div className="orb orb-violet" style={{ width: 540, height: 540, top: '-140px', left: '-100px' }} aria-hidden="true" />
           <div className="orb orb-fuchsia" style={{ width: 380, height: 380, top: '80px', right: '-80px' }} aria-hidden="true" />
           <div className="orb orb-indigo" style={{ width: 320, height: 320, bottom: '-80px', left: '38%' }} aria-hidden="true" />
+          <ParticleField count={25} />
+          <div className="mouse-glow" style={{ left: mousePos.x, top: mousePos.y, opacity: mousePos.x > 0 ? 1 : 0 }} />
 
           <div className="container-custom relative z-10 flex min-h-[min(660px,calc(100svh-8rem))] items-center py-20 sm:py-24">
             <div className="max-w-4xl">
@@ -292,8 +408,7 @@ export default function HomeClear() {
               </span>
 
               <h1 className="mt-4 text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">
-                <span className="animated-gradient-text">Get clients.</span>{' '}
-                <span>Get paid.</span>{' '}
+                <TypewriterText phrases={['Get clients.', 'Get paid.', 'Grow faster.', 'Build your career.']} />{' '}
                 <span className="mt-1 block text-zinc-300">Build a freelance career that earns more.</span>
               </h1>
 
@@ -353,17 +468,22 @@ export default function HomeClear() {
 
               {/* Stats row */}
               <div className="mt-10 flex flex-wrap gap-7 border-t border-white/[0.07] pt-8">
-                {[
-                  ['30 days', 'Full free access'],
-                  ['₹0', 'No card required'],
-                  ['GST + TDS', 'India tax ready'],
-                  ['Razorpay', 'UPI · Cards · Net']
-                ].map(([stat, label]) => (
-                  <div key={stat}>
-                    <p className="text-lg font-black text-white">{stat}</p>
-                    <p className="text-xs font-semibold text-zinc-600">{label}</p>
-                  </div>
-                ))}
+                <div>
+                  <p className="text-lg font-black text-white"><AnimatedCounter target={30} suffix=" days" /></p>
+                  <p className="text-xs font-semibold text-zinc-600">Full free access</p>
+                </div>
+                <div>
+                  <p className="text-lg font-black text-white">₹0</p>
+                  <p className="text-xs font-semibold text-zinc-600">No card required</p>
+                </div>
+                <div>
+                  <p className="text-lg font-black text-white">GST + TDS</p>
+                  <p className="text-xs font-semibold text-zinc-600">India tax ready</p>
+                </div>
+                <div>
+                  <p className="text-lg font-black text-white">Razorpay</p>
+                  <p className="text-xs font-semibold text-zinc-600">UPI · Cards · Net</p>
+                </div>
               </div>
             </div>
           </div>
@@ -379,7 +499,7 @@ export default function HomeClear() {
             </div>
             <div className="mt-10 grid gap-5 md:grid-cols-3">
               {whyClientFlow.map(([title, text], index) => (
-                <article key={title} className={`glow-card p-7 sr sr-delay-${index + 1}`}>
+                <article key={title} className={`glow-card p-7 sr sr-delay-${index + 1} tilt-card`}>
                   <p className="font-mono text-sm font-black text-violet-400">0{index + 1}</p>
                   <h3 className="mt-4 text-xl font-black text-white">{title}</h3>
                   <p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{text}</p>
@@ -388,6 +508,7 @@ export default function HomeClear() {
             </div>
           </div>
         </RevealSection>
+        <div className="aurora-divider" />
 
         {/* ═══════ FEEDBACK BAR ═══════ */}
         <RevealSection className="border-b border-violet-500/12 bg-violet-500/[0.04] py-10">
@@ -413,7 +534,7 @@ export default function HomeClear() {
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {freeIncludes.map((item, i) => (
-                <div key={item.title} className={`glow-card p-5 flex gap-4 sr sr-delay-${Math.min(i + 1, 6)}`}>
+                <div key={item.title} className={`glow-card p-5 flex gap-4 sr sr-delay-${Math.min(i + 1, 6)} tilt-card`}>
                   <span className="mt-0.5 shrink-0 text-2xl">{item.icon}</span>
                   <div>
                     <h3 className="text-sm font-black text-white">{item.title}</h3>
@@ -436,6 +557,7 @@ export default function HomeClear() {
             <p className="mt-4 text-xs font-semibold text-zinc-700">No credit card required. After 30 days, pay ₹499/month to continue — or export your data and leave. Your choice.</p>
           </div>
         </RevealSection>
+        <div className="aurora-divider" />
 
         {/* ═══════ CLEAR PRICING ═══════ */}
         <RevealSection id="pricing" className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
@@ -507,6 +629,7 @@ export default function HomeClear() {
             </div>
           </div>
         </RevealSection>
+        <div className="aurora-divider" />
 
         {/* ═══════ INVOICE PREVIEW ═══════ */}
         <RevealSection className="border-b border-white/[0.07] py-16 sm:py-20">
@@ -597,6 +720,7 @@ export default function HomeClear() {
             </button>
           </div>
         </RevealSection>
+        <div className="aurora-divider" />
 
         {/* ═══════ MID-PAGE TRIAL PROMPT ═══════ */}
         {!loggedIn && (

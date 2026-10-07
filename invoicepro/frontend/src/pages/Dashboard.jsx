@@ -11,6 +11,7 @@ import IntegrationReadinessHub from '../components/IntegrationReadinessHub';
 import { trackEvent } from '../utils/analytics';
 
 const AIBillingAgent = lazy(() => import('../components/AIBillingAgent'));
+const RevenueInsightsWidget = lazy(() => import('../components/RevenueInsightsWidget'));
 const PaymentCollectionAgent = lazy(() => import('../components/PaymentCollectionAgent'));
 const BusinessAutomationCenter = lazy(() => import('../components/BusinessAutomationCenter'));
 
@@ -1408,6 +1409,22 @@ export default function Dashboard() {
               Autopilot
             </Link>
           </div>
+        </section>
+
+        {/* ═══════ REVENUE INTELLIGENCE WIDGET ═══════ */}
+        <section className="reveal reveal-delay-1 mb-10">
+          <Suspense fallback={<div className="h-48 rounded-2xl border border-white/8 bg-white/[0.025] animate-pulse" />}>
+            <RevenueInsightsWidget stats={{
+              totalRevenue: stats.totalRevenue || 0,
+              monthlyTarget: incomeGoal.target || 200000,
+              overdueAmount: overdueInvoiceList.reduce((acc, i) => acc + Number(i.amount || 0), 0),
+              overdueCount: overdueInvoiceList.length,
+              pipelineValue: leadDashboard.summary?.totalPipelineValue || (stats.pendingAmount || 0),
+              recentDailyRevenue: stats.trends?.length >= 7
+                ? stats.trends.slice(-7).map(t => t.revenue || 0)
+                : [8500, 12000, 15000, 9800, 22000, 18500, 14200]
+            }} />
+          </Suspense>
         </section>
 
         {overdueInvoiceList.length > 0 && (
