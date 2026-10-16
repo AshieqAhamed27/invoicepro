@@ -1324,7 +1324,7 @@ router.get('/admin/revenue', protect, async(req, res) => {
                 .limit(100)
                 .lean(),
             User.find({ role: { $ne: 'admin' } })
-                .select('name email plan subscriptionStatus subscriptionProvider planStartedAt planExpiresAt lastPaymentAt createdAt')
+                .select('name email plan isDemo subscriptionStatus subscriptionProvider planStartedAt planExpiresAt freeAccessStartedAt freeAccessExpiresAt lastPaymentAt createdAt')
                 .sort({ createdAt: -1 })
                 .limit(300)
                 .lean(),
@@ -1421,23 +1421,91 @@ router.get('/admin/revenue', protect, async(req, res) => {
             userAccess: {
                 summary: {
                     total: allAccessUsers.length,
-                    paid: allAccessUsers.filter((user) => getAccessType(user) === 'paid').length,
-                    free: allAccessUsers.filter((user) => getAccessType(user) === 'free').length
+                    paid: allAccessUsers.filter((user) => {
+                        const isPaidPlan = paidPlanIds.includes(user.plan || 'free');
+                        const isExpired = user.planExpiresAt && new Date(user.planExpiresAt) <= now;
+                        return isPaidPlan && !isExpired && !user.isDemo;
+                    }).length,
+                    freeAccess: allAccessUsers.filter((user) => {
+                        if (user.isDemo) return false;
+                        if (paidPlanIds.includes(user.plan || 'free')) return false;
+                        if (user.freeAccessExpiresAt && new Date(user.freeAccessExpiresAt) <= now) return false;
+                        return Boolean(user.freeAccessStartedAt || user.freeAccessExpiresAt || ['free', 'trial', 'early_access'].includes(user.plan));
+                    }).length,
+                    demo: allAccessUsers.filter((user) => Boolean(user.isDemo)).length,
+                    expired: allAccessUsers.filter((user) => {
+                        if (user.planExpiresAt && new Date(user.planExpiresAt) <= now) return true;
+                        if (user.freeAccessExpiresAt && new Date(user.freeAccessExpiresAt) <= now) return true;
+                        return false;
+                    }).length,
+                    free: allAccessUsers.filter((user) => !user.isDemo && !paidPlanIds.includes(user.plan || 'free')).length
                 },
                 users: allAccessUsers.map((user) => {
-                    const accessType = getAccessType(user);
+                    const isPaidPlan = paidPlanIds.includes(user.plan || 'free');
+                    const nowTime = now.getTime();
+                    let accessCategory = 'free';
+                    let isExpired = false;
+                    let daysRemaining = null;
+                    let daysExpired = null;
+
+                    if (user.isDemo) {
+                        accessCategory = 'demo';
+                    } else if (isPaidPlan) {
+                        if (user.planExpiresAt && new Date(user.planExpiresAt) <= now) {
+                            accessCategory = 'expired';
+                            isExpired = true;
+                        } else {
+                            accessCategory = 'paid';
+                        }
+                    } else if (user.freeAccessExpiresAt && new Date(user.freeAccessExpiresAt) <= now) {
+                        accessCategory = 'expired';
+                        isExpired = true;
+                    } else if (user.freeAccessStartedAt || user.freeAccessExpiresAt || ['free', 'trial', 'early_access'].includes(user.plan)) {
+                        accessCategory = 'free_access';
+                    }
+
+                    if (user.planExpiresAt) {
+                        const exp = new Date(user.planExpiresAt).getTime();
+                        if (!Number.isNaN(exp)) {
+                            const diffDays = Math.round((exp - nowTime) / (24 * 60 * 60 * 1000));
+                            if (diffDays >= 0) daysRemaining = diffDays;
+                            else {
+                                daysExpired = Math.abs(diffDays);
+                                isExpired = true;
+                            }
+                        }
+                    } else if (user.freeAccessExpiresAt || user.freeAccessStartedAt) {
+                        const started = user.freeAccessStartedAt ? new Date(user.freeAccessStartedAt).getTime() : (user.createdAt ? new Date(user.createdAt).getTime() : nowTime);
+                        const exp = user.freeAccessExpiresAt ? new Date(user.freeAccessExpiresAt).getTime() : (started + 30 * 24 * 60 * 60 * 1000);
+                        const diffDays = Math.round((exp - nowTime) / (24 * 60 * 60 * 1000));
+                        if (diffDays >= 0) daysRemaining = diffDays;
+                        else {
+                            daysExpired = Math.abs(diffDays);
+                            isExpired = true;
+                        }
+                    }
+
+                    const accessType = accessCategory === 'paid' ? 'paid' : (accessCategory === 'demo' ? 'demo' : 'free');
+
                     return {
                         id: user._id,
                         name: user.name || 'Unnamed user',
                         email: user.email || '',
                         plan: user.plan || 'free',
                         accessType,
-                        amount: accessType === 'paid' ? getPlanAmount(user.plan) : 0,
+                        accessCategory,
+                        isDemo: Boolean(user.isDemo),
+                        isExpired,
+                        daysRemaining,
+                        daysExpired,
+                        amount: accessCategory === 'paid' ? getPlanAmount(user.plan) : 0,
                         currency: 'INR',
                         subscriptionStatus: user.subscriptionStatus || '',
                         subscriptionProvider: user.subscriptionProvider || '',
                         planStartedAt: user.planStartedAt || null,
                         planExpiresAt: user.planExpiresAt || null,
+                        freeAccessStartedAt: user.freeAccessStartedAt || null,
+                        freeAccessExpiresAt: user.freeAccessExpiresAt || null,
                         lastPaymentAt: user.lastPaymentAt || null,
                         createdAt: user.createdAt || null
                     };

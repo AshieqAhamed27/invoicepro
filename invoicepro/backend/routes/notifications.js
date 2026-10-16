@@ -5,7 +5,8 @@ const TeamProject = require('../models/TeamProject');
 const User = require('../models/User');
 const NotificationLog = require('../models/NotificationLog');
 const sendEmail = require('../utils/sendEmail');
-const { invoiceReminder, proposalReminder, userDailyDigest } = require('../utils/emailTemplates');
+const { invoiceReminder, proposalReminder, userDailyDigest, planExpiredNotification } = require('../utils/emailTemplates');
+const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -422,6 +423,145 @@ router.post('/automation/run', async(req, res) => {
         message: dryRun ? 'Automation dry run completed.' : 'Automation notifications completed.',
         ...result
     });
+});
+
+// ══════════════════════════════════════════════════════
+// PLAN EXPIRY CHECK HELPER
+// ══════════════════════════════════════════════════════
+const isUserPlanExpired = (user, now = new Date()) => {
+    if (!user || user.role === 'admin') {
+        return { expired: false, daysExpired: 0, planLabel: 'Admin', isFreeAccess: false };
+    }
+
+    const PAID_PLANS = ['pro', 'monthly', 'yearly', 'founder90'];
+    const plan = user.plan || 'free';
+
+    // 1. Paid plan check
+    if (PAID_PLANS.includes(plan)) {
+        if (user.planExpiresAt) {
+            const exp = new Date(user.planExpiresAt);
+            if (!Number.isNaN(exp.getTime()) && exp <= now) {
+                const daysExpired = Math.max(0, Math.round((now - exp) / DAY_MS));
+                return { expired: true, daysExpired, planLabel: plan, isFreeAccess: false };
+            }
+        }
+        return { expired: false, daysExpired: 0, planLabel: plan, isFreeAccess: false };
+    }
+
+    // 2. 30-Day Free access check
+    const FREE_ACCESS_DAYS = 30;
+    const startedAt = user.freeAccessStartedAt ? new Date(user.freeAccessStartedAt) : (user.createdAt ? new Date(user.createdAt) : null);
+    const configuredExpiry = user.freeAccessExpiresAt ? new Date(user.freeAccessExpiresAt) : null;
+    const calculatedExpiry = configuredExpiry || (startedAt ? new Date(startedAt.getTime() + FREE_ACCESS_DAYS * DAY_MS) : null);
+
+    if (calculatedExpiry && !Number.isNaN(calculatedExpiry.getTime()) && calculatedExpiry <= now) {
+        const daysExpired = Math.max(0, Math.round((now - calculatedExpiry) / DAY_MS));
+        return { expired: true, daysExpired, planLabel: '30-Day Free Access', isFreeAccess: true };
+    }
+
+    return { expired: false, daysExpired: 0, planLabel: plan, isFreeAccess: false };
+};
+
+// ══════════════════════════════════════════════════════
+// SEND PLAN EXPIRED NOTIFICATION (admin only or single user)
+// ══════════════════════════════════════════════════════
+router.post('/notify-plan-expired', protect, async(req, res) => {
+    try {
+        if (req.user?.role !== 'admin') {
+            return res.status(403).json({ message: 'Forbidden: Admin access required' });
+        }
+
+        const { userId, allExpired, force } = req.body || {};
+        const now = new Date();
+        const today = dayKey(now);
+        const renewUrl = `${String(process.env.FRONTEND_URL || 'https://www.clientflowai.in').replace(/\/+$/, '')}/payment`;
+
+        let targetUsers = [];
+
+        if (userId) {
+            const user = await User.findById(userId)
+                .select('name email plan planExpiresAt freeAccessStartedAt freeAccessExpiresAt isDemo role createdAt')
+                .lean();
+            if (!user) return res.status(404).json({ message: 'User not found' });
+            targetUsers = [user];
+        } else if (allExpired) {
+            targetUsers = await User.find({ role: { $ne: 'admin' }, email: { $nin: [null, ''] } })
+                .select('name email plan planExpiresAt freeAccessStartedAt freeAccessExpiresAt isDemo role createdAt')
+                .lean();
+        } else {
+            return res.status(400).json({ message: 'Specify userId or allExpired: true' });
+        }
+
+        let sentCount = 0;
+        let skippedCount = 0;
+        let failedCount = 0;
+        const errors = [];
+
+        for (const user of targetUsers) {
+            const expiryCheck = isUserPlanExpired(user, now);
+            if (!expiryCheck.expired && !force) {
+                skippedCount += 1;
+                continue;
+            }
+
+            const recipientEmail = cleanEmail(user.email);
+            if (!recipientEmail) {
+                skippedCount += 1;
+                continue;
+            }
+
+            const cadenceKey = `plan-expired-${today}${force ? `-${Date.now()}` : ''}`;
+            const logContext = {
+                user: user._id,
+                type: 'user_plan_expired',
+                recipientEmail,
+                resourceType: 'user',
+                resourceId: user._id,
+                cadenceKey,
+                dryRun: false
+            };
+
+            try {
+                if (!force) {
+                    const shouldSend = await shouldCreateLog(logContext);
+                    if (!shouldSend) {
+                        skippedCount += 1;
+                        continue;
+                    }
+                }
+
+                const template = planExpiredNotification({
+                    user,
+                    planLabel: expiryCheck.planLabel,
+                    daysExpired: expiryCheck.daysExpired,
+                    isFreeAccess: expiryCheck.isFreeAccess,
+                    renewUrl
+                });
+
+                await sendEmail(recipientEmail, template.subject, template);
+                await updateLogSent(logContext);
+                sentCount += 1;
+            } catch (err) {
+                failedCount += 1;
+                errors.push({ email: user.email, error: err.message });
+                await updateLogFailure({ ...logContext, error: err });
+            }
+        }
+
+        res.json({
+            ok: true,
+            sentCount,
+            skippedCount,
+            failedCount,
+            errors: errors.slice(0, 5),
+            message: sentCount > 0
+                ? `Successfully sent ${sentCount} plan expiration notice${sentCount === 1 ? '' : 's'}.`
+                : (skippedCount > 0 ? `No new notices needed (${skippedCount} users already notified today or not expired).` : 'No eligible expired users.')
+        });
+    } catch (err) {
+        console.error('NOTIFY PLAN EXPIRED ERROR:', err);
+        res.status(500).json({ message: 'Failed to send plan expiration notifications', error: err.message });
+    }
 });
 
 module.exports = router;

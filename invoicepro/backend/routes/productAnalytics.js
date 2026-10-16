@@ -161,22 +161,77 @@ router.get('/admin/summary', protect, async(req, res) => {
         if (!requireAdmin(req, res)) return;
 
         const now = new Date();
-        const isActivePlan = (user) => !user.planExpiresAt || user.planExpiresAt > now;
-        const getAccessType = (user) => {
+        const nowTime = now.getTime();
+        const isActivePlan = (user) => !user.planExpiresAt || new Date(user.planExpiresAt) > now;
+
+        const getAccessCategory = (user) => {
+            if (user.isDemo) return 'demo';
             const plan = user.plan || 'free';
-            if (PAID_PLANS.includes(plan) && isActivePlan(user)) return 'paid';
-            if (FREE_ACCESS_PLANS.includes(plan)) return 'free';
+            const isPaidPlan = PAID_PLANS.includes(plan);
+
+            if (isPaidPlan) {
+                if (user.planExpiresAt && new Date(user.planExpiresAt) <= now) {
+                    return 'expired';
+                }
+                return 'paid';
+            }
+
+            if (user.freeAccessExpiresAt && new Date(user.freeAccessExpiresAt) <= now) {
+                return 'expired';
+            }
+
+            const startedAt = user.freeAccessStartedAt ? new Date(user.freeAccessStartedAt) : (user.createdAt ? new Date(user.createdAt) : null);
+            if (startedAt) {
+                const expiresAt = user.freeAccessExpiresAt ? new Date(user.freeAccessExpiresAt) : new Date(startedAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+                if (expiresAt <= now) {
+                    return 'expired';
+                }
+                return 'free_access';
+            }
+
             return 'free';
         };
+
         const serializeAccessUser = (user) => {
-            const accessType = getAccessType(user);
+            const accessCategory = getAccessCategory(user);
+            const accessType = accessCategory === 'paid' ? 'paid' : (accessCategory === 'demo' ? 'demo' : 'free');
+
+            let daysRemaining = null;
+            let daysExpired = null;
+            let isExpired = accessCategory === 'expired';
+
+            if (user.planExpiresAt) {
+                const exp = new Date(user.planExpiresAt).getTime();
+                if (!Number.isNaN(exp)) {
+                    const diffDays = Math.round((exp - nowTime) / (24 * 60 * 60 * 1000));
+                    if (diffDays >= 0) daysRemaining = diffDays;
+                    else {
+                        daysExpired = Math.abs(diffDays);
+                        isExpired = true;
+                    }
+                }
+            } else if (user.freeAccessExpiresAt || user.freeAccessStartedAt) {
+                const started = user.freeAccessStartedAt ? new Date(user.freeAccessStartedAt).getTime() : (user.createdAt ? new Date(user.createdAt).getTime() : nowTime);
+                const exp = user.freeAccessExpiresAt ? new Date(user.freeAccessExpiresAt).getTime() : (started + 30 * 24 * 60 * 60 * 1000);
+                const diffDays = Math.round((exp - nowTime) / (24 * 60 * 60 * 1000));
+                if (diffDays >= 0) daysRemaining = diffDays;
+                else {
+                    daysExpired = Math.abs(diffDays);
+                    isExpired = true;
+                }
+            }
+
             return {
                 id: user._id,
                 name: user.name || 'Unnamed user',
                 email: user.email || '',
                 plan: user.plan || 'free',
                 accessType,
+                accessCategory,
                 isDemo: Boolean(user.isDemo),
+                isExpired,
+                daysRemaining,
+                daysExpired,
                 subscriptionStatus: user.subscriptionStatus || '',
                 subscriptionProvider: user.subscriptionProvider || '',
                 planStartedAt: user.planStartedAt || null,
@@ -532,11 +587,14 @@ router.get('/admin/summary', protect, async(req, res) => {
         const accessUserList = accessUsers.map(serializeAccessUser);
         const accessSummary = {
             total: accessUserList.length,
-            free: accessUserList.filter((user) => user.accessType === 'free').length,
-            paid: accessUserList.filter((user) => user.accessType === 'paid').length
+            paid: accessUserList.filter((user) => user.accessCategory === 'paid').length,
+            freeAccess: accessUserList.filter((user) => user.accessCategory === 'free_access').length,
+            demo: accessUserList.filter((user) => user.isDemo || user.accessCategory === 'demo').length,
+            expired: accessUserList.filter((user) => user.isExpired || user.accessCategory === 'expired').length,
+            free: accessUserList.filter((user) => user.accessCategory === 'free').length
         };
         const paidMembers = accessSummary.paid;
-        const freeAccessMembers = accessSummary.free;
+        const freeAccessMembers = accessSummary.freeAccess;
 
         // Visitors who NEVER signed up (view-only, no linked user in any event)
         const totalUniqueVisitors = await countUnique(pageViewMatch, 'visitorId');
@@ -554,8 +612,9 @@ router.get('/admin/summary', protect, async(req, res) => {
                 newMembers7d,
                 registeredMembers,
                 freeAccessMembers,
-                freeAccess30DayMembers: Number(members.freeAccess30DayMembers || 0),
-                demoMembers: Number(members.demoMembers || 0),
+                freeAccess30DayMembers: accessSummary.freeAccess || Number(members.freeAccess30DayMembers || 0),
+                demoMembers: accessSummary.demo || Number(members.demoMembers || 0),
+                expiredMembers: accessSummary.expired,
                 viewOnlyVisitors,
                 signedUpAndViewed: signedUpAndViewedCount,
                 paidMembers,

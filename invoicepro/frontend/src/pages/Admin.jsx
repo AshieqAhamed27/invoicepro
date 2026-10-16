@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 
@@ -62,6 +62,36 @@ const getPlanLabel = (plan) => {
   return plan || 'Paid';
 };
 const getStatusLabel = (status) => String(status || 'paid').replaceAll('_', ' ');
+const getAccessBadgeInfo = (user) => {
+  if (user?.isExpired || user?.accessCategory === 'expired') {
+    return {
+      label: 'Expired',
+      class: 'border-red-400/30 bg-red-400/10 text-red-300'
+    };
+  }
+  if (user?.isDemo || user?.accessCategory === 'demo') {
+    return {
+      label: 'Demo',
+      class: 'border-violet-400/30 bg-violet-400/10 text-violet-300'
+    };
+  }
+  if (user?.accessCategory === 'paid' || (user?.accessType === 'paid' && !user?.isExpired)) {
+    return {
+      label: 'Paid',
+      class: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
+    };
+  }
+  if (user?.accessCategory === 'free_access') {
+    return {
+      label: '30-Day Free',
+      class: 'border-yellow-400/30 bg-yellow-400/10 text-yellow-300'
+    };
+  }
+  return {
+    label: 'Free',
+    class: 'border-zinc-500/20 bg-zinc-500/10 text-zinc-300'
+  };
+};
 const getAccessLabel = (accessType) => accessType === 'paid' ? 'Paid' : 'Free';
 const getAccessClass = (accessType) => accessType === 'paid'
   ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-300'
@@ -115,6 +145,10 @@ export default function Admin() {
   const [revenueLoading, setRevenueLoading] = useState(true);
   const [revenueError, setRevenueError] = useState('');
   const [userAccessSearch, setUserAccessSearch] = useState('');
+  const [accessFilter, setAccessFilter] = useState('all');
+  const [notifyingUserId, setNotifyingUserId] = useState(null);
+  const [notifyingAllExpired, setNotifyingAllExpired] = useState(false);
+  const [notifyNoticeResult, setNotifyNoticeResult] = useState(null);
   const [productAnalytics, setProductAnalytics] = useState(null);
   const [productAnalyticsLoading, setProductAnalyticsLoading] = useState(true);
   const [productAnalyticsError, setProductAnalyticsError] = useState('');
@@ -278,6 +312,33 @@ export default function Admin() {
     }
   };
 
+  const handleNotifyPlanExpired = async (userId = null) => {
+    try {
+      if (userId) {
+        setNotifyingUserId(userId);
+      } else {
+        setNotifyingAllExpired(true);
+      }
+      setNotifyNoticeResult(null);
+
+      const payload = userId ? { userId, force: true } : { allExpired: true };
+      const res = await api.post('/notifications/notify-plan-expired', payload);
+      setNotifyNoticeResult({
+        ok: true,
+        message: res.data?.message || (userId ? 'Expiry notice sent successfully.' : 'All expired members notified.')
+      });
+    } catch (err) {
+      console.log(err);
+      setNotifyNoticeResult({
+        ok: false,
+        message: err?.response?.data?.message || err?.message || 'Failed to send notification.'
+      });
+    } finally {
+      setNotifyingUserId(null);
+      setNotifyingAllExpired(false);
+    }
+  };
+
   const approve = async (id) => {
     try {
       await api.put(`/payment/approve/${id}`);
@@ -394,19 +455,47 @@ export default function Admin() {
   const revenueAccessUsers = Array.isArray(revenueUserAccess.users) ? revenueUserAccess.users : [];
   const analyticsAccessUsers = Array.isArray(analyticsUserAccess.users) ? analyticsUserAccess.users : [];
   const userAccessUsers = revenueAccessUsers.length > 0 ? revenueAccessUsers : analyticsAccessUsers;
-  const userAccessSummary = userAccessUsers.length > 0
-    ? {
-      total: userAccessUsers.length,
-      free: userAccessUsers.filter((user) => user.accessType !== 'paid').length,
-      paid: userAccessUsers.filter((user) => user.accessType === 'paid').length
+  const userAccessSummary = useMemo(() => {
+    if (userAccessUsers.length === 0) {
+      const fallback = revenueUserAccess.summary || analyticsUserAccess.summary || {};
+      return {
+        total: Number(fallback.total || 0),
+        paid: Number(fallback.paid || 0),
+        freeAccess: Number(fallback.freeAccess || 0),
+        demo: Number(fallback.demo || 0),
+        expired: Number(fallback.expired || 0),
+        free: Number(fallback.free || 0)
+      };
     }
-    : revenueUserAccess.summary || analyticsUserAccess.summary || {};
+    return {
+      total: userAccessUsers.length,
+      paid: userAccessUsers.filter((u) => u.accessCategory === 'paid' || (u.accessType === 'paid' && !u.isExpired)).length,
+      freeAccess: userAccessUsers.filter((u) => u.accessCategory === 'free_access').length,
+      demo: userAccessUsers.filter((u) => u.isDemo || u.accessCategory === 'demo').length,
+      expired: userAccessUsers.filter((u) => u.isExpired || u.accessCategory === 'expired').length,
+      free: userAccessUsers.filter((u) => u.accessCategory === 'free').length
+    };
+  }, [userAccessUsers, revenueUserAccess.summary, analyticsUserAccess.summary]);
+
   const userAccessLoading = revenueLoading || (revenueAccessUsers.length === 0 && productAnalyticsLoading);
   const hasUserAccessSummaryOnly = userAccessUsers.length === 0 && Number(userAccessSummary.total || 0) > 0;
   const normalizedUserAccessSearch = userAccessSearch.trim().toLowerCase();
   const filteredUserAccessUsers = userAccessUsers.filter((user) => {
+    // 1. Access type filter
+    if (accessFilter === 'paid') {
+      const isPaid = (user.accessCategory === 'paid' || user.accessType === 'paid') && !user.isExpired;
+      if (!isPaid) return false;
+    } else if (accessFilter === 'demo') {
+      if (!user.isDemo && user.accessCategory !== 'demo') return false;
+    } else if (accessFilter === 'free_access') {
+      if (user.accessCategory !== 'free_access') return false;
+    } else if (accessFilter === 'expired') {
+      if (!user.isExpired && user.accessCategory !== 'expired') return false;
+    }
+
+    // 2. Search query filter
     if (!normalizedUserAccessSearch) return true;
-    return [user.email, user.name, user.plan, user.accessType]
+    return [user.email, user.name, user.plan, user.accessType, user.accessCategory]
       .filter(Boolean)
       .some((value) => String(value).toLowerCase().includes(normalizedUserAccessSearch));
   });
@@ -1022,37 +1111,89 @@ export default function Admin() {
           <div className="border-t border-white/5 p-5 sm:p-8">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Free/Paid Users By Email</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Access Segmentation & Expiry</p>
                 <h3 className="mt-2 text-xl font-black text-white">Plan access checker</h3>
                 <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
-                  Search any user email to see whether they are using the free version or an active paid plan.
+                  Separated view for demo, paid, 30-day free access, and expired members with one-click expiry notifications.
                 </p>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  {[
-                    ['Total', userAccessSummary.total],
-                    ['Free', userAccessSummary.free],
-                    ['Paid', userAccessSummary.paid]
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-2xl border border-white/5 bg-black/10 px-4 py-3">
-                      <p className="text-lg font-black text-white">{userAccessLoading ? '--' : formatNumber(value)}</p>
-                      <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                    </div>
-                  ))}
+              <div className="flex flex-wrap items-center gap-3">
+                {notifyNoticeResult && (
+                  <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                    notifyNoticeResult.ok
+                      ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
+                      : 'border-red-400/20 bg-red-400/10 text-red-300'
+                  }`}>
+                    {notifyNoticeResult.message}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleNotifyPlanExpired(null)}
+                  disabled={notifyingAllExpired || (userAccessSummary.expired || 0) === 0}
+                  className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {notifyingAllExpired ? 'Notifying...' : `🔔 Notify All Expired (${userAccessSummary.expired || 0})`}
+                </button>
+              </div>
+            </div>
+
+            {/* Access Category Summary Counters */}
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+              {[
+                { label: 'All Users', value: userAccessSummary.total, tone: 'text-white', border: 'border-white/10' },
+                { label: '💳 Paid Pro', value: userAccessSummary.paid, tone: 'text-emerald-300', border: 'border-emerald-400/20 bg-emerald-400/[0.04]' },
+                { label: '🎁 30-Day Free', value: userAccessSummary.freeAccess, tone: 'text-yellow-300', border: 'border-yellow-400/20 bg-yellow-400/[0.04]' },
+                { label: '🧪 Demo Accounts', value: userAccessSummary.demo, tone: 'text-violet-300', border: 'border-violet-400/20 bg-violet-400/[0.04]' },
+                { label: '⚠️ Expired Plans', value: userAccessSummary.expired, tone: 'text-red-400', border: 'border-red-400/20 bg-red-400/[0.04]' }
+              ].map((item) => (
+                <div key={item.label} className={`rounded-2xl border p-4 ${item.border}`}>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{item.label}</p>
+                  <p className={`mt-2 text-2xl font-black tracking-tight ${item.tone}`}>
+                    {userAccessLoading ? '--' : formatNumber(item.value)}
+                  </p>
                 </div>
+              ))}
+            </div>
+
+            {/* Filter Tabs & Search Bar */}
+            <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                {[
+                  { id: 'all', label: 'All', count: userAccessSummary.total },
+                  { id: 'paid', label: '💳 Paid', count: userAccessSummary.paid },
+                  { id: 'free_access', label: '🎁 30-Day Free', count: userAccessSummary.freeAccess },
+                  { id: 'demo', label: '🧪 Demo', count: userAccessSummary.demo },
+                  { id: 'expired', label: '⚠️ Expired', count: userAccessSummary.expired }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setAccessFilter(tab.id)}
+                    className={`rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
+                      accessFilter === tab.id
+                        ? 'border border-white/20 bg-white text-zinc-950 shadow-md'
+                        : 'border border-white/5 bg-white/[0.03] text-zinc-400 hover:border-white/10 hover:text-white'
+                    }`}
+                  >
+                    {tab.label} ({userAccessLoading ? '--' : formatNumber(tab.count)})
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2">
                 <input
                   value={userAccessSearch}
                   onChange={(event) => setUserAccessSearch(event.target.value)}
                   placeholder="Search email, name, plan"
-                  className="h-12 w-full min-w-0 rounded-2xl border border-white/10 bg-black/20 px-4 text-sm font-bold text-white outline-none transition focus:border-red-500/60 sm:w-72"
+                  className="h-10 w-full min-w-0 rounded-2xl border border-white/10 bg-black/20 px-4 text-xs font-bold text-white outline-none transition focus:border-red-500/60 sm:w-64"
                 />
                 {userAccessSearch && (
                   <button
                     type="button"
                     onClick={() => setUserAccessSearch('')}
-                    className="h-12 rounded-2xl border border-white/10 bg-white/[0.04] px-4 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-red-500/30 hover:text-white"
+                    className="h-10 rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-red-500/30 hover:text-white"
                   >
                     Clear
                   </button>
@@ -1070,53 +1211,84 @@ export default function Admin() {
               <div className="mt-5 rounded-2xl border border-white/5 bg-black/10 p-6 text-sm font-semibold text-zinc-500">
                 {hasUserAccessSummaryOnly
                   ? 'User counts are loaded, but the email list is not available from the current backend response yet.'
-                  : normalizedUserAccessSearch ? 'No user found for this search. Clear the search to show all users.' : 'No users found yet.'}
+                  : normalizedUserAccessSearch ? 'No user found for this search. Clear the search to show all users.' : 'No users found for this filter.'}
               </div>
             ) : (
               <div className="mt-5 overflow-hidden rounded-2xl border border-white/5 bg-black/10">
-                <div className="hidden grid-cols-[minmax(0,1.4fr)_100px_140px_140px_150px] gap-3 border-b border-white/5 bg-white/[0.02] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 md:grid">
-                  <span>User email</span>
-                  <span>Access</span>
-                  <span>Plan / Type</span>
-                  <span>Free Access</span>
-                  <span>Joined / Last Pay</span>
+                <div className="hidden grid-cols-[minmax(0,1.3fr)_120px_130px_170px_120px] gap-3 border-b border-white/5 bg-white/[0.02] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 md:grid">
+                  <span>User</span>
+                  <span>Access Type</span>
+                  <span>Plan / Value</span>
+                  <span>Expiry & Timing</span>
+                  <span>Action</span>
                 </div>
                 <div className="divide-y divide-white/5">
-                  {filteredUserAccessUsers.map((user) => (
-                    <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.4fr)_100px_140px_140px_150px] md:items-center">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-white">{user.email || 'No email'}</p>
-                        <p className="mt-1 truncate text-xs font-bold text-zinc-500">{user.name || 'Unnamed user'}</p>
-                        {user.isDemo && (
-                          <span className="mt-1 inline-flex rounded-full border border-violet-400/20 bg-violet-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-violet-300">
-                            Demo
+                  {filteredUserAccessUsers.map((user) => {
+                    const badge = getAccessBadgeInfo(user);
+                    const isUserExpired = user.isExpired || user.accessCategory === 'expired';
+                    const isNotifyingThisUser = notifyingUserId === (user.id || user._id);
+
+                    return (
+                      <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.3fr)_120px_130px_170px_120px] md:items-center">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-white">{user.email || 'No email'}</p>
+                          <p className="mt-1 truncate text-xs font-bold text-zinc-500">{user.name || 'Unnamed user'}</p>
+                          <p className="mt-1 text-[9px] font-bold text-zinc-600">Joined: {formatDate(user.createdAt)}</p>
+                        </div>
+
+                        <div>
+                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${badge.class}`}>
+                            {badge.label}
                           </span>
-                        )}
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-black text-white">{getPlanLabel(user.plan)}</p>
+                          <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                            {user.accessCategory === 'paid' ? formatMoney(user.amount || pricing?.plans?.[user.plan]) : 'Rs 0'}
+                          </p>
+                        </div>
+
+                        <div className="text-[10px] font-bold tracking-tight text-zinc-400">
+                          {isUserExpired ? (
+                            <p className="font-black text-red-400">
+                              ⚠️ Expired {user.daysExpired != null ? `${user.daysExpired}d ago` : ''}
+                            </p>
+                          ) : user.daysRemaining != null ? (
+                            <p className="font-black text-emerald-400">
+                              ✓ {user.daysRemaining} days left
+                            </p>
+                          ) : (
+                            <p className="text-zinc-500">Active</p>
+                          )}
+                          <p className="mt-1 text-[9px] text-zinc-500">
+                            {user.freeAccessExpiresAt
+                              ? `Exp: ${formatDate(user.freeAccessExpiresAt)}`
+                              : user.planExpiresAt
+                              ? `Exp: ${formatDate(user.planExpiresAt)}`
+                              : 'No fixed expiry'}
+                          </p>
+                        </div>
+
+                        <div>
+                          {isUserExpired ? (
+                            <button
+                              type="button"
+                              onClick={() => handleNotifyPlanExpired(user.id || user._id)}
+                              disabled={isNotifyingThisUser}
+                              className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
+                            >
+                              {isNotifyingThisUser ? 'Sending...' : '✉️ Notify Expiry'}
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center text-[10px] font-bold text-zinc-600">
+                              ✓ Active
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <span className={`inline-flex w-fit rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${getAccessClass(user.accessType)}`}>
-                        {getAccessLabel(user.accessType)}
-                      </span>
-                      <div>
-                        <p className="text-sm font-black text-white">{getPlanLabel(user.plan)}</p>
-                        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                          {user.accessType === 'paid' ? formatMoney(user.amount || pricing?.plans?.[user.plan]) : 'Rs 0'}
-                        </p>
-                      </div>
-                      <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                        <p>Start: {formatDate(user.freeAccessStartedAt || user.planStartedAt)}</p>
-                        <p>Exp: {user.freeAccessExpiresAt
-                          ? formatDate(user.freeAccessExpiresAt)
-                          : user.accessType === 'paid'
-                          ? formatDate(user.planExpiresAt)
-                          : '30d from start'}
-                        </p>
-                      </div>
-                      <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
-                        <p>Joined: {formatDate(user.createdAt)}</p>
-                        <p>Last pay: {formatDate(user.lastPaymentAt)}</p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

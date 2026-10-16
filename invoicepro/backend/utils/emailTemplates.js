@@ -402,10 +402,94 @@ const userDailyDigest = ({ user, items = [], dashboardUrl }) => {
     return { subject, html, text };
 };
 
+const planExpiredNotification = ({ user, planLabel = 'Pro', daysExpired = 0, isFreeAccess = false, renewUrl }) => {
+    const name = user?.name || user?.companyName || 'there';
+    const safeName = escapeHtml(name);
+    const label = escapeHtml(planLabel);
+    const subject = isFreeAccess
+        ? 'Your 30-Day Free Access to ClientFlow AI has expired'
+        : `Your ClientFlow AI ${label} access has expired`;
+    const preheader = isFreeAccess
+        ? 'Your 30-day free trial has ended. Upgrade to Pro to keep generating unlimited invoices & proposals.'
+        : `Your ${label} plan has expired. Renew your Pro access now to avoid workflow interruptions.`;
+
+    const bodyHtml = `
+      <p style="margin:0 0 14px;color:#374151;font-size:14px;line-height:1.6;">
+        Hi ${safeName},
+      </p>
+      <p style="margin:0 0 16px;color:#374151;font-size:14px;line-height:1.6;">
+        ${isFreeAccess
+            ? 'Your <strong>30-Day Full Free Access</strong> window for ClientFlow AI has expired.'
+            : `Your <strong>${label}</strong> plan subscription for ClientFlow AI has ended.`}
+      </p>
+
+      <div style="border:1px solid #fecaca;background:#fef2f2;border-radius:14px;padding:16px;margin:0 0 20px;">
+        <p style="margin:0 0 6px;color:#991b1b;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;">
+          Account Notice · Action Needed
+        </p>
+        <p style="margin:0;color:#7f1d1d;font-size:13px;line-height:1.5;">
+          ${daysExpired > 0
+            ? `Your access expired ${daysExpired} day${daysExpired === 1 ? '' : 's'} ago.`
+            : 'Your access period has reached its conclusion.'}
+          Upgrade to Pro now to keep full access to unlimited invoices, AI client discovery, professional proposals, and payment links.
+        </p>
+      </div>
+
+      <div style="border:1px solid #e5e7eb;border-radius:14px;padding:14px 16px;background:#ffffff;margin:0 0 20px;">
+        <p style="margin:0 0 8px;color:#6b7280;font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;">
+          Plan Details
+        </p>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="padding:6px 0;color:#6b7280;font-size:13px;">Plan Type</td>
+            <td style="padding:6px 0;color:#111827;font-size:13px;font-weight:800;text-align:right;">${label}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;color:#6b7280;font-size:13px;">Account Status</td>
+            <td style="padding:6px 0;color:#dc2626;font-size:13px;font-weight:800;text-align:right;">Expired</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;color:#6b7280;font-size:13px;">Your Data</td>
+            <td style="padding:6px 0;color:#059669;font-size:13px;font-weight:800;text-align:right;">Safely Preserved</td>
+          </tr>
+        </table>
+      </div>
+
+      <p style="margin:0 0 8px;color:#374151;font-size:14px;line-height:1.6;">
+        All your past invoices, clients, and documents remain securely preserved. You can resume right where you left off the moment you renew.
+      </p>
+    `;
+
+    const html = baseLayout({
+        preheader,
+        title: isFreeAccess ? '30-Day Free Access Expired' : `${label} Plan Expired`,
+        bodyHtml,
+        ctaHref: renewUrl,
+        ctaLabel: 'Renew Pro Access Now',
+        footerHtml: '<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">You received this notification regarding your ClientFlow AI account access status.</p>'
+    });
+
+    const text = [
+        `Hi ${name},`,
+        '',
+        isFreeAccess
+            ? 'Your 30-Day Full Free Access to ClientFlow AI has expired.'
+            : `Your ${label} plan for ClientFlow AI has expired.`,
+        '',
+        'Upgrade to Pro to restore unlimited invoice generation, AI client finding, and proposal tools:',
+        renewUrl,
+        '',
+        'All your clients, invoices, and documents are securely saved in your workspace.'
+    ].join('\n');
+
+    return { subject, html, text };
+};
+
 module.exports = {
     invoiceCreated,
     invoiceReminder,
     proposalReminder,
     paymentConfirmed,
-    userDailyDigest
+    userDailyDigest,
+    planExpiredNotification
 };

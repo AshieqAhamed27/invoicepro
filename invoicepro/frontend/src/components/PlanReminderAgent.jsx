@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { formatDate, getPlanLabel, getUser, isFreeFullAccessEnabled, isLoggedIn } from '../utils/auth';
+import { formatDate, getFreeAccessState, getPlanLabel, getUser, isLoggedIn } from '../utils/auth';
 
 const DEVICE_REMINDER_KEY = 'clientflow_plan_device_reminders_enabled';
 const PLAN_EXPIRY_REMINDER_DAYS = 2;
@@ -10,42 +10,81 @@ const notifiedKey = (userId, dateKey) => `clientflow_plan_device_notified_${user
 const getDateKey = () => new Date().toISOString().slice(0, 10);
 
 const getExpiryState = (user) => {
-  if (!user?.planExpiresAt) {
+  if (!user || user.role === 'admin') {
     return {
       expiresAt: null,
       daysLeft: null,
       expired: false,
-      expiringSoon: false
+      expiringSoon: false,
+      isFreeAccess: false
     };
   }
 
-  const expiresAt = new Date(user.planExpiresAt);
-  if (Number.isNaN(expiresAt.getTime())) {
+  // 1. Paid plan check
+  if (user.plan && user.plan !== 'free') {
+    if (!user.planExpiresAt) {
+      return {
+        expiresAt: null,
+        daysLeft: null,
+        expired: false,
+        expiringSoon: false,
+        isFreeAccess: false
+      };
+    }
+
+    const expiresAt = new Date(user.planExpiresAt);
+    if (Number.isNaN(expiresAt.getTime())) {
+      return {
+        expiresAt: null,
+        daysLeft: null,
+        expired: false,
+        expiringSoon: false,
+        isFreeAccess: false
+      };
+    }
+
+    const daysLeft = Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+
     return {
-      expiresAt: null,
-      daysLeft: null,
-      expired: false,
-      expiringSoon: false
+      expiresAt,
+      daysLeft,
+      expired: daysLeft <= 0,
+      expiringSoon: daysLeft > 0 && daysLeft <= PLAN_EXPIRY_REMINDER_DAYS,
+      isFreeAccess: false
     };
   }
 
-  const daysLeft = Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  // 2. 30-Day Free access check
+  const freeAccess = getFreeAccessState(user);
+  if (freeAccess?.expiresAt) {
+    const expiresAt = new Date(freeAccess.expiresAt);
+    const daysLeft = freeAccess.daysLeft ?? Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+
+    return {
+      expiresAt,
+      daysLeft,
+      expired: freeAccess.expired || daysLeft <= 0,
+      expiringSoon: !freeAccess.expired && daysLeft > 0 && daysLeft <= PLAN_EXPIRY_REMINDER_DAYS,
+      isFreeAccess: true
+    };
+  }
 
   return {
-    expiresAt,
-    daysLeft,
-    expired: daysLeft <= 0,
-    expiringSoon: daysLeft > 0 && daysLeft <= PLAN_EXPIRY_REMINDER_DAYS
+    expiresAt: null,
+    daysLeft: null,
+    expired: false,
+    expiringSoon: false,
+    isFreeAccess: false
   };
 };
 
 const getReminderCopy = (user, expiryState) => {
-  const planLabel = getPlanLabel(user);
+  const planLabel = expiryState.isFreeAccess ? '30-Day Free Access' : getPlanLabel(user);
 
   if (expiryState.expired) {
     return {
-      title: `${planLabel} expired`,
-      body: 'Renew Pro to keep AI client finding, proposals, team workspace, and unlimited invoices active.',
+      title: `${planLabel} has expired`,
+      body: 'Renew Pro to keep AI client finding, proposal tools, team workspace, and unlimited invoices active.',
       tone: 'danger'
     };
   }
@@ -81,8 +120,7 @@ export default function PlanReminderAgent() {
   }, [location.pathname]);
 
   const expiryState = useMemo(() => getExpiryState(user), [user]);
-  const hasPlanWithExpiry = Boolean(!isFreeFullAccessEnabled() && user?.plan && user.plan !== 'free' && expiryState.expiresAt);
-  const shouldRemind = Boolean(user && hasPlanWithExpiry && (expiryState.expiringSoon || expiryState.expired));
+  const shouldRemind = Boolean(user && user.role !== 'admin' && expiryState.expiresAt && (expiryState.expiringSoon || expiryState.expired));
   const todayKey = getDateKey();
   const reminder = useMemo(() => getReminderCopy(user, expiryState), [user, expiryState]);
   const userId = user?.id || user?._id || user?.email;
@@ -108,7 +146,7 @@ export default function PlanReminderAgent() {
     if (localStorage.getItem(key) === '1') return;
 
     try {
-      new window.Notification('ClientFlow AI Plan Reminder', {
+      new window.Notification(expiryState.expired ? 'ClientFlow AI: Plan Expired' : 'ClientFlow AI Plan Reminder', {
         body: `${reminder.title}. ${reminder.body}`,
         icon: '/logo.svg',
         tag: 'clientflow-plan-reminder'
