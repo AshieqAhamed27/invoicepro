@@ -176,10 +176,13 @@ router.get('/admin/summary', protect, async(req, res) => {
                 email: user.email || '',
                 plan: user.plan || 'free',
                 accessType,
+                isDemo: Boolean(user.isDemo),
                 subscriptionStatus: user.subscriptionStatus || '',
                 subscriptionProvider: user.subscriptionProvider || '',
                 planStartedAt: user.planStartedAt || null,
                 planExpiresAt: user.planExpiresAt || null,
+                freeAccessStartedAt: user.freeAccessStartedAt || null,
+                freeAccessExpiresAt: user.freeAccessExpiresAt || null,
                 lastPaymentAt: user.lastPaymentAt || null,
                 createdAt: user.createdAt || null
             };
@@ -202,6 +205,13 @@ router.get('/admin/summary', protect, async(req, res) => {
             role: { $ne: 'admin' },
             user: { $ne: null }
         };
+
+        // Unique visitorIds who have EVER had a page_view event with a linked user
+        const signedUpViewerIds = await ProductAnalyticsEvent.distinct('visitorId', {
+            ...pageViewMatch,
+            user: { $ne: null },
+            visitorId: { $nin: [null, ''] }
+        });
 
         const [
             rawProductViews,
@@ -247,6 +257,30 @@ router.get('/admin/summary', protect, async(req, res) => {
                                 ]
                             }
                         },
+                        freeAccess30DayMembers: {
+                            $sum: {
+                                $cond: [
+                                    {
+                                        $and: [
+                                            { $ne: ['$role', 'admin'] },
+                                            { $in: [{ $ifNull: ['$plan', 'free'] }, FREE_ACCESS_PLANS] },
+                                            { $ne: [{ $ifNull: ['$freeAccessStartedAt', null] }, null] }
+                                        ]
+                                    },
+                                    1,
+                                    0
+                                ]
+                            }
+                        },
+                        demoMembers: {
+                            $sum: {
+                                $cond: [
+                                    { $and: [{ $ne: ['$role', 'admin'] }, { $eq: ['$isDemo', true] }] },
+                                    1,
+                                    0
+                                ]
+                            }
+                        },
                         paidMembers: {
                             $sum: {
                                 $cond: [
@@ -286,7 +320,7 @@ router.get('/admin/summary', protect, async(req, res) => {
                 }
             ]),
             User.find({ role: { $ne: 'admin' } })
-                .select('name email plan subscriptionStatus subscriptionProvider planStartedAt planExpiresAt lastPaymentAt createdAt')
+                .select('name email plan isDemo subscriptionStatus subscriptionProvider planStartedAt planExpiresAt freeAccessStartedAt freeAccessExpiresAt lastPaymentAt createdAt')
                 .sort({ createdAt: -1 })
                 .limit(500)
                 .lean(),
@@ -486,6 +520,8 @@ router.get('/admin/summary', protect, async(req, res) => {
         const members = userSummary[0] || {
             registeredMembers: 0,
             freeAccessMembers: 0,
+            freeAccess30DayMembers: 0,
+            demoMembers: 0,
             paidMembers: 0,
             trialMembers: 0,
             earlyAccessMembers: 0,
@@ -502,6 +538,11 @@ router.get('/admin/summary', protect, async(req, res) => {
         const paidMembers = accessSummary.paid;
         const freeAccessMembers = accessSummary.free;
 
+        // Visitors who NEVER signed up (view-only, no linked user in any event)
+        const totalUniqueVisitors = await countUnique(pageViewMatch, 'visitorId');
+        const signedUpAndViewedCount = new Set(signedUpViewerIds).size;
+        const viewOnlyVisitors = Math.max(0, totalUniqueVisitors - signedUpAndViewedCount);
+
         res.json({
             totals: {
                 productViews: uniqueProductViewers,
@@ -513,6 +554,10 @@ router.get('/admin/summary', protect, async(req, res) => {
                 newMembers7d,
                 registeredMembers,
                 freeAccessMembers,
+                freeAccess30DayMembers: Number(members.freeAccess30DayMembers || 0),
+                demoMembers: Number(members.demoMembers || 0),
+                viewOnlyVisitors,
+                signedUpAndViewed: signedUpAndViewedCount,
                 paidMembers,
                 trialMembers: Number(members.trialMembers || 0),
                 earlyAccessMembers: Number(members.earlyAccessMembers || 0),
@@ -546,6 +591,59 @@ router.get('/admin/summary', protect, async(req, res) => {
     } catch (err) {
         console.error('PRODUCT ANALYTICS SUMMARY ERROR:', err.message);
         res.status(500).json({ message: 'Unable to load product analytics' });
+    }
+});
+
+// ══════════════════════════════════════════════════════
+// DELETE DUPLICATE ANALYTICS EVENTS (admin only)
+// Keeps only the FIRST occurrence of each
+// visitorId + eventName + same UTC day.
+// ══════════════════════════════════════════════════════
+router.post('/admin/cleanup-duplicate-events', protect, async(req, res) => {
+    try {
+        if (!requireAdmin(req, res)) return;
+
+        const duplicates = await ProductAnalyticsEvent.aggregate([
+            {
+                $group: {
+                    _id: {
+                        visitorId: '$visitorId',
+                        eventName: '$eventName',
+                        day: {
+                            $dateToString: {
+                                format: '%Y-%m-%d',
+                                date: '$createdAt'
+                            }
+                        }
+                    },
+                    ids: { $push: '$_id' },
+                    count: { $sum: 1 }
+                }
+            },
+            { $match: { count: { $gt: 1 } } }
+        ]);
+
+        let deletedCount = 0;
+        const toDelete = [];
+        for (const group of duplicates) {
+            const [, ...extras] = group.ids;
+            toDelete.push(...extras);
+        }
+
+        if (toDelete.length > 0) {
+            const result = await ProductAnalyticsEvent.deleteMany({ _id: { $in: toDelete } });
+            deletedCount = result.deletedCount || 0;
+        }
+
+        res.json({
+            ok: true,
+            duplicateGroups: duplicates.length,
+            deletedCount,
+            message: `Removed ${deletedCount} duplicate analytics events across ${duplicates.length} groups.`
+        });
+    } catch (err) {
+        console.error('CLEANUP DUPLICATE EVENTS ERROR:', err.message);
+        res.status(500).json({ message: 'Cleanup failed' });
     }
 });
 

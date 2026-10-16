@@ -118,6 +118,8 @@ export default function Admin() {
   const [productAnalytics, setProductAnalytics] = useState(null);
   const [productAnalyticsLoading, setProductAnalyticsLoading] = useState(true);
   const [productAnalyticsError, setProductAnalyticsError] = useState('');
+  const [cleanupLoading, setCleanupLoading] = useState(false);
+  const [cleanupResult, setCleanupResult] = useState(null);
   const [analyticsUpdatedAt, setAnalyticsUpdatedAt] = useState('');
   const [hoveredGraphIndex, setHoveredGraphIndex] = useState(null);
   const [selectedGraphIndex, setSelectedGraphIndex] = useState(null);
@@ -258,6 +260,21 @@ export default function Admin() {
       setAgencyError('Could not load agency setup bookings.');
     } finally {
       setAgencyLoading(false);
+    }
+  };
+
+  const runCleanupDuplicates = async () => {
+    try {
+      setCleanupLoading(true);
+      setCleanupResult(null);
+      const res = await api.post('/product-analytics/admin/cleanup-duplicate-events');
+      setCleanupResult(res.data || {});
+      fetchProductAnalytics();
+    } catch (err) {
+      console.log(err);
+      setCleanupResult({ ok: false, message: err?.response?.data?.message || 'Cleanup failed.' });
+    } finally {
+      setCleanupLoading(false);
     }
   };
 
@@ -430,12 +447,11 @@ export default function Admin() {
             </div>
           </div>
 
-          <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-6">
+          <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-5">
             {[
-              { label: 'New Product Viewers', value: productTotals.newProductViewers ?? productTotals.uniqueVisitors, tone: 'text-sky-300' },
-              { label: 'New Visitors 7d', value: productAnalytics?.last7Days?.newVisitors, tone: 'text-white' },
-              { label: 'Users Who Used', value: productTotals.usersWhoUsedProduct, tone: 'text-emerald-300' },
-              { label: 'Active Users 30d', value: productTotals.activeMembers30d, tone: 'text-emerald-300' },
+              { label: 'Total Unique Viewers', value: productTotals.newProductViewers ?? productTotals.uniqueVisitors, tone: 'text-sky-300' },
+              { label: 'View-Only (No Signup)', value: productTotals.viewOnlyVisitors, tone: 'text-sky-400' },
+              { label: 'Signed Up & Viewed', value: productTotals.signedUpAndViewed, tone: 'text-white' },
               { label: 'Free Users', value: productTotals.freeAccessMembers, tone: 'text-yellow-300' },
               { label: 'Paid Users', value: productTotals.paidMembers, tone: 'text-emerald-300' }
             ].map((item) => (
@@ -446,6 +462,52 @@ export default function Admin() {
                 </p>
               </div>
             ))}
+          </div>
+
+          {/* User Journey Funnel Breakdown */}
+          <div className="border-t border-white/5 px-5 pb-6 pt-6 sm:px-8">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">User Journey Funnel</p>
+                <h3 className="mt-1 text-xl font-black text-white">Where members are in the product</h3>
+              </div>
+              <div className="flex items-center gap-3">
+                {cleanupResult && (
+                  <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                    cleanupResult.ok
+                      ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-300'
+                      : 'border-red-400/10 bg-red-400/5 text-red-300'
+                  }`}>
+                    {cleanupResult.message || (cleanupResult.ok ? 'Done' : 'Failed')}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={runCleanupDuplicates}
+                  disabled={cleanupLoading}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-200 transition hover:border-red-400/30 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {cleanupLoading ? 'Cleaning...' : '🧹 Remove Duplicate Events'}
+                </button>
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+              {[
+                { label: '👁️ Just Viewed', value: productTotals.viewOnlyVisitors, desc: 'Anonymous – never signed up', border: 'border-sky-400/20 bg-sky-400/[0.06]', text: 'text-sky-300' },
+                { label: '📝 Signed Up & Browsed', value: productTotals.signedUpAndViewed, desc: 'Registered members who viewed', border: 'border-white/10 bg-white/[0.03]', text: 'text-white' },
+                { label: '🎁 30-Day Free Access', value: productTotals.freeAccess30DayMembers, desc: 'Active free trial window', border: 'border-yellow-400/20 bg-yellow-400/[0.06]', text: 'text-yellow-300' },
+                { label: '🔬 Tried Demo', value: productTotals.demoMembers, desc: 'isDemo accounts', border: 'border-violet-400/20 bg-violet-400/[0.06]', text: 'text-violet-300' },
+                { label: '💳 Paid Members', value: productTotals.paidMembers, desc: 'Active paid subscriptions', border: 'border-emerald-400/20 bg-emerald-400/[0.06]', text: 'text-emerald-300' }
+              ].map((item) => (
+                <div key={item.label} className={`rounded-[2rem] border p-5 ${item.border}`}>
+                  <p className="text-xs font-black uppercase tracking-widest text-zinc-500">{item.label}</p>
+                  <p className={`mt-3 text-4xl font-black tracking-tight ${item.text}`}>
+                    {productAnalyticsLoading ? '--' : formatNumber(item.value)}
+                  </p>
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{item.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="px-5 pb-5 sm:px-8 sm:pb-8">
@@ -1012,18 +1074,24 @@ export default function Admin() {
               </div>
             ) : (
               <div className="mt-5 overflow-hidden rounded-2xl border border-white/5 bg-black/10">
-                <div className="hidden grid-cols-[minmax(0,1.4fr)_110px_130px_150px] gap-3 border-b border-white/5 bg-white/[0.02] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 md:grid">
+                <div className="hidden grid-cols-[minmax(0,1.4fr)_100px_140px_140px_150px] gap-3 border-b border-white/5 bg-white/[0.02] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 md:grid">
                   <span>User email</span>
                   <span>Access</span>
-                  <span>Plan</span>
-                  <span>Dates</span>
+                  <span>Plan / Type</span>
+                  <span>Free Access</span>
+                  <span>Joined / Last Pay</span>
                 </div>
                 <div className="divide-y divide-white/5">
                   {filteredUserAccessUsers.map((user) => (
-                    <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.4fr)_110px_130px_150px] md:items-center">
+                    <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.4fr)_100px_140px_140px_150px] md:items-center">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-black text-white">{user.email || 'No email'}</p>
                         <p className="mt-1 truncate text-xs font-bold text-zinc-500">{user.name || 'Unnamed user'}</p>
+                        {user.isDemo && (
+                          <span className="mt-1 inline-flex rounded-full border border-violet-400/20 bg-violet-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-violet-300">
+                            Demo
+                          </span>
+                        )}
                       </div>
                       <span className={`inline-flex w-fit rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${getAccessClass(user.accessType)}`}>
                         {getAccessLabel(user.accessType)}
@@ -1035,8 +1103,17 @@ export default function Admin() {
                         </p>
                       </div>
                       <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                        <p>Start: {formatDate(user.freeAccessStartedAt || user.planStartedAt)}</p>
+                        <p>Exp: {user.freeAccessExpiresAt
+                          ? formatDate(user.freeAccessExpiresAt)
+                          : user.accessType === 'paid'
+                          ? formatDate(user.planExpiresAt)
+                          : '30d from start'}
+                        </p>
+                      </div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
                         <p>Joined: {formatDate(user.createdAt)}</p>
-                        <p>Expire: {formatDate(user.planExpiresAt)}</p>
+                        <p>Last pay: {formatDate(user.lastPaymentAt)}</p>
                       </div>
                     </div>
                   ))}
