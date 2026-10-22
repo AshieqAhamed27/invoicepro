@@ -401,6 +401,7 @@ router.post('/', protect, async(req, res) => {
             gst,
             cgst,
             sgst,
+            tds,
             upiId,
             sourceLeadId,
             scopeAgreement,
@@ -433,6 +434,34 @@ router.post('/', protect, async(req, res) => {
 
         const invoiceNumber = await generateDocumentNumber(user._id, normalizedDocumentType);
 
+        const baseAmount = Number(amount) || 0;
+        const totalTax = (Number(cgst) || 0) + (Number(sgst) || 0);
+        let tdsData = {
+            enabled: false,
+            rate: 0,
+            section: '194J',
+            amount: 0,
+            certificateNumber: '',
+            reconciled: false,
+            reconciledAt: null
+        };
+
+        if (tds && (tds.enabled || Number(tds.rate) > 0 || Number(tds.amount) > 0)) {
+            const rate = Number(tds.rate) || (tds.section === '194C' ? 2 : 10);
+            const calculatedAmount = Number(tds.amount) || Math.round((baseAmount * rate) / 100);
+            tdsData = {
+                enabled: true,
+                rate,
+                section: String(tds.section || '194J').trim().toUpperCase(),
+                amount: calculatedAmount,
+                certificateNumber: String(tds.certificateNumber || '').trim(),
+                reconciled: Boolean(tds.reconciled),
+                reconciledAt: tds.reconciled ? new Date() : null
+            };
+        }
+
+        const netPayable = Math.max(0, baseAmount + totalTax - (tdsData.enabled ? tdsData.amount : 0));
+
         const invoice = await Invoice.create({
             documentType: normalizedDocumentType,
             clientName,
@@ -449,6 +478,8 @@ router.post('/', protect, async(req, res) => {
             gst: gst || '',
             cgst: Number(cgst) || 0,
             sgst: Number(sgst) || 0,
+            tds: tdsData,
+            netPayable,
             upiId: finalUpiId,
             businessSnapshot: buildBusinessSnapshot(user, {
                 gst,
@@ -522,6 +553,8 @@ router.post('/', protect, async(req, res) => {
                             gst: invoice.gst || '',
                             cgst: Number(invoice.cgst) || 0,
                             sgst: Number(invoice.sgst) || 0,
+                            tds: invoice.tds || tdsData,
+                            netPayable: invoice.netPayable || netPayable,
                             upiId: invoice.upiId || '',
                             notes: invoice.notes || '',
                             dueDays
@@ -1441,6 +1474,244 @@ router.post('/public/:id/verify-screenshot', upload.single('screenshot'), async 
     } catch (err) {
         console.error('VERIFY SCREENSHOT ERROR:', err);
         res.status(500).json({ message: 'Server error during screenshot verification.' });
+    }
+});
+
+// ==========================================
+// 🇮🇳 INDIA TAX & TDS RECONCILIATION SUITE
+// ==========================================
+
+// 1. RECONCILE TDS / LOG FORM 16A CERTIFICATE
+router.post('/:id/reconcile-tds', protect, async (req, res) => {
+    try {
+        if (!isValidObjectId(req.params.id)) {
+            return rejectInvalidObjectId(res, 'invoice');
+        }
+
+        const invoice = await Invoice.findOne({ _id: req.params.id, user: req.user._id });
+        if (!invoice) {
+            return res.status(404).json({ message: 'Invoice not found.' });
+        }
+
+        const { certificateNumber, actualTdsDeducted, section, note } = req.body;
+
+        const tdsAmount = actualTdsDeducted !== undefined ? Number(actualTdsDeducted) : (invoice.tds?.amount || 0);
+        const tdsSection = section || invoice.tds?.section || '194J';
+        const certNo = certificateNumber || invoice.tds?.certificateNumber || '';
+
+        invoice.tds = {
+            enabled: true,
+            rate: invoice.tds?.rate || (tdsSection === '194C' ? 2 : 10),
+            section: tdsSection,
+            amount: tdsAmount,
+            certificateNumber: certNo,
+            reconciled: Boolean(certNo),
+            reconciledAt: certNo ? new Date() : null
+        };
+
+        const totalTax = (Number(invoice.cgst) || 0) + (Number(invoice.sgst) || 0);
+        invoice.netPayable = Math.max(0, Number(invoice.amount) + totalTax - tdsAmount);
+
+        if (note) {
+            invoice.notes = invoice.notes ? `${invoice.notes}\n[TDS Note]: ${note}` : `[TDS Note]: ${note}`;
+        }
+
+        await invoice.save();
+
+        res.json({
+            success: true,
+            message: 'TDS reconciled successfully!',
+            invoice
+        });
+    } catch (err) {
+        console.error('RECONCILE TDS ERROR:', err);
+        res.status(500).json({ message: 'Server error during TDS reconciliation.', error: err.message });
+    }
+});
+
+// 2. TDS ANNUAL / QUARTERLY SUMMARY (FOR 26AS & ITR FILING)
+router.get('/tax/tds-summary', protect, async (req, res) => {
+    try {
+        const { year } = req.query;
+        const now = new Date();
+        const currentYear = year ? Number(year) : (now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1);
+        const fyStart = new Date(currentYear, 3, 1);
+        const fyEnd = new Date(currentYear + 1, 2, 31, 23, 59, 59);
+
+        const invoices = await Invoice.find({
+            user: req.user._id,
+            documentType: 'invoice',
+            date: { $gte: fyStart, $lte: fyEnd }
+        }).sort({ date: -1 });
+
+        let totalGrossBilled = 0;
+        let totalCgst = 0;
+        let totalSgst = 0;
+        let totalTdsDeducted = 0;
+        let totalNetReceived = 0;
+        let section194JAmount = 0;
+        let section194CAmount = 0;
+        let reconciledCount = 0;
+        let pendingCertificateCount = 0;
+
+        const tdsEntries = [];
+
+        for (const inv of invoices) {
+            const amt = Number(inv.amount || 0);
+            const cgst = Number(inv.cgst || 0);
+            const sgst = Number(inv.sgst || 0);
+            const tdsAmt = inv.tds?.enabled ? Number(inv.tds.amount || 0) : 0;
+            const net = inv.netPayable || (amt + cgst + sgst - tdsAmt);
+
+            totalGrossBilled += amt;
+            totalCgst += cgst;
+            totalSgst += sgst;
+
+            if (tdsAmt > 0) {
+                totalTdsDeducted += tdsAmt;
+                if (inv.tds?.section === '194C') {
+                    section194CAmount += tdsAmt;
+                } else {
+                    section194JAmount += tdsAmt;
+                }
+
+                if (inv.tds?.reconciled) {
+                    reconciledCount += 1;
+                } else {
+                    pendingCertificateCount += 1;
+                }
+
+                tdsEntries.push({
+                    invoiceNumber: inv.invoiceNumber,
+                    date: inv.date,
+                    clientName: inv.clientName,
+                    amount: amt,
+                    tdsRate: inv.tds?.rate || 0,
+                    tdsSection: inv.tds?.section || '194J',
+                    tdsAmount: tdsAmt,
+                    netReceived: net,
+                    certificateNumber: inv.tds?.certificateNumber || 'Pending Form 16A',
+                    reconciled: Boolean(inv.tds?.reconciled)
+                });
+            }
+
+            if (inv.status === 'paid') {
+                totalNetReceived += net;
+            }
+        }
+
+        res.json({
+            financialYear: `FY ${currentYear}-${(currentYear + 1).toString().slice(-2)}`,
+            summary: {
+                totalInvoices: invoices.length,
+                totalGrossBilled,
+                totalGst: totalCgst + totalSgst,
+                totalTdsDeducted,
+                totalNetReceived,
+                section194J: section194JAmount,
+                section194C: section194CAmount,
+                reconciledCount,
+                pendingCertificateCount
+            },
+            entries: tdsEntries
+        });
+    } catch (err) {
+        console.error('TDS SUMMARY ERROR:', err);
+        res.status(500).json({ message: 'Failed to generate TDS summary.', error: err.message });
+    }
+});
+
+// 3. CHARTERED ACCOUNTANT (CA) EXPORT (CSV / JSON)
+router.get('/tax/ca-export', protect, async (req, res) => {
+    try {
+        const { format, year } = req.query;
+        const now = new Date();
+        const currentYear = year ? Number(year) : (now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1);
+        const fyStart = new Date(currentYear, 3, 1);
+        const fyEnd = new Date(currentYear + 1, 2, 31, 23, 59, 59);
+
+        const invoices = await Invoice.find({
+            user: req.user._id,
+            documentType: 'invoice',
+            date: { $gte: fyStart, $lte: fyEnd }
+        }).sort({ date: 1 });
+
+        if (format === 'csv') {
+            const headers = [
+                'Invoice No',
+                'Date',
+                'Client Name',
+                'Client Email',
+                'Currency',
+                'Gross Amount',
+                'CGST',
+                'SGST',
+                'Total Invoiced',
+                'TDS Section',
+                'TDS Rate (%)',
+                'TDS Deducted',
+                'Net Payable / Received',
+                'Status',
+                'Form 16A Certificate'
+            ];
+
+            const rows = invoices.map(inv => {
+                const amt = Number(inv.amount || 0);
+                const cgst = Number(inv.cgst || 0);
+                const sgst = Number(inv.sgst || 0);
+                const total = amt + cgst + sgst;
+                const tdsRate = inv.tds?.enabled ? (inv.tds.rate || 0) : 0;
+                const tdsAmt = inv.tds?.enabled ? (inv.tds.amount || 0) : 0;
+                const net = inv.netPayable || (total - tdsAmt);
+
+                return [
+                    inv.invoiceNumber,
+                    inv.date ? new Date(inv.date).toISOString().slice(0, 10) : '',
+                    `"${(inv.clientName || '').replace(/"/g, '""')}"`,
+                    inv.clientEmail,
+                    inv.currency || 'INR',
+                    amt.toFixed(2),
+                    cgst.toFixed(2),
+                    sgst.toFixed(2),
+                    total.toFixed(2),
+                    inv.tds?.enabled ? (inv.tds.section || '194J') : 'N/A',
+                    tdsRate,
+                    tdsAmt.toFixed(2),
+                    net.toFixed(2),
+                    inv.status,
+                    `"${(inv.tds?.certificateNumber || '').replace(/"/g, '""')}"`
+                ].join(',');
+            });
+
+            const csvContent = [headers.join(','), ...rows].join('\n');
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', `attachment; filename="clientflow-ca-export-fy${currentYear}.csv"`);
+            return res.send(csvContent);
+        }
+
+        res.json({
+            financialYear: `FY ${currentYear}-${(currentYear + 1).toString().slice(-2)}`,
+            count: invoices.length,
+            invoices: invoices.map(inv => ({
+                invoiceNumber: inv.invoiceNumber,
+                date: inv.date,
+                clientName: inv.clientName,
+                clientEmail: inv.clientEmail,
+                currency: inv.currency,
+                grossAmount: inv.amount,
+                cgst: inv.cgst,
+                sgst: inv.sgst,
+                tdsSection: inv.tds?.section || 'N/A',
+                tdsRate: inv.tds?.rate || 0,
+                tdsDeducted: inv.tds?.amount || 0,
+                netPayable: inv.netPayable,
+                status: inv.status,
+                certificateNumber: inv.tds?.certificateNumber || ''
+            }))
+        });
+    } catch (err) {
+        console.error('CA EXPORT ERROR:', err);
+        res.status(500).json({ message: 'Failed to generate CA export.', error: err.message });
     }
 });
 

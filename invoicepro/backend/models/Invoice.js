@@ -74,6 +74,42 @@ const invoiceSchema = new mongoose.Schema({
         default: 0
     },
 
+    tds: {
+        enabled: {
+            type: Boolean,
+            default: false
+        },
+        rate: {
+            type: Number,
+            default: 0
+        },
+        section: {
+            type: String,
+            default: '194J'
+        },
+        amount: {
+            type: Number,
+            default: 0
+        },
+        certificateNumber: {
+            type: String,
+            default: ''
+        },
+        reconciled: {
+            type: Boolean,
+            default: false
+        },
+        reconciledAt: {
+            type: Date,
+            default: null
+        }
+    },
+
+    netPayable: {
+        type: Number,
+        default: 0
+    },
+
     upiId: {
         type: String,
         default: ''

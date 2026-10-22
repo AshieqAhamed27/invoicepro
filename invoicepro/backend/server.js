@@ -40,6 +40,11 @@ const productAnalyticsRoutes = require('./routes/productAnalytics');
 const notificationRoutes = require('./routes/notifications');
 const organizationRoutes = require('./routes/organizations');
 const feedbackRoutes = require('./routes/feedback');
+const followUpRoutes = require('./routes/followup');
+const aiProposalRoutes = require('./routes/aiProposal');
+const remindersRoutes = require('./routes/reminders');
+const leadAutomationRoutes = require('./routes/leadAutomation');
+const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
 const securityConfig = getSecurityConfig();
@@ -167,6 +172,11 @@ app.use('/api/product-analytics', productAnalyticsRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/followup', followUpRoutes);
+app.use('/api/ai/proposal', aiProposalRoutes);
+app.use('/api/reminders', remindersRoutes);
+app.use('/api/leads/automation', leadAutomationRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/api', (req, res) => {
     res.json({
@@ -188,7 +198,12 @@ app.get('/api', (req, res) => {
             notifications: '/api/notifications',
             organizations: '/api/organizations',
             feedback: '/api/feedback',
-            codeRunnerStatus: '/api/team-projects/code-runner/status'
+            codeRunnerStatus: '/api/team-projects/code-runner/status',
+            followup: '/api/followup',
+            aiProposal: '/api/ai/proposal',
+            reminders: '/api/reminders',
+            leadAutomation: '/api/leads/automation',
+            dashboard: '/api/dashboard'
         }
     });
 });

@@ -103,6 +103,13 @@ const recurringInvoiceSchema = new mongoose.Schema({
         gst: { type: String, default: '' },
         cgst: { type: Number, default: 0 },
         sgst: { type: Number, default: 0 },
+        tds: {
+            enabled: { type: Boolean, default: false },
+            rate: { type: Number, default: 0 },
+            section: { type: String, default: '194J' },
+            amount: { type: Number, default: 0 }
+        },
+        netPayable: { type: Number, default: 0 },
         upiId: { type: String, default: '' },
         notes: { type: String, default: '' },
         dueDays: { type: Number, default: null, min: 0 }
