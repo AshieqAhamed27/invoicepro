@@ -455,6 +455,69 @@ export default function ClientFlow() {
           </section>
         )}
 
+                {/* === QUICK ACTIONS: Instant 3-Path Clarity === */}
+        <section className="mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Quick Actions</p>
+              <h2 className="text-xl font-black text-white">What do you want to accomplish right now?</h2>
+            </div>
+            {!isPro && (
+              <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs">
+                <span className="text-emerald-400 font-bold">⭐ Why Upgrade to Pro (₹499/mo)?</span>
+                <span className="text-zinc-400 hidden sm:inline">Recover 1 late invoice to pay for 3 years.</span>
+              </div>
+            )}
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            {/* Action 1: Create Invoice */}
+            <div 
+              onClick={() => navigate('/create-invoice')}
+              className="cursor-pointer group p-5 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] hover:border-emerald-500/40 transition-all shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-2xl p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">📄</span>
+                <span className="text-xs font-bold text-zinc-500 group-hover:text-emerald-400 transition">Start ➔</span>
+              </div>
+              <h3 className="text-base font-black text-white group-hover:text-emerald-300 transition">Create Invoice & UPI Link</h3>
+              <p className="mt-1.5 text-xs text-zinc-400 leading-relaxed">
+                Generate a GST-ready invoice with Razorpay link & UPI QR code in under 60 seconds.
+              </p>
+            </div>
+
+            {/* Action 2: AI Proposal */}
+            <div 
+              onClick={() => navigate('/proposal-writer')}
+              className="cursor-pointer group p-5 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] hover:border-indigo-500/40 transition-all shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-2xl p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">✍️</span>
+                <span className="text-xs font-bold text-zinc-500 group-hover:text-indigo-400 transition">Draft ➔</span>
+              </div>
+              <h3 className="text-base font-black text-white group-hover:text-indigo-300 transition">Draft AI Proposal</h3>
+              <p className="mt-1.5 text-xs text-zinc-400 leading-relaxed">
+                Turn your project scope into a professional proposal with payment terms clients can sign online.
+              </p>
+            </div>
+
+            {/* Action 3: Overdue Payment Recovery */}
+            <div 
+              onClick={() => navigate('/dashboard')}
+              className="cursor-pointer group p-5 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.07] hover:border-amber-500/40 transition-all shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-2xl p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">🔔</span>
+                <span className="text-xs font-bold text-zinc-500 group-hover:text-amber-400 transition">Chase ➔</span>
+              </div>
+              <h3 className="text-base font-black text-white group-hover:text-amber-300 transition">Chase Overdue Payments</h3>
+              <p className="mt-1.5 text-xs text-zinc-400 leading-relaxed">
+                Send polite, automated WhatsApp or Email reminders to late clients so you never have to ask awkwardly.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section className="mb-8 rounded-[2rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-5 shadow-2xl shadow-black/20 sm:p-7">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(280px,0.42fr)] lg:items-center">
             <div>

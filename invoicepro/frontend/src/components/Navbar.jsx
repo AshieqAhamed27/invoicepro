@@ -37,10 +37,10 @@ const appLinks = [...coreWorkLinks, ...growthLinks, ...businessLinks];
 
 // Desktop top bar — only the 4 most important actions
 const primaryAppLinks = [
-  { to: '/client-flow', label: 'Client Flow' },
-  { to: '/create-invoice', label: 'Invoice' },
-  { to: '/client-workroom', label: 'Workroom' },
-  { to: '/money-gps', label: 'Money GPS' }
+  { to: '/client-flow', label: 'Dashboard' },
+  { to: '/create-invoice', label: 'Invoices & Payments' },
+  { to: '/proposal-writer', label: 'AI Proposals' },
+  { to: '/dashboard', label: 'TDS & Revenue' }
 ];
 
 // Desktop "More" dropdown — grouped with section headers
