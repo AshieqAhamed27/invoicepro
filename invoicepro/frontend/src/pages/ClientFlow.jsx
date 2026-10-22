@@ -429,6 +429,65 @@ export default function ClientFlow() {
           </div>
         )}
 
+        {/* ─── First-Time User 3-Minute Quick Start (Shown when user has 0 invoices) ─── */}
+        {!loading && counts.invoices === 0 && counts.proposals === 0 && (
+          <div className="mb-8 p-5 sm:p-6 rounded-2xl border border-yellow-400/25 bg-gradient-to-r from-yellow-400/[0.08] via-amber-400/[0.04] to-transparent shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-white/10">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🚀</span>
+                  <h2 className="text-base sm:text-lg font-black text-white">New to ClientFlow AI? Complete your 3-minute setup</h2>
+                </div>
+                <p className="text-xs text-zinc-400 mt-0.5">3 simple steps to start sending invoices and getting paid via UPI.</p>
+              </div>
+              <span className="self-start sm:self-auto text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">
+                Quick Setup
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {/* Step 1 */}
+              <div 
+                onClick={() => navigate('/settings')}
+                className="cursor-pointer p-4 rounded-xl border border-white/10 bg-black/30 hover:border-yellow-400/40 hover:bg-white/[0.04] transition group"
+              >
+                <div className="flex items-center justify-between text-xs font-bold text-zinc-400">
+                  <span className="text-yellow-400">Step 1</span>
+                  <span className="group-hover:text-white transition">Settings ➔</span>
+                </div>
+                <h3 className="mt-2 text-sm font-black text-white group-hover:text-yellow-300 transition">Add Business Name & UPI</h3>
+                <p className="mt-1 text-xs text-zinc-400">Add your logo and UPI ID so clients can pay you directly.</p>
+              </div>
+
+              {/* Step 2 */}
+              <div 
+                onClick={() => navigate('/create-invoice')}
+                className="cursor-pointer p-4 rounded-xl border border-white/10 bg-black/30 hover:border-emerald-400/40 hover:bg-white/[0.04] transition group"
+              >
+                <div className="flex items-center justify-between text-xs font-bold text-zinc-400">
+                  <span className="text-emerald-400">Step 2</span>
+                  <span className="group-hover:text-white transition">Create ➔</span>
+                </div>
+                <h3 className="mt-2 text-sm font-black text-white group-hover:text-emerald-300 transition">Create Your 1st Invoice</h3>
+                <p className="mt-1 text-xs text-zinc-400">Generate a GST invoice with Razorpay link & UPI QR in 60s.</p>
+              </div>
+
+              {/* Step 3 */}
+              <div 
+                onClick={copyDirectProfile}
+                className="cursor-pointer p-4 rounded-xl border border-white/10 bg-black/30 hover:border-sky-400/40 hover:bg-white/[0.04] transition group"
+              >
+                <div className="flex items-center justify-between text-xs font-bold text-zinc-400">
+                  <span className="text-sky-400">Step 3</span>
+                  <span className="group-hover:text-white transition">{copiedLink ? 'Copied! ✓' : 'Copy ➔'}</span>
+                </div>
+                <h3 className="mt-2 text-sm font-black text-white group-hover:text-sky-300 transition">Share Direct Portfolio</h3>
+                <p className="mt-1 text-xs text-zinc-400">Share your 0% commission direct link on WhatsApp or LinkedIn.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ─── 2. Live Financial Snapshot (4 KPI Cards) ─── */}
         <section className="mb-8 grid gap-4 grid-cols-2 lg:grid-cols-4">
           {/* Card 1: Cash Collected */}
