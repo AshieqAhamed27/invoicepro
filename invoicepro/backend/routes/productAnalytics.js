@@ -225,6 +225,7 @@ router.get('/admin/summary', protect, async(req, res) => {
                 id: user._id,
                 name: user.name || 'Unnamed user',
                 email: user.email || '',
+                phone: user.phone || '',
                 plan: user.plan || 'free',
                 accessType,
                 accessCategory,

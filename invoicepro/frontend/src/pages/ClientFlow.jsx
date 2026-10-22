@@ -866,6 +866,28 @@ export default function ClientFlow() {
             </div>
           )}
         </section>
+        {/* ─── 7. Direct Founder WhatsApp Support & Feedback ─── */}
+        <section className="mb-6 p-5 rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-transparent to-transparent flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-2xl border border-emerald-500/30">
+              💬
+            </span>
+            <div>
+              <p className="text-sm font-black text-white">Need help getting set up or have feedback?</p>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                I'm Ashieq, the founder. Text me directly on WhatsApp anytime if you have questions or need custom workflow setup.
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://wa.me/919080963704?text=Hi%20Ashieq!%20I'm%20using%20ClientFlow%20AI%20and%20wanted%20to%20connect%20%2F%20ask%20a%20question."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10 active:scale-95"
+          >
+            <span>💬 Chat with Ashieq</span>
+          </a>
+        </section>
       </main>
     </div>
   );

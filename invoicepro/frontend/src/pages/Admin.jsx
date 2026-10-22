@@ -1215,24 +1215,31 @@ export default function Admin() {
               </div>
             ) : (
               <div className="mt-5 overflow-hidden rounded-2xl border border-white/5 bg-black/10">
-                <div className="hidden grid-cols-[minmax(0,1.3fr)_120px_130px_170px_120px] gap-3 border-b border-white/5 bg-white/[0.02] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 md:grid">
-                  <span>User</span>
+                <div className="hidden grid-cols-[minmax(0,1.2fr)_110px_110px_150px_160px] gap-3 border-b border-white/5 bg-white/[0.02] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 md:grid">
+                  <span>User Details</span>
                   <span>Access Type</span>
                   <span>Plan / Value</span>
                   <span>Expiry & Timing</span>
-                  <span>Action</span>
+                  <span>Direct Reachout</span>
                 </div>
                 <div className="divide-y divide-white/5">
                   {filteredUserAccessUsers.map((user) => {
                     const badge = getAccessBadgeInfo(user);
                     const isUserExpired = user.isExpired || user.accessCategory === 'expired';
                     const isNotifyingThisUser = notifyingUserId === (user.id || user._id);
+                    const cleanPhone = (user.phone || '').replace(/[^0-9]/g, '');
+                    const waMessage = encodeURIComponent(`Hi ${user.name || 'there'}! I'm Ashieq, founder of ClientFlow AI. Thank you for signing up! How has your experience been so far? Can I help you set up an invoice or proposal? I'd love your feedback!`);
+                    const emailSubject = encodeURIComponent('Quick question from Ashieq (Founder of ClientFlow AI)');
+                    const emailBody = encodeURIComponent(`Hi ${user.name || 'there'},\n\nI noticed you joined ClientFlow AI. I'm Ashieq, the founder.\n\nI wanted to reach out personally to see what you were hoping to accomplish today? Did you run into any issues creating an invoice or proposal?\n\nI would love your honest feedback, good or bad!\n\nBest regards,\nAshieq\nFounder, ClientFlow AI`);
 
                     return (
-                      <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.3fr)_120px_130px_170px_120px] md:items-center">
+                      <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.2fr)_110px_110px_150px_160px] md:items-center">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-black text-white">{user.email || 'No email'}</p>
-                          <p className="mt-1 truncate text-xs font-bold text-zinc-500">{user.name || 'Unnamed user'}</p>
+                          <p className="mt-1 truncate text-xs font-bold text-zinc-400">{user.name || 'Unnamed user'}</p>
+                          {user.phone ? (
+                            <p className="mt-0.5 text-xs font-semibold text-emerald-400">📱 {user.phone}</p>
+                          ) : null}
                           <p className="mt-1 text-[9px] font-bold text-zinc-600">Joined: {formatDate(user.createdAt)}</p>
                         </div>
 
@@ -1270,20 +1277,34 @@ export default function Admin() {
                           </p>
                         </div>
 
-                        <div>
-                          {isUserExpired ? (
+                        <div className="flex flex-col gap-1.5">
+                          {cleanPhone ? (
+                            <a
+                              href={`https://wa.me/${cleanPhone}?text=${waMessage}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/20"
+                            >
+                              <span>💬 WhatsApp</span>
+                            </a>
+                          ) : null}
+                          {user.email ? (
+                            <a
+                              href={`mailto:${user.email}?subject=${emailSubject}&body=${emailBody}`}
+                              className="inline-flex items-center justify-center gap-1 rounded-lg border border-sky-500/30 bg-sky-500/10 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-sky-300 transition hover:bg-sky-500/20"
+                            >
+                              <span>✉️ Email Feedback</span>
+                            </a>
+                          ) : null}
+                          {isUserExpired && (
                             <button
                               type="button"
                               onClick={() => handleNotifyPlanExpired(user.id || user._id)}
                               disabled={isNotifyingThisUser}
-                              className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
+                              className="rounded-lg border border-red-500/30 bg-red-500/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
                             >
-                              {isNotifyingThisUser ? 'Sending...' : '✉️ Notify Expiry'}
+                              {isNotifyingThisUser ? 'Sending...' : 'Notify Expiry'}
                             </button>
-                          ) : (
-                            <span className="inline-flex items-center text-[10px] font-bold text-zinc-600">
-                              ✓ Active
-                            </span>
                           )}
                         </div>
                       </div>
