@@ -3,10 +3,10 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel, setPostLoginRedirect } from '../utils/auth';
 import BrandLogo from './BrandLogo';
 
-// ─── Core work actions (always visible in mobile + desktop) ───
+// ─── Core work actions (mobile menu) ───
 const coreWorkLinks = [
-  { to: '/client-flow', label: 'Client Flow', detail: 'Lead → proposal → payment workflow' },
-  { to: '/create-invoice', label: 'Invoice', detail: 'Create invoices and proposals' },
+  { to: '/create-invoice', label: 'Invoice & QR', detail: 'Create GST invoices and UPI payment links' },
+  { to: '/proposal-writer', label: 'AI Proposals', detail: 'Draft proposals with payment terms' },
   { to: '/client-workroom', label: 'Workroom', detail: 'Manage tasks, approvals & delivery proof' },
   { to: '/money-gps', label: 'Money GPS', detail: 'See what to collect or follow up next' }
 ];
@@ -189,21 +189,6 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <NavLink to="/dashboard" className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
-                Dashboard
-              </NavLink>
-              {isAdmin && (
-                <NavLink
-                  to="/admin"
-                  className={(state) => `rounded-lg border px-3 py-2 font-semibold transition ${
-                    state.isActive
-                      ? 'border-yellow-300/30 bg-yellow-300/15 text-yellow-100'
-                      : 'border-yellow-300/15 bg-yellow-300/5 text-yellow-200 hover:bg-yellow-300/10'
-                  }`}
-                >
-                  Admin
-                </NavLink>
-              )}
               {primaryAppLinks.map((link) => (
                 <NavLink key={link.to} to={link.to} className={(state) => `rounded-lg border px-3 py-2 font-semibold ${navClass(state)}`}>
                   {link.label}
@@ -385,18 +370,31 @@ export default function Navbar() {
 
             <div className="grid gap-2 sm:grid-cols-2">
               <p className="px-1 text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:col-span-2">Main</p>
-              {loggedIn && (
-                <NavLink to="/dashboard" onClick={closeMenu} className={mobileItemClass}>
-                  <span className="block text-sm font-black">Dashboard</span>
-                  <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Overview and business status</span>
-                </NavLink>
-              )}
-              <NavLink to="/" onClick={closeMenu} className={mobileItemClass}>
-                <span className="block text-sm font-black">Home</span>
-                <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Product overview</span>
-              </NavLink>
-              {!loggedIn ? (
+              {loggedIn ? (
                 <>
+                  <NavLink to="/client-flow" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Dashboard</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Quick actions & workflow hub</span>
+                  </NavLink>
+                  <NavLink to="/dashboard" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">TDS & Revenue</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Invoices, GST & tax ledger</span>
+                  </NavLink>
+                  <NavLink to="/portfolio" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Portfolio & Profile</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Direct client link (0% fee)</span>
+                  </NavLink>
+                  <NavLink to="/settings" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Settings</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Profile, logo & UPI setup</span>
+                  </NavLink>
+                </>
+              ) : (
+                <>
+                  <NavLink to="/" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">Home</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Product overview</span>
+                  </NavLink>
                   <a href="/#how-it-works" onClick={closeMenu} className={mobileStaticItemClass}>
                     <span className="block text-sm font-black">How it works</span>
                     <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Lead to payment steps</span>
@@ -412,25 +410,6 @@ export default function Navbar() {
                   <NavLink to="/payments" onClick={closeMenu} className={mobileItemClass}>
                     <span className="block text-sm font-black">Payments</span>
                     <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Free, Pro, and optional setup services</span>
-                  </NavLink>
-                </>
-              ) : (
-                <>
-                  <NavLink to="/agency" onClick={closeMenu} className={mobileItemClass}>
-                    <span className="block text-sm font-black">Agency Setup</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Done-for-you freelancer system</span>
-                  </NavLink>
-                  <NavLink to="/security" onClick={closeMenu} className={mobileItemClass}>
-                    <span className="block text-sm font-black">Security</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Controls and compliance status</span>
-                  </NavLink>
-                  <NavLink to="/portfolio" onClick={closeMenu} className={mobileItemClass}>
-                    <span className="block text-sm font-black">Portfolio</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Builder and product work</span>
-                  </NavLink>
-                  <NavLink to="/client-flow" onClick={closeMenu} className={`${mobileItemClass({ isActive: location.pathname === '/client-flow' })} sm:col-span-2`}>
-                    <span className="block text-sm font-black">Client Flow</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Lead to payment workflow</span>
                   </NavLink>
                 </>
               )}

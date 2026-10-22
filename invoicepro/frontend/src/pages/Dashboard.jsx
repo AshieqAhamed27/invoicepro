@@ -14,6 +14,7 @@ const AIBillingAgent = lazy(() => import('../components/AIBillingAgent'));
 const RevenueInsightsWidget = lazy(() => import('../components/RevenueInsightsWidget'));
 const PaymentCollectionAgent = lazy(() => import('../components/PaymentCollectionAgent'));
 const BusinessAutomationCenter = lazy(() => import('../components/BusinessAutomationCenter'));
+const TdsComplianceWidget = lazy(() => import('../components/TdsComplianceWidget'));
 
 const formatCurrency = (amount) =>
   `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
@@ -2524,6 +2525,12 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+        </section>
+
+        <section className="reveal reveal-delay-1 mb-12">
+          <Suspense fallback={<div className="h-48 rounded-2xl border border-white/10 bg-white/[0.02] animate-pulse" />}>
+            <TdsComplianceWidget />
+          </Suspense>
         </section>
 
         <section className="reveal reveal-delay-1 mb-12 grid gap-8">
