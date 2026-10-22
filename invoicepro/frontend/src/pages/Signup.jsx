@@ -31,6 +31,7 @@ export default function Signup() {
   const [form, setForm] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     companyName: ''
   });
@@ -218,6 +219,26 @@ export default function Signup() {
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
                   />
+              </div>
+
+              <div className="space-y-1.5">
+                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">
+                    Mobile Number (WhatsApp) <span className="text-emerald-400">*</span>
+                  </p>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3 text-xs font-bold text-zinc-400 select-none">🇮🇳 +91</span>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="98765 43210"
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                      className="input py-4 pl-16 bg-black/20 border-white/5 focus:bg-black/60 w-full"
+                    />
+                  </div>
+                  <p className="text-[11px] text-zinc-500 ml-1">
+                    We will WhatsApp your workspace guide and automated payment links.
+                  </p>
               </div>
 
               <div className="space-y-1.5">

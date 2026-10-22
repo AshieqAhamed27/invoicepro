@@ -16,6 +16,23 @@ const userSchema = new mongoose.Schema({
         trim: true
     },
 
+    phone: {
+        type: String,
+        trim: true,
+        default: '',
+        index: true
+    },
+
+    welcomeMessageSent: {
+        type: Boolean,
+        default: false
+    },
+
+    welcomeMessageSentAt: {
+        type: Date,
+        default: null
+    },
+
     password: {
         type: String,
         required: function() {

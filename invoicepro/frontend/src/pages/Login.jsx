@@ -198,17 +198,17 @@ export default function Login() {
               mode="login"
               onAuthenticated={completeAuth}
               onError={setError}
-              dividerLabel="or use email"
+              dividerLabel="or use email / mobile number"
             />
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Email Address</p>
+                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Email or Mobile Number</p>
                   <input
-                    type="email"
+                    type="text"
                     required
                     autoComplete="email"
-                    placeholder="name@company.com"
+                    placeholder="name@company.com or 9876543210"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"

@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const Organization = require('../models/Organization');
 const sendEmail = require('../utils/sendEmail');
+const { sendMobileWelcome, normalizePhone } = require('../utils/sendMobileWelcome');
 const { getJwtSecret, normalizeUrl } = require('../utils/env');
 const {
     ensureFreeAccessWindow,
@@ -512,10 +513,12 @@ router.post(
             const {
                 name,
                 email,
+                phone,
                 password,
                 companyName
             } = req.body;
             const normalizedEmail = normalizeEmail(email);
+            const cleanedPhone = normalizePhone(phone);
 
             if (!name ||
                 !normalizedEmail ||
@@ -549,14 +552,19 @@ router.post(
 
             const existingUser =
                 await User.findOne({
-                    email: normalizedEmail
+                    $or: [
+                        { email: normalizedEmail },
+                        ...(cleanedPhone ? [{ phone: cleanedPhone }] : [])
+                    ]
                 });
 
             if (existingUser) {
                 return res
                     .status(400)
                     .json({
-                        message: 'Email already registered.'
+                        message: existingUser.email === normalizedEmail
+                            ? 'Email already registered.'
+                            : 'Mobile number already registered.'
                     });
             }
 
@@ -564,6 +572,7 @@ router.post(
                 await User.create({
                     name,
                     email: normalizedEmail,
+                    phone: cleanedPhone || '',
                     password,
                     companyName
                 });
@@ -571,12 +580,23 @@ router.post(
             await syncAdminRole(user);
             await ensureFreeAccessWindow(user);
 
+            // Send welcome message on WhatsApp / SMS explaining features & why to pay
+            let welcomeData = null;
+            if (cleanedPhone) {
+                try {
+                    welcomeData = await sendMobileWelcome(user, cleanedPhone);
+                } catch (welcomeErr) {
+                    console.error('Failed to dispatch mobile welcome message:', welcomeErr);
+                }
+            }
+
             res.status(201).json({
                 message: 'Account created successfully!',
                 token: generateToken(
                     user._id
                 ),
-                user: serializeUser(user)
+                user: serializeUser(user),
+                welcome: welcomeData
             });
 
         } catch (err) {
@@ -603,19 +623,23 @@ router.post(
                 email,
                 password
             } = req.body;
-            const normalizedEmail = normalizeEmail(email);
 
-            if (!normalizedEmail ||
+            const identifier = String(email || '').trim();
+            const isPhone = /^[0-9+() -]{7,15}$/.test(identifier);
+            const cleanedPhone = isPhone ? normalizePhone(identifier) : '';
+            const normalizedEmail = normalizeEmail(identifier);
+
+            if (!identifier ||
                 !password
             ) {
                 return res
                     .status(400)
                     .json({
-                        message: 'Please provide email and password.'
+                        message: 'Please provide email or mobile number, and password.'
                     });
             }
 
-            const requiredSsoOrganization = await getRequiredSsoOrganization(normalizedEmail);
+            const requiredSsoOrganization = !isPhone ? await getRequiredSsoOrganization(normalizedEmail) : null;
             if (requiredSsoOrganization) {
                 return res.status(403).json({
                     message: `${requiredSsoOrganization.name} requires company SSO. Please use Google Workspace or Microsoft login.`
@@ -624,14 +648,17 @@ router.post(
 
             const user =
                 await User.findOne({
-                    email: normalizedEmail
+                    $or: [
+                        { email: normalizedEmail },
+                        ...(cleanedPhone ? [{ phone: cleanedPhone }] : [])
+                    ]
                 });
 
             if (!user) {
                 return res
                     .status(401)
                     .json({
-                        message: 'Invalid email or password.'
+                        message: 'Invalid email, mobile number, or password.'
                     });
             }
 
@@ -644,13 +671,24 @@ router.post(
                 return res
                     .status(401)
                     .json({
-                        message: 'Invalid email or password.'
+                        message: 'Invalid email, mobile number, or password.'
                     });
             }
 
             await syncAdminRole(user);
             await syncEnterpriseSsoMembership(user, 'google');
             await ensureFreeAccessWindow(user);
+
+            // If user has a mobile number and hasn't received welcome message yet, send it
+            if (user.phone && !user.welcomeMessageSent) {
+                setImmediate(async () => {
+                    try {
+                        await sendMobileWelcome(user, user.phone);
+                    } catch (e) {
+                        console.error('Welcome message on login error:', e);
+                    }
+                });
+            }
 
             res.json({
                 message: 'Login successful!',
