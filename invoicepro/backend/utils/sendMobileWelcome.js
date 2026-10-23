@@ -94,8 +94,8 @@ const sendMobileWelcome = async (user, phoneInput) => {
         console.error('Failed to update welcomeMessageSent:', dbErr.message);
     }
 
-    // 3. Immediately alert founder Ashieq with 1-click WhatsApp button to chat directly from founder's number
-    const founderWaLink = `https://wa.me/${phone}?text=${encodeURIComponent(`Hi ${user.name || 'there'}! I'm Ashieq, founder of ClientFlow AI. Saw you just joined with your mobile number! How can I help you set up your first invoice or proposal today?`)}`;
+    // 3. Immediately alert Ashieq with 1-click WhatsApp button to chat directly from your number
+    const founderWaLink = `https://wa.me/${phone}?text=${encodeURIComponent(`Hi ${user.name || 'there'}! I'm Ashieq, builder of ClientFlow AI. Saw you just joined with your mobile number! How can I help you set up your first invoice or proposal today?`)}`;
     try {
         const adminEmail = process.env.ADMIN_EMAILS || 'ashieqahamed4@gmail.com';
         await sendEmail(

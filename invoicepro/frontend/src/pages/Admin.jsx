@@ -1274,9 +1274,9 @@ export default function Admin() {
                     } else if (cleanPhone.length === 10) {
                       cleanPhone = `91${cleanPhone}`;
                     }
-                    const waMessage = encodeURIComponent(`Hi ${user.name || 'there'}! I'm Ashieq, founder of ClientFlow AI. Thank you for signing up! How has your experience been so far? Can I help you set up an invoice or proposal? I'd love your feedback!`);
-                    const emailSubject = encodeURIComponent('Quick question from Ashieq (Founder of ClientFlow AI)');
-                    const emailBody = encodeURIComponent(`Hi ${user.name || 'there'},\n\nI noticed you joined ClientFlow AI. I'm Ashieq, the founder.\n\nI wanted to reach out personally to see what you were hoping to accomplish today? Did you run into any issues creating an invoice or proposal?\n\nI would love your honest feedback, good or bad!\n\nBest regards,\nAshieq\nFounder, ClientFlow AI`);
+                    const waMessage = encodeURIComponent(`Hi ${user.name || 'there'}! I'm Ashieq, builder of ClientFlow AI. Thank you for signing up! How has your experience been so far? Can I help you set up an invoice or proposal? I'd love your feedback!`);
+                    const emailSubject = encodeURIComponent('Quick question from Ashieq (Builder of ClientFlow AI)');
+                    const emailBody = encodeURIComponent(`Hi ${user.name || 'there'},\n\nI noticed you joined ClientFlow AI. I'm Ashieq, the builder.\n\nI wanted to reach out personally to see what you were hoping to accomplish today? Did you run into any issues creating an invoice or proposal?\n\nI would love your honest feedback, good or bad!\n\nBest regards,\nAshieq\nBuilder, ClientFlow AI`);
                     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(user.email || '')}&su=${emailSubject}&body=${emailBody}`;
 
                     return (

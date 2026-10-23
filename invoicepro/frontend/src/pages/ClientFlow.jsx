@@ -943,7 +943,7 @@ export default function ClientFlow() {
             </div>
           )}
         </section>
-        {/* ─── 7. Direct Founder WhatsApp Support & Feedback ─── */}
+        {/* ─── 7. Direct Builder WhatsApp Support & Feedback ─── */}
         <section className="mb-6 p-5 rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-transparent to-transparent flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-2xl border border-emerald-500/30">
@@ -952,7 +952,7 @@ export default function ClientFlow() {
             <div>
               <p className="text-sm font-black text-white">Need help getting set up or have feedback?</p>
               <p className="text-xs text-zinc-400 mt-0.5">
-                I'm Ashieq, the founder. Text me directly on WhatsApp anytime if you have questions or need custom workflow setup.
+                I'm Ashieq, the builder of ClientFlow AI. Text me directly on WhatsApp anytime if you have questions or need custom workflow setup.
               </p>
             </div>
           </div>

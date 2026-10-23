@@ -1560,7 +1560,7 @@ router.post('/admin/request-phones', protect, async(req, res) => {
                             </a>
                         </div>
                         <p style="font-size: 13px; color: #64748b; text-align: center;">
-                            Best regards,<br/><strong>Ashieq</strong> — Founder, ClientFlow AI
+                            Best regards,<br/><strong>Ashieq</strong> — Builder, ClientFlow AI
                         </p>
                     </div>`
                 );

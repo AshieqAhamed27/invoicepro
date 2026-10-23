@@ -103,7 +103,7 @@ const servicePayments = [
   {
     title: '1-on-1 Managed Growth Setup (Done-For-You)',
     priceKey: 'setupStart',
-    detail: 'Complete done-for-you setup: offer structure, lead tracking pipeline, proposal templates, workrooms, GST invoicing, payment reminders, and 7-day action plan with direct founder support.',
+    detail: 'Complete done-for-you setup: offer structure, lead tracking pipeline, proposal templates, workrooms, GST invoicing, payment reminders, and 7-day action plan with direct builder support.',
     path: '/payments/agency-setup',
     cta: 'Book 1-on-1 Managed Setup',
     featured: true,
