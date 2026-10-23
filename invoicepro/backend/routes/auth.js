@@ -517,21 +517,22 @@ router.post(
                 password,
                 companyName
             } = req.body;
-            const normalizedEmail = normalizeEmail(email);
             const cleanedPhone = normalizePhone(phone);
+            const normalizedEmail = normalizeEmail(email);
+            const finalEmail = normalizedEmail || (cleanedPhone ? `${cleanedPhone}@clientflow.user` : '');
 
             if (!name ||
-                !normalizedEmail ||
+                !finalEmail ||
                 !password
             ) {
                 return res
                     .status(400)
                     .json({
-                        message: 'Please provide name, email, and password.'
+                        message: 'Please provide name, mobile number or email, and password.'
                     });
             }
 
-            if (!isValidEmail(normalizedEmail)) {
+            if (normalizedEmail && !isValidEmail(normalizedEmail)) {
                 return res.status(400).json({
                     message: 'Please provide a valid email address.'
                 });
@@ -543,7 +544,7 @@ router.post(
                 });
             }
 
-            const requiredSsoOrganization = await getRequiredSsoOrganization(normalizedEmail);
+            const requiredSsoOrganization = normalizedEmail ? await getRequiredSsoOrganization(normalizedEmail) : null;
             if (requiredSsoOrganization) {
                 return res.status(403).json({
                     message: `${requiredSsoOrganization.name} requires company SSO. Please use Google Workspace or Microsoft login.`
@@ -553,7 +554,7 @@ router.post(
             const existingUser =
                 await User.findOne({
                     $or: [
-                        { email: normalizedEmail },
+                        { email: finalEmail },
                         ...(cleanedPhone ? [{ phone: cleanedPhone }] : [])
                     ]
                 });
@@ -562,16 +563,16 @@ router.post(
                 return res
                     .status(400)
                     .json({
-                        message: existingUser.email === normalizedEmail
+                        message: existingUser.email === finalEmail && normalizedEmail
                             ? 'Email already registered.'
-                            : 'Mobile number already registered.'
+                            : 'Mobile number or email already registered.'
                     });
             }
 
             const user =
                 await User.create({
                     name,
-                    email: normalizedEmail,
+                    email: finalEmail,
                     phone: cleanedPhone || '',
                     password,
                     companyName
@@ -628,6 +629,17 @@ router.post(
             const isPhone = /^[0-9+() -]{7,15}$/.test(identifier);
             const cleanedPhone = isPhone ? normalizePhone(identifier) : '';
             const normalizedEmail = normalizeEmail(identifier);
+            const digitsOnly = identifier.replace(/\D/g, '');
+            const tenDigit = digitsOnly.slice(-10);
+            const phoneCandidates = [
+                ...(cleanedPhone ? [{ phone: cleanedPhone }, { email: `${cleanedPhone}@clientflow.user` }] : []),
+                ...(tenDigit && tenDigit.length === 10 ? [
+                    { phone: tenDigit },
+                    { phone: `91${tenDigit}` },
+                    { phone: `+91${tenDigit}` },
+                    { email: `91${tenDigit}@clientflow.user` }
+                ] : [])
+            ];
 
             if (!identifier ||
                 !password
@@ -650,7 +662,7 @@ router.post(
                 await User.findOne({
                     $or: [
                         { email: normalizedEmail },
-                        ...(cleanedPhone ? [{ phone: cleanedPhone }] : [])
+                        ...phoneCandidates
                     ]
                 });
 
@@ -1009,9 +1021,12 @@ router.put(
                 gstNumber,
                 upiId,
                 address,
-                logo
+                logo,
+                phone,
+                name
             } = req.body;
 
+            if (name) req.user.name = name;
             req.user.companyName =
                 companyName ||
                 req.user.companyName;
@@ -1030,6 +1045,23 @@ router.put(
 
             if (logo !== undefined) {
                 req.user.logo = normalizeLogoUrl(logo);
+            }
+
+            if (phone !== undefined) {
+                const cleanedPhone = normalizePhone(phone);
+                if (cleanedPhone) {
+                    const isNewPhone = req.user.phone !== cleanedPhone;
+                    req.user.phone = cleanedPhone;
+                    if (isNewPhone) {
+                        setImmediate(async () => {
+                            try {
+                                await sendMobileWelcome(req.user, cleanedPhone);
+                            } catch (e) {
+                                console.error('Phone update welcome error:', e);
+                            }
+                        });
+                    }
+                }
             }
 
             await req.user.save();

@@ -86,13 +86,24 @@ export default function Signup() {
     e.preventDefault();
     setError('');
 
+    const cleanPhoneDigits = (form.phone || '').replace(/\D/g, '');
+    if (!cleanPhoneDigits && !form.email) {
+      setError('Please provide your WhatsApp mobile number or email address.');
+      return;
+    }
+
+    if (cleanPhoneDigits && cleanPhoneDigits.length !== 10) {
+      setError('Please enter a valid 10-digit Indian WhatsApp mobile number (e.g. 9876543210).');
+      return;
+    }
+
     if (form.password.length < 8) {
       setError('Password must be at least 8 characters.');
       return;
     }
 
     setLoading(true);
-    trackEvent('signup_submit', { method: 'email' });
+    trackEvent('signup_submit', { method: cleanPhoneDigits ? 'phone' : 'email' });
 
     try {
       const res = await api.post('/auth/signup', form);
@@ -208,37 +219,44 @@ export default function Signup() {
                 </div>
               </div>
 
+              {/* Mobile Number (WhatsApp) - Primary */}
               <div className="space-y-1.5">
-                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Email Address</p>
+                  <div className="flex items-center justify-between ml-1">
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                      Mobile Number (WhatsApp) <span className="text-emerald-400 font-bold">*</span>
+                    </p>
+                    <span className="text-[10px] font-bold text-emerald-400">Recommended</span>
+                  </div>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3 text-xs font-black text-zinc-300 select-none">🇮🇳 +91</span>
+                    <input
+                      type="tel"
+                      autoComplete="tel"
+                      placeholder="98765 43210"
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                      className="input py-4 pl-16 bg-black/20 border-white/5 focus:bg-black/60 w-full font-bold tracking-wider"
+                    />
+                  </div>
+                  <p className="text-[11px] text-zinc-500 ml-1">
+                    Instant login + automated payment alerts on your WhatsApp.
+                  </p>
+              </div>
+
+              {/* Email Address - Optional if phone provided */}
+              <div className="space-y-1.5">
+                  <div className="flex items-center justify-between ml-1">
+                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Email Address</p>
+                    <span className="text-[10px] font-medium text-zinc-500">Optional if mobile provided</span>
+                  </div>
                   <input
                     type="email"
-                    required
                     autoComplete="email"
-                    placeholder="name@company.com"
+                    placeholder="name@company.com (optional)"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
                   />
-              </div>
-
-              <div className="space-y-1.5">
-                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">
-                    Mobile Number (WhatsApp) <span className="text-emerald-400">*</span>
-                  </p>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3 text-xs font-bold text-zinc-400 select-none">🇮🇳 +91</span>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="98765 43210"
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
-                      className="input py-4 pl-16 bg-black/20 border-white/5 focus:bg-black/60 w-full"
-                    />
-                  </div>
-                  <p className="text-[11px] text-zinc-500 ml-1">
-                    We will WhatsApp your workspace guide and automated payment links.
-                  </p>
               </div>
 
               <div className="space-y-1.5">

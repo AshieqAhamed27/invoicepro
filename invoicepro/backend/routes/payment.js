@@ -1521,6 +1521,62 @@ router.get('/admin/revenue', protect, async(req, res) => {
     }
 });
 
+router.post('/admin/request-phones', protect, async(req, res) => {
+    try {
+        if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
+        const sendEmail = require('../utils/sendEmail');
+        const usersWithoutPhone = await User.find({
+            role: { $ne: 'admin' },
+            $or: [
+                { phone: { $exists: false } },
+                { phone: null },
+                { phone: '' }
+            ]
+        }).select('name email').lean();
+
+        let sentCount = 0;
+        for (const u of usersWithoutPhone) {
+            if (!u.email || u.email.endsWith('@clientflow.user')) continue;
+            try {
+                await sendEmail(
+                    u.email,
+                    '📱 Add your WhatsApp for Instant Payment Alerts on ClientFlow AI',
+                    `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+                        <h2 style="color: #0f172a; margin-top: 0;">Hi ${u.name || 'there'} 👋</h2>
+                        <p style="color: #334155; font-size: 15px; line-height: 1.6;">
+                            We recently added <strong>Direct WhatsApp Payment Tracking & Invoice Alerts</strong> to your ClientFlow AI workspace!
+                        </p>
+                        <p style="color: #334155; font-size: 15px; line-height: 1.6;">
+                            Add your WhatsApp number so you receive instant alerts when:
+                        </p>
+                        <ul style="color: #334155; font-size: 14px; line-height: 1.8;">
+                            <li>A client views or signs your AI proposal</li>
+                            <li>A client completes an invoice payment via UPI or Razorpay</li>
+                            <li>Payment reminder follow-ups are ready to send</li>
+                        </ul>
+                        <div style="margin: 28px 0; text-align: center;">
+                            <a href="https://www.clientflowai.in/client-flow" style="background-color: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block;">
+                                📱 Connect WhatsApp in 1 Click
+                            </a>
+                        </div>
+                        <p style="font-size: 13px; color: #64748b; text-align: center;">
+                            Best regards,<br/><strong>Ashieq</strong> — Founder, ClientFlow AI
+                        </p>
+                    </div>`
+                );
+                sentCount++;
+            } catch (err) {
+                console.error(`Failed to send phone request email to ${u.email}:`, err.message);
+            }
+        }
+
+        res.json({ success: true, sentCount, totalUsersWithoutPhone: usersWithoutPhone.length });
+    } catch (err) {
+        console.error('Request phones error:', err.message);
+        res.status(500).json({ message: 'Error sending phone requests' });
+    }
+});
+
 router.get('/requests/:id/screenshot', protect, async(req, res) => {
     try {
         if (req.user.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });

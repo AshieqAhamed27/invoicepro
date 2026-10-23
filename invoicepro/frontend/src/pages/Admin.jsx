@@ -149,6 +149,8 @@ export default function Admin() {
   const [notifyingUserId, setNotifyingUserId] = useState(null);
   const [notifyingAllExpired, setNotifyingAllExpired] = useState(false);
   const [notifyNoticeResult, setNotifyNoticeResult] = useState(null);
+  const [requestingPhones, setRequestingPhones] = useState(false);
+  const [requestPhonesResult, setRequestPhonesResult] = useState(null);
   const [productAnalytics, setProductAnalytics] = useState(null);
   const [productAnalyticsLoading, setProductAnalyticsLoading] = useState(true);
   const [productAnalyticsError, setProductAnalyticsError] = useState('');
@@ -336,6 +338,27 @@ export default function Admin() {
     } finally {
       setNotifyingUserId(null);
       setNotifyingAllExpired(false);
+    }
+  };
+
+  const handleRequestPhonesFromActiveUsers = async () => {
+    if (!window.confirm('Send an email invitation to all active users who have not linked their WhatsApp number yet?')) return;
+    try {
+      setRequestingPhones(true);
+      setRequestPhonesResult(null);
+      const res = await api.post('/payment/admin/request-phones');
+      setRequestPhonesResult({
+        ok: true,
+        message: `Successfully emailed ${res.data?.sentCount || 0} active users to connect WhatsApp!`
+      });
+    } catch (err) {
+      console.error(err);
+      setRequestPhonesResult({
+        ok: false,
+        message: err?.response?.data?.message || err?.message || 'Failed to send phone requests.'
+      });
+    } finally {
+      setRequestingPhones(false);
     }
   };
 
@@ -1128,6 +1151,24 @@ export default function Admin() {
                     {notifyNoticeResult.message}
                   </span>
                 )}
+                {requestPhonesResult && (
+                  <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                    requestPhonesResult.ok
+                      ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
+                      : 'border-red-400/20 bg-red-400/10 text-red-300'
+                  }`}>
+                    {requestPhonesResult.message}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleRequestPhonesFromActiveUsers}
+                  disabled={requestingPhones}
+                  className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                  title="Send email invitation to all users who haven't added WhatsApp yet"
+                >
+                  {requestingPhones ? 'Sending Emails...' : '📱 Email Users to Add WhatsApp'}
+                </button>
                 <button
                   type="button"
                   onClick={() => handleNotifyPlanExpired(null)}
@@ -1237,7 +1278,6 @@ export default function Admin() {
                     const emailSubject = encodeURIComponent('Quick question from Ashieq (Founder of ClientFlow AI)');
                     const emailBody = encodeURIComponent(`Hi ${user.name || 'there'},\n\nI noticed you joined ClientFlow AI. I'm Ashieq, the founder.\n\nI wanted to reach out personally to see what you were hoping to accomplish today? Did you run into any issues creating an invoice or proposal?\n\nI would love your honest feedback, good or bad!\n\nBest regards,\nAshieq\nFounder, ClientFlow AI`);
                     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(user.email || '')}&su=${emailSubject}&body=${emailBody}`;
-                    const mailtoUrl = `mailto:${user.email}?subject=${emailSubject}&body=${emailBody}`;
 
                     return (
                       <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.2fr)_110px_110px_150px_170px] md:items-center">
@@ -1301,25 +1341,16 @@ export default function Admin() {
                               <span>💬 WhatsApp User</span>
                             </a>
                           ) : null}
-                          {user.email ? (
-                            <div className="flex items-center gap-1">
-                              <a
-                                href={gmailUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-black uppercase tracking-wider text-red-300 transition hover:bg-red-500/25"
-                                title="Open in Gmail Web (Chrome/Edge)"
-                              >
-                                <span>🔴 Gmail</span>
-                              </a>
-                              <a
-                                href={mailtoUrl}
-                                className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/10 transition"
-                                title="Open in default Email app"
-                              >
-                                <span>✉️ App</span>
-                              </a>
-                            </div>
+                          {user.email && !user.email.endsWith('@clientflow.user') ? (
+                            <a
+                              href={gmailUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-red-500/40 bg-red-500/15 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-red-300 transition hover:bg-red-500/25 shadow-sm"
+                              title="Open directly in Gmail Web in browser (never opens Outlook or desktop apps)"
+                            >
+                              <span>🔴 Gmail Web</span>
+                            </a>
                           ) : null}
                           {isUserExpired && (
                             <button

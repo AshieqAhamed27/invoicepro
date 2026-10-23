@@ -203,15 +203,17 @@ export default function Login() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Email or Mobile Number</p>
+                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">
+                    Mobile Number (WhatsApp) or Email
+                  </p>
                   <input
                     type="text"
                     required
-                    autoComplete="email"
-                    placeholder="name@company.com or 9876543210"
+                    autoComplete="username"
+                    placeholder="9876543210 or name@company.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
+                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 font-bold"
                   />
               </div>
 

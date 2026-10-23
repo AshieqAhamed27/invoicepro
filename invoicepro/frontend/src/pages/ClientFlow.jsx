@@ -116,12 +116,39 @@ const proRoutes = ['/client-finder', '/leads', '/proposal-writer'];
 
 export default function ClientFlow() {
   const navigate = useNavigate();
-  const user = getUser() || {};
+  const [currentUser, setCurrentUser] = useState(() => getUser() || {});
+  const user = currentUser;
   const isPro = hasProAccess(user);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [playbookOpen, setPlaybookOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [savingPhone, setSavingPhone] = useState(false);
+  const [phoneSuccessMessage, setPhoneSuccessMessage] = useState('');
+  const [phoneDismissed, setPhoneDismissed] = useState(false);
+
+  const handleSavePhone = async (e) => {
+    e.preventDefault();
+    const digits = phoneInput.replace(/\D/g, '');
+    if (digits.length !== 10) return;
+    try {
+      setSavingPhone(true);
+      await api.put('/auth/profile', { phone: digits });
+      const updatedUser = { ...user, phone: `91${digits}` };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setCurrentUser(updatedUser);
+      setPhoneSuccessMessage('✓ WhatsApp number connected! Instant invoice & payment alerts are now active.');
+      setTimeout(() => {
+        setPhoneDismissed(true);
+      }, 3000);
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.message || 'Could not update phone number. Please try again.');
+    } finally {
+      setSavingPhone(false);
+    }
+  };
   const [data, setData] = useState({
     invoiceData: {},
     leadData: {},
@@ -393,6 +420,56 @@ export default function ClientFlow() {
             <span className="font-bold">Pro Active</span>
             <span className="text-zinc-500">•</span>
             <span className="text-zinc-400">All automated reminder agents & AI proposal writer unlocked</span>
+          </div>
+        )}
+
+        {/* WhatsApp Mobile Number Connect Banner for Active Users without phone */}
+        {!user?.phone && !phoneDismissed && (
+          <div className="mb-6 p-4 sm:p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/15 via-emerald-500/5 to-transparent shadow-lg">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div className="h-11 w-11 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 text-2xl shadow-inner">
+                  📱
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-emerald-400">Add WhatsApp</span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  </div>
+                  <h3 className="text-base font-black text-white mt-0.5">
+                    Connect your WhatsApp number for Instant Payment & Invoice Alerts
+                  </h3>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Receive instant WhatsApp alerts when clients view proposals, accept terms, or complete payments via UPI/Razorpay.
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSavePhone} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-xs font-black text-zinc-400 select-none">🇮🇳 +91</span>
+                  <input
+                    type="tel"
+                    placeholder="98765 43210"
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    className="h-11 w-full sm:w-44 rounded-xl border border-white/10 bg-black/40 pl-14 pr-3 text-sm font-bold text-white placeholder-zinc-500 outline-none focus:border-emerald-500/60"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={savingPhone || phoneInput.replace(/\D/g, '').length !== 10}
+                  className="h-11 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-emerald-500/20"
+                >
+                  {savingPhone ? 'Connecting...' : 'Connect WhatsApp'}
+                </button>
+              </form>
+            </div>
+            {phoneSuccessMessage && (
+              <p className="mt-3 text-xs font-bold text-emerald-300">
+                {phoneSuccessMessage}
+              </p>
+            )}
           </div>
         )}
 
