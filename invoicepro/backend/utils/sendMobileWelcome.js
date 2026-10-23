@@ -1,4 +1,5 @@
 const https = require('https');
+const sendEmail = require('./sendEmail');
 
 /**
  * Normalizes phone number to standard Indian format (e.g., 919876543210)
@@ -93,11 +94,41 @@ const sendMobileWelcome = async (user, phoneInput) => {
         console.error('Failed to update welcomeMessageSent:', dbErr.message);
     }
 
+    // 3. Immediately alert founder Ashieq with 1-click WhatsApp button to chat directly from founder's number
+    const founderWaLink = `https://wa.me/${phone}?text=${encodeURIComponent(`Hi ${user.name || 'there'}! I'm Ashieq, founder of ClientFlow AI. Saw you just joined with your mobile number! How can I help you set up your first invoice or proposal today?`)}`;
+    try {
+        const adminEmail = process.env.ADMIN_EMAILS || 'ashieqahamed4@gmail.com';
+        await sendEmail(
+            adminEmail,
+            `🚀 New User Phone Login: ${user.name || 'User'} (+${phone})`,
+            `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+                <h2 style="color: #0f172a; margin-top: 0;">🚀 New Mobile User Activity on ClientFlow AI</h2>
+                <p style="color: #475569; font-size: 14px;">A user just registered or logged in with their mobile number:</p>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0;">
+                    <p style="margin: 4px 0; font-size: 14px;"><strong>Name:</strong> ${user.name || 'Unnamed'}</p>
+                    <p style="margin: 4px 0; font-size: 14px;"><strong>Email:</strong> ${user.email || 'N/A'}</p>
+                    <p style="margin: 4px 0; font-size: 14px;"><strong>WhatsApp:</strong> <span style="color: #059669; font-weight: bold;">+${phone}</span></p>
+                    <p style="margin: 4px 0; font-size: 14px;"><strong>Time:</strong> ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST</p>
+                </div>
+                <p style="color: #475569; font-size: 14px; margin-top: 20px;">Tap below on your phone or computer to immediately start chatting with them from your personal WhatsApp:</p>
+                <div style="margin: 24px 0; text-align: center;">
+                    <a href="${founderWaLink}" style="background-color: #25D366; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">
+                        💬 Open WhatsApp Chat with +${phone}
+                    </a>
+                </div>
+                <p style="font-size: 12px; color: #94a3b8; text-align: center; margin-top: 24px;">Message will be sent directly from your own WhatsApp number.</p>
+            </div>`
+        );
+    } catch (notifyErr) {
+        console.error('Founder notification email error (non-fatal):', notifyErr.message);
+    }
+
     return {
         success: true,
         phone,
         message,
-        whatsappUrl
+        whatsappUrl,
+        founderWaLink
     };
 };
 

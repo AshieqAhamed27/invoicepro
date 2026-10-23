@@ -376,7 +376,7 @@ router.get('/admin/summary', protect, async(req, res) => {
                 }
             ]),
             User.find({ role: { $ne: 'admin' } })
-                .select('name email plan isDemo subscriptionStatus subscriptionProvider planStartedAt planExpiresAt freeAccessStartedAt freeAccessExpiresAt lastPaymentAt createdAt')
+                .select('name email phone plan isDemo subscriptionStatus subscriptionProvider planStartedAt planExpiresAt freeAccessStartedAt freeAccessExpiresAt lastPaymentAt createdAt')
                 .sort({ createdAt: -1 })
                 .limit(500)
                 .lean(),

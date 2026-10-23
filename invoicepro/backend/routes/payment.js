@@ -1319,12 +1319,12 @@ router.get('/admin/revenue', protect, async(req, res) => {
                 }
             ]),
             User.find(paidUserMatch)
-                .select('name email plan subscriptionStatus subscriptionProvider planStartedAt planExpiresAt lastPaymentAt createdAt')
+                .select('name email phone plan subscriptionStatus subscriptionProvider planStartedAt planExpiresAt lastPaymentAt createdAt')
                 .sort({ lastPaymentAt: -1, planStartedAt: -1, createdAt: -1 })
                 .limit(100)
                 .lean(),
             User.find({ role: { $ne: 'admin' } })
-                .select('name email plan isDemo subscriptionStatus subscriptionProvider planStartedAt planExpiresAt freeAccessStartedAt freeAccessExpiresAt lastPaymentAt createdAt')
+                .select('name email phone plan isDemo subscriptionStatus subscriptionProvider planStartedAt planExpiresAt freeAccessStartedAt freeAccessExpiresAt lastPaymentAt createdAt')
                 .sort({ createdAt: -1 })
                 .limit(300)
                 .lean(),
@@ -1408,6 +1408,7 @@ router.get('/admin/revenue', protect, async(req, res) => {
                 id: user._id,
                 name: user.name || 'Unnamed user',
                 email: user.email || '',
+                phone: user.phone || '',
                 plan: user.plan || 'paid',
                 amount: getPlanAmount(user.plan),
                 currency: 'INR',

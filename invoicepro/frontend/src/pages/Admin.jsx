@@ -1227,19 +1227,31 @@ export default function Admin() {
                     const badge = getAccessBadgeInfo(user);
                     const isUserExpired = user.isExpired || user.accessCategory === 'expired';
                     const isNotifyingThisUser = notifyingUserId === (user.id || user._id);
-                    const cleanPhone = (user.phone || '').replace(/[^0-9]/g, '');
+                    let cleanPhone = (user.phone || '').replace(/[^0-9]/g, '');
+                    if (cleanPhone.startsWith('0') && cleanPhone.length === 11) {
+                      cleanPhone = `91${cleanPhone.slice(1)}`;
+                    } else if (cleanPhone.length === 10) {
+                      cleanPhone = `91${cleanPhone}`;
+                    }
                     const waMessage = encodeURIComponent(`Hi ${user.name || 'there'}! I'm Ashieq, founder of ClientFlow AI. Thank you for signing up! How has your experience been so far? Can I help you set up an invoice or proposal? I'd love your feedback!`);
                     const emailSubject = encodeURIComponent('Quick question from Ashieq (Founder of ClientFlow AI)');
                     const emailBody = encodeURIComponent(`Hi ${user.name || 'there'},\n\nI noticed you joined ClientFlow AI. I'm Ashieq, the founder.\n\nI wanted to reach out personally to see what you were hoping to accomplish today? Did you run into any issues creating an invoice or proposal?\n\nI would love your honest feedback, good or bad!\n\nBest regards,\nAshieq\nFounder, ClientFlow AI`);
+                    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(user.email || '')}&su=${emailSubject}&body=${emailBody}`;
+                    const mailtoUrl = `mailto:${user.email}?subject=${emailSubject}&body=${emailBody}`;
 
                     return (
-                      <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.2fr)_110px_110px_150px_160px] md:items-center">
+                      <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.2fr)_110px_110px_150px_170px] md:items-center">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-black text-white">{user.email || 'No email'}</p>
-                          <p className="mt-1 truncate text-xs font-bold text-zinc-400">{user.name || 'Unnamed user'}</p>
+                          <p className="mt-0.5 truncate text-xs font-bold text-zinc-300">{user.name || 'Unnamed user'}</p>
                           {user.phone ? (
-                            <p className="mt-0.5 text-xs font-semibold text-emerald-400">📱 {user.phone}</p>
-                          ) : null}
+                            <p className="mt-1 flex items-center gap-1 text-xs font-extrabold text-emerald-400">
+                              <span>📱</span>
+                              <span>+{cleanPhone}</span>
+                            </p>
+                          ) : (
+                            <p className="mt-1 text-[11px] font-medium text-zinc-600">📱 No phone registered</p>
+                          )}
                           <p className="mt-1 text-[9px] font-bold text-zinc-600">Joined: {formatDate(user.createdAt)}</p>
                         </div>
 
@@ -1283,18 +1295,31 @@ export default function Admin() {
                               href={`https://wa.me/${cleanPhone}?text=${waMessage}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center justify-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/20"
+                              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/25 shadow-sm"
+                              title="Chat directly from your WhatsApp number"
                             >
-                              <span>💬 WhatsApp</span>
+                              <span>💬 WhatsApp User</span>
                             </a>
                           ) : null}
                           {user.email ? (
-                            <a
-                              href={`mailto:${user.email}?subject=${emailSubject}&body=${emailBody}`}
-                              className="inline-flex items-center justify-center gap-1 rounded-lg border border-sky-500/30 bg-sky-500/10 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-sky-300 transition hover:bg-sky-500/20"
-                            >
-                              <span>✉️ Email Feedback</span>
-                            </a>
+                            <div className="flex items-center gap-1">
+                              <a
+                                href={gmailUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1.5 text-[10px] font-black uppercase tracking-wider text-red-300 transition hover:bg-red-500/25"
+                                title="Open in Gmail Web (Chrome/Edge)"
+                              >
+                                <span>🔴 Gmail</span>
+                              </a>
+                              <a
+                                href={mailtoUrl}
+                                className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-[10px] font-bold text-zinc-400 hover:text-white hover:bg-white/10 transition"
+                                title="Open in default Email app"
+                              >
+                                <span>✉️ App</span>
+                              </a>
+                            </div>
                           ) : null}
                           {isUserExpired && (
                             <button
