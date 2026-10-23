@@ -129,7 +129,7 @@ const PrivateRoute = ({ children }) => {
 const PublicRoute = ({ children }) => {
   return !isLoggedIn()
     ? children
-    : <Navigate to="/dashboard" replace />;
+    : <Navigate to="/client-flow" replace />;
 };
 
 const isAdmin = () => {
@@ -184,7 +184,7 @@ const AdminRoute = ({ children }) => {
   }
 
   if (adminCheck !== 'allowed') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/client-flow" replace />;
   }
 
   return children;
@@ -334,7 +334,7 @@ export default function App() {
           path="/enterprise"
           element={
             <Suspense fallback={<RouteLoader />}>
-              <Enterprise />
+              <Navigate to="/client-flow" replace />
             </Suspense>
           }
         />
@@ -343,7 +343,7 @@ export default function App() {
           path="/devops-delivery"
           element={
             <Suspense fallback={<RouteLoader />}>
-              <DevOpsDelivery />
+              <Navigate to="/client-flow" replace />
             </Suspense>
           }
         />
@@ -352,7 +352,7 @@ export default function App() {
           path="/freelance-fit-advisor"
           element={
             <Suspense fallback={<RouteLoader />}>
-              <FreelanceFitAdvisor />
+              <Navigate to="/client-flow" replace />
             </Suspense>
           }
         />
@@ -379,7 +379,7 @@ export default function App() {
           path="/linux-services"
           element={
             <Suspense fallback={<RouteLoader />}>
-              <DevOpsDelivery />
+              <Navigate to="/client-flow" replace />
             </Suspense>
           }
         />
@@ -539,7 +539,7 @@ export default function App() {
           element={
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
-                <Dashboard />
+                <Navigate to="/client-flow" replace />
               </Suspense>
             </PrivateRoute>
           }
@@ -561,7 +561,7 @@ export default function App() {
           element={
             <PrivateRoute>
               <Suspense fallback={<RouteLoader />}>
-                <MoneyGPS />
+                <Navigate to="/client-flow" replace />
               </Suspense>
             </PrivateRoute>
           }
@@ -688,7 +688,7 @@ export default function App() {
             <PrivateRoute>
               <ProRoute title="AI Deal Closure Room unlocks after Pro payment">
                 <Suspense fallback={<RouteLoader />}>
-                  <DealClosureRoom />
+                  <Navigate to="/proposal-writer" replace />
                 </Suspense>
               </ProRoute>
             </PrivateRoute>

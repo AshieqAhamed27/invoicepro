@@ -106,7 +106,7 @@ const buildSteps = (counts) => [
     title: 'Follow up until money is collected',
     detail: 'Track pending invoices and send the right WhatsApp/payment follow-up before it goes cold.',
     done: counts.paidInvoices > 0,
-    route: '/dashboard#payment-collection-agent',
+    route: '/create-invoice',
     cta: 'Collect Payment',
     metric: `${counts.pendingInvoices} pending`
   }
@@ -253,7 +253,7 @@ export default function ClientFlow() {
       id: 'collection',
       label: 'Payment collected',
       done: counts.paidInvoices > 0,
-      route: '/dashboard#payment-collection-agent',
+      route: '/create-invoice',
       cta: 'Collect Payment',
       detail: 'Use payment follow-up until money is actually collected.'
     }
@@ -330,7 +330,7 @@ export default function ClientFlow() {
       title: 'Invoice & collect cash',
       detail: 'Share GST invoice with UPI QR & Razorpay link, and run smart reminders.',
       done: counts.invoices > 0 && counts.paidInvoices > 0,
-      route: counts.invoices > 0 ? '/dashboard#payment-collection-agent' : '/create-invoice',
+      route: '/create-invoice',
       cta: counts.invoices > 0 ? 'Collect Cash' : 'Create Invoice'
     }
   ]), [
@@ -578,7 +578,7 @@ export default function ClientFlow() {
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
               <span className="text-emerald-400 font-semibold">{counts.paidInvoices} paid invoices</span>
-              <button onClick={() => navigate('/dashboard')} className="text-zinc-500 hover:text-white transition">Ledger →</button>
+              <button onClick={() => navigate('/create-invoice')} className="text-zinc-500 hover:text-white transition">Invoices →</button>
             </div>
           </div>
 
@@ -594,7 +594,7 @@ export default function ClientFlow() {
             <div className="mt-2 flex items-center justify-between text-xs">
               <span className="text-amber-300 font-semibold">{counts.pendingInvoices} unpaid invoices</span>
               {counts.pendingInvoices > 0 ? (
-                <button onClick={() => navigate('/dashboard')} className="text-amber-400 font-bold hover:underline">Chase ➔</button>
+                <button onClick={() => navigate('/create-invoice')} className="text-amber-400 font-bold hover:underline">Chase Invoices ➔</button>
               ) : (
                 <span className="text-emerald-400 font-semibold">All clear ✓</span>
               )}
@@ -680,7 +680,7 @@ export default function ClientFlow() {
 
             {/* Action 3: Overdue Payment Recovery */}
             <div 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/create-invoice')}
               className="cursor-pointer group p-6 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-amber-500/40 transition-all shadow-xl hover:-translate-y-1"
             >
               <div className="flex items-center justify-between mb-4">
@@ -790,7 +790,7 @@ export default function ClientFlow() {
 
             {/* Step 5: Payment Collected */}
             <div 
-              onClick={() => openRoute('/dashboard')}
+              onClick={() => openRoute('/create-invoice')}
               className={`cursor-pointer p-4 rounded-xl border transition-all text-left ${counts.paidInvoices > 0 ? 'border-emerald-500/30 bg-emerald-500/[0.06]' : 'border-white/10 bg-black/20 hover:border-white/20'}`}
             >
               <div className="flex items-center justify-between">
