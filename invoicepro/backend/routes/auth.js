@@ -519,22 +519,29 @@ router.post(
             } = req.body;
             const cleanedPhone = normalizePhone(phone);
             const normalizedEmail = normalizeEmail(email);
-            const finalEmail = normalizedEmail || (cleanedPhone ? `${cleanedPhone}@clientflow.user` : '');
 
             if (!name ||
-                !finalEmail ||
+                !normalizedEmail ||
+                !cleanedPhone ||
                 !password
             ) {
                 return res
                     .status(400)
                     .json({
-                        message: 'Please provide name, mobile number or email, and password.'
+                        message: 'Please provide your name, email, WhatsApp mobile number, and password. Both email and mobile are required.'
                     });
             }
 
-            if (normalizedEmail && !isValidEmail(normalizedEmail)) {
+            if (!isValidEmail(normalizedEmail)) {
                 return res.status(400).json({
                     message: 'Please provide a valid email address.'
+                });
+            }
+
+            const digitsOnly = cleanedPhone.replace(/\D/g, '');
+            if (digitsOnly.length < 10) {
+                return res.status(400).json({
+                    message: 'Please provide a valid 10-digit WhatsApp mobile number.'
                 });
             }
 
@@ -554,8 +561,8 @@ router.post(
             const existingUser =
                 await User.findOne({
                     $or: [
-                        { email: finalEmail },
-                        ...(cleanedPhone ? [{ phone: cleanedPhone }] : [])
+                        { email: normalizedEmail },
+                        { phone: cleanedPhone }
                     ]
                 });
 
@@ -563,17 +570,17 @@ router.post(
                 return res
                     .status(400)
                     .json({
-                        message: existingUser.email === finalEmail && normalizedEmail
+                        message: existingUser.email === normalizedEmail
                             ? 'Email already registered.'
-                            : 'Mobile number or email already registered.'
+                            : 'Mobile number already registered.'
                     });
             }
 
             const user =
                 await User.create({
                     name,
-                    email: finalEmail,
-                    phone: cleanedPhone || '',
+                    email: normalizedEmail,
+                    phone: cleanedPhone,
                     password,
                     companyName
                 });

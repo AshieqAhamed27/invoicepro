@@ -134,14 +134,11 @@ export default function ClientFlow() {
     if (digits.length !== 10) return;
     try {
       setSavingPhone(true);
-      await api.put('/auth/profile', { phone: digits });
-      const updatedUser = { ...user, phone: `91${digits}` };
+      const res = await api.put('/auth/profile', { phone: digits });
+      const updatedUser = { ...user, phone: res.data?.user?.phone || `91${digits}` };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setCurrentUser(updatedUser);
-      setPhoneSuccessMessage('✓ WhatsApp number connected! Instant invoice & payment alerts are now active.');
-      setTimeout(() => {
-        setPhoneDismissed(true);
-      }, 3000);
+      setPhoneSuccessMessage('✓ WhatsApp number verified! Activating workspace...');
     } catch (err) {
       console.error(err);
       alert(err?.response?.data?.message || 'Could not update phone number. Please try again.');
@@ -423,53 +420,64 @@ export default function ClientFlow() {
           </div>
         )}
 
-        {/* WhatsApp Mobile Number Connect Banner for Active Users without phone */}
-        {!user?.phone && !phoneDismissed && (
-          <div className="mb-6 p-4 sm:p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/15 via-emerald-500/5 to-transparent shadow-lg">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex items-start sm:items-center gap-3.5">
-                <div className="h-11 w-11 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 text-2xl shadow-inner">
+        {/* Mandatory WhatsApp Mobile Number Modal for Users without Phone */}
+        {!user?.phone && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+            <div className="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-[#0a0f1d] p-6 sm:p-8 shadow-2xl shadow-emerald-950/60">
+              <div className="flex items-center gap-3.5 mb-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-2xl border border-emerald-500/40 shadow-inner">
                   📱
-                </div>
+                </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-black uppercase tracking-wider text-emerald-400">Add WhatsApp</span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Required Step</span>
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                   </div>
-                  <h3 className="text-base font-black text-white mt-0.5">
-                    Connect your WhatsApp number for Instant Payment & Invoice Alerts
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    Receive instant WhatsApp alerts when clients view proposals, accept terms, or complete payments via UPI/Razorpay.
-                  </p>
+                  <h2 className="text-xl font-black text-white mt-0.5">Enter WhatsApp Number</h2>
                 </div>
               </div>
 
-              <form onSubmit={handleSavePhone} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
-                <div className="relative flex items-center">
-                  <span className="absolute left-3 text-xs font-black text-zinc-400 select-none">🇮🇳 +91</span>
-                  <input
-                    type="tel"
-                    placeholder="98765 43210"
-                    value={phoneInput}
-                    onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    className="h-11 w-full sm:w-44 rounded-xl border border-white/10 bg-black/40 pl-14 pr-3 text-sm font-bold text-white placeholder-zinc-500 outline-none focus:border-emerald-500/60"
-                  />
+              <p className="text-sm text-zinc-300 leading-relaxed mb-6">
+                ClientFlow AI requires your WhatsApp mobile number to activate your workspace and send instant alerts when clients view proposals or complete UPI payments.
+              </p>
+
+              <form onSubmit={handleSavePhone} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">
+                    WhatsApp Mobile Number <span className="text-emerald-400">*</span>
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-sm font-black text-zinc-300 select-none">🇮🇳 +91</span>
+                    <input
+                      type="tel"
+                      required
+                      autoFocus
+                      placeholder="98765 43210"
+                      value={phoneInput}
+                      onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      className="h-12 w-full rounded-2xl border border-white/10 bg-black/60 pl-16 pr-4 text-base font-bold text-white placeholder-zinc-500 outline-none focus:border-emerald-500 transition shadow-inner tracking-wider"
+                    />
+                  </div>
+                  <p className="text-[11px] text-zinc-500 ml-1">
+                    Enter your active 10-digit mobile number. Kept 100% private.
+                  </p>
                 </div>
+
                 <button
                   type="submit"
                   disabled={savingPhone || phoneInput.replace(/\D/g, '').length !== 10}
-                  className="h-11 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-emerald-500/20"
+                  className="w-full h-12 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-sm uppercase tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed shadow-xl shadow-emerald-500/20 active:scale-[0.99]"
                 >
-                  {savingPhone ? 'Connecting...' : 'Connect WhatsApp'}
+                  {savingPhone ? 'Activating Workspace...' : 'Activate Workspace →'}
                 </button>
               </form>
+
+              {phoneSuccessMessage && (
+                <p className="mt-3 text-center text-xs font-bold text-emerald-300">
+                  {phoneSuccessMessage}
+                </p>
+              )}
             </div>
-            {phoneSuccessMessage && (
-              <p className="mt-3 text-xs font-bold text-emerald-300">
-                {phoneSuccessMessage}
-              </p>
-            )}
           </div>
         )}
 
