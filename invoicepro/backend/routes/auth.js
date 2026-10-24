@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const Organization = require('../models/Organization');
 const sendEmail = require('../utils/sendEmail');
-const { sendMobileWelcome, normalizePhone } = require('../utils/sendMobileWelcome');
+const { sendMobileWelcome, normalizePhone, sendUserWelcomeEmail } = require('../utils/sendMobileWelcome');
 const { getJwtSecret, normalizeUrl } = require('../utils/env');
 const {
     ensureFreeAccessWindow,
@@ -404,6 +404,16 @@ const findOrCreateOAuthUser = async(profile, provider = '') => {
             email: profile.email,
             password: crypto.randomBytes(32).toString('hex')
         });
+        if (user.email && !user.welcomeEmailSent) {
+            try {
+                await sendUserWelcomeEmail(user);
+                user.welcomeEmailSent = true;
+                user.welcomeEmailSentAt = new Date();
+                await user.save();
+            } catch (emailErr) {
+                console.error('OAuth welcome email error:', emailErr.message);
+            }
+        }
     } else if (!user.name && profile.name) {
         user.name = profile.name;
         await user.save();

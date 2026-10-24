@@ -38,6 +38,98 @@ Need help setting up your payment links? Just reply directly to this message!`;
 };
 
 /**
+ * Sends an automated welcome email directly to the newly registered user's email inbox
+ */
+const sendUserWelcomeEmail = async (user) => {
+    if (!user || !user.email) return null;
+    const firstName = String(user.name || 'there').trim().split(' ')[0];
+
+    const html = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background-color: #0b0b0f; color: #ffffff; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+  <div style="text-align: center; margin-bottom: 28px;">
+    <h1 style="color: #facc15; font-size: 26px; margin: 0 0 8px 0; font-weight: 800; letter-spacing: -0.02em;">ClientFlow AI</h1>
+    <p style="color: #a1a1aa; font-size: 14px; margin: 0;">Freelancer Operating System & GST Invoicing</p>
+  </div>
+
+  <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+    <p style="font-size: 16px; line-height: 1.6; margin-top: 0; color: #f4f4f5;">
+      Hi <strong>${firstName}</strong>,
+    </p>
+    <p style="font-size: 15px; line-height: 1.6; color: #d4d4d8;">
+      Welcome to ClientFlow AI! Your <strong>30-day all-inclusive free workspace</strong> is now officially active.
+    </p>
+    <p style="font-size: 15px; line-height: 1.6; color: #d4d4d8;">
+      ClientFlow AI is built India-first to solve the 3 biggest problems freelancers face every month:
+    </p>
+
+    <div style="margin: 24px 0;">
+      <div style="margin-bottom: 18px; padding-left: 12px; border-left: 3px solid #facc15;">
+        <strong style="color: #facc15; font-size: 15px;">1. Professional Invoices with Direct UPI QR:</strong>
+        <p style="margin: 4px 0 0; font-size: 14px; color: #a1a1aa; line-height: 1.5;">
+          Create Indian GST-compliant invoices with automatic HSN/SAC codes, CGST/SGST splits, and instant Razorpay UPI QR codes so clients can scan and pay right away.
+        </p>
+      </div>
+
+      <div style="margin-bottom: 18px; padding-left: 12px; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8; font-size: 15px;">2. AI Proposal Generator:</strong>
+        <p style="margin: 4px 0 0; font-size: 14px; color: #a1a1aa; line-height: 1.5;">
+          Draft high-converting client proposals in under 60 seconds with clear scope boundaries and payment milestones so you never get stuck doing free revisions.
+        </p>
+      </div>
+
+      <div style="margin-bottom: 18px; padding-left: 12px; border-left: 3px solid #34d399;">
+        <strong style="color: #34d399; font-size: 15px;">3. Calm Payment Follow-Ups:</strong>
+        <p style="margin: 4px 0 0; font-size: 14px; color: #a1a1aa; line-height: 1.5;">
+          Keep due dates visible and generate polite, professional WhatsApp and Email payment reminders so you never have to make awkward collection calls.
+        </p>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin: 32px 0 16px;">
+      <a href="https://www.clientflowai.in/client-flow" style="display: inline-block; background-color: #facc15; color: #09090b; font-weight: 800; font-size: 15px; padding: 14px 28px; border-radius: 10px; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em;">
+        👉 Open My Free Workspace
+      </a>
+    </div>
+  </div>
+
+  <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; font-size: 14px; line-height: 1.6; color: #a1a1aa;">
+    <p style="margin: 0 0 10px 0;">
+      <strong>Need help getting started?</strong><br />
+      I am Ashieq, builder of ClientFlow AI. If you want any help setting up your payment links, customizing your invoice format, or drafting your first proposal, feel free to reply directly to this email or chat with me on WhatsApp:
+    </p>
+    <p style="margin: 14px 0;">
+      <a href="https://wa.me/917418721245?text=${encodeURIComponent('Hi Ashieq, I just signed up for ClientFlow AI and need help setting up my workspace.')}" style="display: inline-block; background-color: #25D366; color: #ffffff; font-weight: 700; font-size: 13px; padding: 10px 18px; border-radius: 8px; text-decoration: none;">
+        💬 Chat with Ashieq on WhatsApp (+91 7418721245)
+      </a>
+    </p>
+    <p style="margin: 18px 0 0 0; font-size: 12px; color: #71717a;">
+      ClientFlow AI · Registered under UDYAM-TN-37-0055272 · support@clientflowai.in
+    </p>
+  </div>
+</div>
+`;
+
+    const text = `Hi ${firstName},
+
+Welcome to ClientFlow AI! Your 30-day all-inclusive free workspace is now officially active.
+
+ClientFlow AI is built India-first to solve the 3 biggest problems freelancers face every month:
+1. Professional Invoices with Direct UPI QR (GST compliant, HSN/SAC codes, CGST/SGST splits)
+2. AI Proposal Generator (high-converting proposals in under 60 seconds with clear scope boundaries)
+3. Calm Payment Follow-Ups (polite WhatsApp & Email reminders so you get paid on time)
+
+Open your workspace here:
+https://www.clientflowai.in/client-flow
+
+Need help getting started?
+I am Ashieq, builder of ClientFlow AI. Reply directly to this email or chat with me on WhatsApp: https://wa.me/917418721245
+
+ClientFlow AI · UDYAM-TN-37-0055272 · support@clientflowai.in`;
+
+    return sendEmail(user.email, '👋 Welcome to ClientFlow AI – Your 30-Day Free Workspace is Ready', { html, text });
+};
+
+/**
  * Sends or prepares the welcome message
  */
 const sendMobileWelcome = async (user, phoneInput) => {
@@ -123,6 +215,19 @@ const sendMobileWelcome = async (user, phoneInput) => {
         console.error('Founder notification email error (non-fatal):', notifyErr.message);
     }
 
+    // 4. Send Automated Welcome Email directly to the newly registered user's inbox
+    if (user.email && !user.welcomeEmailSent) {
+        try {
+            await sendUserWelcomeEmail(user);
+            user.welcomeEmailSent = true;
+            user.welcomeEmailSentAt = new Date();
+            await user.save();
+            console.log(`[Welcome] Automated welcome email dispatched to ${user.email}`);
+        } catch (userEmailErr) {
+            console.error('User welcome email error (non-fatal):', userEmailErr.message);
+        }
+    }
+
     return {
         success: true,
         phone,
@@ -135,5 +240,6 @@ const sendMobileWelcome = async (user, phoneInput) => {
 module.exports = {
     normalizePhone,
     getWelcomeMessageText,
-    sendMobileWelcome
+    sendMobileWelcome,
+    sendUserWelcomeEmail
 };

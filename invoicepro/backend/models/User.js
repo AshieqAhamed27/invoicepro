@@ -33,6 +33,16 @@ const userSchema = new mongoose.Schema({
         default: null
     },
 
+    welcomeEmailSent: {
+        type: Boolean,
+        default: false
+    },
+
+    welcomeEmailSentAt: {
+        type: Date,
+        default: null
+    },
+
     password: {
         type: String,
         required: function() {
