@@ -120,7 +120,7 @@ const whyPay = [
 ];
 
 const checkoutSteps = [
-  ['Choose payment type', 'Free, Pro, Founder access, Agency Setup, Automation Setup, Enterprise Seats, or Enterprise Team Setup.'],
+  ['Choose payment type', 'Free 30-Day Trial, Pro Monthly (₹499), Pro Annual, or 1-on-1 Managed Setup.'],
   ['Login or signup', 'A workspace account is required so access can be attached to the correct user.'],
   ['Pay securely', 'Checkout runs through configured payment providers such as Razorpay.'],
   ['Use the workflow', 'New users get 30 days free. After that, paid software plans or setup services can be used when needed.']
@@ -149,22 +149,6 @@ const checkoutTypes = [
     path: '/payments/agency-setup',
     cta: 'Open Agency Payment',
     tone: 'sky'
-  },
-  {
-    title: 'Automation Setup',
-    label: 'Done-for-you automation',
-    detail: 'Reminder automation, connected client workflow automation, and managed automation support.',
-    path: '/payments/automation-setup',
-    cta: 'Open Automation Payment',
-    tone: 'purple'
-  },
-  {
-    title: 'Enterprise Team Setup',
-    label: 'Guided team setup',
-    detail: 'Team setup for roles, security, audit/export habits, and first workrooms.',
-    path: '/payments/enterprise',
-    cta: 'Open Enterprise Payment',
-    tone: 'emerald'
   }
 ];
 
@@ -184,7 +168,7 @@ export default function PaymentsOverview() {
 
   useDocumentMeta({
     title: `${COMPANY_NAME} Payment Center`,
-    description: 'One ClientFlow AI payment center for free access, Pro workflow, agency setup, automation setup, and enterprise services.',
+    description: 'One ClientFlow AI payment center for free access, Pro freelance workflow, and 1-on-1 managed setup.',
     path: '/payments'
   });
 

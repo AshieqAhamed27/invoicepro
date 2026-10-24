@@ -35,7 +35,7 @@ const workflowSteps = [
 
 const freeIncludes = [
   { icon: '📋', title: 'Freelancer Workspace Setup', text: 'Pre-configured lead pipeline, proposal templates, and GST invoice flow — ready in 30 seconds.' },
-  { icon: '🔄', title: 'Automation Setup', text: 'Payment reminders, follow-up sequences, and recurring retainer invoices all set up automatically.' },
+  { icon: '🔄', title: 'Smart Follow-up Automation', text: 'Automated polite payment reminders, WhatsApp drafts, and recurring retainer invoices so you get paid on time.' },
   { icon: '🏢', title: 'Team & Agency Features', text: 'Multi-user workrooms, client delivery rooms, and shared pipeline for freelancers who work with a team.' },
   { icon: '🤖', title: 'AI Tools', text: '10-second AI Proposal Generator, Client Coach for objection handling, and smart payment follow-up drafts.' },
   { icon: '📊', title: 'GST & TDS Compliance', text: 'GSTIN, HSN/SAC codes, CGST/SGST/IGST auto-split, and 194J/194C TDS deduction tracking.' },
@@ -59,31 +59,22 @@ const protectionItems = [
 
 const servicePaths = [
   {
-    label: 'For a freelancer who needs help starting',
-    title: 'Agency Setup',
-    text: 'We help set up the offer, lead plan, proposal flow, workroom, invoice path, and first seven days of action.',
-    fit: 'Choose this when the business workflow is unclear.',
-    cta: 'Open Payment Center',
-    path: '/payments#setup-service-payments',
+    label: 'Freelance Software System',
+    title: 'ClientFlow Pro',
+    text: 'Full self-serve system: lead tracking, AI proposals, GST invoices with UPI QR codes, retainers, and payment follow-ups.',
+    fit: 'Free 30-day trial for every user, then ₹499/mo or ₹4,999/yr.',
+    cta: 'Explore Software & Plans',
+    path: '/payments',
     tone: 'yellow'
   },
   {
-    label: 'For a task that repeats',
-    title: 'Automation Setup',
-    text: 'We map and test one clear reminder, follow-up, notification, or handoff using ClientFlow AI or n8n.',
-    fit: 'Choose this only when the trigger and useful result are clear.',
-    cta: 'Open Payment Center',
-    path: '/payments#setup-service-payments',
+    label: '1-on-1 Personal Assistance',
+    title: '1-on-1 Managed Setup',
+    text: 'A dedicated builder works with you to design your service offer, craft high-converting proposals, and set up your client pipeline.',
+    fit: 'Choose this when you want hands-on personal guidance to start closing clients.',
+    cta: 'Book 1-on-1 Setup',
+    path: '/payments/agency-setup',
     tone: 'violet'
-  },
-  {
-    label: 'For an agency or company team',
-    title: 'Enterprise Setup',
-    text: 'We help configure the organization workspace, roles, security controls, audit habits, and first team workrooms.',
-    fit: 'Choose this when multiple people need controlled access.',
-    cta: 'Open Payment Center',
-    path: '/payments#setup-service-payments',
-    tone: 'fuchsia'
   }
 ];
 
@@ -828,7 +819,7 @@ export default function HomeClear() {
               <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Use the software yourself, or ask us to set up a specific part.</h2>
               <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Start with the free software first. The Payment Center keeps software plans and setup services in one place so users do not hunt through separate payment pages.</p>
             </div>
-            <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            <div className="mt-10 grid gap-6 md:grid-cols-2 max-w-4xl">
               {servicePaths.map((service, i) => {
                 const tone = serviceTone[service.tone];
                 return (

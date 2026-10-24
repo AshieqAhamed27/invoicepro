@@ -247,26 +247,13 @@ const setupPaymentOptions = [
     cta: 'Pay Managed Setup',
     defaultSkill: 'Managed freelancer growth setup',
     tone: 'yellow'
-  },
-  {
-    id: 'enterprise-team-setup',
-    packageId: 'enterprise_team',
-    workflowType: 'enterprise',
-    label: 'Enterprise Team Setup',
-    badge: 'Team setup payment',
-    amount: { india: 4999, global: 99 },
-    currency: { india: 'INR', global: 'USD' },
-    detail: 'For agencies and small companies that need organization workspace, roles, security settings, audit/export habits, and first team workrooms configured.',
-    cta: 'Pay Enterprise Setup',
-    defaultSkill: 'Enterprise team workflow setup',
-    tone: 'emerald'
   }
 ];
 
 const getSafeSetupService = (value) => {
   const service = String(value || '').toLowerCase();
   if (service === 'agency') return 'agency-growth';
-  if (service === 'enterprise') return 'enterprise-team-setup';
+  if (service === 'enterprise') return 'agency-growth';
   return setupPaymentOptions.some((option) => option.id === service) ? service : 'agency-growth';
 };
 
@@ -333,7 +320,7 @@ const SimplePaymentCheckout = ({
 
           {subscriptionStatus && <section className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.05] p-5"><p className="text-xs font-black uppercase tracking-widest text-emerald-200">Your current subscription</p><p className="mt-2 font-black text-white">{subscriptionStatus.plan} · {subscriptionStatus.status}</p>{subscriptionStatus.currentEnd && <p className="mt-1 text-sm text-zinc-400">Access until {new Date(subscriptionStatus.currentEnd).toLocaleDateString('en-IN')}</p>}{canCancelSubscription && <button type="button" onClick={onCancel} disabled={cancelLoading} className="mt-4 rounded-lg border border-red-400/30 px-4 py-2 text-xs font-black uppercase text-red-200 disabled:opacity-60">{cancelLoading ? 'Cancelling…' : 'Cancel renewal'}</button>}</section>}
 
-          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-zinc-400 sm:flex-row sm:items-center sm:justify-between"><p>Need a person to set up your workflow? That is optional and separate from your subscription.</p><div className="flex gap-4 font-bold"><Link to="/payments/agency-setup" className="text-yellow-200 hover:text-white">Agency setup</Link><Link to="/payments/enterprise" className="text-emerald-200 hover:text-white">Team setup</Link><a href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI billing support`} className="text-cyan-200 hover:text-white">Billing help</a></div></div>
+          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-zinc-400 sm:flex-row sm:items-center sm:justify-between"><p>Need a person to set up your workflow? That is optional and separate from your subscription.</p><div className="flex gap-4 font-bold"><Link to="/payments/agency-setup" className="text-yellow-200 hover:text-white">1-on-1 Setup</Link><a href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI billing support`} className="text-cyan-200 hover:text-white">Billing help</a></div></div>
         </section>
       </main>
     </div>
@@ -579,7 +566,7 @@ export default function Payment() {
         problem,
         targetClient: setupForm.targetClient.trim(),
         incomeGoal: setupForm.incomeGoal.trim(),
-        preferredPlatform: selectedSetupOption.workflowType === 'enterprise' ? 'Team rollout' : 'LinkedIn',
+        preferredPlatform: 'LinkedIn',
         source: 'payment_page'
       });
 
@@ -1013,7 +1000,7 @@ export default function Payment() {
                   You have {freeAccessState.daysLeft || 30} day{(freeAccessState.daysLeft || 30) === 1 ? '' : 's'} left.
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-300">
-                  Use the full software workflow during this window. Paid Agency Setup and Enterprise Team Setup are still available if a user wants hands-on setup help.
+                  Use the full software workflow during this window. Paid 1-on-1 Managed Setup is also available if a user wants hands-on setup help.
                 </p>
                 <Link to="/client-flow" className="mt-5 inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
                   Open Free Workspace
@@ -1027,14 +1014,11 @@ export default function Payment() {
                 This page is only for software access.
               </h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                New users get 30 days of free software access. Agency Setup and Enterprise Team Setup have their own separate payment pages.
+                New users get 30 days of free software access. 1-on-1 Managed Setup has its own separate payment page.
               </p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Link to="/payments/agency-setup" className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15">
-                  Agency Setup Payment
-                </Link>
-                <Link to="/payments/enterprise" className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/15">
-                  Enterprise Setup Payment
+                  1-on-1 Managed Setup Payment
                 </Link>
               </div>
             </div>

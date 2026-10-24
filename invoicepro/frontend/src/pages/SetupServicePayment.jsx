@@ -130,212 +130,15 @@ const serviceConfig = {
       ['3', 'Pay with Razorpay'],
       ['4', 'Receive setup plan']
     ]
-  },
-  automation: {
-    eyebrow: 'Automation setup payment',
-    title: 'Pay for Automation Setup.',
-    subtitle: 'For freelancers and teams that want repetitive client tasks configured for them.',
-    description: 'Choose an automation package, explain the repetitive task, and complete Razorpay checkout. We map, test, and hand over the approved ClientFlow AI or n8n workflow.',
-    path: '/payments/automation-setup',
-    supportSubject: 'ClientFlow AI Automation Setup payment support',
-    paymentTitle: 'Automation setup packages only.',
-    paymentDetail: 'These cards pay for hands-on workflow design, testing, activation, and handover. ClientFlow AI software access and third-party app fees remain separate.',
-    fitChecks: [
-      {
-        title: 'The task repeats',
-        detail: 'You manually do the same reminder, follow-up, notification, or handoff every week.'
-      },
-      {
-        title: 'The trigger is clear',
-        detail: 'You can describe exactly when it should start, such as an unpaid invoice reaching its due date.'
-      },
-      {
-        title: 'The result is valuable',
-        detail: 'Saving time, preventing a missed follow-up, or collecting money is worth more than the setup fee.'
-      }
-    ],
-    notFor: 'Do not buy Automation Setup for a process that changes every time, has no clear trigger, or is still only an idea. Start by testing the manual workflow first.',
-    defaultOptionId: 'automation_workflow',
-    tone: 'sky',
-    options: [
-      {
-        id: 'automation_starter',
-        packageId: 'automation_starter',
-        workflowType: 'automation',
-        label: 'Reminder Automation',
-        badge: 'Starter',
-        title: 'Automate one reminder workflow',
-        amount: { india: 1499, global: 29 },
-        currency: { india: 'INR', global: 'USD' },
-        priceNote: 'one-time setup',
-        detail: 'Set up one approved reminder flow for invoices, proposals, tasks, or client follow-ups.',
-        bestFor: 'Freelancers who repeatedly check dates and send the same reminder manually.',
-        points: [
-          'One trigger and reminder workflow',
-          'Safe dry run with sample data',
-          'Failure alert and retry guidance',
-          'Simple handover notes'
-        ],
-        defaultSkill: 'Client reminder automation setup'
-      },
-      {
-        id: 'automation_workflow',
-        packageId: 'automation_workflow',
-        workflowType: 'automation',
-        label: 'Workflow Automation',
-        badge: 'Recommended',
-        title: 'Automate a client workflow',
-        amount: { india: 3999, global: 79 },
-        currency: { india: 'INR', global: 'USD' },
-        priceNote: 'one-time setup',
-        detail: 'Connect up to three approved steps such as lead intake, proposal follow-up, task creation, invoice reminder, or admin notification.',
-        bestFor: 'Active freelancers and small teams losing time between disconnected client tasks.',
-        points: [
-          'Workflow map with trigger and actions',
-          'Up to three connected automation steps',
-          'Testing, failure path, and activation',
-          'Owner handover and maintenance checklist'
-        ],
-        defaultSkill: 'Client workflow automation setup',
-        recommended: true
-      },
-      {
-        id: 'automation_managed',
-        packageId: 'automation_managed',
-        workflowType: 'automation',
-        label: 'Managed Automation',
-        badge: 'First month support',
-        title: 'Build and monitor key automations',
-        amount: { india: 7999, global: 159 },
-        currency: { india: 'INR', global: 'USD' },
-        priceNote: 'setup plus first month',
-        detail: 'Configure priority workflows, review failures, and provide guided improvements during the first month.',
-        bestFor: 'Small agencies or teams that need support after automation goes live.',
-        points: [
-          'Up to three priority workflow builds',
-          'Activation and failure monitoring setup',
-          'Two workflow review sessions',
-          'First-month improvement report'
-        ],
-        defaultSkill: 'Managed client workflow automation'
-      }
-    ],
-    steps: [
-      ['1', 'Choose workflow'],
-      ['2', 'Explain manual task'],
-      ['3', 'Pay setup fee'],
-      ['4', 'Test and activate']
-    ]
-  },
-  enterprise: {
-    eyebrow: 'Enterprise setup payment',
-    title: 'Pay for Enterprise Team Setup.',
-    subtitle: 'For agencies and small companies that need a guided team workflow setup.',
-    description: 'This page is only for Enterprise Team Setup. It does not sell freelancer Pro access. Share team details, pay once, and we start the pilot setup process.',
-    path: '/payments/enterprise',
-    supportSubject: 'ClientFlow AI Enterprise Team Setup payment support',
-    paymentTitle: 'Enterprise setup packages only.',
-    paymentDetail: 'These cards are for company setup services: workspace, roles, security, pilot rollout, and team onboarding. Freelancer Pro plans are separate.',
-    defaultOptionId: 'enterprise_team',
-    tone: 'emerald',
-    options: [
-      {
-        id: 'enterprise_team',
-        packageId: 'enterprise_team',
-        workflowType: 'enterprise',
-        label: 'Enterprise Team Setup',
-        badge: 'Team setup',
-        title: 'Team workspace setup',
-        amount: { india: 4999, global: 99 },
-        currency: { india: 'INR', global: 'USD' },
-        priceNote: 'one-time setup',
-        detail: 'Create the company workspace, roles, security settings, and first team workrooms.',
-        bestFor: 'Small teams that need one shared ClientFlow AI workspace with clear access rules.',
-        points: [
-          'Organization workspace setup',
-          'Owner, manager, finance, and member roles',
-          'Admin security setting guidance',
-          'First team workrooms and handover'
-        ],
-        defaultSkill: 'Enterprise team workflow setup',
-        recommended: true
-      },
-      {
-        id: 'enterprise_pilot',
-        packageId: 'enterprise_pilot',
-        workflowType: 'enterprise',
-        label: 'Enterprise Pilot Setup',
-        badge: '30-day pilot',
-        title: 'Pilot for one team or department',
-        amount: { india: 9999, global: 199 },
-        currency: { india: 'INR', global: 'USD' },
-        priceNote: 'pilot rollout',
-        detail: 'Plan one department rollout with permissions, audit habits, backup policy, and admin review.',
-        bestFor: 'Agencies or companies testing ClientFlow AI with one team before a wider rollout.',
-        points: [
-          '30-day pilot workflow plan',
-          'Audit log and export routine',
-          'Backup and retention policy checklist',
-          'Admin review routine for team adoption'
-        ],
-        defaultSkill: 'Enterprise pilot workflow setup'
-      },
-      {
-        id: 'enterprise_rollout',
-        packageId: 'enterprise_rollout',
-        workflowType: 'enterprise',
-        label: 'Enterprise Rollout Support',
-        badge: 'Rollout support',
-        title: 'Guided rollout for company teams',
-        amount: { india: 19999, global: 399 },
-        currency: { india: 'INR', global: 'USD' },
-        priceNote: 'rollout support',
-        detail: 'Support multiple workrooms, onboarding, permissions review, and rollout reporting.',
-        bestFor: 'Teams that want guided onboarding, permission review, and a clearer company workflow.',
-        points: [
-          'Multiple workroom rollout planning',
-          'Team onboarding checklist',
-          'Workflow and permission review',
-          'Rollout support report with next actions'
-        ],
-        defaultSkill: 'Enterprise rollout workflow setup'
-      }
-    ],
-    steps: [
-      ['1', 'Share team details'],
-      ['2', 'Pay setup fee'],
-      ['3', 'Plan first workspace'],
-      ['4', 'Run pilot setup']
-    ]
   }
 };
 
-const getFieldCopy = (serviceType) => {
-  if (serviceType === 'enterprise') {
-    return {
-      targetClient: 'Team size / company type',
-      skill: 'Business or service type',
-      incomeGoal: 'Setup goal',
-      problem: 'What is messy in your team workflow now?'
-    };
-  }
-
-  if (serviceType === 'automation') {
-    return {
-      targetClient: 'Trigger or app involved',
-      skill: 'Your business or service type',
-      incomeGoal: 'Hours you want to save each week',
-      problem: 'Which repetitive task should we automate?'
-    };
-  }
-
-  return {
-    targetClient: 'Target client type',
-    skill: 'Your skill or service',
-    incomeGoal: 'Monthly income goal',
-    problem: 'What is confusing in your freelancer workflow now?'
-  };
-};
+const getFieldCopy = () => ({
+  targetClient: 'Target client type',
+  skill: 'Your skill or service',
+  incomeGoal: 'Monthly income goal',
+  problem: 'What is confusing in your freelancer workflow now?'
+});
 
 export default function SetupServicePayment({ serviceType = 'agency' }) {
   const location = useLocation();
@@ -361,42 +164,18 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
     [config.options, selectedOptionId]
   );
   const fieldCopy = getFieldCopy(serviceType);
-  const isEnterprise = serviceType === 'enterprise';
-  const isAutomation = serviceType === 'automation';
-  const theme = isEnterprise
-    ? {
-        hero: 'bg-emerald-400/[0.035]',
-        eyebrow: 'text-emerald-300',
-        selected: 'border-emerald-300/45 bg-emerald-300/[0.1] shadow-2xl shadow-emerald-950/25',
-        recommended: 'border-emerald-300/30 bg-emerald-300/[0.065] hover:border-emerald-300/45',
-        step: 'text-emerald-300',
-        action: 'bg-emerald-300 text-slate-950',
-        submit: 'bg-emerald-300 text-slate-950 hover:bg-emerald-200'
-      }
-    : isAutomation
-      ? {
-          hero: 'bg-sky-400/[0.035]',
-          eyebrow: 'text-sky-300',
-          selected: 'border-sky-300/45 bg-sky-300/[0.1] shadow-2xl shadow-sky-950/25',
-          recommended: 'border-sky-300/30 bg-sky-300/[0.065] hover:border-sky-300/45',
-          step: 'text-sky-300',
-          action: 'bg-sky-300 text-slate-950',
-          submit: 'bg-sky-300 text-slate-950 hover:bg-sky-200'
-        }
-      : {
-          hero: 'bg-yellow-400/[0.04]',
-          eyebrow: 'text-yellow-300',
-          selected: 'border-yellow-300/45 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/25',
-          recommended: 'border-yellow-300/35 bg-yellow-300/[0.075] hover:border-yellow-300/50',
-          step: 'text-yellow-300',
-          action: 'bg-yellow-400 text-black',
-          submit: 'bg-yellow-400 text-black hover:bg-yellow-300'
-        };
+  const theme = {
+    hero: 'bg-yellow-400/[0.04]',
+    eyebrow: 'text-yellow-300',
+    selected: 'border-yellow-300/45 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/25',
+    recommended: 'border-yellow-300/35 bg-yellow-300/[0.075] hover:border-yellow-300/50',
+    step: 'text-yellow-300',
+    action: 'bg-yellow-400 text-black',
+    submit: 'bg-yellow-400 text-black hover:bg-yellow-300'
+  };
   const relatedPaymentPages = [
     { id: 'software', path: '/payments/freelance-workflow', label: 'Freelance Workflow' },
-    { id: 'agency', path: '/payments/agency-setup', label: 'Agency Setup' },
-    { id: 'automation', path: '/payments/automation-setup', label: 'Automation Setup' },
-    { id: 'enterprise', path: '/payments/enterprise', label: 'Enterprise Setup' }
+    { id: 'agency', path: '/payments/agency-setup', label: '1-on-1 Managed Setup' }
   ].filter((item) => item.id !== serviceType);
 
   useDocumentMeta({
@@ -475,7 +254,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
         problem,
         targetClient: form.targetClient.trim(),
         incomeGoal: form.incomeGoal.trim(),
-        preferredPlatform: isEnterprise ? 'Team rollout' : isAutomation ? 'ClientFlow AI / n8n' : 'LinkedIn',
+        preferredPlatform: 'LinkedIn',
         source: `${serviceType}_payment_page`
       });
 
@@ -600,35 +379,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
           </div>
         </section>
 
-        {isAutomation && (
-          <section className="border-b border-white/5 bg-sky-400/[0.025] py-12 sm:py-14">
-            <div className="container-custom">
-              <div className="mx-auto max-w-3xl text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Buy only when it solves real repetition</p>
-                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  Automation should remove one clear manual problem.
-                </h2>
-                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                  Do not pay because automation sounds advanced. Pay when you can name the task you repeat, what starts it, and the useful result you expect.
-                </p>
-              </div>
-
-              <div className="mt-8 grid gap-4 md:grid-cols-3">
-                {config.fitChecks.map((item, index) => (
-                  <div key={item.title} className="rounded-[1.5rem] border border-sky-300/15 bg-black/25 p-5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Check {index + 1}</p>
-                    <h3 className="mt-3 text-lg font-black text-white">{item.title}</h3>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
-                  </div>
-                ))}
-              </div>
-
-              <p className="mt-5 rounded-2xl border border-yellow-300/15 bg-yellow-300/[0.06] p-5 text-sm font-bold leading-relaxed text-yellow-100">
-                {config.notFor}
-              </p>
-            </div>
-          </section>
-        )}
+        
 
         <section className="border-b border-white/5 py-14 sm:py-16">
           <div className="container-custom">
