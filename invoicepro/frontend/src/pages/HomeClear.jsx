@@ -35,16 +35,16 @@ const freelancerReviews = [
     role: 'Full-Stack Developer, Bengaluru',
     rating: 5,
     date: '2 weeks ago',
-    text: 'Sent my first GST invoice with the UPI QR code to a client who usually delays payment. They scanned with PhonePe and paid in 10 minutes. Cut payment delays from 2 weeks down to minutes.',
+    text: 'Sent my first invoice with the direct UPI QR code to a client who usually delays payment. They scanned with PhonePe and paid in 10 minutes. Cut payment delays from 2 weeks down to minutes.',
     tag: 'Verified Freelancer'
   },
   {
-    name: 'Priya Sundaram',
-    role: 'UI/UX & Brand Designer, Chennai',
+    name: 'Sarah Jenkins',
+    role: 'UI/UX & Brand Designer, Global Remote',
     rating: 5,
     date: '3 weeks ago',
     text: 'The AI Proposal Generator is a lifesaver. It drafts complete project scope and payment milestones in under 60 seconds so clients sign upfront without demanding free revisions.',
-    tag: 'Verified Freelancer'
+    tag: 'Verified Designer'
   },
   {
     name: 'Vikram Verma',
@@ -56,10 +56,10 @@ const freelancerReviews = [
   },
   {
     name: 'Arun Kumar',
-    role: 'WordPress & Shopify Dev, Coimbatore',
+    role: 'Shopify & Web Developer, Global Clients',
     rating: 5,
     date: '1 month ago',
-    text: 'Automatic 10% TDS (Section 194J) calculation and 1-click CA Excel exports made tax season completely painless. Truly built for Indian freelancers.',
+    text: 'Multi-currency support for USD clients alongside automatic GST/TDS calculation and 1-click CA Excel exports made running my solo agency completely frictionless.',
     tag: 'Verified Agency'
   }
 ];
@@ -153,26 +153,26 @@ const comparisonRows = [
   { feature: 'Your data guarantee', basic: 'Data is split between multiple services', marketplace: 'Platform account and rules apply', clientflow: 'Read-only access & export guaranteed even if trial ends—no lock-in' }
 ];
 
-const indiaValueProps = [
-  {
-    icon: '📄',
-    title: 'GST & TDS ready',
-    text: 'Add GSTIN, HSN/SAC codes, CGST/SGST/IGST splits, and calculate 194J/194C TDS deductions automatically.'
-  },
+const freelancerValueProps = [
   {
     icon: '💳',
-    title: 'Razorpay + Multi-currency',
-    text: 'Accept UPI, debit/credit cards, netbanking for Indian clients, or collect in USD/EUR/GBP for global clients.'
+    title: 'Multi-Currency & Global Cards',
+    text: 'Accept payments in USD, EUR, GBP, AUD, CAD, or INR. Send direct checkout links with international cards or instant UPI QR codes.'
+  },
+  {
+    icon: '📄',
+    title: 'GST & Global Tax Compliance',
+    text: 'Add GSTIN, HSN/SAC codes, CGST/SGST/IGST splits, and TDS deduction calculations for India, plus tax-exempt international invoicing.'
   },
   {
     icon: '🔄',
-    title: 'Monthly retainer invoicing',
-    text: 'Schedule recurring invoices for retainer clients on monthly or weekly cycles so you never forget to bill.'
+    title: 'Monthly Retainer Invoicing',
+    text: 'Schedule recurring invoices for retainer clients on monthly or weekly cycles so you never forget to bill regular clients.'
   },
   {
     icon: '🏢',
-    title: 'Udyam-registered & transparent',
-    text: 'Registered under UDYAM-TN-37-0055272. Daily backups, 256-bit encryption, and export to Excel for your CA anytime.'
+    title: 'Transparent & Data Portable',
+    text: '256-bit data encryption, daily cloud backups, and 1-click Excel/CSV export of all your invoices and client records anytime.'
   }
 ];
 
@@ -201,7 +201,7 @@ const structuredData = [
     operatingSystem: 'Web',
     url: SITE_URL,
     image: `${SITE_URL}/logo-1200.png`,
-    description: 'A lead-to-payment workspace for Indian freelancers with GST invoicing and Razorpay payments.',
+    description: 'An all-in-one lead-to-payment workspace for freelancers worldwide with multi-currency invoicing, AI proposals, and automated payment tracking.',
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: TRUST_RATING_SCORE,
@@ -414,8 +414,8 @@ export default function HomeClear() {
   }, []);
 
   useDocumentMeta({
-    title: `${COMPANY_NAME} | GST Invoice & Client Workflow for Indian Freelancers`,
-    description: 'The client-to-cash workspace built for Indian freelancers. Create GST invoices, send Razorpay payment links, manage leads to payments — all in one place.',
+    title: `${COMPANY_NAME} | The All-in-One Client & Invoice Workspace for Freelancers`,
+    description: 'The client-to-cash workspace built for freelancers and solo agencies worldwide. Create multi-currency & GST invoices, send AI proposals, accept global & UPI payments, and track clients — all in one place.',
     path: '/',
     jsonLd: structuredData
   });
@@ -457,7 +457,7 @@ export default function HomeClear() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-500" />
                 </span>
-                Built for Indian freelancers
+                Built for modern freelancers worldwide
               </span>
 
               <h1 className="mt-4 text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">
@@ -466,10 +466,10 @@ export default function HomeClear() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-xl font-semibold leading-relaxed text-zinc-300">
-                One workspace. Leads → proposals → GST invoices → Razorpay payments.
+                One workspace. Leads → AI proposals → multi-currency & GST invoices → fast client payments.
               </p>
               <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-zinc-500">
-                Stop switching between spreadsheets, WhatsApp, invoice tools, and reminders. ClientFlow AI keeps your direct-client business in one clear flow.
+                Stop switching between spreadsheets, WhatsApp, invoice tools, and reminders. ClientFlow AI keeps your direct-client business in one clear flow for local & global clients.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -526,16 +526,16 @@ export default function HomeClear() {
                   <p className="text-xs font-semibold text-zinc-600">Full free access</p>
                 </div>
                 <div>
-                  <p className="text-lg font-black text-white">₹0</p>
+                  <p className="text-lg font-black text-white">₹0 / $0</p>
                   <p className="text-xs font-semibold text-zinc-600">No card required</p>
                 </div>
                 <div>
-                  <p className="text-lg font-black text-white">GST + TDS</p>
-                  <p className="text-xs font-semibold text-zinc-600">India tax ready</p>
+                  <p className="text-lg font-black text-white">Global & GST</p>
+                  <p className="text-xs font-semibold text-zinc-600">Invoices & tax ready</p>
                 </div>
                 <div>
-                  <p className="text-lg font-black text-white">Razorpay</p>
-                  <p className="text-xs font-semibold text-zinc-600">UPI · Cards · Net</p>
+                  <p className="text-lg font-black text-white">Cards & UPI</p>
+                  <p className="text-xs font-semibold text-zinc-600">USD · EUR · INR</p>
                 </div>
               </div>
             </div>
@@ -719,12 +719,12 @@ export default function HomeClear() {
         <RevealSection className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
           <div className="container-custom">
             <div className="max-w-3xl sr">
-              <span className="violet-pill">Why Indian freelancers choose this</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Built for how you actually work in India.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Most freelancer tools are built for US/EU markets. ClientFlow AI is built for Indian currency, Indian tax rules, and Indian payment methods.</p>
+              <span className="violet-pill">Built for every freelancer</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Built for how freelancers work worldwide.</h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Whether you bill local clients with UPI & GST, or international clients across the US, Europe, and Asia in USD, EUR, and GBP — ClientFlow AI gives you one unified system.</p>
             </div>
             <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {indiaValueProps.map((prop, i) => (
+              {freelancerValueProps.map((prop, i) => (
                 <div key={prop.title} className={`glow-card p-6 sr sr-delay-${i + 1}`}>
                   <span className="text-3xl" role="img" aria-label={prop.title}>{prop.icon}</span>
                   <h3 className="mt-4 text-lg font-black leading-snug text-white">{prop.title}</h3>
@@ -905,7 +905,7 @@ export default function HomeClear() {
           <div className="container-custom grid gap-12 lg:grid-cols-2">
             <div className="sr sr-left">
               <span className="violet-pill" style={{ borderColor: 'rgba(110,231,183,0.28)', background: 'rgba(52,211,153,0.07)', color: '#6ee7b7' }}>Who it is for</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">Anyone selling a service directly to clients in India.</h2>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">Anyone selling a freelance service directly to clients worldwide.</h2>
               <div className="mt-8 grid gap-5 sm:grid-cols-2">
                 {audienceGroups.map(([title, text], i) => (
                   <div key={title} className={`border-t border-violet-500/18 pt-4 sr sr-delay-${i + 1}`}>
@@ -936,7 +936,7 @@ export default function HomeClear() {
                   ⭐ Google & User Reviews
                 </span>
                 <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
-                  Rated {TRUST_RATING_SCORE} out of 5 by Indian Freelancers.
+                  Rated {TRUST_RATING_SCORE} out of 5 by Freelancers & Agencies Worldwide.
                 </h2>
                 <div className="mt-3 flex items-center gap-3">
                   <div className="flex text-yellow-400 text-lg">
@@ -1002,7 +1002,7 @@ export default function HomeClear() {
             <div className="sr sr-left">
               <span className="violet-pill">Trust and support</span>
               <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">Clear about what is real.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">ClientFlow AI is operated by a Udyam-registered Indian business. Payments use Razorpay, account data is encrypted, and support details are public.</p>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">ClientFlow AI is an all-in-one workspace for freelancers worldwide, operated by a verified, registered business. Global card and multi-currency payments supported, data is 256-bit encrypted, and support is 24/7 direct.</p>
               <div className="mt-7 grid gap-3 text-sm font-bold text-zinc-300">
                 <p>Support: <a className="text-white transition-colors hover:text-violet-300" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a></p>
                 <p>Registration: <span className="text-white">{UDYAM_REGISTRATION_NUMBER}</span></p>

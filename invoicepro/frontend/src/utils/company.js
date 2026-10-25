@@ -1,7 +1,7 @@
 export const PRODUCT_NAME = 'ClientFlow AI';
 export const COMPANY_NAME = 'ClientFlow AI';
 export const COMPANY_SHORT_NAME = 'ClientFlow AI';
-export const COMPANY_TAGLINE = 'The client-to-cash workspace built for Indian freelancers — GST invoices, Razorpay payments, and lead-to-payment workflow in one place.';
+export const COMPANY_TAGLINE = 'The all-in-one client-to-cash workspace built for freelancers worldwide — multi-currency & GST invoices, global card & UPI payments, and lead-to-payment workflow in one place.';
 export const COMPANY_LOGO = '/logo.svg';
 export const COMPANY_LEGAL_TYPE = 'Udyam-registered sole proprietorship';
 export const UDYAM_REGISTRATION_NUMBER = 'UDYAM-TN-37-0055272';
