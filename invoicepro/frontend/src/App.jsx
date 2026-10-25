@@ -1057,7 +1057,7 @@ export default function App() {
       <PlanReminderAgent />
       <SupportChatWidget />
       <WhatsAppFloatingButton />
-      {isLoggedIn() && <LiveFeedback />}
+      <LiveFeedback />
     </BrowserRouter>
   );
 }

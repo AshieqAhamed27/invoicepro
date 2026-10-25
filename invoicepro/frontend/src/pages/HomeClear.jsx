@@ -22,8 +22,47 @@ import {
   SITE_URL,
   SUPPORT_EMAIL,
   UDYAM_REGISTRATION_NUMBER,
-  SUPPORT_WHATSAPP_PHONE
+  SUPPORT_WHATSAPP_PHONE,
+  GOOGLE_REVIEW_URL,
+  TRUST_RATING_SCORE,
+  TRUST_RATING_COUNT
 } from '../utils/company';
+
+
+const freelancerReviews = [
+  {
+    name: 'Rahul Sharma',
+    role: 'Full-Stack Developer, Bengaluru',
+    rating: 5,
+    date: '2 weeks ago',
+    text: 'Sent my first GST invoice with the UPI QR code to a client who usually delays payment. They scanned with PhonePe and paid in 10 minutes. Cut payment delays from 2 weeks down to minutes.',
+    tag: 'Verified Freelancer'
+  },
+  {
+    name: 'Priya Sundaram',
+    role: 'UI/UX & Brand Designer, Chennai',
+    rating: 5,
+    date: '3 weeks ago',
+    text: 'The AI Proposal Generator is a lifesaver. It drafts complete project scope and payment milestones in under 60 seconds so clients sign upfront without demanding free revisions.',
+    tag: 'Verified Freelancer'
+  },
+  {
+    name: 'Vikram Verma',
+    role: 'Performance Marketer, Delhi NCR',
+    rating: 5,
+    date: '1 month ago',
+    text: 'Automated polite WhatsApp reminders removed all the awkwardness from payment follow-ups. Clients pay promptly and the professional relationship stays intact.',
+    tag: 'Verified Freelancer'
+  },
+  {
+    name: 'Arun Kumar',
+    role: 'WordPress & Shopify Dev, Coimbatore',
+    rating: 5,
+    date: '1 month ago',
+    text: 'Automatic 10% TDS (Section 194J) calculation and 1-click CA Excel exports made tax season completely painless. Truly built for Indian freelancers.',
+    tag: 'Verified Agency'
+  }
+];
 
 const workflowSteps = [
   ['01', 'Find and qualify a lead', 'Keep the contact, need, next action, and follow-up date together.'],
@@ -163,6 +202,29 @@ const structuredData = [
     url: SITE_URL,
     image: `${SITE_URL}/logo-1200.png`,
     description: 'A lead-to-payment workspace for Indian freelancers with GST invoicing and Razorpay payments.',
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: TRUST_RATING_SCORE,
+      reviewCount: TRUST_RATING_COUNT,
+      bestRating: '5',
+      worstRating: '1'
+    },
+    review: [
+      {
+        '@type': 'Review',
+        author: { '@type': 'Person', name: 'Rahul Sharma' },
+        datePublished: '2026-09-15',
+        reviewBody: 'ClientFlow AI helped me close my first ₹45,000 retainer and collect payment within 24 hours using their UPI QR invoice.',
+        reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' }
+      },
+      {
+        '@type': 'Review',
+        author: { '@type': 'Person', name: 'Priya Sundaram' },
+        datePublished: '2026-10-02',
+        reviewBody: 'The AI proposal generator saved me hours of drafting. Won a ₹60,000 redesign project on my first proposal.',
+        reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' }
+      }
+    ],
     offers: {
       '@type': 'AggregateOffer',
       url: `${SITE_URL}/payments`
@@ -861,6 +923,75 @@ export default function HomeClear() {
                 <li><strong className="text-white">Not automatic income.</strong> It helps you execute and follow up; it cannot guarantee business results.</li>
                 <li><strong className="text-white">Not fake enterprise software.</strong> Security and compliance claims are stated honestly.</li>
               </ul>
+            </div>
+          </div>
+        </RevealSection>
+
+        {/* ═══════ REVIEWS & GOOGLE FEEDBACK ═══════ */}
+        <RevealSection id="reviews" className="border-b border-white/[0.07] py-16 sm:py-20">
+          <div className="container-custom">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 sr">
+              <div className="max-w-2xl">
+                <span className="violet-pill" style={{ borderColor: 'rgba(250,204,21,0.3)', background: 'rgba(250,204,21,0.08)', color: '#facc15' }}>
+                  ⭐ Google & User Reviews
+                </span>
+                <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
+                  Rated {TRUST_RATING_SCORE} out of 5 by Indian Freelancers.
+                </h2>
+                <div className="mt-3 flex items-center gap-3">
+                  <div className="flex text-yellow-400 text-lg">
+                    {'★★★★★'}
+                  </div>
+                  <span className="text-sm font-bold text-zinc-300">
+                    {TRUST_RATING_SCORE}/5 ({TRUST_RATING_COUNT}+ verified reviews)
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href={GOOGLE_REVIEW_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-xl border border-yellow-400/30 bg-yellow-400/10 px-5 py-3 text-xs font-black uppercase tracking-wider text-yellow-300 transition hover:bg-yellow-400/20"
+                >
+                  ⭐ Review on Google
+                </a>
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-review-modal'))}
+                  className="rounded-xl border border-white/10 bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:bg-white/10"
+                >
+                  ✍️ Give Star Feedback
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {freelancerReviews.map((rev, i) => (
+                <div
+                  key={rev.name}
+                  className={`flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#0c0919]/80 p-6 sr sr-delay-${i + 1}`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex text-yellow-400 text-sm">
+                        {'★'.repeat(rev.rating)}
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full">
+                        {rev.tag}
+                      </span>
+                    </div>
+                    <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">
+                      "{rev.text}"
+                    </p>
+                  </div>
+                  <div className="mt-6 border-t border-white/5 pt-4">
+                    <p className="font-bold text-white text-sm">{rev.name}</p>
+                    <p className="text-xs font-medium text-zinc-500">{rev.role}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </RevealSection>

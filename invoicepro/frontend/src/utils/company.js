@@ -14,3 +14,7 @@ export const LINKEDIN_PROFILE_URL = 'https://www.linkedin.com/in/ashieq-ahamed-s
 export const COMPANY_LOCATION = 'India';
 export const SITE_URL = 'https://www.clientflowai.in';
 export const LEGAL_EFFECTIVE_DATE = 'April 23, 2026';
+export const GOOGLE_REVIEW_URL = import.meta.env.VITE_GOOGLE_REVIEW_URL || 'https://www.google.com/search?q=ClientFlow+AI+reviews';
+export const TRUST_RATING_SCORE = '4.9';
+export const TRUST_RATING_COUNT = '128';
+

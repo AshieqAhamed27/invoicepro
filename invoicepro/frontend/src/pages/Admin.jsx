@@ -162,6 +162,9 @@ export default function Admin() {
   const [agencyBookings, setAgencyBookings] = useState([]);
   const [agencyLoading, setAgencyLoading] = useState(true);
   const [agencyError, setAgencyError] = useState('');
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewStats, setReviewStats] = useState({ total: 0, avgRating: 5 });
 
   const getScreenshotUrl = (request) => {
     return request.screenshotUrl
@@ -285,6 +288,23 @@ export default function Admin() {
     }
   };
 
+
+  const fetchReviews = async () => {
+    try {
+      setReviewsLoading(true);
+      const res = await api.get('/feedback');
+      setReviews(res.data?.items || []);
+      setReviewStats({
+        total: res.data?.total || 0,
+        avgRating: res.data?.avgRating || 5
+      });
+    } catch (err) {
+      console.log('Feedback fetch error:', err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
   const fetchAgencyBookings = async () => {
     try {
       setAgencyLoading(true);
@@ -403,6 +423,7 @@ export default function Admin() {
     fetchRevenue();
     fetchProductAnalytics();
     fetchAgencyBookings();
+    fetchReviews();
   }, []);
 
   useEffect(() => {
@@ -1394,6 +1415,114 @@ export default function Admin() {
               </div>
             </div>
           )}
+        </section>
+
+        {/* ⭐ USER REVIEWS & GOOGLE FEEDBACK */}
+        <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
+          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-yellow-400">User Ratings & Sentiment</p>
+                <h2 className="text-2xl font-black tracking-tight text-white">⭐ User Reviews & Google Feedback</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                  Ratings and reviews submitted by freelancers. Follow up directly with users on WhatsApp or thank happy reviewers.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-yellow-300">
+                  ⭐ {reviewStats.avgRating} / 5 Avg Rating
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-zinc-300">
+                  {reviews.length} Submissions
+                </span>
+                <button
+                  type="button"
+                  onClick={fetchReviews}
+                  disabled={reviewsLoading}
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition"
+                >
+                  {reviewsLoading ? 'Refreshing...' : '🔄 Refresh'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-5 sm:p-8">
+            {reviewsLoading ? (
+              <div className="py-12 text-center text-sm font-bold text-zinc-500">Loading reviews...</div>
+            ) : reviews.length === 0 ? (
+              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-8 text-center">
+                <p className="text-2xl mb-2">⭐</p>
+                <h3 className="text-lg font-black text-white">No reviews received yet</h3>
+                <p className="mt-1 text-sm text-zinc-500 max-w-md mx-auto">
+                  When users submit 1-5 star ratings or feedback through the in-app review widget, they will appear here with 1-click WhatsApp reply buttons.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {reviews.map((r) => {
+                  const stars = '★'.repeat(r.rating || 5);
+                  const isPositive = (r.rating || 5) >= 4;
+                  return (
+                    <div
+                      key={r._id}
+                      className="flex flex-col justify-between rounded-2xl border border-white/10 bg-[#0d0a1b]/80 p-5 shadow-lg"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                          <div className="text-yellow-400 text-base font-black">
+                            {stars}
+                            <span className="text-zinc-600 ml-1 text-xs">({r.rating}/5)</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {r.postedToGoogle && (
+                              <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-300">
+                                Google Review ✅
+                              </span>
+                            )}
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-zinc-400">
+                              {r.category || 'Review'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-sm font-medium leading-relaxed text-zinc-200 italic mb-4">
+                          "{r.message}"
+                        </p>
+                      </div>
+
+                      <div className="border-t border-white/5 pt-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div>
+                            <p className="text-xs font-black text-white">{r.name || 'Anonymous'}</p>
+                            <p className="text-[11px] font-medium text-zinc-500">{r.email || 'No email'}</p>
+                          </div>
+                          {r.phone && (
+                            <a
+                              href={`https://wa.me/${r.phone}?text=${encodeURIComponent(`Hi ${r.name || 'there'}! Ashieq here from ClientFlow AI. Thank you for your review!`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="rounded-lg bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-1 text-[10px] font-black uppercase text-emerald-300 hover:bg-emerald-500/30 transition"
+                            >
+                              💬 WhatsApp
+                            </a>
+                          )}
+                        </div>
+                        <p className="mt-2 text-[10px] text-zinc-600">
+                          {new Date(r.createdAt).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </section>
 
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
