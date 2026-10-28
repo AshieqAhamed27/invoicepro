@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { getUser, isLoggedIn } from '../utils/auth';
-import { GOOGLE_REVIEW_URL, SUPPORT_WHATSAPP_PHONE } from '../utils/company';
+import { GOOGLE_REVIEW_URL, TRUSTPILOT_REVIEW_URL, SUPPORT_WHATSAPP_PHONE } from '../utils/company';
 
 const RATING_LABELS = {
   1: '🙁 Not satisfied / Needs work',
@@ -181,25 +181,35 @@ const LiveFeedback = () => {
                   </p>
                 </div>
 
-                {/* Happy User: Google Review prompt */}
+                {/* Happy User: Verified Trustpilot & Google Review prompt */}
                 {rating >= 4 && (
-                  <div className="rounded-2xl border border-yellow-400/25 bg-yellow-400/[0.06] p-3.5">
+                  <div className="rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.06] p-3.5">
                     <div className="flex items-start gap-2.5">
-                      <span className="text-lg">🌟</span>
+                      <span className="text-lg">⭐</span>
                       <div>
-                        <p className="text-xs font-bold text-yellow-200">
-                          Loving it? Share on Google!
+                        <p className="text-xs font-bold text-emerald-300">
+                          Loving it? Leave a verified review!
                         </p>
                         <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
-                          Your review helps fellow Indian freelancers find an easy client-to-payment workflow.
+                          Your honest review on Trustpilot helps other freelancers discover a genuine client-to-cash workflow.
                         </p>
-                        <button
-                          type="button"
-                          onClick={handleOpenGoogle}
-                          className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-yellow-400/40 bg-yellow-400/15 px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-yellow-200 hover:bg-yellow-400/25 transition"
-                        >
-                          ⭐ Open Google Review Link →
-                        </button>
+                        <div className="mt-2.5 flex flex-wrap gap-2">
+                          <a
+                            href={TRUSTPILOT_REVIEW_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-[#00b67a] hover:bg-[#00a36d] px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-white transition shadow-sm"
+                          >
+                            ⭐ Review on Trustpilot →
+                          </a>
+                          <button
+                            type="button"
+                            onClick={handleOpenGoogle}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 hover:bg-white/20 px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-white transition"
+                          >
+                            Google Review
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

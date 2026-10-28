@@ -24,45 +24,9 @@ import {
   UDYAM_REGISTRATION_NUMBER,
   SUPPORT_WHATSAPP_PHONE,
   GOOGLE_REVIEW_URL,
-  TRUST_RATING_SCORE,
-  TRUST_RATING_COUNT
 } from '../utils/company';
 
 
-const freelancerReviews = [
-  {
-    name: 'Rahul Sharma',
-    role: 'Full-Stack Developer, Bengaluru',
-    rating: 5,
-    date: '2 weeks ago',
-    text: 'Sent my first invoice with the direct UPI QR code to a client who usually delays payment. They scanned with PhonePe and paid in 10 minutes. Cut payment delays from 2 weeks down to minutes.',
-    tag: 'Verified Freelancer'
-  },
-  {
-    name: 'Sarah Jenkins',
-    role: 'UI/UX & Brand Designer, Global Remote',
-    rating: 5,
-    date: '3 weeks ago',
-    text: 'The AI Proposal Generator is a lifesaver. It drafts complete project scope and payment milestones in under 60 seconds so clients sign upfront without demanding free revisions.',
-    tag: 'Verified Designer'
-  },
-  {
-    name: 'Vikram Verma',
-    role: 'Performance Marketer, Delhi NCR',
-    rating: 5,
-    date: '1 month ago',
-    text: 'Automated polite WhatsApp reminders removed all the awkwardness from payment follow-ups. Clients pay promptly and the professional relationship stays intact.',
-    tag: 'Verified Freelancer'
-  },
-  {
-    name: 'Arun Kumar',
-    role: 'Shopify & Web Developer, Global Clients',
-    rating: 5,
-    date: '1 month ago',
-    text: 'Multi-currency support for USD clients alongside automatic GST/TDS calculation and 1-click CA Excel exports made running my solo agency completely frictionless.',
-    tag: 'Verified Agency'
-  }
-];
 
 const workflowSteps = [
   ['01', 'Find and qualify a lead', 'Keep the contact, need, next action, and follow-up date together.'],
@@ -202,29 +166,6 @@ const structuredData = [
     url: SITE_URL,
     image: `${SITE_URL}/logo-1200.png`,
     description: 'An all-in-one lead-to-payment workspace for freelancers worldwide with multi-currency invoicing, AI proposals, and automated payment tracking.',
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: TRUST_RATING_SCORE,
-      reviewCount: TRUST_RATING_COUNT,
-      bestRating: '5',
-      worstRating: '1'
-    },
-    review: [
-      {
-        '@type': 'Review',
-        author: { '@type': 'Person', name: 'Rahul Sharma' },
-        datePublished: '2026-09-15',
-        reviewBody: 'ClientFlow AI helped me close my first ₹45,000 retainer and collect payment within 24 hours using their UPI QR invoice.',
-        reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' }
-      },
-      {
-        '@type': 'Review',
-        author: { '@type': 'Person', name: 'Priya Sundaram' },
-        datePublished: '2026-10-02',
-        reviewBody: 'The AI proposal generator saved me hours of drafting. Won a ₹60,000 redesign project on my first proposal.',
-        reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' }
-      }
-    ],
     offers: {
       '@type': 'AggregateOffer',
       url: `${SITE_URL}/payments`
@@ -927,71 +868,60 @@ export default function HomeClear() {
           </div>
         </RevealSection>
 
-        {/* ═══════ REVIEWS & GOOGLE FEEDBACK ═══════ */}
+        {/* ═══════ VERIFIED TRUST & REVIEWS ═══════ */}
         <RevealSection id="reviews" className="border-b border-white/[0.07] py-16 sm:py-20">
           <div className="container-custom">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 sr">
-              <div className="max-w-2xl">
-                <span className="violet-pill" style={{ borderColor: 'rgba(250,204,21,0.3)', background: 'rgba(250,204,21,0.08)', color: '#facc15' }}>
-                  ⭐ Google & User Reviews
-                </span>
-                <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
-                  Rated {TRUST_RATING_SCORE} out of 5 by Freelancers & Agencies Worldwide.
-                </h2>
-                <div className="mt-3 flex items-center gap-3">
-                  <div className="flex text-yellow-400 text-lg">
-                    {'★★★★★'}
+            <div className="rounded-3xl border border-white/[0.08] bg-gradient-to-b from-[#110d24] to-[#0a0716] p-8 sm:p-12">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                <div className="max-w-2xl">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#00b67a]/30 bg-[#00b67a]/10 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-[#00b67a]">
+                    <span>★</span> Verified on Trustpilot
                   </div>
-                  <span className="text-sm font-bold text-zinc-300">
-                    {TRUST_RATING_SCORE}/5 ({TRUST_RATING_COUNT}+ verified reviews)
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <a
-                  href={GOOGLE_REVIEW_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-xl border border-yellow-400/30 bg-yellow-400/10 px-5 py-3 text-xs font-black uppercase tracking-wider text-yellow-300 transition hover:bg-yellow-400/20"
-                >
-                  ⭐ Review on Google
-                </a>
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-review-modal'))}
-                  className="rounded-xl border border-white/10 bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:bg-white/10"
-                >
-                  ✍️ Give Star Feedback
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {freelancerReviews.map((rev, i) => (
-                <div
-                  key={rev.name}
-                  className={`flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#0c0919]/80 p-6 sr sr-delay-${i + 1}`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex text-yellow-400 text-sm">
-                        {'★'.repeat(rev.rating)}
-                      </div>
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 rounded-full">
-                        {rev.tag}
-                      </span>
+                  <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
+                    Real, transparent feedback from real freelancers.
+                  </h2>
+                  <p className="mt-3 text-base font-medium leading-relaxed text-zinc-400">
+                    We never publish fake testimonials or mock reviews. Every review on ClientFlow AI is written directly by real freelancers on independent, third-party verified platforms.
+                  </p>
+                  <div className="mt-6 flex flex-wrap items-center gap-4 text-sm font-semibold text-zinc-300">
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-400">✓</span> Verified Business Domain
                     </div>
-                    <p className="mt-4 text-sm font-medium leading-6 text-zinc-300">
-                      "{rev.text}"
-                    </p>
-                  </div>
-                  <div className="mt-6 border-t border-white/5 pt-4">
-                    <p className="font-bold text-white text-sm">{rev.name}</p>
-                    <p className="text-xs font-medium text-zinc-500">{rev.role}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-400">✓</span> Udyam Registered: <span className="font-mono text-white">{UDYAM_REGISTRATION_NUMBER}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-400">✓</span> Direct Builder Access
+                    </div>
                   </div>
                 </div>
-              ))}
+
+                <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[240px]">
+                  <a
+                    href={TRUSTPILOT_REVIEW_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2.5 rounded-2xl bg-[#00b67a] hover:bg-[#00a36d] px-6 py-4 text-xs font-black uppercase tracking-wider text-white transition shadow-lg shadow-[#00b67a]/20 text-center"
+                  >
+                    <span>⭐</span> Read or Review on Trustpilot →
+                  </a>
+                  <a
+                    href={GOOGLE_REVIEW_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] hover:bg-white/10 px-6 py-3.5 text-xs font-black uppercase tracking-wider text-white transition text-center"
+                  >
+                    Review on Google
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-review-modal'))}
+                    className="text-center text-xs font-bold text-zinc-400 hover:text-white transition py-1"
+                  >
+                    ✍️ Give Direct In-App Feedback
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </RevealSection>
