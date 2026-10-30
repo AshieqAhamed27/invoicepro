@@ -18,6 +18,7 @@ import PlanReminderAgent from './components/PlanReminderAgent';
 import DeviceReminderAgent from './components/DeviceReminderAgent';
 import SupportChatWidget from './components/SupportChatWidget';
 import LiveFeedback from './components/LiveFeedback';
+import UserOnboardingModal from './components/UserOnboardingModal';
 
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/HomeClear'));
@@ -1052,6 +1053,7 @@ export default function App() {
       <SupportChatWidget />
       <WhatsAppFloatingButton />
       <LiveFeedback />
+      <UserOnboardingModal />
     </BrowserRouter>
   );
 }

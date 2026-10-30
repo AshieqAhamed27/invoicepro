@@ -1324,7 +1324,7 @@ router.get('/admin/revenue', protect, async(req, res) => {
                 .limit(100)
                 .lean(),
             User.find({ role: { $ne: 'admin' } })
-                .select('name email phone plan isDemo subscriptionStatus subscriptionProvider planStartedAt planExpiresAt freeAccessStartedAt freeAccessExpiresAt lastPaymentAt createdAt')
+                .select('name email phone plan isDemo persona freelanceExperience onboardingCompleted subscriptionStatus subscriptionProvider planStartedAt planExpiresAt freeAccessStartedAt freeAccessExpiresAt lastPaymentAt createdAt')
                 .sort({ createdAt: -1 })
                 .limit(300)
                 .lean(),
@@ -1497,6 +1497,9 @@ router.get('/admin/revenue', protect, async(req, res) => {
                         accessType,
                         accessCategory,
                         isDemo: Boolean(user.isDemo),
+                        persona: user.persona || '',
+                        freelanceExperience: user.freelanceExperience || '',
+                        onboardingCompleted: Boolean(user.onboardingCompleted),
                         isExpired,
                         daysRemaining,
                         daysExpired,

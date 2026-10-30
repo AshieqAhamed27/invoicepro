@@ -499,6 +499,29 @@ export default function Admin() {
   const revenueAccessUsers = Array.isArray(revenueUserAccess.users) ? revenueUserAccess.users : [];
   const analyticsAccessUsers = Array.isArray(analyticsUserAccess.users) ? analyticsUserAccess.users : [];
   const userAccessUsers = revenueAccessUsers.length > 0 ? revenueAccessUsers : analyticsAccessUsers;
+
+  const personaSummary = useMemo(() => {
+    const freelancers = userAccessUsers.filter((u) => u.persona === 'freelancer');
+    const nonFreelancers = userAccessUsers.filter((u) => u.persona && u.persona !== 'freelancer');
+    const pending = userAccessUsers.filter((u) => !u.persona);
+
+    const beginners = freelancers.filter((u) => u.freelanceExperience === 'beginner');
+    const exp1to3 = freelancers.filter((u) => u.freelanceExperience === '1_to_3_years');
+    const exp3to5 = freelancers.filter((u) => u.freelanceExperience === '3_to_5_years');
+    const exp5plus = freelancers.filter((u) => u.freelanceExperience === '5_plus_years');
+
+    return {
+      freelancers: freelancers.length,
+      nonFreelancers: nonFreelancers.length,
+      pending: pending.length,
+      beginners: beginners.length,
+      experienced: freelancers.length - beginners.length,
+      exp1to3: exp1to3.length,
+      exp3to5: exp3to5.length,
+      exp5plus: exp5plus.length
+    };
+  }, [userAccessUsers]);
+
   const userAccessSummary = useMemo(() => {
     if (userAccessUsers.length === 0) {
       const fallback = revenueUserAccess.summary || analyticsUserAccess.summary || {};
@@ -525,8 +548,16 @@ export default function Admin() {
   const hasUserAccessSummaryOnly = userAccessUsers.length === 0 && Number(userAccessSummary.total || 0) > 0;
   const normalizedUserAccessSearch = userAccessSearch.trim().toLowerCase();
   const filteredUserAccessUsers = userAccessUsers.filter((user) => {
-    // 1. Access type filter
-    if (accessFilter === 'paid') {
+    // 1. Access & Persona filter
+    if (accessFilter === 'freelancer') {
+      if (user.persona !== 'freelancer') return false;
+    } else if (accessFilter === 'non_freelancer') {
+      if (!user.persona || user.persona === 'freelancer') return false;
+    } else if (accessFilter === 'beginner') {
+      if (user.persona !== 'freelancer' || user.freelanceExperience !== 'beginner') return false;
+    } else if (accessFilter === 'pending') {
+      if (user.persona) return false;
+    } else if (accessFilter === 'paid') {
       const isPaid = (user.accessCategory === 'paid' || user.accessType === 'paid') && !user.isExpired;
       if (!isPaid) return false;
     } else if (accessFilter === 'demo') {
@@ -539,7 +570,7 @@ export default function Admin() {
 
     // 2. Search query filter
     if (!normalizedUserAccessSearch) return true;
-    return [user.email, user.name, user.plan, user.accessType, user.accessCategory]
+    return [user.email, user.name, user.phone, user.plan, user.accessType, user.accessCategory, user.persona, user.freelanceExperience]
       .filter(Boolean)
       .some((value) => String(value).toLowerCase().includes(normalizedUserAccessSearch));
   });
@@ -1201,6 +1232,53 @@ export default function Admin() {
               </div>
             </div>
 
+            {/* Demographic Persona Breakdown */}
+            <div className="mt-6 rounded-2xl border border-sky-400/20 bg-sky-400/[0.03] p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-sky-400">User Demographic Insights</p>
+                  <h4 className="text-sm font-black text-white">Freelancers vs Non-Freelancers Breakdown</h4>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400">
+                  <span>Total Members: {formatNumber(userAccessUsers.length)}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                <div className="rounded-xl border border-sky-400/20 bg-sky-400/[0.06] p-3">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-sky-300">💼 Freelancers</p>
+                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.freelancers)}</p>
+                  <p className="mt-0.5 text-[9px] font-bold text-sky-400">
+                    {userAccessUsers.length > 0 ? Math.round((personaSummary.freelancers / userAccessUsers.length) * 100) : 0}% of all users
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-indigo-400/20 bg-indigo-400/[0.06] p-3">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-indigo-300">🏢 Non-Freelancers</p>
+                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.nonFreelancers)}</p>
+                  <p className="mt-0.5 text-[9px] font-bold text-indigo-400">Agencies, Businesses, Students</p>
+                </div>
+
+                <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-3">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-amber-300">🌱 Beginners (&lt; 1 yr)</p>
+                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.beginners)}</p>
+                  <p className="mt-0.5 text-[9px] font-bold text-amber-400">Just started freelancing</p>
+                </div>
+
+                <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] p-3">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-emerald-300">🚀 1–3+ yrs Exp.</p>
+                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.experienced)}</p>
+                  <p className="mt-0.5 text-[9px] font-bold text-emerald-400">Experienced freelancers</p>
+                </div>
+
+                <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 p-3">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">❓ Role Pending</p>
+                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.pending)}</p>
+                  <p className="mt-0.5 text-[9px] font-bold text-zinc-500">Old users not logged in yet</p>
+                </div>
+              </div>
+            </div>
+
             {/* Access Category Summary Counters */}
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
               {[
@@ -1224,6 +1302,10 @@ export default function Admin() {
               <div className="flex flex-wrap items-center gap-2">
                 {[
                   { id: 'all', label: 'All', count: userAccessSummary.total },
+                  { id: 'freelancer', label: '💼 Freelancers', count: personaSummary.freelancers },
+                  { id: 'non_freelancer', label: '🏢 Non-Freelancers', count: personaSummary.nonFreelancers },
+                  { id: 'beginner', label: '🌱 Beginners', count: personaSummary.beginners },
+                  { id: 'pending', label: '❓ Role Pending', count: personaSummary.pending },
                   { id: 'paid', label: '💳 Paid', count: userAccessSummary.paid },
                   { id: 'free_access', label: '🎁 30-Day Free', count: userAccessSummary.freeAccess },
                   { id: 'demo', label: '🧪 Demo', count: userAccessSummary.demo },
@@ -1313,6 +1395,30 @@ export default function Admin() {
                           ) : (
                             <p className="mt-1 text-[11px] font-medium text-zinc-600">📱 No phone registered</p>
                           )}
+                          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                            {user.persona === 'freelancer' ? (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-sky-400/20 bg-sky-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-sky-300">
+                                💼 Freelancer · {
+                                  user.freelanceExperience === 'beginner' ? 'Beginner (<1y)' :
+                                  user.freelanceExperience === '1_to_3_years' ? '1–3 yrs' :
+                                  user.freelanceExperience === '3_to_5_years' ? '3–5 yrs' :
+                                  user.freelanceExperience === '5_plus_years' ? '5+ yrs' : 'Experience not set'
+                                }
+                              </span>
+                            ) : user.persona ? (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-indigo-400/20 bg-indigo-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-indigo-300">
+                                🏢 {
+                                  user.persona === 'agency' ? 'Agency / Team' :
+                                  user.persona === 'small_business' ? 'Small Business' :
+                                  user.persona === 'student' ? 'Student' : 'Other Field'
+                                }
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-800/60 px-2 py-0.5 text-[9px] font-bold text-zinc-500">
+                                ❓ Role Pending
+                              </span>
+                            )}
+                          </div>
                           <p className="mt-1 text-[9px] font-bold text-zinc-600">Joined: {formatDate(user.createdAt)}</p>
                         </div>
 

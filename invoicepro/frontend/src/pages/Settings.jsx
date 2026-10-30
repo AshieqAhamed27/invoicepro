@@ -159,7 +159,9 @@ export default function Settings() {
     gstNumber: '',
     upiId: '',
     address: '',
-    logo: ''
+    logo: '',
+    persona: '',
+    freelanceExperience: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -190,7 +192,9 @@ export default function Settings() {
         gstNumber: user.gstNumber || '',
         upiId: user.upiId || '',
         address: user.address || 'Tamil Nadu, India',
-        logo: user.logo || ''
+        logo: user.logo || '',
+        persona: user.persona || '',
+        freelanceExperience: user.freelanceExperience || ''
       });
     } catch {
       alert('Failed to load profile');
@@ -360,6 +364,49 @@ export default function Settings() {
                       className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
                     />
                 </div>
+              </div>
+            </section>
+
+            <section id="role-profile" className="premium-panel p-5 sm:p-8 relative overflow-hidden group scroll-mt-28">
+              <div className="mb-6">
+                <h2 className="text-2xl font-black text-white leading-none mb-1">Professional Role & Experience</h2>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Tailors templates, analytics, and workflow tips</p>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Your Primary Role</p>
+                  <select
+                    name="persona"
+                    value={form.persona}
+                    onChange={handleChange}
+                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white"
+                  >
+                    <option value="" className="bg-zinc-900 text-zinc-400">Select your role...</option>
+                    <option value="freelancer" className="bg-zinc-900 text-white">💼 Freelancer / Independent Pro</option>
+                    <option value="agency" className="bg-zinc-900 text-white">🏢 Agency / Studio / Team</option>
+                    <option value="small_business" className="bg-zinc-900 text-white">🏪 Small Business Owner</option>
+                    <option value="student" className="bg-zinc-900 text-white">🎓 Student / Exploring</option>
+                    <option value="other" className="bg-zinc-900 text-white">✨ Other Field</option>
+                  </select>
+                </div>
+
+                {form.persona === 'freelancer' && (
+                  <div className="space-y-1.5 animate-fadeIn">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Freelance Experience Level</p>
+                    <select
+                      name="freelanceExperience"
+                      value={form.freelanceExperience}
+                      onChange={handleChange}
+                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white"
+                    >
+                      <option value="beginner" className="bg-zinc-900 text-white">🌱 Beginner (&lt; 1 Year)</option>
+                      <option value="1_to_3_years" className="bg-zinc-900 text-white">🚀 1 – 3 Years Experience</option>
+                      <option value="3_to_5_years" className="bg-zinc-900 text-white">⭐ 3 – 5 Years Experience</option>
+                      <option value="5_plus_years" className="bg-zinc-900 text-white">👑 5+ Years Veteran</option>
+                    </select>
+                  </div>
+                )}
               </div>
             </section>
 

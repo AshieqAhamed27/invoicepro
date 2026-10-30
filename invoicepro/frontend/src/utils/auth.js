@@ -31,6 +31,18 @@ export const setAuth = (token, user) => {
   localStorage.setItem('user', JSON.stringify(user));
 };
 
+export const updateUser = (updatedFields) => {
+  try {
+    const current = getUser() || {};
+    const updated = { ...current, ...updatedFields };
+    localStorage.setItem('user', JSON.stringify(updated));
+    window.dispatchEvent(new Event('storage'));
+    return updated;
+  } catch {
+    return null;
+  }
+};
+
 export const clearAuth = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
@@ -153,6 +165,23 @@ export const getPlanLabel = (user = getUser()) => {
   if (user.plan === 'yearly') return 'Pro Annual';
   if (user.plan === 'founder90') return 'Founder 90 Days';
   return 'Pro';
+};
+
+export const getPersonaLabel = (persona) => {
+  if (persona === 'freelancer') return 'Freelancer';
+  if (persona === 'agency') return 'Agency / Team';
+  if (persona === 'small_business') return 'Small Business';
+  if (persona === 'student') return 'Student';
+  if (persona === 'other') return 'Other';
+  return 'Not specified';
+};
+
+export const getExperienceLabel = (exp) => {
+  if (exp === 'beginner') return 'Beginner (< 1 yr)';
+  if (exp === '1_to_3_years') return '1–3 yrs';
+  if (exp === '3_to_5_years') return '3–5 yrs';
+  if (exp === '5_plus_years') return '5+ yrs';
+  return 'Not specified';
 };
 
 export const formatCurrency = (amount, currency) => {

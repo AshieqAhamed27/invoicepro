@@ -125,6 +125,28 @@ const userSchema = new mongoose.Schema({
         default: null
     },
 
+    persona: {
+        type: String,
+        enum: ['', 'freelancer', 'agency', 'small_business', 'student', 'other'],
+        default: ''
+    },
+
+    freelanceExperience: {
+        type: String,
+        enum: ['', 'beginner', '1_to_3_years', '3_to_5_years', '5_plus_years'],
+        default: ''
+    },
+
+    onboardingCompleted: {
+        type: Boolean,
+        default: false
+    },
+
+    onboardingCompletedAt: {
+        type: Date,
+        default: null
+    },
+
     companyName: {
         type: String,
         default: ''

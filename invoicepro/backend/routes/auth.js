@@ -499,6 +499,10 @@ const serializeUser = (user) => {
         freeAccessStartedAt: user.freeAccessStartedAt,
         freeAccessExpiresAt: user.freeAccessExpiresAt,
         freeAccess,
+        persona: user.persona || "",
+        freelanceExperience: user.freelanceExperience || "",
+        onboardingCompleted: Boolean(user.onboardingCompleted),
+        onboardingCompletedAt: user.onboardingCompletedAt || null,
         createdAt: user.createdAt,
         companyName: user.companyName,
         gstNumber: user.gstNumber,
@@ -1026,6 +1030,47 @@ router.post(
 );
 
 // ==========================
+// ROLE ONBOARDING (NEW & OLD USERS)
+// ==========================
+router.put(
+    '/onboarding',
+    protect,
+    async(req, res) => {
+        try {
+            const { persona, freelanceExperience } = req.body || {};
+            const validPersonas = ['freelancer', 'agency', 'small_business', 'student', 'other'];
+            const validExperiences = ['beginner', '1_to_3_years', '3_to_5_years', '5_plus_years'];
+
+            const cleanPersona = String(persona || '').trim().toLowerCase();
+            if (!validPersonas.includes(cleanPersona)) {
+                return res.status(400).json({ message: 'Invalid role selection.' });
+            }
+
+            req.user.persona = cleanPersona;
+            if (cleanPersona === 'freelancer') {
+                const cleanExp = String(freelanceExperience || '').trim().toLowerCase();
+                req.user.freelanceExperience = validExperiences.includes(cleanExp) ? cleanExp : 'beginner';
+            } else {
+                req.user.freelanceExperience = '';
+            }
+
+            req.user.onboardingCompleted = true;
+            req.user.onboardingCompletedAt = new Date();
+
+            await req.user.save();
+
+            res.json({
+                message: 'Onboarding completed successfully',
+                user: serializeUser(req.user)
+            });
+        } catch (err) {
+            console.error('ONBOARDING UPDATE ERROR:', err);
+            res.status(500).json({ message: 'Server error saving role onboarding.' });
+        }
+    }
+);
+
+// ==========================
 // UPDATE PROFILE / SETTINGS
 // ==========================
 router.put(
@@ -1062,6 +1107,24 @@ router.put(
 
             if (logo !== undefined) {
                 req.user.logo = normalizeLogoUrl(logo);
+            }
+
+            if (req.body.persona !== undefined) {
+                const cleanPersona = String(req.body.persona || '').trim().toLowerCase();
+                const validPersonas = ['', 'freelancer', 'agency', 'small_business', 'student', 'other'];
+                if (validPersonas.includes(cleanPersona)) {
+                    req.user.persona = cleanPersona;
+                    if (cleanPersona !== 'freelancer') {
+                        req.user.freelanceExperience = '';
+                    }
+                }
+            }
+            if (req.body.freelanceExperience !== undefined) {
+                const cleanExp = String(req.body.freelanceExperience || '').trim().toLowerCase();
+                const validExperiences = ['', 'beginner', '1_to_3_years', '3_to_5_years', '5_plus_years'];
+                if (validExperiences.includes(cleanExp)) {
+                    req.user.freelanceExperience = cleanExp;
+                }
             }
 
             if (phone !== undefined) {
