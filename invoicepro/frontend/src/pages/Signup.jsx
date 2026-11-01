@@ -33,7 +33,9 @@ export default function Signup() {
     email: '',
     phone: '',
     password: '',
-    companyName: ''
+    companyName: '',
+    persona: 'freelancer',
+    freelanceExperience: 'beginner'
   });
 
   const [error, setError] = useState('');
@@ -267,6 +269,70 @@ export default function Signup() {
                     Used to send you payment alerts & direct WhatsApp invoice links.
                   </p>
               </div>
+
+              {/* Role Selection */}
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between ml-1">
+                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                    Who are you? <span className="text-emerald-400 font-bold">*</span>
+                  </p>
+                  <span className="text-[10px] font-bold text-zinc-500">Customizes your workspace</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {[
+                    { id: 'freelancer', label: '💼 Freelancer', desc: 'Solo professional' },
+                    { id: 'agency', label: '🏢 Agency', desc: 'Team or studio' },
+                    { id: 'small_business', label: '🏪 Small Business', desc: 'Business owner' },
+                    { id: 'student', label: '🎓 Student', desc: 'Learning & testing' },
+                    { id: 'other', label: '✨ Other Field', desc: 'Consultant / creator' }
+                  ].map((role) => (
+                    <button
+                      key={role.id}
+                      type="button"
+                      onClick={() => setForm({ ...form, persona: role.id })}
+                      className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition ${
+                        form.persona === role.id
+                          ? 'border-emerald-400/60 bg-emerald-400/10 text-white shadow-sm ring-1 ring-emerald-400/30'
+                          : 'border-white/5 bg-black/20 text-zinc-400 hover:border-white/10 hover:text-zinc-200'
+                      }`}
+                    >
+                      <span className="text-xs font-black">{role.label}</span>
+                      <span className="text-[9px] font-medium text-zinc-500 mt-0.5">{role.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Conditional Freelance Experience */}
+              {form.persona === 'freelancer' && (
+                <div className="space-y-2 rounded-xl border border-sky-400/20 bg-sky-400/[0.04] p-3 animate-fadeIn">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">
+                    Freelance Experience Level
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: 'beginner', label: '🌱 Beginner', sub: '< 1 year' },
+                      { id: '1_to_3_years', label: '🚀 1–3 Years', sub: 'Established' },
+                      { id: '3_to_5_years', label: '⭐ 3–5 Years', sub: 'Regular retainers' },
+                      { id: '5_plus_years', label: '👑 5+ Years', sub: 'Veteran / Expert' }
+                    ].map((exp) => (
+                      <button
+                        key={exp.id}
+                        type="button"
+                        onClick={() => setForm({ ...form, freelanceExperience: exp.id })}
+                        className={`flex items-center justify-between p-2 rounded-lg border text-left transition ${
+                          form.freelanceExperience === exp.id
+                            ? 'border-sky-400/60 bg-sky-400/15 text-white ring-1 ring-sky-400/30'
+                            : 'border-white/5 bg-black/20 text-zinc-400 hover:border-white/10 hover:text-zinc-200'
+                        }`}
+                      >
+                        <span className="text-[11px] font-bold">{exp.label}</span>
+                        <span className="text-[9px] font-medium text-zinc-500">{exp.sub}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                   <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Password</p>

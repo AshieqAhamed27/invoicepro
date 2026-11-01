@@ -529,10 +529,22 @@ router.post(
                 email,
                 phone,
                 password,
-                companyName
+                companyName,
+                persona,
+                freelanceExperience
             } = req.body;
             const cleanedPhone = normalizePhone(phone);
             const normalizedEmail = normalizeEmail(email);
+
+            const validPersonas = ['freelancer', 'agency', 'small_business', 'student', 'other'];
+            const validExperiences = ['beginner', '1_to_3_years', '3_to_5_years', '5_plus_years'];
+            const cleanPersona = String(persona || '').trim().toLowerCase();
+            const selectedPersona = validPersonas.includes(cleanPersona) ? cleanPersona : '';
+            let selectedExp = '';
+            if (selectedPersona === 'freelancer') {
+                const cleanExp = String(freelanceExperience || '').trim().toLowerCase();
+                selectedExp = validExperiences.includes(cleanExp) ? cleanExp : 'beginner';
+            }
 
             if (!name ||
                 !normalizedEmail ||
@@ -596,7 +608,11 @@ router.post(
                     email: normalizedEmail,
                     phone: cleanedPhone,
                     password,
-                    companyName
+                    companyName,
+                    persona: selectedPersona,
+                    freelanceExperience: selectedExp,
+                    onboardingCompleted: Boolean(selectedPersona),
+                    onboardingCompletedAt: selectedPersona ? new Date() : null
                 });
 
             await syncAdminRole(user);

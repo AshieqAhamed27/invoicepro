@@ -29,6 +29,8 @@ const isTokenExpired = (token) => {
 export const setAuth = (token, user) => {
   localStorage.setItem('token', token);
   localStorage.setItem('user', JSON.stringify(user));
+  window.dispatchEvent(new Event('storage'));
+  window.dispatchEvent(new CustomEvent('auth-change', { detail: { token, user } }));
 };
 
 export const updateUser = (updatedFields) => {
@@ -37,6 +39,7 @@ export const updateUser = (updatedFields) => {
     const updated = { ...current, ...updatedFields };
     localStorage.setItem('user', JSON.stringify(updated));
     window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new CustomEvent('auth-change', { detail: { user: updated } }));
     return updated;
   } catch {
     return null;
@@ -46,6 +49,8 @@ export const updateUser = (updatedFields) => {
 export const clearAuth = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  window.dispatchEvent(new Event('storage'));
+  window.dispatchEvent(new CustomEvent('auth-change', { detail: { token: null, user: null } }));
 };
 
 export const setPostLoginRedirect = (path) => {

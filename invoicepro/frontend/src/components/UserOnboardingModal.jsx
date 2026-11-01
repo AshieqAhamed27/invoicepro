@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../utils/api';
 import { getUser, updateUser, isLoggedIn } from '../utils/auth';
 
@@ -65,6 +66,7 @@ const EXPERIENCES = [
 ];
 
 export default function UserOnboardingModal() {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState('freelancer');
@@ -75,6 +77,13 @@ export default function UserOnboardingModal() {
   useEffect(() => {
     // Check if user is eligible for onboarding
     const checkOnboardingEligibility = () => {
+      // Don't show modal if currently on login or signup pages
+      const path = location.pathname || '';
+      if (path === '/login' || path === '/signup') {
+        setIsOpen(false);
+        return;
+      }
+
       if (!isLoggedIn()) {
         setIsOpen(false);
         return;
@@ -105,10 +114,14 @@ export default function UserOnboardingModal() {
 
     checkOnboardingEligibility();
 
-    // Listen to storage events (e.g. login/logout)
+    // Listen to storage & auth change events (e.g. login/logout/signup)
     window.addEventListener('storage', checkOnboardingEligibility);
-    return () => window.removeEventListener('storage', checkOnboardingEligibility);
-  }, []);
+    window.addEventListener('auth-change', checkOnboardingEligibility);
+    return () => {
+      window.removeEventListener('storage', checkOnboardingEligibility);
+      window.removeEventListener('auth-change', checkOnboardingEligibility);
+    };
+  }, [location.pathname]);
 
   const handleSkip = () => {
     // Postpone for this browser session so old users aren't interrupted while working
