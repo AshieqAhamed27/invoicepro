@@ -582,7 +582,11 @@ export default function ClientFlow() {
               <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">💰</span>
             </div>
             <div className="mt-3 text-2xl sm:text-3xl font-black text-white">
-              {loading ? '...' : formatCurrency(counts.paidAmount)}
+              {loading ? (
+                <div className="h-8 w-28 rounded-lg bg-emerald-400/10 border border-emerald-400/20 animate-pulse my-1" />
+              ) : (
+                formatCurrency(counts.paidAmount)
+              )}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
               <span className="text-emerald-400 font-semibold">{counts.paidInvoices} paid invoices</span>
@@ -597,7 +601,11 @@ export default function ClientFlow() {
               <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">⏳</span>
             </div>
             <div className="mt-3 text-2xl sm:text-3xl font-black text-white">
-              {loading ? '...' : formatCurrency(counts.pendingAmount)}
+              {loading ? (
+                <div className="h-8 w-28 rounded-lg bg-amber-400/10 border border-amber-400/20 animate-pulse my-1" />
+              ) : (
+                formatCurrency(counts.pendingAmount)
+              )}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
               <span className="text-amber-300 font-semibold">{counts.pendingInvoices} unpaid invoices</span>
@@ -616,7 +624,11 @@ export default function ClientFlow() {
               <span className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">✍️</span>
             </div>
             <div className="mt-3 text-2xl sm:text-3xl font-black text-white">
-              {loading ? '...' : counts.proposals}
+              {loading ? (
+                <div className="h-8 w-16 rounded-lg bg-indigo-400/10 border border-indigo-400/20 animate-pulse my-1" />
+              ) : (
+                counts.proposals
+              )}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
               <span className="text-indigo-300 font-semibold">{counts.acceptedProposals} accepted</span>
@@ -631,7 +643,11 @@ export default function ClientFlow() {
               <span className="p-1.5 rounded-lg bg-violet-500/10 text-violet-400">🎯</span>
             </div>
             <div className="mt-3 text-2xl sm:text-3xl font-black text-white">
-              {loading ? '...' : counts.leads}
+              {loading ? (
+                <div className="h-8 w-16 rounded-lg bg-violet-400/10 border border-violet-400/20 animate-pulse my-1" />
+              ) : (
+                counts.leads
+              )}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
               <span className="text-violet-300 font-semibold">{counts.hotLeads} hot leads</span>

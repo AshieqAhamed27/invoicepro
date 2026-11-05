@@ -67,9 +67,20 @@ export default function RevenueOverviewCard() {
       </div>
 
       {isLoading ? (
-        <div className="py-12 flex items-center justify-center text-sm text-slate-400">
-          <div className="animate-spin rounded-full h-6 w-6 border-2 border-indigo-500 border-t-transparent mr-2"></div>
-          Loading financial data...
+        <div className="py-14 flex flex-col items-center justify-center gap-3">
+          <div className="relative flex h-10 w-10 items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-2 border-emerald-400/20 border-t-emerald-400 loader-orbit-outer" />
+            <div className="absolute inset-1.5 rounded-full border-2 border-indigo-400/20 border-b-indigo-400 loader-orbit-inner" />
+            <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          </div>
+          <p className="text-xs font-bold text-zinc-400 flex items-center gap-1">
+            <span>Analyzing financial metrics</span>
+            <span className="inline-flex gap-0.5">
+              <span className="h-1 w-1 rounded-full bg-emerald-400 loader-dot-1" />
+              <span className="h-1 w-1 rounded-full bg-teal-300 loader-dot-2" />
+              <span className="h-1 w-1 rounded-full bg-cyan-400 loader-dot-3" />
+            </span>
+          </p>
         </div>
       ) : error ? (
         <div className="my-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">

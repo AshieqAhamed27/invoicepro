@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
+import LoadingScreen from '../components/LoadingScreen';
 import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 import { COMPANY_SHORT_NAME } from '../utils/company';
 import { getUser, hasProAccess } from '../utils/auth';
@@ -282,12 +283,11 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#07090d] text-white">
-        <div className="flex flex-col items-center gap-4">
-           <div className="h-10 w-10 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
-           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Decrypting Profile</p>
-        </div>
-      </div>
+      <LoadingScreen
+        fullScreen={true}
+        message="Loading Account Settings"
+        subtext="Retrieving profile preferences, business logo & security..."
+      />
     );
   }
 

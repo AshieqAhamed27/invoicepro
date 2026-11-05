@@ -6,6 +6,7 @@ import { getSafeRemoteImageUrl } from '../utils/safeUrl';
 import { openWhatsAppShare } from '../utils/whatsapp';
 import Navbar from '../components/Navbar';
 import BrandLogo from '../components/BrandLogo';
+import LoadingScreen from '../components/LoadingScreen';
 import { COMPANY_NAME, COMPANY_SHORT_NAME, COMPANY_LOGO } from '../utils/company';
 import { trackEvent } from '../utils/analytics';
 import QRCode from 'react-qr-code';
@@ -220,12 +221,11 @@ export default function InvoiceView() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#07090d] text-white">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Retrieving Ledger</p>
-        </div>
-      </div>
+      <LoadingScreen
+        fullScreen={true}
+        message="Retrieving Invoice Ledger"
+        subtext="Verifying digital signature, line items & payment status..."
+      />
     );
   }
 

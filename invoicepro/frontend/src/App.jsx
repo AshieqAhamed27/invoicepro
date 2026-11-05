@@ -19,6 +19,7 @@ import DeviceReminderAgent from './components/DeviceReminderAgent';
 import SupportChatWidget from './components/SupportChatWidget';
 import LiveFeedback from './components/LiveFeedback';
 import UserOnboardingModal from './components/UserOnboardingModal';
+import LoadingScreen from './components/LoadingScreen';
 
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/HomeClear'));
@@ -73,12 +74,13 @@ const GSTCompliance = lazy(() => import('./pages/GSTCompliance'));
 const Changelog = lazy(() => import('./pages/Changelog'));
 const HowToUse = lazy(() => import('./pages/HowToUse'));
 
-// Loader
+// Ultra-Premium Animated Page Loader
 const RouteLoader = () => (
-  <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white flex flex-col justify-center items-center">
-    <div className="w-10 h-10 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-    <p className="text-gray-400">Loading...</p>
-  </div>
+  <LoadingScreen
+    fullScreen={true}
+    message="Initializing workspace"
+    subtext="Multi-currency & GST Invoices · UPI & Card Payments"
+  />
 );
 
 const ScrollToTop = () => {
