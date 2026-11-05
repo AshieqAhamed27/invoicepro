@@ -75,41 +75,53 @@ export default function UserOnboardingModal() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
+
     // Check if user is eligible for onboarding
-    const checkOnboardingEligibility = () => {
+    const checkOnboardingEligibility = async () => {
       // Don't show modal if currently on login or signup pages
       const path = location.pathname || '';
       if (path === '/login' || path === '/signup') {
-        setIsOpen(false);
+        if (isMounted) setIsOpen(false);
         return;
       }
 
       if (!isLoggedIn()) {
-        setIsOpen(false);
+        if (isMounted) setIsOpen(false);
         return;
       }
 
       const user = getUser();
       if (!user || user.role === 'admin') {
-        setIsOpen(false);
+        if (isMounted) setIsOpen(false);
         return;
       }
 
-      // Check if user already has a persona assigned
+      // Check if user already has a persona assigned in localStorage
       if (user.persona && user.onboardingCompleted) {
-        setIsOpen(false);
+        if (isMounted) setIsOpen(false);
         return;
       }
 
-      // If user postponed this session, respect their choice
-      const postponed = sessionStorage.getItem('persona_onboarding_postponed');
-      if (postponed === 'true') {
-        setIsOpen(false);
-        return;
+      // Verify with fresh profile from backend to ensure we don't rely solely on cached localStorage
+      try {
+        const res = await api.get('/auth/me');
+        const freshUser = res.data?.user;
+        if (freshUser) {
+          updateUser(freshUser);
+          if (freshUser.persona && freshUser.onboardingCompleted) {
+            if (isMounted) setIsOpen(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not sync fresh user profile:', err?.message);
       }
 
-      // Eligible: show modal
-      setIsOpen(true);
+      // Role is mandatory for all members: prompt modal
+      if (isMounted) {
+        setIsOpen(true);
+      }
     };
 
     checkOnboardingEligibility();
@@ -118,16 +130,11 @@ export default function UserOnboardingModal() {
     window.addEventListener('storage', checkOnboardingEligibility);
     window.addEventListener('auth-change', checkOnboardingEligibility);
     return () => {
+      isMounted = false;
       window.removeEventListener('storage', checkOnboardingEligibility);
       window.removeEventListener('auth-change', checkOnboardingEligibility);
     };
   }, [location.pathname]);
-
-  const handleSkip = () => {
-    // Postpone for this browser session so old users aren't interrupted while working
-    sessionStorage.setItem('persona_onboarding_postponed', 'true');
-    setIsOpen(false);
-  };
 
   const handleNextOrSubmit = async () => {
     setError('');
@@ -177,34 +184,23 @@ export default function UserOnboardingModal() {
         <div className="pointer-events-none absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-sky-500/20 blur-3xl" />
 
         {/* Header */}
-        <div className="relative flex items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-full bg-emerald-400/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-300 border border-emerald-400/20">
-                {step === 1 ? 'Step 1 of 2' : 'Step 2 of 2'}
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                10-Second Setup
-              </span>
-            </div>
-            <h2 className="mt-2 text-2xl font-black tracking-tight text-white">
-              {step === 1 ? 'Who are you?' : 'How much experience do you have?'}
-            </h2>
-            <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-400">
-              {step === 1
-                ? 'Tell us what best describes your work so we can tailor templates & features for you.'
-                : 'This helps us configure recommended rates, invoice reminders, and client tips.'}
-            </p>
+        <div className="relative">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-emerald-400/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-300 border border-emerald-400/20">
+              {step === 1 ? 'Step 1 of 2' : 'Step 2 of 2'}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+              Required Setup · 5 Seconds
+            </span>
           </div>
-
-          <button
-            type="button"
-            onClick={handleSkip}
-            className="text-xs font-bold text-zinc-500 hover:text-white transition px-2 py-1"
-            title="Skip for now"
-          >
-            ✕
-          </button>
+          <h2 className="mt-2 text-2xl font-black tracking-tight text-white">
+            {step === 1 ? 'Who are you?' : 'How much experience do you have?'}
+          </h2>
+          <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-400">
+            {step === 1
+              ? 'Please select your role to customize your workspace, invoice templates, and payment tools.'
+              : 'This helps us configure recommended rates, client tips, and invoice reminders.'}
+          </p>
         </div>
 
         {error && (
@@ -307,7 +303,7 @@ export default function UserOnboardingModal() {
                 type="button"
                 onClick={() => setStep(1)}
                 disabled={submitting}
-                className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-xs font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/[0.08] hover:text-white"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3.5 text-xs font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/[0.08] hover:text-white"
               >
                 Back
               </button>
@@ -317,23 +313,17 @@ export default function UserOnboardingModal() {
               type="button"
               onClick={handleNextOrSubmit}
               disabled={submitting}
-              className="flex-1 rounded-2xl bg-white px-6 py-3 text-center text-xs font-black uppercase tracking-widest text-zinc-950 transition hover:bg-zinc-200 disabled:opacity-50"
+              className="flex-1 rounded-2xl bg-emerald-400 hover:bg-emerald-300 px-6 py-3.5 text-center text-xs font-black uppercase tracking-widest text-slate-950 transition shadow-lg shadow-emerald-500/20 disabled:opacity-50"
             >
               {submitting
-                ? 'Saving...'
-                : (step === 1 && selectedRole === 'freelancer' ? 'Continue ➔' : 'Complete Setup ✓')}
+                ? 'Saving Preferences...'
+                : (step === 1 && selectedRole === 'freelancer' ? 'Next: Experience Level ➔' : 'Complete Setup & Enter Workspace ✓')}
             </button>
           </div>
 
-          <div className="flex items-center justify-center">
-            <button
-              type="button"
-              onClick={handleSkip}
-              className="text-[11px] font-bold text-zinc-500 hover:text-zinc-300 transition underline underline-offset-4"
-            >
-              I will do this later (Skip)
-            </button>
-          </div>
+          <p className="text-center text-[11px] font-semibold text-zinc-500">
+            🔒 One-time 5-second setup · You can change this anytime in Settings
+          </p>
         </div>
 
       </div>
