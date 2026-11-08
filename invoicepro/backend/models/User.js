@@ -176,6 +176,31 @@ const userSchema = new mongoose.Schema({
         default: ''
     },
 
+    bankName: {
+        type: String,
+        default: ''
+    },
+
+    accountNumber: {
+        type: String,
+        default: ''
+    },
+
+    ifscCode: {
+        type: String,
+        default: ''
+    },
+
+    swiftCode: {
+        type: String,
+        default: ''
+    },
+
+    internationalPaymentLink: {
+        type: String,
+        default: ''
+    },
+
     address: {
         type: String,
         default: 'Tamil Nadu, India'

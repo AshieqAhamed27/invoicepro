@@ -352,6 +352,11 @@ export default function PublicInvoice() {
   const companyUpi = invoice.currency === 'INR'
     ? firstText(invoice.upiId, business.upiId, invoice.user?.upiId)
     : '';
+  const bankName = firstText(invoice.bankName, business.bankName, invoice.user?.bankName);
+  const accountNumber = firstText(invoice.accountNumber, business.accountNumber, invoice.user?.accountNumber);
+  const ifscCode = firstText(invoice.ifscCode, business.ifscCode, invoice.user?.ifscCode);
+  const swiftCode = firstText(invoice.swiftCode, business.swiftCode, invoice.user?.swiftCode);
+  const internationalPaymentLink = firstText(invoice.internationalPaymentLink, business.internationalPaymentLink, invoice.user?.internationalPaymentLink);
   const isInternationalInvoice = !invoiceMeta.isProposal && invoice.currency !== 'INR';
 
   const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && invoice.currency === 'INR' && companyUpi
@@ -602,17 +607,96 @@ export default function PublicInvoice() {
                           Pay via UPI App
                         </button>
                       )}
+                      {isInternationalInvoice && internationalPaymentLink && (
+                        <a
+                          href={internationalPaymentLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => {
+                            trackEvent('begin_invoice_payment', {
+                              method: 'international_link',
+                              value: total,
+                              currency: invoice.currency || 'USD'
+                            });
+                          }}
+                          className="inline-flex items-center justify-center w-full sm:w-auto px-6 sm:px-8 py-3 bg-blue-600 text-white rounded-lg font-black text-sm shadow-xl hover:bg-blue-700 transition-all active:scale-95 uppercase tracking-widest text-center"
+                        >
+                          Pay via Wise / PayPal ↗
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* AI UPI Screenshot Verification block */}
-                {invoice.currency === 'INR' && (
-                  <div className="mt-6 border-t border-gray-200 pt-6 text-left">
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-2">Paid via UPI / Bank Transfer?</p>
-                    <p className="text-[11px] text-gray-500 mb-4 leading-relaxed">
-                      Upload your payment confirmation screenshot (from GPay, PhonePe, Paytm, or your bank). Our AI will instantly verify it and mark this invoice as Paid.
+                {/* Bank Transfer Details Block (NEFT / IMPS or International Wire / SWIFT) */}
+                {(bankName || accountNumber || swiftCode) && (
+                  <div className="mt-6 border-t border-gray-200 pt-5 text-left">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-black uppercase tracking-widest text-slate-700 flex items-center gap-1.5">
+                        <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                        {isInternationalInvoice ? 'International Wire / Bank Transfer' : 'Direct Bank Deposit (NEFT / IMPS / RTGS)'}
+                      </p>
+                      {isInternationalInvoice && swiftCode && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          SWIFT Wire Ready
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-white p-3.5 rounded-lg border border-gray-200">
+                      <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Beneficiary Name</span>
+                        <span className="font-bold text-gray-900">{companyName}</span>
+                      </div>
+                      {bankName && (
+                        <div>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Bank Name</span>
+                          <span className="font-bold text-gray-900">{bankName}</span>
+                        </div>
+                      )}
+                      {accountNumber && (
+                        <div>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Account Number / IBAN</span>
+                          <span className="font-mono font-bold text-gray-900">{accountNumber}</span>
+                        </div>
+                      )}
+                      {ifscCode && (
+                        <div>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">IFSC Code</span>
+                          <span className="font-mono font-bold text-gray-900">{ifscCode}</span>
+                        </div>
+                      )}
+                      {swiftCode && (
+                        <div>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">SWIFT / BIC Code</span>
+                          <span className="font-mono font-bold text-emerald-700">{swiftCode}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Export of Services LUT Compliance Disclaimer */}
+                {isInternationalInvoice && (
+                  <div className="mt-4 p-3 rounded-lg bg-slate-100 border border-slate-200 text-left">
+                    <p className="text-[11px] font-bold text-slate-700 leading-relaxed">
+                      📜 <span className="font-black text-slate-900">GST Compliance Notice:</span> Supply meant for export of services under Letter of Undertaking (LUT) without payment of integrated tax as per Section 16 of the IGST Act, 2017. Zero-rated export.
                     </p>
+                  </div>
+                )}
+
+                {/* AI Screenshot / Receipt Verification block */}
+                <div className="mt-6 border-t border-gray-200 pt-6 text-left">
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-2">
+                    {isInternationalInvoice ? 'Paid via Wire, Wise, or Card?' : 'Paid via UPI / Bank Transfer?'}
+                  </p>
+                  <p className="text-[11px] text-gray-500 mb-4 leading-relaxed">
+                    {isInternationalInvoice
+                      ? 'Upload your payment receipt or transfer confirmation (Wise, PayPal, bank wire receipt). Our AI will verify the transfer details and mark this invoice as Paid.'
+                      : 'Upload your payment confirmation screenshot (from GPay, PhonePe, Paytm, or your bank). Our AI will instantly verify it and mark this invoice as Paid.'}
+                  </p>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                       <label className="flex items-center justify-center px-4 py-2 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 cursor-pointer transition active:scale-95">
                         <svg className="w-4 h-4 mr-2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -648,7 +732,6 @@ export default function PublicInvoice() {
                       </p>
                     )}
                   </div>
-                )}
               </div>
             )}
 

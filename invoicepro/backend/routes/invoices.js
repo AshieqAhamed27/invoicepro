@@ -99,7 +99,12 @@ const buildBusinessSnapshot = (user, details = {}) => ({
     address: user.address || '',
     gstNumber: details.gst || user.gstNumber || '',
     upiId: details.upiId || user.upiId || '',
-    logo: user.logo || '/logo.svg'
+    logo: user.logo || '/logo.svg',
+    bankName: details.bankName || user.bankName || '',
+    accountNumber: details.accountNumber || user.accountNumber || '',
+    ifscCode: details.ifscCode || user.ifscCode || '',
+    swiftCode: details.swiftCode || user.swiftCode || '',
+    internationalPaymentLink: details.internationalPaymentLink || user.internationalPaymentLink || ''
 });
 
 const getInvoiceDocumentMatch = (documentType) => (
@@ -240,7 +245,7 @@ router.get('/public/:id', async(req, res) => {
         }
 
         const invoice = await Invoice.findById(req.params.id)
-            .populate('user', 'companyName name email gstNumber upiId address logo');
+            .populate('user', 'companyName name email gstNumber upiId address logo bankName accountNumber ifscCode swiftCode internationalPaymentLink');
 
         if (!invoice) {
             return res.status(404).json({
@@ -481,6 +486,11 @@ router.post('/', protect, async(req, res) => {
             tds: tdsData,
             netPayable,
             upiId: finalUpiId,
+            bankName: user.bankName || '',
+            accountNumber: user.accountNumber || '',
+            ifscCode: user.ifscCode || '',
+            swiftCode: user.swiftCode || '',
+            internationalPaymentLink: user.internationalPaymentLink || '',
             businessSnapshot: buildBusinessSnapshot(user, {
                 gst,
                 upiId: finalUpiId
@@ -664,6 +674,11 @@ router.post('/:id/convert', protect, async(req, res) => {
             cgst: Number(proposal.cgst) || 0,
             sgst: Number(proposal.sgst) || 0,
             upiId: finalUpiId,
+            bankName: user.bankName || '',
+            accountNumber: user.accountNumber || '',
+            ifscCode: user.ifscCode || '',
+            swiftCode: user.swiftCode || '',
+            internationalPaymentLink: user.internationalPaymentLink || '',
             businessSnapshot: hasProposalSnapshot
                 ? { ...proposalSnapshot, upiId: finalUpiId }
                 : buildBusinessSnapshot(req.user, {
@@ -1172,7 +1187,7 @@ router.get('/:id', protect, async(req, res) => {
         const invoice = await Invoice.findOne({
             _id: req.params.id,
             user: req.user._id
-        }).populate('user', 'companyName name email gstNumber upiId address logo');
+        }).populate('user', 'companyName name email gstNumber upiId address logo bankName accountNumber ifscCode swiftCode internationalPaymentLink');
 
         if (!invoice) {
             return res.status(404).json({

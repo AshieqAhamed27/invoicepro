@@ -159,6 +159,11 @@ export default function Settings() {
     companyName: '',
     gstNumber: '',
     upiId: '',
+    bankName: '',
+    accountNumber: '',
+    ifscCode: '',
+    swiftCode: '',
+    internationalPaymentLink: '',
     address: '',
     logo: '',
     persona: '',
@@ -192,6 +197,11 @@ export default function Settings() {
         companyName: user.companyName || '',
         gstNumber: user.gstNumber || '',
         upiId: user.upiId || '',
+        bankName: user.bankName || '',
+        accountNumber: user.accountNumber || '',
+        ifscCode: user.ifscCode || '',
+        swiftCode: user.swiftCode || '',
+        internationalPaymentLink: user.internationalPaymentLink || '',
         address: user.address || 'Tamil Nadu, India',
         logo: user.logo || '',
         persona: user.persona || '',
@@ -410,22 +420,133 @@ export default function Settings() {
               </div>
             </section>
 
-            <section id="payment-setup" className="premium-panel p-5 sm:p-8 scroll-mt-28">
-              <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Payment Details</h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Where clients should send payment</p>
+            <section id="payment-setup" className="premium-panel p-5 sm:p-8 scroll-mt-28 space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/5 pb-6">
+                <div>
+                  <h2 className="text-2xl font-black text-white leading-none mb-1">Payment & Payout Details</h2>
+                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Where domestic and international clients send money</p>
+                </div>
+                <span className="self-start sm:self-auto px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                  Direct Payouts (Zero Escrow)
+                </span>
               </div>
 
-              <div className="space-y-1.5 max-w-md">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Default UPI ID</p>
+              {/* SECTION 1: DOMESTIC UPI */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="h-2 w-2 rounded-full bg-yellow-400"></span>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-zinc-300">1. Instant UPI Payments (India)</h3>
+                </div>
+                <div className="space-y-1.5 max-w-md">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Default UPI ID / VPA</p>
                   <input
                     name="upiId"
                     value={form.upiId}
                     onChange={handleChange}
-                    placeholder="e.g. success@upi"
-                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
+                    placeholder="e.g. yourname@oksbi or 9876543210@paytm"
+                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono"
                   />
-                  <p className="text-[10px] text-zinc-500 mt-2 font-medium italic">This will be the primary destination for all client settlements.</p>
+                  <p className="text-[10px] text-zinc-500 mt-2 font-medium">Generates dynamic QR codes on INR invoices for instant GPay, PhonePe, Paytm settlements.</p>
+                </div>
+              </div>
+
+              {/* SECTION 2: BANK ACCOUNT (NEFT / IMPS / RTGS) */}
+              <div className="pt-6 border-t border-white/5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="h-2 w-2 rounded-full bg-blue-400"></span>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-zinc-300">2. Bank Transfer Details (NEFT / IMPS / RTGS)</h3>
+                </div>
+                <p className="text-xs text-zinc-500 mb-4">Shown on invoices for B2B clients who prefer direct bank deposits.</p>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Bank Name</p>
+                    <input
+                      name="bankName"
+                      value={form.bankName}
+                      onChange={handleChange}
+                      placeholder="e.g. HDFC Bank, ICICI Bank, SBI"
+                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Account Number</p>
+                    <input
+                      name="accountNumber"
+                      value={form.accountNumber}
+                      onChange={handleChange}
+                      placeholder="e.g. 50100456789012"
+                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">IFSC Code</p>
+                    <input
+                      name="ifscCode"
+                      value={form.ifscCode}
+                      onChange={handleChange}
+                      placeholder="e.g. HDFC0001234"
+                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono uppercase"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 3: INTERNATIONAL CLIENT TRANSFERS (US / UK / EU / GLOBAL) */}
+              <div className="pt-6 border-t border-white/5">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-zinc-300">3. Cross-Border & International Payouts (US, UK, Global)</h3>
+                  </div>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white/5 text-zinc-400 border border-white/5">
+                    RBI & LUT Compliant
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 mb-4">
+                  For US/UK/foreign clients who wire USD/EUR/GBP, or prefer paying via modern fintech rails (Wise, PayPal, Stripe, Skydo).
+                </p>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">
+                      SWIFT / BIC Code <span className="text-zinc-500 font-normal">(For Bank Wires)</span>
+                    </p>
+                    <input
+                      name="swiftCode"
+                      value={form.swiftCode}
+                      onChange={handleChange}
+                      placeholder="e.g. HDFCINBBXXX or ICICINBBXXX"
+                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono uppercase"
+                    />
+                    <p className="text-[10px] text-zinc-500">Ask your bank branch or check online for your bank&apos;s 8-11 character SWIFT code.</p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">
+                      International Pay Link <span className="text-zinc-500 font-normal">(Wise / PayPal / Stripe)</span>
+                    </p>
+                    <input
+                      name="internationalPaymentLink"
+                      value={form.internationalPaymentLink}
+                      onChange={handleChange}
+                      placeholder="https://wise.com/pay/... or https://paypal.me/..."
+                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono text-xs"
+                    />
+                    <p className="text-[10px] text-zinc-500">Allows international clients to pay with 1 click using their local debit/credit card or bank transfer.</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 flex items-start gap-3">
+                  <svg className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    <strong className="text-zinc-200">Export of Service Notice:</strong> Under Section 16 of the IGST Act, cross-border freelance service earnings are zero-rated under LUT (Letter of Undertaking), with 0% GST liability. Money lands straight in your account.
+                  </p>
+                </div>
               </div>
             </section>
 
@@ -643,6 +764,14 @@ export default function Settings() {
                    <div>
                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">UPI Route</p>
                      <p className="text-xs font-bold text-yellow-300 truncate">{form.upiId || '---'}</p>
+                   </div>
+                   <div>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Bank A/C</p>
+                     <p className="text-xs font-bold text-white truncate">{form.accountNumber ? `•••• ${form.accountNumber.slice(-4)}` : '---'}</p>
+                   </div>
+                   <div>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Intl Wire</p>
+                     <p className="text-xs font-bold text-emerald-400 truncate">{form.swiftCode || (form.internationalPaymentLink ? 'Link Ready' : '---')}</p>
                    </div>
                 </div>
               </div>

@@ -507,6 +507,11 @@ const serializeUser = (user) => {
         companyName: user.companyName,
         gstNumber: user.gstNumber,
         upiId: user.upiId,
+        bankName: user.bankName || '',
+        accountNumber: user.accountNumber || '',
+        ifscCode: user.ifscCode || '',
+        swiftCode: user.swiftCode || '',
+        internationalPaymentLink: user.internationalPaymentLink || '',
         address: user.address,
         logo: user.logo,
         enterpriseOrganization: user.enterpriseOrganization,
@@ -1106,6 +1111,11 @@ router.put(
                 companyName,
                 gstNumber,
                 upiId,
+                bankName,
+                accountNumber,
+                ifscCode,
+                swiftCode,
+                internationalPaymentLink,
                 address,
                 logo,
                 phone,
@@ -1124,6 +1134,12 @@ router.put(
             req.user.upiId =
                 upiId ||
                 req.user.upiId;
+
+            if (bankName !== undefined) req.user.bankName = String(bankName).trim();
+            if (accountNumber !== undefined) req.user.accountNumber = String(accountNumber).trim();
+            if (ifscCode !== undefined) req.user.ifscCode = String(ifscCode).trim().toUpperCase();
+            if (swiftCode !== undefined) req.user.swiftCode = String(swiftCode).trim().toUpperCase();
+            if (internationalPaymentLink !== undefined) req.user.internationalPaymentLink = String(internationalPaymentLink).trim();
 
             req.user.address =
                 address ||
