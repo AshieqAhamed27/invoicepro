@@ -43,6 +43,20 @@ const userSchema = new mongoose.Schema({
         default: null
     },
 
+    // Admin controls
+    isBanned: {
+        type: Boolean,
+        default: false
+    },
+
+    // Trial & Campaign Email Tracking
+    trialWarningSent: { type: Boolean, default: false },
+    trialWarningSentAt: { type: Date, default: null },
+    planExpiredEmailSent: { type: Boolean, default: false },
+    planExpiredEmailSentAt: { type: Date, default: null },
+    diwaliEmailSent: { type: Boolean, default: false },
+    diwaliEmailSentAt: { type: Date, default: null },
+
     password: {
         type: String,
         required: function() {

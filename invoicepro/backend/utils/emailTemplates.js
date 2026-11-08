@@ -485,11 +485,122 @@ const planExpiredNotification = ({ user, planLabel = 'Pro', daysExpired = 0, isF
     return { subject, html, text };
 };
 
+// ───── Trial Expiry Warning ─────
+const trialExpiryWarning = ({ user, daysLeft, upgradeUrl }) => {
+    const name = escapeHtml(user?.name || 'there');
+    const days = Number(daysLeft) || 3;
+    const url = upgradeUrl || 'https://www.clientflowai.in/checkout/monthly';
+
+    const subject = `⏰ Your free trial expires in ${days} day${days === 1 ? '' : 's'} — upgrade now`;
+    const preheader = `Only ${days} day${days === 1 ? '' : 's'} left of your 30-day ClientFlow AI free trial. Lock in your Pro access before it ends.`;
+
+    const bodyHtml = `
+      <p style="margin:0 0 14px;color:#374151;font-size:14px;line-height:1.6;">Hi ${name},</p>
+      <p style="margin:0 0 16px;color:#374151;font-size:14px;line-height:1.6;">
+        Your <strong>30-Day Free Trial</strong> of ClientFlow AI expires in <strong style="color:#dc2626;">${days} day${days === 1 ? '' : 's'}</strong>.
+      </p>
+      <div style="border:1px solid #fef08a;background:#fefce8;border-radius:14px;padding:16px;margin:0 0 20px;">
+        <p style="margin:0 0 6px;color:#854d0e;font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;">What you'll lose access to:</p>
+        <ul style="margin:8px 0 0;padding-left:18px;color:#713f12;font-size:13px;line-height:1.8;">
+          <li>Unlimited GST Invoice generation</li>
+          <li>AI Proposal Writer</li>
+          <li>Automated Payment Reminders</li>
+          <li>Client Finder &amp; Outbound Autopilot</li>
+        </ul>
+      </div>
+      <p style="margin:0 0 8px;color:#374151;font-size:14px;line-height:1.6;">Pro is just <strong>₹499/month</strong> — less than the value of one recovered late payment.</p>
+    `;
+
+    const html = baseLayout({
+        preheader,
+        title: `Your free trial ends in ${days} day${days === 1 ? '' : 's'}`,
+        bodyHtml,
+        ctaHref: url,
+        ctaLabel: '🚀 Upgrade to Pro Now',
+        footerHtml: '<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">You are receiving this because your ClientFlow AI trial is expiring soon.</p>'
+    });
+
+    const text = `Hi ${user?.name || 'there'},\n\nYour 30-Day Free Trial expires in ${days} day${days === 1 ? '' : 's'}.\nUpgrade to Pro now: ${url}\n`;
+    return { subject, html, text };
+};
+
+// ───── Diwali Campaign Email ─────
+const diwaliCampaign = ({ user, upgradeUrl }) => {
+    const name = escapeHtml(user?.name || 'there');
+    const url = upgradeUrl || 'https://www.clientflowai.in/checkout/monthly';
+
+    const subject = '🪔 Diwali Special: 50% OFF ClientFlow AI Pro — Today Only!';
+    const preheader = 'Celebrate Diwali with 50% off your Pro subscription. Offer valid Nov 8–15 only.';
+
+    const bodyHtml = `
+      <p style="margin:0 0 14px;color:#374151;font-size:14px;line-height:1.6;">Hi ${name},</p>
+      <div style="background:linear-gradient(135deg,#7c2d12,#c2410c);border-radius:16px;padding:24px;margin:0 0 20px;text-align:center;">
+        <p style="margin:0 0 6px;font-size:28px;">🪔✨🎆</p>
+        <p style="margin:0 0 4px;color:#fef08a;font-size:20px;font-weight:800;letter-spacing:-0.02em;">Happy Diwali!</p>
+        <p style="margin:0;color:#fde68a;font-size:14px;">We're celebrating with our biggest offer ever</p>
+      </div>
+      <div style="border:2px solid #f59e0b;border-radius:14px;padding:20px;margin:0 0 20px;text-align:center;background:#fffbeb;">
+        <p style="margin:0 0 4px;color:#78350f;font-size:12px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;">Limited Diwali Offer (Nov 8–15 only)</p>
+        <p style="margin:0 0 4px;color:#6b7280;font-size:16px;text-decoration:line-through;">₹499/month</p>
+        <p style="margin:0 0 4px;color:#b45309;font-size:36px;font-weight:900;">₹249<span style="font-size:16px;">/month</span></p>
+        <p style="margin:0;color:#059669;font-size:13px;font-weight:700;">Save ₹250 — 50% OFF 🎉</p>
+      </div>
+      <p style="margin:0 0 8px;color:#374151;font-size:14px;line-height:1.6;">This offer is <strong>automatically applied</strong> at checkout — no coupon code needed. Just click below and pay the discounted price.</p>
+    `;
+
+    const html = baseLayout({
+        preheader,
+        title: '🪔 Diwali 50% OFF Offer',
+        bodyHtml,
+        ctaHref: url,
+        ctaLabel: '🪔 Claim 50% Diwali Offer',
+        footerHtml: '<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">Offer valid Nov 8–15, 2026 only. Price reverts to ₹499/month after the offer ends.</p>'
+    });
+
+    const text = `Hi ${user?.name || 'there'},\n\n🪔 Happy Diwali! We're offering 50% OFF ClientFlow AI Pro — just ₹249/month!\nOffer valid Nov 8–15 only. Upgrade here: ${url}\n`;
+    return { subject, html, text };
+};
+
+// ───── Pro Plan Activation Confirmation ─────
+const planActivated = ({ user, planLabel = 'Pro Monthly', amount, dashboardUrl }) => {
+    const name = escapeHtml(user?.name || 'there');
+    const url = dashboardUrl || 'https://www.clientflowai.in/client-flow';
+    const amountStr = amount ? `₹${Number(amount).toLocaleString('en-IN')}` : '';
+
+    const subject = '✅ Payment Confirmed — Welcome to ClientFlow AI Pro!';
+    const preheader = 'Your Pro plan is now active. Start creating unlimited invoices and proposals.';
+
+    const bodyHtml = `
+      <p style="margin:0 0 14px;color:#374151;font-size:14px;line-height:1.6;">Hi ${name},</p>
+      <div style="border:1px solid #d1fae5;background:#ecfdf5;border-radius:14px;padding:16px;margin:0 0 20px;">
+        <p style="margin:0 0 4px;color:#065f46;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;">✅ Payment Confirmed</p>
+        <p style="margin:0;color:#047857;font-size:14px;line-height:1.5;">Your <strong>${escapeHtml(planLabel)}</strong> subscription is now active.${amountStr ? ` Amount paid: <strong>${escapeHtml(amountStr)}</strong>.` : ''}</p>
+      </div>
+      <p style="margin:0 0 8px;color:#374151;font-size:14px;line-height:1.6;">You now have <strong>unlimited access</strong> to all ClientFlow AI Pro features — invoices, AI proposals, payment reminders, client finder, and more.</p>
+      <p style="margin:0 0 8px;color:#374151;font-size:14px;line-height:1.6;">Thank you for trusting us with your freelance business. 🙏</p>
+    `;
+
+    const html = baseLayout({
+        preheader,
+        title: 'Welcome to ClientFlow AI Pro!',
+        bodyHtml,
+        ctaHref: url,
+        ctaLabel: '🚀 Open My Pro Workspace',
+        footerHtml: '<p style="margin:0;color:#6b7280;font-size:12px;line-height:1.5;">Thank you for your payment. This is your payment confirmation email from ClientFlow AI.</p>'
+    });
+
+    const text = `Hi ${user?.name || 'there'},\n\n✅ Payment confirmed! Your ${planLabel} subscription is now active.\nOpen your workspace: ${url}\n`;
+    return { subject, html, text };
+};
+
 module.exports = {
     invoiceCreated,
     invoiceReminder,
     proposalReminder,
     paymentConfirmed,
     userDailyDigest,
-    planExpiredNotification
+    planExpiredNotification,
+    trialExpiryWarning,
+    diwaliCampaign,
+    planActivated
 };

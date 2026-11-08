@@ -45,6 +45,8 @@ const aiProposalRoutes = require('./routes/aiProposal');
 const remindersRoutes = require('./routes/reminders');
 const leadAutomationRoutes = require('./routes/leadAutomation');
 const dashboardRoutes = require('./routes/dashboard');
+const adminManagementRoutes = require('./routes/adminManagement');
+const { startTrialExpiryJob } = require('./jobs/trialExpiryChecker');
 
 const app = express();
 const securityConfig = getSecurityConfig();
@@ -57,11 +59,14 @@ const connectDatabase = async() => {
     try {
         await mongoose.connect(getRequiredEnv('MONGO_URI'), { family: 4 });
         console.log("✅ Connected to MongoDB");
+        // Start background jobs after DB is ready
+        startTrialExpiryJob();
     } catch (err) {
         console.error("❌ MongoDB error:", err);
         process.exit(1);
     }
 };
+
 
 const startServer = async(options = {}) => {
     const port = options.port || process.env.PORT || 5000;
@@ -177,6 +182,7 @@ app.use('/api/ai/proposal', aiProposalRoutes);
 app.use('/api/reminders', remindersRoutes);
 app.use('/api/leads/automation', leadAutomationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin', adminManagementRoutes);
 
 app.get('/api', (req, res) => {
     res.json({

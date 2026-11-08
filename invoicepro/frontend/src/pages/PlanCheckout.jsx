@@ -7,6 +7,7 @@ import { getFreeAccessState, getUser, hasProAccess, isLoggedIn, setPostLoginRedi
 import { COMPANY_NAME, COMPANY_SHORT_NAME, SUPPORT_EMAIL } from '../utils/company';
 import { trackEvent } from '../utils/analytics';
 import useDocumentMeta from '../utils/useDocumentMeta';
+import { isDiwaliOfferActive } from '../components/DiwaliOfferBanner';
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
@@ -124,6 +125,18 @@ export default function PlanCheckout() {
 
   const currencyKey = market === 'global' ? 'USD' : 'INR';
   const priceDisplay = plan.price[currencyKey];
+  const diwaliActive = isDiwaliOfferActive() && plan.id !== 'free';
+
+  // Calculate discounted price for display (50% off)
+  const getDiscountedDisplay = () => {
+    if (!diwaliActive) return null;
+    const raw = priceDisplay.replace(/[^0-9,]/g, '').replace(/,/g, '');
+    const num = parseInt(raw, 10);
+    if (!num) return null;
+    const discounted = Math.round(num / 2);
+    return currencyKey === 'INR' ? `₹${discounted.toLocaleString('en-IN')}` : `$${discounted}`;
+  };
+  const discountedDisplay = getDiscountedDisplay();
 
   const handleCheckout = async () => {
     setError('');
@@ -306,8 +319,22 @@ export default function PlanCheckout() {
               <p className="text-slate-400 text-sm mt-1">{plan.description}</p>
             </div>
             <div className="text-left sm:text-right">
-              <div className="text-3xl sm:text-4xl font-black text-yellow-400">{priceDisplay}</div>
-              <div className="text-xs text-slate-400 mt-1">{plan.period}</div>
+              {diwaliActive && discountedDisplay ? (
+                <>
+                  <div className="flex items-center gap-2 justify-start sm:justify-end mb-1">
+                    <span className="text-xs font-bold bg-orange-600 text-white px-2 py-0.5 rounded-full animate-pulse">🪔 50% OFF</span>
+                  </div>
+                  <div className="text-lg text-slate-400 line-through">{priceDisplay}</div>
+                  <div className="text-3xl sm:text-4xl font-black text-yellow-400">{discountedDisplay}</div>
+                  <div className="text-xs text-orange-400 mt-1 font-semibold">Diwali Special Price</div>
+                  <div className="text-xs text-slate-400 mt-0.5">{plan.period}</div>
+                </>
+              ) : (
+                <>
+                  <div className="text-3xl sm:text-4xl font-black text-yellow-400">{priceDisplay}</div>
+                  <div className="text-xs text-slate-400 mt-1">{plan.period}</div>
+                </>
+              )}
             </div>
           </div>
 
