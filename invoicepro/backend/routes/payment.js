@@ -72,10 +72,10 @@ const planDetails = {
         globalAmountEnv: 'PRO_MONTHLY_USD_AMOUNT'
     },
     yearly: {
-        amount: getConfiguredAmount('PRO_YEARLY_AMOUNT', 4999),
-        globalAmount: getConfiguredAmount('PRO_YEARLY_USD_AMOUNT', 89),
+        amount: getConfiguredAmount('PRO_YEARLY_AMOUNT', 1999),
+        globalAmount: getConfiguredAmount('PRO_YEARLY_USD_AMOUNT', 29),
         globalCurrency: DEFAULT_GLOBAL_CURRENCY,
-        label: 'Pro Annual',
+        label: 'Pro Annual Pass',
         durationDays: 365,
         subscriptionCycles: 10,
         planEnv: 'RAZORPAY_YEARLY_PLAN_ID',

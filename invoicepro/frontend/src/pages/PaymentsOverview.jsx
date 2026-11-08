@@ -12,7 +12,7 @@ const markets = {
     label: 'India billing',
     detail: 'INR checkout with Razorpay, UPI, cards, and supported Indian payment methods.',
     monthly: 'Rs 499',
-    yearly: 'Rs 4,999',
+    yearly: 'Rs 1,999',
     founder: 'Rs 899',
     setupStart: 'Rs 999',
     automationStart: 'Rs 1,499',
@@ -23,7 +23,7 @@ const markets = {
     label: 'International billing',
     detail: 'USD checkout for users outside India when international payments are enabled.',
     monthly: '$9',
-    yearly: '$89',
+    yearly: '$29',
     founder: '$16',
     setupStart: '$19',
     automationStart: '$29',
@@ -85,15 +85,15 @@ const paymentOptions = [
   {
     id: 'yearly',
     label: 'Pro Annual',
-    badge: '2 MONTHS FREE',
+    badge: 'BEST VALUE (SAVE 67%)',
     title: 'Yearly stable workflow',
-    detail: 'Same complete Pro features as Monthly, billed once per year at Rs 4,999/yr (~Rs 416/mo). Best value for retainer & long-term work.',
+    detail: 'Same complete Pro features as Monthly, billed once per year at Rs 1,999/yr (~Rs 166/mo). Best value for Indian freelancers.',
     bestFor: 'Established freelancers and small studios managing recurring retainers.',
     cta: 'Get Pro Annual',
     tone: 'emerald',
     points: [
-      '12 full months of Pro workspace access for Rs 4,999/yr',
-      'Save over 17% compared to monthly billing (2 months free)',
+      '12 full months of Pro workspace access for Rs 1,999/yr (~Rs 166/month)',
+      'Save over 67% compared to monthly billing (~Rs 166/month)',
       'Best for retainer invoicing, long projects & stable income tracking'
     ]
   }

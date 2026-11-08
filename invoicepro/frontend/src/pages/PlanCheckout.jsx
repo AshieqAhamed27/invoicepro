@@ -64,7 +64,7 @@ const planData = {
     id: 'yearly',
     label: 'Pro Annual Plan',
     badge: 'Best Value (Save 17%)',
-    price: { INR: '₹4,999', USD: '$89' },
+    price: { INR: '₹1,999', USD: '$29' },
     period: 'per year',
     description: 'Get a full year of stable client-to-cash workflow at a discounted annual rate. Ideal for established freelancers and agencies.',
     features: [

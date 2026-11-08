@@ -310,7 +310,7 @@ router.get('/revenue/summary', protect, adminOnly, async (req, res) => {
         const founder90    = await User.countDocuments({ plan: 'founder90', planExpiresAt: { $gte: now } });
 
         const MONTHLY_PRICE = Number(process.env.PRO_MONTHLY_AMOUNT || 499);
-        const YEARLY_PRICE  = Number(process.env.PRO_YEARLY_AMOUNT  || 4999);
+        const YEARLY_PRICE  = Number(process.env.PRO_YEARLY_AMOUNT  || 1999);
         const FOUNDER_PRICE = Number(process.env.FOUNDER_90_AMOUNT  || 799);
 
         const mrr = (monthlyUsers * MONTHLY_PRICE) + (yearlyUsers * Math.round(YEARLY_PRICE / 12)) + (founder90 * Math.round(FOUNDER_PRICE / 3));

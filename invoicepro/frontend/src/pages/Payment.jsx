@@ -31,10 +31,10 @@ const planDetails = {
     amountSource: "fallback"
   },
   yearly: {
-    amount: 4999,
+    amount: 1999,
     currency: "INR",
     label: "Pro Annual",
-    note: "Same full Pro workflow as Monthly, paid once for a full year of stable client work.",
+    note: "1 full year of Pro workspace access for just ₹1,999 (~₹166/month) — save over 67% vs paying monthly.",
     duration: "Billed every 365 days",
     amountSource: "fallback"
   },
