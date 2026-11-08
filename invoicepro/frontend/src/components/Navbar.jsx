@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel, setPostLoginRedirect } from '../utils/auth';
+import { getTheme, toggleTheme } from '../utils/theme';
 import BrandLogo from './BrandLogo';
 
 // ─── 4 Core Navigation Links for Freelancers ───
@@ -16,6 +17,20 @@ export default function Navbar() {
   const location = useLocation();
   const loggedIn = isLoggedIn();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setThemeState] = useState(() => getTheme());
+
+  useEffect(() => {
+    const handleThemeChange = (e) => {
+      setThemeState(e.detail.theme);
+    };
+    window.addEventListener('clientflow:theme-changed', handleThemeChange);
+    return () => window.removeEventListener('clientflow:theme-changed', handleThemeChange);
+  }, []);
+
+  const handleToggleTheme = () => {
+    const next = toggleTheme();
+    setThemeState(next);
+  };
 
   const user = getUser();
   const isAdmin = user?.role === 'admin';
@@ -176,9 +191,34 @@ export default function Navbar() {
               </button>
             </>
           )}
+
+          {/* Theme Toggle Button (Light/Dark Mode) */}
+          <button
+            type="button"
+            onClick={handleToggleTheme}
+            title={theme === 'dark' ? 'Switch to Bright Light Mode' : 'Switch to Dark Mode'}
+            aria-label="Toggle theme mode"
+            className="flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-white/[0.06] text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/80 dark:hover:bg-white/10 transition shadow-sm ml-1"
+          >
+            {theme === 'dark' ? (
+              <span className="text-sm" role="img" aria-label="Light mode">☀️</span>
+            ) : (
+              <span className="text-sm" role="img" aria-label="Dark mode">🌙</span>
+            )}
+          </button>
         </div>
 
         <div className="ml-auto hidden shrink-0 items-center gap-2 sm:flex xl:hidden">
+          {/* Mobile Bar Theme Toggle */}
+          <button
+            type="button"
+            onClick={handleToggleTheme}
+            title={theme === 'dark' ? 'Switch to Bright Light Mode' : 'Switch to Dark Mode'}
+            aria-label="Toggle theme mode"
+            className="flex items-center justify-center h-10 w-10 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/[0.06] text-slate-700 dark:text-zinc-300 transition"
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
           {!loggedIn ? (
             <div className="flex items-center gap-2">
               <button
@@ -325,6 +365,17 @@ export default function Navbar() {
                   </NavLink>
                 </>
               )}
+
+              <button
+                type="button"
+                onClick={handleToggleTheme}
+                className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] p-3.5 text-sm font-bold text-slate-800 dark:text-zinc-200 transition mt-1"
+              >
+                <span>Theme Mode</span>
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white dark:bg-white/10 shadow-sm border border-slate-200 dark:border-white/10 text-xs font-black">
+                  {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+                </span>
+              </button>
             </div>
 
             <div className="grid gap-2 border-t border-slate-200 pt-4 sm:grid-cols-2">

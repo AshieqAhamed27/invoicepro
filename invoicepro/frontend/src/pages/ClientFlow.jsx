@@ -381,7 +381,7 @@ export default function ClientFlow() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-white bg-[#090d14]">
+    <div className="premium-page min-h-screen">
       <Navbar />
 
       <main className="container-custom py-6 sm:py-8 md:py-10">
