@@ -427,14 +427,15 @@ export default function Admin() {
     }
   };
 
-  const handleUpgradeUser = async (user, plan = 'monthly') => {
+  const handleUpgradeUser = async (user, plan = 'monthly', days = 30) => {
     const userId = user.id || user._id;
-    if (!window.confirm(`Upgrade ${user.name || user.email} to ${plan.toUpperCase()} for 30 days?`)) return;
+    const planName = plan === 'yearly' ? 'Pro Annual (365 Days)' : 'Pro Monthly (30 Days)';
+    if (!window.confirm(`Upgrade ${user.name || user.email} to ${planName}?`)) return;
     try {
       setAdminActionLoadingId(userId);
       setAdminActionMsg(null);
-      const res = await api.post(`/admin/users/${userId}/upgrade`, { plan, days: 30 });
-      setAdminActionMsg({ ok: true, message: res.data?.message || 'User upgraded successfully!' });
+      const res = await api.post(`/admin/users/${userId}/upgrade`, { plan, days });
+      setAdminActionMsg({ ok: true, message: res.data?.message || `User upgraded to ${planName} successfully!` });
       fetchRevenue();
       fetchRevenueSummary();
     } catch (err) {
@@ -1740,18 +1741,27 @@ export default function Admin() {
                               <>
                                 <button
                                   type="button"
-                                  onClick={() => handleUpgradeUser(user, 'monthly')}
+                                  onClick={() => handleUpgradeUser(user, 'monthly', 30)}
                                   disabled={isActingOnThisUser}
-                                  className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/25 disabled:opacity-50"
+                                  className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 transition hover:bg-emerald-500/25 disabled:opacity-50"
                                   title="Upgrade to Pro for 30 days"
                                 >
-                                  ⚡ Upgrade Pro
+                                  ⚡ 30d Pro
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpgradeUser(user, 'yearly', 365)}
+                                  disabled={isActingOnThisUser}
+                                  className="rounded-lg border border-indigo-500/40 bg-indigo-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 transition hover:bg-indigo-500/25 disabled:opacity-50"
+                                  title="Upgrade to Pro Annual for 365 days (1 Year)"
+                                >
+                                  ⭐ 1-Year Pass (365d)
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleExtendTrial(user, 30)}
                                   disabled={isActingOnThisUser}
-                                  className="rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-amber-300 transition hover:bg-amber-500/25 disabled:opacity-50"
+                                  className="rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300 transition hover:bg-amber-500/25 disabled:opacity-50"
                                   title="Add 30 extra days of free trial"
                                 >
                                   ⏳ +30d Trial
