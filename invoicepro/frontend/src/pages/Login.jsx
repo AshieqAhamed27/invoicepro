@@ -123,7 +123,7 @@ export default function Login() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen">
       <Navbar />
 
       <main className="container-custom grid items-start gap-8 py-8 sm:gap-10 sm:py-12 xl:min-h-[calc(100vh-120px)] xl:grid-cols-2 xl:items-center xl:gap-12">

@@ -288,7 +288,7 @@ const SimplePaymentCheckout = ({
           : `Pay securely with Razorpay`;
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen">
       <Navbar />
       <main className="container-custom py-10 sm:py-14 lg:py-18">
         <section className="mx-auto max-w-5xl">
@@ -975,7 +975,7 @@ export default function Payment() {
   />;
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16 xl:py-20">

@@ -216,7 +216,7 @@ export default function PaymentsOverview() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen">
       <Navbar />
 
       <main>

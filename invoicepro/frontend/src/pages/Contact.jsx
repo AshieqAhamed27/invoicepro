@@ -29,7 +29,7 @@ export default function Contact() {
   );
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen">
       <Navbar />
 
       <main className="container-custom py-10 sm:py-14 md:py-20">

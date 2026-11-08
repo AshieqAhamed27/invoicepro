@@ -750,26 +750,10 @@ select option:disabled {
     border-radius: 8px !important;
 }
 
-.bg-zinc-950,
-.bg-zinc-950\/40,
-.bg-zinc-950\/50,
-.bg-zinc-950\/60,
-.bg-zinc-950\/70,
-.bg-zinc-950\/85,
-.bg-zinc-900 {
-    background-color: rgba(13, 17, 23, 0.76) !important;
-}
-
-.border-white\/5,
-.border-white\/8,
-.border-white\/10,
-.border-white\/15 {
-    border-color: rgba(255, 255, 255, 0.11) !important;
-}
-
 .premium-page {
     min-height: 100vh;
-    color: #f4f4f8;
+    color: var(--text-primary);
+    background-color: var(--bg-base);
     overflow-x: hidden;
     animation: premium-page-settle 360ms var(--motion-ease) both;
 }
@@ -778,26 +762,9 @@ select option:disabled {
     animation: page-fade 320ms var(--motion-ease) both;
 }
 
-.premium-page main > section:first-child,
-.premium-page main.container-custom > section:first-child {
-    background-image: linear-gradient(135deg, rgba(139,92,246,0.10), rgba(255,255,255,0) 45%, rgba(232,121,249,0.07));
-}
-
-.premium-page :where(nav .container-custom) {
-    border-color: var(--premium-border);
-    background-image: linear-gradient(135deg, rgba(139,92,246,0.10), rgba(9,9,11,0.82) 48%, rgba(168,85,247,0.07));
-    box-shadow: 0 22px 70px rgba(0,0,0,0.42), inset 0 1px 0 rgba(139,92,246,0.12);
-}
-
-.premium-page .mobile-nav-panel {
-    background: rgb(9,9,11) !important;
-    background-image: linear-gradient(135deg, rgba(139,92,246,0.10), rgb(9,9,11) 52%, rgba(168,85,247,0.06)) !important;
-}
-
 .premium-page :where(section[class*="border"], article[class*="border"], div[class*="border"], a[class*="border"]) {
     border-color: var(--premium-border);
     background-image: var(--premium-glass);
-    box-shadow: 0 18px 58px rgba(0,0,0,0.22), inset 0 1px 0 rgba(139,92,246,0.08);
 }
 
 .premium-page :where(section[class*="border-yellow"], article[class*="border-yellow"], div[class*="border-yellow"], a[class*="border-yellow"]) {
@@ -916,9 +883,14 @@ html:not(.dark) [class*="bg-[#0a0716]"] {
 
 html:not(.dark) [class*="bg-black/"],
 html:not(.dark) [class*="bg-white/[0.0"],
-html:not(.dark) [class*="bg-white/5"] {
+html:not(.dark) [class*="bg-white/5"],
+html:not(.dark) .bg-zinc-950,
+html:not(.dark) .bg-zinc-900,
+html:not(.dark) [class*="bg-zinc-950"],
+html:not(.dark) [class*="bg-zinc-900"] {
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
+    color: #0f172a !important;
 }
 
 html:not(.dark) .premium-panel,
@@ -1006,7 +978,11 @@ html.dark .premium-page {
 
 html.dark .premium-panel,
 html.dark .surface,
-html.dark .card {
+html.dark .card,
+html.dark .bg-zinc-950,
+html.dark .bg-zinc-900,
+html.dark [class*="bg-zinc-950"],
+html.dark [class*="bg-zinc-900"] {
     background: #111116 !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     color: #f8fafc !important;

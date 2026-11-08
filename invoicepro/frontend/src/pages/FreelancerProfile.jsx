@@ -121,7 +121,7 @@ export default function FreelancerProfile() {
 
   if (loading) {
     return (
-      <div className="premium-page min-h-screen text-white">
+      <div className="premium-page min-h-screen">
         <Navbar />
         <main className="container-custom flex min-h-[60vh] items-center justify-center py-16">
           <p className="text-sm font-black uppercase tracking-widest text-zinc-500">Loading profile...</p>
@@ -132,7 +132,7 @@ export default function FreelancerProfile() {
 
   if (error || !profile) {
     return (
-      <div className="premium-page min-h-screen text-white">
+      <div className="premium-page min-h-screen">
         <Navbar />
         <main className="container-custom py-16">
           <div className="premium-panel mx-auto max-w-xl p-8 text-center">
@@ -146,7 +146,7 @@ export default function FreelancerProfile() {
   }
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-12 md:py-16">

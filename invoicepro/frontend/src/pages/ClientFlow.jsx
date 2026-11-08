@@ -4,6 +4,8 @@ import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getUser, hasProAccess } from '../utils/auth';
 import useDocumentMeta from '../utils/useDocumentMeta';
+import { getTimeLeft, DISCOUNT_PCT } from '../components/DiwaliOfferBanner';
+import { getWhatsAppShareUrl } from '../utils/whatsapp';
 
 const formatCurrency = (amount) =>
   `₹${Number(amount || 0).toLocaleString('en-IN')}`;
@@ -18,10 +20,6 @@ const buildCounts = ({ invoiceData = {}, leadData = {}, projectData = {}, cloudD
   const cloudDocuments = cloudData.documents || [];
   const leadCount = getCount(leadData.total || leadData.totalLeads || leadData.count) ||
     getCount((leadData.hotLeads || []).length + (leadData.followUpsDue || []).length + (leadData.recentLeads || []).length);
-  const proofCount = projects.reduce(
-    (sum, project) => sum + (project.resources?.length || 0) + (project.wikiPages?.length || 0),
-    0
-  ) + cloudDocuments.length;
 
   return {
     leads: leadCount,
@@ -30,7 +28,7 @@ const buildCounts = ({ invoiceData = {}, leadData = {}, projectData = {}, cloudD
     proposals: proposals.length,
     acceptedProposals: (leadData.acceptedProposals || []).length,
     workrooms: projects.length,
-    proof: proofCount,
+    proof: cloudDocuments.length,
     invoices: invoices.length,
     pendingInvoices: getCount(invoiceData.stats?.pending),
     paidInvoices: getCount(invoiceData.stats?.paid),
@@ -39,81 +37,6 @@ const buildCounts = ({ invoiceData = {}, leadData = {}, projectData = {}, cloudD
   };
 };
 
-const buildSteps = (counts) => [
-  {
-    id: 'find-client',
-    label: 'Find client',
-    title: 'Create one real opportunity',
-    detail: 'Save or identify a client who has a real problem you can solve.',
-    done: counts.leads > 0,
-    route: '/client-finder',
-    cta: 'Find Clients',
-    metric: `${counts.leads} leads`
-  },
-  {
-    id: 'qualify',
-    label: 'Qualify',
-    title: 'Check if the client is serious',
-    detail: 'Look at budget, urgency, problem, and follow-up timing before spending more energy.',
-    done: counts.hotLeads > 0 || counts.followUps > 0,
-    route: '/leads',
-    cta: 'Open Pipeline',
-    metric: `${counts.hotLeads + counts.followUps} active`
-  },
-  {
-    id: 'proposal',
-    label: 'Proposal',
-    title: 'Turn interest into a clear offer',
-    detail: 'Prepare scope, price, timeline, deliverables, and next step so the client can say yes.',
-    done: counts.proposals > 0 || counts.acceptedProposals > 0,
-    route: '/proposal-writer',
-    cta: 'Write Proposal',
-    metric: `${counts.proposals} proposals`
-  },
-  {
-    id: 'workroom',
-    label: 'Workroom',
-    title: 'Create the client workroom',
-    detail: 'Keep scope, milestones, collaborators, notes, and delivery decisions in one place.',
-    done: counts.workrooms > 0,
-    route: '/client-workroom',
-    cta: 'Open Workroom',
-    metric: `${counts.workrooms} workrooms`
-  },
-  {
-    id: 'proof',
-    label: 'Delivery proof',
-    title: 'Save files, links, and approvals',
-    detail: 'Store proof before asking for payment: files, preview links, screenshots, approvals, and notes.',
-    done: counts.proof > 0,
-    route: '/cloud-documents',
-    cta: 'Save Proof',
-    metric: `${counts.proof} proof items`
-  },
-  {
-    id: 'invoice',
-    label: 'Invoice',
-    title: 'Convert approved work into invoice',
-    detail: 'Create a professional invoice with PDF, public link, currency, and payment route.',
-    done: counts.invoices > 0,
-    route: '/create-invoice',
-    cta: 'Create Invoice',
-    metric: `${counts.invoices} invoices`
-  },
-  {
-    id: 'payment',
-    label: 'Payment',
-    title: 'Follow up until money is collected',
-    detail: 'Track pending invoices and send the right WhatsApp/payment follow-up before it goes cold.',
-    done: counts.paidInvoices > 0,
-    route: '/create-invoice',
-    cta: 'Collect Payment',
-    metric: `${counts.pendingInvoices} pending`
-  }
-];
-
-const proRoutes = ['/client-finder', '/leads', '/proposal-writer'];
-
 export default function ClientFlow() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(() => getUser() || {});
@@ -121,12 +44,32 @@ export default function ClientFlow() {
   const isPro = hasProAccess(user);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [playbookOpen, setPlaybookOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedInvoiceId, setCopiedInvoiceId] = useState('');
   const [phoneInput, setPhoneInput] = useState('');
   const [savingPhone, setSavingPhone] = useState(false);
   const [phoneSuccessMessage, setPhoneSuccessMessage] = useState('');
-  const [phoneDismissed, setPhoneDismissed] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft());
+
+  // Ticking countdown timer for Diwali offer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(getTimeLeft());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const [data, setData] = useState({
+    invoiceData: {},
+    leadData: {},
+    projectData: {},
+    cloudData: {}
+  });
+
+  useDocumentMeta({
+    title: 'Dashboard | ClientFlow AI',
+    description: 'Clean freelancer dashboard: 3-step billing, UPI payouts, and payment recovery.'
+  });
 
   const handleSavePhone = async (e) => {
     e.preventDefault();
@@ -146,24 +89,6 @@ export default function ClientFlow() {
       setSavingPhone(false);
     }
   };
-  const [data, setData] = useState({
-    invoiceData: {},
-    leadData: {},
-    projectData: {},
-    cloudData: {}
-  });
-  const [autopilotEnabled, setAutopilotEnabled] = useState(() => {
-    try {
-      return localStorage.getItem('clientflow_autopilot_enabled') === '1';
-    } catch {
-      return false;
-    }
-  });
-
-  useDocumentMeta({
-    title: 'Dashboard | ClientFlow AI',
-    description: 'Clean freelancer dashboard: track cash collected, pending payments, AI proposals, and client workflow.'
-  });
 
   useEffect(() => {
     const loadFlow = async () => {
@@ -194,180 +119,22 @@ export default function ClientFlow() {
   }, [isPro]);
 
   const counts = useMemo(() => buildCounts(data), [data]);
-  const steps = useMemo(() => buildSteps(counts), [counts]);
-  const completion = Math.round((steps.filter((step) => step.done).length / steps.length) * 100);
+  const recentInvoices = useMemo(() => {
+    const list = data.invoiceData?.invoices || [];
+    return list.slice(0, 5);
+  }, [data.invoiceData]);
 
-  const workflowSignals = useMemo(() => ([
-    {
-      id: 'identity',
-      label: 'Business identity',
-      done: Boolean(user.companyName || user.name),
-      route: '/settings',
-      cta: 'Open Settings',
-      detail: 'Add the business name, logo, UPI, and contact details clients will see.'
-    },
-    {
-      id: 'lead',
-      label: 'Lead source',
-      done: counts.leads > 0,
-      route: '/client-finder',
-      cta: 'Find Clients',
-      detail: 'Create or save one real client opportunity before building more tools.'
-    },
-    {
-      id: 'proposal',
-      label: 'Proposal path',
-      done: counts.proposals > 0 || counts.acceptedProposals > 0,
-      route: '/proposal-writer',
-      cta: 'Write Proposal',
-      detail: 'Turn client interest into scope, price, timeline, and next step.'
-    },
-    {
-      id: 'delivery',
-      label: 'Delivery room',
-      done: counts.workrooms > 0,
-      route: '/client-workroom',
-      cta: 'Open Workroom',
-      detail: 'Keep scope, tasks, files, approvals, and handover in one client space.'
-    },
-    {
-      id: 'proof',
-      label: 'Proof saved',
-      done: counts.proof > 0,
-      route: '/cloud-documents',
-      cta: 'Save Proof',
-      detail: 'Save links, files, approvals, and delivery notes before invoicing.'
-    },
-    {
-      id: 'invoice',
-      label: 'Invoice route',
-      done: counts.invoices > 0,
-      route: '/create-invoice',
-      cta: 'Create Invoice',
-      detail: 'Send a professional invoice with due date, PDF, public link, and payment route.'
-    },
-    {
-      id: 'collection',
-      label: 'Payment collected',
-      done: counts.paidInvoices > 0,
-      route: '/create-invoice',
-      cta: 'Collect Payment',
-      detail: 'Use payment follow-up until money is actually collected.'
-    }
-  ]), [
-    counts.acceptedProposals,
-    counts.invoices,
-    counts.leads,
-    counts.paidInvoices,
-    counts.proof,
-    counts.proposals,
-    counts.workrooms,
-    user.companyName,
-    user.name
-  ]);
-
-  const workflowBottleneck = workflowSignals.find((signal) => !signal.done) || workflowSignals[workflowSignals.length - 1];
+  const hasPayoutConfigured = Boolean(
+    user.upiId ||
+    user.accountNumber ||
+    user.internationalPaymentLink ||
+    user.bankName
+  );
 
   const directProfilePath = user.id ? `/f/${user.id}` : '';
   const directProfileUrl = directProfilePath && typeof window !== 'undefined'
     ? `${window.location.origin}${directProfilePath}`
     : '';
-
-  const weeklyPlan = useMemo(() => ([
-    {
-      day: 'Day 1',
-      title: 'Choose one service and target client',
-      detail: 'Keep the offer narrow so outreach and proposals become easier.',
-      done: Boolean(user.companyName || user.name),
-      route: '/settings',
-      cta: 'Set Identity'
-    },
-    {
-      day: 'Day 2',
-      title: 'Save one real client lead',
-      detail: 'Find or save a prospect who needs your skill this week.',
-      done: counts.leads > 0,
-      route: '/client-finder',
-      cta: 'Find Client'
-    },
-    {
-      day: 'Day 3',
-      title: 'Qualify the lead',
-      detail: 'Check budget, urgency, and problem clarity before writing a proposal.',
-      done: counts.hotLeads > 0 || counts.followUps > 0,
-      route: '/leads',
-      cta: 'Qualify'
-    },
-    {
-      day: 'Day 4',
-      title: 'Send a clear proposal',
-      detail: 'Make scope, price, timeline, and 50% upfront payment terms transparent.',
-      done: counts.proposals > 0 || counts.acceptedProposals > 0,
-      route: '/proposal-writer',
-      cta: 'Write Proposal'
-    },
-    {
-      day: 'Day 5',
-      title: 'Open client workroom',
-      detail: 'Organize milestones, approvals, and shared preview links.',
-      done: counts.workrooms > 0,
-      route: '/client-workroom',
-      cta: 'Open Workroom'
-    },
-    {
-      day: 'Day 6',
-      title: 'Save delivery proof',
-      detail: 'Upload screenshots, links, and handover sign-offs before billing.',
-      done: counts.proof > 0,
-      route: '/cloud-documents',
-      cta: 'Save Proof'
-    },
-    {
-      day: 'Day 7',
-      title: 'Invoice & collect cash',
-      detail: 'Share GST invoice with UPI QR & Razorpay link, and run smart reminders.',
-      done: counts.invoices > 0 && counts.paidInvoices > 0,
-      route: '/create-invoice',
-      cta: counts.invoices > 0 ? 'Collect Cash' : 'Create Invoice'
-    }
-  ]), [
-    counts.acceptedProposals,
-    counts.followUps,
-    counts.hotLeads,
-    counts.invoices,
-    counts.leads,
-    counts.paidInvoices,
-    counts.proof,
-    counts.proposals,
-    counts.workrooms,
-    user.companyName,
-    user.name
-  ]);
-
-  const openRoute = (route) => {
-    if (!isPro && proRoutes.includes(route)) {
-      navigate('/payments');
-      return;
-    }
-    navigate(route);
-  };
-
-  const enableAutopilot = () => {
-    try {
-      localStorage.setItem('clientflow_autopilot_enabled', '1');
-      localStorage.setItem('clientflow_selected_workflow', 'business-autopilot');
-    } catch {
-      // safe fallback
-    }
-    setAutopilotEnabled(true);
-    openRoute('/business-autopilot');
-  };
-
-  const askGuide = (question = 'What should I do next in ClientFlow AI?') => {
-    window.dispatchEvent(new CustomEvent('clientflow:open-assistant', {
-      detail: { question }
-    }));
-  };
 
   const copyDirectProfile = async () => {
     if (!directProfileUrl) return;
@@ -380,74 +147,117 @@ export default function ClientFlow() {
     }
   };
 
+  const copyInvoicePublicLink = async (invoice) => {
+    const url = `${window.location.origin}/public/invoice/${invoice._id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedInvoiceId(invoice._id);
+      setTimeout(() => setCopiedInvoiceId(''), 2500);
+    } catch {
+      window.prompt('Copy public invoice link:', url);
+    }
+  };
+
+  const sendInvoiceWhatsAppChaser = (invoice) => {
+    const publicUrl = `${window.location.origin}/public/invoice/${invoice._id}`;
+    const amountStr = invoice.currency === 'INR' ? `₹${invoice.amount?.toLocaleString('en-IN')}` : `${invoice.currency} ${invoice.amount}`;
+    const clientPhone = invoice.clientPhone || '';
+    const message = `Hi ${invoice.clientName || 'there'}! This is a polite note regarding invoice #${invoice.invoiceNumber || 'INV'} for ${amountStr}. You can view the invoice and complete payment directly via UPI / Card here:\n${publicUrl}\n\nThank you for working together!`;
+    const shareUrl = getWhatsAppShareUrl(message, clientPhone);
+    window.open(shareUrl, '_blank');
+  };
+
+  const pad = (n) => String(n).padStart(2, '0');
+
   return (
     <div className="premium-page min-h-screen">
       <Navbar />
 
       <main className="container-custom py-6 sm:py-8 md:py-10">
-        {/* ─── 1. Header & Value Proposition ─── */}
+
+        {/* ─── 1. Prominent Live Diwali Countdown Offer Banner ─── */}
         {!isPro ? (
-          <div className="mb-6 p-4 sm:p-5 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-xl border border-amber-500/30">
-                ⭐
-              </span>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-black uppercase tracking-wider text-amber-300">Free Plan Active</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30">
-                    ₹499/mo Pro Upgrade
-                  </span>
+          <div className="mb-8 overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 p-5 shadow-lg relative">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 text-2xl border border-amber-500/40 shadow-inner">
+                  🪔
+                </span>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                      Diwali Flash Sale • {DISCOUNT_PCT}% OFF PRO
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                      ₹249/mo (was ₹499)
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-zinc-200 mt-1">
+                    Automate WhatsApp payment reminders, generate unlimited AI proposals, and recover late client cash 3x faster.
+                  </p>
                 </div>
-                <p className="text-sm font-medium text-zinc-300 mt-0.5">
-                  <strong className="text-white">Why upgrade to Pro?</strong> Automate WhatsApp & Email payment reminders to recover unpaid cash 3x faster, plus generate unlimited AI proposals.
-                </p>
+              </div>
+
+              {/* Live Ticking Countdown Box */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
+                <div className="flex items-center gap-1.5 rounded-xl bg-slate-900 dark:bg-black/80 px-3.5 py-2 font-mono font-black text-white text-xs shadow-inner">
+                  <span className="text-yellow-400">⏳ Sale Ends:</span>
+                  <span className="text-white">{pad(timeLeft.days)}d</span>
+                  <span className="text-yellow-400">:</span>
+                  <span className="text-white">{pad(timeLeft.hours)}h</span>
+                  <span className="text-yellow-400">:</span>
+                  <span className="text-white">{pad(timeLeft.minutes)}m</span>
+                  <span className="text-yellow-400">:</span>
+                  <span className="text-yellow-400">{pad(timeLeft.seconds)}s</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/payments')}
+                  className="shrink-0 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black text-xs uppercase tracking-wider hover:from-amber-300 hover:to-yellow-300 transition shadow-md active:scale-95"
+                >
+                  Claim ₹249 Pro Pass →
+                </button>
               </div>
             </div>
-            <button
-              onClick={() => navigate('/payments')}
-              className="shrink-0 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black text-xs uppercase tracking-widest hover:from-amber-300 hover:to-yellow-300 transition shadow-lg shadow-amber-500/10 active:scale-95"
-            >
-              Upgrade to Pro (₹499) →
-            </button>
           </div>
         ) : (
-          <div className="mb-6 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-300">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="mb-6 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-700 dark:text-emerald-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="font-bold">Pro Active</span>
-            <span className="text-zinc-500">•</span>
-            <span className="text-zinc-400">All automated reminder agents & AI proposal writer unlocked</span>
+            <span className="text-slate-400 dark:text-zinc-500">•</span>
+            <span>All automated WhatsApp reminders & AI proposal writer unlocked</span>
           </div>
         )}
 
-        {/* Mandatory WhatsApp Mobile Number Modal for Users without Phone */}
+        {/* WhatsApp Mobile Number Modal for Users without Phone */}
         {!user?.phone && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
-            <div className="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-[#0a0f1d] p-6 sm:p-8 shadow-2xl shadow-emerald-950/60">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+            <div className="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-white dark:bg-[#0a0f1d] p-6 sm:p-8 shadow-2xl">
               <div className="flex items-center gap-3.5 mb-4">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-2xl border border-emerald-500/40 shadow-inner">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-2xl border border-emerald-500/40">
                   📱
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Required Step</span>
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Required Step</span>
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   </div>
-                  <h2 className="text-xl font-black text-white mt-0.5">Enter WhatsApp Number</h2>
+                  <h2 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">Enter WhatsApp Number</h2>
                 </div>
               </div>
 
-              <p className="text-sm text-zinc-300 leading-relaxed mb-6">
-                ClientFlow AI requires your WhatsApp mobile number to activate your workspace and send instant alerts when clients view proposals or complete UPI payments.
+              <p className="text-sm text-slate-600 dark:text-zinc-300 leading-relaxed mb-6">
+                ClientFlow AI requires your WhatsApp number to activate your workspace and send instant alerts when clients view invoices or complete UPI payments.
               </p>
 
               <form onSubmit={handleSavePhone} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">
-                    WhatsApp Mobile Number <span className="text-emerald-400">*</span>
+                  <label className="text-[10px] font-black text-slate-700 dark:text-zinc-400 uppercase tracking-widest block ml-1">
+                    WhatsApp Mobile Number <span className="text-emerald-500">*</span>
                   </label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-sm font-black text-zinc-300 select-none">🇮🇳 +91</span>
+                    <span className="absolute left-3.5 text-sm font-black text-slate-500 dark:text-zinc-400 select-none">🇮🇳 +91</span>
                     <input
                       type="tel"
                       required
@@ -455,25 +265,22 @@ export default function ClientFlow() {
                       placeholder="98765 43210"
                       value={phoneInput}
                       onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      className="h-12 w-full rounded-2xl border border-white/10 bg-black/60 pl-16 pr-4 text-base font-bold text-white placeholder-zinc-500 outline-none focus:border-emerald-500 transition shadow-inner tracking-wider"
+                      className="h-12 w-full rounded-2xl border border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-black/60 pl-16 pr-4 text-base font-bold text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-emerald-500 transition shadow-inner"
                     />
                   </div>
-                  <p className="text-[11px] text-zinc-500 ml-1">
-                    Enter your active 10-digit mobile number. Kept 100% private.
-                  </p>
                 </div>
 
                 <button
                   type="submit"
                   disabled={savingPhone || phoneInput.replace(/\D/g, '').length !== 10}
-                  className="w-full h-12 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-sm uppercase tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed shadow-xl shadow-emerald-500/20 active:scale-[0.99]"
+                  className="w-full h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed shadow-lg active:scale-[0.99]"
                 >
                   {savingPhone ? 'Activating Workspace...' : 'Activate Workspace →'}
                 </button>
               </form>
 
               {phoneSuccessMessage && (
-                <p className="mt-3 text-center text-xs font-bold text-emerald-300">
+                <p className="mt-3 text-center text-xs font-bold text-emerald-600 dark:text-emerald-300">
                   {phoneSuccessMessage}
                 </p>
               )}
@@ -481,514 +288,401 @@ export default function ClientFlow() {
           </div>
         )}
 
-        <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        {/* ─── 2. Header: Purpose & Quick Actions ─── */}
+        <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-slate-200 dark:border-white/10 pb-6">
           <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold mb-2">
+              <span>⚡ Freelancer Command Center</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-950 dark:text-white">
               Welcome back, {user.name?.split(' ')[0] || 'Freelancer'} 👋
             </h1>
-            <p className="mt-2 text-sm sm:text-base text-zinc-400 font-medium">
-              Your freelance command center: bill clients, close proposals, and collect payments on time.
+            <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-zinc-400 font-medium max-w-2xl">
+              <strong>ClientFlow AI</strong> is your 3-step billing and cash recovery operating system. Setup your bank details, send invoices with instant UPI QR & Wise links, and recover overdue client payments.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               type="button"
               onClick={() => navigate('/create-invoice')}
-              className="btn btn-primary text-xs uppercase tracking-wider font-bold py-2.5 px-4"
+              className="btn btn-primary text-xs uppercase tracking-wider font-bold py-2.5 px-4 shadow-sm"
             >
-              + New Invoice
+              + Create Invoice & QR
             </button>
             <button
               type="button"
               onClick={() => navigate('/proposal-writer')}
               className="btn btn-secondary text-xs uppercase tracking-wider font-bold py-2.5 px-4"
             >
-              + New Proposal
+              + Write AI Proposal
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/settings')}
+              className="px-3.5 py-2.5 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white font-bold text-xs uppercase tracking-wider transition"
+            >
+              ⚙️ Settings
             </button>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-2xl border border-yellow-300/20 bg-yellow-300/[0.08] p-4 text-sm font-bold text-yellow-100">
+          <div className="mb-6 rounded-2xl border border-yellow-300/40 bg-yellow-50 dark:bg-yellow-300/[0.08] p-4 text-sm font-bold text-yellow-800 dark:text-yellow-100">
             {error}
           </div>
         )}
 
-        {/* ─── First-Time User 3-Minute Quick Start (Shown when user has 0 invoices) ─── */}
-        {!loading && counts.invoices === 0 && counts.proposals === 0 && (
-          <div className="mb-8 p-5 sm:p-6 rounded-2xl border border-yellow-400/25 bg-gradient-to-r from-yellow-400/[0.08] via-amber-400/[0.04] to-transparent shadow-xl">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-white/10">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🚀</span>
-                  <h2 className="text-base sm:text-lg font-black text-white">New to ClientFlow AI? Complete your 3-minute setup</h2>
-                </div>
-                <p className="text-xs text-zinc-400 mt-0.5">3 simple steps to start sending invoices and getting paid via UPI.</p>
+        {/* ─── 3. THE 3-STEP ORDERLY WORKFLOW: CLEAR PURPOSE ─── */}
+        <section className="mb-10">
+          <div className="mb-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-600 dark:text-indigo-400">Orderly Fast Track</p>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white">
+              The 3-Step Flow to Getting Paid
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 mt-1">
+              Follow these three orderly steps to bill clients and collect money directly into your account with 0% platform commission.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            {/* STEP 1: Set Payout Destination */}
+            <div
+              onClick={() => navigate('/settings')}
+              className={`cursor-pointer group p-5 rounded-2xl border transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
+                hasPayoutConfigured
+                  ? 'border-emerald-300 dark:border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-500/[0.05]'
+                  : 'border-amber-300 dark:border-amber-500/30 bg-amber-50/50 dark:bg-amber-500/[0.05]'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                  hasPayoutConfigured
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
+                    : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+                }`}>
+                  Step 1: Payout Setup
+                </span>
+                <span className="text-lg">{hasPayoutConfigured ? '✓' : '⚠️'}</span>
               </div>
-              <span className="self-start sm:self-auto text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">
-                Quick Setup
-              </span>
+
+              <h3 className="text-base font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
+                1. Add Bank & UPI Details
+              </h3>
+              <p className="mt-1.5 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
+                Add your UPI ID, Bank Account/IFSC, or Wise link. Money deposits directly to you with 0% commission.
+              </p>
+
+              <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between text-xs font-bold">
+                <span className={hasPayoutConfigured ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}>
+                  {hasPayoutConfigured ? 'Direct Payouts Ready ✓' : 'Action Required'}
+                </span>
+                <span className="text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1 transition">Configure ➔</span>
+              </div>
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              {/* Step 1 */}
-              <div 
-                onClick={() => navigate('/settings')}
-                className="cursor-pointer p-4 rounded-xl border border-white/10 bg-black/30 hover:border-yellow-400/40 hover:bg-white/[0.04] transition group"
-              >
-                <div className="flex items-center justify-between text-xs font-bold text-zinc-400">
-                  <span className="text-yellow-400">Step 1</span>
-                  <span className="group-hover:text-white transition">Settings ➔</span>
-                </div>
-                <h3 className="mt-2 text-sm font-black text-white group-hover:text-yellow-300 transition">Add Business Name & UPI</h3>
-                <p className="mt-1 text-xs text-zinc-400">Add your logo and UPI ID so clients can pay you directly.</p>
+            {/* STEP 2: Bill Client */}
+            <div
+              onClick={() => navigate('/create-invoice')}
+              className="cursor-pointer group p-5 rounded-2xl border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/40 dark:bg-indigo-500/[0.05] transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300">
+                  Step 2: Invoicing
+                </span>
+                <span className="text-lg">📄</span>
               </div>
 
-              {/* Step 2 */}
-              <div 
-                onClick={() => navigate('/create-invoice')}
-                className="cursor-pointer p-4 rounded-xl border border-white/10 bg-black/30 hover:border-emerald-400/40 hover:bg-white/[0.04] transition group"
-              >
-                <div className="flex items-center justify-between text-xs font-bold text-zinc-400">
-                  <span className="text-emerald-400">Step 2</span>
-                  <span className="group-hover:text-white transition">Create ➔</span>
-                </div>
-                <h3 className="mt-2 text-sm font-black text-white group-hover:text-emerald-300 transition">Create Your 1st Invoice</h3>
-                <p className="mt-1 text-xs text-zinc-400">Generate a GST invoice with Razorpay link & UPI QR in 60s.</p>
+              <h3 className="text-base font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
+                2. Create Invoice & UPI QR
+              </h3>
+              <p className="mt-1.5 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
+                Bill clients in INR, USD, GBP, or EUR with GST LUT compliance, dynamic UPI QR code, and Razorpay links.
+              </p>
+
+              <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between text-xs font-bold text-indigo-700 dark:text-indigo-400">
+                <span>{counts.invoices} Created</span>
+                <span className="group-hover:translate-x-1 transition">+ New Bill ➔</span>
+              </div>
+            </div>
+
+            {/* STEP 3: Collect & Chase */}
+            <div
+              onClick={() => navigate('/clients')}
+              className="cursor-pointer group p-5 rounded-2xl border border-sky-200 dark:border-sky-500/30 bg-sky-50/40 dark:bg-sky-500/[0.05] transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-300">
+                  Step 3: Recovery
+                </span>
+                <span className="text-lg">🔔</span>
               </div>
 
-              {/* Step 3 */}
-              <div 
-                onClick={copyDirectProfile}
-                className="cursor-pointer p-4 rounded-xl border border-white/10 bg-black/30 hover:border-sky-400/40 hover:bg-white/[0.04] transition group"
-              >
-                <div className="flex items-center justify-between text-xs font-bold text-zinc-400">
-                  <span className="text-sky-400">Step 3</span>
-                  <span className="group-hover:text-white transition">{copiedLink ? 'Copied! ✓' : 'Copy ➔'}</span>
-                </div>
-                <h3 className="mt-2 text-sm font-black text-white group-hover:text-sky-300 transition">Share Direct Portfolio</h3>
-                <p className="mt-1 text-xs text-zinc-400">Share your 0% commission direct link on WhatsApp or LinkedIn.</p>
+              <h3 className="text-base font-black text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition">
+                3. Collect & Chase Overdue
+              </h3>
+              <p className="mt-1.5 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
+                Send 1-click polite WhatsApp payment reminders to clients so you recover unpaid invoices without awkward phone calls.
+              </p>
+
+              <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between text-xs font-bold text-sky-700 dark:text-sky-400">
+                <span>{counts.pendingInvoices} Pending</span>
+                <span className="group-hover:translate-x-1 transition">Open Tracker ➔</span>
               </div>
             </div>
           </div>
-        )}
+        </section>
 
-        {/* ─── 2. Live Financial Snapshot (4 KPI Cards) ─── */}
-        <section className="mb-8 grid gap-4 grid-cols-2 lg:grid-cols-4">
+        {/* ─── 4. Live Financial Snapshot (4 KPI Cards) ─── */}
+        <section className="mb-10 grid gap-4 grid-cols-2 lg:grid-cols-4">
           {/* Card 1: Cash Collected */}
-          <div className="p-5 rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-emerald-500/10 to-transparent backdrop-blur-sm">
-            <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
+          <div className="p-5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 bg-white dark:bg-emerald-950/10 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 text-xs font-semibold">
               <span>Cash Collected</span>
-              <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">💰</span>
+              <span className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">💰</span>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-white">
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white">
               {loading ? (
-                <div className="h-8 w-28 rounded-lg bg-emerald-400/10 border border-emerald-400/20 animate-pulse my-1" />
+                <div className="h-8 w-28 rounded-lg bg-emerald-100 dark:bg-emerald-400/10 animate-pulse my-1" />
               ) : (
                 formatCurrency(counts.paidAmount)
               )}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
-              <span className="text-emerald-400 font-semibold">{counts.paidInvoices} paid invoices</span>
-              <button onClick={() => navigate('/create-invoice')} className="text-zinc-500 hover:text-white transition">Invoices →</button>
+              <span className="text-emerald-700 dark:text-emerald-400 font-bold">{counts.paidInvoices} paid invoices</span>
+              <button onClick={() => navigate('/create-invoice')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium">Invoices →</button>
             </div>
           </div>
 
           {/* Card 2: Pending Receivables */}
-          <div className={`p-5 rounded-2xl border ${counts.pendingInvoices > 0 ? 'border-amber-500/30 bg-gradient-to-b from-amber-500/10 to-transparent' : 'border-white/10 bg-white/[0.02]'} backdrop-blur-sm`}>
-            <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
+          <div className={`p-5 rounded-2xl border shadow-sm ${counts.pendingInvoices > 0 ? 'border-amber-300 dark:border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10' : 'border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.02]'}`}>
+            <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 text-xs font-semibold">
               <span>Pending Receivables</span>
-              <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">⏳</span>
+              <span className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">⏳</span>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-white">
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white">
               {loading ? (
-                <div className="h-8 w-28 rounded-lg bg-amber-400/10 border border-amber-400/20 animate-pulse my-1" />
+                <div className="h-8 w-28 rounded-lg bg-amber-100 dark:bg-amber-400/10 animate-pulse my-1" />
               ) : (
                 formatCurrency(counts.pendingAmount)
               )}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
-              <span className="text-amber-300 font-semibold">{counts.pendingInvoices} unpaid invoices</span>
+              <span className="text-amber-800 dark:text-amber-300 font-bold">{counts.pendingInvoices} unpaid invoices</span>
               {counts.pendingInvoices > 0 ? (
-                <button onClick={() => navigate('/create-invoice')} className="text-amber-400 font-bold hover:underline">Chase Invoices ➔</button>
+                <button onClick={() => navigate('/clients')} className="text-amber-600 dark:text-amber-400 font-bold hover:underline">Chase Cash ➔</button>
               ) : (
-                <span className="text-emerald-400 font-semibold">All clear ✓</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">All settled ✓</span>
               )}
             </div>
           </div>
 
           {/* Card 3: Active Proposals */}
-          <div className="p-5 rounded-2xl border border-indigo-500/20 bg-gradient-to-b from-indigo-500/10 to-transparent backdrop-blur-sm">
-            <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
+          <div className="p-5 rounded-2xl border border-indigo-200 dark:border-indigo-500/20 bg-white dark:bg-indigo-950/10 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 text-xs font-semibold">
               <span>Active Proposals</span>
-              <span className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">✍️</span>
+              <span className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">✍️</span>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-white">
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white">
               {loading ? (
-                <div className="h-8 w-16 rounded-lg bg-indigo-400/10 border border-indigo-400/20 animate-pulse my-1" />
+                <div className="h-8 w-16 rounded-lg bg-indigo-100 dark:bg-indigo-400/10 animate-pulse my-1" />
               ) : (
                 counts.proposals
               )}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
-              <span className="text-indigo-300 font-semibold">{counts.acceptedProposals} accepted</span>
-              <button onClick={() => navigate('/proposal-writer')} className="text-zinc-500 hover:text-white transition">Draft →</button>
+              <span className="text-indigo-700 dark:text-indigo-300 font-bold">{counts.acceptedProposals} accepted</span>
+              <button onClick={() => navigate('/proposal-writer')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium">Draft →</button>
             </div>
           </div>
 
           {/* Card 4: Qualified Leads */}
-          <div className="p-5 rounded-2xl border border-violet-500/20 bg-gradient-to-b from-violet-500/10 to-transparent backdrop-blur-sm">
-            <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-              <span>Client Leads</span>
-              <span className="p-1.5 rounded-lg bg-violet-500/10 text-violet-400">🎯</span>
+          <div className="p-5 rounded-2xl border border-sky-200 dark:border-sky-500/20 bg-white dark:bg-sky-950/10 shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 text-xs font-semibold">
+              <span>Client Contacts</span>
+              <span className="p-1.5 rounded-lg bg-sky-100 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400">👥</span>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-white">
+            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white">
               {loading ? (
-                <div className="h-8 w-16 rounded-lg bg-violet-400/10 border border-violet-400/20 animate-pulse my-1" />
+                <div className="h-8 w-16 rounded-lg bg-sky-100 dark:bg-sky-400/10 animate-pulse my-1" />
               ) : (
-                counts.leads
+                counts.leads || counts.invoices
               )}
             </div>
             <div className="mt-2 flex items-center justify-between text-xs">
-              <span className="text-violet-300 font-semibold">{counts.hotLeads} hot leads</span>
-              <button onClick={() => navigate('/leads')} className="text-zinc-500 hover:text-white transition">Pipeline →</button>
+              <span className="text-sky-700 dark:text-sky-300 font-bold">{counts.hotLeads} hot leads</span>
+              <button onClick={() => navigate('/clients')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium">Clients →</button>
             </div>
           </div>
         </section>
 
-        {/* ─── 3. 3 Quick Actions: Instant Productivity ─── */}
-        <section className="mb-10">
-          <div className="mb-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Quick Actions</p>
-            <h2 className="text-xl sm:text-2xl font-black text-white">What do you want to accomplish right now?</h2>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            {/* Action 1: Create Invoice */}
-            <div 
-              onClick={() => navigate('/create-invoice')}
-              className="cursor-pointer group p-6 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-emerald-500/40 transition-all shadow-xl hover:-translate-y-1"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-2xl p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">📄</span>
-                <span className="text-xs font-bold text-zinc-500 group-hover:text-emerald-400 transition">60-Sec Create ➔</span>
-              </div>
-              <h3 className="text-lg font-black text-white group-hover:text-emerald-300 transition">Create Invoice & UPI QR</h3>
-              <p className="mt-2 text-xs sm:text-sm text-zinc-400 leading-relaxed">
-                Generate a GST invoice with Razorpay payment link & instant UPI QR code for direct bank settlement.
-              </p>
-              <div className="mt-4 pt-3 border-t border-white/5 flex items-center text-xs font-bold text-emerald-400">
-                <span>Create Invoice Now</span>
-                <span className="ml-1 transition group-hover:translate-x-1">→</span>
-              </div>
-            </div>
-
-            {/* Action 2: AI Proposal */}
-            <div 
-              onClick={() => navigate('/proposal-writer')}
-              className="cursor-pointer group p-6 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-indigo-500/40 transition-all shadow-xl hover:-translate-y-1"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-2xl p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">✍️</span>
-                <span className="text-xs font-bold text-zinc-500 group-hover:text-indigo-400 transition">AI-Assisted ➔</span>
-              </div>
-              <h3 className="text-lg font-black text-white group-hover:text-indigo-300 transition">Draft Winning Proposal</h3>
-              <p className="mt-2 text-xs sm:text-sm text-zinc-400 leading-relaxed">
-                Turn project scope into a professional proposal with milestone pricing & payment terms clients can sign online.
-              </p>
-              <div className="mt-4 pt-3 border-t border-white/5 flex items-center text-xs font-bold text-indigo-400">
-                <span>Draft Proposal Now</span>
-                <span className="ml-1 transition group-hover:translate-x-1">→</span>
-              </div>
-            </div>
-
-            {/* Action 3: Overdue Payment Recovery */}
-            <div 
-              onClick={() => navigate('/create-invoice')}
-              className="cursor-pointer group p-6 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-amber-500/40 transition-all shadow-xl hover:-translate-y-1"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-2xl p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">🔔</span>
-                <span className="text-xs font-bold text-zinc-500 group-hover:text-amber-400 transition">Auto-Reminder ➔</span>
-              </div>
-              <h3 className="text-lg font-black text-white group-hover:text-amber-300 transition">Chase Overdue Payments</h3>
-              <p className="mt-2 text-xs sm:text-sm text-zinc-400 leading-relaxed">
-                Send polite, automated WhatsApp or Email reminders to late clients so you get paid without awkward follow-ups.
-              </p>
-              <div className="mt-4 pt-3 border-t border-white/5 flex items-center text-xs font-bold text-amber-400">
-                <span>Recover Unpaid Cash</span>
-                <span className="ml-1 transition group-hover:translate-x-1">→</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── 4. Client Flow Pipeline: 5-Step Clear Journey ─── */}
-        <section className="mb-10 rounded-2xl border border-white/10 bg-white/[0.02] p-6 shadow-xl">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        {/* ─── 5. Recent Invoices & 1-Click WhatsApp Reminder Table ─── */}
+        <section className="mb-10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-950/40 p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-white/10">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-400">Client Flow Lifecycle</p>
-              <h2 className="text-xl sm:text-2xl font-black text-white">Your 5-Stage Work Pipeline</h2>
-              <p className="text-xs text-zinc-400 mt-1">One clean path from finding client leads to money collected in your bank.</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">Cash Recovery Center</p>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white">Recent Invoices & Payment Reminders</h2>
+              <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">Copy public link or send 1-click WhatsApp payment reminders directly to clients.</p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-zinc-400">Workflow Completion:</span>
-              <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-black text-xs border border-emerald-500/30">
-                {completion}%
-              </span>
-            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/create-invoice')}
+              className="btn btn-primary text-xs uppercase tracking-wider font-bold py-2 px-4 self-start sm:self-auto"
+            >
+              + Create New Invoice
+            </button>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-5">
-            {/* Step 1: Leads */}
-            <div 
-              onClick={() => openRoute('/leads')}
-              className={`cursor-pointer p-4 rounded-xl border transition-all text-left ${counts.leads > 0 ? 'border-emerald-500/30 bg-emerald-500/[0.06]' : 'border-white/10 bg-black/20 hover:border-white/20'}`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-white">1. Find & Qualify</span>
-                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${counts.leads > 0 ? 'bg-emerald-400 text-black' : 'bg-white/10 text-zinc-400'}`}>
-                  {counts.leads > 0 ? 'Done' : 'Start'}
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-zinc-400 font-medium">Identify client pain points and budget.</p>
-              <div className="mt-3 text-xs font-bold text-zinc-300 flex items-center justify-between">
-                <span>{counts.leads} Leads</span>
-                <span className="text-emerald-400">Open ➔</span>
-              </div>
+          {recentInvoices.length === 0 ? (
+            <div className="py-12 text-center">
+              <span className="text-4xl block mb-3">📄</span>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white">No Invoices Created Yet</h3>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 max-w-md mx-auto">
+                Create your first invoice in 60 seconds with instant UPI QR, bank account details, and Wise international link.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/create-invoice')}
+                className="mt-4 btn btn-primary text-xs uppercase tracking-wider py-2.5 px-5 font-bold"
+              >
+                Create Your First Invoice →
+              </button>
             </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[11px] font-black uppercase tracking-wider">
+                    <th className="py-3 px-3">Invoice #</th>
+                    <th className="py-3 px-3">Client</th>
+                    <th className="py-3 px-3">Amount</th>
+                    <th className="py-3 px-3">Status</th>
+                    <th className="py-3 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                  {recentInvoices.map((inv) => {
+                    const isPaid = inv.status === 'paid';
+                    const amountStr = inv.currency === 'INR' ? `₹${inv.amount?.toLocaleString('en-IN')}` : `${inv.currency} ${inv.amount}`;
+                    return (
+                      <tr key={inv._id} className="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition">
+                        <td className="py-3.5 px-3 font-mono font-bold text-slate-900 dark:text-white">
+                          #{inv.invoiceNumber || 'INV'}
+                        </td>
+                        <td className="py-3.5 px-3 font-semibold text-slate-800 dark:text-zinc-200">
+                          {inv.clientName || 'Client'}
+                        </td>
+                        <td className="py-3.5 px-3 font-black text-slate-900 dark:text-white">
+                          {amountStr}
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                            isPaid
+                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
+                              : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+                          }`}>
+                            {isPaid ? 'Paid ✓' : 'Pending'}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-right space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => copyInvoicePublicLink(inv)}
+                            className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white transition"
+                            title="Copy public link to share with client"
+                          >
+                            {copiedInvoiceId === inv._id ? 'Copied! ✓' : 'Copy Link 🔗'}
+                          </button>
 
-            {/* Step 2: Proposal */}
-            <div 
-              onClick={() => openRoute('/proposal-writer')}
-              className={`cursor-pointer p-4 rounded-xl border transition-all text-left ${counts.proposals > 0 ? 'border-emerald-500/30 bg-emerald-500/[0.06]' : 'border-white/10 bg-black/20 hover:border-white/20'}`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-white">2. AI Proposal</span>
-                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${counts.proposals > 0 ? 'bg-emerald-400 text-black' : 'bg-white/10 text-zinc-400'}`}>
-                  {counts.proposals > 0 ? 'Done' : 'Next'}
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-zinc-400 font-medium">Set scope, pricing & Indian payment terms.</p>
-              <div className="mt-3 text-xs font-bold text-zinc-300 flex items-center justify-between">
-                <span>{counts.proposals} Proposals</span>
-                <span className="text-indigo-400">Write ➔</span>
-              </div>
-            </div>
+                          {!isPaid && (
+                            <button
+                              type="button"
+                              onClick={() => sendInvoiceWhatsAppChaser(inv)}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] font-black uppercase tracking-wider transition shadow-sm"
+                              title="Send friendly payment reminder on WhatsApp"
+                            >
+                              💬 Remind
+                            </button>
+                          )}
 
-            {/* Step 3: Workroom */}
-            <div 
-              onClick={() => openRoute('/client-workroom')}
-              className={`cursor-pointer p-4 rounded-xl border transition-all text-left ${counts.workrooms > 0 ? 'border-emerald-500/30 bg-emerald-500/[0.06]' : 'border-white/10 bg-black/20 hover:border-white/20'}`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-white">3. Workroom</span>
-                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${counts.workrooms > 0 ? 'bg-emerald-400 text-black' : 'bg-white/10 text-zinc-400'}`}>
-                  {counts.workrooms > 0 ? 'Done' : 'Next'}
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-zinc-400 font-medium">Track delivery milestones & client approvals.</p>
-              <div className="mt-3 text-xs font-bold text-zinc-300 flex items-center justify-between">
-                <span>{counts.workrooms} Active</span>
-                <span className="text-sky-400">Manage ➔</span>
-              </div>
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/invoice/${inv._id}`)}
+                            className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold hover:bg-indigo-100 transition"
+                          >
+                            View →
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-
-            {/* Step 4: Invoice */}
-            <div 
-              onClick={() => openRoute('/create-invoice')}
-              className={`cursor-pointer p-4 rounded-xl border transition-all text-left ${counts.invoices > 0 ? 'border-emerald-500/30 bg-emerald-500/[0.06]' : 'border-white/10 bg-black/20 hover:border-white/20'}`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-white">4. Invoice & Link</span>
-                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${counts.invoices > 0 ? 'bg-emerald-400 text-black' : 'bg-white/10 text-zinc-400'}`}>
-                  {counts.invoices > 0 ? 'Done' : 'Next'}
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-zinc-400 font-medium">GST invoice with Razorpay link & UPI QR.</p>
-              <div className="mt-3 text-xs font-bold text-zinc-300 flex items-center justify-between">
-                <span>{counts.invoices} Invoices</span>
-                <span className="text-emerald-400">Bill ➔</span>
-              </div>
-            </div>
-
-            {/* Step 5: Payment Collected */}
-            <div 
-              onClick={() => openRoute('/create-invoice')}
-              className={`cursor-pointer p-4 rounded-xl border transition-all text-left ${counts.paidInvoices > 0 ? 'border-emerald-500/30 bg-emerald-500/[0.06]' : 'border-white/10 bg-black/20 hover:border-white/20'}`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-white">5. Paid & Settled</span>
-                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${counts.paidInvoices > 0 ? 'bg-emerald-400 text-black' : 'bg-white/10 text-zinc-400'}`}>
-                  {counts.paidInvoices > 0 ? 'Done' : 'Next'}
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-zinc-400 font-medium">TDS reconciliation, Form 16A & CA export.</p>
-              <div className="mt-3 text-xs font-bold text-zinc-300 flex items-center justify-between">
-                <span>{formatCurrency(counts.paidAmount)}</span>
-                <span className="text-amber-400">View ➔</span>
-              </div>
-            </div>
-          </div>
+          )}
         </section>
 
-        {/* ─── 5. Direct Profile & Autopilot Assistant ─── */}
+        {/* ─── 6. Direct Client Profile & Direct Builder WhatsApp Support ─── */}
         <section className="mb-10 grid gap-6 lg:grid-cols-2">
           {/* Direct Profile Card */}
-          <div className="p-6 rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/10 via-transparent to-transparent shadow-xl">
+          <div className="p-6 rounded-2xl border border-sky-200 dark:border-sky-500/20 bg-white dark:bg-zinc-950/40 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-400">Own Your Clients (0% Commission)</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-200 border border-sky-500/30 font-bold">
-                Direct Link
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400">
+                0% Commission Direct Link
+              </span>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-200 font-bold">
+                Portfolio
               </span>
             </div>
-            <h3 className="text-xl font-black text-white">Share your direct portfolio & booking page</h3>
-            <p className="mt-2 text-xs sm:text-sm text-zinc-400 leading-relaxed">
-              Bypass 20% marketplace platform fees. Give clients one professional link with your services, verified proof, and direct inquiry form.
+            <h3 className="text-lg font-black text-slate-950 dark:text-white">Share your direct portfolio & booking link</h3>
+            <p className="mt-1.5 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
+              Bypass 20% marketplace platform commissions. Give clients one professional link with your verified services, bank info, and booking form.
             </p>
 
-            <div className="mt-4 p-3 rounded-xl border border-white/10 bg-black/40 flex items-center justify-between gap-3 text-xs">
-              <span className="font-mono text-zinc-300 truncate">
+            <div className="mt-4 p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/40 flex items-center justify-between gap-3 text-xs">
+              <span className="font-mono text-slate-700 dark:text-zinc-300 truncate">
                 {directProfileUrl || 'Syncing your public link...'}
               </span>
               <button
                 type="button"
                 onClick={copyDirectProfile}
-                className="shrink-0 px-3 py-1.5 rounded-lg bg-sky-400 text-black font-black text-[11px] uppercase tracking-wider hover:bg-sky-300 transition"
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-sky-500 text-slate-950 font-black text-[11px] uppercase tracking-wider hover:bg-sky-400 transition"
               >
                 {copiedLink ? 'Copied! ✓' : 'Copy Link'}
               </button>
             </div>
-
-            <div className="mt-4 flex gap-4 text-xs">
-              {directProfilePath && (
-                <button
-                  type="button"
-                  onClick={() => navigate(directProfilePath)}
-                  className="text-sky-400 font-bold hover:underline"
-                >
-                  Preview Public Page ↗
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => navigate('/settings')}
-                className="text-zinc-400 font-semibold hover:text-white transition"
-              >
-                Edit Profile & Services ⚙️
-              </button>
-            </div>
           </div>
 
-          {/* Autopilot Recommendation */}
-          <div className="p-6 rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent shadow-xl">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">AI Next Recommendation</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 font-bold">
-                Autopilot
-              </span>
-            </div>
-            <h3 className="text-xl font-black text-white">{workflowBottleneck.label}</h3>
-            <p className="mt-2 text-xs sm:text-sm text-zinc-400 leading-relaxed">
-              {workflowBottleneck.detail}
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => openRoute(workflowBottleneck.route)}
-                className="btn btn-primary text-xs uppercase tracking-wider font-bold py-2.5 px-5"
-              >
-                {workflowBottleneck.cta} →
-              </button>
-              <button
-                type="button"
-                onClick={enableAutopilot}
-                className="btn btn-dark text-xs uppercase tracking-wider font-bold py-2.5 px-4"
-              >
-                {autopilotEnabled ? 'Open Autopilot' : 'Enable Autopilot'}
-              </button>
-              <button
-                type="button"
-                onClick={() => askGuide(`My next business step is "${workflowBottleneck.label}". What should I do right now?`)}
-                className="btn btn-secondary text-xs uppercase tracking-wider font-bold py-2.5 px-4"
-              >
-                Ask AI Coach
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── 6. Collapsible 7-Day Strategy Playbook ─── */}
-        <section className="mb-10 rounded-2xl border border-white/10 bg-white/[0.02] p-5 shadow-xl">
-          <button 
-            type="button"
-            onClick={() => setPlaybookOpen(!playbookOpen)}
-            className="w-full flex items-center justify-between text-left group"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-xl">🎓</span>
-              <div>
-                <h3 className="text-base sm:text-lg font-black text-white group-hover:text-yellow-300 transition">
-                  Freelancer 7-Day Strategy Playbook
-                </h3>
-                <p className="text-xs text-zinc-400">Step-by-step habit system to land, qualify, and bill clients every week.</p>
-              </div>
-            </div>
-            <span className="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-xs font-bold text-zinc-300 group-hover:bg-white/10 transition">
-              {playbookOpen ? 'Hide Playbook ▴' : 'Show 7-Day Playbook ▾'}
-            </span>
-          </button>
-
-          {playbookOpen && (
-            <div className="mt-6 pt-6 border-t border-white/10 grid gap-3 sm:grid-cols-2 lg:grid-cols-7 animate-fadeIn">
-              {weeklyPlan.map((item) => (
-                <div
-                  key={item.day}
-                  className={`p-3.5 rounded-xl border text-left ${item.done ? 'border-emerald-500/20 bg-emerald-500/[0.05]' : 'border-white/5 bg-black/20'}`}
-                >
-                  <div className="flex items-center justify-between text-[10px] font-black uppercase text-sky-400">
-                    <span>{item.day}</span>
-                    <span className={item.done ? 'text-emerald-400' : 'text-zinc-500'}>
-                      {item.done ? '✓ Done' : 'Todo'}
-                    </span>
-                  </div>
-                  <h4 className="mt-1.5 text-xs font-black text-white leading-snug">{item.title}</h4>
-                  <p className="mt-1 text-[11px] text-zinc-400 leading-relaxed line-clamp-3">{item.detail}</p>
-                  <button
-                    type="button"
-                    onClick={() => openRoute(item.route)}
-                    className="mt-3 w-full py-1.5 rounded-lg border border-white/10 text-[10px] font-black uppercase text-zinc-300 hover:bg-white/10 transition"
-                  >
-                    {item.cta}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-        {/* ─── 7. Direct Builder WhatsApp Support & Feedback ─── */}
-        <section className="mb-6 p-5 rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-transparent to-transparent flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-2xl border border-emerald-500/30">
-              💬
-            </span>
+          {/* Direct WhatsApp Founder Support */}
+          <div className="p-6 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 bg-white dark:bg-zinc-950/40 shadow-sm flex flex-col justify-between">
             <div>
-              <p className="text-sm font-black text-white">Need help getting set up or have feedback?</p>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                I'm Ashieq, the builder of ClientFlow AI. Text me directly on WhatsApp anytime if you have questions or need custom workflow setup.
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
+                  Direct Founder Contact
+                </span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 font-bold">
+                  WhatsApp Support
+                </span>
+              </div>
+              <h3 className="text-lg font-black text-slate-950 dark:text-white">Have questions or need custom setup?</h3>
+              <p className="mt-1.5 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
+                I'm Ashieq, the builder of ClientFlow AI. Feel free to WhatsApp me directly if you need help with bank integrations, GST LUT, or payment reminders.
               </p>
             </div>
+
+            <div className="mt-5">
+              <a
+                href="https://wa.me/919080963704?text=Hi%20Ashieq!%20I'm%20using%20ClientFlow%20AI%20and%20wanted%20to%20connect%20%2F%20ask%20a%20question."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-sm active:scale-95"
+              >
+                <span>💬 Chat with Ashieq on WhatsApp (+91 90809 63704)</span>
+              </a>
+            </div>
           </div>
-          <a
-            href="https://wa.me/919080963704?text=Hi%20Ashieq!%20I'm%20using%20ClientFlow%20AI%20and%20wanted%20to%20connect%20%2F%20ask%20a%20question."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10 active:scale-95"
-          >
-            <span>💬 Chat with Ashieq</span>
-          </a>
         </section>
+
       </main>
     </div>
   );

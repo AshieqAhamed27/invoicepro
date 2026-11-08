@@ -666,7 +666,7 @@ export default function InvoiceView() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen">
       <Navbar />
 
       <main className="container-custom pb-28 pt-8 sm:py-10 md:py-16">

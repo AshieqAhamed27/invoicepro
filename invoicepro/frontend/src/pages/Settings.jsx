@@ -305,7 +305,7 @@ export default function Settings() {
   const logoInvalid = Boolean(String(form.logo || '').trim()) && !safeLogoPreviewUrl;
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen">
       <Navbar />
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <div className="reveal mb-12">
