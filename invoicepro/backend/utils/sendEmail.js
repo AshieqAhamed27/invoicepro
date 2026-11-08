@@ -163,16 +163,23 @@ const sendEmail = async(to, subject, content) => {
         const html = typeof content === 'string' ? content : content?.html;
         const text = typeof content === 'string' ? undefined : content?.text;
 
-        const resendInfo = await sendWithResend({
-            to: recipient,
-            subject,
-            html,
-            text
-        });
+        // Try Resend if configured, but catch any unverified domain errors and seamlessly fallback to Gmail SMTP
+        if (process.env.RESEND_API_KEY) {
+            try {
+                const resendInfo = await sendWithResend({
+                    to: recipient,
+                    subject,
+                    html,
+                    text
+                });
 
-        if (resendInfo) {
-            console.log(`Email sent via Resend to ${recipient}`);
-            return resendInfo;
+                if (resendInfo) {
+                    console.log(`Email sent via Resend to ${recipient}`);
+                    return resendInfo;
+                }
+            } catch (resendErr) {
+                console.warn(`Resend unavailable for ${recipient} (${resendErr.message}). Falling back to Gmail SMTP...`);
+            }
         }
 
         const info = await withTimeout(getTransporter().sendMail({
