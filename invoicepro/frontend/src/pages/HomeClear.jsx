@@ -27,319 +27,100 @@ import {
   TRUSTPILOT_REVIEW_URL,
 } from '../utils/company';
 
-
-
 const workflowSteps = [
-  ['01', 'Find and qualify a lead', 'Keep the contact, need, next action, and follow-up date together.'],
-  ['02', 'Send a clear proposal', 'Define scope, price, timeline, and the decision the client needs to make.'],
-  ['03', 'Manage the work', 'Track tasks, approvals, files, delivery proof, and client notes in one workroom.'],
-  ['04', 'Create the invoice', 'Send a GST-compliant invoice with GSTIN, HSN/SAC codes, correct amount, and payment link.'],
-  ['05', 'Follow up payment', 'See what is pending and send a calm reminder before an invoice is forgotten.']
+  ['01', 'Find and qualify a lead', 'Keep the contact, budget, next action, and follow-up date organized in one place.'],
+  ['02', 'Send a 60-sec proposal', 'Define clear scope, milestones, upfront deposit, and get client sign-off online.'],
+  ['03', 'Manage the delivery', 'Track milestones, deliverables, approvals, and client requests in one workroom.'],
+  ['04', 'Create instant invoice', 'Generate GST & LUT-compliant invoices with dynamic UPI QR and international card links.'],
+  ['05', 'Automate payment chasers', 'Automatic WhatsApp and email follow-ups so you never have to awkwardly ask for money.']
 ];
 
 const freeIncludes = [
-  { icon: '📋', title: 'Freelancer Workspace Setup', text: 'Pre-configured lead pipeline, proposal templates, and GST invoice flow — ready in 30 seconds.' },
-  { icon: '🔄', title: 'Smart Follow-up Automation', text: 'Automated polite payment reminders, WhatsApp drafts, and recurring retainer invoices so you get paid on time.' },
-  { icon: '🏢', title: 'Team & Agency Features', text: 'Multi-user workrooms, client delivery rooms, and shared pipeline for freelancers who work with a team.' },
-  { icon: '🤖', title: 'AI Tools', text: '10-second AI Proposal Generator, Client Coach for objection handling, and smart payment follow-up drafts.' },
-  { icon: '📊', title: 'GST & TDS Compliance', text: 'GSTIN, HSN/SAC codes, CGST/SGST/IGST auto-split, and 194J/194C TDS deduction tracking.' },
-  { icon: '📤', title: 'CA-Ready Export', text: '1-click Excel/CSV export of all invoices and income reports for your accountant at tax time.' }
+  { icon: '⚡', title: 'Dynamic UPI QR Code', text: 'Clients scan with GPay, PhonePe, or Paytm and pay in 10 seconds directly to your bank account.' },
+  { icon: '🌍', title: 'US/UK Foreign Client Rails', text: 'Direct 1-click Wise, PayPal, or SWIFT wire transfer details with 0% GST export LUT notice.' },
+  { icon: '💬', title: 'WhatsApp & Email Chasers', text: 'Polite automatic payment reminders before, on, and after invoice due dates so you get paid on time.' },
+  { icon: '🤖', title: 'AI Proposal Writer', text: '60-second client-ready proposals with 50% advance milestones and scope protection.' },
+  { icon: '📊', title: 'GST & TDS Compliance', text: 'Auto-calculates CGST/SGST/IGST splits and 194J/194C TDS deductions for seamless CA filing.' },
+  { icon: '📤', title: '1-Click CA Tax Export', text: 'Instant Excel/CSV export of all income ledgers and invoices for your accountant or Tally/Zoho.' }
 ];
 
 const protectionItems = [
   {
-    title: 'Check the client before starting',
-    text: 'Record budget, urgency, scope clarity, deposit, and communication signals before accepting the work.'
+    icon: '🛡️',
+    title: 'Qualify the client upfront',
+    text: 'Record budget, urgency, and scope clarity before accepting work to prevent payment disputes.'
   },
   {
-    title: 'Keep scope and proof visible',
-    text: 'Store revisions, approvals, milestones, and delivery evidence so extra work does not become invisible free work.'
+    icon: '🔒',
+    title: 'Scope Lock & Revision Limits',
+    text: 'Client signs off on included deliverables and extra revision charges before work starts.'
   },
   {
-    title: 'Do not let payment go quiet',
-    text: 'Keep due dates and promises visible, then prepare the next professional follow-up from the same workflow.'
+    icon: '🔔',
+    title: 'Zero Awkward Payment Follow-ups',
+    text: 'Calm, automated reminders handle the chasing professionally so your client relationship stays healthy.'
   }
-];
-
-const servicePaths = [
-  {
-    label: 'Freelance Software System',
-    title: 'ClientFlow Pro',
-    text: 'Full self-serve system: lead tracking, AI proposals, GST invoices with UPI QR codes, retainers, and payment follow-ups.',
-    fit: 'Free 30-day trial for every user, then ₹499/mo or ₹4,999/yr.',
-    cta: 'Explore Software & Plans',
-    path: '/payments',
-    tone: 'yellow'
-  },
-  {
-    label: '1-on-1 Personal Assistance',
-    title: '1-on-1 Managed Setup',
-    text: 'A dedicated builder works with you to design your service offer, craft high-converting proposals, and set up your client pipeline.',
-    fit: 'Choose this when you want hands-on personal guidance to start closing clients.',
-    cta: 'Book 1-on-1 Setup',
-    path: '/payments/agency-setup',
-    tone: 'violet'
-  }
-];
-
-const audienceGroups = [
-  ['Creative work', 'Designers, writers, editors, photographers, marketers, and branding specialists.'],
-  ['Professional services', 'Consultants, coaches, trainers, virtual assistants, accountants, and operations specialists.'],
-  ['Technical services', 'Developers, website builders, IT support, automation experts, and maintenance providers.'],
-  ['Small teams', 'Agencies and service teams sharing sales, delivery, invoices, and client follow-up.']
 ];
 
 const faqs = [
-  ['Is this a job marketplace?', 'No. ClientFlow AI does not sell leads or make freelancers bid for jobs. It helps you manage clients you find directly.'],
-  ['Is it only invoice software?', 'No. Invoicing is one step inside the lead, proposal, retainer management, invoice, and payment workflow.'],
-  ['How does TDS (Section 194J/194C) work?', 'Clients deducting 10% (technical/professional services) or 2% (contracts) TDS can be marked on any invoice. ClientFlow AI automatically calculates net receivable bank deposits and TDS deductions for easy CA reconciliation.'],
-  ['Does it support monthly retainers?', 'Yes! You can set up recurring retainer billing on weekly or monthly schedules with auto-generated invoices.'],
-  ['Can I export data for my CA at tax time?', 'Yes. Export all your invoices, income reports, and client ledgers to Excel/CSV with 1-click for easy handoff to your accountant (Tally / Zoho / Excel).'],
-  ['What happens to my data if my 30-day trial ends?', 'Your data is NEVER locked or deleted. If your trial ends and you choose not to subscribe right away, you retain full read-only access to view and export all your invoice history anytime.'],
-  ['Does it support GST invoicing?', 'Yes. You can add your GSTIN, HSN/SAC codes, CGST/SGST/IGST splits, and generate invoices that follow Indian GST rules.'],
-  ['What payment methods are supported?', 'Razorpay payment links for Indian clients (UPI, cards, netbanking) plus multi-currency support (USD, GBP, EUR, etc.) for international clients.']
+  ['Is ClientFlow AI a job marketplace?', 'No. ClientFlow AI does not sell leads or take a 20% platform cut. You keep 100% of your earnings from clients you source directly.'],
+  ['How do Indian clients pay?', 'They scan the dynamic UPI QR code on the invoice using any UPI app (GPay, PhonePe, Paytm, BHIM) or pay via cards/netbanking. Money deposits directly into your bank.'],
+  ['How do US, UK, and foreign clients pay?', 'They pay in USD, EUR, or GBP via credit/debit card, Wise, PayPal, or direct SWIFT international bank wire. Under Section 16 of the IGST Act, cross-border freelance service export is 100% zero-rated under LUT.'],
+  ['How does TDS (Section 194J / 194C) work?', 'Clients deducting 10% (professional services) or 2% (contracts) TDS are automatically accounted for. ClientFlow AI calculates net receivable bank deposit and shows TDS deduction certificates clearly for your CA.'],
+  ['Does ClientFlow AI hold or escrow my money?', 'Never. We do not hold user funds. Payments route directly to your personal/business UPI ID or your verified bank account.'],
+  ['What happens to my data if my trial ends?', 'Your data is 100% safe and never locked. You retain full access to view, download, and export all your past invoices and client history to Excel anytime.']
 ];
 
-
 const trustBadges = [
-  { label: 'Udyam Registered', detail: 'UDYAM-TN-37-0055272' },
-  { label: 'Razorpay & Multi-Currency', detail: 'UPI, Cards, USD/INR' },
-  { label: '256-bit SSL Data Safety', detail: 'Daily Cloud Backups' },
-  { label: 'No Data Hostage Policy', detail: 'Free Excel Export Anytime' }
+  { label: 'Udyam Registered', detail: UDYAM_REGISTRATION_NUMBER },
+  { label: 'Direct Bank Deposits', detail: 'Zero Escrow or Holds' },
+  { label: '256-bit SSL Security', detail: 'Encrypted Cloud Storage' },
+  { label: '100% Data Portability', detail: 'Free Excel Export Anytime' }
 ];
 
 const comparisonRows = [
-  { feature: 'Lead tracking and follow-up', basic: 'Usually a spreadsheet or separate CRM', marketplace: 'Built around bidding for platform jobs', clientflow: 'Leads, follow-up dates, proposals, and next actions in one flow' },
-  { feature: 'Client relationship', basic: 'Client details sit apart from invoices', marketplace: 'Platform controls the relationship', clientflow: 'You own the client, conversation, work history, and data' },
-  { feature: 'Proposals and delivery', basic: 'Often needs separate docs and project tools', marketplace: 'Limited to platform workflow', clientflow: 'Proposals, workrooms, approvals, and delivery proof stay connected' },
-  { feature: 'GST & TDS tax compliance', basic: 'May require manual tax fields or another tool', marketplace: 'Not designed for Indian GST or 194J/194C TDS', clientflow: 'GSTIN, HSN/SAC, CGST/SGST/IGST, plus 194J/194C TDS calculation' },
-  { feature: 'Getting paid & retainers', basic: 'Manual payment follow-up', marketplace: 'Platform-controlled payment flow', clientflow: 'Razorpay links, ₹ & USD payments, monthly retainers, and reminder tools' },
-  { feature: 'Accountant handoff & export', basic: 'Manual copy-paste for tax filing', marketplace: 'Closed platform reporting', clientflow: '1-click Excel/CSV export for Tally, Zoho, and CA tax filing' },
-  { feature: 'Your data guarantee', basic: 'Data is split between multiple services', marketplace: 'Platform account and rules apply', clientflow: 'Read-only access & export guaranteed even if trial ends—no lock-in' }
-];
-
-const freelancerValueProps = [
   {
-    icon: '💳',
-    title: 'Multi-Currency & Global Cards',
-    text: 'Accept payments in USD, EUR, GBP, AUD, CAD, or INR. Send direct checkout links with international cards or instant UPI QR codes.'
+    problem: 'How Clients Pay in India',
+    free: 'Bank account number typed on a static PDF (clients delay for weeks)',
+    cf: 'Dynamic UPI QR Code right on the invoice — client scans & pays in 10s via GPay, PhonePe, or Paytm'
   },
   {
-    icon: '📄',
-    title: 'GST & Global Tax Compliance',
-    text: 'Add GSTIN, HSN/SAC codes, CGST/SGST/IGST splits, and TDS deduction calculations for India, plus tax-exempt international invoicing.'
+    problem: 'Overdue & Late Payments',
+    free: 'Sends an email into spam or ignored inboxes',
+    cf: 'Automated WhatsApp & Email payment chasers that clients actually see and pay on time'
   },
   {
-    icon: '🔄',
-    title: 'Monthly Retainer Invoicing',
-    text: 'Schedule recurring invoices for retainer clients on monthly or weekly cycles so you never forget to bill regular clients.'
+    problem: 'International Clients (US/UK/EU)',
+    free: 'Hands off to PayPal with 5–8% hidden FX loss',
+    cf: 'Direct transparent Wise, PayPal, and SWIFT bank wire rails with zero platform commission'
   },
   {
-    icon: '🏢',
-    title: 'Transparent & Data Portable',
-    text: '256-bit data encryption, daily cloud backups, and 1-click Excel/CSV export of all your invoices and client records anytime.'
+    problem: 'GST & Export Compliance',
+    free: 'Manual, confusing, requires expensive CA consultation',
+    cf: '1-Click GST & Export LUT ready — auto-calculates reverse charges and zero-rated export note'
+  },
+  {
+    problem: 'Payout Speed',
+    free: 'Delayed by multi-day settlement holds and verification roadblocks',
+    cf: '100% Direct: Money routes directly into your bank / UPI ID with zero middleman hold'
   }
 ];
 
-const whyClientFlow = [
-  ['Get clients in one place', 'Track leads, plan outreach, write proposals, and know the next follow-up instead of losing opportunities across notes and chats.'],
-  ['Get paid without chasing', 'Create GST-ready invoices, share Razorpay payment links, and keep overdue-payment follow-up visible.'],
-  ['Build a stronger freelance career', 'Use income goals, delivery workflows, and repeatable client systems to make your work more professional and predictable.']
+// Marquee Brand Items
+const marqueeItems = [
+  '⚡ Instant UPI QR',
+  'Google Pay',
+  'PhonePe',
+  'Paytm',
+  'Razorpay Verified',
+  'HDFC Bank Direct',
+  'ICICI Bank Direct',
+  'Wise USD/EUR Rail',
+  'SWIFT Wire Ready',
+  'GST Compliant',
+  'Zero Platform Cuts',
+  'Udyam Registered'
 ];
-
-const structuredData = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: COMPANY_NAME,
-    url: SITE_URL,
-    logo: `${SITE_URL}/logo-1200.png`,
-    email: SUPPORT_EMAIL,
-    identifier: UDYAM_REGISTRATION_NUMBER,
-    description: COMPANY_TAGLINE
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: COMPANY_NAME,
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Web',
-    url: SITE_URL,
-    image: `${SITE_URL}/logo-1200.png`,
-    description: 'An all-in-one lead-to-payment workspace for freelancers worldwide with multi-currency invoicing, AI proposals, and automated payment tracking.',
-    offers: {
-      '@type': 'AggregateOffer',
-      url: `${SITE_URL}/payments`
-    }
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map(([question, answer]) => ({
-      '@type': 'Question',
-      name: question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: answer
-      }
-    }))
-  }
-];
-
-const serviceTone = {
-  yellow: {
-    border: 'border-yellow-400/25',
-    label: 'text-yellow-300',
-    button: 'bg-gradient-to-r from-amber-400 to-yellow-300 text-zinc-950 hover:opacity-90'
-  },
-  violet: {
-    border: 'border-violet-500/25',
-    label: 'text-violet-300',
-    button: 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:opacity-90'
-  },
-  fuchsia: {
-    border: 'border-fuchsia-500/25',
-    label: 'text-fuchsia-300',
-    button: 'bg-gradient-to-r from-fuchsia-500 to-violet-500 text-white hover:opacity-90'
-  }
-};
-
-// Scroll-reveal section wrapper using IntersectionObserver
-function RevealSection({ children, id, className = '' }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const srEls = el.querySelectorAll('.sr');
-    if (!srEls.length) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.07, rootMargin: '0px 0px -40px 0px' }
-    );
-    srEls.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-  return (
-    <section ref={ref} id={id} className={className}>
-      {children}
-    </section>
-  );
-}
-
-
-// Typewriter text animation
-function TypewriterText({ phrases, typingSpeed = 80, deletingSpeed = 40, pauseDuration = 2000 }) {
-  const [displayText, setDisplayText] = useState('');
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    const currentPhrase = phrases[phraseIndex];
-    let timeout;
-
-    if (!isDeleting && displayText === currentPhrase) {
-      timeout = setTimeout(() => setIsDeleting(true), pauseDuration);
-    } else if (isDeleting && displayText === '') {
-      setIsDeleting(false);
-      setPhraseIndex((prev) => (prev + 1) % phrases.length);
-    } else {
-      timeout = setTimeout(() => {
-        setDisplayText(prev =>
-          isDeleting
-            ? prev.slice(0, -1)
-            : currentPhrase.slice(0, prev.length + 1)
-        );
-      }, isDeleting ? deletingSpeed : typingSpeed);
-    }
-
-    return () => clearTimeout(timeout);
-  }, [displayText, isDeleting, phraseIndex, phrases, typingSpeed, deletingSpeed, pauseDuration]);
-
-  return (
-    <span>
-      <span className="animated-gradient-text">{displayText}</span>
-      <span className="typewriter-cursor" aria-hidden="true" />
-    </span>
-  );
-}
-
-// Animated counter that counts up from 0
-function AnimatedCounter({ target, prefix = '', suffix = '', duration = 1500 }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          const startTime = performance.now();
-          const animate = (now) => {
-            const elapsed = now - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setCount(Math.round(eased * target));
-            if (progress < 1) requestAnimationFrame(animate);
-          };
-          requestAnimationFrame(animate);
-        }
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [target, duration]);
-
-  return (
-    <span ref={ref} className="counter-number stat-glow">
-      {prefix}{typeof target === 'number' && target >= 1000 ? count.toLocaleString('en-IN') : count}{suffix}
-    </span>
-  );
-}
-
-// Particle constellation background
-function ParticleField({ count = 30 }) {
-  const particles = useRef(
-    Array.from({ length: count }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      size: 1 + Math.random() * 2,
-      duration: 8 + Math.random() * 16,
-      delay: Math.random() * 10,
-      opacity: 0.3 + Math.random() * 0.5,
-    }))
-  ).current;
-
-  return (
-    <div className="particle-field" aria-hidden="true">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="particle"
-          style={{
-            left: `${p.left}%`,
-            bottom: '-10px',
-            width: p.size,
-            height: p.size,
-            opacity: p.opacity,
-            animationDuration: `${p.duration}s`,
-            animationDelay: `${p.delay}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 export default function HomeClear() {
   const navigate = useNavigate();
@@ -347,25 +128,34 @@ export default function HomeClear() {
   const user = loggedIn ? getUser() : null;
   const isPro = hasProAccess(user);
   const freeAccess = getFreeAccessState(user);
-  const [mousePos, setMousePos] = useState({ x: -9999, y: -9999 });
-  const heroRef = useRef(null);
+
+  // Parallax & Interactive Invoice State
+  const [activeCurrency, setActiveCurrency] = useState('INR');
+  const [mouseTilt, setMouseTilt] = useState({ x: 0, y: 0 });
+  const heroCardRef = useRef(null);
+
   const handleMouseMove = useCallback((e) => {
-    if (!heroRef.current) return;
-    const rect = heroRef.current.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    if (!heroCardRef.current) return;
+    const rect = heroCardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setMouseTilt({ x: x * 10, y: -y * 10 });
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setMouseTilt({ x: 0, y: 0 });
   }, []);
 
   useDocumentMeta({
-    title: `${COMPANY_NAME} | The All-in-One Client & Invoice Workspace for Freelancers`,
-    description: 'The client-to-cash workspace built for freelancers and solo agencies worldwide. Create multi-currency & GST invoices, send AI proposals, accept global & UPI payments, and track clients — all in one place.',
-    path: '/',
-    jsonLd: structuredData
+    title: `${COMPANY_NAME} | Get Paid 3x Faster. Zero Payment Chasing.`,
+    description: 'The smart invoicing and billing workspace built for Indian freelancers. Accept UPI and international payments, automate WhatsApp payment follow-ups, and get direct bank deposits.',
+    path: '/'
   });
 
   const startWorkspace = (source) => {
     const destination = loggedIn ? '/client-flow' : '/signup';
     if (!loggedIn) setPostLoginRedirect('/client-flow');
-    trackCtaClick(source, 'home_clear', destination);
+    trackCtaClick(source, 'home_bright', destination);
     navigate(destination);
   };
 
@@ -376,717 +166,641 @@ export default function HomeClear() {
       : freeAccess.active
         ? `${freeAccess.daysLeft} day${freeAccess.daysLeft === 1 ? '' : 's'} left in your free access.`
         : 'Your free access has ended. Review plans when you are ready.';
-  const feedbackWhatsAppUrl = getWhatsAppShareUrl('Hi ClientFlow AI, I would like to share feedback about the product.', SUPPORT_WHATSAPP_PHONE);
+
+  const isDiwaliOffer = true;
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans selection:bg-indigo-500 selection:text-white relative overflow-hidden">
+      {/* Background Aurora Radiant Glow Orbs */}
+      <div className="aurora-mesh" aria-hidden="true">
+        <div className="aurora-orb-1" />
+        <div className="aurora-orb-2" />
+        <div className="aurora-orb-3" />
+      </div>
+
       <Navbar />
 
-      <main>
-        {/* ═══════ HERO ═══════ */}
-        <section ref={heroRef} onMouseMove={handleMouseMove} className="relative isolate overflow-hidden border-b border-violet-500/10 bg-[#09090b]">
-          {/* Floating orbs */}
-          <div className="orb orb-violet" style={{ width: 540, height: 540, top: '-140px', left: '-100px' }} aria-hidden="true" />
-          <div className="orb orb-fuchsia" style={{ width: 380, height: 380, top: '80px', right: '-80px' }} aria-hidden="true" />
-          <div className="orb orb-indigo" style={{ width: 320, height: 320, bottom: '-80px', left: '38%' }} aria-hidden="true" />
-          <ParticleField count={25} />
-          <div className="mouse-glow" style={{ left: mousePos.x, top: mousePos.y, opacity: mousePos.x > 0 ? 1 : 0 }} />
-
-          <div className="container-custom relative z-10 flex min-h-[min(660px,calc(100svh-8rem))] items-center py-20 sm:py-24">
-            <div className="max-w-4xl">
-              <span className="violet-pill mb-5 inline-flex gap-2">
-                <span className="relative flex h-2 w-2 shrink-0 mt-0.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                </span>
-                The Invoicing & Payment Tool for Indian Freelancers
-              </span>
-
-              <h1 className="mt-4 text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">
-                Get paid 3x faster.<br />
-                <span className="mt-1 block bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">Zero payment chasing.</span>
-              </h1>
-
-              <p className="mt-6 max-w-2xl text-xl font-semibold leading-relaxed text-zinc-200">
-                Send professional invoices with dynamic UPI QR & global card payments. Automatically follow up on WhatsApp when clients delay. Funds deposit directly to your bank account with zero tax headache.
-              </p>
-              <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-3 max-w-3xl">
-                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-3">
-                  <p className="text-xs font-black text-emerald-300">⚡ Dynamic UPI QR</p>
-                  <p className="mt-0.5 text-[11px] font-medium text-zinc-400">Scanned & paid in 10s via GPay/PhonePe</p>
+      <main className="relative z-10">
+        {/* ═════════════════════════════════════════════
+            HERO SECTION WITH PARALLAX & LIVE SIMULATOR
+        ═════════════════════════════════════════════ */}
+        <section className="relative px-4 pt-12 pb-20 sm:pt-16 sm:pb-28 lg:pt-20 lg:pb-32">
+          <div className="container-custom">
+            <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+              
+              {/* Left Column: Value Proposition & High-Converting CTAs */}
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50/80 px-3.5 py-1.5 text-xs font-bold text-indigo-700 shadow-sm backdrop-blur-md mb-6 animate-pulse-soft">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                  </span>
+                  <span>The Invoicing & Payout Tool Built for Indian Freelancers</span>
                 </div>
-                <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-3">
-                  <p className="text-xs font-black text-amber-300">💬 WhatsApp Auto-Chasers</p>
-                  <p className="mt-0.5 text-[11px] font-medium text-zinc-400">Pings overdue clients automatically</p>
-                </div>
-                <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.06] p-3">
-                  <p className="text-xs font-black text-violet-300">🛡️ Direct Bank Payouts</p>
-                  <p className="mt-0.5 text-[11px] font-medium text-zinc-400">We never hold or delay your money</p>
-                </div>
-              </div>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <button
-                  type="button"
-                  id="hero-cta-btn"
-                  onClick={() => startWorkspace('hero_start')}
-                  className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-8 py-4 text-sm font-black uppercase text-white shadow-lg shadow-violet-500/25 transition hover:opacity-90 hover:scale-[1.02] hover:shadow-violet-500/40 focus:outline-none focus:ring-2 focus:ring-violet-400"
-                >
-                  {loggedIn ? 'Open Client Flow' : 'Start Free — 30 Days Unlocked →'}
-                </button>
-                <a
-                  href="/payments"
-                  className="rounded-xl border border-white/10 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.08] hover:border-violet-500/25"
-                >
-                  View pricing first
-                </a>
-                <Link
-                  to="/how-to-use"
-                  className="rounded-xl border border-violet-500/20 bg-violet-500/[0.06] px-7 py-4 text-center text-sm font-black uppercase text-violet-200 transition hover:bg-violet-500/[0.12]"
-                >
-                  See how it works
-                </Link>
-                {!loggedIn && (
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 leading-[1.05]">
+                  Get paid 3x faster.<br />
+                  <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-amber-500 bg-clip-text text-transparent">
+                    Zero payment chasing.
+                  </span>
+                </h1>
+
+                <p className="mt-6 text-lg sm:text-xl font-medium leading-relaxed text-slate-600 max-w-2xl">
+                  Send high-trust invoices with dynamic UPI QR & foreign currency rails. Automatically follow up on WhatsApp & email when clients delay. Money settles straight into your bank account with zero platform cut.
+                </p>
+
+                {/* Quick Trust Highlights */}
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
+                  <div className="rounded-xl border border-emerald-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
+                    <p className="text-xs font-black text-emerald-700">⚡ Dynamic UPI QR</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Scanned & paid in 10s via GPay/PhonePe</p>
+                  </div>
+                  <div className="rounded-xl border border-amber-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
+                    <p className="text-xs font-black text-amber-700">💬 Auto-Chaser</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Pings overdue clients on WhatsApp</p>
+                  </div>
+                  <div className="rounded-xl border border-indigo-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
+                    <p className="text-xs font-black text-indigo-700">🌍 US/UK Wise & SWIFT</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Zero-rated GST export under LUT</p>
+                  </div>
+                </div>
+
+                {/* Primary Action Buttons */}
+                <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <button
                     type="button"
-                    onClick={async () => {
-                      try {
-                        const res = await api.post('/auth/demo-login');
-                        setAuth(res.data.token, res.data.user);
-                        navigate('/client-flow');
-                      } catch {
-                        navigate('/login');
-                      }
-                    }}
-                    className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-500/10 px-7 py-4 text-center text-sm font-black uppercase text-fuchsia-200 transition hover:bg-fuchsia-500/20 hover:border-fuchsia-500/50"
+                    onClick={() => startWorkspace('hero_cta_bright')}
+                    className="btn btn-primary py-4 px-8 rounded-xl text-sm font-black uppercase tracking-wider text-center flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/25 transition-transform hover:scale-[1.02] active:scale-[0.98]"
                   >
-                    Try Demo Account →
+                    <span>{loggedIn ? 'Open Workspace' : 'Start 30 Days Free →'}</span>
                   </button>
-                )}
+
+                  {!loggedIn && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const res = await api.post('/auth/demo-login');
+                          setAuth(res.data.token, res.data.user);
+                          navigate('/client-flow');
+                        } catch {
+                          navigate('/login');
+                        }
+                      }}
+                      className="btn btn-secondary py-4 px-7 rounded-xl text-sm font-black uppercase tracking-wider text-center"
+                    >
+                      Try Interactive Demo
+                    </button>
+                  )}
+
+                  <Link
+                    to="/payments"
+                    className="py-4 px-5 text-sm font-bold text-slate-600 hover:text-indigo-600 text-center transition"
+                  >
+                    View Pricing (₹249/mo)
+                  </Link>
+                </div>
+
+                {/* Micro-trust copy */}
+                <p className="mt-4 text-xs font-bold text-slate-400">
+                  {accessMessage} · No credit card required · Free 30-day trial · Cancel anytime
+                </p>
+
+                {/* Stats Row */}
+                <div className="mt-10 flex flex-wrap gap-8 border-t border-slate-200/80 pt-6">
+                  <div>
+                    <p className="text-2xl font-black text-slate-900">30 Days</p>
+                    <p className="text-xs font-semibold text-slate-500">Full Free Trial</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-slate-900">₹0 / $0</p>
+                    <p className="text-xs font-semibold text-slate-500">No Card Needed</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-slate-900">₹ & USD</p>
+                    <p className="text-xs font-semibold text-slate-500">Global & Domestic</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-emerald-600">100% Direct</p>
+                    <p className="text-xs font-semibold text-slate-500">To Your Bank A/C</p>
+                  </div>
+                </div>
               </div>
 
-              <p className="mt-5 text-sm font-bold text-zinc-600">{accessMessage}</p>
-              {!loggedIn && (
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-violet-300/70">
-                  No credit card. No setup fee. All features free for 30 full days.
-                </p>
-              )}
+              {/* Right Column: 3D Mouse Parallax Live Invoice Simulator */}
+              <div
+                ref={heroCardRef}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                className="relative lg:pl-4 perspective-1000"
+              >
+                {/* Floating Notification Pill 1: Top Right */}
+                <div className="absolute -top-6 -right-2 sm:-right-6 z-30 animate-float-slow hidden sm:flex items-center gap-2.5 rounded-2xl bg-white p-3 shadow-xl border border-slate-100">
+                  <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-black text-xs">
+                    ⚡
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900">₹25,000 Settled</p>
+                    <p className="text-[10px] font-bold text-emerald-600">Via UPI · 10s instant deposit</p>
+                  </div>
+                </div>
 
-              {/* Stats row */}
-              <div className="mt-10 flex flex-wrap gap-7 border-t border-white/[0.07] pt-8">
-                <div>
-                  <p className="text-lg font-black text-white"><AnimatedCounter target={30} suffix=" days" /></p>
-                  <p className="text-xs font-semibold text-zinc-600">Full free access</p>
+                {/* Floating Notification Pill 2: Left Middle */}
+                <div className="absolute top-1/2 -left-4 sm:-left-8 z-30 animate-float-fast hidden sm:flex items-center gap-2.5 rounded-2xl bg-white p-3 shadow-xl border border-slate-100">
+                  <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 font-black text-xs">
+                    💬
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900">Auto-Chaser Sent</p>
+                    <p className="text-[10px] font-bold text-amber-600">WhatsApp & Email reminder</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-lg font-black text-white">₹0 / $0</p>
-                  <p className="text-xs font-semibold text-zinc-600">No card required</p>
+
+                {/* Floating Notification Pill 3: Bottom Right */}
+                <div className="absolute -bottom-6 right-4 sm:right-8 z-30 animate-float-reverse hidden sm:flex items-center gap-2.5 rounded-2xl bg-white p-3 shadow-xl border border-slate-100">
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-black text-xs">
+                    🌍
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900">$850 USD Wire</p>
+                    <p className="text-[10px] font-bold text-blue-600">LUT Export · 0% GST</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-lg font-black text-white">Global & GST</p>
-                  <p className="text-xs font-semibold text-zinc-600">Invoices & tax ready</p>
-                </div>
-                <div>
-                  <p className="text-lg font-black text-white">Cards & UPI</p>
-                  <p className="text-xs font-semibold text-zinc-600">USD · EUR · INR</p>
+
+                {/* Interactive Card Container with 3D Tilt */}
+                <div
+                  style={{
+                    transform: `perspective(1000px) rotateY(${mouseTilt.x}deg) rotateX(${mouseTilt.y}deg)`,
+                    transition: 'transform 0.15s ease-out'
+                  }}
+                  className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-2xl shadow-indigo-600/10 relative overflow-hidden"
+                >
+                  {/* Top Bar with Live Currency Toggle */}
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Interactive Live Preview</span>
+                      <p className="text-sm font-black text-slate-900">Smart Invoice Portal</p>
+                    </div>
+
+                    {/* Interactive Currency Switcher */}
+                    <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 border border-slate-200">
+                      <button
+                        type="button"
+                        onClick={() => setActiveCurrency('INR')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-black transition ${
+                          activeCurrency === 'INR'
+                            ? 'bg-white text-indigo-700 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-900'
+                        }`}
+                      >
+                        🇮🇳 INR (UPI)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveCurrency('USD')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-black transition ${
+                          activeCurrency === 'USD'
+                            ? 'bg-white text-indigo-700 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-900'
+                        }`}
+                      >
+                        🇺🇸 USD (Wise)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Invoice Header */}
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <p className="text-base font-black text-slate-900">YOUR STUDIO</p>
+                      <p className="text-[11px] font-medium text-slate-400">
+                        {activeCurrency === 'INR' ? 'GSTIN: 33ABCDE1234F1Z5' : 'Export of Service under LUT'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span className="px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase tracking-wider">
+                        Pending Settlement
+                      </span>
+                      <p className="text-xs font-bold text-slate-400 mt-1">INV-2026-042</p>
+                    </div>
+                  </div>
+
+                  {/* Bill To & Due Date */}
+                  <div className="grid grid-cols-2 gap-4 text-xs bg-slate-50/70 p-3.5 rounded-xl border border-slate-100 mb-6">
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Client</span>
+                      <p className="font-bold text-slate-800">Acme Global Media</p>
+                      <p className="text-slate-400 text-[11px]">billing@acme.com</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Due Date</span>
+                      <p className="font-bold text-slate-800">Within 7 Days</p>
+                      <p className="text-indigo-600 text-[11px] font-bold">Auto-reminder armed</p>
+                    </div>
+                  </div>
+
+                  {/* Line Items */}
+                  <div className="space-y-3 mb-6">
+                    <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-100">
+                      <div>
+                        <p className="font-bold text-slate-800">UI/UX Design & Brand Sprint</p>
+                        <p className="text-[10px] text-slate-400">Phase 1 deliverable</p>
+                      </div>
+                      <span className="font-black text-slate-900">
+                        {activeCurrency === 'INR' ? '₹25,000' : '$850.00'}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-xs text-slate-500">
+                      <span>Subtotal</span>
+                      <span className="font-bold text-slate-800">
+                        {activeCurrency === 'INR' ? '₹25,000' : '$850.00'}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-xs text-slate-500">
+                      <span>{activeCurrency === 'INR' ? 'GST (18%)' : 'Export LUT (0% Tax)'}</span>
+                      <span className="font-bold text-slate-800">
+                        {activeCurrency === 'INR' ? '+₹4,500' : '$0.00'}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+                      <span className="text-xs font-black uppercase text-slate-400">Total Receivable</span>
+                      <span className="text-2xl font-black text-slate-900">
+                        {activeCurrency === 'INR' ? '₹29,500' : '$850.00'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Live Payment Box */}
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    {activeCurrency === 'INR' ? (
+                      <div className="flex items-center gap-4">
+                        <div className="h-16 w-16 bg-white p-1 rounded-xl border border-slate-200 flex items-center justify-center shrink-0 shadow-sm">
+                          {/* Stylized QR representation */}
+                          <div className="grid grid-cols-4 gap-1 w-full h-full p-1 bg-slate-900 rounded">
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-slate-900" />
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-white rounded-sm" />
+                            <div className="bg-slate-900" />
+                          </div>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-black text-slate-900">Scan with any UPI app</p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">Instant settlement to your bank account via GPay, PhonePe, Paytm</p>
+                          <span className="mt-2 inline-flex items-center text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            ✓ Direct to your UPI ID
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-slate-900">International Wire & Card</span>
+                          <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
+                            US/UK Ready
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 bg-white p-2.5 rounded-lg border border-slate-200">
+                          <div>
+                            <span className="text-[9px] font-bold text-slate-400 block uppercase">SWIFT Code</span>
+                            <span className="font-mono font-bold text-slate-900">HDFCINBBXXX</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-bold text-slate-400 block uppercase">Wise / PayPal</span>
+                            <span className="font-bold text-indigo-600">1-Click Pay Link</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ═══════ WHY CLIENTFLOW ═══════ */}
-        <RevealSection className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
-          <div className="container-custom">
-            <div className="max-w-3xl sr">
-              <span className="violet-pill">Why use ClientFlow AI?</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Everything a freelancer needs to turn work into income.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Most tools solve only one small part of freelancing. ClientFlow AI connects the client journey from the first message to payment.</p>
-            </div>
-            <div className="mt-10 grid gap-5 md:grid-cols-3">
-              {whyClientFlow.map(([title, text], index) => (
-                <article key={title} className={`glow-card p-7 sr sr-delay-${index + 1} tilt-card`}>
-                  <p className="font-mono text-sm font-black text-violet-400">0{index + 1}</p>
-                  <h3 className="mt-4 text-xl font-black text-white">{title}</h3>
-                  <p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{text}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </RevealSection>
-        <div className="aurora-divider" />
-
-        {/* ═══════ FEEDBACK BAR ═══════ */}
-        <RevealSection className="border-b border-violet-500/12 bg-violet-500/[0.04] py-10">
-          <div className="container-custom flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="sr">
-              <span className="violet-pill mb-3 inline-flex">Built with freelancers</span>
-              <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">Have an idea, a problem, or feedback? Message us directly.</h2>
-              <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-zinc-300">Your feedback goes straight to the ClientFlow AI team on WhatsApp — no support ticket required.</p>
-            </div>
-            <a href={feedbackWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="sr shrink-0 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-3 text-center text-sm font-black uppercase text-white shadow-md shadow-violet-500/20 transition hover:opacity-90">
-              Send feedback on WhatsApp
-            </a>
-          </div>
-        </RevealSection>
-
-        {/* ═══════ WHAT'S FREE ═══════ */}
-        <RevealSection id="whats-free" className="border-b border-white/[0.07] bg-[#09090b] py-16 sm:py-20">
-          <div className="container-custom">
-            <div className="max-w-3xl sr">
-              <span className="violet-pill">Everything free for 30 days</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">All features. Zero payment. 30 full days.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">When you sign up, every single feature is unlocked for 30 days — no credit card, no setup fee, no hidden charges. Not just basic invoicing. Everything.</p>
-            </div>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {freeIncludes.map((item, i) => (
-                <div key={item.title} className={`glow-card p-5 flex gap-4 sr sr-delay-${Math.min(i + 1, 6)} tilt-card`}>
-                  <span className="mt-0.5 shrink-0 text-2xl">{item.icon}</span>
-                  <div>
-                    <h3 className="text-sm font-black text-white">{item.title}</h3>
-                    <p className="mt-1.5 text-xs font-medium leading-5 text-zinc-400">{item.text}</p>
-                  </div>
+        {/* ═════════════════════════════════════════════
+            INFINITE MARQUEE BRAND TRUST STRIP
+        ═════════════════════════════════════════════ */}
+        <section className="border-y border-slate-200 bg-white py-6">
+          <div className="marquee-container">
+            <div className="marquee-content">
+              {marqueeItems.concat(marqueeItems).map((item, idx) => (
+                <div key={idx} className="flex items-center gap-3 shrink-0">
+                  <span className="text-sm font-black uppercase tracking-wider text-slate-700">
+                    {item}
+                  </span>
+                  <span className="text-slate-300">✦</span>
                 </div>
               ))}
             </div>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sr">
-              <Link
-                to="/signup"
-                className="rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-8 py-4 text-center text-sm font-black uppercase text-white shadow-lg shadow-violet-500/20 transition hover:opacity-90 hover:shadow-violet-500/35"
-              >
-                Start Free — All Features Unlocked →
-              </Link>
-              <Link to="/payments" className="rounded-xl border border-white/10 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.08] hover:border-violet-500/20">
-                See paid plans after trial
-              </Link>
-            </div>
-            <p className="mt-4 text-xs font-semibold text-zinc-700">No credit card required. After 30 days, pay ₹499/month to continue — or export your data and leave. Your choice.</p>
           </div>
-        </RevealSection>
-        <div className="aurora-divider" />
+        </section>
 
-        {/* ═══════ CLEAR PRICING ═══════ */}
-        <RevealSection id="pricing" className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
-          <div className="container-custom">
-            <div className="max-w-3xl sr">
-              <span className="violet-pill">Simple pricing after the free trial</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Try everything free. Pay only when it works for you.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">No commission on your client payments. No card required for the 30-day free trial. Every feature — Agency Setup, Automation, AI tools, and Team features — is included free.</p>
-            </div>
-            <div className="mt-10 grid gap-6 md:grid-cols-2">
-              {/* Free tier */}
-              <div className="relative flex flex-col justify-between rounded-2xl border-2 border-violet-500/35 p-7 sr sr-delay-1" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10), rgba(9,9,11,0.95) 60%, rgba(232,121,249,0.05))' }}>
-                <span className="absolute -top-3.5 left-5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-1 text-[10px] font-black uppercase text-white shadow-lg shadow-violet-500/30">Start Here</span>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-violet-300">30-Day Free Trial</p>
-                  <h3 className="mt-3 text-5xl font-black text-white">₹0</h3>
-                  <p className="mt-1 text-sm font-semibold text-violet-300/80">No credit card. No setup fee.</p>
-                  <ul className="mt-6 space-y-2.5">
-                    {['GST invoicing & Razorpay payment links', 'Lead pipeline & proposal templates', 'Automation & payment reminders', 'Team workrooms & agency features', 'AI Proposal Generator & Client Coach', 'TDS calculation & CA-ready Excel export'].map(f => (
-                      <li key={f} className="flex items-center gap-2.5 text-xs font-semibold text-zinc-200">
-                        <svg className="h-4 w-4 shrink-0 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="mt-7">
-                  <Link to="/signup" className="block w-full rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-5 py-4 text-center text-sm font-black uppercase text-white shadow-lg shadow-violet-500/25 transition hover:opacity-90">
-                    Start Free Access for 30 Days →
-                  </Link>
-                  <p className="mt-3 text-xs font-semibold leading-5 text-violet-300/60">
-                    If you like the product, continue with paid Pro to grow your freelance career.
-                  </p>
-                </div>
-              </div>
-              {/* Pro tier */}
-              <div className="flex flex-col justify-between rounded-2xl border border-amber-400/22 p-7 sr sr-delay-2" style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.07), rgba(9,9,11,0.95) 60%, rgba(168,85,247,0.05))' }}>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-amber-300">Pro — After Free Trial</p>
-                  <h3 className="mt-3 text-5xl font-black text-white">₹499<span className="text-xl font-bold text-zinc-600">/month</span></h3>
-                  <p className="mt-1 text-sm font-semibold text-amber-300/80">Everything in Free Trial, forever.</p>
-                  <ul className="mt-6 space-y-2.5">
-                    {['All free trial features, continued', 'Unlimited invoices & clients', 'Priority support', 'Annual plan at ₹4,999/yr (2 months free)', 'Founder 90-day pass at ₹899 (save 40%)'].map(f => (
-                      <li key={f} className="flex items-center gap-2.5 text-xs font-semibold text-zinc-200">
-                        <svg className="h-4 w-4 shrink-0 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="mt-7">
-                  <Link to="/payments" className="block w-full rounded-xl bg-gradient-to-r from-amber-400 to-yellow-300 px-5 py-4 text-center text-sm font-black uppercase text-zinc-950 shadow-lg shadow-amber-400/20 transition hover:opacity-90">See all paid plans</Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </RevealSection>
-
-        {/* ═══════ WHY NOT JUST FREE ZOHO? ═══════ */}
-        <RevealSection className="border-b border-white/[0.07] bg-[#0b0914] py-16 sm:py-20">
+        {/* ═════════════════════════════════════════════
+            WHY CLIENTFLOW OVER BASIC FREE APPS (COMPARISON)
+        ═════════════════════════════════════════════ */}
+        <section className="py-20 sm:py-28 bg-[#f8fafc]">
           <div className="container-custom">
             <div className="max-w-3xl">
-              <span className="violet-pill">The Real Cost of "Free" Invoicing</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">
-                Why pay for ClientFlow when basic invoice tools are free?
+              <span className="premium-eyebrow mb-3">The Truth About "Free" Invoicing</span>
+              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                Why serious freelancers choose ClientFlow over free Zoho.
               </h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
-                Zoho Invoice creates a pretty PDF for free. But when clients ignore email invoices, delay payment by 45 days, or pay via PayPal with a 7% currency loss — you lose thousands. Here is why serious freelancers switch to ClientFlow AI.
+              <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+                Free tools generate static PDFs. But when clients ignore emails, delay payment by 45 days, or pay via PayPal with a 7% currency loss, you lose thousands. Here is what makes ClientFlow different:
               </p>
             </div>
 
-            <div className="mt-10 overflow-x-auto rounded-2xl border border-white/10 bg-black/40">
+            <div className="mt-10 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-zinc-400 sm:text-xs">
+                  <tr className="border-b border-slate-200 bg-slate-50 text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-500">
                     <th className="p-4 sm:p-5">The Real Problem</th>
-                    <th className="p-4 sm:p-5 text-zinc-400">Free Tools (Zoho / Refrens)</th>
-                    <th className="p-4 sm:p-5 text-amber-300 bg-amber-400/[0.06]">ClientFlow AI (Built for Indian Freelancers)</th>
+                    <th className="p-4 sm:p-5 text-slate-400">Free Tools (Zoho / Static PDFs)</th>
+                    <th className="p-4 sm:p-5 text-indigo-700 bg-indigo-50/70">ClientFlow AI (Built for Freelancers)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
-                  {[
-                    {
-                      problem: 'How Clients Pay in India',
-                      free: 'Bank account number typed on a PDF (clients forget & delay for weeks)',
-                      cf: 'Instant Dynamic UPI QR Code right on the invoice — client scans & pays in 10s via GPay, PhonePe, or Paytm'
-                    },
-                    {
-                      problem: 'Overdue & Late Payments',
-                      free: 'Sends an email into spam or ignored inboxes',
-                      cf: 'Automated WhatsApp payment chasers that clients actually see and pay immediately'
-                    },
-                    {
-                      problem: 'International Clients (USD/EUR)',
-                      free: 'Hands off to PayPal or Stripe where you lose 5–8% on hidden FX markup',
-                      cf: 'Direct transparent multi-currency invoicing with zero marketplace commission'
-                    },
-                    {
-                      problem: 'Export Tax & GST Compliance',
-                      free: 'Manual, confusing, requires expensive CA consultation',
-                      cf: '1-Click GST & Export LUT ready — auto-calculates reverse charges and zero-rated exports'
-                    },
-                    {
-                      problem: 'Direct Money Payout',
-                      free: 'Requires separate platform signups and complex portal setups',
-                      cf: '100% Direct: Money routes directly into your bank / UPI ID without middleman hold'
-                    }
-                  ].map((row, i) => (
-                    <tr key={i} className="transition hover:bg-white/[0.02]">
-                      <td className="p-4 sm:p-5 font-bold text-white">{row.problem}</td>
-                      <td className="p-4 sm:p-5 text-zinc-400">{row.free}</td>
-                      <td className="p-4 sm:p-5 font-semibold text-emerald-300 bg-amber-400/[0.03]">✓ {row.cf}</td>
+                <tbody className="divide-y divide-slate-100">
+                  {comparisonRows.map((row, i) => (
+                    <tr key={i} className="hover:bg-slate-50/50 transition">
+                      <td className="p-4 sm:p-5 font-bold text-slate-900">{row.problem}</td>
+                      <td className="p-4 sm:p-5 text-slate-500">{row.free}</td>
+                      <td className="p-4 sm:p-5 font-bold text-emerald-800 bg-indigo-50/30">
+                        ✓ {row.cf}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {/* Money Safety & Founder Guarantee Box */}
+            {/* Money Safety Guarantee Cards */}
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-6">
-                <div className="flex items-center gap-2 text-emerald-400">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-sm">
+                <div className="flex items-center gap-2.5 text-emerald-700">
                   <span className="text-xl">🛡️</span>
-                  <h4 className="text-base font-black text-white">100% Direct Payouts Guarantee</h4>
+                  <h4 className="text-base font-black text-slate-900">100% Direct Payouts Guarantee</h4>
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-zinc-300">
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">
                   ClientFlow AI never holds, escrows, or delays your client money. When your client scans the UPI QR or pays via Razorpay, funds deposit directly into your personal or business bank account.
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-violet-500/30 bg-violet-950/20 p-6">
-                <div className="flex items-center gap-2 text-violet-300">
+              <div className="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-6 shadow-sm">
+                <div className="flex items-center gap-2.5 text-indigo-700">
                   <span className="text-xl">🇮🇳</span>
-                  <h4 className="text-base font-black text-white">Built in India by a Freelancer</h4>
+                  <h4 className="text-base font-black text-slate-900">Built in India by a Freelancer</h4>
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-zinc-300">
-                  Built by Ashieq for Indian freelancers who are exhausted by late client payments, currency exchange loss, and messy spreadsheets. Direct 24/7 founder support via <a href="https://wa.me/919080963704" target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-bold underline hover:text-emerald-300">WhatsApp (+91 90809 63704)</a>.
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                  Built by Ashieq for Indian freelancers who are exhausted by late client payments, currency exchange loss, and messy spreadsheets. Direct 24/7 founder support via{' '}
+                  <a
+                    href="https://wa.me/919080963704"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-700 font-bold underline hover:text-indigo-900"
+                  >
+                    WhatsApp (+91 90809 63704)
+                  </a>.
                 </p>
               </div>
             </div>
           </div>
-        </RevealSection>
+        </section>
 
-        {/* ═══════ TRUST BADGES ═══════ */}
-        <RevealSection className="border-b border-white/[0.07] bg-[#09090b]">
-          <div className="container-custom py-7">
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-              {trustBadges.map((badge, i) => (
-                <div key={badge.label} className={`flex flex-col items-center gap-1.5 text-center sr sr-delay-${i + 1}`}>
-                  <p className="text-sm font-black text-white">{badge.label}</p>
-                  <p className="text-xs font-medium text-zinc-600">{badge.detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </RevealSection>
-        <div className="aurora-divider" />
-
-        {/* ═══════ INVOICE PREVIEW ═══════ */}
-        <RevealSection className="border-b border-white/[0.07] py-16 sm:py-20">
-          <div className="container-custom grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-            <div className="sr sr-left">
-              <span className="violet-pill">See the output first</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">A clean invoice your client can trust.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Preview the PDF-style layout before you sign up: your business details, GST fields, line items, totals, and payment details stay easy to read.</p>
-              <Link to="/gst-compliance" className="mt-6 inline-flex rounded-xl border border-violet-500/20 bg-violet-500/[0.06] px-5 py-3 text-sm font-black uppercase text-violet-200 transition hover:bg-violet-500/[0.12]">Read GST details</Link>
-            </div>
-            <div className="sr sr-right rounded-2xl bg-zinc-100 p-4 shadow-2xl shadow-violet-500/10 sm:p-7">
-              <div className="min-h-[430px] rounded-xl bg-white p-6 text-slate-800 shadow-xl sm:p-9">
-                <div className="flex items-start justify-between border-b border-slate-100 pb-6">
-                  <div><p className="text-xl font-black text-slate-900">YOUR STUDIO</p><p className="mt-1 text-xs text-slate-400">GSTIN: 33ABCDE1234F1Z5</p></div>
-                  <div className="text-right"><p className="text-2xl font-black text-slate-900">INVOICE</p><p className="mt-1 text-xs text-slate-400">INV-2026-014</p></div>
-                </div>
-                <div className="mt-7 grid grid-cols-2 gap-6 text-xs">
-                  <div><p className="font-bold text-slate-400">BILL TO</p><p className="mt-2 font-black text-slate-900">Acme Creative Pvt. Ltd.</p><p className="mt-1 text-slate-400">Chennai, Tamil Nadu</p></div>
-                  <div className="text-right"><p className="font-bold text-slate-400">DUE DATE</p><p className="mt-2 font-black text-slate-900">30 Aug 2026</p><p className="mt-1 text-slate-400">Via UPI / Razorpay</p></div>
-                </div>
-                <div className="mt-8 border-y border-slate-100 py-3 text-xs font-bold text-slate-400"><div className="grid grid-cols-[1fr_auto] gap-4"><span>Service</span><span>Amount</span></div></div>
-                <div className="py-4 text-sm"><div className="grid grid-cols-[1fr_auto] gap-4"><div><p className="font-black text-slate-900">Website design — milestone 1</p><p className="mt-1 text-xs text-slate-400">HSN/SAC: 998313</p></div><span className="font-black text-slate-900">₹25,000</span></div></div>
-                <div className="ml-auto mt-3 max-w-[15rem] border-t border-slate-100 pt-3 text-sm">
-                  <div className="flex justify-between text-slate-400"><span>GST 18%</span><span>₹4,500</span></div>
-                  <div className="mt-3 flex justify-between text-lg font-black text-slate-900"><span>Total due</span><span>₹29,500</span></div>
-                </div>
-                <p className="mt-9 border-t border-slate-100 pt-4 text-xs text-slate-400">Thank you for your business. This is a visual preview of the invoice layout.</p>
-              </div>
-            </div>
-          </div>
-        </RevealSection>
-
-        {/* ═══════ INDIA VALUE PROPS ═══════ */}
-        <RevealSection className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
+        {/* ═════════════════════════════════════════════
+            FEATURE GRID: 6 HIGH-IMPACT CAPABILITIES
+        ═════════════════════════════════════════════ */}
+        <section className="py-20 sm:py-28 bg-white border-y border-slate-200">
           <div className="container-custom">
-            <div className="max-w-3xl sr">
-              <span className="violet-pill">Built for every freelancer</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Built for how freelancers work worldwide.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Whether you bill local clients with UPI & GST, or international clients across the US, Europe, and Asia in USD, EUR, and GBP — ClientFlow AI gives you one unified system.</p>
+            <div className="max-w-3xl">
+              <span className="premium-eyebrow mb-3">All Features Unlocked</span>
+              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                Everything you need to turn work into cash.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+                Every feature is unlocked free for 30 full days. No credit card required.
+              </p>
             </div>
-            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {freelancerValueProps.map((prop, i) => (
-                <div key={prop.title} className={`glow-card p-6 sr sr-delay-${i + 1}`}>
-                  <span className="text-3xl" role="img" aria-label={prop.title}>{prop.icon}</span>
-                  <h3 className="mt-4 text-lg font-black leading-snug text-white">{prop.title}</h3>
-                  <p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{prop.text}</p>
+
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {freeIncludes.map((item, i) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-slate-200/90 bg-[#fafafa] p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 transition-all duration-300"
+                >
+                  <span className="text-3xl block mb-4">{item.icon}</span>
+                  <h3 className="text-base font-black text-slate-900">{item.title}</h3>
+                  <p className="mt-2 text-xs font-medium leading-relaxed text-slate-600">{item.text}</p>
                 </div>
               ))}
             </div>
-          </div>
-        </RevealSection>
 
-        {/* Data safety bar */}
-        <RevealSection className="border-b border-violet-500/10 bg-violet-500/[0.03] py-12">
-          <div className="container-custom flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="sr">
-              <span className="violet-pill mb-3 inline-flex">Your data stays yours</span>
-              <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-zinc-300">Export your invoices and client records anytime. No lock-in: your business history should remain portable even if you stop using ClientFlow AI.</p>
-            </div>
-            <Link to="/security" className="sr shrink-0 text-sm font-black uppercase text-violet-300 transition-colors hover:text-white">Our data promise →</Link>
-          </div>
-        </RevealSection>
-
-        {/* ═══════ HOW IT WORKS ═══════ */}
-        <RevealSection id="how-it-works" className="border-b border-white/[0.07] py-16 sm:py-20">
-          <div className="container-custom">
-            <div className="max-w-3xl sr">
-              <span className="violet-pill">How it works</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">One workflow from lead to payment.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Start with the step you need today. The product keeps the rest of the client journey connected.</p>
-            </div>
-            <div className="mt-10 grid gap-x-7 gap-y-8 md:grid-cols-2 xl:grid-cols-5">
-              {workflowSteps.map(([step, title, text], i) => (
-                <div key={step} className={`relative border-t-2 border-violet-500/25 pt-5 sr sr-delay-${Math.min(i + 1, 5)}`}>
-                  <div className="absolute -top-px left-0 h-0.5 w-14 bg-gradient-to-r from-violet-500 to-fuchsia-500" />
-                  <p className="font-mono text-sm font-black text-violet-400">{step}</p>
-                  <h3 className="mt-3 text-lg font-black leading-snug text-white">{title}</h3>
-                  <p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{text}</p>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => startWorkspace('workflow_start')}
-              className="mt-10 sr rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-7 py-4 text-sm font-black uppercase text-white shadow-lg shadow-violet-500/20 transition hover:opacity-90"
-            >
-              {loggedIn ? 'Continue your workflow' : 'Create your workspace →'}
-            </button>
-          </div>
-        </RevealSection>
-        <div className="aurora-divider" />
-
-        {/* ═══════ MID-PAGE TRIAL PROMPT ═══════ */}
-        {!loggedIn && (
-          <RevealSection className="relative overflow-hidden border-b border-violet-500/18 py-14 sm:py-16">
-            <div className="aurora-bar" aria-hidden="true" />
-            <div className="container-custom relative flex flex-col items-center gap-6 text-center lg:flex-row lg:justify-between lg:text-left">
-              <div className="max-w-2xl sr">
-                <h2 className="text-2xl font-black text-white sm:text-3xl">You've read enough. Try it with one real client.</h2>
-                <p className="mt-3 text-base font-medium text-zinc-400">Your first invoice, proposal, or lead entry is free. No card required. No commitment. Just add one real piece of work and see if the workflow fits.</p>
-              </div>
+            <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
               <button
                 type="button"
-                onClick={() => startWorkspace('midpage_trial')}
-                className="sr shrink-0 rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-9 py-5 text-sm font-black uppercase text-white shadow-lg shadow-violet-500/25 transition hover:opacity-90"
+                onClick={() => startWorkspace('feature_grid_bright')}
+                className="btn btn-primary py-4 px-8 rounded-xl text-sm font-black uppercase tracking-wider"
               >
-                Start 30 Days Free →
+                Start Free 30-Day Trial →
               </button>
-            </div>
-          </RevealSection>
-        )}
-
-        {/* ═══════ FEATURE COMPARISON ═══════ */}
-        <RevealSection id="comparison" className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
-          <div className="container-custom">
-            <div className="max-w-3xl sr">
-              <span className="violet-pill">Why these features belong together</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">More than invoicing. A complete client-to-cash system.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Most products solve one task at a time. We include these features so you can manage a direct client from the first follow-up to the final payment without losing context or paying marketplace commission.</p>
-            </div>
-            <div className="mt-10 overflow-x-auto rounded-2xl border border-violet-500/15 sr">
-              <table className="w-full min-w-[820px] border-collapse text-sm">
-                <thead>
-                  <tr className="border-b-2 border-violet-500/18" style={{ background: 'rgba(139,92,246,0.05)' }}>
-                    <th className="py-4 pl-5 pr-6 text-left font-black uppercase text-zinc-500">Feature</th>
-                    <th className="py-4 pr-6 text-left font-black uppercase text-zinc-500">Basic invoice tools</th>
-                    <th className="py-4 pr-6 text-left font-black uppercase text-zinc-500">Marketplaces</th>
-                    <th className="py-4 pr-5 text-left font-black uppercase text-violet-300">ClientFlow AI</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comparisonRows.map((row) => (
-                    <tr key={row.feature} className="border-b border-violet-500/8 transition-colors hover:bg-violet-500/[0.04]">
-                      <td className="py-4 pl-5 pr-6 font-bold text-white">{row.feature}</td>
-                      <td className="py-4 pr-6 font-medium text-zinc-500">{row.basic}</td>
-                      <td className="py-4 pr-6 font-medium text-zinc-500">{row.marketplace}</td>
-                      <td className="py-4 pr-5 font-bold text-violet-200">{row.clientflow}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <Link to="/payments" className="btn btn-secondary py-4 px-6 rounded-xl text-sm font-bold">
+                See Paid Plans After Trial
+              </Link>
             </div>
           </div>
-        </RevealSection>
+        </section>
 
-        {/* ═══════ FIRST TEN MINUTES ═══════ */}
-        <RevealSection className="border-b border-white/[0.07] py-16 sm:py-20">
-          <div className="container-custom grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-            <div className="sr sr-left">
-              <span className="violet-pill">Your first ten minutes</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">Do one real task first.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">You do not need to configure every feature. A useful account begins with one real lead, proposal, project, or invoice.</p>
-            </div>
-            <ol className="sr sr-right grid gap-5">
-              {[
-                ['Create your free account', 'Your client work and 30-day free access are attached to one secure workspace.'],
-                ['Open Client Flow', 'Choose the stage that matches your real work today — a lead to follow up, a proposal to send, or an invoice to create.'],
-                ['Complete one next action', 'Add the lead, send the proposal, organize delivery, or create the invoice. The system shows what to do next.']
-              ].map(([title, text], index) => (
-                <li key={title} className="grid grid-cols-[3rem_1fr] gap-5 border-b border-violet-500/12 pb-5 last:border-0">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-sm font-black text-white shadow-lg shadow-violet-500/20">{index + 1}</span>
-                  <div>
-                    <h3 className="text-lg font-black text-white">{title}</h3>
-                    <p className="mt-1.5 text-sm font-medium leading-6 text-zinc-400">{text}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </RevealSection>
-
-        {/* ═══════ FREELANCER PROTECTION ═══════ */}
-        <RevealSection id="freelancer-protection" className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
+        {/* ═════════════════════════════════════════════
+            5-STEP WORKFLOW TIMELINE
+        ═════════════════════════════════════════════ */}
+        <section id="how-it-works" className="py-20 sm:py-28 bg-[#f8fafc]">
           <div className="container-custom">
-            <div className="max-w-3xl sr">
-              <span className="violet-pill" style={{ borderColor: 'rgba(248,113,113,0.3)', background: 'rgba(239,68,68,0.07)', color: '#fca5a5' }}>Freelancer protection</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Protect scope, proof, and payment.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">The workflow is useful before a problem becomes a dispute, not only after an invoice is overdue.</p>
+            <div className="max-w-3xl">
+              <span className="premium-eyebrow mb-3">How It Works</span>
+              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                One connected path from lead to payout.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+                No more jumping between WhatsApp, Word, Excel, and PayPal. Manage the entire client lifecycle in one workspace.
+              </p>
             </div>
-            <div className="mt-10 grid gap-5 md:grid-cols-3">
-              {protectionItems.map((item, i) => (
-                <div key={item.title} className={`glow-card p-7 sr sr-delay-${i + 1}`}>
-                  <h3 className="text-xl font-black leading-snug text-white">{item.title}</h3>
-                  <p className="mt-3 text-sm font-medium leading-6 text-zinc-400">{item.text}</p>
+
+            <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-5">
+              {workflowSteps.map(([step, title, text]) => (
+                <div
+                  key={step}
+                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition relative"
+                >
+                  <span className="text-xs font-mono font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200">
+                    Step {step}
+                  </span>
+                  <h3 className="mt-4 text-base font-black text-slate-900">{title}</h3>
+                  <p className="mt-2 text-xs font-medium leading-relaxed text-slate-500">{text}</p>
                 </div>
               ))}
             </div>
           </div>
-        </RevealSection>
+        </section>
 
-        {/* ═══════ SERVICES ═══════ */}
-        <RevealSection id="services" className="border-b border-white/[0.07] py-16 sm:py-20">
+        {/* ═════════════════════════════════════════════
+            TRANSPARENT PRICING & DIWALI 50% DISCOUNT
+        ═════════════════════════════════════════════ */}
+        <section id="pricing" className="py-20 sm:py-28 bg-white border-t border-slate-200">
           <div className="container-custom">
-            <div className="max-w-3xl sr">
-              <span className="violet-pill" style={{ borderColor: 'rgba(161,161,170,0.2)', background: 'rgba(161,161,170,0.04)', color: '#a1a1aa' }}>Optional paid help</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">Use the software yourself, or ask us to set up a specific part.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">Start with the free software first. The Payment Center keeps software plans and setup services in one place so users do not hunt through separate payment pages.</p>
+            <div className="max-w-3xl">
+              <span className="premium-eyebrow mb-3">Simple, Fair Pricing</span>
+              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                Try everything free. Pay only when it makes you money.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+                Zero commission on your client invoices. No card required for the 30-day free trial.
+              </p>
             </div>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 max-w-4xl">
-              {servicePaths.map((service, i) => {
-                const tone = serviceTone[service.tone];
-                return (
-                  <article key={service.title} className={`flex min-h-[390px] flex-col rounded-2xl border p-7 sr sr-delay-${i + 1} ${tone.border}`} style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.05), rgba(9,9,11,0.92))' }}>
-                    <p className={`text-xs font-black uppercase ${tone.label}`}>{service.label}</p>
-                    <h3 className="mt-4 text-2xl font-black text-white">{service.title}</h3>
-                    <p className="mt-4 text-sm font-medium leading-6 text-zinc-400">{service.text}</p>
-                    <p className="mt-5 border-l-2 border-violet-500/22 pl-4 text-sm font-bold leading-6 text-zinc-300">{service.fit}</p>
-                    <Link to={service.path} className={`mt-auto rounded-xl px-5 py-3 text-center text-sm font-black uppercase transition ${tone.button}`}>
-                      {service.cta}
-                    </Link>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </RevealSection>
 
-        {/* ═══════ WHO IT'S FOR ═══════ */}
-        <RevealSection id="who-for" className="border-b border-white/[0.07] bg-[#0d0b18] py-16 sm:py-20">
-          <div className="container-custom grid gap-12 lg:grid-cols-2">
-            <div className="sr sr-left">
-              <span className="violet-pill" style={{ borderColor: 'rgba(110,231,183,0.28)', background: 'rgba(52,211,153,0.07)', color: '#6ee7b7' }}>Who it is for</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">Anyone selling a freelance service directly to clients worldwide.</h2>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2">
-                {audienceGroups.map(([title, text], i) => (
-                  <div key={title} className={`border-t border-violet-500/18 pt-4 sr sr-delay-${i + 1}`}>
-                    <h3 className="text-base font-black text-white">{title}</h3>
-                    <p className="mt-2 text-sm font-medium leading-6 text-zinc-400">{text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-2xl border border-amber-400/18 p-7 sm:p-9 sr sr-right" style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.055), rgba(9,9,11,0.92))' }}>
-              <p className="text-xs font-black uppercase text-amber-300">What it is not</p>
-              <ul className="mt-6 grid gap-5 text-sm font-medium leading-6 text-zinc-300">
-                <li><strong className="text-white">Not a job marketplace.</strong> It does not provide guaranteed gigs or client leads.</li>
-                <li><strong className="text-white">Not only an invoice maker.</strong> Billing is one step in the complete client workflow.</li>
-                <li><strong className="text-white">Not automatic income.</strong> It helps you execute and follow up; it cannot guarantee business results.</li>
-                <li><strong className="text-white">Not fake enterprise software.</strong> Security and compliance claims are stated honestly.</li>
-              </ul>
-            </div>
-          </div>
-        </RevealSection>
+            <div className="mt-12 grid gap-8 md:grid-cols-2 max-w-4xl">
+              {/* Free Trial Card */}
+              <div className="rounded-3xl border border-slate-200 bg-[#fbfbfe] p-8 shadow-sm flex flex-col justify-between">
+                <div>
+                  <span className="px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-[10px] font-black uppercase tracking-wider">
+                    Free Trial
+                  </span>
+                  <h3 className="mt-4 text-4xl font-black text-slate-900">₹0</h3>
+                  <p className="text-xs font-bold text-slate-400 mt-1">Full 30-Day Unlocked Access · No Card Needed</p>
 
-        {/* ═══════ VERIFIED TRUST & REVIEWS ═══════ */}
-        <RevealSection id="reviews" className="border-b border-white/[0.07] py-16 sm:py-20">
-          <div className="container-custom">
-            <div className="rounded-3xl border border-white/[0.08] bg-gradient-to-b from-[#110d24] to-[#0a0716] p-8 sm:p-12">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-                <div className="max-w-2xl">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#00b67a]/30 bg-[#00b67a]/10 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-[#00b67a]">
-                    <span>★</span> Verified on Trustpilot
-                  </div>
-                  <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
-                    Real, transparent feedback from real freelancers.
-                  </h2>
-                  <p className="mt-3 text-base font-medium leading-relaxed text-zinc-400">
-                    We never publish fake testimonials or mock reviews. Every review on ClientFlow AI is written directly by real freelancers on independent, third-party verified platforms.
-                  </p>
-                  <div className="mt-6 flex flex-wrap items-center gap-4 text-sm font-semibold text-zinc-300">
-                    <div className="flex items-center gap-2">
-                      <span className="text-emerald-400">✓</span> Verified Business Domain
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-emerald-400">✓</span> Udyam Registered: <span className="font-mono text-white">{UDYAM_REGISTRATION_NUMBER}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-emerald-400">✓</span> Direct Builder Access
-                    </div>
-                  </div>
+                  <ul className="mt-6 space-y-3 text-xs font-bold text-slate-700">
+                    <li className="flex items-center gap-2">✓ Dynamic UPI QR code invoices</li>
+                    <li className="flex items-center gap-2">✓ International Wise / SWIFT wire rails</li>
+                    <li className="flex items-center gap-2">✓ Automatic WhatsApp & Email reminders</li>
+                    <li className="flex items-center gap-2">✓ 60-Second AI Proposal Writer</li>
+                    <li className="flex items-center gap-2">✓ 1-Click Excel / CA tax report export</li>
+                  </ul>
                 </div>
 
-                <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[240px]">
-                  <a
-                    href={TRUSTPILOT_REVIEW_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2.5 rounded-2xl bg-[#00b67a] hover:bg-[#00a36d] px-6 py-4 text-xs font-black uppercase tracking-wider text-white transition shadow-lg shadow-[#00b67a]/20 text-center"
-                  >
-                    <span>⭐</span> Read or Review on Trustpilot →
-                  </a>
-                  <a
-                    href={GOOGLE_REVIEW_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] hover:bg-white/10 px-6 py-3.5 text-xs font-black uppercase tracking-wider text-white transition text-center"
-                  >
-                    Review on Google
-                  </a>
+                <div className="mt-8">
                   <button
                     type="button"
-                    onClick={() => window.dispatchEvent(new CustomEvent('open-review-modal'))}
-                    className="text-center text-xs font-bold text-zinc-400 hover:text-white transition py-1"
+                    onClick={() => startWorkspace('pricing_free_trial')}
+                    className="w-full btn btn-secondary py-4 rounded-xl text-xs font-black uppercase tracking-wider"
                   >
-                    ✍️ Give Direct In-App Feedback
+                    Start 30 Days Free →
                   </button>
                 </div>
               </div>
-            </div>
-          </div>
-        </RevealSection>
 
-        {/* ═══════ TRUST & FAQ ═══════ */}
-        <RevealSection className="border-b border-white/[0.07] py-16 sm:py-20">
-          <div className="container-custom grid gap-12 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="sr sr-left">
-              <span className="violet-pill">Trust and support</span>
-              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-4xl">Clear about what is real.</h2>
-              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">ClientFlow AI is an all-in-one workspace for freelancers worldwide, operated by a verified, registered business. Global card and multi-currency payments supported, data is 256-bit encrypted, and support is 24/7 direct.</p>
-              <div className="mt-7 grid gap-3 text-sm font-bold text-zinc-300">
-                <p>Support: <a className="text-white transition-colors hover:text-violet-300" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a></p>
-                <p>Registration: <span className="text-white">{UDYAM_REGISTRATION_NUMBER}</span></p>
-                <p><Link className="text-white transition-colors hover:text-violet-300" to="/security">Read security and compliance status</Link></p>
-              </div>
-            </div>
-            <div className="sr sr-right">
-              <p className="text-xs font-black uppercase text-zinc-600">Common questions</p>
-              <div className="mt-4 divide-y divide-violet-500/10 border-y border-violet-500/10">
-                {faqs.map(([question, answer]) => (
-                  <details key={question} className="group py-5">
-                    <summary className="cursor-pointer list-none pr-8 text-base font-black text-white transition-colors marker:hidden hover:text-violet-200">
-                      {question}
-                    </summary>
-                    <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-zinc-400">{answer}</p>
-                  </details>
-                ))}
-              </div>
-            </div>
-          </div>
-        </RevealSection>
+              {/* Pro Plan Card with Diwali 50% Offer */}
+              <div className="rounded-3xl border-2 border-indigo-600 bg-white p-8 shadow-2xl shadow-indigo-600/10 flex flex-col justify-between relative overflow-hidden">
+                <span className="absolute top-0 right-0 bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-bl-xl shadow-sm">
+                  🪔 Diwali 50% OFF
+                </span>
 
-        {/* ═══════ FINAL CTA ═══════ */}
-        <RevealSection className="relative overflow-hidden py-20 sm:py-24">
-          <div className="orb orb-violet" style={{ width: 500, height: 500, top: '-80px', right: '-80px', opacity: 0.18 }} aria-hidden="true" />
-          <div className="orb orb-fuchsia" style={{ width: 350, height: 350, bottom: '-60px', left: '-50px', opacity: 0.12 }} aria-hidden="true" />
-          <div className="container-custom relative z-10">
-            <div className="rounded-3xl border border-violet-500/18 p-10 sm:p-14 sr" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.10), rgba(9,9,11,0.92) 55%, rgba(232,121,249,0.07))' }}>
-              <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-                <div className="max-w-3xl">
-                  <span className="violet-pill mb-5 inline-flex">Start with real work</span>
-                  <h2 className="text-3xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
-                    Add one lead or invoice.<br />
-                    <span className="animated-gradient-text">Let the workflow show the next step.</span>
-                  </h2>
-                  {!loggedIn && (
-                    <p className="mt-5 text-base font-medium text-zinc-400">
-                      30 days full access. No card. No commitment. Your first real client task is free.
-                    </p>
-                  )}
+                <div>
+                  <span className="px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-black uppercase tracking-wider">
+                    Pro Plan
+                  </span>
+                  <div className="mt-4 flex items-baseline gap-2">
+                    <h3 className="text-4xl font-black text-slate-900">₹249</h3>
+                    <span className="text-sm font-bold text-slate-400 line-through">₹499</span>
+                    <span className="text-xs font-bold text-slate-500">/ month</span>
+                  </div>
+                  <p className="text-xs font-bold text-emerald-600 mt-1">Special Diwali Price (Lock in 50% Discount)</p>
+
+                  <ul className="mt-6 space-y-3 text-xs font-bold text-slate-700">
+                    <li className="flex items-center gap-2">✓ Unlimited invoices & proposals</li>
+                    <li className="flex items-center gap-2">✓ Unlimited international & domestic clients</li>
+                    <li className="flex items-center gap-2">✓ Automated WhatsApp client chasers</li>
+                    <li className="flex items-center gap-2">✓ Scope Lock & Revision agreement portal</li>
+                    <li className="flex items-center gap-2">✓ Priority 24/7 founder WhatsApp support</li>
+                  </ul>
                 </div>
-                <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col">
-                  <button
-                    type="button"
-                    onClick={() => startWorkspace('final_start')}
-                    className="rounded-xl bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 px-8 py-5 text-sm font-black uppercase text-white shadow-xl shadow-violet-500/28 transition hover:opacity-90 hover:scale-[1.02]"
+
+                <div className="mt-8">
+                  <Link
+                    to="/payments"
+                    className="block w-full btn btn-primary py-4 rounded-xl text-xs font-black uppercase tracking-wider text-center"
                   >
-                    {loggedIn ? 'Open Client Flow' : 'Start 30 Days Free →'}
-                  </button>
-                  <Link to="/payments" className="rounded-xl border border-white/10 bg-white/[0.04] px-8 py-5 text-center text-sm font-black uppercase text-white transition hover:bg-white/[0.08] hover:border-violet-500/20">
-                    View plans later
+                    Claim Diwali Offer (₹249) →
                   </Link>
                 </div>
               </div>
             </div>
           </div>
-        </RevealSection>
+        </section>
+
+        {/* ═════════════════════════════════════════════
+            FAQ SECTION
+        ═════════════════════════════════════════════ */}
+        <section className="py-20 sm:py-28 bg-[#f8fafc] border-t border-slate-200">
+          <div className="container-custom grid gap-12 lg:grid-cols-[0.85fr_1.15fr]">
+            <div>
+              <span className="premium-eyebrow mb-3">Frequently Asked Questions</span>
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                Clear answers for busy freelancers.
+              </h2>
+              <p className="mt-4 text-base text-slate-600 leading-relaxed">
+                Need more help? Chat directly with the founder on WhatsApp at{' '}
+                <a href="https://wa.me/919080963704" className="font-bold text-indigo-600 underline">
+                  +91 90809 63704
+                </a>.
+              </p>
+            </div>
+
+            <div className="divide-y divide-slate-200 border-y border-slate-200">
+              {faqs.map(([q, a]) => (
+                <details key={q} className="group py-5">
+                  <summary className="cursor-pointer list-none text-base font-black text-slate-900 transition hover:text-indigo-600 flex items-center justify-between">
+                    <span>{q}</span>
+                    <span className="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                  </summary>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">{a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═════════════════════════════════════════════
+            FINAL CALL TO ACTION BANNER
+        ═════════════════════════════════════════════ */}
+        <section className="py-20 bg-white border-t border-slate-200">
+          <div className="container-custom">
+            <div className="rounded-3xl border border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/80 p-8 sm:p-14 shadow-lg text-center max-w-4xl mx-auto">
+              <span className="premium-eyebrow mb-4">Start Today Without Risk</span>
+              <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                Ready to stop chasing payments?
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-xl mx-auto">
+                Create your first professional invoice in 30 seconds. All features free for 30 full days.
+              </p>
+
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => startWorkspace('final_cta_bright')}
+                  className="w-full sm:w-auto btn btn-primary py-4 px-9 rounded-xl text-sm font-black uppercase tracking-wider"
+                >
+                  {loggedIn ? 'Open Workspace' : 'Start 30 Days Free →'}
+                </button>
+                <Link
+                  to="/how-to-use"
+                  className="w-full sm:w-auto btn btn-secondary py-4 px-7 rounded-xl text-sm font-bold"
+                >
+                  See How It Works
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />
@@ -1094,4 +808,3 @@ export default function HomeClear() {
     </div>
   );
 }
-
