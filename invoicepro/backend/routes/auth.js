@@ -711,6 +711,14 @@ router.post(
                     });
             }
 
+            if (user.isBanned) {
+                return res
+                    .status(403)
+                    .json({
+                        message: 'Your account has been suspended by an administrator.'
+                    });
+            }
+
             const isMatch =
                 await user.comparePassword(
                     password

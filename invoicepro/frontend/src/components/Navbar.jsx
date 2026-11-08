@@ -22,6 +22,13 @@ export default function Navbar() {
   const isPro = hasProAccess(user);
   const planLabel = getPlanLabel(user);
 
+  const isDiwaliOffer = useMemo(() => {
+    const now = new Date();
+    const start = new Date('2026-11-08T00:00:00+05:30');
+    const end = new Date('2026-11-15T23:59:59+05:30');
+    return now >= start && now <= end;
+  }, []);
+
   const handleLogout = () => {
     clearAuth();
     navigate('/login');
@@ -156,7 +163,7 @@ export default function Navbar() {
               )}
               {!isPro ? (
                 <NavLink to="/payments" className="rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 px-3.5 py-2 text-xs font-black uppercase tracking-wider text-slate-950 shadow-md hover:from-amber-300 hover:to-yellow-300 transition">
-                  Upgrade Pro (₹499)
+                  {isDiwaliOffer ? '🪔 Pro ₹249 (50% OFF)' : 'Upgrade Pro (₹499)'}
                 </NavLink>
               ) : (
                 <span className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-200">
@@ -312,8 +319,8 @@ export default function Navbar() {
                     <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Freelancers & service professionals</span>
                   </a>
                   <NavLink to="/payments" onClick={closeMenu} className={mobileItemClass}>
-                    <span className="block text-sm font-black">Pricing</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">Simple ₹499/mo Pro plan</span>
+                    <span className="block text-sm font-black">{isDiwaliOffer ? '🪔 Diwali Pricing (50% OFF)' : 'Pricing'}</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-zinc-600">{isDiwaliOffer ? 'Special ₹249/mo (Normally ₹499)' : 'Simple ₹499/mo Pro plan'}</span>
                   </NavLink>
                 </>
               )}
@@ -338,7 +345,7 @@ export default function Navbar() {
                 <>
                   {!isPro ? (
                     <NavLink to="/payments" onClick={closeMenu} className="rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 px-4 py-3 font-black text-slate-950 text-center uppercase tracking-wider text-xs shadow-md">
-                      Upgrade to Pro (₹499/mo)
+                      {isDiwaliOffer ? '🪔 Upgrade to Pro ₹249/mo (50% OFF)' : 'Upgrade to Pro (₹499/mo)'}
                     </NavLink>
                   ) : (
                     <NavLink to="/payment" onClick={closeMenu} className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 font-black text-emerald-200 text-center text-xs">

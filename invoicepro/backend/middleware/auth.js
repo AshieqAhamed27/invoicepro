@@ -98,6 +98,10 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ message: 'User not found.' });
     }
 
+    if (req.user.isBanned) {
+      return res.status(403).json({ message: 'Your account has been suspended by an administrator.' });
+    }
+
     await syncAdminRole(req.user);
 
     const expiresAt = req.user.planExpiresAt ? new Date(req.user.planExpiresAt) : null;

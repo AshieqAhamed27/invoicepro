@@ -396,23 +396,34 @@ export default function HomeClear() {
             <div className="max-w-4xl">
               <span className="violet-pill mb-5 inline-flex gap-2">
                 <span className="relative flex h-2 w-2 shrink-0 mt-0.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-500" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                 </span>
-                Built for modern freelancers worldwide
+                The Invoicing & Payment Tool for Indian Freelancers
               </span>
 
               <h1 className="mt-4 text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">
-                <TypewriterText phrases={['Get clients.', 'Get paid.', 'Grow faster.', 'Build your career.']} />{' '}
-                <span className="mt-1 block text-zinc-300">Build a freelance career that earns more.</span>
+                Get paid 3x faster.<br />
+                <span className="mt-1 block bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">Zero payment chasing.</span>
               </h1>
 
-              <p className="mt-6 max-w-2xl text-xl font-semibold leading-relaxed text-zinc-300">
-                One workspace. Leads → AI proposals → multi-currency & GST invoices → fast client payments.
+              <p className="mt-6 max-w-2xl text-xl font-semibold leading-relaxed text-zinc-200">
+                Send professional invoices with dynamic UPI QR & global card payments. Automatically follow up on WhatsApp when clients delay. Funds deposit directly to your bank account with zero tax headache.
               </p>
-              <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-zinc-500">
-                Stop switching between spreadsheets, WhatsApp, invoice tools, and reminders. ClientFlow AI keeps your direct-client business in one clear flow for local & global clients.
-              </p>
+              <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-3 max-w-3xl">
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-3">
+                  <p className="text-xs font-black text-emerald-300">⚡ Dynamic UPI QR</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-zinc-400">Scanned & paid in 10s via GPay/PhonePe</p>
+                </div>
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-3">
+                  <p className="text-xs font-black text-amber-300">💬 WhatsApp Auto-Chasers</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-zinc-400">Pings overdue clients automatically</p>
+                </div>
+                <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.06] p-3">
+                  <p className="text-xs font-black text-violet-300">🛡️ Direct Bank Payouts</p>
+                  <p className="mt-0.5 text-[11px] font-medium text-zinc-400">We never hold or delay your money</p>
+                </div>
+              </div>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button
@@ -606,6 +617,91 @@ export default function HomeClear() {
                 <div className="mt-7">
                   <Link to="/payments" className="block w-full rounded-xl bg-gradient-to-r from-amber-400 to-yellow-300 px-5 py-4 text-center text-sm font-black uppercase text-zinc-950 shadow-lg shadow-amber-400/20 transition hover:opacity-90">See all paid plans</Link>
                 </div>
+              </div>
+            </div>
+          </div>
+        </RevealSection>
+
+        {/* ═══════ WHY NOT JUST FREE ZOHO? ═══════ */}
+        <RevealSection className="border-b border-white/[0.07] bg-[#0b0914] py-16 sm:py-20">
+          <div className="container-custom">
+            <div className="max-w-3xl">
+              <span className="violet-pill">The Real Cost of "Free" Invoicing</span>
+              <h2 className="mt-5 text-3xl font-black leading-tight text-white sm:text-5xl">
+                Why pay for ClientFlow when basic invoice tools are free?
+              </h2>
+              <p className="mt-4 text-base font-medium leading-7 text-zinc-400">
+                Zoho Invoice creates a pretty PDF for free. But when clients ignore email invoices, delay payment by 45 days, or pay via PayPal with a 7% currency loss — you lose thousands. Here is why serious freelancers switch to ClientFlow AI.
+              </p>
+            </div>
+
+            <div className="mt-10 overflow-x-auto rounded-2xl border border-white/10 bg-black/40">
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead>
+                  <tr className="border-b border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-zinc-400 sm:text-xs">
+                    <th className="p-4 sm:p-5">The Real Problem</th>
+                    <th className="p-4 sm:p-5 text-zinc-400">Free Tools (Zoho / Refrens)</th>
+                    <th className="p-4 sm:p-5 text-amber-300 bg-amber-400/[0.06]">ClientFlow AI (Built for Indian Freelancers)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {[
+                    {
+                      problem: 'How Clients Pay in India',
+                      free: 'Bank account number typed on a PDF (clients forget & delay for weeks)',
+                      cf: 'Instant Dynamic UPI QR Code right on the invoice — client scans & pays in 10s via GPay, PhonePe, or Paytm'
+                    },
+                    {
+                      problem: 'Overdue & Late Payments',
+                      free: 'Sends an email into spam or ignored inboxes',
+                      cf: 'Automated WhatsApp payment chasers that clients actually see and pay immediately'
+                    },
+                    {
+                      problem: 'International Clients (USD/EUR)',
+                      free: 'Hands off to PayPal or Stripe where you lose 5–8% on hidden FX markup',
+                      cf: 'Direct transparent multi-currency invoicing with zero marketplace commission'
+                    },
+                    {
+                      problem: 'Export Tax & GST Compliance',
+                      free: 'Manual, confusing, requires expensive CA consultation',
+                      cf: '1-Click GST & Export LUT ready — auto-calculates reverse charges and zero-rated exports'
+                    },
+                    {
+                      problem: 'Direct Money Payout',
+                      free: 'Requires separate platform signups and complex portal setups',
+                      cf: '100% Direct: Money routes directly into your bank / UPI ID without middleman hold'
+                    }
+                  ].map((row, i) => (
+                    <tr key={i} className="transition hover:bg-white/[0.02]">
+                      <td className="p-4 sm:p-5 font-bold text-white">{row.problem}</td>
+                      <td className="p-4 sm:p-5 text-zinc-400">{row.free}</td>
+                      <td className="p-4 sm:p-5 font-semibold text-emerald-300 bg-amber-400/[0.03]">✓ {row.cf}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Money Safety & Founder Guarantee Box */}
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-6">
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <span className="text-xl">🛡️</span>
+                  <h4 className="text-base font-black text-white">100% Direct Payouts Guarantee</h4>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-zinc-300">
+                  ClientFlow AI never holds, escrows, or delays your client money. When your client scans the UPI QR or pays via Razorpay, funds deposit directly into your personal or business bank account.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-violet-500/30 bg-violet-950/20 p-6">
+                <div className="flex items-center gap-2 text-violet-300">
+                  <span className="text-xl">🇮🇳</span>
+                  <h4 className="text-base font-black text-white">Built in India by a Freelancer</h4>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-zinc-300">
+                  Built by Ashieq for Indian freelancers who are exhausted by late client payments, currency exchange loss, and messy spreadsheets. Direct 24/7 founder support via <a href="https://wa.me/919080963704" target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-bold underline hover:text-emerald-300">WhatsApp (+91 90809 63704)</a>.
+                </p>
               </div>
             </div>
           </div>
