@@ -17,21 +17,6 @@ export default function Navbar() {
   const location = useLocation();
   const loggedIn = isLoggedIn();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setThemeState] = useState(() => getTheme());
-
-  useEffect(() => {
-    const handleThemeChange = (e) => {
-      setThemeState(e.detail.theme);
-    };
-    window.addEventListener('clientflow:theme-changed', handleThemeChange);
-    return () => window.removeEventListener('clientflow:theme-changed', handleThemeChange);
-  }, []);
-
-  const handleToggleTheme = () => {
-    const next = toggleTheme();
-    setThemeState(next);
-  };
-
   const user = getUser();
   const isAdmin = user?.role === 'admin';
   const isPro = hasProAccess(user);
@@ -191,34 +176,9 @@ export default function Navbar() {
               </button>
             </>
           )}
-
-          {/* Theme Toggle Button (Light/Dark Mode) */}
-          <button
-            type="button"
-            onClick={handleToggleTheme}
-            title={theme === 'dark' ? 'Switch to Bright Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle theme mode"
-            className="flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-white/[0.06] text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/80 dark:hover:bg-white/10 transition shadow-sm ml-1"
-          >
-            {theme === 'dark' ? (
-              <span className="text-sm" role="img" aria-label="Light mode">☀️</span>
-            ) : (
-              <span className="text-sm" role="img" aria-label="Dark mode">🌙</span>
-            )}
-          </button>
         </div>
 
         <div className="ml-auto hidden shrink-0 items-center gap-2 sm:flex xl:hidden">
-          {/* Mobile Bar Theme Toggle */}
-          <button
-            type="button"
-            onClick={handleToggleTheme}
-            title={theme === 'dark' ? 'Switch to Bright Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle theme mode"
-            className="flex items-center justify-center h-10 w-10 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/[0.06] text-slate-700 dark:text-zinc-300 transition"
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
           {!loggedIn ? (
             <div className="flex items-center gap-2">
               <button

@@ -851,168 +851,112 @@ select option:disabled {
 }
 
 /* ============================================================
-   SEAMLESS DUAL THEME ENGINE (BRIGHT LIGHT & SLEEK DARK)
+   LUMINOUS MODERN BRIGHT SAAS DESIGN SYSTEM
    ============================================================ */
 
-/* ── LIGHT MODE (DEFAULT) ── */
-html:not(.dark) {
-    color-scheme: light;
-}
-
-html:not(.dark) body {
+html, body {
     background-color: #f8fafc !important;
     color: #0f172a !important;
 }
 
-html:not(.dark) .premium-page {
+.premium-page {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    min-height: 100vh;
+}
+
+/* Neutralize all hardcoded dark backgrounds */
+[class*="bg-[#090d14]"],
+[class*="bg-[#09090b]"],
+[class*="bg-[#07090d]"],
+[class*="bg-[#0d0b18]"],
+[class*="bg-[#0b0914]"],
+[class*="bg-[#110d24]"],
+[class*="bg-[#0a0716]"],
+[class*="bg-[#0d1119]"],
+[class*="bg-[#0a0f1d]"] {
     background-color: #f8fafc !important;
     color: #0f172a !important;
 }
 
-/* Neutralize hardcoded dark background classes in light mode */
-html:not(.dark) [class*="bg-[#090d14]"],
-html:not(.dark) [class*="bg-[#09090b]"],
-html:not(.dark) [class*="bg-[#07090d]"],
-html:not(.dark) [class*="bg-[#0d0b18]"],
-html:not(.dark) [class*="bg-[#0b0914]"],
-html:not(.dark) [class*="bg-[#110d24]"],
-html:not(.dark) [class*="bg-[#0a0716]"] {
-    background-color: #f8fafc !important;
-    color: #0f172a !important;
-}
-
-html:not(.dark) [class*="bg-black/"],
-html:not(.dark) [class*="bg-white/[0.0"],
-html:not(.dark) [class*="bg-white/5"],
-html:not(.dark) .bg-zinc-950,
-html:not(.dark) .bg-zinc-900,
-html:not(.dark) [class*="bg-zinc-950"],
-html:not(.dark) [class*="bg-zinc-900"] {
+[class*="bg-black/"],
+[class*="bg-white/[0.0"],
+[class*="bg-white/5"],
+.bg-zinc-950,
+.bg-zinc-900,
+[class*="bg-zinc-950"],
+[class*="bg-zinc-900"] {
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
     color: #0f172a !important;
 }
 
-html:not(.dark) .premium-panel,
-html:not(.dark) .surface,
-html:not(.dark) .card {
+.premium-panel,
+.surface,
+.card {
     background: #ffffff !important;
     border-color: #e2e8f0 !important;
     color: #0f172a !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 10px 25px -5px rgba(15, 23, 42, 0.05) !important;
 }
 
-html:not(.dark) .premium-page :where(h1, h2, h3, h4, h5, h6) {
+:where(h1, h2, h3, h4, h5, h6) {
     color: #0f172a !important;
 }
 
-/* Text adaptations: Turn white text into readable dark slate unless inside colored button or badge */
-html:not(.dark) .premium-page .text-white:not(button):not(button *):not(.btn):not(.btn *):not([class*="bg-indigo"]):not([class*="bg-emerald"]):not([class*="bg-amber"]):not([class*="bg-violet"]):not([class*="bg-fuchsia"]):not([class*="bg-gradient-to"]):not([class*="badge"]):not([class*="rounded-full"]) {
+/* Ensure all text is 100% visible and high-contrast */
+.text-white:not(button):not(button *):not(.btn):not(.btn *):not([class*="bg-indigo"]):not([class*="bg-emerald"]):not([class*="bg-amber"]):not([class*="bg-violet"]):not([class*="bg-fuchsia"]):not([class*="bg-gradient-to"]):not([class*="badge"]):not([class*="rounded-full"]) {
     color: #0f172a !important;
 }
 
-html:not(.dark) .premium-page .text-zinc-200,
-html:not(.dark) .premium-page .text-zinc-300,
-html:not(.dark) .premium-page .text-zinc-400 {
+.text-zinc-200,
+.text-zinc-300,
+.text-zinc-400 {
     color: #475569 !important;
 }
 
-html:not(.dark) .premium-page .text-zinc-500,
-html:not(.dark) .premium-page .text-zinc-600 {
+.text-zinc-500,
+.text-zinc-600 {
     color: #64748b !important;
 }
 
-/* Form inputs in light mode */
-html:not(.dark) .premium-page input:not([type="checkbox"]):not([type="radio"]),
-html:not(.dark) .premium-page textarea,
-html:not(.dark) .premium-page select {
+/* Form inputs & controls */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
     background-color: #ffffff !important;
     border-color: #cbd5e1 !important;
     color: #0f172a !important;
 }
 
-html:not(.dark) .premium-page input::placeholder,
-html:not(.dark) .premium-page textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
     color: #94a3b8 !important;
 }
 
-/* Table and border adaptations in light mode */
-html:not(.dark) .premium-page [class*="border-white/"] {
+/* Borders and tables */
+[class*="border-white/"] {
     border-color: #e2e8f0 !important;
 }
 
-html:not(.dark) .premium-page [class*="divide-white/"] {
+[class*="divide-white/"] {
     border-color: #f1f5f9 !important;
 }
 
-html:not(.dark) .premium-page table {
+table {
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
 }
 
-html:not(.dark) .premium-page th {
+th {
     background-color: #f8fafc !important;
     color: #475569 !important;
     border-color: #e2e8f0 !important;
 }
 
-html:not(.dark) .premium-page td {
+td {
     border-color: #f1f5f9 !important;
     color: #0f172a !important;
-}
-
-/* ── DARK MODE OVERRIDES ── */
-html.dark {
-    color-scheme: dark;
-}
-
-html.dark body {
-    background-color: #09090b !important;
-    color: #f8fafc !important;
-}
-
-html.dark .premium-page {
-    background-color: #09090b !important;
-    color: #f8fafc !important;
-}
-
-html.dark .premium-panel,
-html.dark .surface,
-html.dark .card,
-html.dark .bg-zinc-950,
-html.dark .bg-zinc-900,
-html.dark [class*="bg-zinc-950"],
-html.dark [class*="bg-zinc-900"] {
-    background: #111116 !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #f8fafc !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
-}
-
-html.dark .premium-eyebrow {
-    background: rgba(139, 92, 246, 0.12) !important;
-    border-color: rgba(139, 92, 246, 0.28) !important;
-    color: #c084fc !important;
-}
-
-html.dark nav > div {
-    background-color: rgba(9, 13, 20, 0.95) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
-}
-
-html.dark footer {
-    background-color: #07090d !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-html.dark footer h3 {
-    color: #ffffff !important;
-}
-
-html.dark footer p,
-html.dark footer a:not(.font-bold) {
-    color: #94a3b8 !important;
 }
 
 /* Luminous Aurora Mesh */
