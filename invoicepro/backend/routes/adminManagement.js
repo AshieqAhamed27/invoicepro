@@ -193,6 +193,7 @@ router.post('/email/diwali-campaign', protect, adminOnly, async (req, res) => {
         const upgradeUrl = `${process.env.FRONTEND_URL || 'https://www.clientflowai.in'}/checkout/monthly`;
         let sent = 0;
         let failed = 0;
+        let firstError = null;
 
         // Send in batches to avoid rate limiting
         for (const u of freeUsers) {
@@ -205,11 +206,12 @@ router.post('/email/diwali-campaign', protect, adminOnly, async (req, res) => {
                 await new Promise(r => setTimeout(r, 300));
             } catch (e) {
                 console.error(`Diwali email failed for ${u.email}:`, e.message);
+                if (!firstError) firstError = e.message;
                 failed++;
             }
         }
 
-        res.json({ message: `Diwali campaign sent.`, sent, failed, total: freeUsers.length });
+        res.json({ message: `Diwali campaign sent.`, sent, failed, total: freeUsers.length, error: firstError });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

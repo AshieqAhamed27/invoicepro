@@ -504,7 +504,11 @@ export default function Admin() {
       setSendingDiwali(true);
       setDiwaliMsg(null);
       const res = await api.post('/admin/email/diwali-campaign');
-      setDiwaliMsg({ ok: true, message: `Diwali Campaign sent to ${res.data?.sent || 0} users! (${res.data?.failed || 0} failed)` });
+      if (res.data?.failed > 0 && (res.data?.sent || 0) === 0) {
+        setDiwaliMsg({ ok: false, message: `Failed (0 sent, ${res.data.failed} failed): ${res.data?.error || 'Email credentials missing on server. Check EMAIL_USER & EMAIL_PASS.'}` });
+      } else {
+        setDiwaliMsg({ ok: true, message: `Diwali Campaign sent to ${res.data?.sent || 0} users! (${res.data?.failed || 0} failed)` });
+      }
     } catch (err) {
       console.error(err);
       setDiwaliMsg({ ok: false, message: err?.response?.data?.message || 'Diwali campaign dispatch failed.' });
