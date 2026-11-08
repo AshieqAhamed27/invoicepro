@@ -241,27 +241,48 @@ router.post('/email/diwali-campaign', protect, adminOnly, async (req, res) => {
         }
 
         const upgradeUrl = `${process.env.FRONTEND_URL || 'https://www.clientflowai.in'}/checkout/monthly`;
-        let sent = 0;
-        let failed = 0;
-        let firstError = null;
+        
+        // Respond immediately to prevent HTTP 45s timeout while background job dispatches
+        res.json({
+            ok: true,
+            message: `🪔 Diwali campaign started for ${freeUsers.length} users in the background!`,
+            total: freeUsers.length
+        });
 
-        // Send in batches to avoid rate limiting
-        for (const u of freeUsers) {
-            try {
-                const { subject, html, text } = diwaliCampaign({ user: u, upgradeUrl });
-                await sendEmail(u.email, subject, { html, text });
-                await User.updateOne({ _id: u._id }, { diwaliEmailSent: true, diwaliEmailSentAt: new Date() });
-                sent++;
-                // Small delay between emails
-                await new Promise(r => setTimeout(r, 300));
-            } catch (e) {
-                console.error(`Diwali email failed for ${u.email}:`, e.message);
-                if (!firstError) firstError = e.message;
-                failed++;
+        // Run async background worker with safe delay
+        setImmediate(async () => {
+            console.log(`Starting background Diwali campaign dispatch for ${freeUsers.length} users...`);
+            let sent = 0;
+            let failed = 0;
+
+            for (const u of freeUsers) {
+                try {
+                    const { subject, html, text } = diwaliCampaign({ user: u, upgradeUrl });
+                    await sendEmail(u.email, subject, { html, text });
+                    await User.updateOne({ _id: u._id }, { diwaliEmailSent: true, diwaliEmailSentAt: new Date() });
+                    sent++;
+                    // Delay between emails to respect Gmail rate limits
+                    await new Promise(r => setTimeout(r, 400));
+                } catch (e) {
+                    console.error(`Diwali email failed for ${u.email}:`, e.message);
+                    failed++;
+                }
             }
-        }
+            console.log(`Diwali campaign completed: ${sent} sent, ${failed} failed out of ${freeUsers.length}.`);
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
-        res.json({ message: `Diwali campaign sent.`, sent, failed, total: freeUsers.length, error: firstError });
+// ─── GET /admin/email/campaign-status — Check status of Diwali campaign ─────
+router.get('/email/campaign-status', protect, adminOnly, async (req, res) => {
+    try {
+        const [totalFree, diwaliSent] = await Promise.all([
+            User.countDocuments({ plan: { $in: ['free', null, undefined] } }),
+            User.countDocuments({ diwaliEmailSent: true })
+        ]);
+        res.json({ totalFree, diwaliSent, remaining: Math.max(0, totalFree - diwaliSent) });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
