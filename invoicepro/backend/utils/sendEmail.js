@@ -51,10 +51,17 @@ const getEmailConfig = () => {
 
 const getTransporter = () => {
     const config = getEmailConfig();
-    const key = `${config.user}:${config.pass}`;
+    const key = `${config.user}:${config.pass}:${config.host}:${config.port}`;
 
     if (!cachedTransporter || cachedKey !== key) {
-        cachedTransporter = nodemailer.createTransport({
+        const isGmail = config.host === 'smtp.gmail.com' || String(config.user).toLowerCase().endsWith('@gmail.com');
+        const transportOptions = isGmail ? {
+            service: 'gmail',
+            auth: {
+                user: config.user,
+                pass: config.pass
+            }
+        } : {
             host: config.host,
             port: config.port,
             secure: config.secure,
@@ -70,7 +77,9 @@ const getTransporter = () => {
             tls: {
                 servername: config.host
             }
-        });
+        };
+
+        cachedTransporter = nodemailer.createTransport(transportOptions);
         cachedKey = key;
     }
 

@@ -175,6 +175,8 @@ export default function Admin() {
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
   const [sendingCustomEmail, setSendingCustomEmail] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState(null);
 
   const getScreenshotUrl = (request) => {
     return request.screenshotUrl
@@ -514,6 +516,21 @@ export default function Admin() {
       setDiwaliMsg({ ok: false, message: err?.response?.data?.message || 'Diwali campaign dispatch failed.' });
     } finally {
       setSendingDiwali(false);
+    }
+  };
+
+  const handleTestEmailConnection = async () => {
+    try {
+      setTestingEmail(true);
+      setTestEmailResult(null);
+      const res = await api.get('/admin/email/test');
+      setTestEmailResult({ ok: true, message: res.data?.message || 'Email connection verified!' });
+    } catch (err) {
+      console.error(err);
+      const errMsg = err?.response?.data?.message || err?.message || 'Email connection failed';
+      setTestEmailResult({ ok: false, message: `Error: ${errMsg}` });
+    } finally {
+      setTestingEmail(false);
     }
   };
 
@@ -1380,6 +1397,15 @@ export default function Admin() {
                     {adminActionMsg.message}
                   </span>
                 )}
+                {testEmailResult && (
+                  <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                    testEmailResult.ok
+                      ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
+                      : 'border-red-400/20 bg-red-400/10 text-red-300'
+                  }`}>
+                    {testEmailResult.message}
+                  </span>
+                )}
                 {notifyNoticeResult && (
                   <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
                     notifyNoticeResult.ok
@@ -1398,6 +1424,15 @@ export default function Admin() {
                     {requestPhonesResult.message}
                   </span>
                 )}
+                <button
+                  type="button"
+                  onClick={handleTestEmailConnection}
+                  disabled={testingEmail}
+                  className="rounded-full border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                  title="Send a live test email to verify credentials and diagnose errors"
+                >
+                  {testingEmail ? 'Testing Connection...' : '🧪 Test Email Connection'}
+                </button>
                 <button
                   type="button"
                   onClick={handleSendDiwaliCampaign}

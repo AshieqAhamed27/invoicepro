@@ -172,6 +172,56 @@ router.post('/users/:id/email', protect, adminOnly, async (req, res) => {
     }
 });
 
+// ─── GET /admin/email/test — Live test of email credentials ─────────────────
+router.get('/email/test', protect, adminOnly, async (req, res) => {
+    try {
+        const emailUser = String(process.env.EMAIL_USER || '').trim();
+        const emailPass = String(process.env.EMAIL_PASS || '').replace(/\s+/g, '');
+        const resendKey = String(process.env.RESEND_API_KEY || '').trim();
+
+        const diagnostics = {
+            hasEmailUser: Boolean(emailUser),
+            emailUser: emailUser ? `${emailUser.slice(0, 3)}***${emailUser.slice(emailUser.indexOf('@'))}` : 'NOT_SET',
+            hasEmailPass: Boolean(emailPass),
+            emailPassLength: emailPass.length,
+            hasResendKey: Boolean(resendKey),
+            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+            port: process.env.EMAIL_PORT || 587
+        };
+
+        const targetEmail = req.user.email || 'ashieqahamed4@gmail.com';
+        await sendEmail(
+            targetEmail,
+            '✅ ClientFlow AI Email Test',
+            {
+                html: '<p style="font-family:sans-serif;font-size:15px;color:#333;">Your email sending configuration is <strong>working 100%</strong>!</p>',
+                text: 'Your email sending configuration is working 100%!'
+            }
+        );
+
+        res.json({
+            ok: true,
+            message: `Test email successfully delivered to ${targetEmail}!`,
+            diagnostics
+        });
+    } catch (err) {
+        res.status(500).json({
+            ok: false,
+            message: err.message,
+            code: err.code,
+            command: err.command,
+            diagnostics: {
+                hasEmailUser: Boolean(process.env.EMAIL_USER),
+                emailUserLength: (process.env.EMAIL_USER || '').length,
+                hasEmailPass: Boolean(process.env.EMAIL_PASS),
+                emailPassLength: (process.env.EMAIL_PASS || '').length,
+                host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+                port: process.env.EMAIL_PORT || 587
+            }
+        });
+    }
+});
+
 // ─── POST /admin/email/diwali-campaign — Send Diwali offer to all free users ─
 router.post('/email/diwali-campaign', protect, adminOnly, async (req, res) => {
     try {
