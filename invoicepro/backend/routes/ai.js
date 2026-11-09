@@ -2510,6 +2510,21 @@ router.post('/price-suggestion', protect, requirePro, async(req, res) => {
     }
 });
 
+router.post('/quick-invoice', protect, async(req, res) => {
+    const text = String(req.body?.text || '').trim();
+    if (!text) {
+        return res.status(400).json({ message: 'Please describe the invoice.' });
+    }
+    try {
+        const aiDraft = await callAiInvoiceDraft({ message: text, user: req.user });
+        const draft = normalizeInvoiceDraft(aiDraft?.value, text, req.user);
+        res.json({ draft });
+    } catch (err) {
+        const draft = normalizeInvoiceDraft(null, text, req.user);
+        res.json({ draft });
+    }
+});
+
 router.post('/agent', protect, requirePro, async(req, res) => {
     const message = String(req.body?.message || '').trim();
     const context = req.body?.context || {};

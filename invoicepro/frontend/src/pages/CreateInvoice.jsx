@@ -2,1067 +2,557 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
-import { getUser, hasProAccess } from '../utils/auth';
-import AIBillingAgent from '../components/AIBillingAgent';
-import PriceSuggestionAgent from '../components/PriceSuggestionAgent';
+import { getUser } from '../utils/auth';
 import { trackEvent } from '../utils/analytics';
 
 const currencyOptions = [
-  { code: 'INR', label: 'INR - Indian Rupee', prefix: 'Rs ' },
-  { code: 'USD', label: 'USD - US Dollar', prefix: 'USD ' },
-  { code: 'GBP', label: 'GBP - British Pound', prefix: 'GBP ' },
-  { code: 'EUR', label: 'EUR - Euro', prefix: 'EUR ' },
-  { code: 'AED', label: 'AED - UAE Dirham', prefix: 'AED ' },
-  { code: 'SGD', label: 'SGD - Singapore Dollar', prefix: 'SGD ' },
-  { code: 'AUD', label: 'AUD - Australian Dollar', prefix: 'AUD ' },
-  { code: 'CAD', label: 'CAD - Canadian Dollar', prefix: 'CAD ' }
+  { code: 'INR', symbol: '₹', label: 'INR (₹) - Indian Rupee' },
+  { code: 'USD', symbol: '$', label: 'USD ($) - US Dollar' },
+  { code: 'EUR', symbol: '€', label: 'EUR (€) - Euro' },
+  { code: 'GBP', symbol: '£', label: 'GBP (£) - British Pound' },
+  { code: 'AED', symbol: 'AED', label: 'AED - UAE Dirham' },
+  { code: 'SGD', symbol: 'S$', label: 'SGD - Singapore Dollar' }
 ];
-
-const getCurrencyPrefix = (currency = 'INR') =>
-  currencyOptions.find((option) => option.code === currency)?.prefix || `${currency} `;
-
-const formatCurrency = (amount, currency = 'INR') =>
-  `${getCurrencyPrefix(currency)}${Number(amount || 0).toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })}`;
-
-const isInternationalCurrency = (currency = 'INR') => currency && currency !== 'INR';
-
-const normalizeDraftDate = (value) => {
-  if (!value) return '';
-
-  if (/^\d{4}-\d{2}-\d{2}/.test(String(value))) {
-    return String(value).slice(0, 10);
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-
-  return date.toISOString().slice(0, 10);
-};
 
 export default function CreateInvoice() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const user = getUser() || {};
-  const isPro = hasProAccess(user);
 
-  const today = new Date();
-  const requestedType = searchParams.get('type') === 'proposal' ? 'proposal' : 'invoice';
-  const [documentType, setDocumentType] = useState(requestedType === 'proposal' && !isPro ? 'invoice' : requestedType);
-
-  const [form, setForm] = useState({
-    clientName: '',
-    clientEmail: '',
-    serviceDescription: '',
-    gst: '',
-    cgst: '',
-    sgst: '',
-    tdsPercent: '',
-    currency: 'INR',
-    upiId: '',
-    dueDate: '',
-    validUntil: ''
+  // Form State
+  const [clientName, setClientName] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [currency, setCurrency] = useState('INR');
+  const [upiId, setUpiId] = useState('');
+  const [dueDate, setDueDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return d.toISOString().slice(0, 10);
   });
-
   const [items, setItems] = useState([{ name: '', price: '' }]);
-  const [loading, setLoading] = useState(false);
-  const [aiWriting, setAiWriting] = useState(false);
-  const [limitReached, setLimitReached] = useState(false);
-  const [sourceLeadId, setSourceLeadId] = useState('');
-  const [recurring, setRecurring] = useState({
-    enabled: false,
-    frequency: 'monthly',
-    interval: 1,
-    dayOfMonth: today.getDate(),
-    sendEmail: true
-  });
-  const [scopeAgreement, setScopeAgreement] = useState({
-    included: '',
-    excluded: '',
-    revisionLimit: 2,
-    extraWorkRate: '',
-    timeline: '',
-    approvalRequired: true
-  });
+  const [notes, setNotes] = useState('');
 
-  const [clients, setClients] = useState([]);
-  const isProposal = documentType === 'proposal';
-  const dateFieldName = isProposal ? 'validUntil' : 'dueDate';
-  const dateFieldValue = isProposal ? form.validUntil : form.dueDate;
-  const isInternationalInvoice = !isProposal && isInternationalCurrency(form.currency);
-  const paymentModeTitle = isProposal
-    ? 'Proposal only'
-    : isInternationalInvoice
-      ? 'International collection ready'
-      : 'India collection ready';
-  const paymentModeDetail = isProposal
-    ? 'Convert the accepted proposal into an invoice before collecting payment.'
-    : isInternationalInvoice
-      ? 'ClientFlow AI will create a Razorpay payment link in this currency. Your client can pay with enabled international cards, global bank transfers, or supported local payment methods.'
-      : 'Use Razorpay for cards/netbanking and UPI for Indian clients. UPI fields are shown only for INR invoices.';
+  // Optional Tax State
+  const [showTax, setShowTax] = useState(false);
+  const [gstRate, setGstRate] = useState('');
 
+  // AI Prompt State
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // Submission State
+  const [submitting, setSubmitting] = useState(false);
+  const [createdInvoice, setCreatedInvoice] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  // Initialize with user profile settings
   useEffect(() => {
-    fetchClients();
-    if (user) {
-      setForm(prev => ({
-        ...prev,
-        gst: user.gstNumber || '',
-        upiId: user.upiId || ''
-      }));
+    if (user.upiId) {
+      setUpiId(user.upiId);
     }
   }, []);
 
-  useEffect(() => {
-    setDocumentType(requestedType === 'proposal' && !isPro ? 'invoice' : requestedType);
-  }, [requestedType, isPro]);
-
-  useEffect(() => {
-    if (documentType === 'proposal') {
-      setRecurring(prev => ({
-        ...prev,
-        enabled: false
-      }));
-    }
-  }, [documentType]);
-
-  const fetchClients = async () => {
-    try {
-      const res = await api.get('/clients');
-      setClients(res.data);
-    } catch (err) {
-      console.log('Failed to load clients');
-    }
+  // Handle Quick Date Selection
+  const setQuickDueDays = (days) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    setDueDate(d.toISOString().slice(0, 10));
   };
 
-  const selectClient = (client) => {
-    setForm(prev => ({
-      ...prev,
-      clientName: client.name,
-      clientEmail: client.email,
-      gst: client.gst || prev.gst
-    }));
-  };
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleItemChange = (i, field, value) => {
+  // Add / Remove Item
+  const handleItemChange = (index, field, value) => {
     const updated = [...items];
-    updated[i][field] = value;
+    updated[index][field] = value;
     setItems(updated);
-  };
-
-  const handleScopeChange = (field, value) => {
-    setScopeAgreement((prev) => ({
-      ...prev,
-      [field]: value
-    }));
   };
 
   const addItem = () => {
     setItems([...items, { name: '', price: '' }]);
   };
 
-  const removeItem = (i) => {
-    if (items.length === 1) {
-      alert('At least one item required');
+  const removeItem = (index) => {
+    if (items.length <= 1) return;
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  // Calculate Subtotal & Total
+  const subtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+  const taxPercent = showTax ? (Number(gstRate) || 0) : 0;
+  const taxAmount = (subtotal * taxPercent) / 100;
+  const total = subtotal + taxAmount;
+
+  // AI Auto-Fill Function
+  const handleAiAutoFill = async (e) => {
+    e?.preventDefault();
+    if (!aiPrompt.trim()) {
+      alert('Please enter a brief description (e.g. Website design for Rahul, ₹15,000, due in 7 days)');
       return;
     }
-    setItems(items.filter((_, idx) => idx !== i));
-  };
 
-  const subtotal = items.reduce((s, i) => s + Number(i.price || 0), 0);
-  const taxRate = (+form.cgst || 0) + (+form.sgst || 0);
-  const tax = (subtotal * taxRate) / 100;
-  const total = subtotal + tax;
-  const tdsRate = +form.tdsPercent || 0;
-  const tdsAmount = (subtotal * tdsRate) / 100;
-  const netReceivable = total - tdsAmount;
-
-  const filledItems = items.filter((item) => item.name.trim() || Number(item.price || 0) > 0);
-  const itemSummary = filledItems
-    .map((item) => item.name.trim())
-    .filter(Boolean)
-    .join(', ');
-
-  const smartDescription = itemSummary
-    ? isProposal
-      ? `Proposed scope of work: ${itemSummary}. Includes delivery, review, and approval checkpoints.`
-      : `Professional services delivered: ${itemSummary}. Includes preparation, execution, and final review.`
-    : isProposal
-      ? `Proposed professional services including delivery plan and approval checkpoints.`
-      : `Professional services including planning and final review.`;
-
-  const suggestedDueDate = (() => {
-    const date = new Date();
-    date.setDate(date.getDate() + 7);
-    return date.toISOString().slice(0, 10);
-  })();
-
-  const aiSuggestions = [
-    !form.clientName && 'Enter client name',
-    !form.clientEmail && 'Enter client email',
-    !dateFieldValue && (isProposal ? 'Proposal validity missing' : 'Due date missing'),
-    !isProposal && form.currency === 'INR' && !form.upiId && 'UPI ID missing',
-    subtotal <= 0 && 'Add billable work'
-  ].filter(Boolean);
-
-  const applySmartDescription = async () => {
     try {
-      setAiWriting(true);
-      const res = await api.post('/ai/draft', {
-        type: isProposal ? 'proposal-summary' : 'invoice-summary',
-        context: {
-          clientName: form.clientName,
-          clientEmail: form.clientEmail,
-          serviceDescription: form.serviceDescription,
-          items,
-          cgst: form.cgst,
-          sgst: form.sgst,
-          taxRate,
-          dueDate: isProposal ? '' : form.dueDate,
-          validUntil: isProposal ? form.validUntil : '',
-          documentType,
-          variantSeed: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-          amount: total
+      setAiLoading(true);
+      const res = await api.post('/ai/quick-invoice', { text: aiPrompt });
+      const draft = res.data?.draft;
+
+      if (draft) {
+        if (draft.clientName) setClientName(draft.clientName);
+        if (draft.clientEmail) setClientEmail(draft.clientEmail);
+        if (draft.dueDate) setDueDate(draft.dueDate.slice(0, 10));
+        if (draft.upiId) setUpiId(draft.upiId);
+        if (draft.notes) setNotes(draft.notes);
+
+        if (Array.isArray(draft.items) && draft.items.length > 0) {
+          setItems(draft.items.map(item => ({
+            name: item.name || '',
+            price: item.price !== undefined ? String(item.price) : ''
+          })));
         }
-      });
 
-      setForm((prev) => ({
-        ...prev,
-        serviceDescription: res.data?.text || smartDescription
-      }));
-    } catch {
-      setForm((prev) => ({
-        ...prev,
-        serviceDescription: smartDescription
-      }));
-    } finally {
-      setAiWriting(false);
-    }
-  };
+        if (draft.cgst || draft.sgst) {
+          setShowTax(true);
+          setGstRate(String((Number(draft.cgst || 0) + Number(draft.sgst || 0))));
+        }
 
-  const applySmartDueDate = () => {
-    setForm((prev) => ({
-      ...prev,
-      [dateFieldName]: suggestedDueDate
-    }));
-  };
-
-  const applyAiDraft = (draft) => {
-    if (!draft) return;
-
-    const nextDocumentType = draft.documentType === 'proposal' ? 'proposal' : 'invoice';
-    setSourceLeadId(draft.sourceLeadId || '');
-    const nextItems = Array.isArray(draft.items)
-      ? draft.items
-          .map((item) => ({
-            name: String(item?.name || '').trim(),
-            price: item?.price === undefined || item?.price === null ? '' : String(item.price)
-          }))
-          .filter((item) => item.name || Number(item.price || 0) > 0)
-      : [];
-
-    setDocumentType(nextDocumentType);
-    setForm((prev) => ({
-      ...prev,
-      clientName: draft.clientName || prev.clientName,
-      clientEmail: draft.clientEmail || prev.clientEmail,
-      serviceDescription: draft.serviceDescription || prev.serviceDescription,
-      cgst: draft.cgst ?? prev.cgst,
-      sgst: draft.sgst ?? prev.sgst,
-      currency: draft.currency || prev.currency || 'INR',
-      upiId: nextDocumentType === 'invoice' ? (draft.upiId || prev.upiId) : '',
-      dueDate: nextDocumentType === 'invoice' ? normalizeDraftDate(draft.dueDate) : '',
-      validUntil: nextDocumentType === 'proposal' ? normalizeDraftDate(draft.validUntil) : ''
-    }));
-
-    if (nextItems.length) {
-      setItems(nextItems);
-    }
-
-    if (nextDocumentType === 'proposal') {
-      setRecurring((prev) => ({
-        ...prev,
-        enabled: false
-      }));
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const applySuggestedPrice = (price, label = 'Professional service package') => {
-    const cleanPrice = Number(price || 0);
-    if (!cleanPrice) return;
-
-    setItems([
-      {
-        name: label,
-        price: String(cleanPrice)
+        trackEvent('ai_quick_invoice_autofill', { textLength: aiPrompt.length });
       }
-    ]);
-
-    if (!form.serviceDescription) {
-      setForm((prev) => ({
-        ...prev,
-        serviceDescription: isProposal
-          ? `Proposed scope for ${label}. Includes delivery, review, and handover support.`
-          : `Professional services for ${label}. Includes delivery, review, and handover support.`
-      }));
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not auto-fill. Please enter details manually.');
+    } finally {
+      setAiLoading(false);
     }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const renderProUpsell = (title, detail) => (
-    <div className="premium-panel border-yellow-400/20 bg-yellow-400/[0.04] p-5 sm:p-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Pro automation</p>
-          <h3 className="mt-2 text-xl font-black text-white">{title}</h3>
-          <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400">{detail}</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate('/payment')}
-          className="btn btn-primary shrink-0 px-5 py-3 text-xs"
-        >
-          Upgrade Pro
-        </button>
-      </div>
-    </div>
-  );
-
-  useEffect(() => {
-    try {
-      const storedDraft = localStorage.getItem('invoicepro_ai_invoice_draft');
-      if (!storedDraft) return;
-
-      localStorage.removeItem('invoicepro_ai_invoice_draft');
-      applyAiDraft(JSON.parse(storedDraft));
-    } catch { }
-  }, []);
-
+  // Submit Invoice
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.clientName || !form.clientEmail || subtotal <= 0) {
-      alert('Fill required fields');
+    if (!clientName.trim()) {
+      alert('Please enter the client name.');
       return;
     }
 
-    const finalCurrency = form.currency || 'INR';
-    const finalUpi = isProposal || finalCurrency !== 'INR' ? '' : (form.upiId || user?.upiId);
-
-    if (!isProposal && finalCurrency === 'INR' && !finalUpi) {
-      alert("Please add UPI ID in Settings or here");
+    if (subtotal <= 0) {
+      alert('Please add at least one item with a valid price.');
       return;
     }
 
-    setLoading(true);
+    if (currency === 'INR' && !upiId.trim()) {
+      alert('Please enter your UPI ID so your client can pay directly to your account.');
+      return;
+    }
 
     try {
-      const res = await api.post('/invoices', {
-        ...form,
-        documentType,
-        currency: finalCurrency,
-        upiId: finalUpi,
-        sourceLeadId,
-        scopeAgreement,
-        items,
+      setSubmitting(true);
+      const halfTax = taxPercent > 0 ? taxPercent / 2 : 0;
+
+      const payload = {
+        documentType: 'invoice',
+        clientName: clientName.trim(),
+        clientEmail: clientEmail.trim() || undefined,
+        currency,
+        upiId: currency === 'INR' ? upiId.trim() : '',
+        dueDate,
+        items: items.map(item => ({
+          name: item.name.trim() || 'Service',
+          price: Number(item.price) || 0
+        })),
         amount: total,
-        recurring: isProposal ? { enabled: false } : recurring
-      });
+        cgst: halfTax,
+        sgst: halfTax,
+        notes: notes.trim()
+      };
 
-      trackEvent(isProposal ? 'create_proposal' : 'create_invoice', {
-        value: total,
-        currency: finalCurrency,
-        item_count: items.length,
-        recurring_enabled: Boolean(!isProposal && recurring.enabled)
-      });
-      navigate(`/invoice/${res.data.invoice._id}`);
+      const res = await api.post('/invoices', payload);
+      const inv = res.data?.invoice;
+      setCreatedInvoice(inv);
+      trackEvent('create_invoice_success', { amount: total, currency });
     } catch (err) {
-      if (err.response?.data?.limitReached) {
-        setLimitReached(true);
-      } else if (err.response?.data?.upgradeRequired) {
-        alert(err.response.data.message || 'This is a Pro feature.');
-        navigate('/payment');
-      } else {
-        alert('Error creating invoice');
-      }
+      alert(err.response?.data?.message || 'Failed to create invoice. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
+  };
 
-    setLoading(false);
+  const publicPayUrl = createdInvoice
+    ? `${window.location.origin}/public/invoice/${createdInvoice._id}`
+    : '';
+
+  const copyPayLink = () => {
+    if (!publicPayUrl) return;
+    navigator.clipboard.writeText(publicPayUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  const getWhatsAppShareUrl = () => {
+    const text = `Hi ${clientName},\n\nHere is your invoice #${createdInvoice?.invoiceNumber || ''} for ${currency} ${total.toLocaleString('en-IN')}.\n\nYou can view and pay it securely here:\n${publicPayUrl}\n\nThank you!`;
+    return `https://wa.me/?text=${encodeURIComponent(text)}`;
   };
 
   return (
-    <div className="premium-page min-h-screen">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20 font-sans">
       <Navbar />
 
-      <main className="container-custom py-8 sm:py-10 md:py-16">
-        <div className="reveal mb-12">
-          <div className="flex items-center gap-2 mb-4">
-             <span className="h-px w-8 bg-yellow-400" />
-             <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Billing Builder</p>
-          </div>
-          <h1 className="text-4xl font-bold sm:text-5xl tracking-tight text-white mb-4">
-            {isProposal ? 'New Proposal' : 'New Invoice'}
-          </h1>
-          <p className="max-w-2xl text-base sm:text-lg text-zinc-500 font-medium">
-            {isProposal
-              ? 'Create a client-ready proposal, collect approval online, and convert it into an invoice later.'
-              : 'Create a professional invoice, add payment details, and send it in minutes.'}
-          </p>
+      <main className="max-w-3xl mx-auto px-4 pt-8 sm:pt-12">
+        {/* SUCCESS CARD (Shown immediately when invoice is created - NO CONFUSING REDIRECT) */}
+        {createdInvoice ? (
+          <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-emerald-100 text-center animate-fade-in">
+            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-5 text-2xl font-black">
+              ✓
+            </div>
 
-          <div className="mt-8 grid w-full grid-cols-1 gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-1 sm:inline-grid sm:w-auto sm:grid-cols-2">
-            {[
-              { id: 'invoice', label: 'Invoice', note: 'Collect payment now' },
-              { id: 'proposal', label: 'Proposal', note: isPro ? 'Get approval first' : 'Pro approval flow' }
-            ].map((option) => (
+            <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-black uppercase tracking-wider rounded-full mb-3 border border-emerald-200">
+              Invoice #{createdInvoice.invoiceNumber} Ready!
+            </span>
+
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">
+              Invoice Created Successfully
+            </h1>
+
+            <p className="text-sm text-slate-600 max-w-md mx-auto mb-6">
+              Total <strong className="text-slate-900 font-bold">{currency} {total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong> for <strong className="text-slate-900 font-bold">{clientName}</strong>. Your client can scan the UPI QR code or pay via bank transfer.
+            </p>
+
+            {/* Link Box */}
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 mb-6 flex flex-col sm:flex-row items-center gap-3">
+              <input
+                type="text"
+                readOnly
+                value={publicPayUrl}
+                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-700 font-mono select-all focus:outline-none"
+              />
               <button
-                key={option.id}
                 type="button"
-                onClick={() => {
-                  if (option.id === 'proposal' && !isPro) {
-                    navigate('/payment');
-                    return;
-                  }
-
-                  setDocumentType(option.id);
-                }}
-                className={`rounded-lg px-5 py-3 text-left transition-all ${documentType === option.id
-                  ? 'bg-white text-zinc-950'
-                  : 'text-zinc-400 hover:bg-white/5 hover:text-white'
-                  }`}
+                onClick={copyPayLink}
+                className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-black transition-all shrink-0 active:scale-95"
               >
-                <p className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                  {option.label}
-                  {option.id === 'proposal' && !isPro && (
-                    <span className="rounded-full bg-yellow-400/15 px-2 py-0.5 text-[8px] text-yellow-300">Pro</span>
-                  )}
-                </p>
-                <p className="mt-1 text-xs font-bold">{option.note}</p>
+                {copied ? '✓ Copied!' : 'Copy Link'}
               </button>
-            ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+              <a
+                href={getWhatsAppShareUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3.5 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 active:scale-95"
+              >
+                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/>
+                </svg>
+                Share on WhatsApp
+              </a>
+
+              <a
+                href={publicPayUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3.5 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 active:scale-95"
+              >
+                Open Client Pay Page ↗
+              </a>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setCreatedInvoice(null);
+                setClientName('');
+                setClientEmail('');
+                setItems([{ name: '', price: '' }]);
+                setAiPrompt('');
+              }}
+              className="text-xs font-bold text-slate-500 hover:text-slate-800 uppercase tracking-widest"
+            >
+              + Create Another Invoice
+            </button>
           </div>
-        </div>
+        ) : (
+          /* MAIN FORM */
+          <div className="space-y-6">
+            {/* Title */}
+            <div>
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight">Create Invoice</h1>
+              <p className="text-sm text-slate-500 mt-1">
+                Clients scan your UPI QR to pay directly into your bank account. Zero platform cut.
+              </p>
+            </div>
 
-        <div className="reveal reveal-delay-1 mb-8">
-          {isPro ? (
-            <AIBillingAgent
-              mode="builder"
-              context={{
-                documentType,
-                form,
-                items,
-                cgst: form.cgst,
-                sgst: form.sgst,
-                subtotal,
-                tax,
-                total
-              }}
-              onApplyDraft={applyAiDraft}
-            />
-          ) : renderProUpsell(
-            'AI invoice assistant',
-            'Let AI create invoice drafts, calculate totals, check pending or overdue status, and prepare billing actions after payment.'
-          )}
-        </div>
+            {/* AI AUTO-FILL BOX */}
+            <div className="bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent border border-amber-200/80 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-base">✨</span>
+                <h3 className="text-sm font-bold text-slate-900">Let AI Write the Invoice (Optional)</h3>
+              </div>
+              <p className="text-xs text-slate-600 mb-3">
+                Just type what you did in simple words. AI will automatically fill in client name, price, and dates for you!
+              </p>
+              <form onSubmit={handleAiAutoFill} className="flex flex-col sm:flex-row gap-2.5">
+                <input
+                  type="text"
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  placeholder="e.g. Website design for Rahul, ₹15,000, due in 7 days"
+                  className="flex-1 bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+                />
+                <button
+                  type="submit"
+                  disabled={aiLoading}
+                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shrink-0 active:scale-95 disabled:opacity-50"
+                >
+                  {aiLoading ? 'Auto-Filling...' : '🪄 Auto-Fill'}
+                </button>
+              </form>
+            </div>
 
-        <div className="reveal reveal-delay-2 mb-8">
-          {isPro ? (
-            <PriceSuggestionAgent
-              context={{
-                documentType,
-                serviceDescription: form.serviceDescription,
-                items,
-                subtotal,
-                tax,
-                total,
-                clientName: form.clientName,
-                clientEmail: form.clientEmail
-              }}
-              onApplyPrice={applySuggestedPrice}
-            />
-          ) : renderProUpsell(
-            'AI price suggestion agent',
-            'Get realistic market ranges, positioning tips, and package pricing before you send a quote.'
-          )}
-        </div>
-
-        <form onSubmit={handleSubmit} className="grid min-w-0 gap-8">
-          <div className="reveal reveal-delay-1 space-y-8">
-            {/* Section: Client */}
-            <section className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
-                 <svg className="h-24 w-24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
+            {/* FORM CARD */}
+            <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+              {/* Section 1: Client Details */}
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">1. Client Details</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Client Name <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      placeholder="e.g. Rahul Sharma or Tech Corp"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                      Client Email or Phone (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                      placeholder="e.g. rahul@example.com or 9876543210"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-2xl font-black text-white leading-none mb-1">Client Details</h2>
-                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                    {isProposal ? 'Who is reviewing this proposal?' : 'Who are you billing?'}
-                  </p>
+              {/* Section 2: Items / Services Billed */}
+              <div className="pt-4 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">2. Service & Pricing</h3>
+                  <button
+                    type="button"
+                    onClick={addItem}
+                    className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                  >
+                    + Add Another Item
+                  </button>
                 </div>
 
-                {clients.length > 0 && (
-                  <select
-                    className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-[10px] font-black tracking-widest uppercase text-yellow-300 outline-none focus:border-yellow-300/50 cursor-pointer sm:w-auto"
-                    onChange={(e) => {
-                      const c = clients.find(client => client._id === e.target.value);
-                      if (c) selectClient(c);
-                    }}
-                    defaultValue=""
+                <div className="space-y-3">
+                  {items.map((item, index) => (
+                    <div key={index} className="flex gap-3 items-center">
+                      <input
+                        type="text"
+                        required
+                        value={item.name}
+                        onChange={(e) => handleItemChange(index, 'name', e.target.value)}
+                        placeholder="Service name (e.g. Social Media Management, Logo Design)"
+                        className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                      />
+                      <div className="w-32 sm:w-40 relative">
+                        <span className="absolute left-3 top-2.5 text-slate-400 text-sm font-bold">
+                          {currency === 'INR' ? '₹' : currency}
+                        </span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          step="any"
+                          value={item.price}
+                          onChange={(e) => handleItemChange(index, 'price', e.target.value)}
+                          placeholder="0"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-8 pr-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 font-bold"
+                        />
+                      </div>
+                      {items.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeItem(index)}
+                          className="text-slate-400 hover:text-rose-500 p-2 text-lg leading-none"
+                          title="Remove item"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 3: Payment & Due Date */}
+              <div className="pt-4 border-t border-slate-100">
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">3. Payout & Due Date</h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  {/* Your UPI ID */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Your UPI ID for Collection <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required={currency === 'INR'}
+                      value={upiId}
+                      onChange={(e) => setUpiId(e.target.value)}
+                      placeholder="e.g. yourname@okhdfcbank or 9876543210@paytm"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                    />
+                    <p className="text-[11px] text-emerald-600 font-medium mt-1">
+                      ✓ Clients scan the invoice QR to pay directly into this UPI ID.
+                    </p>
+                  </div>
+
+                  {/* Currency */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Currency</label>
+                    <select
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                    >
+                      {currencyOptions.map((opt) => (
+                        <option key={opt.code} value={opt.code}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Due Date & Quick Buttons */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Payment Due Date</label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input
+                      type="date"
+                      required
+                      value={dueDate}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setQuickDueDays(0)}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"
+                    >
+                      Due Today
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setQuickDueDays(7)}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"
+                    >
+                      In 7 Days
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setQuickDueDays(15)}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"
+                    >
+                      In 15 Days
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setQuickDueDays(30)}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"
+                    >
+                      In 30 Days
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Optional Section: Tax & Notes */}
+              <div className="pt-4 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setShowTax(!showTax)}
+                    className="text-xs font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1.5"
                   >
-                    <option value="" disabled>Saved Clients</option>
-                    {clients.map(c => (
-                      <option key={c._id} value={c._id}>{c.name}</option>
-                    ))}
-                  </select>
+                    <span>{showTax ? '▼' : '▶'}</span>
+                    <span>{showTax ? 'Hide GST / Tax' : '+ Add GST / Tax (Optional)'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setNotes(notes ? '' : 'Payment via UPI or Bank Transfer. Thank you for your business!')}
+                    className="text-xs font-bold text-slate-500 hover:text-slate-800"
+                  >
+                    {notes ? 'Clear Notes' : '+ Add Notes (Optional)'}
+                  </button>
+                </div>
+
+                {showTax && (
+                  <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-200 max-w-xs">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">GST Rate (%)</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={gstRate}
+                        onChange={(e) => setGstRate(e.target.value)}
+                        placeholder="18"
+                        className="w-24 bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 font-bold focus:outline-none"
+                      />
+                      <span className="text-xs text-slate-500 font-medium">% (splits into CGST + SGST)</span>
+                    </div>
+                  </div>
+                )}
+
+                {notes !== '' && (
+                  <div className="mt-4">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Invoice Notes / Bank Details</label>
+                    <textarea
+                      rows="2"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="e.g. Bank: HDFC, A/C: 1234567890, IFSC: HDFC0001234"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                    />
+                  </div>
                 )}
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Client Name</p>
-                    <input
-                      name="clientName"
-                      value={form.clientName}
-                      onChange={handleChange}
-                      placeholder="e.g. John Doe"
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
-                    />
-                </div>
-
-                <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Client Email</p>
-                    <input
-                      name="clientEmail"
-                      type="email"
-                      value={form.clientEmail}
-                      onChange={handleChange}
-                      placeholder="e.g. john@example.com"
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
-                    />
-                </div>
-
-              </div>
-            </section>
-
-            {/* Section: Service */}
-            <section className="premium-panel p-5 sm:p-8">
-              <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">
-                  {isProposal ? 'Proposal Summary' : 'Invoice Summary'}
-                </h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                  {isProposal ? 'Explain the work you are proposing' : 'Add a short description of the work delivered'}
-                </p>
-              </div>
-
-              <textarea
-                name="serviceDescription"
-                value={form.serviceDescription}
-                onChange={handleChange}
-                placeholder={isProposal ? 'Briefly describe the scope you are proposing...' : 'Briefly describe the value delivered...'}
-                rows="3"
-                className="input resize-none py-4 bg-black/20 border-white/5 focus:bg-black/60 min-h-[120px]"
-              />
-            </section>
-
-            <section className="premium-panel p-5 sm:p-8">
-              <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              {/* Total & Submit Button */}
+              <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-black text-white leading-none mb-1">Scope Lock</h2>
-                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                    Protect against unclear revisions and extra work
+                  <p className="text-xs uppercase tracking-wider text-slate-400 font-bold">Total Amount</p>
+                  <p className="text-2xl sm:text-3xl font-black text-slate-900">
+                    {currency === 'INR' ? '₹' : currency} {total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
-                </div>
-                <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
-                  Client portal ready
-                </span>
-              </div>
-
-              <div className="grid gap-4 lg:grid-cols-2">
-                <div className="space-y-1.5">
-                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Included work</p>
-                  <textarea
-                    value={scopeAgreement.included}
-                    onChange={(e) => handleScopeChange('included', e.target.value)}
-                    placeholder="One item per line: landing page, payment setup, deployment..."
-                    rows="4"
-                    className="input min-h-[130px] resize-none border-white/5 bg-black/20 py-4 focus:bg-black/60"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Not included</p>
-                  <textarea
-                    value={scopeAgreement.excluded}
-                    onChange={(e) => handleScopeChange('excluded', e.target.value)}
-                    placeholder="One item per line: paid ads, extra pages, content writing..."
-                    rows="4"
-                    className="input min-h-[130px] resize-none border-white/5 bg-black/20 py-4 focus:bg-black/60"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Revision limit</p>
-                  <input
-                    type="number"
-                    min="0"
-                    max="20"
-                    value={scopeAgreement.revisionLimit}
-                    onChange={(e) => handleScopeChange('revisionLimit', e.target.value)}
-                    className="input border-white/5 bg-black/20 py-4"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Extra work pricing</p>
-                  <input
-                    value={scopeAgreement.extraWorkRate}
-                    onChange={(e) => handleScopeChange('extraWorkRate', e.target.value)}
-                    placeholder="e.g. Rs 1,500/hour or quoted separately"
-                    className="input border-white/5 bg-black/20 py-4"
-                  />
-                </div>
-                <div className="space-y-1.5 lg:col-span-2">
-                  <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Timeline / approval rule</p>
-                  <input
-                    value={scopeAgreement.timeline}
-                    onChange={(e) => handleScopeChange('timeline', e.target.value)}
-                    placeholder="e.g. 7 business days after assets and approval are received"
-                    className="input border-white/5 bg-black/20 py-4"
-                  />
-                </div>
-                <label className="flex items-start gap-3 rounded-2xl border border-white/8 bg-black/20 p-4 lg:col-span-2">
-                  <input
-                    type="checkbox"
-                    checked={scopeAgreement.approvalRequired}
-                    onChange={(e) => handleScopeChange('approvalRequired', e.target.checked)}
-                    className="mt-1 h-4 w-4 accent-yellow-400"
-                  />
-                  <span>
-                    <span className="block text-sm font-black text-white">Require client approval before work starts</span>
-                    <span className="mt-1 block text-xs font-semibold leading-relaxed text-zinc-500">
-                      The public proposal page will show these scope terms before the client accepts or requests changes.
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </section>
-
-            {/* Section: Items */}
-            <section className="premium-panel p-5 sm:p-8">
-              <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-2xl font-black text-white leading-none mb-1">Line Items</h2>
-                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                    Break down your billables
-                  </p>
+                  {taxAmount > 0 && (
+                    <p className="text-[11px] text-slate-500">Includes {taxAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })} GST</p>
+                  )}
                 </div>
 
                 <button
-                  type="button"
-                  onClick={addItem}
-                  className="btn btn-secondary px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full sm:w-auto px-8 py-4 bg-slate-900 hover:bg-black text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50"
                 >
-                  Add Row
+                  {submitting ? 'Generating Invoice...' : 'Generate Invoice & Get Pay Link 🚀'}
                 </button>
               </div>
-
-              <div className="space-y-4">
-                {items.map((item, i) => (
-                  <div key={i} className="group/item grid gap-3 p-4 rounded-2xl border border-white/5 bg-black/10 transition-all hover:bg-black/20 lg:grid-cols-[minmax(0,1fr)_200px_50px]">
-                    <div className="space-y-1.5">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 lg:hidden">Service Description</p>
-                       <input
-                         placeholder="Consulting, Design, etc."
-                         value={item.name}
-                         onChange={(e) => handleItemChange(i, 'name', e.target.value)}
-                         className="input bg-transparent border-transparent px-0 focus:ring-0 text-white font-medium placeholder:text-zinc-700"
-                       />
-                    </div>
-
-                    <div className="space-y-1.5 relative">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700 lg:hidden">Amount</p>
-                        <div className="flex items-center">
-                            <span className="text-zinc-500 font-bold mr-2">{getCurrencyPrefix(form.currency)}</span>
-                            <input
-                              type="number"
-                              min="0"
-                              placeholder="0.00"
-                              value={item.price}
-                              onChange={(e) => handleItemChange(i, 'price', e.target.value)}
-                              className="input bg-transparent border-transparent px-0 focus:ring-0 text-white font-black text-lg placeholder:text-zinc-700"
-                            />
-                        </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeItem(i)}
-                      className="h-10 w-10 flex items-center justify-center rounded-xl bg-red-400/5 text-red-500/20 hover:text-red-400 hover:bg-red-400/10 transition-all self-center ml-auto"
-                    >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Section: Tax & Date */}
-            <section className="premium-panel p-5 sm:p-8">
-              <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">
-                  {isProposal ? 'Proposal Details' : 'Payment Details'}
-                </h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
-                  {isProposal ? 'Validity and commercial terms' : 'Dates, tax, and payments'}
-                </p>
-              </div>
-
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Currency</p>
-                    <select
-                      name="currency"
-                      value={form.currency}
-                      onChange={handleChange}
-                      className="input py-4 bg-black/20 border-white/5"
-                    >
-                      {currencyOptions.map((option) => (
-                        <option key={option.code} value={option.code}>{option.label}</option>
-                      ))}
-                    </select>
-                    {form.currency !== 'INR' && (
-                      <p className="text-xs font-semibold leading-relaxed text-yellow-200/80">
-                        Global card payment needs international payments enabled in Razorpay. UPI is only for INR invoices.
-                      </p>
-                    )}
-                </div>
-
-                <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">
-                      {isProposal ? 'Valid Until' : 'Due Date'}
-                    </p>
-                    <input
-                      type="date"
-                      name={dateFieldName}
-                      value={dateFieldValue}
-                      onChange={handleChange}
-                      className="input py-4 bg-black/20 border-white/5"
-                    />
-                </div>
-
-                {!isProposal && form.currency === 'INR' && (
-                  <div className="space-y-1.5">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">UPI ID for Collection</p>
-                      <input
-                        name="upiId"
-                        value={form.upiId}
-                        onChange={handleChange}
-                        placeholder="e.g. success@upi"
-                        className="input py-4 bg-black/20 border-white/5"
-                      />
-                  </div>
-                )}
-
-                <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">GST Identification</p>
-                    <input
-                      name="gst"
-                      value={form.gst}
-                      onChange={handleChange}
-                      placeholder="Optional GSTIN"
-                      className="input py-4 bg-black/20 border-white/5"
-                    />
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="space-y-1.5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">CGST %</p>
-                        <input
-                          name="cgst"
-                          type="number"
-                          value={form.cgst}
-                          onChange={handleChange}
-                          placeholder="0"
-                          className="input py-4 bg-black/20 border-white/5"
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">SGST %</p>
-                        <input
-                          name="sgst"
-                          type="number"
-                          value={form.sgst}
-                          onChange={handleChange}
-                          placeholder="0"
-                          className="input py-4 bg-black/20 border-white/5"
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">TDS % (194J / 194C)</p>
-                        <input
-                          name="tdsPercent"
-                          type="number"
-                          value={form.tdsPercent}
-                          onChange={handleChange}
-                          placeholder="e.g. 10 or 2"
-                          className="input py-4 bg-black/20 border-white/5"
-                        />
-                    </div>
-                </div>
-
-                {!isProposal && (
-                  <div className={`sm:col-span-2 rounded-[1.5rem] border p-5 ${
-                    isInternationalInvoice
-                      ? 'border-sky-300/20 bg-sky-300/[0.06]'
-                      : 'border-emerald-300/20 bg-emerald-300/[0.06]'
-                  }`}>
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div>
-                        <p className={`text-[10px] font-black uppercase tracking-widest ${
-                          isInternationalInvoice ? 'text-sky-200' : 'text-emerald-200'
-                        }`}>
-                          {paymentModeTitle}
-                        </p>
-                        <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-300">
-                          {paymentModeDetail}
-                        </p>
-                      </div>
-                      <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[24rem]">
-                        {[
-                          ['Currency', form.currency],
-                          ['Client pays', isInternationalInvoice ? 'Global methods' : 'Razorpay / UPI'],
-                          ['Status', 'Webhook verified']
-                        ].map(([label, value]) => (
-                          <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-3">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                            <p className="mt-1 text-xs font-black text-white">{value}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </section>
+            </form>
           </div>
-
-          {/* SIDEBAR */}
-          <aside className="reveal reveal-delay-2 h-fit space-y-6">
-            <div className="premium-panel p-5 sm:p-8">
-               <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-6">
-                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">
-                   {isProposal ? 'Proposal Total' : 'Invoice Total'}
-                 </p>
-               </div>
-
-               <div className="space-y-4 mb-8">
-                  <div className="flex justify-between items-center">
-                    <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">Subtotal</span>
-                    <span className="font-bold text-white text-lg">{formatCurrency(subtotal, form.currency)}</span>
-                  </div>
-                  {tax > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-zinc-500 font-bold text-sm uppercase tracking-tighter">GST Tax ({taxRate}%)</span>
-                      <span className="font-bold text-white text-lg">{formatCurrency(tax, form.currency)}</span>
-                    </div>
-                  )}
-                  {tdsAmount > 0 && (
-                    <div className="flex justify-between items-center text-yellow-300">
-                      <span className="font-bold text-xs uppercase tracking-tighter">TDS Deducted ({tdsRate}%)</span>
-                      <span className="font-bold text-sm">-{formatCurrency(tdsAmount, form.currency)}</span>
-                    </div>
-                  )}
-                  <div className="pt-6 border-t border-white/5 flex flex-col items-end">
-                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2 text-right w-full">
-                      {tdsAmount > 0 ? 'Net Bank Deposit' : 'Final Total'}
-                    </span>
-                    <span className="text-3xl sm:text-5xl font-black text-emerald-400 tracking-tighter break-words text-right">
-                      {formatCurrency(tdsAmount > 0 ? netReceivable : total, form.currency)}
-                    </span>
-                  </div>
-               </div>
-
-               <div className="rounded-[2rem] border border-yellow-400/20 bg-yellow-400/5 p-5 sm:p-6 mb-8 group/coach">
-                  <div className="flex items-center gap-2 mb-4">
-                     <div className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
-                     <p className="text-[10px] font-black text-yellow-300 uppercase tracking-widest">Quick Checks</p>
-                  </div>
-
-                  <div className="space-y-2 mb-6">
-                    {aiSuggestions.length > 0 ? aiSuggestions.slice(0, 3).map((s, i) => (
-                      <p key={i} className="text-xs font-bold text-zinc-400 flex items-center gap-2">
-                        <span className="h-1 w-1 bg-yellow-400/40 rounded-full" /> {s}
-                      </p>
-                    )) : (
-                      <p className="text-xs font-bold text-emerald-400 flex items-center gap-2">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                        Optimized for success.
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="grid gap-2">
-                    <button
-                      type="button"
-                      onClick={applySmartDescription}
-                      disabled={aiWriting}
-                      className="w-full rounded-xl border border-white/5 bg-white/5 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition-all hover:bg-white/10"
-                    >
-                      {aiWriting ? 'Writing...' : 'AI Generate Summary'}
-                    </button>
-                    {!dateFieldValue && (
-                      <button
-                        type="button"
-                        onClick={applySmartDueDate}
-                        className="w-full rounded-xl border border-white/5 bg-white/5 px-3 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition-all hover:bg-white/10"
-                      >
-                        {isProposal ? 'Set 7-Day Validity' : 'Set 7-Day Due Date'}
-                      </button>
-                    )}
-                  </div>
-               </div>
-
-               {!isProposal && (
-               <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] p-5 sm:p-6 mb-8">
-                 <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
-                   <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Recurring Invoice</p>
-                     <p className="text-xs font-bold text-zinc-600 leading-relaxed">
-                       Auto-generate this invoice on a schedule for retainers and subscriptions.
-                     </p>
-                   </div>
-
-                   <label className="inline-flex items-center gap-2 cursor-pointer select-none">
-                     <input
-                       type="checkbox"
-                       checked={recurring.enabled}
-                       onChange={(e) => {
-                         if (!isPro && e.target.checked) {
-                           navigate('/payment');
-                           return;
-                         }
-                         setRecurring((prev) => ({ ...prev, enabled: e.target.checked }));
-                       }}
-                       className="h-5 w-5 accent-yellow-400"
-                     />
-                     <span className="text-[10px] font-black uppercase tracking-widest text-yellow-300">
-                       {isPro ? (recurring.enabled ? 'On' : 'Off') : 'Pro'}
-                     </span>
-                   </label>
-                 </div>
-
-                 {!isPro && (
-                   <button
-                     type="button"
-                     onClick={() => navigate('/payment')}
-                     className="mt-5 w-full rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition-all hover:bg-yellow-400 hover:text-black"
-                   >
-                     Upgrade to automate recurring invoices
-                   </button>
-                 )}
-
-                 {isPro && recurring.enabled && (
-                   <div className="mt-6 grid gap-4">
-                     <div className="grid gap-4 sm:grid-cols-2">
-                       <div className="space-y-1.5">
-                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Frequency</p>
-                         <select
-                           value={recurring.frequency}
-                           onChange={(e) => {
-                             const nextFrequency = e.target.value;
-                             setRecurring((prev) => ({
-                               ...prev,
-                               frequency: nextFrequency,
-                               dayOfMonth: nextFrequency === 'monthly'
-                                 ? (prev.dayOfMonth || today.getDate())
-                                 : null
-                             }));
-                           }}
-                           className="input py-4 bg-black/20 border-white/5 cursor-pointer"
-                         >
-                           <option value="monthly">Monthly</option>
-                           <option value="weekly">Weekly</option>
-                         </select>
-                       </div>
-
-                       <div className="space-y-1.5">
-                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Interval</p>
-                         <input
-                           type="number"
-                           min="1"
-                           max="24"
-                           value={recurring.interval}
-                           onChange={(e) => setRecurring((prev) => ({ ...prev, interval: e.target.value }))}
-                           className="input py-4 bg-black/20 border-white/5"
-                         />
-                       </div>
-                     </div>
-
-                     {recurring.frequency === 'monthly' && (
-                       <div className="space-y-1.5">
-                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Day of Month</p>
-                         <input
-                           type="number"
-                           min="1"
-                           max="31"
-                           value={recurring.dayOfMonth ?? ''}
-                           onChange={(e) =>
-                             setRecurring((prev) => ({
-                               ...prev,
-                               dayOfMonth: Number(e.target.value || today.getDate())
-                             }))
-                           }
-                           className="input py-4 bg-black/20 border-white/5"
-                         />
-                       </div>
-                     )}
-
-                     <label className="flex items-center gap-3 cursor-pointer select-none">
-                       <input
-                         type="checkbox"
-                         checked={recurring.sendEmail}
-                         onChange={(e) => setRecurring((prev) => ({ ...prev, sendEmail: e.target.checked }))}
-                         className="h-4 w-4 accent-yellow-400"
-                       />
-                       <span className="text-xs font-bold text-zinc-500">
-                         Email the client automatically each cycle
-                       </span>
-                     </label>
-                   </div>
-                 )}
-               </div>
-               )}
-
-               <button
-                 type="submit"
-                 disabled={loading}
-                 className="btn btn-primary w-full py-5 text-lg shadow-xl shadow-black/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all"
-               >
-                 {loading ? 'Creating...' : isProposal ? 'Create Proposal' : 'Create Invoice'}
-                </button>
-
-               {limitReached && (
-                 <div className="mt-6 p-6 rounded-2xl bg-red-400/10 border border-red-400/20">
-                    <p className="text-sm font-bold text-red-400 mb-4 text-center">Free plan limit reached.</p>
-                    <button
-                      type="button"
-                      onClick={() => navigate('/payment')}
-                      className="w-full py-3 rounded-xl bg-red-400 text-white font-black text-xs uppercase"
-                    >
-                      Upgrade Plan
-                    </button>
-                 </div>
-               )}
-            </div>
-          </aside>
-        </form>
+        )}
       </main>
     </div>
   );

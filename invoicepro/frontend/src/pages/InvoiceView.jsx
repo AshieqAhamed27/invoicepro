@@ -340,6 +340,32 @@ export default function InvoiceView() {
     }
   };
 
+  const getQrDataUrl = (svgElement) => {
+    if (!svgElement) return Promise.resolve(null);
+    return new Promise((resolve) => {
+      try {
+        const xml = new XMLSerializer().serializeToString(svgElement);
+        const svg64 = btoa(unescape(encodeURIComponent(xml)));
+        const image64 = 'data:image/svg+xml;base64,' + svg64;
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 240;
+          canvas.height = 240;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, 240, 240);
+          ctx.drawImage(img, 0, 0, 240, 240);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => resolve(null);
+        img.src = image64;
+      } catch {
+        resolve(null);
+      }
+    });
+  };
+
   const downloadPdf = async () => {
     try {
       setDownloadingPdf(true);
@@ -529,6 +555,34 @@ export default function InvoiceView() {
       doc.setFontSize(12);
       doc.text('Total', totalsX + 18, totalsY + (tax > 0 ? 96 : 72));
       doc.text(formatCurrencyPdf(total, invoice.currency), totalsX + 192, totalsY + (tax > 0 ? 96 : 72), { align: 'right' });
+
+      // Draw UPI Payment QR onto PDF
+      const qrSvg = document.getElementById('pdf-qr-source') || document.querySelector('.invoice-document svg');
+      if (qrSvg) {
+        try {
+          const qrDataUrl = await getQrDataUrl(qrSvg);
+          if (qrDataUrl) {
+            const qrBoxY = Math.min(totalsY, pageHeight - 170);
+            doc.setFillColor(255, 255, 255);
+            doc.setDrawColor(...line);
+            doc.roundedRect(margin, qrBoxY, 195, 76, 6, 6, 'FD');
+            doc.addImage(qrDataUrl, 'PNG', margin + 6, qrBoxY + 6, 64, 64);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(...dark);
+            doc.text('Scan to Pay via UPI', margin + 78, qrBoxY + 22);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(...muted);
+            doc.text('GPay, PhonePe, Paytm', margin + 78, qrBoxY + 36);
+            if (finalUpi) {
+              doc.text(`UPI: ${finalUpi}`, margin + 78, qrBoxY + 50, { maxWidth: 110 });
+            }
+          }
+        } catch (e) {
+          console.warn('QR in PDF skipped:', e);
+        }
+      }
 
       if (invoice.notes) {
         const notesY = Math.min(totalsY, pageHeight - 175);
@@ -978,7 +1032,7 @@ export default function InvoiceView() {
 
                     {upiLink && (
                       <div className="mt-5 flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:inline-flex sm:flex-row sm:items-center">
-                        <QRCode value={upiLink} size={88} />
+                        <QRCode id="pdf-qr-source" value={upiLink} size={88} />
                         <div>
                           <p className="text-xs font-black uppercase tracking-widest text-slate-400">UPI Ready</p>
                           <p className="mt-1 max-w-[14rem] break-words text-sm font-bold text-slate-700">{finalUpi}</p>
