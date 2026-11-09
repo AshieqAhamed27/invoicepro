@@ -360,7 +360,7 @@ export default function PublicInvoice() {
   const isInternationalInvoice = !invoiceMeta.isProposal && invoice.currency !== 'INR';
 
   const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && invoice.currency === 'INR' && companyUpi
-    ? `upi://pay?pa=${companyUpi}&pn=${encodeURIComponent(companyName)}&am=${total.toFixed(2)}&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}`
+    ? `upi://pay?pa=${encodeURIComponent(companyUpi.trim())}&pn=${encodeURIComponent(companyName || 'Freelancer')}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber || ''}`.trim())}`
     : '';
   const paymentQrValue = upiUri || internationalPaymentLink || window.location.href;
 
