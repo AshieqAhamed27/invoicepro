@@ -58,9 +58,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-5 font-black uppercase text-slate-900">Setup services</h3>
+            <h3 className="mb-5 font-black uppercase text-slate-900">Features</h3>
             <div className="grid gap-3 font-medium text-slate-600">
-              <Link className="transition-colors hover:text-indigo-600" to="/payments/agency-setup">1-on-1 Managed Setup</Link>
+              <Link className="transition-colors hover:text-indigo-600" to="/create-invoice">AI Invoicing</Link>
+              <Link className="transition-colors hover:text-indigo-600" to="/create-invoice">Dynamic UPI QR</Link>
+              <Link className="transition-colors hover:text-indigo-600" to="/client-flow">Payment Tracking</Link>
+              <Link className="transition-colors hover:text-indigo-600" to="/gst-compliance">Legal Notice Generator</Link>
+              <Link className="transition-colors hover:text-indigo-600" to="/payments">0% Escrow Direct Payouts</Link>
             </div>
           </div>
 

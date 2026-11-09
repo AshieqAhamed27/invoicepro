@@ -320,7 +320,7 @@ const SimplePaymentCheckout = ({
 
           {subscriptionStatus && <section className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.05] p-5"><p className="text-xs font-black uppercase tracking-widest text-emerald-200">Your current subscription</p><p className="mt-2 font-black text-white">{subscriptionStatus.plan} · {subscriptionStatus.status}</p>{subscriptionStatus.currentEnd && <p className="mt-1 text-sm text-zinc-400">Access until {new Date(subscriptionStatus.currentEnd).toLocaleDateString('en-IN')}</p>}{canCancelSubscription && <button type="button" onClick={onCancel} disabled={cancelLoading} className="mt-4 rounded-lg border border-red-400/30 px-4 py-2 text-xs font-black uppercase text-red-200 disabled:opacity-60">{cancelLoading ? 'Cancelling…' : 'Cancel renewal'}</button>}</section>}
 
-          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-zinc-400 sm:flex-row sm:items-center sm:justify-between"><p>Need a person to set up your workflow? That is optional and separate from your subscription.</p><div className="flex gap-4 font-bold"><Link to="/payments/agency-setup" className="text-yellow-200 hover:text-white">1-on-1 Setup</Link><a href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI billing support`} className="text-cyan-200 hover:text-white">Billing help</a></div></div>
+          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-zinc-400 sm:flex-row sm:items-center sm:justify-between"><p>Questions about plans or billing? Contact our 24/7 founder support.</p><div className="flex gap-4 font-bold"><a href="https://wa.me/919080963704" target="_blank" rel="noopener noreferrer" className="text-emerald-300 hover:text-white">WhatsApp Support</a><a href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI billing support`} className="text-cyan-200 hover:text-white">Billing help</a></div></div>
         </section>
       </main>
     </div>
@@ -1008,19 +1008,14 @@ export default function Payment() {
               </div>
             )}
 
-            <div className="mb-6 rounded-[1.75rem] border border-yellow-300/20 bg-yellow-300/[0.06] p-5 sm:p-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Freelance workflow payment only</p>
+            <div className="mb-6 rounded-[1.75rem] border border-indigo-500/20 bg-indigo-500/[0.06] p-5 sm:p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-400">Software Access & Billing</p>
               <h2 className="mt-2 text-2xl font-black text-white">
-                This page is only for software access.
+                Pro Software Plans
               </h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
-                New users get 30 days of free software access. 1-on-1 Managed Setup has its own separate payment page.
+                All new accounts get 30 days of free unlimited access. Choose Pro Monthly or Pro Annual to lock in zero-escrow direct UPI and foreign payout features.
               </p>
-              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <Link to="/payments/agency-setup" className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-5 py-3 text-center text-[10px] font-black uppercase tracking-widest text-yellow-100 transition hover:bg-yellow-300/15">
-                  1-on-1 Managed Setup Payment
-                </Link>
-              </div>
             </div>
 
             <div className="mb-6 grid gap-3 sm:grid-cols-2">

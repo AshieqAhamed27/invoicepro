@@ -99,31 +99,11 @@ const paymentOptions = [
   }
 ];
 
-const servicePayments = [
-  {
-    title: '1-on-1 Managed Growth Setup (Done-For-You)',
-    priceKey: 'setupStart',
-    detail: 'Complete done-for-you setup: offer structure, lead tracking pipeline, proposal templates, workrooms, GST invoicing, payment reminders, and 7-day action plan with direct builder support.',
-    path: '/payments/agency-setup',
-    cta: 'Book 1-on-1 Managed Setup',
-    featured: true,
-    badge: 'Done-For-You Setup Service',
-    highlight: 'agency'
-  }
-];
-
-const whyPay = [
-  ['Recover delayed money', 'If one pending invoice gets collected faster, Pro can be worth more than the monthly price.'],
-  ['Close faster', 'Cleaner proposals, deal rooms, and follow-ups reduce confusion before the client pays.'],
-  ['Save business time', 'One workspace reduces switching between notes, chat, invoices, files, and reminders.'],
-  ['Look serious', 'A clear workroom, invoice, proof, and payment follow-up makes freelancers look more professional.']
-];
-
 const checkoutSteps = [
-  ['Choose payment type', 'Free 30-Day Trial, Pro Monthly (₹499), Pro Annual, or 1-on-1 Managed Setup.'],
+  ['Choose payment type', 'Free 30-Day Trial, Pro Monthly (₹249), or Pro Annual (₹1,999).'],
   ['Login or signup', 'A workspace account is required so access can be attached to the correct user.'],
   ['Pay securely', 'Checkout runs through configured payment providers such as Razorpay.'],
-  ['Use the workflow', 'New users get 30 days free. After that, paid software plans or setup services can be used when needed.']
+  ['Use the workflow', 'New users get 30 days free. After that, paid Pro software plans can be used when needed.']
 ];
 
 const toneClass = {
@@ -137,18 +117,10 @@ const checkoutTypes = [
   {
     title: 'Freelance Workflow',
     label: 'Software subscription',
-    detail: 'Free, Pro Monthly, Pro Annual, and Founder 90 Days software access.',
+    detail: 'Free 30-Day Trial, Pro Monthly, and Pro Annual software access.',
     path: '/payments/freelance-workflow',
     cta: 'Open Workflow Payment',
     tone: 'yellow'
-  },
-  {
-    title: 'Agency Setup',
-    label: 'Done-for-you freelancer setup',
-    detail: 'Starter Setup, Growth Setup, and Managed Growth for freelancer workflow setup.',
-    path: '/payments/agency-setup',
-    cta: 'Open Agency Payment',
-    tone: 'sky'
   }
 ];
 
@@ -328,72 +300,7 @@ export default function PaymentsOverview() {
           </div>
         </section>
 
-        <section id="setup-service-payments" className="border-b border-white/5 bg-yellow-400/[0.04] py-14 sm:py-16">
-          <div className="container-custom responsive-heading-grid">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">1-on-1 Setup Service</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                Need hands-on help setting up your freelance business workflow?
-              </h2>
-              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-                Get direct 1-on-1 done-for-you setup: we help configure your offer, lead pipeline, proposal templates, GST invoicing, payment follow-up, and 7-day growth plan.
-              </p>
-              <div className="mt-6">
-                <Link to="/payments/agency-setup" className="inline-flex btn btn-primary px-6 py-3 text-sm">
-                  Book 1-on-1 Managed Setup →
-                </Link>
-              </div>
-            </div>
 
-            <div className="grid gap-4">
-              {servicePayments.map((item) => {
-                const isAgencySetup = item.highlight === 'agency';
-                const isAutomationSetup = item.highlight === 'automation';
-                const isEnterpriseSetup = item.highlight === 'enterprise';
-
-                return (
-                  <Link
-                    key={item.title}
-                    to={item.path}
-                    className={`rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 ${
-                      isAgencySetup
-                        ? 'border-yellow-300/35 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/20 hover:border-yellow-300/50'
-                        : isAutomationSetup
-                          ? 'border-sky-300/35 bg-sky-300/[0.1] shadow-2xl shadow-sky-950/20 hover:border-sky-300/50'
-                        : isEnterpriseSetup
-                          ? 'border-emerald-300/35 bg-emerald-300/[0.1] shadow-2xl shadow-emerald-950/20 hover:border-emerald-300/50'
-                          : 'border-white/8 bg-black/25 hover:border-sky-300/25'
-                    }`}
-                  >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        {item.badge && (
-                          <span className={`mb-3 inline-flex rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
-                            isEnterpriseSetup
-                              ? 'border-emerald-300/20 bg-emerald-300/15 text-emerald-100'
-                              : isAutomationSetup
-                                ? 'border-sky-300/20 bg-sky-300/15 text-sky-100'
-                              : 'border-yellow-300/20 bg-yellow-300/15 text-yellow-100'
-                          }`}>
-                            {item.badge}
-                          </span>
-                        )}
-                        <h3 className="text-xl font-black text-white">{item.title}</h3>
-                        <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
-                      </div>
-                      <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
-                        From {currentMarket[item.priceKey]}
-                      </span>
-                    </div>
-                    <p className={`mt-4 text-[10px] font-black uppercase tracking-widest ${
-                      isAgencySetup ? 'text-yellow-200' : isAutomationSetup ? 'text-sky-200' : isEnterpriseSetup ? 'text-emerald-200' : 'text-sky-300'
-                    }`}>{item.cta}</p>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
 
         <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
           <div className="container-custom">

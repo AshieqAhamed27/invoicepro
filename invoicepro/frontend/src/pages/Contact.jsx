@@ -112,12 +112,14 @@ export default function Contact() {
             >
               Email Support
             </a>
-            <Link
-              to="/agency#agency-booking"
-              className="ml-0 mt-3 inline-flex rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-6 py-4 text-sm font-black text-yellow-200 transition-all hover:scale-[1.02] active:scale-95 sm:ml-3"
+            <a
+              href="https://wa.me/919080963704"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-0 mt-3 inline-flex rounded-2xl border border-emerald-300/30 bg-emerald-500/20 px-6 py-4 text-sm font-black text-emerald-200 transition-all hover:scale-[1.02] active:scale-95 sm:ml-3"
             >
-              Book Agency Setup
-            </Link>
+              WhatsApp Support (+91 90809 63704)
+            </a>
           </aside>
         </section>
       </main>

@@ -324,7 +324,7 @@ export default function App() {
           path="/agency"
           element={
             <Suspense fallback={<RouteLoader />}>
-              <AgencyServices />
+              <Navigate to="/payments" replace />
             </Suspense>
           }
         />
@@ -806,7 +806,7 @@ export default function App() {
           path="/payments/agency-setup"
           element={
             <Suspense fallback={<RouteLoader />}>
-              <SetupServicePayment serviceType="agency" />
+              <Navigate to="/payments" replace />
             </Suspense>
           }
         />
@@ -815,7 +815,7 @@ export default function App() {
           path="/payments/enterprise"
           element={
             <Suspense fallback={<RouteLoader />}>
-              <Navigate to="/payments/agency-setup" replace />
+              <Navigate to="/payments" replace />
             </Suspense>
           }
         />
@@ -824,7 +824,7 @@ export default function App() {
           path="/payments/automation-setup"
           element={
             <Suspense fallback={<RouteLoader />}>
-              <Navigate to="/payments/agency-setup" replace />
+              <Navigate to="/payments" replace />
             </Suspense>
           }
         />
