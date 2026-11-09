@@ -1006,133 +1006,44 @@ router.post('/invoices/:id/payment-link', protect, async(req, res) => {
 
         const publicUrl = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
 
-        if (process.env.PAYMENT_SIMULATION === 'true') {
-            invoice.paymentLink = {
-                provider: 'razorpay',
-                providerPaymentLinkId: `plink_sim_${Date.now()}`,
-                shortUrl: publicUrl,
-                status: 'created',
-                amount,
-                currency: invoice.currency || 'INR',
-                createdAt: new Date(),
-                paidAt: null,
-                paymentId: '',
-                raw: { simulation: true }
-            };
-            appendInvoicePaymentEvent(invoice, {
-                type: 'payment_link.created',
-                providerPaymentLinkId: invoice.paymentLink.providerPaymentLinkId,
-                status: 'created',
-                amount,
-                currency: invoice.currency || 'INR',
-                message: 'Simulation Razorpay payment link created.'
-            });
-            await invoice.save();
-
-            return res.json({
-                simulation: true,
-                message: 'Simulation payment link created',
-                paymentLink: invoice.paymentLink,
-                invoice
-            });
-        }
-
-        const authHeader = getRazorpayAuthHeader();
-        if (!authHeader) return res.status(500).json({ message: 'Razorpay keys missing' });
-
-        const referenceId = `inv_${invoice._id}_${Date.now().toString(36)}`.slice(0, 40);
-        const razorpayRes = await requestRazorpay({
-            path: '/v1/payment_links',
-            authHeader,
-            payload: {
-                amount: Math.round(amount * 100),
-                currency: invoice.currency || 'INR',
-                accept_partial: false,
-                description: `Invoice ${invoice.invoiceNumber}`,
-                reference_id: referenceId,
-                customer: {
-                    name: invoice.clientName || 'Client',
-                    email: invoice.clientEmail || undefined
-                },
-                notify: {
-                    sms: false,
-                    email: false
-                },
-                reminder_enable: true,
-                callback_url: publicUrl || undefined,
-                callback_method: publicUrl ? 'get' : undefined,
-                notes: {
-                    invoiceId: String(invoice._id),
-                    userId: String(invoice.user),
-                    invoiceNumber: invoice.invoiceNumber
-                }
-            }
-        });
-
-        if (!razorpayRes.ok) {
-            return res.status(razorpayRes.status).json({
-                message: getRazorpayErrorMessage(razorpayRes.body)
-            });
-        }
-
-        invoice.paymentLink = mapPaymentLinkEntity(razorpayRes.body);
+        invoice.paymentLink = {
+            provider: 'direct',
+            providerPaymentLinkId: `direct_${invoice._id}`,
+            shortUrl: publicUrl,
+            status: 'created',
+            amount,
+            currency: invoice.currency || 'INR',
+            createdAt: new Date(),
+            paidAt: null,
+            paymentId: '',
+            raw: { direct: true }
+        };
         appendInvoicePaymentEvent(invoice, {
             type: 'payment_link.created',
             providerPaymentLinkId: invoice.paymentLink.providerPaymentLinkId,
-            status: invoice.paymentLink.status || 'created',
-            amount: invoice.paymentLink.amount || amount,
-            currency: invoice.paymentLink.currency || invoice.currency || 'INR',
-            message: 'Razorpay payment link created for this invoice.'
+            status: 'created',
+            amount,
+            currency: invoice.currency || 'INR',
+            message: 'Direct UPI & Bank invoice payment link created.'
         });
         await invoice.save();
 
-        res.json({
-            message: 'Payment link created',
+        return res.json({
+            message: 'Direct payment link created',
             paymentLink: invoice.paymentLink,
             invoice
         });
     } catch (err) {
-        console.error('Razorpay invoice payment link error:', err.message);
+        console.error('Invoice payment link error:', err.message);
         res.status(500).json({ message: 'Unable to create payment link' });
     }
 });
 
 router.post('/public/order', async(req, res) => {
-    try {
-        const { invoiceId } = req.body;
-        if (!isValidObjectId(invoiceId)) return rejectInvalidObjectId(res, 'invoice');
-        const invoice = await Invoice.findById(invoiceId);
-        if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
-        if (invoice.documentType === 'proposal') return res.status(400).json({ message: 'Proposals cannot be paid' });
-        if (invoice.status === 'paid') return res.status(400).json({ message: 'Paid already' });
-
-        const authHeader = getRazorpayAuthHeader();
-        if (process.env.PAYMENT_SIMULATION === 'true') {
-            return res.json({
-                simulation: true, keyId: 'rzp_test_simulation',
-                order: { id: 'order_sim_' + Date.now(), amount: invoice.amount * 100, currency: invoice.currency || 'INR' }
-            });
-        }
-
-        if (!authHeader) return res.status(500).json({ message: 'Razorpay keys missing' });
-
-        const razorpayRes = await createRazorpayOrder({
-            amount: Math.round(invoice.amount * 100),
-            currency: invoice.currency || 'INR',
-            receipt: `inv_${invoice._id}`,
-            notes: { invoiceId: String(invoice._id) }
-        }, authHeader);
-
-        if (!razorpayRes.ok) {
-            return res.status(razorpayRes.status).json({
-                message: getRazorpayErrorMessage(razorpayRes.body)
-            });
-        }
-        res.json({ keyId: process.env.RAZORPAY_KEY_ID, order: razorpayRes.body });
-    } catch (err) {
-        console.error('Razorpay public order error:', err.message);
-        res.status(500).json({ message: 'Unable to create Razorpay order' });
-    }
+    return res.status(400).json({
+        message: 'Invoices are paid directly to the freelancer via UPI QR or Bank Transfer. Platform does not route client funds.'
+    });
+});
 });
 
 router.post('/public/verify', async(req, res) => {

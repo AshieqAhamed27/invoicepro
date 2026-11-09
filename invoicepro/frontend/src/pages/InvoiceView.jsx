@@ -267,22 +267,11 @@ export default function InvoiceView() {
   const finalUpi = invoice.currency === 'INR' ? (invoice.upiId || businessUpi || '') : '';
   const isInternationalInvoice = !meta.isProposal && invoice.currency !== 'INR';
   const publicDocumentUrl = `${window.location.origin}/public/invoice/${invoice._id}`;
-  const razorpayPaymentUrl = firstText(invoice.paymentLink?.shortUrl);
-  const paymentShareUrl = razorpayPaymentUrl || publicDocumentUrl;
-  const hasRazorpayPaymentLink = Boolean(razorpayPaymentUrl);
+  const razorpayPaymentUrl = '';
+  const paymentShareUrl = publicDocumentUrl;
+  const hasRazorpayPaymentLink = false;
   const paymentTimeline = [
     ...(invoice.paymentEvents || []),
-    ...(!invoice.paymentEvents?.length && invoice.paymentLink?.createdAt
-      ? [{
-        type: 'payment_link.created',
-        status: invoice.paymentLink.status || 'created',
-        amount: invoice.paymentLink.amount || total,
-        currency: invoice.paymentLink.currency || invoice.currency,
-        occurredAt: invoice.paymentLink.createdAt,
-        providerPaymentLinkId: invoice.paymentLink.providerPaymentLinkId,
-        message: 'Razorpay payment link created for this invoice.'
-      }]
-      : []),
     ...(invoice.status === 'paid' && invoice.paidAt && !(invoice.paymentEvents || []).some((event) => String(event.type || '').includes('paid') || String(event.status || '') === 'paid')
       ? [{
         type: 'payment.captured',
@@ -303,19 +292,19 @@ export default function InvoiceView() {
   const publicActionLabel = meta.isProposal
     ? 'Open Proposal'
     : canCollectPayment
-      ? (hasRazorpayPaymentLink ? 'Open Razorpay Link' : 'Open Pay Page')
+      ? 'Open Pay Page'
       : 'Open Receipt';
   const publicQrLabel = meta.isProposal
     ? 'Proposal QR'
     : canCollectPayment
-      ? (hasRazorpayPaymentLink ? 'Razorpay QR' : 'Payment QR')
+      ? 'Direct UPI QR'
       : 'Receipt QR';
   const paymentRouteLabel = isInternationalInvoice
-    ? 'International checkout'
-    : 'India checkout';
+    ? 'International Direct'
+    : 'Direct UPI & Bank';
   const paymentRouteDetail = isInternationalInvoice
-    ? 'This invoice is ready for foreign clients. Create or share the Razorpay link so they can pay using enabled international cards, global bank transfers, or supported local methods.'
-    : 'This invoice supports Razorpay and INR UPI collection. Share the payment link or QR where your client replies fastest.';
+    ? 'This invoice is configured for direct transfer to your international account (Wise, PayPal, or Bank Wire).'
+    : 'Clients pay directly into your personal UPI ID / Bank account with 0% platform fee and instant settlement.';
 
   const statusClass = !meta.isProposal
     ? meta.status === 'paid'
@@ -722,14 +711,15 @@ export default function InvoiceView() {
               </button>
             )}
             {!meta.isProposal && invoice.status !== 'paid' && (
-              <button
-                type="button"
-                onClick={() => createPaymentLink({ openAfterCreate: true })}
-                disabled={creatingPaymentLink}
-                className="btn btn-primary px-8 py-3 shadow-xl shadow-black/20 hover:-translate-y-0.5 transition-all"
+              <a
+                href={publicDocumentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary px-8 py-3 shadow-xl shadow-black/20 hover:-translate-y-0.5 transition-all inline-flex items-center gap-2"
               >
-                {creatingPaymentLink ? 'Creating Link...' : hasRazorpayPaymentLink ? 'Open Razorpay Link' : 'Create Razorpay Link'}
-              </button>
+                <span>View Public Pay Page</span>
+                <span className="text-xs">↗</span>
+              </a>
             )}
 
             {meta.isProposal && invoice.proposalStatus === 'accepted' && !invoice.convertedToInvoiceId && (
@@ -807,44 +797,14 @@ export default function InvoiceView() {
               )}
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
-                {canCollectPayment ? (
-                  hasRazorpayPaymentLink ? (
-                    <a
-                      href={razorpayPaymentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        trackEvent('begin_invoice_payment', {
-                          method: 'razorpay_payment_link',
-                          location: 'invoice_view_mobile_panel',
-                          value: total,
-                          currency: invoice.currency || 'INR'
-                        });
-                      }}
-                      className="btn btn-primary justify-center px-6 py-3 text-center"
-                    >
-                      {publicActionLabel}
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => createPaymentLink({ openAfterCreate: true })}
-                      disabled={creatingPaymentLink}
-                      className="btn btn-primary justify-center px-6 py-3 text-center disabled:opacity-60"
-                    >
-                      {creatingPaymentLink ? 'Creating...' : 'Create Razorpay Link'}
-                    </button>
-                  )
-                ) : (
-                  <a
-                    href={publicDocumentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-primary justify-center px-6 py-3 text-center"
-                  >
-                    {publicActionLabel}
-                  </a>
-                )}
+                <a
+                  href={publicDocumentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary justify-center px-6 py-3 text-center"
+                >
+                  {publicActionLabel}
+                </a>
 
                 <button
                   type="button"
@@ -1095,31 +1055,17 @@ export default function InvoiceView() {
                 </a>
 
                 {canCollectPayment && (
-                  hasRazorpayPaymentLink ? (
-                    <a
-                      href={razorpayPaymentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 rounded-2xl bg-emerald-400/10 border border-emerald-400/15 hover:bg-emerald-400/15 transition-all group"
-                    >
-                      <span className="text-xs font-bold text-emerald-300 group-hover:text-emerald-200">
-                        Open Razorpay Payment Link
-                      </span>
-                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => createPaymentLink({ openAfterCreate: true })}
-                      disabled={creatingPaymentLink}
-                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-emerald-400/10 border border-emerald-400/15 hover:bg-emerald-400/15 transition-all group disabled:opacity-60"
-                    >
-                      <span className="text-xs font-bold text-emerald-300 group-hover:text-emerald-200">
-                        {creatingPaymentLink ? 'Creating Razorpay Link...' : 'Create Razorpay Payment Link'}
-                      </span>
-                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" /></svg>
-                    </button>
-                  )
+                  <a
+                    href={publicDocumentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-4 rounded-2xl bg-emerald-400/10 border border-emerald-400/15 hover:bg-emerald-400/15 transition-all group"
+                  >
+                    <span className="text-xs font-bold text-emerald-300 group-hover:text-emerald-200">
+                      Open Client Pay Page
+                    </span>
+                    <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                  </a>
                 )}
 
                 <button
@@ -1232,36 +1178,14 @@ export default function InvoiceView() {
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-zinc-950/95 p-3 shadow-2xl shadow-black/40 backdrop-blur md:hidden print:hidden">
         <div className="mx-auto grid max-w-md grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
-          {canCollectPayment ? (
-            hasRazorpayPaymentLink ? (
-              <a
-                href={razorpayPaymentUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-xl bg-yellow-400 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-black"
-              >
-                Pay Now
-              </a>
-            ) : (
-              <button
-                type="button"
-                onClick={() => createPaymentLink({ openAfterCreate: true })}
-                disabled={creatingPaymentLink}
-                className="rounded-xl bg-yellow-400 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-black disabled:opacity-60"
-              >
-                {creatingPaymentLink ? 'Creating' : 'Pay Link'}
-              </button>
-            )
-          ) : (
-            <a
-              href={publicDocumentUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-xl bg-yellow-400 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-black"
-            >
-              Open Link
-            </a>
-          )}
+          <a
+            href={publicDocumentUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-xl bg-yellow-400 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-black"
+          >
+            {canCollectPayment ? 'Pay Page' : 'Open Link'}
+          </a>
 
           <button
             type="button"

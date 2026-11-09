@@ -169,7 +169,7 @@ export default function PublicInvoice() {
   const tdsAmount = (subtotal * tdsPercent) / 100;
   const netReceivable = total - tdsAmount;
   const documentDate = invoiceMeta.isProposal ? invoice.validUntil : invoice.dueDate;
-  const razorpayPaymentUrl = firstText(invoice.paymentLink?.shortUrl);
+  const razorpayPaymentUrl = '';
 
   const handlePayNow = async () => {
     if (razorpayPaymentUrl) {
@@ -362,7 +362,7 @@ export default function PublicInvoice() {
   const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && invoice.currency === 'INR' && companyUpi
     ? `upi://pay?pa=${companyUpi}&pn=${encodeURIComponent(companyName)}&am=${total.toFixed(2)}&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber}`)}`
     : '';
-  const paymentQrValue = razorpayPaymentUrl || upiUri || window.location.href;
+  const paymentQrValue = upiUri || internationalPaymentLink || window.location.href;
 
   const badgeContent = invoiceMeta.isProposal
     ? invoiceMeta.status === 'accepted'
@@ -569,42 +569,46 @@ export default function PublicInvoice() {
               <div className="rounded-xl border border-gray-100 bg-gray-50/50 p-6">
                 <div className="flex flex-col sm:flex-row gap-6 items-center">
                   <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                    <QRCode value={paymentQrValue} size={96} />
+                    <QRCode value={paymentQrValue} size={110} />
                   </div>
-                  <div className="text-center sm:text-left">
+                  <div className="text-center sm:text-left flex-1">
                     <p className="text-sm font-bold text-gray-900 mb-1">
-                      {razorpayPaymentUrl
-                        ? isInternationalInvoice ? 'International checkout ready' : 'Scan to pay with Razorpay'
-                        : 'Scan to pay instantly'}
+                      {isInternationalInvoice ? 'Direct International Transfer' : 'Scan to Pay Directly via UPI'}
                     </p>
                     <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-                      {razorpayPaymentUrl
-                        ? isInternationalInvoice
-                          ? 'Use this secure Razorpay link to pay with enabled international cards, bank transfers, or supported local payment methods.'
-                          : 'Use this secure Razorpay hosted link to pay by card, UPI, netbanking, or supported international methods.'
-                        : 'Use any UPI app like GPay, PhonePe, or Paytm to scan and pay the total amount.'}
+                      {isInternationalInvoice
+                        ? 'Transfer funds directly to the freelancer using their international payment link (Wise / PayPal) or bank wire.'
+                        : 'Scan this QR code with any UPI app (GPay, PhonePe, Paytm, BHIM) to pay directly into the freelancer\'s account with 0% fees.'}
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <button
-                        onClick={handlePayNow}
-                        disabled={paying}
-                        className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-slate-950 text-white rounded-lg font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
-                      >
-                        {paying ? 'Opening...' : razorpayPaymentUrl ? 'Pay Securely' : 'Razorpay Secure'}
-                      </button>
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                       {upiUri && (
-                        <button
+                        <a
+                          href={upiUri}
                           onClick={() => {
                             trackEvent('begin_invoice_payment', {
                               method: 'upi_app',
                               value: total,
                               currency: invoice.currency || 'INR'
                             });
-                            window.location.href = upiUri;
                           }}
-                          className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-emerald-600 transition-all active:scale-95 uppercase tracking-widest md:hidden"
+                          className="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-lg font-black text-sm shadow-xl hover:bg-emerald-700 transition-all active:scale-95 uppercase tracking-widest inline-flex items-center justify-center gap-2"
                         >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
                           Pay via UPI App
+                        </a>
+                      )}
+                      {companyUpi && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(companyUpi);
+                            alert(`Freelancer UPI ID copied: ${companyUpi}`);
+                          }}
+                          className="w-full sm:w-auto px-5 py-3 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 rounded-lg font-bold text-xs shadow-sm uppercase tracking-wider transition-all"
+                        >
+                          Copy UPI ID ({companyUpi})
                         </button>
                       )}
                       {isInternationalInvoice && internationalPaymentLink && (
@@ -619,7 +623,7 @@ export default function PublicInvoice() {
                               currency: invoice.currency || 'USD'
                             });
                           }}
-                          className="inline-flex items-center justify-center w-full sm:w-auto px-6 sm:px-8 py-3 bg-blue-600 text-white rounded-lg font-black text-sm shadow-xl hover:bg-blue-700 transition-all active:scale-95 uppercase tracking-widest text-center"
+                          className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg font-black text-sm shadow-xl hover:bg-blue-700 transition-all active:scale-95 uppercase tracking-widest text-center"
                         >
                           Pay via Wise / PayPal ↗
                         </a>
