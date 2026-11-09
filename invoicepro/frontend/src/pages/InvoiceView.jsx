@@ -182,6 +182,21 @@ export default function InvoiceView() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [convertingProposal, setConvertingProposal] = useState(false);
   const [creatingPaymentLink, setCreatingPaymentLink] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  const togglePaidStatus = async () => {
+    if (!invoice) return;
+    try {
+      setUpdatingStatus(true);
+      const nextStatus = invoice.status === 'paid' ? 'pending' : 'paid';
+      const res = await api.put(`/invoices/${invoice._id}/status`, { status: nextStatus });
+      setInvoice(res.data?.invoice || { ...invoice, status: nextStatus, paidAt: nextStatus === 'paid' ? new Date() : null });
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to update invoice status.');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
 
   useEffect(() => {
     fetchInvoice();
@@ -755,6 +770,24 @@ export default function InvoiceView() {
             >
               Share
             </button>
+            {!meta.isProposal && (
+              <button
+                type="button"
+                onClick={togglePaidStatus}
+                disabled={updatingStatus}
+                className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 ${
+                  invoice.status === 'paid'
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                }`}
+              >
+                {updatingStatus
+                  ? 'Updating...'
+                  : invoice.status === 'paid'
+                  ? '✓ Paid (Click to Reopen)'
+                  : '✓ Mark as Paid'}
+              </button>
+            )}
             {!meta.isProposal && invoice.status !== 'paid' && (
               <button
                 type="button"

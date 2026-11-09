@@ -752,12 +752,6 @@ router.put('/:id/status', protect, async(req, res) => {
             });
         }
 
-        if (status === 'paid' && !isAdmin) {
-            return res.status(403).json({
-                message: 'Invoices can be marked paid only after verified payment.'
-            });
-        }
-
         invoice.status = status;
 
         if (status === 'paid') {
