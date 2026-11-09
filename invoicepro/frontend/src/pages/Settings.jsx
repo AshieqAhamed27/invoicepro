@@ -431,6 +431,21 @@ export default function Settings() {
                 </span>
               </div>
 
+              {/* Zero Escrow Guarantee Banner */}
+              <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold text-base">
+                  ✓
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-emerald-300 mb-1">
+                    100% Direct to Your Bank — We Never Touch Your Client Money
+                  </h4>
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    ClientFlow AI does not hold, escrow, or deduct commission from your client invoices. When your clients pay via UPI QR, Wise, or Bank Transfer, <strong className="text-white">100% of the funds deposit directly into your personal bank account</strong> with 0% platform fee. ClientFlow AI only makes money when you subscribe to a software Pro plan.
+                  </p>
+                </div>
+              </div>
+
               {/* SECTION 1: DOMESTIC UPI */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -535,7 +550,9 @@ export default function Settings() {
                       placeholder="https://wise.com/pay/... or https://paypal.me/..."
                       className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono text-xs"
                     />
-                    <p className="text-[10px] text-zinc-500">Allows international clients to pay with 1 click using their local debit/credit card or bank transfer.</p>
+                    <p className="text-[10px] text-zinc-500">
+                      Allows international clients to pay with 1 click using their card, Apple Pay, or bank. <strong className="text-emerald-400">Wise (wise.com/pay/me/...) is recommended</strong> for lowest ~0.5% forex fees. PayPal and Stripe links also supported.
+                    </p>
                   </div>
                 </div>
 

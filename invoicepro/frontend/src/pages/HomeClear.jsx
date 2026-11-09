@@ -67,7 +67,7 @@ const faqs = [
   ['How do Indian clients pay?', 'They scan the dynamic UPI QR code on the invoice using any UPI app (GPay, PhonePe, Paytm, BHIM) or pay via cards/netbanking. Money deposits directly into your bank.'],
   ['How do US, UK, and foreign clients pay?', 'They pay in USD, EUR, or GBP via credit/debit card, Wise, PayPal, or direct SWIFT international bank wire. Under Section 16 of the IGST Act, cross-border freelance service export is 100% zero-rated under LUT.'],
   ['How does TDS (Section 194J / 194C) work?', 'Clients deducting 10% (professional services) or 2% (contracts) TDS are automatically accounted for. ClientFlow AI calculates net receivable bank deposit and shows TDS deduction certificates clearly for your CA.'],
-  ['Does ClientFlow AI hold or escrow my money?', 'Never. We do not hold user funds. Payments route directly to your personal/business UPI ID or your verified bank account.'],
+  ['Does ClientFlow AI hold or escrow my money?', 'Never. We never touch, hold, or deduct any fees from your client money. When clients pay via UPI QR, Wise, or Bank Transfer, 100% of the funds go straight into your personal bank account. We only make money when you subscribe to our software Pro plan.'],
   ['What happens to my data if my trial ends?', 'Your data is 100% safe and never locked. You retain full access to view, download, and export all your past invoices and client history to Excel anytime.']
 ];
 
@@ -553,7 +553,7 @@ export default function HomeClear() {
                   <h4 className="text-base font-black text-slate-900">100% Direct Payouts Guarantee</h4>
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                  ClientFlow AI never holds, escrows, or delays your client money. When your client scans the UPI QR or pays via Razorpay, funds deposit directly into your personal or business bank account.
+                  ClientFlow AI never touches, holds, or deducts commission from your client money. When your client scans the UPI QR, uses Wise, or transfers via bank, 100% of the money deposits directly into your personal bank account. We only make money from software Pro subscriptions.
                 </p>
               </div>
 

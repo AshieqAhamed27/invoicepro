@@ -397,7 +397,7 @@ export default function ClientFlow() {
                 2. Create Invoice & UPI QR
               </h3>
               <p className="mt-1.5 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
-                Bill clients in INR, USD, GBP, or EUR with GST LUT compliance, dynamic UPI QR code, and Razorpay links.
+                Bill clients in INR, USD, GBP, or EUR with GST LUT compliance, dynamic UPI QR code, and direct Wise / bank transfer links.
               </p>
 
               <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between text-xs font-bold text-indigo-700 dark:text-indigo-400">
