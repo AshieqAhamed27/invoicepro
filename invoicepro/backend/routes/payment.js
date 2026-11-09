@@ -1044,7 +1044,6 @@ router.post('/public/order', async(req, res) => {
         message: 'Invoices are paid directly to the freelancer via UPI QR or Bank Transfer. Platform does not route client funds.'
     });
 });
-});
 
 router.post('/public/verify', async(req, res) => {
     try {

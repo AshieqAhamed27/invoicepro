@@ -34,6 +34,10 @@ const isAllowedOrigin = (origin) => {
     const requestOrigin = normalizeUrl(origin);
     if (!requestOrigin) return true;
 
+    if (/^https:\/\/[a-zA-Z0-9_.-]+\.vercel\.app$/.test(requestOrigin)) {
+        return true;
+    }
+
     return getAllowedOrigins().some((allowedOrigin) => {
         if (allowedOrigin.includes('*')) {
             return toOriginPattern(allowedOrigin).test(requestOrigin);
