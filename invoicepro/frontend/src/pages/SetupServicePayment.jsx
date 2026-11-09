@@ -364,9 +364,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
                     onClick={() => selectMarket(id)}
                     className={`rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 ${
                       market === id
-                        ? isEnterprise
-                          ? 'border-emerald-300/45 bg-emerald-300/10 text-white'
-                          : 'border-yellow-300/45 bg-yellow-300/10 text-white'
+                        ? 'border-yellow-300/45 bg-yellow-300/10 text-white'
                         : 'border-white/8 bg-white/[0.03] text-zinc-400 hover:border-white/15 hover:bg-white/[0.06] hover:text-white'
                     }`}
                   >
