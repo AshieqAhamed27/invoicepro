@@ -31,42 +31,50 @@ const workflowSteps = [
   ['01', 'Find and qualify a lead', 'Keep the contact, budget, next action, and follow-up date organized in one place.'],
   ['02', 'Send a 60-sec proposal', 'Define clear scope, milestones, upfront deposit, and get client sign-off online.'],
   ['03', 'Manage the delivery', 'Track milestones, deliverables, approvals, and client requests in one workroom.'],
-  ['04', 'Create instant invoice', 'Generate GST & LUT-compliant invoices with dynamic UPI QR and international card links.'],
-  ['05', 'Automate payment chasers', 'Automatic WhatsApp and email follow-ups so you never have to awkwardly ask for money.']
+  ['04', '1-Sec AI Invoice & UPI QR', 'Type in plain English to auto-create invoices with dynamic UPI QR code on web and downloaded PDF.'],
+  ['05', 'Track, Chase & Legal Notice', '1-click mark as paid, automate WhatsApp chasers, and generate formal legal demand notices if clients delay or ghost.']
 ];
 
 const freeIncludes = [
-  { icon: '⚡', title: 'Dynamic UPI QR Code', text: 'Clients scan with GPay, PhonePe, or Paytm and pay in 10 seconds directly to your bank account.' },
-  { icon: '🌍', title: 'US/UK Foreign Client Rails', text: 'Direct 1-click Wise, PayPal, or SWIFT wire transfer details with 0% GST export LUT notice.' },
-  { icon: '💬', title: 'WhatsApp & Email Chasers', text: 'Polite automatic payment reminders before, on, and after invoice due dates so you get paid on time.' },
-  { icon: '🤖', title: 'AI Proposal Writer', text: '60-second client-ready proposals with 50% advance milestones and scope protection.' },
-  { icon: '📊', title: 'GST & TDS Compliance', text: 'Auto-calculates CGST/SGST/IGST splits and 194J/194C TDS deductions for seamless CA filing.' },
-  { icon: '📤', title: '1-Click CA Tax Export', text: 'Instant Excel/CSV export of all income ledgers and invoices for your accountant or Tally/Zoho.' }
+  { icon: '✨', title: 'Plain English AI Invoicing', text: 'Type what you worked on in 1 simple sentence. AI auto-fills client name, price, deliverables, and due dates in 1 second.' },
+  { icon: '⚡', title: 'Direct UPI QR (0% Escrow)', text: 'Clients scan with GPay, PhonePe, or Paytm. 100% direct bank settlement in 10s with ₹0 platform cuts and zero middleman holds.' },
+  { icon: '📄', title: 'QR Code Embedded in PDF', text: 'Every downloaded or printed PDF invoice has your live UPI QR code right on the page for instant scan-to-pay convenience.' },
+  { icon: '⚖️', title: 'Legal Demand Notice Engine', text: '1-click formal legal demand notice citing Section 73 Indian Contract Act & MSME Samadhaan with a 7-day cure period for delayed or ghosting clients.' },
+  { icon: '🌍', title: 'Foreign Client Rails (Wise/Wire)', text: 'Direct 1-click Wise, PayPal, or SWIFT wire transfer details in USD, EUR, GBP with 0% GST export LUT compliance.' },
+  { icon: '✓', title: '1-Click Payment Tracker', text: 'Real-time payment tracking with 1-click "Mark as Paid", automated calm WhatsApp chasers, and 1-click CA tax export.' }
 ];
 
 const protectionItems = [
   {
+    icon: '⚖️',
+    title: 'Formal Legal Demand Notice',
+    text: 'Pre-action recovery notice under Indian Contract Act, 1872 & MSME Samadhaan with 7-day cure period for overdue invoices.'
+  },
+  {
     icon: '🛡️',
-    title: 'Qualify the client upfront',
-    text: 'Record budget, urgency, and scope clarity before accepting work to prevent payment disputes.'
+    title: 'Zero Escrow & Direct Payouts',
+    text: 'We never hold your funds. All payments route directly from your client to your personal bank account or UPI ID.'
   },
   {
     icon: '🔒',
     title: 'Scope Lock & Revision Limits',
-    text: 'Client signs off on included deliverables and extra revision charges before work starts.'
+    text: 'Client signs off on included deliverables and extra revision charges before work starts to prevent scope creep.'
   },
   {
     icon: '🔔',
     title: 'Zero Awkward Payment Follow-ups',
-    text: 'Calm, automated reminders handle the chasing professionally so your client relationship stays healthy.'
+    text: 'Calm, automated WhatsApp and email reminders handle the chasing professionally so your client relationship stays healthy.'
   }
 ];
 
 const faqs = [
   ['Is ClientFlow AI a job marketplace?', 'No. ClientFlow AI does not sell leads or take a 20% platform cut. You keep 100% of your earnings from clients you source directly.'],
-  ['How do Indian clients pay?', 'They scan the dynamic UPI QR code on the invoice using any UPI app (GPay, PhonePe, Paytm, BHIM) or pay via cards/netbanking. Money deposits directly into your bank.'],
+  ['How does ClientFlow AI make money if there is 0% commission on my payments?', 'We never touch, hold, or take a percentage cut from your client payments. 100% goes straight from your client to your bank account or UPI ID. ClientFlow AI operates as a pure software product and makes money solely through our affordable Pro subscription (₹249/month or ₹1,999/year).'],
+  ['How do Indian clients pay?', 'They scan the dynamic UPI QR code on the invoice or downloaded PDF using any UPI app (GPay, PhonePe, Paytm, BHIM) or pay via cards/netbanking. Money deposits directly into your bank account in seconds.'],
+  ['Can clients pay directly from the downloaded PDF invoice?', 'Yes! Every invoice PDF generated and downloaded has your dynamic UPI QR code embedded directly into the document. Clients can print it or scan it straight off their laptop or tablet screen using any phone camera or UPI app.'],
+  ['What if a client delays, refuses to pay, or ghosts me?', 'ClientFlow AI includes a built-in 1-Click Formal Legal Demand Notice Generator. If a client is overdue, you can instantly export a formal pre-action recovery notice citing Section 73 of the Indian Contract Act, 1872 and MSME Samadhaan terms, setting a strict 7-day cure period before statutory recovery proceedings.'],
   ['How do US, UK, and foreign clients pay?', 'They pay in USD, EUR, or GBP via credit/debit card, Wise, PayPal, or direct SWIFT international bank wire. Under Section 16 of the IGST Act, cross-border freelance service export is 100% zero-rated under LUT.'],
-  ['How does TDS (Section 194J / 194C) work?', 'Clients deducting 10% (professional services) or 2% (contracts) TDS are automatically accounted for. ClientFlow AI calculates net receivable bank deposit and shows TDS deduction certificates clearly for your CA.'],
+  ['How does the 1-Click Payment Tracker work?', 'When a client pays, toggle "Mark as Paid" with 1 click. ClientFlow AI instantly flags the invoice as paid, automatically pauses all pending WhatsApp/email payment chasers, and updates your monthly revenue analytics in real time.'],
   ['Does ClientFlow AI hold or escrow my money?', 'Never. We never touch, hold, or deduct any fees from your client money. When clients pay via UPI QR, Wise, or Bank Transfer, 100% of the funds go straight into your personal bank account. We only make money when you subscribe to our software Pro plan.'],
   ['What happens to my data if my trial ends?', 'Your data is 100% safe and never locked. You retain full access to view, download, and export all your past invoices and client history to Excel anytime.']
 ];
@@ -80,29 +88,34 @@ const trustBadges = [
 
 const comparisonRows = [
   {
-    problem: 'How Clients Pay in India',
-    free: 'Bank account number typed on a static PDF (clients delay for weeks)',
-    cf: 'Dynamic UPI QR Code right on the invoice — client scans & pays in 10s via GPay, PhonePe, or Paytm'
+    problem: 'Creating an Invoice',
+    free: 'Fill out 15 tedious manual form inputs, tax calculators, and date pickers every time',
+    cf: 'Plain English AI Auto-Fill: Type "Built landing page for Acme for ₹25,000 due next Friday" — created in 1 second'
   },
   {
-    problem: 'Overdue & Late Payments',
-    free: 'Sends an email into spam or ignored inboxes',
-    cf: 'Automated WhatsApp & Email payment chasers that clients actually see and pay on time'
+    problem: 'How Clients Pay in India',
+    free: 'Bank account number typed on a static PDF (clients delay for weeks)',
+    cf: 'Dynamic UPI QR Code right on the web & inside the downloaded PDF — client scans & pays in 10s via GPay, PhonePe, or Paytm'
+  },
+  {
+    problem: 'Delayed, Ghosting, or Non-Paying Clients',
+    free: 'Zero recourse. You get left on "Read" with awkward messages and unpaid bills',
+    cf: '1-Click Formal Legal Demand Notice citing Section 73 Indian Contract Act, 1872 & MSME Samadhaan (7-day cure period)'
+  },
+  {
+    problem: 'Overdue Follow-ups & Tracking',
+    free: 'Manual emails lost in spam; manual spreadsheet updating',
+    cf: 'Automated WhatsApp & Email payment chasers + 1-Click "Mark as Paid" real-time status tracker'
   },
   {
     problem: 'International Clients (US/UK/EU)',
     free: 'Hands off to PayPal with 5–8% hidden FX loss',
-    cf: 'Direct transparent Wise, PayPal, and SWIFT bank wire rails with zero platform commission'
+    cf: 'Direct transparent Wise, PayPal, and SWIFT bank wire rails with zero platform commission and 0% GST export LUT'
   },
   {
-    problem: 'GST & Export Compliance',
-    free: 'Manual, confusing, requires expensive CA consultation',
-    cf: '1-Click GST & Export LUT ready — auto-calculates reverse charges and zero-rated export note'
-  },
-  {
-    problem: 'Payout Speed',
-    free: 'Delayed by multi-day settlement holds and verification roadblocks',
-    cf: '100% Direct: Money routes directly into your bank / UPI ID with zero middleman hold'
+    problem: 'Payout Speed & Escrow Holds',
+    free: 'Delayed by multi-day settlement holds, platform reserves, and verification roadblocks',
+    cf: '100% Direct: Money routes directly into your bank / UPI ID with zero middleman or escrow hold'
   }
 ];
 
@@ -112,12 +125,12 @@ const marqueeItems = [
   'Google Pay',
   'PhonePe',
   'Paytm',
-  'Razorpay Verified',
-  'HDFC Bank Direct',
-  'ICICI Bank Direct',
+  '✨ 1-Sec AI Invoicing',
+  '⚖️ Legal Demand Notice',
+  '0% Escrow Holds',
   'Wise USD/EUR Rail',
   'SWIFT Wire Ready',
-  'GST Compliant',
+  'GST & LUT Compliant',
   'Zero Platform Cuts',
   'Udyam Registered'
 ];
@@ -210,18 +223,22 @@ export default function HomeClear() {
                 </p>
 
                 {/* Quick Trust Highlights */}
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
+                <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl">
                   <div className="rounded-xl border border-emerald-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
-                    <p className="text-xs font-black text-emerald-700">⚡ Dynamic UPI QR</p>
-                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Scanned & paid in 10s via GPay/PhonePe</p>
+                    <p className="text-xs font-black text-emerald-700">⚡ Direct UPI QR</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Scan & pay in 10s via GPay/PhonePe</p>
                   </div>
-                  <div className="rounded-xl border border-amber-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
-                    <p className="text-xs font-black text-amber-700">💬 Auto-Chaser</p>
-                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Pings overdue clients on WhatsApp</p>
+                  <div className="rounded-xl border border-purple-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
+                    <p className="text-xs font-black text-purple-700">✨ Plain English AI</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Auto-fill invoice in 1 second</p>
+                  </div>
+                  <div className="rounded-xl border border-rose-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
+                    <p className="text-xs font-black text-rose-700">⚖️ Legal Notice</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Contract Act & MSME Samadhaan</p>
                   </div>
                   <div className="rounded-xl border border-indigo-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
-                    <p className="text-xs font-black text-indigo-700">🌍 US/UK Wise & SWIFT</p>
-                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Zero-rated GST export under LUT</p>
+                    <p className="text-xs font-black text-indigo-700">🌍 Wise & SWIFT</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">0% GST export under LUT</p>
                   </div>
                 </div>
 
@@ -324,6 +341,17 @@ export default function HomeClear() {
                   <div>
                     <p className="text-xs font-black text-slate-900">$850 USD Wire</p>
                     <p className="text-[10px] font-bold text-blue-600">LUT Export · 0% GST</p>
+                  </div>
+                </div>
+
+                {/* Floating Notification Pill 4: Bottom Left */}
+                <div className="absolute -bottom-6 left-2 sm:left-6 z-30 animate-float-slow hidden sm:flex items-center gap-2.5 rounded-2xl bg-white p-3 shadow-xl border border-slate-100">
+                  <div className="h-8 w-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-black text-xs">
+                    ⚖️
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900">Legal Recovery Protected</p>
+                    <p className="text-[10px] font-bold text-rose-600">Contract Act & MSME Samadhaan</p>
                   </div>
                 </div>
 
@@ -546,24 +574,44 @@ export default function HomeClear() {
             </div>
 
             {/* Money Safety Guarantee Cards */}
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-sm">
-                <div className="flex items-center gap-2.5 text-emerald-700">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-sm">
+                <div className="flex items-center gap-2 text-emerald-700">
                   <span className="text-xl">🛡️</span>
-                  <h4 className="text-base font-black text-slate-900">100% Direct Payouts Guarantee</h4>
+                  <h4 className="text-sm font-black text-slate-900">100% Direct Payouts</h4>
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                  ClientFlow AI never touches, holds, or deducts commission from your client money. When your client scans the UPI QR, uses Wise, or transfers via bank, 100% of the money deposits directly into your personal bank account. We only make money from software Pro subscriptions.
+                  ClientFlow AI never touches, holds, or deducts fees from your client money. UPI and Wise transfers deposit directly into your personal bank account. We make money only from software Pro plans.
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-6 shadow-sm">
-                <div className="flex items-center gap-2.5 text-indigo-700">
-                  <span className="text-xl">🇮🇳</span>
-                  <h4 className="text-base font-black text-slate-900">Built in India by a Freelancer</h4>
+              <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-5 shadow-sm">
+                <div className="flex items-center gap-2 text-rose-700">
+                  <span className="text-xl">⚖️</span>
+                  <h4 className="text-sm font-black text-slate-900">Legal Demand Notice</h4>
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                  Built by Ashieq for Indian freelancers who are exhausted by late client payments, currency exchange loss, and messy spreadsheets. Direct 24/7 founder support via{' '}
+                  Client delaying or ghosting? Generate an official pre-action Legal Demand Notice in 1 click citing Section 73 Indian Contract Act, 1872 & MSME Samadhaan with a strict 7-day cure period.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5 shadow-sm">
+                <div className="flex items-center gap-2 text-amber-700">
+                  <span className="text-xl">📄</span>
+                  <h4 className="text-sm font-black text-slate-900">Dynamic QR in PDF</h4>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                  Every downloaded or printed invoice PDF includes your live dynamic UPI QR code. Clients can scan and pay right off their screen or paper with zero account number typing.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-5 shadow-sm">
+                <div className="flex items-center gap-2 text-indigo-700">
+                  <span className="text-xl">🇮🇳</span>
+                  <h4 className="text-sm font-black text-slate-900">Founder Support</h4>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                  Built by Ashieq for Indian freelancers tired of payment delays and hidden FX fees. Direct 24/7 founder support via{' '}
                   <a
                     href="https://wa.me/919080963704"
                     target="_blank"
@@ -679,10 +727,11 @@ export default function HomeClear() {
                   <p className="text-xs font-bold text-slate-400 mt-1">Full 30-Day Unlocked Access · No Card Needed</p>
 
                   <ul className="mt-6 space-y-3 text-xs font-bold text-slate-700">
-                    <li className="flex items-center gap-2">✓ Dynamic UPI QR code invoices</li>
+                    <li className="flex items-center gap-2">✓ Plain English AI invoice creator (1 sec)</li>
+                    <li className="flex items-center gap-2">✓ Direct UPI QR (on web & PDF) — 0% cut</li>
                     <li className="flex items-center gap-2">✓ International Wise / SWIFT wire rails</li>
                     <li className="flex items-center gap-2">✓ Automatic WhatsApp & Email reminders</li>
-                    <li className="flex items-center gap-2">✓ 60-Second AI Proposal Writer</li>
+                    <li className="flex items-center gap-2">✓ 1-Click Legal Demand Notice generator</li>
                     <li className="flex items-center gap-2">✓ 1-Click Excel / CA tax report export</li>
                   </ul>
                 </div>
@@ -716,10 +765,11 @@ export default function HomeClear() {
                   <p className="text-xs font-bold text-emerald-600 mt-1">Special Diwali Price (Lock in 50% Discount)</p>
 
                   <ul className="mt-6 space-y-3 text-xs font-bold text-slate-700">
-                    <li className="flex items-center gap-2">✓ Unlimited invoices & proposals</li>
-                    <li className="flex items-center gap-2">✓ Unlimited international & domestic clients</li>
-                    <li className="flex items-center gap-2">✓ Automated WhatsApp client chasers</li>
-                    <li className="flex items-center gap-2">✓ Scope Lock & Revision agreement portal</li>
+                    <li className="flex items-center gap-2">✓ Unlimited AI invoices & proposal contracts</li>
+                    <li className="flex items-center gap-2">✓ Direct UPI QR & Wise foreign payout rails</li>
+                    <li className="flex items-center gap-2">✓ Automated WhatsApp overdue chasers</li>
+                    <li className="flex items-center gap-2">✓ 1-Click Legal Demand Notice generator</li>
+                    <li className="flex items-center gap-2">✓ 1-Click payment tracking & status ledger</li>
                     <li className="flex items-center gap-2">✓ Priority 24/7 founder WhatsApp support</li>
                   </ul>
                 </div>
