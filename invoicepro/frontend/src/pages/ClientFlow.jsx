@@ -622,10 +622,10 @@ export default function ClientFlow() {
           )}
         </section>
 
-        {/* ─── 6. Direct Client Profile & Direct Builder WhatsApp Support ─── */}
-        <section className="mb-10 grid gap-6 lg:grid-cols-2">
+        {/* ─── 6. Direct Client Profile ─── */}
+        <section className="mb-10">
           {/* Direct Profile Card */}
-          <div className="p-6 rounded-2xl border border-sky-200 dark:border-sky-500/20 bg-white dark:bg-zinc-950/40 shadow-sm">
+          <div className="p-6 rounded-2xl border border-sky-200 dark:border-sky-500/20 bg-white dark:bg-zinc-950/40 shadow-sm max-w-2xl">
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400">
                 0% Commission Direct Link
@@ -650,35 +650,6 @@ export default function ClientFlow() {
               >
                 {copiedLink ? 'Copied! ✓' : 'Copy Link'}
               </button>
-            </div>
-          </div>
-
-          {/* Direct WhatsApp Founder Support */}
-          <div className="p-6 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 bg-white dark:bg-zinc-950/40 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
-                  Direct Founder Contact
-                </span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200 font-bold">
-                  WhatsApp Support
-                </span>
-              </div>
-              <h3 className="text-lg font-black text-slate-950 dark:text-white">Have questions or need custom setup?</h3>
-              <p className="mt-1.5 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
-                I'm Ashieq, the builder of ClientFlow AI. Feel free to WhatsApp me directly if you need help with bank integrations, GST LUT, or payment reminders.
-              </p>
-            </div>
-
-            <div className="mt-5">
-              <a
-                href="https://wa.me/919080963704?text=Hi%20Ashieq!%20I'm%20using%20ClientFlow%20AI%20and%20wanted%20to%20connect%20%2F%20ask%20a%20question."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-sm active:scale-95"
-              >
-                <span>💬 Chat with Ashieq on WhatsApp (+91 90809 63704)</span>
-              </a>
             </div>
           </div>
         </section>
