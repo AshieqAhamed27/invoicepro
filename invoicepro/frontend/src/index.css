@@ -425,11 +425,10 @@ select option:disabled {
     }
     /* Inputs */
     .input {
-        @apply w-full bg-white border border-slate-200 p-3 rounded-lg text-sm text-slate-900 outline-none;
+        @apply w-full bg-white border border-slate-200 p-3 rounded-xl text-sm text-slate-900 outline-none;
         min-height: 46px;
         min-width: 0;
         max-width: 100%;
-        border-radius: 8px;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
         line-height: 1.35;
         transition:
@@ -448,6 +447,44 @@ select option:disabled {
         border-color: #6366f1;
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         background: #ffffff;
+    }
+    select.input,
+    select {
+        cursor: pointer;
+    }
+    select option {
+        background-color: #ffffff;
+        color: #0f172a;
+    }
+
+    /* High-contrast and readable inputs for dark surfaces */
+    .premium-page input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+    .premium-page textarea,
+    .premium-page select {
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.14) !important;
+    }
+    .premium-page input::placeholder,
+    .premium-page textarea::placeholder {
+        color: #94a3b8 !important;
+    }
+    .premium-page input:focus,
+    .premium-page textarea:focus,
+    .premium-page select:focus {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+    }
+    .premium-page select option {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+    }
+    .premium-page label span.text-zinc-500,
+    .premium-page label span.text-zinc-600,
+    .premium-page p.text-zinc-500,
+    .premium-page p.text-zinc-600 {
+        color: #cbd5e1;
     }
     select.input {
         appearance: none;

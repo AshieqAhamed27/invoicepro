@@ -355,17 +355,17 @@ export default function CreateInvoice() {
 
                 <div className="space-y-3">
                   {items.map((item, index) => (
-                    <div key={index} className="flex gap-3 items-center">
+                    <div key={index} className="flex gap-2 sm:gap-3 items-center">
                       <input
                         type="text"
                         required
                         value={item.name}
                         onChange={(e) => handleItemChange(index, 'name', e.target.value)}
                         placeholder="Service name (e.g. Social Media Management, Logo Design)"
-                        className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                        className="flex-1 min-w-0 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 font-medium"
                       />
-                      <div className="w-32 sm:w-40 relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 text-sm font-bold">
+                      <div className="w-36 sm:w-44 flex rounded-xl border border-slate-300 bg-slate-50 focus-within:ring-2 focus-within:ring-slate-900 focus-within:bg-white overflow-hidden shrink-0">
+                        <span className="px-3 py-2.5 bg-slate-100 border-r border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 min-w-[44px]">
                           {currency === 'INR' ? '₹' : currency}
                         </span>
                         <input
@@ -376,14 +376,14 @@ export default function CreateInvoice() {
                           value={item.price}
                           onChange={(e) => handleItemChange(index, 'price', e.target.value)}
                           placeholder="0"
-                          className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-8 pr-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 font-bold"
+                          className="w-full bg-transparent px-3 py-2.5 text-sm text-slate-900 focus:outline-none font-bold"
                         />
                       </div>
                       {items.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeItem(index)}
-                          className="text-slate-400 hover:text-rose-500 p-2 text-lg leading-none"
+                          className="text-slate-400 hover:text-rose-500 p-2 text-lg leading-none shrink-0"
                           title="Remove item"
                         >
                           ✕
@@ -410,7 +410,7 @@ export default function CreateInvoice() {
                       value={upiId}
                       onChange={(e) => setUpiId(e.target.value)}
                       placeholder="e.g. yourname@okhdfcbank or 9876543210@paytm"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 font-mono"
                     />
                     <p className="text-[11px] text-emerald-600 font-medium mt-1">
                       ✓ Clients scan the invoice QR to pay directly into this UPI ID.
@@ -423,10 +423,10 @@ export default function CreateInvoice() {
                     <select
                       value={currency}
                       onChange={(e) => setCurrency(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 cursor-pointer shadow-sm transition"
                     >
                       {currencyOptions.map((opt) => (
-                        <option key={opt.code} value={opt.code}>
+                        <option key={opt.code} value={opt.code} className="text-slate-900 bg-white">
                           {opt.label}
                         </option>
                       ))}
@@ -437,42 +437,44 @@ export default function CreateInvoice() {
                 {/* Due Date & Quick Buttons */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1.5">Payment Due Date</label>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
                     <input
                       type="date"
                       required
                       value={dueDate}
                       onChange={(e) => setDueDate(e.target.value)}
-                      className="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 font-medium"
+                      className="w-full sm:w-auto bg-slate-50 border border-slate-300 rounded-xl px-4 py-2 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 font-bold"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setQuickDueDays(0)}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"
-                    >
-                      Due Today
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setQuickDueDays(7)}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"
-                    >
-                      In 7 Days
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setQuickDueDays(15)}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"
-                    >
-                      In 15 Days
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setQuickDueDays(30)}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all"
-                    >
-                      In 30 Days
-                    </button>
+                    <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setQuickDueDays(0)}
+                        className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all text-center"
+                      >
+                        Due Today
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQuickDueDays(7)}
+                        className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all text-center"
+                      >
+                        In 7 Days
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQuickDueDays(15)}
+                        className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all text-center"
+                      >
+                        In 15 Days
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQuickDueDays(30)}
+                        className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all text-center"
+                      >
+                        In 30 Days
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

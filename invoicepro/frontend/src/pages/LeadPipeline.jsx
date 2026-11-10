@@ -30,7 +30,7 @@ const defaultForm = {
   nextFollowUpAt: ''
 };
 
-const inputClass = 'input bg-black/25';
+const inputClass = 'w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition';
 const smallActionClass = 'rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-emerald-400/25 hover:bg-white/[0.08] hover:text-white';
 
 const getCleanPhone = (value = '') => String(value || '').replace(/\D/g, '');
@@ -402,10 +402,10 @@ export default function LeadPipeline() {
               </label>
               <label className="grid gap-2">
                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Urgency</span>
-                <select value={form.urgency} onChange={(event) => updateField('urgency', event.target.value)} className={inputClass}>
-                  <option value="low">Low</option>
-                  <option value="normal">Normal</option>
-                  <option value="high">High</option>
+                <select value={form.urgency} onChange={(event) => updateField('urgency', event.target.value)} className={`${inputClass} cursor-pointer`}>
+                  <option value="low" className="bg-slate-900 text-white">Low</option>
+                  <option value="normal" className="bg-slate-900 text-white">Normal</option>
+                  <option value="high" className="bg-slate-900 text-white">High</option>
                 </select>
               </label>
             </div>

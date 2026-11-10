@@ -201,150 +201,150 @@ export default function ProposalWriter() {
             <div className="grid gap-5">
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Type</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Type</span>
                   <select
                     value={form.proposalType}
                     onChange={(event) => handleChange('proposalType', event.target.value)}
-                    className="input bg-black/25 py-4"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
                   >
-                    <option>Service Proposal</option>
-                    <option>RFP Response</option>
-                    <option>Project Proposal</option>
-                    <option>Retainer Proposal</option>
+                    <option className="bg-slate-900 text-white">Service Proposal</option>
+                    <option className="bg-slate-900 text-white">RFP Response</option>
+                    <option className="bg-slate-900 text-white">Project Proposal</option>
+                    <option className="bg-slate-900 text-white">Retainer Proposal</option>
                   </select>
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Tone</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Tone</span>
                   <select
                     value={form.tone}
                     onChange={(event) => handleChange('tone', event.target.value)}
-                    className="input bg-black/25 py-4"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
                   >
-                    <option value="professional">Professional</option>
-                    <option value="friendly">Friendly</option>
-                    <option value="premium">Premium</option>
-                    <option value="direct">Direct</option>
+                    <option value="professional" className="bg-slate-900 text-white">Professional</option>
+                    <option value="friendly" className="bg-slate-900 text-white">Friendly</option>
+                    <option value="premium" className="bg-slate-900 text-white">Premium</option>
+                    <option value="direct" className="bg-slate-900 text-white">Direct</option>
                   </select>
                 </label>
               </div>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Client Name</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Client Name</span>
                 <input
                   value={form.clientName}
                   onChange={(event) => handleChange('clientName', event.target.value)}
                   placeholder="Acme Technologies"
-                  className="input bg-black/25 py-4"
+                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Client Email</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Client Email</span>
                 <input
                   value={form.clientEmail}
                   onChange={(event) => handleChange('clientEmail', event.target.value)}
                   placeholder="client@example.com"
-                  className="input bg-black/25 py-4"
+                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
                 />
               </label>
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Industry</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Industry</span>
                   <input
                     value={form.clientIndustry}
                     onChange={(event) => handleChange('clientIndustry', event.target.value)}
                     placeholder="Healthcare, coaching, SaaS..."
-                    className="input bg-black/25 py-4"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
                   />
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Project Title</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Project Title</span>
                   <input
                     value={form.projectTitle}
                     onChange={(event) => handleChange('projectTitle', event.target.value)}
                     placeholder="Website redesign project"
-                    className="input bg-black/25 py-4"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
                   />
                 </label>
               </div>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Services</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Services</span>
                 <input
                   value={form.services}
                   onChange={(event) => handleChange('services', event.target.value)}
                   placeholder="Discovery, design, development, payment setup..."
-                  className="input bg-black/25 py-4"
+                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Client Goal</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Client Goal</span>
                 <input
                   value={form.goals}
                   onChange={(event) => handleChange('goals', event.target.value)}
                   placeholder="More enquiries, better conversion, faster payment..."
-                  className="input bg-black/25 py-4"
+                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
                 />
               </label>
 
               <div className="grid gap-5 sm:grid-cols-3">
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Timeline</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Timeline</span>
                   <input
                     value={form.timeline}
                     onChange={(event) => handleChange('timeline', event.target.value)}
                     placeholder="3 weeks"
-                    className="input bg-black/25 py-4"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
                   />
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Budget</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Budget</span>
                   <input
                     type="number"
                     min="0"
                     value={form.budget}
                     onChange={(event) => handleChange('budget', event.target.value)}
                     placeholder="25000"
-                    className="input bg-black/25 py-4"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
                   />
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Currency</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Currency</span>
                   <select
                     value={form.currency}
                     onChange={(event) => handleChange('currency', event.target.value)}
-                    className="input bg-black/25 py-4"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
                   >
-                    {currencyOptions.map((currency) => <option key={currency} value={currency}>{currency}</option>)}
+                    {currencyOptions.map((curr) => <option key={curr} value={curr} className="bg-slate-900 text-white">{curr}</option>)}
                   </select>
                 </label>
               </div>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Project Brief</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Project Brief</span>
                 <textarea
                   value={form.projectBrief}
                   onChange={(event) => handleChange('projectBrief', event.target.value)}
                   placeholder="Describe what the client asked for, pain points, preferred approach, deadlines..."
                   rows="4"
-                  className="input min-h-[120px] resize-none bg-black/25 py-4"
+                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 p-4 text-sm font-medium text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 min-h-[120px] resize-none transition"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Paste RFP Text Optional</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Paste RFP Text (Optional)</span>
                 <textarea
                   value={form.rfpText}
                   onChange={(event) => handleChange('rfpText', event.target.value)}
                   placeholder="Paste RFP requirements, evaluation criteria, scope, or client email..."
                   rows="5"
-                  className="input min-h-[140px] resize-none bg-black/25 py-4"
+                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 p-4 text-sm font-medium text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 min-h-[140px] resize-none transition"
                 />
               </label>
 

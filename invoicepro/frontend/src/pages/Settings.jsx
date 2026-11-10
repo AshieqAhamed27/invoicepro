@@ -353,26 +353,30 @@ export default function Settings() {
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Company Registered Name</p>
-                    <input
-                      name="companyName"
-                      value={form.companyName}
-                      onChange={handleChange}
-                      placeholder="e.g. Apex Design Studio"
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
-                    />
+                <div>
+                  <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                    Company Registered Name
+                  </label>
+                  <input
+                    name="companyName"
+                    value={form.companyName}
+                    onChange={handleChange}
+                    placeholder="e.g. Apex Design Studio"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                  />
                 </div>
 
-                <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">GST Identification Number</p>
-                    <input
-                      name="gstNumber"
-                      value={form.gstNumber}
-                      onChange={handleChange}
-                      placeholder="Optional GSTIN"
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
-                    />
+                <div>
+                  <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                    GST Identification Number (Optional)
+                  </label>
+                  <input
+                    name="gstNumber"
+                    value={form.gstNumber}
+                    onChange={handleChange}
+                    placeholder="Optional GSTIN"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                  />
                 </div>
               </div>
             </section>
@@ -380,40 +384,44 @@ export default function Settings() {
             <section id="role-profile" className="premium-panel p-5 sm:p-8 relative overflow-hidden group scroll-mt-28">
               <div className="mb-6">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Professional Role & Experience</h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Tailors templates, analytics, and workflow tips</p>
+                <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Tailors templates, analytics, and workflow tips</p>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Your Primary Role</p>
+                <div>
+                  <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                    Your Primary Role
+                  </label>
                   <select
                     name="persona"
                     value={form.persona}
                     onChange={handleChange}
-                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
                   >
-                    <option value="" className="bg-zinc-900 text-zinc-400">Select your role...</option>
-                    <option value="freelancer" className="bg-zinc-900 text-white">💼 Freelancer / Independent Pro</option>
-                    <option value="agency" className="bg-zinc-900 text-white">🏢 Agency / Studio / Team</option>
-                    <option value="small_business" className="bg-zinc-900 text-white">🏪 Small Business Owner</option>
-                    <option value="student" className="bg-zinc-900 text-white">🎓 Student / Exploring</option>
-                    <option value="other" className="bg-zinc-900 text-white">✨ Other Field</option>
+                    <option value="" className="bg-slate-900 text-slate-400">Select your role...</option>
+                    <option value="freelancer" className="bg-slate-900 text-white">💼 Freelancer / Independent Pro</option>
+                    <option value="agency" className="bg-slate-900 text-white">🏢 Agency / Studio / Team</option>
+                    <option value="small_business" className="bg-slate-900 text-white">🏪 Small Business Owner</option>
+                    <option value="student" className="bg-slate-900 text-white">🎓 Student / Exploring</option>
+                    <option value="other" className="bg-slate-900 text-white">✨ Other Field</option>
                   </select>
                 </div>
 
                 {form.persona === 'freelancer' && (
-                  <div className="space-y-1.5 animate-fadeIn">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Freelance Experience Level</p>
+                  <div className="animate-fadeIn">
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                      Freelance Experience Level
+                    </label>
                     <select
                       name="freelanceExperience"
                       value={form.freelanceExperience}
                       onChange={handleChange}
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white"
+                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
                     >
-                      <option value="beginner" className="bg-zinc-900 text-white">🌱 Beginner (&lt; 1 Year)</option>
-                      <option value="1_to_3_years" className="bg-zinc-900 text-white">🚀 1 – 3 Years Experience</option>
-                      <option value="3_to_5_years" className="bg-zinc-900 text-white">⭐ 3 – 5 Years Experience</option>
-                      <option value="5_plus_years" className="bg-zinc-900 text-white">👑 5+ Years Veteran</option>
+                      <option value="beginner" className="bg-slate-900 text-white">🌱 Beginner (&lt; 1 Year)</option>
+                      <option value="1_to_3_years" className="bg-slate-900 text-white">🚀 1 – 3 Years Experience</option>
+                      <option value="3_to_5_years" className="bg-slate-900 text-white">⭐ 3 – 5 Years Experience</option>
+                      <option value="5_plus_years" className="bg-slate-900 text-white">👑 5+ Years Veteran</option>
                     </select>
                   </div>
                 )}
@@ -450,18 +458,20 @@ export default function Settings() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="h-2 w-2 rounded-full bg-yellow-400"></span>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-zinc-300">1. Instant UPI Payments (India)</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-200">1. Instant UPI Payments (India)</h3>
                 </div>
-                <div className="space-y-1.5 max-w-md">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Default UPI ID / VPA</p>
+                <div className="max-w-md">
+                  <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                    Default UPI ID / VPA
+                  </label>
                   <input
                     name="upiId"
                     value={form.upiId}
                     onChange={handleChange}
                     placeholder="e.g. yourname@oksbi or 9876543210@paytm"
-                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono"
+                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono transition"
                   />
-                  <p className="text-[10px] text-zinc-500 mt-2 font-medium">Generates dynamic QR codes on INR invoices for instant GPay, PhonePe, Paytm settlements.</p>
+                  <p className="text-xs text-slate-300 mt-2 font-medium">Generates dynamic QR codes on INR invoices for instant GPay, PhonePe, Paytm settlements directly to your bank account.</p>
                 </div>
               </div>
 
@@ -469,41 +479,47 @@ export default function Settings() {
               <div className="pt-6 border-t border-white/5">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="h-2 w-2 rounded-full bg-blue-400"></span>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-zinc-300">2. Bank Transfer Details (NEFT / IMPS / RTGS)</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-200">2. Bank Transfer Details (NEFT / IMPS / RTGS)</h3>
                 </div>
-                <p className="text-xs text-zinc-500 mb-4">Shown on invoices for B2B clients who prefer direct bank deposits.</p>
+                <p className="text-xs text-slate-300 mb-4">Shown on invoices for B2B clients who prefer direct bank deposits.</p>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Bank Name</p>
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                      Bank Name
+                    </label>
                     <input
                       name="bankName"
                       value={form.bankName}
                       onChange={handleChange}
                       placeholder="e.g. HDFC Bank, ICICI Bank, SBI"
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white"
+                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Account Number</p>
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                      Account Number
+                    </label>
                     <input
                       name="accountNumber"
                       value={form.accountNumber}
                       onChange={handleChange}
                       placeholder="e.g. 50100456789012"
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono"
+                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono transition"
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">IFSC Code</p>
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                      IFSC Code
+                    </label>
                     <input
                       name="ifscCode"
                       value={form.ifscCode}
                       onChange={handleChange}
                       placeholder="e.g. HDFC0001234"
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono uppercase"
+                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono uppercase transition"
                     />
                   </div>
                 </div>
@@ -514,54 +530,54 @@ export default function Settings() {
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
-                    <h3 className="text-sm font-black uppercase tracking-widest text-zinc-300">3. Cross-Border & International Payouts (US, UK, Global)</h3>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-200">3. Cross-Border & International Payouts (US, UK, Global)</h3>
                   </div>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white/5 text-zinc-400 border border-white/5">
+                  <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-white/10 text-emerald-300 border border-white/10">
                     RBI & LUT Compliant
                   </span>
                 </div>
-                <p className="text-xs text-zinc-500 mb-4">
+                <p className="text-xs text-slate-300 mb-4">
                   For US/UK/foreign clients who wire USD/EUR/GBP, or prefer paying via modern fintech rails (Wise, PayPal, Stripe, Skydo).
                 </p>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">
-                      SWIFT / BIC Code <span className="text-zinc-500 font-normal">(For Bank Wires)</span>
-                    </p>
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                      SWIFT / BIC Code <span className="text-slate-400 font-normal">(For Bank Wires)</span>
+                    </label>
                     <input
                       name="swiftCode"
                       value={form.swiftCode}
                       onChange={handleChange}
                       placeholder="e.g. HDFCINBBXXX or ICICINBBXXX"
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono uppercase"
+                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono uppercase transition"
                     />
-                    <p className="text-[10px] text-zinc-500">Ask your bank branch or check online for your bank&apos;s 8-11 character SWIFT code.</p>
+                    <p className="text-xs text-slate-400 mt-1">Ask your bank branch or check online for your bank&apos;s 8-11 character SWIFT code.</p>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">
-                      International Pay Link <span className="text-zinc-500 font-normal">(Wise / PayPal / Stripe)</span>
-                    </p>
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                      International Pay Link <span className="text-slate-400 font-normal">(Wise / PayPal / Stripe)</span>
+                    </label>
                     <input
                       name="internationalPaymentLink"
                       value={form.internationalPaymentLink}
                       onChange={handleChange}
                       placeholder="https://wise.com/pay/... or https://paypal.me/..."
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 text-white font-mono text-xs"
+                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono transition"
                     />
-                    <p className="text-[10px] text-zinc-500">
-                      Allows international clients to pay with 1 click using their card, Apple Pay, or bank. <strong className="text-emerald-400">Wise (wise.com/pay/me/...) is recommended</strong> for lowest ~0.5% forex fees. PayPal and Stripe links also supported.
+                    <p className="text-xs text-slate-400 mt-1">
+                      Allows international clients to pay with 1 click using their card, Apple Pay, or bank. <strong className="text-emerald-400">Wise (wise.com/pay/me/...) is recommended</strong> for lowest ~0.5% forex fees.
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 flex items-start gap-3">
+                <div className="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3">
                   <svg className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    <strong className="text-zinc-200">Export of Service Notice:</strong> Under Section 16 of the IGST Act, cross-border freelance service earnings are zero-rated under LUT (Letter of Undertaking), with 0% GST liability. Money lands straight in your account.
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    <strong className="text-white">Export of Service Notice:</strong> Under Section 16 of the IGST Act, cross-border freelance service earnings are zero-rated under LUT (Letter of Undertaking), with 0% GST liability. Money lands straight in your account.
                   </p>
                 </div>
               </div>
@@ -570,7 +586,7 @@ export default function Settings() {
             <section className="premium-panel p-5 sm:p-8">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Business Address</h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Displayed on your invoices</p>
+                <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Displayed on your invoices</p>
               </div>
 
               <textarea
@@ -579,34 +595,36 @@ export default function Settings() {
                 onChange={handleChange}
                 placeholder="Tamil Nadu, India"
                 rows="4"
-                className="input resize-none py-4 bg-black/20 border-white/5 focus:bg-black/60 min-h-[120px]"
+                className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 p-4 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 min-h-[120px] resize-none transition"
               />
             </section>
 
             <section id="branding" className="premium-panel p-5 sm:p-8 scroll-mt-28">
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-white leading-none mb-1">Logo</h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Branding shown on invoices and PDFs</p>
+                <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Branding shown on invoices and PDFs</p>
               </div>
 
-              <div className="space-y-1.5">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 ml-1">Logo Dynamic URL</p>
-                  <input
-                    name="logo"
-                    value={form.logo}
-                    onChange={handleChange}
-                    placeholder="/logo.svg or https://cloud.com/your-logo.png"
-                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
-                  />
-                  {logoInvalid && (
-                    <div className="mt-3 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-[10px] font-bold text-red-300 max-w-md">
-                      Logo URL looks unsafe for production. Use `/logo.svg` or a public `https://` image URL.
-                    </div>
-                  )}
-                  <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/5 max-w-md">
-                     <svg className="h-4 w-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                     <p className="text-[10px] font-medium text-zinc-400">Use /logo.svg for the bundled {COMPANY_SHORT_NAME} logo, or a high-res public PNG/SVG for custom branding.</p>
+              <div>
+                <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                  Logo Dynamic URL
+                </label>
+                <input
+                  name="logo"
+                  value={form.logo}
+                  onChange={handleChange}
+                  placeholder="/logo.svg or https://cloud.com/your-logo.png"
+                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                />
+                {logoInvalid && (
+                  <div className="mt-3 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-xs font-bold text-red-300 max-w-md">
+                    Logo URL looks unsafe for production. Use `/logo.svg` or a public `https://` image URL.
                   </div>
+                )}
+                <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/5 max-w-md">
+                   <svg className="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                   <p className="text-xs font-medium text-slate-300">Use /logo.svg for the bundled {COMPANY_SHORT_NAME} logo, or a high-res public PNG/SVG for custom branding.</p>
+                </div>
               </div>
             </section>
 
