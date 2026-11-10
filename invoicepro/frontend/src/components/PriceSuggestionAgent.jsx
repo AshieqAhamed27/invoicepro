@@ -8,7 +8,7 @@ const formatMoney = (amount) =>
   })}`;
 
 const optionClass =
-  'input bg-black/20 border-white/5 py-3 text-xs font-bold text-zinc-200';
+  'input bg-white border-slate-300 py-3 text-xs font-semibold text-slate-900';
 
 const getAiSourceLabel = (source) => {
   if (source === 'anthropic') return 'Anthropic Claude + ClientFlow AI rules';
@@ -131,7 +131,7 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
             </div>
 
             <div className="space-y-1.5">
-              <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Client Type</p>
+              <p className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-800">Client Type</p>
               <select
                 value={form.clientType}
                 onChange={(e) => setForm({ ...form, clientType: e.target.value })}
@@ -146,7 +146,7 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
             </div>
 
             <div className="space-y-1.5">
-              <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Complexity</p>
+              <p className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-800">Complexity</p>
               <select
                 value={form.complexity}
                 onChange={(e) => setForm({ ...form, complexity: e.target.value })}
@@ -160,7 +160,7 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
             </div>
 
             <div className="space-y-1.5">
-              <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Your Level</p>
+              <p className="ml-1 text-xs font-bold uppercase tracking-wider text-slate-800">Your Level</p>
               <select
                 value={form.experienceLevel}
                 onChange={(e) => setForm({ ...form, experienceLevel: e.target.value })}

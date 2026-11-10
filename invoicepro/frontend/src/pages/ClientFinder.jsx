@@ -55,7 +55,7 @@ const defaultLeadForm = {
   urgency: 'normal'
 };
 
-const inputClass = 'input bg-black/25';
+const inputClass = 'input';
 const actionLinkClass = 'flex min-h-10 w-full items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-yellow-400/25 hover:bg-white/[0.08] hover:text-white';
 
 const marketPresets = [

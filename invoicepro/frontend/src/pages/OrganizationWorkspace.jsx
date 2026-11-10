@@ -5,8 +5,8 @@ import Navbar from '../components/Navbar';
 import { getUser } from '../utils/auth';
 import { COMPANY_SHORT_NAME } from '../utils/company';
 
-const inputClass = 'w-full rounded-xl border border-white/10 bg-black/25 px-3 py-3 text-sm font-semibold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/40 focus:bg-black/35';
-const labelClass = 'text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500';
+const inputClass = 'w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20';
+const labelClass = 'text-xs font-bold uppercase tracking-wider text-slate-800';
 const panelClass = 'rounded-2xl border border-white/10 bg-white/[0.035] p-5 shadow-xl shadow-black/10';
 
 const loadRazorpayScript = () => new Promise((resolve) => {

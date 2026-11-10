@@ -124,69 +124,69 @@ export default function ClientSetupWizard({
 
       <div className="grid gap-4 lg:grid-cols-5">
         <label className="grid gap-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Business</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Business</span>
           <select
             value={setup.businessType}
             onChange={(event) => updateField('businessType', event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none focus:border-sky-300/50"
+            className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
           >
             {setupOptions.businessType.map((item) => <option key={item}>{item}</option>)}
           </select>
         </label>
 
         <label className="grid gap-2 lg:col-span-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Main service</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Main service</span>
           <input
             type="text"
             value={setup.service}
             onChange={(event) => updateField('service', event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-sky-300/50"
+            className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
             placeholder="Example: website redesign package"
           />
         </label>
 
         <label className="grid gap-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Target client</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Target client</span>
           <select
             value={setup.targetClient}
             onChange={(event) => updateField('targetClient', event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none focus:border-sky-300/50"
+            className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
           >
             {setupOptions.targetClient.map((item) => <option key={item}>{item}</option>)}
           </select>
         </label>
 
         <label className="grid gap-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Monthly target</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Monthly target</span>
           <input
             type="number"
             min="1000"
             step="1000"
             value={setup.monthlyTarget}
             onChange={(event) => updateField('monthlyTarget', event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none focus:border-sky-300/50"
+            className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
           />
         </label>
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end">
         <label className="grid gap-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Payment path</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Payment path</span>
           <select
             value={setup.paymentMethod}
             onChange={(event) => updateField('paymentMethod', event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none focus:border-sky-300/50"
+            className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
           >
             {setupOptions.paymentMethod.map((item) => <option key={item}>{item}</option>)}
           </select>
         </label>
 
         <label className="grid gap-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Default workflow</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Default workflow</span>
           <select
             value={setup.workflow}
             onChange={(event) => updateField('workflow', event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none focus:border-sky-300/50"
+            className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
           >
             {setupOptions.workflow.map((item) => (
               <option key={item.id} value={item.id}>{item.label}</option>

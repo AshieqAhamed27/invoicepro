@@ -201,150 +201,150 @@ export default function ProposalWriter() {
             <div className="grid gap-5">
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="grid gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Type</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Type</span>
                   <select
                     value={form.proposalType}
                     onChange={(event) => handleChange('proposalType', event.target.value)}
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition cursor-pointer"
                   >
-                    <option className="bg-slate-900 text-white">Service Proposal</option>
-                    <option className="bg-slate-900 text-white">RFP Response</option>
-                    <option className="bg-slate-900 text-white">Project Proposal</option>
-                    <option className="bg-slate-900 text-white">Retainer Proposal</option>
+                    <option value="Service Proposal">Service Proposal</option>
+                    <option value="RFP Response">RFP Response</option>
+                    <option value="Project Proposal">Project Proposal</option>
+                    <option value="Retainer Proposal">Retainer Proposal</option>
                   </select>
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Tone</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Tone</span>
                   <select
                     value={form.tone}
                     onChange={(event) => handleChange('tone', event.target.value)}
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition cursor-pointer"
                   >
-                    <option value="professional" className="bg-slate-900 text-white">Professional</option>
-                    <option value="friendly" className="bg-slate-900 text-white">Friendly</option>
-                    <option value="premium" className="bg-slate-900 text-white">Premium</option>
-                    <option value="direct" className="bg-slate-900 text-white">Direct</option>
+                    <option value="professional">Professional</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="premium">Premium</option>
+                    <option value="direct">Direct</option>
                   </select>
                 </label>
               </div>
 
               <label className="grid gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Client Name</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Client Name</span>
                 <input
                   value={form.clientName}
                   onChange={(event) => handleChange('clientName', event.target.value)}
                   placeholder="Acme Technologies"
-                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                  className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Client Email</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Client Email</span>
                 <input
                   value={form.clientEmail}
                   onChange={(event) => handleChange('clientEmail', event.target.value)}
                   placeholder="client@example.com"
-                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                  className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                 />
               </label>
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="grid gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Industry</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Industry</span>
                   <input
                     value={form.clientIndustry}
                     onChange={(event) => handleChange('clientIndustry', event.target.value)}
                     placeholder="Healthcare, coaching, SaaS..."
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                   />
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Project Title</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Project Title</span>
                   <input
                     value={form.projectTitle}
                     onChange={(event) => handleChange('projectTitle', event.target.value)}
                     placeholder="Website redesign project"
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                   />
                 </label>
               </div>
 
               <label className="grid gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Services</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Services</span>
                 <input
                   value={form.services}
                   onChange={(event) => handleChange('services', event.target.value)}
                   placeholder="Discovery, design, development, payment setup..."
-                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                  className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Client Goal</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Client Goal</span>
                 <input
                   value={form.goals}
                   onChange={(event) => handleChange('goals', event.target.value)}
                   placeholder="More enquiries, better conversion, faster payment..."
-                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                  className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                 />
               </label>
 
               <div className="grid gap-5 sm:grid-cols-3">
                 <label className="grid gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Timeline</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Timeline</span>
                   <input
                     value={form.timeline}
                     onChange={(event) => handleChange('timeline', event.target.value)}
                     placeholder="3 weeks"
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                   />
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Budget</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Budget</span>
                   <input
                     type="number"
                     min="0"
                     value={form.budget}
                     onChange={(event) => handleChange('budget', event.target.value)}
                     placeholder="25000"
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                   />
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Currency</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Currency</span>
                   <select
                     value={form.currency}
                     onChange={(event) => handleChange('currency', event.target.value)}
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition cursor-pointer"
                   >
-                    {currencyOptions.map((curr) => <option key={curr} value={curr} className="bg-slate-900 text-white">{curr}</option>)}
+                    {currencyOptions.map((curr) => <option key={curr} value={curr}>{curr}</option>)}
                   </select>
                 </label>
               </div>
 
               <label className="grid gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Project Brief</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Project Brief</span>
                 <textarea
                   value={form.projectBrief}
                   onChange={(event) => handleChange('projectBrief', event.target.value)}
                   placeholder="Describe what the client asked for, pain points, preferred approach, deadlines..."
                   rows="4"
-                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 p-4 text-sm font-medium text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 min-h-[120px] resize-none transition"
+                  className="w-full rounded-xl bg-white border border-slate-300 p-4 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 min-h-[120px] resize-none transition"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Paste RFP Text (Optional)</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Paste RFP Text (Optional)</span>
                 <textarea
                   value={form.rfpText}
                   onChange={(event) => handleChange('rfpText', event.target.value)}
                   placeholder="Paste RFP requirements, evaluation criteria, scope, or client email..."
                   rows="5"
-                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 p-4 text-sm font-medium text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 min-h-[140px] resize-none transition"
+                  className="w-full rounded-xl bg-white border border-slate-300 p-4 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 min-h-[140px] resize-none transition"
                 />
               </label>
 

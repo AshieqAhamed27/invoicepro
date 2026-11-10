@@ -30,7 +30,7 @@ const defaultForm = {
   nextFollowUpAt: ''
 };
 
-const inputClass = 'w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition';
+const inputClass = 'w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition';
 const smallActionClass = 'rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-emerald-400/25 hover:bg-white/[0.08] hover:text-white';
 
 const getCleanPhone = (value = '') => String(value || '').replace(/\D/g, '');
@@ -354,58 +354,58 @@ export default function LeadPipeline() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Business Name</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Business Name</span>
                 <input value={form.businessName} onChange={(event) => updateField('businessName', event.target.value)} className={inputClass} placeholder="ABC Dental Clinic" />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Contact Name</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Contact Name</span>
                 <input value={form.contactName} onChange={(event) => updateField('contactName', event.target.value)} className={inputClass} placeholder="Owner name" />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Email</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Email</span>
                 <input type="email" value={form.email} onChange={(event) => updateField('email', event.target.value)} className={inputClass} placeholder="client@example.com" />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Phone / WhatsApp</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Phone / WhatsApp</span>
                 <input value={form.phone} onChange={(event) => updateField('phone', event.target.value)} className={inputClass} placeholder="9876543210" />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Website</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Website</span>
                 <input value={form.website} onChange={(event) => updateField('website', event.target.value)} className={inputClass} placeholder="business.com" />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">LinkedIn</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">LinkedIn</span>
                 <input value={form.linkedinUrl} onChange={(event) => updateField('linkedinUrl', event.target.value)} className={inputClass} placeholder="linkedin.com/company/name" />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Instagram</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Instagram</span>
                 <input value={form.instagramUrl} onChange={(event) => updateField('instagramUrl', event.target.value)} className={inputClass} placeholder="@businessname" />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Niche</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Niche</span>
                 <input value={form.niche} onChange={(event) => updateField('niche', event.target.value)} className={inputClass} placeholder="Dental clinics in Tenkasi" />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Budget Signal</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Budget Signal</span>
                 <input type="number" min="0" value={form.budget} onChange={(event) => updateField('budget', event.target.value)} className={inputClass} placeholder="4999" />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Follow-up Date</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Follow-up Date</span>
                 <input type="date" value={form.nextFollowUpAt} onChange={(event) => updateField('nextFollowUpAt', event.target.value)} className={inputClass} />
               </label>
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Pain / Opportunity</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Pain / Opportunity</span>
                 <textarea value={form.pain} onChange={(event) => updateField('pain', event.target.value)} rows={3} className={`${inputClass} min-h-[96px] resize-none`} placeholder="No WhatsApp button, weak offer, slow mobile page..." />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Urgency</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Urgency</span>
                 <select value={form.urgency} onChange={(event) => updateField('urgency', event.target.value)} className={`${inputClass} cursor-pointer`}>
-                  <option value="low" className="bg-slate-900 text-white">Low</option>
-                  <option value="normal" className="bg-slate-900 text-white">Normal</option>
-                  <option value="high" className="bg-slate-900 text-white">High</option>
+                  <option value="low">Low</option>
+                  <option value="normal">Normal</option>
+                  <option value="high">High</option>
                 </select>
               </label>
             </div>

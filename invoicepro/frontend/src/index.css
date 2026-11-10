@@ -448,56 +448,50 @@ select option:disabled {
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         background: #ffffff;
     }
+
+    /* Universal Modern Select & Dropdowns - High Contrast & Native Polish */
     select.input,
     select {
-        cursor: pointer;
-    }
-    select option {
-        background-color: #ffffff;
-        color: #0f172a;
+        cursor: pointer !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 0.75rem !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+        padding-left: 1rem !important;
+        padding-right: 2.5rem !important;
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        line-height: 1.25rem !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23475569' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+        background-position: right 0.85rem center !important;
+        background-repeat: no-repeat !important;
+        background-size: 1.25rem 1.25rem !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
     }
 
-    /* High-contrast and readable inputs for dark surfaces */
-    .premium-page input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
-    .premium-page textarea,
-    .premium-page select {
-        color: #ffffff !important;
-        border-color: rgba(255, 255, 255, 0.14) !important;
-    }
-    .premium-page input::placeholder,
-    .premium-page textarea::placeholder {
-        color: #94a3b8 !important;
-    }
-    .premium-page input:focus,
-    .premium-page textarea:focus,
-    .premium-page select:focus {
-        background-color: #0f172a !important;
-        color: #ffffff !important;
+    select:focus,
+    select.input:focus {
+        outline: none !important;
         border-color: #6366f1 !important;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
     }
-    .premium-page select option {
-        background-color: #0f172a !important;
-        color: #f8fafc !important;
+
+    /* Clean White Options on All Browsers & Operating Systems (Fixes Windows/Mac Black Option Glitch) */
+    select option {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        padding: 8px 12px !important;
+        font-weight: 600 !important;
     }
-    .premium-page label span.text-zinc-500,
-    .premium-page label span.text-zinc-600,
-    .premium-page p.text-zinc-500,
-    .premium-page p.text-zinc-600 {
-        color: #cbd5e1;
-    }
-    select.input {
-        appearance: none;
-        background-image:
-            linear-gradient(45deg, transparent 50%, #8e96a8 50%),
-            linear-gradient(135deg, #8e96a8 50%, transparent 50%);
-        background-position:
-            calc(100% - 1.05rem) 50%,
-            calc(100% - 0.72rem) 50%;
-        background-size: 0.34rem 0.34rem, 0.34rem 0.34rem;
-        background-repeat: no-repeat;
-        padding-right: 2.35rem;
-    }
+
     /* Cards */
     .card {
         @apply border border-white/10 rounded-lg p-5 text-white shadow-xl shadow-black/20;
@@ -948,13 +942,19 @@ html, body {
 
 .text-zinc-200,
 .text-zinc-300,
-.text-zinc-400 {
-    color: #475569 !important;
+.text-zinc-400,
+.text-slate-200,
+.text-slate-300,
+.text-slate-400 {
+    color: #334155 !important;
 }
 
 .text-zinc-500,
-.text-zinc-600 {
-    color: #64748b !important;
+.text-zinc-600,
+.text-slate-500,
+.text-slate-600 {
+    color: #0f172a !important;
+    font-weight: 600;
 }
 
 /* Form inputs & controls */

@@ -309,89 +309,89 @@ export default function OutboundAutopilot() {
 
             <div className="grid gap-5">
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Your Service</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Your Service</span>
                 <input
                   value={form.service}
                   onChange={(event) => handleChange('service', event.target.value)}
                   placeholder="Website design, automation, branding..."
-                  className="input bg-black/25 py-4"
+                  className="input py-3"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Target Client</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Target Client</span>
                 <input
                   value={form.targetClient}
                   onChange={(event) => handleChange('targetClient', event.target.value)}
                   placeholder="Clinics, restaurants, coaches, agencies..."
-                  className="input bg-black/25 py-4"
+                  className="input py-3"
                 />
               </label>
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Market</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Market</span>
                   <select
                     value={form.market}
                     onChange={(event) => handleChange('market', event.target.value)}
-                    className="input bg-black/25 py-4"
+                    className="input py-3"
                   >
                     {marketOptions.map((market) => <option key={market} value={market}>{market}</option>)}
                   </select>
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Location</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Location</span>
                   <input
                     value={form.location}
                     onChange={(event) => handleChange('location', event.target.value)}
                     placeholder="Tenkasi, Dubai, London..."
-                    className="input bg-black/25 py-4"
+                    className="input py-3"
                   />
                 </label>
               </div>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Client Result</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Client Result</span>
                 <input
                   value={form.outcome}
                   onChange={(event) => handleChange('outcome', event.target.value)}
                   placeholder="More enquiries, faster payments, better trust..."
-                  className="input bg-black/25 py-4"
+                  className="input py-3"
                 />
               </label>
 
               <div className="grid gap-5 sm:grid-cols-3">
                 <label className="grid gap-2 sm:col-span-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Starting Price</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Starting Price</span>
                   <input
                     type="number"
                     min="0"
                     value={form.offerPrice}
                     onChange={(event) => handleChange('offerPrice', event.target.value)}
                     placeholder="14999"
-                    className="input bg-black/25 py-4"
+                    className="input py-3"
                   />
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Daily Limit</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Daily Limit</span>
                   <input
                     type="number"
                     min="3"
                     max="50"
                     value={form.dailyCapacity}
                     onChange={(event) => handleChange('dailyCapacity', event.target.value)}
-                    className="input bg-black/25 py-4"
+                    className="input py-3"
                   />
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Tone</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Tone</span>
                   <select
                     value={form.tone}
                     onChange={(event) => handleChange('tone', event.target.value)}
-                    className="input bg-black/25 py-4"
+                    className="input py-3"
                   >
                     {toneOptions.map((tone) => <option key={tone.value} value={tone.value}>{tone.label}</option>)}
                   </select>

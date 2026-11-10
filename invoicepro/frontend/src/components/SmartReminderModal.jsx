@@ -38,21 +38,21 @@ export default function SmartReminderModal({ isOpen, onClose, invoice, onSuccess
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-lg p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl text-slate-100">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-lg p-6 bg-white border border-slate-200 rounded-2xl shadow-2xl text-slate-900">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
               Payment Chaser
             </span>
-            <h3 className="text-lg font-bold mt-1 text-white">Invoice #{invoice.invoiceNumber || '---'}</h3>
-            <p className="text-xs text-slate-400">
+            <h3 className="text-lg font-bold mt-1 text-slate-900">Invoice #{invoice.invoiceNumber || '---'}</h3>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
               Client: {invoice.clientName} • Amount: {invoice.currency || 'INR'} {Number(invoice.amount || 0).toLocaleString('en-IN')}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition"
+            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"
           >
             ✕
           </button>
@@ -62,8 +62,8 @@ export default function SmartReminderModal({ isOpen, onClose, invoice, onSuccess
           <div
             className={`mt-4 p-3 rounded-lg text-sm ${
               status.type === 'error'
-                ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                ? 'bg-red-500/10 text-red-600 border border-red-500/20'
+                : 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20'
             }`}
           >
             {status.text}
@@ -72,11 +72,11 @@ export default function SmartReminderModal({ isOpen, onClose, invoice, onSuccess
 
         <div className="mt-4 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Reminder Schedule Stage</label>
+            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Reminder Schedule Stage</label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-amber-500"
+              className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition cursor-pointer"
             >
               <option value="due_soon_3d">Friendly: Due in 3 days</option>
               <option value="due_today">Direct: Due Today</option>
@@ -88,22 +88,22 @@ export default function SmartReminderModal({ isOpen, onClose, invoice, onSuccess
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">
-              Custom Note / Message Override <span className="text-slate-500">(Optional)</span>
+            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
+              Custom Note / Message Override <span className="text-slate-400 font-normal lowercase">(Optional)</span>
             </label>
             <textarea
               rows={3}
               value={customMessage}
               onChange={(e) => setCustomMessage(e.target.value)}
               placeholder="Leave blank to use the smart automated template with payment links..."
-              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-amber-500 placeholder:text-slate-600"
+              className="w-full bg-white border border-slate-300 rounded-xl p-3.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 placeholder:text-slate-400 transition"
             />
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-2">
             <button
               onClick={onClose}
-              className="py-2 px-3.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition"
+              className="py-2 px-3.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition"
             >
               Cancel
             </button>

@@ -78,18 +78,18 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-xl p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+      <div className="relative w-full max-w-xl p-6 bg-white border border-slate-200 rounded-2xl shadow-2xl text-slate-900 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
               AI Assistant
             </span>
-            <h3 className="text-lg font-bold mt-1 text-white">Follow-up for {recipientName}</h3>
+            <h3 className="text-lg font-bold mt-1 text-slate-900">Follow-up for {recipientName}</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition"
+            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"
           >
             ✕
           </button>
@@ -99,8 +99,8 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
           <div
             className={`mt-4 p-3 rounded-lg text-sm ${
               statusMessage.type === 'error'
-                ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                ? 'bg-red-500/10 text-red-600 border border-red-500/20'
+                : 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20'
             }`}
           >
             {statusMessage.text}
@@ -109,11 +109,11 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Tone</label>
+            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Tone</label>
             <select
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition cursor-pointer"
             >
               <option value="friendly">Friendly & Warm</option>
               <option value="professional">Professional & Direct</option>
@@ -122,11 +122,11 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Channel</label>
+            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Channel</label>
             <select
               value={channel}
               onChange={(e) => setChannel(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition cursor-pointer"
             >
               <option value="email">Email</option>
               <option value="whatsapp">WhatsApp</option>
@@ -148,23 +148,23 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
           <div className="mt-5 space-y-3">
             {channel === 'email' && (
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Subject</label>
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Subject</label>
                 <input
                   type="text"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Message Preview</label>
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">Message Preview</label>
               <textarea
                 rows={5}
                 value={preview}
                 onChange={(e) => setPreview(e.target.value)}
-                className="w-full bg-slate-800/80 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 leading-relaxed font-sans"
+                className="w-full bg-white border border-slate-300 rounded-xl p-3.5 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 leading-relaxed font-sans transition"
               />
             </div>
 
@@ -173,7 +173,7 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
                 <>
                   <button
                     onClick={handleCopyWhatsApp}
-                    className="py-2 px-3.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center gap-1.5"
+                    className="py-2 px-3.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition flex items-center gap-1.5"
                   >
                     {copied ? '✓ Copied' : '📋 Copy Text'}
                   </button>

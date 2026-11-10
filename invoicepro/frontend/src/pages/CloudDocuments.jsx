@@ -213,20 +213,20 @@ export default function CloudDocuments() {
                 />
               </label>
               <label className="grid gap-2">
-                <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Title</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Title</span>
                 <input
                   value={form.title}
                   onChange={(event) => setForm({ ...form, title: event.target.value })}
                   placeholder="Example: Website proposal"
-                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-semibold text-white outline-none transition placeholder:text-zinc-600 focus:border-yellow-300/50"
+                  className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                 />
               </label>
               <label className="grid gap-2">
-                <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Category</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Category</span>
                 <select
                   value={form.category}
                   onChange={(event) => setForm({ ...form, category: event.target.value })}
-                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-semibold text-white outline-none transition focus:border-yellow-300/50"
+                  className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition cursor-pointer"
                 >
                   {categories.map((category) => (
                     <option key={category.value} value={category.value}>{category.label}</option>
@@ -234,13 +234,13 @@ export default function CloudDocuments() {
                 </select>
               </label>
               <label className="grid gap-2">
-                <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Note</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Note</span>
                 <textarea
                   value={form.note}
                   onChange={(event) => setForm({ ...form, note: event.target.value })}
                   placeholder="Short context for this file"
                   rows="4"
-                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-semibold text-white outline-none transition placeholder:text-zinc-600 focus:border-yellow-300/50"
+                  className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition resize-none"
                 />
               </label>
               <button type="submit" disabled={uploading || !status?.configured} className="btn btn-primary py-4 text-sm disabled:cursor-not-allowed disabled:opacity-60">

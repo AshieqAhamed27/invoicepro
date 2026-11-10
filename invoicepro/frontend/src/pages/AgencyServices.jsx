@@ -741,7 +741,7 @@ export default function AgencyServices() {
                 </label>
 
                 <label className="block">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">WhatsApp number</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">WhatsApp number</span>
                   <input
                     required
                     name="whatsapp"
@@ -753,7 +753,7 @@ export default function AgencyServices() {
                 </label>
 
                 <label className="block">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Package</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Package</span>
                   <select
                     name="packageId"
                     value={bookingForm.packageId}
@@ -769,7 +769,7 @@ export default function AgencyServices() {
                 </label>
 
                 <label className="block sm:col-span-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Workflow type</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Workflow type</span>
                   <select
                     name="workflowType"
                     value={bookingForm.workflowType}
@@ -847,7 +847,7 @@ export default function AgencyServices() {
                 </label>
 
                 <label className="block">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Main platform</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Main platform</span>
                   <select
                     name="preferredPlatform"
                     value={bookingForm.preferredPlatform}

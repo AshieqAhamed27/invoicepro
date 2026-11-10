@@ -354,7 +354,7 @@ export default function Settings() {
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div>
-                  <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                  <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
                     Company Registered Name
                   </label>
                   <input
@@ -362,12 +362,12 @@ export default function Settings() {
                     value={form.companyName}
                     onChange={handleChange}
                     placeholder="e.g. Apex Design Studio"
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                  <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
                     GST Identification Number (Optional)
                   </label>
                   <input
@@ -375,7 +375,7 @@ export default function Settings() {
                     value={form.gstNumber}
                     onChange={handleChange}
                     placeholder="Optional GSTIN"
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                   />
                 </div>
               </div>
@@ -383,45 +383,45 @@ export default function Settings() {
 
             <section id="role-profile" className="premium-panel p-5 sm:p-8 relative overflow-hidden group scroll-mt-28">
               <div className="mb-6">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Professional Role & Experience</h2>
-                <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Tailors templates, analytics, and workflow tips</p>
+                <h2 className="text-2xl font-black text-slate-900 leading-none mb-1">Professional Role & Experience</h2>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tailors templates, analytics, and workflow tips</p>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div>
-                  <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                  <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
                     Your Primary Role
                   </label>
                   <select
                     name="persona"
                     value={form.persona}
                     onChange={handleChange}
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition cursor-pointer"
                   >
-                    <option value="" className="bg-slate-900 text-slate-400">Select your role...</option>
-                    <option value="freelancer" className="bg-slate-900 text-white">💼 Freelancer / Independent Pro</option>
-                    <option value="agency" className="bg-slate-900 text-white">🏢 Agency / Studio / Team</option>
-                    <option value="small_business" className="bg-slate-900 text-white">🏪 Small Business Owner</option>
-                    <option value="student" className="bg-slate-900 text-white">🎓 Student / Exploring</option>
-                    <option value="other" className="bg-slate-900 text-white">✨ Other Field</option>
+                    <option value="" className="bg-white text-slate-500">Select your role...</option>
+                    <option value="freelancer" className="bg-white text-slate-900">💼 Freelancer / Independent Pro</option>
+                    <option value="agency" className="bg-white text-slate-900">🏢 Agency / Studio / Team</option>
+                    <option value="small_business" className="bg-white text-slate-900">🏪 Small Business Owner</option>
+                    <option value="student" className="bg-white text-slate-900">🎓 Student / Exploring</option>
+                    <option value="other" className="bg-white text-slate-900">✨ Other Field</option>
                   </select>
                 </div>
 
                 {form.persona === 'freelancer' && (
                   <div className="animate-fadeIn">
-                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
                       Freelance Experience Level
                     </label>
                     <select
                       name="freelanceExperience"
                       value={form.freelanceExperience}
                       onChange={handleChange}
-                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition cursor-pointer"
+                      className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition cursor-pointer"
                     >
-                      <option value="beginner" className="bg-slate-900 text-white">🌱 Beginner (&lt; 1 Year)</option>
-                      <option value="1_to_3_years" className="bg-slate-900 text-white">🚀 1 – 3 Years Experience</option>
-                      <option value="3_to_5_years" className="bg-slate-900 text-white">⭐ 3 – 5 Years Experience</option>
-                      <option value="5_plus_years" className="bg-slate-900 text-white">👑 5+ Years Veteran</option>
+                      <option value="beginner" className="bg-white text-slate-900">🌱 Beginner (&lt; 1 Year)</option>
+                      <option value="1_to_3_years" className="bg-white text-slate-900">🚀 1 – 3 Years Experience</option>
+                      <option value="3_to_5_years" className="bg-white text-slate-900">⭐ 3 – 5 Years Experience</option>
+                      <option value="5_plus_years" className="bg-white text-slate-900">👑 5+ Years Veteran</option>
                     </select>
                   </div>
                 )}
@@ -457,11 +457,11 @@ export default function Settings() {
               {/* SECTION 1: DOMESTIC UPI */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="h-2 w-2 rounded-full bg-yellow-400"></span>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-200">1. Instant UPI Payments (India)</h3>
+                  <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">1. Instant UPI Payments (India)</h3>
                 </div>
                 <div className="max-w-md">
-                  <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                  <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
                     Default UPI ID / VPA
                   </label>
                   <input
@@ -469,23 +469,23 @@ export default function Settings() {
                     value={form.upiId}
                     onChange={handleChange}
                     placeholder="e.g. yourname@oksbi or 9876543210@paytm"
-                    className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono transition"
+                    className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 font-mono transition"
                   />
-                  <p className="text-xs text-slate-300 mt-2 font-medium">Generates dynamic QR codes on INR invoices for instant GPay, PhonePe, Paytm settlements directly to your bank account.</p>
+                  <p className="text-xs text-slate-600 mt-2 font-medium">Generates dynamic QR codes on INR invoices for instant GPay, PhonePe, Paytm settlements directly to your bank account.</p>
                 </div>
               </div>
 
               {/* SECTION 2: BANK ACCOUNT (NEFT / IMPS / RTGS) */}
-              <div className="pt-6 border-t border-white/5">
+              <div className="pt-6 border-t border-slate-200">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="h-2 w-2 rounded-full bg-blue-400"></span>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-200">2. Bank Transfer Details (NEFT / IMPS / RTGS)</h3>
+                  <span className="h-2 w-2 rounded-full bg-blue-600"></span>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">2. Bank Transfer Details (NEFT / IMPS / RTGS)</h3>
                 </div>
-                <p className="text-xs text-slate-300 mb-4">Shown on invoices for B2B clients who prefer direct bank deposits.</p>
+                <p className="text-xs text-slate-600 mb-4">Shown on invoices for B2B clients who prefer direct bank deposits.</p>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
                       Bank Name
                     </label>
                     <input
@@ -493,12 +493,12 @@ export default function Settings() {
                       value={form.bankName}
                       onChange={handleChange}
                       placeholder="e.g. HDFC Bank, ICICI Bank, SBI"
-                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                      className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
                       Account Number
                     </label>
                     <input
@@ -506,12 +506,12 @@ export default function Settings() {
                       value={form.accountNumber}
                       onChange={handleChange}
                       placeholder="e.g. 50100456789012"
-                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono transition"
+                      className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 font-mono transition"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
                       IFSC Code
                     </label>
                     <input
@@ -519,65 +519,65 @@ export default function Settings() {
                       value={form.ifscCode}
                       onChange={handleChange}
                       placeholder="e.g. HDFC0001234"
-                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono uppercase transition"
+                      className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 font-mono uppercase transition"
                     />
                   </div>
                 </div>
               </div>
 
               {/* SECTION 3: INTERNATIONAL CLIENT TRANSFERS (US / UK / EU / GLOBAL) */}
-              <div className="pt-6 border-t border-white/5">
+              <div className="pt-6 border-t border-slate-200">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-200">3. Cross-Border & International Payouts (US, UK, Global)</h3>
+                    <span className="h-2 w-2 rounded-full bg-emerald-600"></span>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">3. Cross-Border & International Payouts (US, UK, Global)</h3>
                   </div>
-                  <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-white/10 text-emerald-300 border border-white/10">
+                  <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     RBI & LUT Compliant
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 mb-4">
+                <p className="text-xs text-slate-600 mb-4">
                   For US/UK/foreign clients who wire USD/EUR/GBP, or prefer paying via modern fintech rails (Wise, PayPal, Stripe, Skydo).
                 </p>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
-                      SWIFT / BIC Code <span className="text-slate-400 font-normal">(For Bank Wires)</span>
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
+                      SWIFT / BIC Code <span className="text-slate-500 font-normal">(For Bank Wires)</span>
                     </label>
                     <input
                       name="swiftCode"
                       value={form.swiftCode}
                       onChange={handleChange}
                       placeholder="e.g. HDFCINBBXXX or ICICINBBXXX"
-                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono uppercase transition"
+                      className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 font-mono uppercase transition"
                     />
-                    <p className="text-xs text-slate-400 mt-1">Ask your bank branch or check online for your bank&apos;s 8-11 character SWIFT code.</p>
+                    <p className="text-xs text-slate-500 mt-1">Ask your bank branch or check online for your bank&apos;s 8-11 character SWIFT code.</p>
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
-                      International Pay Link <span className="text-slate-400 font-normal">(Wise / PayPal / Stripe)</span>
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
+                      International Pay Link <span className="text-slate-500 font-normal">(Wise / PayPal / Stripe)</span>
                     </label>
                     <input
                       name="internationalPaymentLink"
                       value={form.internationalPaymentLink}
                       onChange={handleChange}
                       placeholder="https://wise.com/pay/... or https://paypal.me/..."
-                      className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-bold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 font-mono transition"
+                      className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 font-mono transition"
                     />
-                    <p className="text-xs text-slate-400 mt-1">
-                      Allows international clients to pay with 1 click using their card, Apple Pay, or bank. <strong className="text-emerald-400">Wise (wise.com/pay/me/...) is recommended</strong> for lowest ~0.5% forex fees.
+                    <p className="text-xs text-slate-500 mt-1">
+                      Allows international clients to pay with 1 click using their card, Apple Pay, or bank. <strong className="text-emerald-700">Wise (wise.com/pay/me/...) is recommended</strong> for lowest ~0.5% forex fees.
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3">
-                  <svg className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-3">
+                  <svg className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    <strong className="text-white">Export of Service Notice:</strong> Under Section 16 of the IGST Act, cross-border freelance service earnings are zero-rated under LUT (Letter of Undertaking), with 0% GST liability. Money lands straight in your account.
+                  <p className="text-xs text-slate-700 leading-relaxed">
+                    <strong className="text-slate-900">Export of Service Notice:</strong> Under Section 16 of the IGST Act, cross-border freelance service earnings are zero-rated under LUT (Letter of Undertaking), with 0% GST liability. Money lands straight in your account.
                   </p>
                 </div>
               </div>
@@ -585,8 +585,8 @@ export default function Settings() {
 
             <section className="premium-panel p-5 sm:p-8">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Business Address</h2>
-                <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Displayed on your invoices</p>
+                <h2 className="text-2xl font-black text-slate-900 leading-none mb-1">Business Address</h2>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Displayed on your invoices</p>
               </div>
 
               <textarea
@@ -595,18 +595,18 @@ export default function Settings() {
                 onChange={handleChange}
                 placeholder="Tamil Nadu, India"
                 rows="4"
-                className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 p-4 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 min-h-[120px] resize-none transition"
+                className="w-full rounded-xl bg-white border border-slate-300 p-4 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 min-h-[120px] resize-none transition"
               />
             </section>
 
             <section id="branding" className="premium-panel p-5 sm:p-8 scroll-mt-28">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Logo</h2>
-                <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Branding shown on invoices and PDFs</p>
+                <h2 className="text-2xl font-black text-slate-900 leading-none mb-1">Logo</h2>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Branding shown on invoices and PDFs</p>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 block">
+                <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
                   Logo Dynamic URL
                 </label>
                 <input
@@ -614,16 +614,16 @@ export default function Settings() {
                   value={form.logo}
                   onChange={handleChange}
                   placeholder="/logo.svg or https://cloud.com/your-logo.png"
-                  className="w-full rounded-xl bg-slate-900/90 border border-slate-700/80 px-4 py-3.5 text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/25 transition"
+                  className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                 />
                 {logoInvalid && (
-                  <div className="mt-3 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-xs font-bold text-red-300 max-w-md">
+                  <div className="mt-3 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-xs font-bold text-red-600 max-w-md">
                     Logo URL looks unsafe for production. Use `/logo.svg` or a public `https://` image URL.
                   </div>
                 )}
-                <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/5 max-w-md">
-                   <svg className="h-4 w-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                   <p className="text-xs font-medium text-slate-300">Use /logo.svg for the bundled {COMPANY_SHORT_NAME} logo, or a high-res public PNG/SVG for custom branding.</p>
+                <div className="mt-4 flex items-center gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200 max-w-md">
+                   <svg className="h-4 w-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                   <p className="text-xs font-medium text-slate-600">Use /logo.svg for the bundled {COMPANY_SHORT_NAME} logo, or a high-res public PNG/SVG for custom branding.</p>
                 </div>
               </div>
             </section>

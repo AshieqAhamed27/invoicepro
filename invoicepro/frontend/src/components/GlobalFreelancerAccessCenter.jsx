@@ -187,33 +187,33 @@ export default function GlobalFreelancerAccessCenter({
 
       <div className="mb-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end">
         <label className="grid gap-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Target client country</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Target client country</span>
           <select
             value={profile.targetCountry}
             onChange={(event) => updateProfile('targetCountry', event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none focus:border-violet-300/50"
+            className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
           >
             {countryOptions.map((country) => <option key={country}>{country}</option>)}
           </select>
         </label>
 
         <label className="grid gap-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Invoice currency</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Invoice currency</span>
           <select
             value={profile.currency}
             onChange={(event) => updateProfile('currency', event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none focus:border-violet-300/50"
+            className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
           >
             {currencyOptions.map((currency) => <option key={currency}>{currency}</option>)}
           </select>
         </label>
 
         <label className="grid gap-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Payment path</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Payment path</span>
           <select
             value={profile.paymentPath}
             onChange={(event) => updateProfile('paymentPath', event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none focus:border-violet-300/50"
+            className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
           >
             {paymentPathOptions.map((path) => <option key={path}>{path}</option>)}
           </select>
