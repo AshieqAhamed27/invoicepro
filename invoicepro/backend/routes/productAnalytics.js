@@ -265,14 +265,8 @@ router.get('/admin/summary', protect, async(req, res) => {
             user: { $ne: null }
         };
 
-        // Unique visitorIds who have EVER had a page_view event with a linked user
-        const signedUpViewerIds = await ProductAnalyticsEvent.distinct('visitorId', {
-            ...pageViewMatch,
-            user: { $ne: null },
-            visitorId: { $nin: [null, ''] }
-        });
-
         const [
+            signedUpViewerIds,
             rawProductViews,
             uniqueProductViewers,
             newVisitors7d,
@@ -288,6 +282,12 @@ router.get('/admin/summary', protect, async(req, res) => {
             dailyActivityRows,
             dailyActionRows
         ] = await Promise.all([
+            // Unique visitorIds who have EVER had a page_view event with a linked user
+            ProductAnalyticsEvent.distinct('visitorId', {
+                ...pageViewMatch,
+                user: { $ne: null },
+                visitorId: { $nin: [null, ''] }
+            }),
             ProductAnalyticsEvent.countDocuments(pageViewMatch),
             countUnique(pageViewMatch, 'visitorId'),
             countFirstSeen(pageViewMatch, 'visitorId', last7Days),
@@ -601,8 +601,8 @@ router.get('/admin/summary', protect, async(req, res) => {
         const freeAccessMembers = accessSummary.freeAccess;
 
         // Visitors who NEVER signed up (view-only, no linked user in any event)
-        const totalUniqueVisitors = await countUnique(pageViewMatch, 'visitorId');
-        const signedUpAndViewedCount = new Set(signedUpViewerIds).size;
+        const totalUniqueVisitors = uniqueProductViewers;
+        const signedUpAndViewedCount = Array.isArray(signedUpViewerIds) ? signedUpViewerIds.length : 0;
         const viewOnlyVisitors = Math.max(0, totalUniqueVisitors - signedUpAndViewedCount);
 
         res.json({

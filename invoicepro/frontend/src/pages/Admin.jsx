@@ -294,7 +294,7 @@ export default function Admin() {
       setAnalyticsUpdatedAt(res.data?.refreshedAt || new Date().toISOString());
     } catch (err) {
       console.log(err);
-      setProductAnalyticsError('Could not load product analytics.');
+      setProductAnalyticsError(err.friendlyMessage || 'Could not load product analytics.');
     } finally {
       setProductAnalyticsLoading(false);
     }
@@ -1202,8 +1202,15 @@ export default function Admin() {
 
           {productAnalyticsError && (
             <div className="px-8 pb-8">
-              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
-                {productAnalyticsError}
+              <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm font-bold text-amber-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <span>{productAnalyticsError}</span>
+                <button
+                  type="button"
+                  onClick={() => fetchProductAnalytics()}
+                  className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black uppercase tracking-wider transition w-fit"
+                >
+                  Retry Now
+                </button>
               </div>
             </div>
           )}

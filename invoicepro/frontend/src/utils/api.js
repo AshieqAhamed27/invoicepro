@@ -34,7 +34,26 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
+    async (error) => {
+        const config = error.config;
+
+        // Auto-retry once on network drops/cold-start connection closures for idempotent GET requests
+        if (
+            config &&
+            !config.__isRetry &&
+            config.method?.toLowerCase() === "get" &&
+            (error.code === "ERR_NETWORK" || error.message === "Network Error" || error.code === "ECONNABORTED")
+        ) {
+            config.__isRetry = true;
+            // Short 2.5s backoff to allow free-tier Render container to complete booting
+            await new Promise((resolve) => setTimeout(resolve, 2500));
+            try {
+                return await api(config);
+            } catch (retryErr) {
+                error = retryErr;
+            }
+        }
+
         if (error.code === "ECONNABORTED") {
             error.friendlyMessage = "The API is waking up or responding slowly. Please try again.";
             console.warn("API request timed out", {
@@ -44,10 +63,10 @@ api.interceptors.response.use(
             });
         }
 
-        if (error.code === "ERR_NETWORK") {
+        if (error.code === "ERR_NETWORK" || error.message === "Network Error") {
             error.friendlyMessage = isLocalHost()
                 ? "Local backend is not reachable. Start the backend server, then retry."
-                : "The server is not reachable right now. Please retry in a moment.";
+                : "The backend server is waking up from sleep. Please wait a moment or click retry.";
         }
 
         const status = error.response?.status;
