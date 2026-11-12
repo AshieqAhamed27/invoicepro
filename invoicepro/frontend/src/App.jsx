@@ -55,7 +55,6 @@ const InvoiceView = lazy(() => import('./pages/InvoiceView'));
 const Payment = lazy(() => import('./pages/Payment'));
 const PlanCheckout = lazy(() => import('./pages/PlanCheckout'));
 const PaymentsOverview = lazy(() => import('./pages/PaymentsOverview'));
-const SetupServicePayment = lazy(() => import('./pages/SetupServicePayment'));
 const Admin = lazy(() => import('./pages/Admin'));
 const PublicInvoice = lazy(() => import('./pages/PublicInvoice'));
 const FreelancerProfile = lazy(() => import('./pages/FreelancerProfile'));

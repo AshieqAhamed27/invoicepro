@@ -832,7 +832,7 @@ export default function GrowthPlan() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate('/client-flow')}
                   className="btn btn-secondary px-6 py-3 text-xs"
                 >
                   Dashboard

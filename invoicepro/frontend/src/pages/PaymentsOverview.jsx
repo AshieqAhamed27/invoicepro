@@ -140,7 +140,7 @@ export default function PaymentsOverview() {
 
   useDocumentMeta({
     title: `${COMPANY_NAME} Payment Center`,
-    description: 'One ClientFlow AI payment center for free access, Pro freelance workflow, and 1-on-1 managed setup.',
+    description: 'Simple and transparent pricing for Indian freelancers. 30 days free access, Pro monthly and annual plans.',
     path: '/payments'
   });
 

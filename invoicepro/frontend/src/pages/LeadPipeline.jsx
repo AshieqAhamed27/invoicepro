@@ -31,7 +31,7 @@ const defaultForm = {
 };
 
 const inputClass = 'w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition';
-const smallActionClass = 'rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-emerald-400/25 hover:bg-white/[0.08] hover:text-white';
+const smallActionClass = 'rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-900';
 
 const getCleanPhone = (value = '') => String(value || '').replace(/\D/g, '');
 

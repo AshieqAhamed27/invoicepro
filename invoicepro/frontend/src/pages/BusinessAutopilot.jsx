@@ -370,8 +370,8 @@ export default function BusinessAutopilot() {
       stage: task.stage
     });
 
-    if (task.action.startsWith('/dashboard#')) {
-      navigate('/dashboard');
+    if (task.action.startsWith('/dashboard#') || task.action.startsWith('/client-flow#')) {
+      navigate('/client-flow');
       setTimeout(() => {
         const target = document.getElementById(task.action.split('#')[1]);
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -399,8 +399,8 @@ export default function BusinessAutopilot() {
   const openGlobalAccessWorkflow = (route) => {
     trackEvent('open_global_access_workflow_from_autopilot', { route });
 
-    if (route.startsWith('/dashboard#')) {
-      navigate('/dashboard');
+    if (route.startsWith('/dashboard#') || route.startsWith('/client-flow#')) {
+      navigate('/client-flow');
       setTimeout(() => {
         const target = document.getElementById(route.split('#')[1]);
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });

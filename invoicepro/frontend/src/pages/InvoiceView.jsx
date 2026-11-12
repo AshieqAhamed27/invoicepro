@@ -344,7 +344,7 @@ export default function InvoiceView() {
       setInvoice(res.data.invoice);
     } catch {
       alert('Document not found');
-      navigate('/dashboard');
+      navigate('/client-flow');
     } finally {
       setLoading(false);
     }
@@ -473,7 +473,7 @@ export default function InvoiceView() {
     if (!window.confirm(`Delete this ${meta.typeLabel.toLowerCase()} permanently?`)) return;
     try {
       await api.delete(`/invoices/${invoice._id}`);
-      navigate('/dashboard');
+      navigate('/client-flow');
     } catch {
       alert('Delete failed');
     }

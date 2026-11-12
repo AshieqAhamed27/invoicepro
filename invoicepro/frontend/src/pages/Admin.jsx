@@ -579,7 +579,9 @@ export default function Admin() {
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      fetchProductAnalytics({ silent: true });
+      if (document.visibilityState === 'visible') {
+        fetchProductAnalytics({ silent: true });
+      }
     }, 30000);
 
     return () => window.clearInterval(interval);

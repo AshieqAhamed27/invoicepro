@@ -29,11 +29,11 @@ const projects = [
     cta: 'View product'
   },
   {
-    title: 'ClientFlow AI Agency Setup',
-    label: 'Service workflow',
-    description: 'A done-for-you setup offer that helps freelancers create their offer, lead plan, proposal flow, workroom, invoice, and 7-day action plan.',
-    link: '/agency',
-    cta: 'View setup'
+    title: 'Smart Invoicing & Instant UPI QR',
+    label: 'Core capability',
+    description: 'Instant multi-currency and GST-compliant invoices with embedded UPI QR codes and automated payment reminders.',
+    link: '/create-invoice',
+    cta: 'Try invoice maker'
   },
   {
     title: 'AI Cost Optimization',

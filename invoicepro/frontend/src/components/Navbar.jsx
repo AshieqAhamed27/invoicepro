@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel, setPostLoginRedirect } from '../utils/auth';
-import { getTheme, toggleTheme } from '../utils/theme';
 import BrandLogo from './BrandLogo';
 
 // ─── 4 Core Navigation Links for Freelancers ───
@@ -326,16 +325,7 @@ export default function Navbar() {
                 </>
               )}
 
-              <button
-                type="button"
-                onClick={handleToggleTheme}
-                className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] p-3.5 text-sm font-bold text-slate-800 dark:text-zinc-200 transition mt-1"
-              >
-                <span>Theme Mode</span>
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white dark:bg-white/10 shadow-sm border border-slate-200 dark:border-white/10 text-xs font-black">
-                  {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
-                </span>
-              </button>
+
             </div>
 
             <div className="grid gap-2 border-t border-slate-200 pt-4 sm:grid-cols-2">

@@ -16,7 +16,7 @@ const builderName = 'Ashieq Ahamed';
 const quickLinks = [
   ['Try ClientFlow AI', '/', 'See the freelancer business system'],
   ['Builder Portfolio', '/portfolio', 'Learn more about the builder'],
-  ['Agency Setup', '/agency', 'Done-for-you workflow setup'],
+  ['Pro Pricing', '/payments', 'See freelance plans and features'],
   ['Contact', `mailto:${SUPPORT_EMAIL}`, 'Share feedback or ask a question']
 ];
 

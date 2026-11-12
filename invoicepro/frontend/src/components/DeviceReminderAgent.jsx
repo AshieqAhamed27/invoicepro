@@ -53,7 +53,7 @@ const buildInvoiceReminder = (invoiceData = {}) => {
     body: overdueCount
       ? `${overdueCount} invoice${overdueCount === 1 ? ' is' : 's are'} overdue. Start with ${top.clientName || top.invoiceNumber || 'the highest value invoice'}.`
       : `${dueSoonCount} invoice${dueSoonCount === 1 ? ' needs' : 's need'} follow-up in the next 2 days.`,
-    path: '/dashboard#payment-collection-agent',
+    path: '/client-flow#payment-collection-agent',
     priority: overdueCount ? 100 : 80
   };
 };
