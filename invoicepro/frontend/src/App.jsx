@@ -20,7 +20,6 @@ import SupportChatWidget from './components/SupportChatWidget';
 import LiveFeedback from './components/LiveFeedback';
 import UserOnboardingModal from './components/UserOnboardingModal';
 import LoadingScreen from './components/LoadingScreen';
-import DiwaliOfferBanner from './components/DiwaliOfferBanner';
 
 // ✅ Lazy load ALL pages (important)
 const Home = lazy(() => import('./pages/HomeClear'));
@@ -268,7 +267,6 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <DiwaliOfferBanner />
       <ScrollToTop />
       <ScrollAnimator />
       <Routes>

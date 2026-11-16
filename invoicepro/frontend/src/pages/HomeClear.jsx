@@ -180,8 +180,6 @@ export default function HomeClear() {
         ? `${freeAccess.daysLeft} day${freeAccess.daysLeft === 1 ? '' : 's'} left in your free access.`
         : 'Your free access has ended. Review plans when you are ready.';
 
-  const isDiwaliOffer = true;
-
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans selection:bg-indigo-500 selection:text-white relative overflow-hidden">
       {/* Background Aurora Radiant Glow Orbs */}
@@ -702,7 +700,7 @@ export default function HomeClear() {
         </section>
 
         {/* ═════════════════════════════════════════════
-            TRANSPARENT PRICING & DIWALI 50% DISCOUNT
+            TRANSPARENT PRICING SECTION
         ═════════════════════════════════════════════ */}
         <section id="pricing" className="py-20 sm:py-28 bg-white border-t border-slate-200">
           <div className="container-custom">
@@ -747,10 +745,10 @@ export default function HomeClear() {
                 </div>
               </div>
 
-              {/* Pro Plan Card with Diwali 50% Offer */}
+              {/* Pro Plan Card */}
               <div className="rounded-3xl border-2 border-indigo-600 bg-white p-8 shadow-2xl shadow-indigo-600/10 flex flex-col justify-between relative overflow-hidden">
-                <span className="absolute top-0 right-0 bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-bl-xl shadow-sm">
-                  🪔 Diwali 50% OFF
+                <span className="absolute top-0 right-0 bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-bl-xl shadow-sm">
+                  Most Popular
                 </span>
 
                 <div>
@@ -758,11 +756,10 @@ export default function HomeClear() {
                     Pro Plan
                   </span>
                   <div className="mt-4 flex items-baseline gap-2">
-                    <h3 className="text-4xl font-black text-slate-900">₹249</h3>
-                    <span className="text-sm font-bold text-slate-400 line-through">₹499</span>
+                    <h3 className="text-4xl font-black text-slate-900">₹499</h3>
                     <span className="text-xs font-bold text-slate-500">/ month</span>
                   </div>
-                  <p className="text-xs font-bold text-emerald-600 mt-1">Special Diwali Price (Lock in 50% Discount)</p>
+                  <p className="text-xs font-bold text-slate-500 mt-1">Full automated freelance & client operating system</p>
 
                   <ul className="mt-6 space-y-3 text-xs font-bold text-slate-700">
                     <li className="flex items-center gap-2">✓ Unlimited AI invoices & proposal contracts</li>
@@ -779,7 +776,7 @@ export default function HomeClear() {
                     to="/payments"
                     className="block w-full btn btn-primary py-4 rounded-xl text-xs font-black uppercase tracking-wider text-center"
                   >
-                    Claim Diwali Offer (₹249) →
+                    Upgrade to Pro (₹499) →
                   </Link>
                 </div>
               </div>

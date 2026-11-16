@@ -4,7 +4,6 @@ import Navbar from '../components/Navbar';
 import api from '../utils/api';
 import { getUser, hasProAccess } from '../utils/auth';
 import useDocumentMeta from '../utils/useDocumentMeta';
-import { getTimeLeft, DISCOUNT_PCT } from '../components/DiwaliOfferBanner';
 import { getWhatsAppShareUrl } from '../utils/whatsapp';
 
 const formatCurrency = (amount) =>
@@ -49,15 +48,6 @@ export default function ClientFlow() {
   const [phoneInput, setPhoneInput] = useState('');
   const [savingPhone, setSavingPhone] = useState(false);
   const [phoneSuccessMessage, setPhoneSuccessMessage] = useState('');
-  const [timeLeft, setTimeLeft] = useState(getTimeLeft());
-
-  // Ticking countdown timer for Diwali offer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(getTimeLeft());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   const [data, setData] = useState({
     invoiceData: {},
@@ -167,29 +157,27 @@ export default function ClientFlow() {
     window.open(shareUrl, '_blank');
   };
 
-  const pad = (n) => String(n).padStart(2, '0');
-
   return (
     <div className="premium-page min-h-screen">
       <Navbar />
 
       <main className="container-custom py-6 sm:py-8 md:py-10">
 
-        {/* ─── 1. Prominent Live Diwali Countdown Offer Banner ─── */}
+        {/* ─── 1. Pro Upgrade Card for Non-Pro ─── */}
         {!isPro ? (
-          <div className="mb-8 overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 p-5 shadow-lg relative">
+          <div className="mb-8 overflow-hidden rounded-2xl border border-indigo-200 dark:border-indigo-500/20 bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-indigo-500/10 p-5 shadow-sm relative">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20 text-2xl border border-amber-500/40 shadow-inner">
-                  🪔
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/15 text-2xl border border-indigo-500/30">
+                  ⚡
                 </span>
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                      Diwali Flash Sale • {DISCOUNT_PCT}% OFF PRO
+                    <span className="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                      ClientFlow AI Pro
                     </span>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                      ₹249/mo (was ₹499)
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20">
+                      ₹499/mo
                     </span>
                   </div>
                   <p className="text-sm font-semibold text-slate-700 dark:text-zinc-200 mt-1">
@@ -198,27 +186,13 @@ export default function ClientFlow() {
                 </div>
               </div>
 
-              {/* Live Ticking Countdown Box */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
-                <div className="flex items-center gap-1.5 rounded-xl bg-slate-900 dark:bg-black/80 px-3.5 py-2 font-mono font-black text-white text-xs shadow-inner">
-                  <span className="text-yellow-400">⏳ Sale Ends:</span>
-                  <span className="text-white">{pad(timeLeft.days)}d</span>
-                  <span className="text-yellow-400">:</span>
-                  <span className="text-white">{pad(timeLeft.hours)}h</span>
-                  <span className="text-yellow-400">:</span>
-                  <span className="text-white">{pad(timeLeft.minutes)}m</span>
-                  <span className="text-yellow-400">:</span>
-                  <span className="text-yellow-400">{pad(timeLeft.seconds)}s</span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => navigate('/payments')}
-                  className="shrink-0 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-950 font-black text-xs uppercase tracking-wider hover:from-amber-300 hover:to-yellow-300 transition shadow-md active:scale-95"
-                >
-                  Claim ₹249 Pro Pass →
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/payments')}
+                className="shrink-0 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider transition shadow-md active:scale-95"
+              >
+                Upgrade to Pro →
+              </button>
             </div>
           </div>
         ) : (

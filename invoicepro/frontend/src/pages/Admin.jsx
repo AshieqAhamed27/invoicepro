@@ -169,8 +169,6 @@ export default function Admin() {
   const [revenueSummaryLoading, setRevenueSummaryLoading] = useState(true);
   const [adminActionLoadingId, setAdminActionLoadingId] = useState(null);
   const [adminActionMsg, setAdminActionMsg] = useState(null);
-  const [sendingDiwali, setSendingDiwali] = useState(false);
-  const [diwaliMsg, setDiwaliMsg] = useState(null);
   const [emailModalUser, setEmailModalUser] = useState(null);
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
@@ -498,21 +496,6 @@ export default function Admin() {
       setAdminActionMsg({ ok: false, message: err?.response?.data?.message || 'Ban action failed.' });
     } finally {
       setAdminActionLoadingId(null);
-    }
-  };
-
-  const handleSendDiwaliCampaign = async () => {
-    if (!window.confirm('Send Diwali 50% discount campaign email to all eligible free trial users?')) return;
-    try {
-      setSendingDiwali(true);
-      setDiwaliMsg(null);
-      const res = await api.post('/admin/email/diwali-campaign');
-      setDiwaliMsg({ ok: true, message: res.data?.message || 'Diwali Campaign started in the background!' });
-    } catch (err) {
-      console.error(err);
-      setDiwaliMsg({ ok: false, message: err?.response?.data?.message || 'Diwali campaign dispatch failed.' });
-    } finally {
-      setSendingDiwali(false);
     }
   };
 
@@ -1385,15 +1368,6 @@ export default function Admin() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                {diwaliMsg && (
-                  <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
-                    diwaliMsg.ok
-                      ? 'border-amber-400/20 bg-amber-400/10 text-amber-300'
-                      : 'border-red-400/20 bg-red-400/10 text-red-300'
-                  }`}>
-                    {diwaliMsg.message}
-                  </span>
-                )}
                 {adminActionMsg && (
                   <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
                     adminActionMsg.ok
@@ -1438,15 +1412,6 @@ export default function Admin() {
                   title="Send a live test email to verify credentials and diagnose errors"
                 >
                   {testingEmail ? 'Testing Connection...' : '🧪 Test Email Connection'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSendDiwaliCampaign}
-                  disabled={sendingDiwali}
-                  className="rounded-full border border-amber-500/40 bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-amber-300 transition hover:from-amber-500/30 hover:to-orange-500/30 disabled:cursor-not-allowed disabled:opacity-40"
-                  title="Send 50% Diwali discount campaign email to all active free users"
-                >
-                  {sendingDiwali ? 'Sending Campaign...' : '🪔 Send Diwali 50% Blast'}
                 </button>
                 <button
                   type="button"
