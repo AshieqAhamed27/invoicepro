@@ -19,6 +19,10 @@ const {
     invoiceCreated,
     invoiceReminder
 } = require('../utils/emailTemplates');
+const {
+    sendWhatsAppMessage,
+    sendInvoiceWhatsAppAlert
+} = require('../utils/whatsappCloud');
 
 const FREE_PLAN_LIMIT = 2;
 const DEFAULT_COMPANY_NAME = 'ClientFlow AI';
@@ -394,6 +398,7 @@ router.post('/', protect, async(req, res) => {
             documentType,
             clientName,
             clientEmail,
+            clientPhone,
             serviceDescription,
             amount,
             currency,
@@ -471,6 +476,7 @@ router.post('/', protect, async(req, res) => {
             documentType: normalizedDocumentType,
             clientName,
             clientEmail,
+            clientPhone: clientPhone || '',
             serviceDescription: serviceDescription || '',
             amount: Number(amount),
             currency: currency || 'INR',
@@ -580,18 +586,30 @@ router.post('/', protect, async(req, res) => {
 
         res.status(201).json({ invoice, recurringInvoice, recurringError });
 
-        // Send email in background
+        // Send email & WhatsApp in background
         setImmediate(async() => {
+            const publicInvoiceLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
+            const senderName = user.companyName || user.name || DEFAULT_COMPANY_NAME;
+
             try {
-                const publicInvoiceLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
-
-                const senderName = user.companyName || DEFAULT_COMPANY_NAME;
                 const template = invoiceCreated({ invoice, publicUrl: publicInvoiceLink, senderName });
-
                 await sendEmail(invoice.clientEmail, template.subject, template);
-
             } catch (e) {
-                console.log('Email failed in background');
+                console.log('Email failed in background:', e.message);
+            }
+
+            try {
+                const recipientPhone = invoice.clientPhone || user.phone;
+                if (recipientPhone) {
+                    await sendInvoiceWhatsAppAlert({
+                        to: recipientPhone,
+                        invoice,
+                        freelancerName: senderName,
+                        publicUrl: publicInvoiceLink
+                    });
+                }
+            } catch (waErr) {
+                console.error('WhatsApp dispatch failed in background:', waErr.message);
             }
         });
 
@@ -1721,6 +1739,29 @@ router.get('/tax/ca-export', protect, async (req, res) => {
     } catch (err) {
         console.error('CA EXPORT ERROR:', err);
         res.status(500).json({ message: 'Failed to generate CA export.', error: err.message });
+    }
+});
+
+/**
+ * Direct WhatsApp Test Endpoint
+ * POST /api/invoices/test-whatsapp
+ */
+router.post('/test-whatsapp', protect, async (req, res) => {
+    try {
+        const targetPhone = req.body.phone || req.user.phone || '919080963704';
+        const result = await sendWhatsAppMessage({
+            to: targetPhone,
+            templateName: 'hello_world',
+            languageCode: 'en_US'
+        });
+        res.json({
+            success: result.success,
+            targetPhone,
+            result
+        });
+    } catch (err) {
+        console.error('Test WhatsApp error:', err);
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 

@@ -22,6 +22,7 @@ export default function CreateInvoice() {
   // Form State
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
   const [currency, setCurrency] = useState('INR');
   const [upiId, setUpiId] = useState('');
   const [dueDate, setDueDate] = useState(() => {
@@ -145,10 +146,15 @@ export default function CreateInvoice() {
       setSubmitting(true);
       const halfTax = taxPercent > 0 ? taxPercent / 2 : 0;
 
+      const rawEmail = clientEmail.trim();
+      const rawPhone = clientPhone.trim();
+      const resolvedEmail = rawEmail || (rawPhone ? `${rawPhone.replace(/\D/g, '')}@whatsapp.clientflow` : `client-${Date.now()}@clientflow.internal`);
+
       const payload = {
         documentType: 'invoice',
         clientName: clientName.trim(),
-        clientEmail: clientEmail.trim() || undefined,
+        clientEmail: resolvedEmail,
+        clientPhone: rawPhone,
         currency,
         upiId: currency === 'INR' ? upiId.trim() : '',
         dueDate,
@@ -186,7 +192,10 @@ export default function CreateInvoice() {
 
   const getWhatsAppShareUrl = () => {
     const text = `Hi ${clientName},\n\nHere is your invoice #${createdInvoice?.invoiceNumber || ''} for ${currency} ${total.toLocaleString('en-IN')}.\n\nYou can view and pay it securely here:\n${publicPayUrl}\n\nThank you!`;
-    return `https://wa.me/?text=${encodeURIComponent(text)}`;
+    const targetPhone = clientPhone ? clientPhone.replace(/\D/g, '') : '';
+    return targetPhone
+      ? `https://wa.me/${targetPhone.length === 10 ? '91' + targetPhone : targetPhone}?text=${encodeURIComponent(text)}`
+      : `https://wa.me/?text=${encodeURIComponent(text)}`;
   };
 
   return (
@@ -260,6 +269,7 @@ export default function CreateInvoice() {
                 setCreatedInvoice(null);
                 setClientName('');
                 setClientEmail('');
+                setClientPhone('');
                 setItems([{ name: '', price: '' }]);
                 setAiPrompt('');
               }}
@@ -311,7 +321,7 @@ export default function CreateInvoice() {
               {/* Section 1: Client Details */}
               <div>
                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">1. Client Details</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">
                       Client Name <span className="text-rose-500">*</span>
@@ -321,20 +331,37 @@ export default function CreateInvoice() {
                       required
                       value={clientName}
                       onChange={(e) => setClientName(e.target.value)}
-                      placeholder="e.g. Rahul Sharma or Tech Corp"
+                      placeholder="e.g. Rahul Sharma"
                       className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                      Client Email or Phone (Optional)
+                      Client Email
                     </label>
                     <input
-                      type="text"
+                      type="email"
                       value={clientEmail}
                       onChange={(e) => setClientEmail(e.target.value)}
-                      placeholder="e.g. rahul@example.com or 9876543210"
+                      placeholder="e.g. rahul@example.com"
                       className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Client WhatsApp
+                      </label>
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                        ⚡ Auto-Alert
+                      </span>
+                    </div>
+                    <input
+                      type="tel"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                      placeholder="e.g. 9876543210"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
                 </div>

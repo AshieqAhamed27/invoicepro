@@ -31,6 +31,12 @@ const invoiceSchema = new mongoose.Schema({
         trim: true
     },
 
+    clientPhone: {
+        type: String,
+        default: '',
+        trim: true
+    },
+
     serviceDescription: {
         type: String,
         default: ''
