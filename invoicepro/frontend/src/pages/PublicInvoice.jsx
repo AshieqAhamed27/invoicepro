@@ -410,7 +410,15 @@ export default function PublicInvoice() {
               )}
               <div className="min-w-0">
                 <p className="break-words text-lg font-black leading-none text-slate-950 sm:text-xl">{companyName}</p>
-                <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400">Powered by {COMPANY_SHORT_NAME}</p>
+                <a
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition"
+                  title="Built with ClientFlow AI"
+                >
+                  <span>⚡ Powered by {COMPANY_SHORT_NAME}</span>
+                </a>
               </div>
             </div>
             <p className="text-slate-500 mt-2 font-bold uppercase text-[10px] tracking-widest">
@@ -891,22 +899,38 @@ export default function PublicInvoice() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-100 text-center">
-          <p className="text-sm text-gray-400">
-            Thank you for your business. For any queries, please contact <span className="font-semibold text-gray-600">{companyName || 'the provider'}</span>.
+        <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-gray-500 text-center sm:text-left">
+            Thank you for your business. For any queries, please contact <span className="font-semibold text-gray-700">{companyName || 'the provider'}</span>.
           </p>
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Create and send free invoices with ClientFlow AI"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 text-xs font-semibold transition group shadow-2xs shrink-0"
+          >
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white text-[9px] font-black">⚡</span>
+            <span>Powered by <strong className="font-black text-slate-900 group-hover:text-indigo-600">{COMPANY_SHORT_NAME}</strong></span>
+            <span className="text-[10px] text-indigo-600 font-bold ml-0.5">· Free Invoicing →</span>
+          </a>
         </div>
       </div>
 
-      <div className="mt-8 text-center">
-        <p className="text-xs text-zinc-500 flex items-center justify-center gap-2">
-          Powered by <span className="font-bold tracking-tight text-zinc-400 flex items-center gap-1">
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L1 21h22L12 2zm0 3.45l8.1 14.1H3.9L12 5.45z" />
-            </svg>
-            {COMPANY_SHORT_NAME}
+      {/* Sleek viral badge for invoice viewers */}
+      <div className="mt-8 text-center pb-8">
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-white/10 text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 shadow-sm transition backdrop-blur-sm"
+        >
+          <span className="text-indigo-500 font-bold">⚡</span>
+          <span>Invoicing & instant UPI payments powered by <strong className="text-slate-900 dark:text-white">{COMPANY_SHORT_NAME}</strong></span>
+          <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-black px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
+            Create Free Invoices →
           </span>
-        </p>
+        </a>
       </div>
     </div>
   );
