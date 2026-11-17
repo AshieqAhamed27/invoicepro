@@ -38,10 +38,10 @@ const workflowSteps = [
 const freeIncludes = [
   { icon: '✨', title: 'Plain English AI Invoicing', text: 'Type what you worked on in 1 simple sentence. AI auto-fills client name, price, deliverables, and due dates in 1 second.' },
   { icon: '⚡', title: 'Direct UPI QR (0% Escrow)', text: 'Clients scan with GPay, PhonePe, or Paytm. 100% direct bank settlement in 10s with ₹0 platform cuts and zero middleman holds.' },
+  { icon: '💬', title: '1-Click WhatsApp Invoicing & Auto-Alerts', text: 'Send invoice links and UPI QR codes straight to your client’s WhatsApp with 1 tap. Automated polite chasers ensure you never have to awkwardly ask for payment updates.' },
   { icon: '📄', title: 'QR Code Embedded in PDF', text: 'Every downloaded or printed PDF invoice has your live UPI QR code right on the page for instant scan-to-pay convenience.' },
   { icon: '⚖️', title: 'Legal Demand Notice Engine', text: '1-click formal legal demand notice citing Section 73 Indian Contract Act & MSME Samadhaan with a 7-day cure period for delayed or ghosting clients.' },
-  { icon: '🌍', title: 'Foreign Client Rails (Wise/Wire)', text: 'Direct 1-click Wise, PayPal, or SWIFT wire transfer details in USD, EUR, GBP with 0% GST export LUT compliance.' },
-  { icon: '✓', title: '1-Click Payment Tracker', text: 'Real-time payment tracking with 1-click "Mark as Paid", automated calm WhatsApp chasers, and 1-click CA tax export.' }
+  { icon: '🌍', title: 'Foreign Client Rails (Wise/Wire)', text: 'Direct 1-click Wise, PayPal, or SWIFT wire transfer details in USD, EUR, GBP with 0% GST export LUT compliance.' }
 ];
 
 const protectionItems = [
@@ -223,8 +223,8 @@ export default function HomeClear() {
                 {/* Quick Trust Highlights */}
                 <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl">
                   <div className="rounded-xl border border-emerald-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
-                    <p className="text-xs font-black text-emerald-700">⚡ Direct UPI QR</p>
-                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">Scan & pay in 10s via GPay/PhonePe</p>
+                    <p className="text-xs font-black text-emerald-700">⚡ UPI & WhatsApp</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">1-click WhatsApp send + UPI QR</p>
                   </div>
                   <div className="rounded-xl border border-purple-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm">
                     <p className="text-xs font-black text-purple-700">✨ Plain English AI</p>
@@ -508,6 +508,17 @@ export default function HomeClear() {
                         </div>
                       </div>
                     )}
+                  </div>
+
+                  {/* WhatsApp Quick Dispatch Preview Action */}
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 text-emerald-700 text-xs font-bold">
+                      <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>Meta WhatsApp Auto-Alert Active</span>
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-black border border-emerald-200">
+                      💬 1-Click WhatsApp Send
+                    </span>
                   </div>
                 </div>
               </div>
