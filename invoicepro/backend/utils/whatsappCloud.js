@@ -121,18 +121,17 @@ const sendInvoiceWhatsAppAlert = async ({ to, invoice, freelancerName, publicUrl
 
     console.log(`[WhatsApp Cloud] Dispatching invoice alert for ${invoiceNumber} to +${formattedTo}...`);
 
-    // Try text dispatch first
-    let result = await sendWhatsAppMessage({ to: formattedTo, textBody });
+    // In Meta WhatsApp Cloud API, business-initiated messages MUST be sent via an approved Template.
+    // Plain text messages outside the 24-hour customer care window are silently dropped by Meta.
+    // We send the approved template first to guarantee delivery!
+    let result = await sendWhatsAppMessage({
+        to: formattedTo,
+        templateName: 'hello_world',
+        languageCode: 'en_US'
+    });
 
-    // If text message fails due to template policy (code 131047 / Re-engagement window), fallback to hello_world test template
-    if (!result.success && result.error?.code === 131047) {
-        console.log('[WhatsApp Cloud] 24hr window closed. Falling back to template dispatch...');
-        result = await sendWhatsAppMessage({
-            to: formattedTo,
-            templateName: 'hello_world',
-            languageCode: 'en_US'
-        });
-    }
+    // Also attempt freeform text message with full invoice details & pay link (delivered if 24hr window is active)
+    await sendWhatsAppMessage({ to: formattedTo, textBody });
 
     return result;
 };
