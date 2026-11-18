@@ -623,6 +623,18 @@ router.post(
             await syncAdminRole(user);
             await ensureFreeAccessWindow(user);
 
+            // Send welcome email to newly registered user
+            if (user.email && !user.welcomeEmailSent) {
+                try {
+                    await sendUserWelcomeEmail(user);
+                    user.welcomeEmailSent = true;
+                    user.welcomeEmailSentAt = new Date();
+                    await user.save();
+                } catch (emailErr) {
+                    console.error('Signup welcome email error:', emailErr.message);
+                }
+            }
+
             // Send welcome message on WhatsApp / SMS explaining features & why to pay
             let welcomeData = null;
             if (cleanedPhone) {
