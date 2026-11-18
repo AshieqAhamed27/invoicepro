@@ -598,18 +598,20 @@ router.post('/', protect, async(req, res) => {
                 console.log('Email failed in background:', e.message);
             }
 
-            try {
-                const recipientPhone = invoice.clientPhone || user.phone;
-                if (recipientPhone) {
-                    await sendInvoiceWhatsAppAlert({
-                        to: recipientPhone,
-                        invoice,
-                        freelancerName: senderName,
-                        publicUrl: publicInvoiceLink
-                    });
+            if (process.env.WHATSAPP_BOT_ENABLED === 'true') {
+                try {
+                    const recipientPhone = invoice.clientPhone || user.phone;
+                    if (recipientPhone) {
+                        await sendInvoiceWhatsAppAlert({
+                            to: recipientPhone,
+                            invoice,
+                            freelancerName: senderName,
+                            publicUrl: publicInvoiceLink
+                        });
+                    }
+                } catch (waErr) {
+                    console.error('WhatsApp dispatch failed in background:', waErr.message);
                 }
-            } catch (waErr) {
-                console.error('WhatsApp dispatch failed in background:', waErr.message);
             }
         });
 

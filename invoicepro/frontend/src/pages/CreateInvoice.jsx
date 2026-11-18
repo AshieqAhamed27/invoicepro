@@ -350,10 +350,10 @@ export default function CreateInvoice() {
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="block text-xs font-bold text-slate-700">
-                        Client WhatsApp
+                        Client WhatsApp (Optional)
                       </label>
                       <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                        ⚡ Auto-Alert
+                        💬 1-Click Send
                       </span>
                     </div>
                     <input

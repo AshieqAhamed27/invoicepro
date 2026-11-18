@@ -23,6 +23,11 @@ const normalizeWhatsAppPhone = (phone) => {
  * Send a WhatsApp template message or freeform text via Meta Cloud API
  */
 const sendWhatsAppMessage = async ({ to, templateName, languageCode = 'en_US', components = [], textBody = null }) => {
+    // Only dispatch automated bot messages when explicitly enabled via WHATSAPP_BOT_ENABLED=true
+    if (process.env.WHATSAPP_BOT_ENABLED !== 'true') {
+        return { success: false, reason: 'WHATSAPP_BOT_PAUSED' };
+    }
+
     const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
