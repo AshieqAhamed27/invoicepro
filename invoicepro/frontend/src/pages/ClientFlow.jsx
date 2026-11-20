@@ -45,6 +45,7 @@ export default function ClientFlow() {
   const [error, setError] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedInvoiceId, setCopiedInvoiceId] = useState('');
+  const [countryCode, setCountryCode] = useState('91');
   const [phoneInput, setPhoneInput] = useState('');
   const [savingPhone, setSavingPhone] = useState(false);
   const [phoneSuccessMessage, setPhoneSuccessMessage] = useState('');
@@ -79,14 +80,15 @@ export default function ClientFlow() {
   const handleSavePhone = async (e) => {
     e.preventDefault();
     const digits = phoneInput.replace(/\D/g, '');
-    if (digits.length !== 10) return;
+    if (digits.length < 6) return;
+    const fullPhone = `${countryCode}${digits}`;
     try {
       setSavingPhone(true);
-      const res = await api.put('/auth/profile', { phone: digits });
-      const updatedUser = { ...user, phone: res.data?.user?.phone || `91${digits}` };
+      const res = await api.put('/auth/profile', { phone: fullPhone });
+      const updatedUser = { ...user, phone: res.data?.user?.phone || fullPhone };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setCurrentUser(updatedUser);
-      setPhoneSuccessMessage('✓ WhatsApp number verified! Activating workspace...');
+      setPhoneSuccessMessage('✓ WhatsApp number saved! Live payment alerts active.');
     } catch (err) {
       console.error(err);
       alert(err?.response?.data?.message || 'Could not update phone number. Please try again.');
@@ -248,84 +250,78 @@ export default function ClientFlow() {
           </div>
         )}
 
-        {/* WhatsApp Mobile Number Modal for Users without Phone */}
+        {/* Optional WhatsApp Setup Banner for Users without Phone */}
         {!user?.phone && !dismissedPhoneModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-            <div className="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-white dark:bg-[#0a0f1d] p-6 sm:p-8 shadow-2xl relative">
-              <button
-                type="button"
-                onClick={() => {
-                  sessionStorage.setItem('cf_skip_phone_modal', 'true');
-                  setDismissedPhoneModal(true);
-                }}
-                className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-full text-lg leading-none"
-                title="Skip for now"
-              >
-                ✕
-              </button>
+          <div className="mb-8 rounded-3xl border border-emerald-500/30 bg-emerald-50/70 dark:bg-emerald-950/20 p-5 sm:p-6 shadow-sm relative transition-all">
+            <button
+              type="button"
+              onClick={() => {
+                sessionStorage.setItem('cf_skip_phone_modal', 'true');
+                setDismissedPhoneModal(true);
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-full text-base leading-none"
+              title="Dismiss"
+            >
+              ✕
+            </button>
 
-              <div className="flex items-center gap-3.5 mb-4">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-2xl border border-emerald-500/40">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+              <div className="flex items-start sm:items-center gap-3.5">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-2xl border border-emerald-500/40">
                   📱
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Quick Setup</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Optional Mobile Alert</span>
                     <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   </div>
-                  <h2 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">Enter WhatsApp Number</h2>
+                  <h3 className="text-base font-black text-slate-900 dark:text-white mt-0.5">
+                    Connect WhatsApp for Instant Payment Alerts
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5 max-w-xl">
+                    Get an instant ping on your phone whenever a client views an invoice or completes a payment.
+                  </p>
                 </div>
               </div>
 
-              <p className="text-sm text-slate-600 dark:text-zinc-300 leading-relaxed mb-6">
-                Add your WhatsApp number to activate instant mobile alerts when clients view your invoices or complete UPI payments.
-              </p>
+              <form onSubmit={handleSavePhone} className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="h-11 rounded-xl border border-slate-300 dark:border-white/10 bg-white dark:bg-black/60 px-3 text-xs font-bold text-slate-900 dark:text-white outline-none cursor-pointer focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="91">🇮🇳 +91 (India)</option>
+                  <option value="1">🇺🇸 +1 (US / Canada)</option>
+                  <option value="44">🇬🇧 +44 (UK)</option>
+                  <option value="971">🇦🇪 +971 (UAE)</option>
+                  <option value="65">🇸🇬 +65 (Singapore)</option>
+                  <option value="61">🇦🇺 +61 (Australia)</option>
+                  <option value="49">🇩🇪 +49 (Germany)</option>
+                </select>
 
-              <form onSubmit={handleSavePhone} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-700 dark:text-zinc-400 uppercase tracking-widest block ml-1">
-                    WhatsApp Mobile Number
-                  </label>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-sm font-black text-slate-500 dark:text-zinc-400 select-none">🇮🇳 +91</span>
-                    <input
-                      type="tel"
-                      required
-                      autoFocus
-                      placeholder="98765 43210"
-                      value={phoneInput}
-                      onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      className="h-12 w-full rounded-2xl border border-slate-300 dark:border-white/10 bg-slate-50 dark:bg-black/60 pl-16 pr-4 text-base font-bold text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-emerald-500 transition shadow-inner"
-                    />
-                  </div>
-                </div>
+                <input
+                  type="tel"
+                  placeholder="Phone number"
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 15))}
+                  className="h-11 w-44 rounded-xl border border-slate-300 dark:border-white/10 bg-white dark:bg-black/60 px-3 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500"
+                />
 
                 <button
                   type="submit"
-                  disabled={savingPhone || phoneInput.replace(/\D/g, '').length !== 10}
-                  className="w-full h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed shadow-lg active:scale-[0.99]"
+                  disabled={savingPhone || phoneInput.replace(/\D/g, '').length < 6}
+                  className="h-11 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition disabled:opacity-40 shadow-sm active:scale-95"
                 >
-                  {savingPhone ? 'Activating Workspace...' : 'Activate Workspace →'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    sessionStorage.setItem('cf_skip_phone_modal', 'true');
-                    setDismissedPhoneModal(true);
-                  }}
-                  className="w-full text-center text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-zinc-300 py-1 transition"
-                >
-                  Skip for now, I'll add this later →
+                  {savingPhone ? 'Saving...' : 'Save Phone'}
                 </button>
               </form>
-
-              {phoneSuccessMessage && (
-                <p className="mt-3 text-center text-xs font-bold text-emerald-600 dark:text-emerald-300">
-                  {phoneSuccessMessage}
-                </p>
-              )}
             </div>
+
+            {phoneSuccessMessage && (
+              <p className="mt-3 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                {phoneSuccessMessage}
+              </p>
+            )}
           </div>
         )}
 
