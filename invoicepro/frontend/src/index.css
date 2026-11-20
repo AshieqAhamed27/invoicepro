@@ -936,8 +936,19 @@ html, body {
 }
 
 /* Ensure all text is 100% visible and high-contrast */
-.text-white:not(button):not(button *):not(.btn):not(.btn *):not([class*="bg-indigo"]):not([class*="bg-emerald"]):not([class*="bg-amber"]):not([class*="bg-violet"]):not([class*="bg-fuchsia"]):not([class*="bg-gradient-to"]):not([class*="badge"]):not([class*="rounded-full"]) {
+.text-white:not(.btn-primary):not(.btn-dark):not([class*="bg-indigo-6"]):not([class*="bg-emerald-6"]):not([class*="bg-slate-9"]):not([class*="bg-black"]):not([class*="bg-rose"]):not([class*="bg-blue-6"]):not(.badge):not(.rounded-full) {
     color: #0f172a !important;
+}
+
+/* Ensure buttons without a solid dark background never have white text */
+button:not(.btn-primary):not(.btn-dark):not([class*="bg-indigo-6"]):not([class*="bg-emerald-6"]):not([class*="bg-slate-9"]):not([class*="bg-black"]):not([class*="bg-rose"]):not([class*="bg-blue-6"]) .text-white,
+button:not(.btn-primary):not(.btn-dark):not([class*="bg-indigo-6"]):not([class*="bg-emerald-6"]):not([class*="bg-slate-9"]):not([class*="bg-black"]):not([class*="bg-rose"]):not([class*="bg-blue-6"]) [class*="text-white"] {
+    color: #0f172a !important;
+}
+
+/* Ensure hover text is always visible and never turns invisible white against light backgrounds */
+[class*="hover:text-white"]:not(.btn-primary):not(.btn-dark):not([class*="bg-indigo-6"]):not([class*="bg-emerald-6"]):not([class*="bg-slate-9"]):not([class*="bg-black"]):hover {
+    color: #4f46e5 !important;
 }
 
 .text-zinc-200,

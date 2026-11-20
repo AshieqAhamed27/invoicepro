@@ -56,7 +56,7 @@ const defaultLeadForm = {
 };
 
 const inputClass = 'input';
-const actionLinkClass = 'flex min-h-10 w-full items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-yellow-400/25 hover:bg-white/[0.08] hover:text-white';
+const actionLinkClass = 'flex min-h-10 w-full items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-900 shadow-2xs';
 
 const marketPresets = [
   {
@@ -569,23 +569,23 @@ export default function ClientFinder() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900 bg-[#f8fafc]">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal responsive-heading-grid mb-10">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-50 px-3 py-1.5 shadow-2xs">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-800">
                 AI Client Finder
               </p>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
               Find clients, pitch better, then turn work into invoices.
             </h1>
-            <p className="mt-5 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-              ClientFlow AI now helps freelancers choose a profitable niche, generate outreach, package an offer, send a proposal, and collect payment from the same workflow.
+            <p className="mt-5 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
+              ClientFlow AI helps freelancers choose a profitable niche, generate outreach pitches, package an offer, send a proposal, and collect payment from the same workflow.
             </p>
           </div>
 
@@ -595,9 +595,9 @@ export default function ClientFinder() {
               { label: 'Pitch', value: 'AI messages' },
               { label: 'Close', value: 'Proposal + invoice' }
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
-                <p className="mt-2 text-lg font-black text-white">{item.value}</p>
+              <div key={item.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600">{item.label}</p>
+                <p className="mt-2 text-lg font-black text-slate-900">{item.value}</p>
               </div>
             ))}
           </div>
@@ -606,12 +606,12 @@ export default function ClientFinder() {
         <div className="grid gap-8">
           <form
             onSubmit={generatePlan}
-            className="reveal reveal-delay-1 h-fit rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-7"
+            className="reveal reveal-delay-1 h-fit rounded-[2rem] border border-slate-200 bg-white p-5 shadow-xl sm:p-7"
           >
             <div className="mb-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Freelancer Profile</p>
-              <h2 className="mt-2 text-2xl font-black text-white">Tell AI what you sell</h2>
-              <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+              <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Freelancer Profile</p>
+              <h2 className="mt-2 text-2xl font-black text-slate-900">Tell AI what you sell</h2>
+              <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-500">
                 Fill service, target client, and location so the AI suggests correct client types and searches.
               </p>
             </div>
@@ -619,29 +619,36 @@ export default function ClientFinder() {
             <div className={plan ? 'grid gap-4 md:grid-cols-2 xl:grid-cols-3' : 'grid gap-4'}>
               <div className={plan ? 'md:col-span-2 xl:col-span-3' : ''}>
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Client Reach</span>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{form.currency}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-700">Client Reach</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">{form.currency}</span>
                 </div>
-                <div className="grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
+                <div className="grid gap-2.5 sm:grid-cols-2 2xl:grid-cols-3">
                   {marketPresets.map((preset) => (
                     <button
                       key={preset.id}
                       type="button"
                       onClick={() => applyMarketPreset(preset)}
-                      className={`rounded-2xl border p-3 text-left transition-all ${form.marketScope === preset.id
-                        ? 'border-emerald-400/30 bg-emerald-400/10'
-                        : 'border-white/8 bg-black/20 hover:border-white/15 hover:bg-white/[0.04]'
+                      className={`rounded-2xl border p-4 text-left transition-all ${
+                        form.marketScope === preset.id
+                          ? 'border-emerald-500 bg-emerald-50 shadow-sm ring-2 ring-emerald-500/20'
+                          : 'border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/40 shadow-2xs'
                       }`}
                     >
-                      <span className="text-xs font-black text-white">{preset.label}</span>
-                      <span className="mt-1 block text-[11px] font-semibold leading-relaxed text-zinc-500">{preset.helper}</span>
+                      <span className={`text-sm font-black block transition-colors ${
+                        form.marketScope === preset.id ? 'text-emerald-950 font-black' : 'text-slate-900'
+                      }`}>
+                        {preset.label}
+                      </span>
+                      <span className="mt-1 block text-xs font-medium leading-relaxed text-slate-600">
+                        {preset.helper}
+                      </span>
                     </button>
                   ))}
                 </div>
               </div>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Service</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-700">Service</span>
                 <input
                   value={form.service}
                   onChange={(event) => updateField('service', event.target.value)}
@@ -757,40 +764,40 @@ export default function ClientFinder() {
           <section className="reveal reveal-delay-1 min-w-0">
             {!plan ? (
               <div className="space-y-6">
-                <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center sm:p-12">
-                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-yellow-400/20 bg-yellow-400/10">
-                    <svg className="h-8 w-8 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="rounded-[2rem] border border-slate-200 bg-white p-8 text-center sm:p-12 shadow-sm">
+                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-indigo-100 bg-indigo-50">
+                    <svg className="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
                   </div>
-                  <h2 className="text-2xl font-black text-white">Fill the required profile first.</h2>
-                  <p className="mx-auto mt-3 max-w-xl text-sm font-semibold leading-relaxed text-zinc-500">
+                  <h2 className="text-2xl font-black text-slate-900">Fill the required profile first.</h2>
+                  <p className="mx-auto mt-3 max-w-xl text-sm font-semibold leading-relaxed text-slate-500">
                     Add your service, target client, and location. Then AI can generate the right client plan instead of guessing wrong prospects.
                   </p>
                   <div className="mx-auto mt-6 grid max-w-2xl gap-3 sm:grid-cols-3">
                     {requiredProfileFields.map((field) => (
-                      <div key={field.key} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Required</p>
-                        <p className="mt-2 text-sm font-black capitalize text-white">{field.label}</p>
+                      <div key={field.key} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Required</p>
+                        <p className="mt-2 text-sm font-black capitalize text-slate-900">{field.label}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {realLeadSources.length > 0 && (
-                  <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-6 sm:p-8">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Real Client Searches</p>
-                    <h3 className="mt-2 text-2xl font-black text-white">Open real public places to find prospects.</h3>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
+                  <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50/40 p-6 sm:p-8">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Real Client Searches</p>
+                    <h3 className="mt-2 text-2xl font-black text-slate-900">Open real public places to find prospects.</h3>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">
                       These links open real search results. Save only businesses you personally verify.
                     </p>
 
                     <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {realLeadSources.map((source) => (
-                        <div key={`${source.platform}-${source.query}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{source.platform}</p>
-                          <p className="mt-2 break-words text-sm font-black text-white">{source.query}</p>
-                          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{source.note}</p>
+                        <div key={`${source.platform}-${source.query}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600">{source.platform}</p>
+                          <p className="mt-2 break-words text-sm font-black text-slate-900">{source.query}</p>
+                          <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-500">{source.note}</p>
                           <a
                             href={getLeadSearchUrl(source.platform, source.query)}
                             target="_blank"
@@ -808,18 +815,18 @@ export default function ClientFinder() {
               </div>
             ) : (
               <div className="space-y-6">
-                <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.04] p-6 sm:p-8">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Best Positioning</p>
-                  <h2 className="mt-3 text-3xl font-black tracking-tight text-white">{plan.bestNiche}</h2>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">{plan.positioning}</p>
+                <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50/50 p-6 sm:p-8">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Best Positioning</p>
+                  <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900">{plan.bestNiche}</h2>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{plan.positioning}</p>
 
                   <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
-                    <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Starter Offer</p>
-                      <p className="mt-2 text-lg font-black text-white">{plan.starterOffer?.title}</p>
-                      <p className="mt-2 text-sm font-semibold text-zinc-400">{plan.starterOffer?.promise}</p>
-                      <p className="mt-4 text-3xl font-black text-emerald-300">{formatMoney(plan.starterOffer?.price, plan.currency || form.currency)}</p>
-                      <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Starter Offer</p>
+                      <p className="mt-2 text-lg font-black text-slate-900">{plan.starterOffer?.title}</p>
+                      <p className="mt-2 text-sm font-semibold text-slate-600">{plan.starterOffer?.promise}</p>
+                      <p className="mt-4 text-3xl font-black text-emerald-600">{formatMoney(plan.starterOffer?.price, plan.currency || form.currency)}</p>
+                      <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-400">
                         Proposal currency: {plan.currency || form.currency}. International card collection depends on Razorpay approval.
                       </p>
                     </div>
