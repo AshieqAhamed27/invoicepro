@@ -382,40 +382,42 @@ export default function CreateInvoice() {
 
                 <div className="space-y-3">
                   {items.map((item, index) => (
-                    <div key={index} className="flex gap-2 sm:gap-3 items-center">
+                    <div key={index} className="p-3 sm:p-0 rounded-2xl bg-slate-50/70 sm:bg-transparent border sm:border-0 border-slate-200/80 flex flex-col sm:flex-row gap-2 sm:gap-3 items-stretch sm:items-center relative">
                       <input
                         type="text"
                         required
                         value={item.name}
                         onChange={(e) => handleItemChange(index, 'name', e.target.value)}
                         placeholder="Service name (e.g. Social Media Management, Logo Design)"
-                        className="flex-1 min-w-0 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 font-medium"
+                        className="flex-1 min-w-0 bg-white sm:bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 font-medium"
                       />
-                      <div className="w-36 sm:w-44 flex rounded-xl border border-slate-300 bg-slate-50 focus-within:ring-2 focus-within:ring-slate-900 focus-within:bg-white overflow-hidden shrink-0">
-                        <span className="px-3 py-2.5 bg-slate-100 border-r border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 min-w-[44px]">
-                          {currency === 'INR' ? '₹' : currency}
-                        </span>
-                        <input
-                          type="number"
-                          required
-                          min="0"
-                          step="any"
-                          value={item.price}
-                          onChange={(e) => handleItemChange(index, 'price', e.target.value)}
-                          placeholder="0"
-                          className="w-full bg-transparent px-3 py-2.5 text-sm text-slate-900 focus:outline-none font-bold"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 sm:w-44 flex rounded-xl border border-slate-300 bg-white sm:bg-slate-50 focus-within:ring-2 focus-within:ring-slate-900 focus-within:bg-white overflow-hidden shrink-0">
+                          <span className="px-3 py-2.5 bg-slate-100 border-r border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 min-w-[44px]">
+                            {currency === 'INR' ? '₹' : currency}
+                          </span>
+                          <input
+                            type="number"
+                            required
+                            min="0"
+                            step="any"
+                            value={item.price}
+                            onChange={(e) => handleItemChange(index, 'price', e.target.value)}
+                            placeholder="0"
+                            className="w-full bg-transparent px-3 py-2.5 text-sm text-slate-900 focus:outline-none font-bold"
+                          />
+                        </div>
+                        {items.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeItem(index)}
+                            className="text-slate-400 hover:text-rose-500 p-2 text-lg leading-none shrink-0"
+                            title="Remove item"
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
-                      {items.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeItem(index)}
-                          className="text-slate-400 hover:text-rose-500 p-2 text-lg leading-none shrink-0"
-                          title="Remove item"
-                        >
-                          ✕
-                        </button>
-                      )}
                     </div>
                   ))}
                 </div>

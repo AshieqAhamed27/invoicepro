@@ -739,7 +739,7 @@ export default function PublicInvoice() {
                       )}
                     </div>
                     {screenshotStatus && (
-                      <p className={`mt-2 text-xs font-bold ${screenshotStatus.includes('failed') || screenshotStatus.includes('Error') ? 'text-red-500' : 'text-slate-750'}`}>
+                      <p className={`mt-2 text-xs font-bold ${screenshotStatus.includes('failed') || screenshotStatus.includes('Error') ? 'text-red-500' : 'text-emerald-700'}`}>
                         {screenshotStatus}
                       </p>
                     )}

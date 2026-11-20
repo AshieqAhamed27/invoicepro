@@ -69,7 +69,7 @@ const protectionItems = [
 
 const faqs = [
   ['Is ClientFlow AI a job marketplace?', 'No. ClientFlow AI does not sell leads or take a 20% platform cut. You keep 100% of your earnings from clients you source directly.'],
-  ['How does ClientFlow AI make money if there is 0% commission on my payments?', 'We never touch, hold, or take a percentage cut from your client payments. 100% goes straight from your client to your bank account or UPI ID. ClientFlow AI operates as a pure software product and makes money solely through our affordable Pro subscription (₹249/month or ₹1,999/year).'],
+  ['How does ClientFlow AI make money if there is 0% commission on my payments?', 'We never touch, hold, or take a percentage cut from your client payments. 100% goes straight from your client to your bank account or UPI ID. ClientFlow AI operates as a pure software product and makes money solely through our affordable Pro subscription (₹499/month or ₹1,999/year).'],
   ['How do Indian clients pay?', 'They scan the dynamic UPI QR code on the invoice or downloaded PDF using any UPI app (GPay, PhonePe, Paytm, BHIM) or pay via cards/netbanking. Money deposits directly into your bank account in seconds.'],
   ['Can clients pay directly from the downloaded PDF invoice?', 'Yes! Every invoice PDF generated and downloaded has your dynamic UPI QR code embedded directly into the document. Clients can print it or scan it straight off their laptop or tablet screen using any phone camera or UPI app.'],
   ['What if a client delays, refuses to pay, or ghosts me?', 'ClientFlow AI includes a built-in 1-Click Formal Legal Demand Notice Generator. If a client is overdue, you can instantly export a formal pre-action recovery notice citing Section 73 of the Indian Contract Act, 1872 and MSME Samadhaan terms, setting a strict 7-day cure period before statutory recovery proceedings.'],
@@ -272,31 +272,31 @@ export default function HomeClear() {
                     to="/payments"
                     className="py-4 px-5 text-sm font-bold text-slate-600 hover:text-indigo-600 text-center transition"
                   >
-                    View Pricing (₹249/mo)
+                    View Pricing (₹499/mo)
                   </Link>
                 </div>
 
                 {/* Micro-trust copy */}
-                <p className="mt-4 text-xs font-bold text-slate-400">
+                <p className="mt-4 text-xs font-bold text-slate-500">
                   {accessMessage} · No credit card required · Free 30-day trial · Cancel anytime
                 </p>
 
-                {/* Stats Row */}
-                <div className="mt-10 flex flex-wrap gap-8 border-t border-slate-200/80 pt-6">
-                  <div>
-                    <p className="text-2xl font-black text-slate-900">30 Days</p>
+                {/* Stats Row - Perfect 2x2 grid on mobile, 4 across on desktop */}
+                <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 border-t border-slate-200/80 pt-6">
+                  <div className="bg-white/60 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200/60">
+                    <p className="text-xl sm:text-2xl font-black text-slate-900">30 Days</p>
                     <p className="text-xs font-semibold text-slate-500">Full Free Trial</p>
                   </div>
-                  <div>
-                    <p className="text-2xl font-black text-slate-900">₹0 / $0</p>
+                  <div className="bg-white/60 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200/60">
+                    <p className="text-xl sm:text-2xl font-black text-slate-900">₹0 / $0</p>
                     <p className="text-xs font-semibold text-slate-500">No Card Needed</p>
                   </div>
-                  <div>
-                    <p className="text-2xl font-black text-slate-900">₹ & USD</p>
+                  <div className="bg-white/60 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200/60">
+                    <p className="text-xl sm:text-2xl font-black text-slate-900">₹ & USD</p>
                     <p className="text-xs font-semibold text-slate-500">Global & Domestic</p>
                   </div>
-                  <div>
-                    <p className="text-2xl font-black text-emerald-600">100% Direct</p>
+                  <div className="bg-white/60 sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200/60">
+                    <p className="text-xl sm:text-2xl font-black text-emerald-600">100% Direct</p>
                     <p className="text-xs font-semibold text-slate-500">To Your Bank A/C</p>
                   </div>
                 </div>
@@ -307,7 +307,7 @@ export default function HomeClear() {
                 ref={heroCardRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
-                className="relative lg:pl-4 perspective-1000"
+                className="relative lg:pl-4 perspective-1000 min-w-0"
               >
                 {/* Floating Notification Pill 1: Top Right */}
                 <div className="absolute -top-6 -right-2 sm:-right-6 z-30 animate-float-slow hidden sm:flex items-center gap-2.5 rounded-2xl bg-white p-3 shadow-xl border border-slate-100">
@@ -359,7 +359,7 @@ export default function HomeClear() {
                     transform: `perspective(1000px) rotateY(${mouseTilt.x}deg) rotateX(${mouseTilt.y}deg)`,
                     transition: 'transform 0.15s ease-out'
                   }}
-                  className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-2xl shadow-indigo-600/10 relative overflow-hidden"
+                  className="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-8 shadow-2xl shadow-indigo-600/10 relative overflow-hidden"
                 >
                   {/* Top Bar with Live Currency Toggle */}
                   <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
@@ -559,7 +559,13 @@ export default function HomeClear() {
               </p>
             </div>
 
-            <div className="mt-10 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="mt-8 flex items-center justify-between sm:hidden">
+              <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                ← Swipe table sideways to compare →
+              </span>
+            </div>
+
+            <div className="mt-3 sm:mt-10 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-500">

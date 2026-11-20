@@ -218,7 +218,7 @@ export default function Login() {
               </div>
 
               <div className="space-y-1.5">
-                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Password</p>
+                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Password</p>
                   <input
                     type="password"
                     required
@@ -240,17 +240,17 @@ export default function Login() {
             </form>
 
             <div className="mt-10 pt-8 border-t border-white/5 text-center">
-              <p className="text-sm font-medium text-zinc-500">
+              <p className="text-sm font-medium text-zinc-400">
                 New to ClientFlow AI?{' '}
                 <Link to="/signup" className="font-black text-yellow-300 hover:text-white transition-colors">
                   Create an account
                 </Link>
               </p>
-              <p className="mt-4 text-xs font-medium text-zinc-600">
+              <p className="mt-4 text-xs font-medium text-zinc-400">
                 By continuing, you agree to our{' '}
-                <Link to="/terms" className="text-zinc-400 hover:text-white transition-colors">Terms</Link>
+                <Link to="/terms" className="text-zinc-300 hover:text-white transition-colors underline">Terms</Link>
                 {' '}and{' '}
-                <Link to="/privacy" className="text-zinc-400 hover:text-white transition-colors">Privacy Policy</Link>.
+                <Link to="/privacy" className="text-zinc-300 hover:text-white transition-colors underline">Privacy Policy</Link>.
               </p>
             </div>
           </div>

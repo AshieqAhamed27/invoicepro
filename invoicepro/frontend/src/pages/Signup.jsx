@@ -37,6 +37,7 @@ export default function Signup() {
     persona: 'freelancer',
     freelanceExperience: 'beginner'
   });
+  const [countryCode, setCountryCode] = useState('91');
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -99,10 +100,12 @@ export default function Signup() {
     }
 
     const cleanPhoneDigits = (form.phone || '').replace(/\D/g, '');
-    if (!cleanPhoneDigits || cleanPhoneDigits.length !== 10) {
-      setError('Please provide your 10-digit WhatsApp mobile number (e.g. 9876543210). Both email and mobile number are required.');
+    if (!cleanPhoneDigits || cleanPhoneDigits.length < 6) {
+      setError('Please provide a valid WhatsApp mobile number (minimum 6 digits).');
       return;
     }
+
+    const fullPhone = `${countryCode}${cleanPhoneDigits}`;
 
     if (form.password.length < 8) {
       setError('Password must be at least 8 characters.');
@@ -113,7 +116,10 @@ export default function Signup() {
     trackEvent('signup_submit', { method: 'email_and_phone' });
 
     try {
-      const res = await api.post('/auth/signup', form);
+      const res = await api.post('/auth/signup', {
+        ...form,
+        phone: fullPhone
+      });
       setAuth(res.data.token, res.data.user);
       trackEvent('sign_up', {
         method: 'email',
@@ -253,16 +259,28 @@ export default function Signup() {
                     </p>
                     <span className="text-[10px] font-bold text-emerald-400">Required</span>
                   </div>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3 text-xs font-black text-zinc-300 select-none">🇮🇳 +91</span>
+                  <div className="flex gap-2">
+                    <select
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      className="input py-4 px-2.5 bg-zinc-900 border-white/10 focus:bg-black/60 text-xs font-bold text-white rounded-xl cursor-pointer shrink-0 outline-none"
+                    >
+                      <option value="91" className="bg-zinc-900 text-white">🇮🇳 +91 (IN)</option>
+                      <option value="1" className="bg-zinc-900 text-white">🇺🇸 +1 (US)</option>
+                      <option value="44" className="bg-zinc-900 text-white">🇬🇧 +44 (UK)</option>
+                      <option value="971" className="bg-zinc-900 text-white">🇦🇪 +971 (UAE)</option>
+                      <option value="65" className="bg-zinc-900 text-white">🇸🇬 +65 (SG)</option>
+                      <option value="61" className="bg-zinc-900 text-white">🇦🇺 +61 (AU)</option>
+                      <option value="49" className="bg-zinc-900 text-white">🇩🇪 +49 (DE)</option>
+                    </select>
                     <input
                       type="tel"
                       required
                       autoComplete="tel"
-                      placeholder="98765 43210"
+                      placeholder="Phone number"
                       value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
-                      className="input py-4 pl-16 bg-black/20 border-white/5 focus:bg-black/60 w-full font-bold tracking-wider"
+                      onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 15) })}
+                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 flex-1 font-bold tracking-wider"
                     />
                   </div>
                   <p className="text-[11px] text-zinc-500 ml-1">

@@ -639,84 +639,84 @@ export default function ClientFlow() {
         </section>
 
         {/* ─── 4. Live Financial Snapshot (4 KPI Cards) ─── */}
-        <section className="mb-10 grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <section className="mb-10 grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
           {/* Card 1: Cash Collected */}
-          <div className="p-5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 bg-white dark:bg-emerald-950/10 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-2xl border border-emerald-200 dark:border-emerald-500/20 bg-white dark:bg-emerald-950/10 shadow-sm">
             <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 text-xs font-semibold">
-              <span>Cash Collected</span>
-              <span className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">💰</span>
+              <span className="truncate">Cash Collected</span>
+              <span className="p-1 sm:p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">💰</span>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white">
+            <div className="mt-2 sm:mt-3 text-lg sm:text-2xl lg:text-3xl font-black text-slate-950 dark:text-white truncate">
               {loading ? (
-                <div className="h-8 w-28 rounded-lg bg-emerald-100 dark:bg-emerald-400/10 animate-pulse my-1" />
+                <div className="h-7 sm:h-8 w-24 sm:w-28 rounded-lg bg-emerald-100 dark:bg-emerald-400/10 animate-pulse my-1" />
               ) : (
                 formatCurrency(counts.paidAmount)
               )}
             </div>
-            <div className="mt-2 flex items-center justify-between text-xs">
-              <span className="text-emerald-700 dark:text-emerald-400 font-bold">{counts.paidInvoices} paid invoices</span>
-              <button onClick={() => navigate('/create-invoice')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium">Invoices →</button>
+            <div className="mt-2 flex items-center justify-between text-[11px] sm:text-xs">
+              <span className="text-emerald-700 dark:text-emerald-400 font-bold truncate">{counts.paidInvoices} paid</span>
+              <button onClick={() => navigate('/create-invoice')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium shrink-0 ml-1">Invoices →</button>
             </div>
           </div>
 
           {/* Card 2: Pending Receivables */}
-          <div className={`p-5 rounded-2xl border shadow-sm ${counts.pendingInvoices > 0 ? 'border-amber-300 dark:border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10' : 'border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.02]'}`}>
+          <div className={`p-4 sm:p-5 rounded-2xl border shadow-sm ${counts.pendingInvoices > 0 ? 'border-amber-300 dark:border-amber-500/30 bg-amber-50/30 dark:bg-amber-950/10' : 'border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.02]'}`}>
             <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 text-xs font-semibold">
-              <span>Pending Receivables</span>
-              <span className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">⏳</span>
+              <span className="truncate">Receivables</span>
+              <span className="p-1 sm:p-1.5 rounded-lg bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0">⏳</span>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white">
+            <div className="mt-2 sm:mt-3 text-lg sm:text-2xl lg:text-3xl font-black text-slate-950 dark:text-white truncate">
               {loading ? (
-                <div className="h-8 w-28 rounded-lg bg-amber-100 dark:bg-amber-400/10 animate-pulse my-1" />
+                <div className="h-7 sm:h-8 w-24 sm:w-28 rounded-lg bg-amber-100 dark:bg-amber-400/10 animate-pulse my-1" />
               ) : (
                 formatCurrency(counts.pendingAmount)
               )}
             </div>
-            <div className="mt-2 flex items-center justify-between text-xs">
-              <span className="text-amber-800 dark:text-amber-300 font-bold">{counts.pendingInvoices} unpaid invoices</span>
+            <div className="mt-2 flex items-center justify-between text-[11px] sm:text-xs">
+              <span className="text-amber-800 dark:text-amber-300 font-bold truncate">{counts.pendingInvoices} unpaid</span>
               {counts.pendingInvoices > 0 ? (
-                <button onClick={() => navigate('/clients')} className="text-amber-600 dark:text-amber-400 font-bold hover:underline">Chase Cash ➔</button>
+                <button onClick={() => navigate('/clients')} className="text-amber-600 dark:text-amber-400 font-bold hover:underline shrink-0 ml-1">Chase ➔</button>
               ) : (
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">All settled ✓</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold shrink-0 ml-1">Settled ✓</span>
               )}
             </div>
           </div>
 
           {/* Card 3: Active Proposals */}
-          <div className="p-5 rounded-2xl border border-indigo-200 dark:border-indigo-500/20 bg-white dark:bg-indigo-950/10 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-2xl border border-indigo-200 dark:border-indigo-500/20 bg-white dark:bg-indigo-950/10 shadow-sm">
             <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 text-xs font-semibold">
-              <span>Active Proposals</span>
-              <span className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">✍️</span>
+              <span className="truncate">Proposals</span>
+              <span className="p-1 sm:p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shrink-0">✍️</span>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white">
+            <div className="mt-2 sm:mt-3 text-lg sm:text-2xl lg:text-3xl font-black text-slate-950 dark:text-white truncate">
               {loading ? (
-                <div className="h-8 w-16 rounded-lg bg-indigo-100 dark:bg-indigo-400/10 animate-pulse my-1" />
+                <div className="h-7 sm:h-8 w-14 sm:w-16 rounded-lg bg-indigo-100 dark:bg-indigo-400/10 animate-pulse my-1" />
               ) : (
                 counts.proposals
               )}
             </div>
-            <div className="mt-2 flex items-center justify-between text-xs">
-              <span className="text-indigo-700 dark:text-indigo-300 font-bold">{counts.acceptedProposals} accepted</span>
-              <button onClick={() => navigate('/proposal-writer')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium">Draft →</button>
+            <div className="mt-2 flex items-center justify-between text-[11px] sm:text-xs">
+              <span className="text-indigo-700 dark:text-indigo-300 font-bold truncate">{counts.acceptedProposals} won</span>
+              <button onClick={() => navigate('/proposal-writer')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium shrink-0 ml-1">Draft →</button>
             </div>
           </div>
 
           {/* Card 4: Qualified Leads */}
-          <div className="p-5 rounded-2xl border border-sky-200 dark:border-sky-500/20 bg-white dark:bg-sky-950/10 shadow-sm">
+          <div className="p-4 sm:p-5 rounded-2xl border border-sky-200 dark:border-sky-500/20 bg-white dark:bg-sky-950/10 shadow-sm">
             <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400 text-xs font-semibold">
-              <span>Client Contacts</span>
-              <span className="p-1.5 rounded-lg bg-sky-100 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400">👥</span>
+              <span className="truncate">Clients</span>
+              <span className="p-1 sm:p-1.5 rounded-lg bg-sky-100 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 shrink-0">👥</span>
             </div>
-            <div className="mt-3 text-2xl sm:text-3xl font-black text-slate-950 dark:text-white">
+            <div className="mt-2 sm:mt-3 text-lg sm:text-2xl lg:text-3xl font-black text-slate-950 dark:text-white truncate">
               {loading ? (
-                <div className="h-8 w-16 rounded-lg bg-sky-100 dark:bg-sky-400/10 animate-pulse my-1" />
+                <div className="h-7 sm:h-8 w-14 sm:w-16 rounded-lg bg-sky-100 dark:bg-sky-400/10 animate-pulse my-1" />
               ) : (
                 counts.leads || counts.invoices
               )}
             </div>
-            <div className="mt-2 flex items-center justify-between text-xs">
-              <span className="text-sky-700 dark:text-sky-300 font-bold">{counts.hotLeads} hot leads</span>
-              <button onClick={() => navigate('/clients')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium">Clients →</button>
+            <div className="mt-2 flex items-center justify-between text-[11px] sm:text-xs">
+              <span className="text-sky-700 dark:text-sky-300 font-bold truncate">{counts.hotLeads} hot</span>
+              <button onClick={() => navigate('/clients')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium shrink-0 ml-1">Clients →</button>
             </div>
           </div>
         </section>
@@ -754,76 +754,81 @@ export default function ClientFlow() {
               </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[11px] font-black uppercase tracking-wider">
-                    <th className="py-3 px-3">Invoice #</th>
-                    <th className="py-3 px-3">Client</th>
-                    <th className="py-3 px-3">Amount</th>
-                    <th className="py-3 px-3">Status</th>
-                    <th className="py-3 px-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                  {recentInvoices.map((inv) => {
-                    const isPaid = inv.status === 'paid';
-                    const amountStr = inv.currency === 'INR' ? `₹${inv.amount?.toLocaleString('en-IN')}` : `${inv.currency} ${inv.amount}`;
-                    return (
-                      <tr key={inv._id} className="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition">
-                        <td className="py-3.5 px-3 font-mono font-bold text-slate-900 dark:text-white">
-                          #{inv.invoiceNumber || 'INV'}
-                        </td>
-                        <td className="py-3.5 px-3 font-semibold text-slate-800 dark:text-zinc-200">
-                          {inv.clientName || 'Client'}
-                        </td>
-                        <td className="py-3.5 px-3 font-black text-slate-900 dark:text-white">
-                          {amountStr}
-                        </td>
-                        <td className="py-3.5 px-3">
-                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                            isPaid
-                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
-                              : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
-                          }`}>
-                            {isPaid ? 'Paid ✓' : 'Pending'}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-3 text-right space-x-2">
-                          <button
-                            type="button"
-                            onClick={() => copyInvoicePublicLink(inv)}
-                            className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white transition"
-                            title="Copy public link to share with client"
-                          >
-                            {copiedInvoiceId === inv._id ? 'Copied! ✓' : 'Copy Link 🔗'}
-                          </button>
-
-                          {!isPaid && (
+            <>
+              <div className="text-[11px] font-bold text-slate-500 sm:hidden mb-2">
+                ← Swipe table sideways to view actions →
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 text-[11px] font-black uppercase tracking-wider">
+                      <th className="py-3 px-3">Invoice #</th>
+                      <th className="py-3 px-3">Client</th>
+                      <th className="py-3 px-3">Amount</th>
+                      <th className="py-3 px-3">Status</th>
+                      <th className="py-3 px-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                    {recentInvoices.map((inv) => {
+                      const isPaid = inv.status === 'paid';
+                      const amountStr = inv.currency === 'INR' ? `₹${inv.amount?.toLocaleString('en-IN')}` : `${inv.currency} ${inv.amount}`;
+                      return (
+                        <tr key={inv._id} className="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition">
+                          <td className="py-3.5 px-3 font-mono font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                            #{inv.invoiceNumber || 'INV'}
+                          </td>
+                          <td className="py-3.5 px-3 font-semibold text-slate-800 dark:text-zinc-200 whitespace-nowrap">
+                            {inv.clientName || 'Client'}
+                          </td>
+                          <td className="py-3.5 px-3 font-black text-slate-900 dark:text-white whitespace-nowrap">
+                            {amountStr}
+                          </td>
+                          <td className="py-3.5 px-3 whitespace-nowrap">
+                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                              isPaid
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
+                                : 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+                            }`}>
+                              {isPaid ? 'Paid ✓' : 'Pending'}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-3 text-right space-x-1.5 sm:space-x-2 whitespace-nowrap">
                             <button
                               type="button"
-                              onClick={() => sendInvoiceWhatsAppChaser(inv)}
-                              className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] font-black uppercase tracking-wider transition shadow-sm"
-                              title="Send friendly payment reminder on WhatsApp"
+                              onClick={() => copyInvoicePublicLink(inv)}
+                              className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 text-[11px] font-bold text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white transition"
+                              title="Copy public link to share with client"
                             >
-                              💬 Remind
+                              {copiedInvoiceId === inv._id ? 'Copied! ✓' : 'Copy Link 🔗'}
                             </button>
-                          )}
 
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/invoice/${inv._id}`)}
-                            className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold hover:bg-indigo-100 transition"
-                          >
-                            View →
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                            {!isPaid && (
+                              <button
+                                type="button"
+                                onClick={() => sendInvoiceWhatsAppChaser(inv)}
+                                className="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] font-black uppercase tracking-wider transition shadow-sm"
+                                title="Send friendly payment reminder on WhatsApp"
+                              >
+                                💬 Remind
+                              </button>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/invoice/${inv._id}`)}
+                              className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold hover:bg-indigo-100 transition"
+                            >
+                              View →
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </section>
 
