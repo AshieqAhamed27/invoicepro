@@ -48,6 +48,9 @@ export default function ClientFlow() {
   const [phoneInput, setPhoneInput] = useState('');
   const [savingPhone, setSavingPhone] = useState(false);
   const [phoneSuccessMessage, setPhoneSuccessMessage] = useState('');
+  const [dismissedPhoneModal, setDismissedPhoneModal] = useState(() => {
+    return sessionStorage.getItem('cf_skip_phone_modal') === 'true';
+  });
 
   // ─── First Win in 60s Onboarding Checklist State ───
   const [quickUpiInput, setQuickUpiInput] = useState('');
@@ -246,16 +249,28 @@ export default function ClientFlow() {
         )}
 
         {/* WhatsApp Mobile Number Modal for Users without Phone */}
-        {!user?.phone && (
+        {!user?.phone && !dismissedPhoneModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-            <div className="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-white dark:bg-[#0a0f1d] p-6 sm:p-8 shadow-2xl">
+            <div className="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-white dark:bg-[#0a0f1d] p-6 sm:p-8 shadow-2xl relative">
+              <button
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem('cf_skip_phone_modal', 'true');
+                  setDismissedPhoneModal(true);
+                }}
+                className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-full text-lg leading-none"
+                title="Skip for now"
+              >
+                ✕
+              </button>
+
               <div className="flex items-center gap-3.5 mb-4">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-2xl border border-emerald-500/40">
                   📱
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Required Step</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Quick Setup</span>
                     <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   </div>
                   <h2 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">Enter WhatsApp Number</h2>
@@ -263,13 +278,13 @@ export default function ClientFlow() {
               </div>
 
               <p className="text-sm text-slate-600 dark:text-zinc-300 leading-relaxed mb-6">
-                ClientFlow AI requires your WhatsApp number to activate your workspace and send instant alerts when clients view invoices or complete UPI payments.
+                Add your WhatsApp number to activate instant mobile alerts when clients view your invoices or complete UPI payments.
               </p>
 
               <form onSubmit={handleSavePhone} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-700 dark:text-zinc-400 uppercase tracking-widest block ml-1">
-                    WhatsApp Mobile Number <span className="text-emerald-500">*</span>
+                    WhatsApp Mobile Number
                   </label>
                   <div className="relative flex items-center">
                     <span className="absolute left-3.5 text-sm font-black text-slate-500 dark:text-zinc-400 select-none">🇮🇳 +91</span>
@@ -291,6 +306,17 @@ export default function ClientFlow() {
                   className="w-full h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm uppercase tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed shadow-lg active:scale-[0.99]"
                 >
                   {savingPhone ? 'Activating Workspace...' : 'Activate Workspace →'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    sessionStorage.setItem('cf_skip_phone_modal', 'true');
+                    setDismissedPhoneModal(true);
+                  }}
+                  className="w-full text-center text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-zinc-300 py-1 transition"
+                >
+                  Skip for now, I'll add this later →
                 </button>
               </form>
 
