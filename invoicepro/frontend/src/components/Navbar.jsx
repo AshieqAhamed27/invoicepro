@@ -3,9 +3,10 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel, setPostLoginRedirect } from '../utils/auth';
 import BrandLogo from './BrandLogo';
 
-// ─── 4 Core Navigation Links for Freelancers ───
+// ─── Core Navigation Links for Freelancers ───
 const primaryAppLinks = [
   { to: '/client-flow', label: '📊 Dashboard' },
+  { to: '/client-finder', label: '🔍 Find Clients' },
   { to: '/create-invoice', label: '📄 Invoices & QR' },
   { to: '/proposal-writer', label: '✍️ AI Proposals' },
   { to: '/clients', label: '👥 Clients' }

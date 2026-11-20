@@ -342,6 +342,13 @@ export default function ClientFlow() {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               type="button"
+              onClick={() => navigate('/client-finder')}
+              className="px-3.5 py-2.5 rounded-xl border border-sky-300 dark:border-sky-500/30 bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/40 font-bold text-xs uppercase tracking-wider transition shadow-sm flex items-center gap-1.5"
+            >
+              <span>🔍 Find Clients</span>
+            </button>
+            <button
+              type="button"
               onClick={() => navigate('/create-invoice')}
               className="btn btn-primary text-xs uppercase tracking-wider font-bold py-2.5 px-4 shadow-sm"
             >
@@ -716,7 +723,7 @@ export default function ClientFlow() {
             </div>
             <div className="mt-2 flex items-center justify-between text-[11px] sm:text-xs">
               <span className="text-sky-700 dark:text-sky-300 font-bold truncate">{counts.hotLeads} hot</span>
-              <button onClick={() => navigate('/clients')} className="text-slate-500 hover:text-slate-950 dark:text-zinc-400 dark:hover:text-white transition font-medium shrink-0 ml-1">Clients →</button>
+              <button onClick={() => navigate('/client-finder')} className="text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-white transition font-bold shrink-0 ml-1">Find Clients →</button>
             </div>
           </div>
         </section>
