@@ -1481,7 +1481,7 @@ export default function InvoiceView() {
                 <button
                   type="button"
                   onClick={copyDemandNotice}
-                  className="flex-1 sm:flex-initial px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+                  className="btn-dark flex-1 sm:flex-initial px-5 py-2.5 bg-slate-800 hover:bg-slate-700 !text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
                 >
                   {demandCopied ? '✓ Copied Notice' : 'Copy Notice Text'}
                 </button>

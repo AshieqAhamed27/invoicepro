@@ -306,12 +306,11 @@ router.post('/public/:id/accept', async(req, res) => {
         proposal.proposalRejectedAt = null;
         await proposal.save();
 
-        const sourceLead = await markProposalLeadWon(proposal);
+        await markProposalLeadWon(proposal);
 
         res.json({
             message: 'Proposal accepted successfully.',
-            proposal,
-            lead: sourceLead
+            proposal
         });
     } catch (err) {
         console.error('PUBLIC PROPOSAL ACCEPT ERROR:', err);
@@ -671,7 +670,8 @@ router.post('/:id/convert', protect, async(req, res) => {
             }
         }
 
-        const invoiceNumber = await generateDocumentNumber(req.user._id, 'invoice');
+        const user = req.user;
+        const invoiceNumber = await generateDocumentNumber(user._id, 'invoice');
         const proposalSnapshot = proposal.businessSnapshot || {};
         const hasProposalSnapshot = Boolean(
             proposalSnapshot.name ||
@@ -1443,57 +1443,47 @@ router.post('/public/:id/verify-screenshot', upload.single('screenshot'), async 
         }
 
         if (result.isValid) {
-            invoice.status = 'paid';
-            invoice.paidAt = new Date();
+            invoice.status = 'payment_review';
+            invoice.paymentReviewStatus = 'pending_confirmation';
             
-            // Add a payment event recording this automated AI verification
+            // Add a payment event recording this screenshot submission
             if (!invoice.paymentEvents) {
                 invoice.paymentEvents = [];
             }
             invoice.paymentEvents.push({
-                type: 'payment.captured',
-                status: 'paid',
+                type: 'payment.proof_submitted',
+                status: 'pending_review',
                 amount: result.amount || invoice.amount,
                 currency: invoice.currency || 'INR',
                 occurredAt: new Date(),
-                providerPaymentId: result.transactionId || 'UPI-AI-VERIFIED',
-                message: `Automated UPI screenshot verification: ${result.reasoning}`
+                providerPaymentId: result.transactionId || 'UPI-SCREENSHOT-PROOF',
+                message: `Client submitted payment receipt screenshot. AI verified: ${result.reasoning}. Awaiting freelancer bank deposit confirmation.`
             });
 
             await invoice.save();
 
-            // Send confirmation email in background to both freelancer & client
+            // Notify freelancer to verify deposit in their bank account
             setImmediate(async () => {
                 try {
-                    const senderName = invoice.user?.companyName || DEFAULT_COMPANY_NAME;
-                    const template = paymentConfirmed({
-                        invoice,
-                        amount: result.amount || invoice.amount,
-                        transactionId: result.transactionId || 'UPI-AI-VERIFIED',
-                        date: new Date().toLocaleDateString('en-IN')
-                    });
-                    
-                    // Email to client
-                    await sendEmail(invoice.clientEmail, `Payment Confirmed - Invoice #${invoice.invoiceNumber}`, template);
-                    // Email to freelancer
                     if (invoice.user?.email) {
                         await sendEmail(
                             invoice.user.email,
-                            `Payment Received - Invoice #${invoice.invoiceNumber}`,
+                            `Payment Receipt Uploaded - Invoice #${invoice.invoiceNumber}`,
                             {
-                                ...template,
-                                html: `<p>Great news! Your client has paid Invoice #${invoice.invoiceNumber} via UPI. The AI has verified their screenshot.</p>` + template.html
+                                text: `Your client uploaded a payment receipt of ${invoice.currency || 'INR'} ${result.amount || invoice.amount} for Invoice #${invoice.invoiceNumber}. Please verify the deposit in your bank account before releasing project deliverables.`,
+                                html: `<p>Your client uploaded a payment receipt for <strong>Invoice #${invoice.invoiceNumber}</strong>.</p><p>Amount: <strong>${invoice.currency || 'INR'} ${result.amount || invoice.amount}</strong><br/>Transaction ID: <strong>${result.transactionId || 'N/A'}</strong></p><p>Please check your bank account or UPI app to confirm receipt of funds before releasing project deliverables.</p>`
                             }
                         );
                     }
                 } catch (e) {
-                    console.error('Failed to send payment confirmation email:', e);
+                    console.error('Failed to notify freelancer of payment proof:', e);
                 }
             });
 
             return res.json({
                 success: true,
-                message: 'Payment verified and invoice marked as paid!',
+                message: 'Payment proof submitted! Your receipt has been sent to the freelancer for confirmation.',
+                status: 'payment_review',
                 transactionId: result.transactionId,
                 amount: result.amount
             });

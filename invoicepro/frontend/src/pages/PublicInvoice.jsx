@@ -165,9 +165,15 @@ export default function PublicInvoice() {
   const cgst = Number(invoice.cgst || 0);
   const sgst = Number(invoice.sgst || 0);
   const total = subtotal + (subtotal * (cgst + sgst)) / 100;
-  const tdsPercent = Number(invoice.tdsPercent || 0);
-  const tdsAmount = (subtotal * tdsPercent) / 100;
-  const netReceivable = total - tdsAmount;
+  const hasTds = Boolean(invoice.tds?.enabled || (invoice.tds?.amount && invoice.tds.amount > 0) || invoice.tdsPercent);
+  const tdsPercent = hasTds ? Number(invoice.tds?.rate ?? invoice.tdsPercent ?? 0) : 0;
+  const tdsAmount = hasTds
+    ? Number(invoice.tds?.amount ?? ((subtotal * tdsPercent) / 100))
+    : 0;
+  const netReceivable = invoice.netPayable
+    ? Number(invoice.netPayable)
+    : (total - tdsAmount);
+  const payableAmount = tdsAmount > 0 && netReceivable > 0 ? netReceivable : total;
   const documentDate = invoiceMeta.isProposal ? invoice.validUntil : invoice.dueDate;
   const razorpayPaymentUrl = '';
 
@@ -175,7 +181,7 @@ export default function PublicInvoice() {
     if (razorpayPaymentUrl) {
       trackEvent('begin_invoice_payment', {
         method: 'razorpay_payment_link',
-        value: total,
+        value: payableAmount,
         currency: invoice.currency || 'INR'
       });
       window.location.href = razorpayPaymentUrl;
@@ -360,7 +366,7 @@ export default function PublicInvoice() {
   const isInternationalInvoice = !invoiceMeta.isProposal && invoice.currency !== 'INR';
 
   const upiUri = !invoiceMeta.isProposal && invoice.status === 'pending' && invoice.currency === 'INR' && companyUpi
-    ? `upi://pay?pa=${encodeURIComponent(companyUpi.trim())}&pn=${encodeURIComponent(companyName || 'Freelancer')}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber || ''}`.trim())}`
+    ? `upi://pay?pa=${encodeURIComponent(companyUpi.trim())}&pn=${encodeURIComponent(companyName || 'Freelancer')}&am=${payableAmount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`Invoice ${invoice.invoiceNumber || ''}`.trim())}`
     : '';
   const paymentQrValue = upiUri || internationalPaymentLink || window.location.href;
 

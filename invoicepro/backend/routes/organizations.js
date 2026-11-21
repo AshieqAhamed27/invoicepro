@@ -834,6 +834,10 @@ router.post('/:id/members', protect, async(req, res) => {
             return res.status(400).json({ message: 'Owner role cannot be assigned from invite.' });
         }
 
+        if (role === 'admin' && accessRole !== 'owner' && accessRole !== 'admin') {
+            return res.status(403).json({ message: 'Only organization owners and administrators can assign administrator roles.' });
+        }
+
         if (organization.security?.enforceAllowedDomains) {
             const domain = getEmailDomain(email);
             const allowedDomains = (organization.sso?.allowedDomains || []).map(normalizeDomain).filter(Boolean);
@@ -846,6 +850,9 @@ router.post('/:id/members', protect, async(req, res) => {
         const existingMember = organization.members.find((member) => normalizeEmail(member.email) === email);
 
         if (existingMember) {
+            if (accessRole !== 'owner' && accessRole !== 'admin') {
+                return res.status(403).json({ message: 'Only organization owners and administrators can modify member roles.' });
+            }
             existingMember.role = role;
             existingMember.status = existingUser ? 'active' : 'invited';
             existingMember.user = existingUser?._id || existingMember.user || null;

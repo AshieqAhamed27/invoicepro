@@ -54,14 +54,27 @@ export default function ClientFlow() {
   });
 
   // ─── First Win in 60s Onboarding Checklist State ───
+  const getAccountKey = () => user?._id || user?.id || user?.email || 'default';
   const [quickUpiInput, setQuickUpiInput] = useState('');
   const [savingQuickUpi, setSavingQuickUpi] = useState(false);
   const [upiSuccessMsg, setUpiSuccessMsg] = useState('');
   const [checklistDismissed, setChecklistDismissed] = useState(() => {
-    return localStorage.getItem('cf_checklist_dismissed') === 'true';
+    const cached = getUser();
+    const key = cached?._id || cached?.id || cached?.email;
+    if (key) {
+      const val = localStorage.getItem(`cf_checklist_dismissed_${key}`);
+      if (val !== null) return val === 'true';
+    }
+    return false;
   });
   const [checklistCollapsed, setChecklistCollapsed] = useState(false);
   const [invoiceShared, setInvoiceShared] = useState(() => {
+    const cached = getUser();
+    const key = cached?._id || cached?.id || cached?.email;
+    if (key) {
+      const val = localStorage.getItem(`cf_first_invoice_shared_${key}`);
+      if (val !== null) return val === 'true';
+    }
     return localStorage.getItem('cf_first_invoice_shared') === 'true';
   });
 
@@ -160,11 +173,13 @@ export default function ClientFlow() {
     try {
       await navigator.clipboard.writeText(url);
       setCopiedInvoiceId(invoice._id);
+      localStorage.setItem(`cf_first_invoice_shared_${getAccountKey()}`, 'true');
       localStorage.setItem('cf_first_invoice_shared', 'true');
       setInvoiceShared(true);
       setTimeout(() => setCopiedInvoiceId(''), 2500);
     } catch {
       window.prompt('Copy public invoice link:', url);
+      localStorage.setItem(`cf_first_invoice_shared_${getAccountKey()}`, 'true');
       localStorage.setItem('cf_first_invoice_shared', 'true');
       setInvoiceShared(true);
     }
@@ -177,6 +192,7 @@ export default function ClientFlow() {
     const clientPhone = invoice.clientPhone || '';
     const message = `Hi ${invoice.clientName || 'there'}! This is a polite note regarding invoice #${invoice.invoiceNumber || 'INV'} for ${amountStr}. You can view the invoice and complete payment directly via UPI / Card here:\n${publicUrl}\n\nThank you for working together!`;
     const shareUrl = getWhatsAppShareUrl(message, clientPhone);
+    localStorage.setItem(`cf_first_invoice_shared_${getAccountKey()}`, 'true');
     localStorage.setItem('cf_first_invoice_shared', 'true');
     setInvoiceShared(true);
     window.open(shareUrl, '_blank');
@@ -422,7 +438,7 @@ export default function ClientFlow() {
                   onClick={() => {
                     const next = !checklistDismissed;
                     setChecklistDismissed(next);
-                    localStorage.setItem('cf_checklist_dismissed', String(next));
+                    localStorage.setItem(`cf_checklist_dismissed_${getAccountKey()}`, String(next));
                   }}
                   className="text-[11px] font-bold text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-white underline ml-2 transition"
                 >
@@ -445,7 +461,7 @@ export default function ClientFlow() {
                 type="button"
                 onClick={() => {
                   setChecklistDismissed(true);
-                  localStorage.setItem('cf_checklist_dismissed', 'true');
+                  localStorage.setItem(`cf_checklist_dismissed_${getAccountKey()}`, 'true');
                 }}
                 className="shrink-0 text-xs font-black text-emerald-700 dark:text-emerald-300 hover:underline px-2 py-1"
               >

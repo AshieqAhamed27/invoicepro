@@ -277,15 +277,13 @@ const SimplePaymentCheckout = ({
   onCheckout,
   onCancel
 }) => {
-  const checkoutLabel = freeAccessActive
-    ? 'Open my free workspace'
-    : pricingLoading
-      ? 'Checking secure price…'
-      : loading
-        ? 'Opening Razorpay…'
-        : current.checkoutType === 'one_time'
-          ? `Pay ${formatMoney(current.amount, current.currency)} once`
-          : `Pay securely with Razorpay`;
+  const checkoutLabel = pricingLoading
+    ? 'Checking secure price…'
+    : loading
+      ? 'Opening checkout…'
+      : current.checkoutType === 'one_time'
+        ? `Pay ${formatMoney(current.amount, current.currency)} once`
+        : `Pay securely with Razorpay`;
 
   return (
     <div className="premium-page min-h-screen">
@@ -796,15 +794,6 @@ export default function Payment() {
     setPlan(selectedPlan);
     localStorage.setItem("plan", selectedPlan);
 
-    if (freeAccessActive) {
-      trackEvent('open_free_full_access_from_payment', {
-        plan: selectedPlan,
-        market
-      });
-      window.location.href = '/client-flow';
-      return;
-    }
-
     if (current.checkoutType === 'one_time') {
       await handleOneTimePayment(selectedPlan);
       return;
@@ -1066,7 +1055,7 @@ export default function Payment() {
                   disabled={checkoutDisabled}
                   className="rounded-2xl bg-yellow-400 px-6 py-4 text-sm font-black uppercase tracking-widest text-black shadow-xl shadow-yellow-950/20 transition-all hover:-translate-y-0.5 hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {freeAccessActive ? 'Open Free Workspace' : pricingLoading ? 'Checking Price' : loading ? 'Opening Checkout' : currentPlanReady ? 'Buy Now' : 'Setup Required'}
+                  {pricingLoading ? 'Checking Price' : loading ? 'Opening Checkout' : currentPlanReady ? (freeAccessActive ? 'Upgrade to Pro Now' : 'Buy Now') : 'Setup Required'}
                 </button>
               </div>
 

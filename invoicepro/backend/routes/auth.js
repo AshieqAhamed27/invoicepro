@@ -487,6 +487,7 @@ const serializeUser = (user) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone || '',
         plan: user.plan,
         planExpiresAt: user.planExpiresAt,
         subscriptionProvider: user.subscriptionProvider,

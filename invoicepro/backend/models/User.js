@@ -94,6 +94,11 @@ const userSchema = new mongoose.Schema({
         default: ''
     },
 
+    processedPaymentIds: {
+        type: [String],
+        default: []
+    },
+
     planStartedAt: {
         type: Date,
         default: null

@@ -114,6 +114,17 @@ const getPlanAmount = (plan, fallbackAmount = 0, market = 'india') => {
         : Number(details?.amount || 0);
 };
 
+const toInr = (amount, currency = 'INR') => {
+    const numeric = Number(amount || 0);
+    const code = String(currency || 'INR').toUpperCase();
+    if (code === 'USD') return numeric * 85;
+    if (code === 'EUR') return numeric * 92;
+    if (code === 'GBP') return numeric * 108;
+    if (code === 'AED') return numeric * 23;
+    if (code === 'SGD') return numeric * 64;
+    return numeric;
+};
+
 const getSubscriptionPaidCycles = (subscription = {}) => {
     const paidCount = Number(subscription.paidCount || 0);
     if (Number.isFinite(paidCount) && paidCount > 0) return paidCount;
@@ -1079,6 +1090,15 @@ router.post('/razorpay/verify', protect, async(req, res) => {
         const { plan, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
         const normalizedPlan = normalizePlan(plan);
         if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
+        if (!razorpay_payment_id) return res.status(400).json({ message: 'Payment ID is required' });
+
+        // Check for replay attacks: ensure this payment ID hasn't already been used
+        const existingPaymentUser = await User.findOne({ processedPaymentIds: razorpay_payment_id });
+        if (existingPaymentUser) {
+            return res.status(400).json({ message: 'This payment has already been applied.' });
+        }
+
+        let verifiedPlan = normalizedPlan;
 
         if (process.env.PAYMENT_SIMULATION !== 'true') {
             if (!process.env.RAZORPAY_KEY_SECRET) {
@@ -1088,17 +1108,44 @@ router.post('/razorpay/verify', protect, async(req, res) => {
             const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
             shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
             if (shasum.digest('hex') !== razorpay_signature) return res.status(400).json({ message: 'Verification failed' });
+
+            // Fetch order from Razorpay to verify genuine plan and owning user
+            const authHeader = getRazorpayAuthHeader();
+            if (authHeader && razorpay_order_id) {
+                try {
+                    const orderRes = await requestRazorpay({
+                        path: `/v1/orders/${razorpay_order_id}`,
+                        method: 'GET',
+                        authHeader
+                    });
+                    if (orderRes.ok && orderRes.body?.notes) {
+                        const orderPlan = normalizePlan(orderRes.body.notes.plan);
+                        if (orderPlan) {
+                            verifiedPlan = orderPlan;
+                        }
+                        if (orderRes.body.notes.userId && String(orderRes.body.notes.userId) !== String(req.user._id)) {
+                            return res.status(403).json({ message: 'Payment order does not belong to this account.' });
+                        }
+                    }
+                } catch (orderErr) {
+                    console.warn('[Payment] Could not fetch Razorpay order for plan verification:', orderErr.message);
+                }
+            }
         }
 
         const user = await User.findById(req.user._id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        await setUserPlan(user, normalizedPlan, {
+        // Record the payment ID so it cannot be used again
+        if (!user.processedPaymentIds) user.processedPaymentIds = [];
+        user.processedPaymentIds.push(razorpay_payment_id);
+
+        await setUserPlan(user, verifiedPlan, {
             subscriptionProvider: 'razorpay',
             subscriptionStatus: 'one_time_payment',
             lastPaymentAt: new Date()
         });
-        res.json({ message: 'Success', user: serializeUser(user), plan: normalizedPlan });
+        res.json({ message: 'Success', user: serializeUser(user), plan: verifiedPlan });
     } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
 
@@ -1260,16 +1307,19 @@ router.get('/admin/revenue', protect, async(req, res) => {
             paymentLinks: 0
         };
         const mrr = activeSubscriptions.reduce((sum, subscription) => {
-            if (subscription.plan === 'yearly') return sum + Number(subscription.amount || 0) / 12;
-            if (subscription.plan === 'founder90') return sum;
-            return sum + Number(subscription.amount || 0);
+            const rawInr = toInr(subscription.amount || 0, subscription.currency || 'INR');
+            if (subscription.plan === 'yearly') return sum + rawInr / 12;
+            if (subscription.plan === 'founder90') return sum + rawInr / 3;
+            return sum + rawInr;
         }, 0);
-        const subscriptionRevenue = billingSubscriptions.reduce((sum, subscription) => (
-            sum + (getPlanAmount(subscription.plan, subscription.amount) * getSubscriptionPaidCycles(subscription))
-        ), 0);
-        const manualRevenue = manualPaymentRequests.reduce((sum, request) => (
-            sum + getPlanAmount(request.plan, request.amount)
-        ), 0);
+        const subscriptionRevenue = billingSubscriptions.reduce((sum, subscription) => {
+            const planInr = toInr(getPlanAmount(subscription.plan, subscription.amount), subscription.currency || 'INR');
+            return sum + (planInr * getSubscriptionPaidCycles(subscription));
+        }, 0);
+        const manualRevenue = manualPaymentRequests.reduce((sum, request) => {
+            const planInr = toInr(getPlanAmount(request.plan, request.amount), request.currency || 'INR');
+            return sum + planInr;
+        }, 0);
         const knownPlanRevenueUserIds = new Set([
             ...billingSubscriptions.map((subscription) => String(subscription.user || '')).filter(Boolean),
             ...manualPaymentRequests.map((request) => String(request.user || '')).filter(Boolean)
@@ -1587,7 +1637,16 @@ const syncSubscriptionFromWebhook = async(event, subscriptionEntity, paymentEnti
     }
 
     if (shouldDeactivate) {
-        await setUserFree(user, status || 'cancelled');
+        // Only deactivate if this webhook is for the user's CURRENT active subscription
+        const isCurrentSubscription = !user.razorpaySubscriptionId || user.razorpaySubscriptionId === subscription.providerSubscriptionId;
+        const hasFutureExpiry = user.planExpiresAt && new Date(user.planExpiresAt) > new Date();
+
+        if (isCurrentSubscription && !hasFutureExpiry) {
+            await setUserFree(user, status || 'cancelled');
+        } else if (isCurrentSubscription && hasFutureExpiry) {
+            user.subscriptionStatus = status || 'cancelled';
+            await user.save();
+        }
     }
 };
 
@@ -1596,11 +1655,19 @@ router.post('/webhook', async (req, res) => {
         const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
         const signature = req.headers['x-razorpay-signature'];
 
-        if (secret) {
-            if (!signature) return res.status(400).json({ message: 'Missing signature' });
-            const shasum = crypto.createHmac('sha256', secret);
-            shasum.update(req.rawBody || JSON.stringify(req.body));
-            if (shasum.digest('hex') !== signature) return res.status(400).json({ message: 'Invalid signature' });
+        if (!secret) {
+            console.error('[Webhook] RAZORPAY_WEBHOOK_SECRET is not configured. Rejecting request.');
+            return res.status(500).json({ message: 'Webhook endpoint not configured' });
+        }
+
+        if (!signature) {
+            return res.status(400).json({ message: 'Missing signature' });
+        }
+
+        const shasum = crypto.createHmac('sha256', secret);
+        shasum.update(req.rawBody || JSON.stringify(req.body));
+        if (shasum.digest('hex') !== signature) {
+            return res.status(400).json({ message: 'Invalid signature' });
         }
 
         const { event, payload } = req.body;

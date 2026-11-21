@@ -182,10 +182,20 @@ export default function CreateInvoice() {
     ? `${window.location.origin}/public/invoice/${createdInvoice._id}`
     : '';
 
+  const markInvoiceShared = () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const key = user?._id || user?.id || user?.email || 'default';
+      localStorage.setItem(`cf_first_invoice_shared_${key}`, 'true');
+      localStorage.setItem('cf_first_invoice_shared', 'true');
+    } catch { }
+  };
+
   const copyPayLink = () => {
     if (!publicPayUrl) return;
     navigator.clipboard.writeText(publicPayUrl);
     setCopied(true);
+    markInvoiceShared();
     setTimeout(() => setCopied(false), 2500);
   };
 
@@ -244,6 +254,7 @@ export default function CreateInvoice() {
                 href={getWhatsAppShareUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={markInvoiceShared}
                 className="px-6 py-3.5 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 active:scale-95"
               >
                 <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">

@@ -168,7 +168,10 @@ const getRolePermissions = (role) => ({
     ...getRoleDefinition(role).permissions
 });
 
-const hasPermission = (role, permission) => Boolean(getRolePermissions(role)[permission]);
+const hasPermission = (role, permission) => {
+    if (!role) return false;
+    return Boolean(getRolePermissions(role)[permission]);
+};
 
 const canEditProject = (role) => hasPermission(role, 'editProject');
 
@@ -2118,8 +2121,8 @@ router.post('/:id/messages', protect, async(req, res) => {
         }
 
         const accessRole = getMemberRole(project, req.user._id);
-        if (!hasPermission(accessRole, 'chat')) {
-            return res.status(403).json({ message: 'You do not have permission to send project updates.' });
+        if (!accessRole || !hasPermission(accessRole, 'chat')) {
+            return res.status(403).json({ message: 'You do not have permission to access or send project updates.' });
         }
 
         project.messages.push({
