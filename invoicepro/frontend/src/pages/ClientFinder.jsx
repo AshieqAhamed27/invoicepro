@@ -5,6 +5,7 @@ import api from '../utils/api';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import { trackEvent } from '../utils/analytics';
 import { getWhatsAppShareUrl } from '../utils/whatsapp';
+import { getUser } from '../utils/auth';
 
 const currencyOptions = [
   { code: 'INR', label: 'INR', prefix: 'Rs ' },
@@ -239,9 +240,16 @@ const getRealLeadSources = (context = {}, plan = null) => {
   ];
 };
 
+const getUserStorageKey = () => {
+  const user = getUser();
+  const id = user?._id || user?.id || user?.email;
+  return id ? `invoicepro_growth_leads_${id}` : 'invoicepro_growth_leads_guest';
+};
+
 const loadSavedLeads = () => {
   try {
-    const parsed = JSON.parse(localStorage.getItem('invoicepro_growth_leads') || '[]');
+    const key = getUserStorageKey();
+    const parsed = JSON.parse(localStorage.getItem(key) || '[]');
     return Array.isArray(parsed) ? parsed.slice(0, 12) : [];
   } catch {
     return [];
@@ -407,9 +415,11 @@ export default function ClientFinder() {
         const res = await api.get('/leads');
         const pipelineLeads = Array.isArray(res.data?.leads) ? res.data.leads.slice(0, 12) : [];
 
-        if (pipelineLeads.length) {
-          setSavedLeads(pipelineLeads);
-        }
+        // Scope directly to current account and apply empty result if account has no leads
+        setSavedLeads(pipelineLeads);
+        try {
+          localStorage.setItem(getUserStorageKey(), JSON.stringify(pipelineLeads));
+        } catch { }
       } catch { }
     };
 
@@ -442,7 +452,7 @@ export default function ClientFinder() {
   const persistLeads = (nextLeads) => {
     setSavedLeads(nextLeads);
     try {
-      localStorage.setItem('invoicepro_growth_leads', JSON.stringify(nextLeads));
+      localStorage.setItem(getUserStorageKey(), JSON.stringify(nextLeads));
     } catch { }
   };
 

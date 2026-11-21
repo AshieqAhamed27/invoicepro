@@ -26,7 +26,7 @@ const invoiceSchema = new mongoose.Schema({
 
     clientEmail: {
         type: String,
-        required: [true, 'Client email is required'],
+        default: '',
         lowercase: true,
         trim: true
     },

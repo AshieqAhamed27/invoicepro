@@ -455,9 +455,15 @@ export default function PublicInvoice() {
             <h2 className="text-xl font-bold text-slate-950 leading-tight">
               {invoice.clientName}
             </h2>
-            <p className="text-gray-500 mt-1 first-letter:uppercase">
-              {invoice.clientEmail}
-            </p>
+            {invoice.clientEmail && !invoice.clientEmail.includes('@whatsapp.clientflow') && !invoice.clientEmail.includes('@clientflow.internal') ? (
+              <p className="text-gray-500 mt-1">
+                {invoice.clientEmail}
+              </p>
+            ) : invoice.clientPhone ? (
+              <p className="text-gray-500 mt-1 font-mono text-sm">
+                {invoice.clientPhone}
+              </p>
+            ) : null}
           </div>
 
           {companyName && (

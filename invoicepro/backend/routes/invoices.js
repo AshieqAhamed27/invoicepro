@@ -418,9 +418,9 @@ router.post('/', protect, async(req, res) => {
             recurring
         } = req.body;
 
-        if (!clientName || !clientEmail || !amount) {
+        if (!clientName || (!clientEmail && !req.body.clientPhone) || !amount) {
             return res.status(400).json({
-                message: 'Missing required fields'
+                message: 'Missing required fields: client name, amount, and client email or phone are required.'
             });
         }
 
@@ -591,11 +591,14 @@ router.post('/', protect, async(req, res) => {
             const publicInvoiceLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
             const senderName = user.companyName || user.name || DEFAULT_COMPANY_NAME;
 
-            try {
-                const template = invoiceCreated({ invoice, publicUrl: publicInvoiceLink, senderName });
-                await sendEmail(invoice.clientEmail, template.subject, template);
-            } catch (e) {
-                console.log('Email failed in background:', e.message);
+            const isDummyEmail = (email) => !email || email.includes('@whatsapp.clientflow') || email.includes('@clientflow.internal');
+            if (invoice.clientEmail && !isDummyEmail(invoice.clientEmail)) {
+                try {
+                    const template = invoiceCreated({ invoice, publicUrl: publicInvoiceLink, senderName });
+                    await sendEmail(invoice.clientEmail, template.subject, template);
+                } catch (e) {
+                    console.log('Email failed in background:', e.message);
+                }
             }
 
             if (process.env.WHATSAPP_BOT_ENABLED === 'true') {
@@ -1587,14 +1590,17 @@ router.get('/tax/tds-summary', protect, async (req, res) => {
 
         for (const inv of invoices) {
             const amt = Number(inv.amount || 0);
-            const cgst = Number(inv.cgst || 0);
-            const sgst = Number(inv.sgst || 0);
+            const cgstRate = Number(inv.cgst || 0);
+            const sgstRate = Number(inv.sgst || 0);
+            const cgstAmt = (amt * cgstRate) / 100;
+            const sgstAmt = (amt * sgstRate) / 100;
+            const total = amt + cgstAmt + sgstAmt;
             const tdsAmt = inv.tds?.enabled ? Number(inv.tds.amount || 0) : 0;
-            const net = inv.netPayable || (amt + cgst + sgst - tdsAmt);
+            const net = inv.netPayable || (total - tdsAmt);
 
             totalGrossBilled += amt;
-            totalCgst += cgst;
-            totalSgst += sgst;
+            totalCgst += cgstAmt;
+            totalSgst += sgstAmt;
 
             if (tdsAmt > 0) {
                 totalTdsDeducted += tdsAmt;
@@ -1686,9 +1692,11 @@ router.get('/tax/ca-export', protect, async (req, res) => {
 
             const rows = invoices.map(inv => {
                 const amt = Number(inv.amount || 0);
-                const cgst = Number(inv.cgst || 0);
-                const sgst = Number(inv.sgst || 0);
-                const total = amt + cgst + sgst;
+                const cgstRate = Number(inv.cgst || 0);
+                const sgstRate = Number(inv.sgst || 0);
+                const cgstAmt = (amt * cgstRate) / 100;
+                const sgstAmt = (amt * sgstRate) / 100;
+                const total = amt + cgstAmt + sgstAmt;
                 const tdsRate = inv.tds?.enabled ? (inv.tds.rate || 0) : 0;
                 const tdsAmt = inv.tds?.enabled ? (inv.tds.amount || 0) : 0;
                 const net = inv.netPayable || (total - tdsAmt);
@@ -1697,11 +1705,11 @@ router.get('/tax/ca-export', protect, async (req, res) => {
                     inv.invoiceNumber,
                     inv.date ? new Date(inv.date).toISOString().slice(0, 10) : '',
                     `"${(inv.clientName || '').replace(/"/g, '""')}"`,
-                    inv.clientEmail,
+                    inv.clientEmail || '',
                     inv.currency || 'INR',
                     amt.toFixed(2),
-                    cgst.toFixed(2),
-                    sgst.toFixed(2),
+                    cgstAmt.toFixed(2),
+                    sgstAmt.toFixed(2),
                     total.toFixed(2),
                     inv.tds?.enabled ? (inv.tds.section || '194J') : 'N/A',
                     tdsRate,
@@ -1721,22 +1729,34 @@ router.get('/tax/ca-export', protect, async (req, res) => {
         res.json({
             financialYear: `FY ${currentYear}-${(currentYear + 1).toString().slice(-2)}`,
             count: invoices.length,
-            invoices: invoices.map(inv => ({
-                invoiceNumber: inv.invoiceNumber,
-                date: inv.date,
-                clientName: inv.clientName,
-                clientEmail: inv.clientEmail,
-                currency: inv.currency,
-                grossAmount: inv.amount,
-                cgst: inv.cgst,
-                sgst: inv.sgst,
-                tdsSection: inv.tds?.section || 'N/A',
-                tdsRate: inv.tds?.rate || 0,
-                tdsDeducted: inv.tds?.amount || 0,
-                netPayable: inv.netPayable,
-                status: inv.status,
-                certificateNumber: inv.tds?.certificateNumber || ''
-            }))
+            invoices: invoices.map(inv => {
+                const amt = Number(inv.amount || 0);
+                const cgstRate = Number(inv.cgst || 0);
+                const sgstRate = Number(inv.sgst || 0);
+                const cgstAmt = (amt * cgstRate) / 100;
+                const sgstAmt = (amt * sgstRate) / 100;
+                const total = amt + cgstAmt + sgstAmt;
+                const tdsAmt = inv.tds?.enabled ? (inv.tds.amount || 0) : 0;
+                return {
+                    invoiceNumber: inv.invoiceNumber,
+                    date: inv.date,
+                    clientName: inv.clientName,
+                    clientEmail: inv.clientEmail || '',
+                    currency: inv.currency,
+                    grossAmount: amt,
+                    cgstRate: cgstRate,
+                    sgstRate: sgstRate,
+                    cgstAmount: cgstAmt,
+                    sgstAmount: sgstAmt,
+                    totalAmount: total,
+                    tdsSection: inv.tds?.section || 'N/A',
+                    tdsRate: inv.tds?.rate || 0,
+                    tdsDeducted: tdsAmt,
+                    netPayable: inv.netPayable || (total - tdsAmt),
+                    status: inv.status,
+                    certificateNumber: inv.tds?.certificateNumber || ''
+                };
+            })
         });
     } catch (err) {
         console.error('CA EXPORT ERROR:', err);

@@ -81,10 +81,10 @@ export default function ClientFlow() {
     e.preventDefault();
     const digits = phoneInput.replace(/\D/g, '');
     if (digits.length < 6) return;
-    const fullPhone = `${countryCode}${digits}`;
+    const fullPhone = `+${countryCode}${digits}`;
     try {
       setSavingPhone(true);
-      const res = await api.put('/auth/profile', { phone: fullPhone });
+      const res = await api.put('/auth/profile', { phone: fullPhone, countryCode });
       const updatedUser = { ...user, phone: res.data?.user?.phone || fullPhone };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setCurrentUser(updatedUser);
@@ -276,10 +276,10 @@ export default function ClientFlow() {
                     <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   </div>
                   <h3 className="text-base font-black text-slate-900 dark:text-white mt-0.5">
-                    Connect WhatsApp for Instant Payment Alerts
+                    Connect WhatsApp for Direct Invoice & Payment Links
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5 max-w-xl">
-                    Get an instant ping on your phone whenever a client views an invoice or completes a payment.
+                    Receive your welcome setup guide and 1-click WhatsApp payment links to share directly with your clients.
                   </p>
                 </div>
               </div>

@@ -2,13 +2,43 @@ const https = require('https');
 const sendEmail = require('./sendEmail');
 
 /**
- * Normalizes phone number to standard Indian format (e.g., 919876543210)
+ * Normalizes phone number to standard international format (e.g., 919876543210, 6581234567)
+ * Preserves explicit country codes and avoids falsely prepending 91 to foreign numbers.
  */
-const normalizePhone = (phone) => {
+const normalizePhone = (phone, countryCode) => {
     if (!phone) return '';
-    const digits = String(phone).replace(/\D/g, '');
-    if (digits.length === 10) return `91${digits}`;
-    if (digits.length === 12 && digits.startsWith('91')) return digits;
+    const raw = String(phone).trim();
+    const hasPlus = raw.startsWith('+');
+    const digits = raw.replace(/\D/g, '');
+    if (!digits) return '';
+
+    // If explicit countryCode is passed
+    if (countryCode) {
+        const cc = String(countryCode).replace(/\D/g, '');
+        if (cc && digits.startsWith(cc)) return digits;
+        if (cc) return `${cc}${digits}`;
+    }
+
+    // If string started with '+' (explicit international format)
+    if (hasPlus) {
+        return digits;
+    }
+
+    // If already 12 digits starting with India's 91
+    if (digits.length === 12 && digits.startsWith('91')) {
+        return digits;
+    }
+
+    // If 10 digits:
+    // Check if it's a standard Indian mobile number (starts with 6, 7, 8, 9)
+    // and does NOT start with common foreign country prefixes like Singapore (65)
+    if (digits.length === 10) {
+        if (/^[6-9]/.test(digits) && !digits.startsWith('65')) {
+            return `91${digits}`;
+        }
+        return digits;
+    }
+
     return digits;
 };
 

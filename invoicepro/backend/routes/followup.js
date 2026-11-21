@@ -7,6 +7,7 @@ const { protect } = require('../middleware/auth');
 const FollowUp = require('../models/FollowUp');
 const Lead = require('../models/Lead');
 const Invoice = require('../models/Invoice');
+const { sendWhatsAppMessage } = require('../utils/whatsappCloud');
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -373,6 +374,8 @@ router.post('/:id/send', protect, async (req, res) => {
       return res.status(400).json({ message: 'Follow-up has already been sent' });
     }
 
+    let whatsappUrl = null;
+
     // Attempt to send via email if channel is email and credentials exist
     if (followUp.channel === 'email' && followUp.recipientEmail) {
       const transporter = buildTransporter();
@@ -391,13 +394,27 @@ router.post('/:id/send', protect, async (req, res) => {
           return res.status(500).json({ message: 'Failed to send email', error: mailErr.message });
         }
       }
+    } else if (followUp.channel === 'whatsapp' && followUp.recipientPhone) {
+      if (process.env.WHATSAPP_BOT_ENABLED === 'true') {
+        try {
+          await sendWhatsAppMessage({
+            to: followUp.recipientPhone,
+            textBody: followUp.message
+          });
+        } catch (waErr) {
+          console.warn('[FollowUp] Direct WhatsApp API send failed, fallback to direct dispatch URL:', waErr.message);
+        }
+      }
+      const digits = String(followUp.recipientPhone).replace(/\D/g, '');
+      const cleanPhone = digits.length === 10 ? `91${digits}` : digits;
+      whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(followUp.message || '')}`;
     }
 
     followUp.sentAt = new Date();
     followUp.status = 'sent';
     await followUp.save();
 
-    return res.json({ success: true, sentAt: followUp.sentAt });
+    return res.json({ success: true, sentAt: followUp.sentAt, channel: followUp.channel, whatsappUrl });
   } catch (err) {
     return res.status(500).json({ message: 'Failed to send follow-up', error: err.message });
   }

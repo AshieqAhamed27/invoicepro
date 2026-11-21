@@ -533,12 +533,13 @@ router.post(
                 name,
                 email,
                 phone,
+                countryCode,
                 password,
                 companyName,
                 persona,
                 freelanceExperience
             } = req.body;
-            const cleanedPhone = normalizePhone(phone);
+            const cleanedPhone = normalizePhone(phone, countryCode);
             const normalizedEmail = normalizeEmail(email);
 
             const validPersonas = ['freelancer', 'agency', 'small_business', 'student', 'other'];
@@ -623,35 +624,34 @@ router.post(
             await syncAdminRole(user);
             await ensureFreeAccessWindow(user);
 
-            // Send welcome email to newly registered user
-            if (user.email && !user.welcomeEmailSent) {
-                try {
-                    await sendUserWelcomeEmail(user);
-                    user.welcomeEmailSent = true;
-                    user.welcomeEmailSentAt = new Date();
-                    await user.save();
-                } catch (emailErr) {
-                    console.error('Signup welcome email error:', emailErr.message);
+            // Send welcome communications asynchronously so SMTP or network timeouts never fail signup
+            setImmediate(async () => {
+                if (user.email && !user.welcomeEmailSent) {
+                    try {
+                        await sendUserWelcomeEmail(user);
+                        user.welcomeEmailSent = true;
+                        user.welcomeEmailSentAt = new Date();
+                        await user.save();
+                    } catch (emailErr) {
+                        console.error('Signup welcome email async error:', emailErr.message);
+                    }
                 }
-            }
 
-            // Send welcome message on WhatsApp / SMS explaining features & why to pay
-            let welcomeData = null;
-            if (cleanedPhone) {
-                try {
-                    welcomeData = await sendMobileWelcome(user, cleanedPhone);
-                } catch (welcomeErr) {
-                    console.error('Failed to dispatch mobile welcome message:', welcomeErr);
+                if (cleanedPhone) {
+                    try {
+                        await sendMobileWelcome(user, cleanedPhone);
+                    } catch (welcomeErr) {
+                        console.error('Async mobile welcome dispatch error:', welcomeErr.message);
+                    }
                 }
-            }
+            });
 
-            res.status(201).json({
+            return res.status(201).json({
                 message: 'Account created successfully!',
                 token: generateToken(
                     user._id
                 ),
-                user: serializeUser(user),
-                welcome: welcomeData
+                user: serializeUser(user)
             });
 
         } catch (err) {
@@ -1180,7 +1180,7 @@ router.put(
             }
 
             if (phone !== undefined) {
-                const cleanedPhone = normalizePhone(phone);
+                const cleanedPhone = normalizePhone(phone, req.body.countryCode);
                 if (cleanedPhone) {
                     const isNewPhone = req.user.phone !== cleanedPhone;
                     req.user.phone = cleanedPhone;

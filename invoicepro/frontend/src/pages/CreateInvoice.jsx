@@ -148,12 +148,11 @@ export default function CreateInvoice() {
 
       const rawEmail = clientEmail.trim();
       const rawPhone = clientPhone.trim();
-      const resolvedEmail = rawEmail || (rawPhone ? `${rawPhone.replace(/\D/g, '')}@whatsapp.clientflow` : `client-${Date.now()}@clientflow.internal`);
 
       const payload = {
         documentType: 'invoice',
         clientName: clientName.trim(),
-        clientEmail: resolvedEmail,
+        clientEmail: rawEmail,
         clientPhone: rawPhone,
         currency,
         upiId: currency === 'INR' ? upiId.trim() : '',

@@ -797,7 +797,7 @@ export default function HomeClear() {
                   <ul className="mt-6 space-y-3 text-xs font-bold text-slate-700">
                     <li className="flex items-center gap-2">✓ Unlimited AI invoices & proposal contracts</li>
                     <li className="flex items-center gap-2">✓ Direct UPI QR & Wise foreign payout rails</li>
-                    <li className="flex items-center gap-2">✓ Automated WhatsApp overdue chasers</li>
+                    <li className="flex items-center gap-2">✓ 1-Click WhatsApp overdue chasers & escalation notices</li>
                     <li className="flex items-center gap-2">✓ 1-Click Legal Demand Notice generator</li>
                     <li className="flex items-center gap-2">✓ 1-Click payment tracking & status ledger</li>
                     <li className="flex items-center gap-2">✓ Priority 24/7 founder WhatsApp support</li>
