@@ -18,9 +18,9 @@ export default function Footer() {
         <div className="mb-10 grid grid-cols-2 gap-4 border-b border-slate-100 pb-8 sm:grid-cols-4">
           {[
             { label: 'Razorpay Payments', sub: 'UPI · Cards · Netbanking' },
+            { label: 'Cloudflare Protected', sub: 'DDoS & Bot Shield' },
             { label: 'Udyam Registered', sub: UDYAM_REGISTRATION_NUMBER },
-            { label: 'SSL Encrypted', sub: '256-bit HTTPS' },
-            { label: 'Made in India 🇮🇳', sub: 'Built for ₹ and GST' }
+            { label: 'SSL Encrypted', sub: '256-bit Full HTTPS' }
           ].map((badge) => (
             <div key={badge.label} className="flex flex-col items-center gap-1 text-center">
               <p className="text-xs font-black uppercase text-slate-800">{badge.label}</p>

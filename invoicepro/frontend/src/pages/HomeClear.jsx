@@ -122,12 +122,15 @@ const comparisonRows = [
 // Marquee Brand Items
 const marqueeItems = [
   '⚡ Instant UPI QR',
+  '🛡️ Cloudflare Protected',
   'Google Pay',
   'PhonePe',
   'Paytm',
+  '🔒 256-Bit SSL Encrypted',
   '✨ 1-Sec AI Invoicing',
   '⚖️ Legal Demand Notice',
   '0% Escrow Holds',
+  '🤖 Bot & DDoS Shield',
   'Wise USD/EUR Rail',
   'SWIFT Wire Ready',
   'GST & LUT Compliant',
@@ -280,6 +283,19 @@ export default function HomeClear() {
                 <p className="mt-4 text-xs font-bold text-slate-500">
                   {accessMessage} · No credit card required · Free 30-day trial · Cancel anytime
                 </p>
+
+                {/* Cloudflare & Government Trust Badges */}
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-bold text-slate-700 shadow-2xs">
+                    <span className="text-amber-500">🛡️</span> Cloudflare Protected
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-bold text-slate-700 shadow-2xs">
+                    <span className="text-emerald-500">🔒</span> 256-Bit SSL Security
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 text-[11px] font-bold text-slate-700 shadow-2xs">
+                    <span className="text-indigo-500">🇮🇳</span> Udyam MSME Registered
+                  </span>
+                </div>
 
                 {/* Stats Row - Perfect 2x2 grid on mobile, 4 across on desktop */}
                 <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 border-t border-slate-200/80 pt-6">
