@@ -116,31 +116,31 @@ export default function ClientFlow() {
     }
   };
 
+  const loadFlow = async () => {
+    setLoading(true);
+    setError('');
+
+    const [invoiceRes, leadRes, projectRes, cloudRes] = await Promise.allSettled([
+      api.get('/invoices/dashboard'),
+      isPro ? api.get('/leads/dashboard') : Promise.resolve({ data: {} }),
+      api.get('/team-projects'),
+      api.get('/cloud-documents')
+    ]);
+
+    if (invoiceRes.status === 'rejected' && projectRes.status === 'rejected') {
+      setError('Could not load your workflow data. The backend may be waking up.');
+    }
+
+    setData({
+      invoiceData: invoiceRes.status === 'fulfilled' ? invoiceRes.value.data || {} : {},
+      leadData: leadRes.status === 'fulfilled' ? leadRes.value.data || {} : {},
+      projectData: projectRes.status === 'fulfilled' ? projectRes.value.data || {} : {},
+      cloudData: cloudRes.status === 'fulfilled' ? cloudRes.value.data || {} : {}
+    });
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const loadFlow = async () => {
-      setLoading(true);
-      setError('');
-
-      const [invoiceRes, leadRes, projectRes, cloudRes] = await Promise.allSettled([
-        api.get('/invoices/dashboard'),
-        isPro ? api.get('/leads/dashboard') : Promise.resolve({ data: {} }),
-        api.get('/team-projects'),
-        api.get('/cloud-documents')
-      ]);
-
-      if (invoiceRes.status === 'rejected' && projectRes.status === 'rejected') {
-        setError('Could not load your workflow data. The backend may be waking up.');
-      }
-
-      setData({
-        invoiceData: invoiceRes.status === 'fulfilled' ? invoiceRes.value.data || {} : {},
-        leadData: leadRes.status === 'fulfilled' ? leadRes.value.data || {} : {},
-        projectData: projectRes.status === 'fulfilled' ? projectRes.value.data || {} : {},
-        cloudData: cloudRes.status === 'fulfilled' ? cloudRes.value.data || {} : {}
-      });
-      setLoading(false);
-    };
-
     loadFlow();
   }, [isPro]);
 
@@ -240,7 +240,7 @@ export default function ClientFlow() {
         {/* ─── Co-Pilot Agent Command Bar ─── */}
         <FlowAgentBar
           user={user}
-          onInvoiceCreated={fetchDashboardData}
+          onInvoiceCreated={loadFlow}
         />
 
         {/* ─── 1. Pro Upgrade Card for Non-Pro ─── */}
