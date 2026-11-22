@@ -9,8 +9,6 @@ import {
 
 import { isLoggedIn, getUser, hasProAccess } from './utils/auth';
 import api from './utils/api';
-import { getWhatsAppShareUrl } from './utils/whatsapp';
-import { SUPPORT_WHATSAPP_PHONE } from './utils/company';
 import { trackPageView } from './utils/analytics';
 import ScrollAnimator from './components/ScrollAnimator';
 import ProFeatureGate from './components/ProFeatureGate';
@@ -194,73 +192,6 @@ const ProRoute = ({ children, title }) => {
   }
 
   return children;
-};
-
-const supportMessage = 'Hi ClientFlow AI, I would like to share feedback about the product.';
-const appRoutePrefixes = [
-  '/admin',
-  '/ai-coach',
-  '/business-autopilot',
-  '/clients',
-  '/client-flow',
-  '/client-workroom',
-  '/client-finder',
-  '/cloud-documents',
-  '/contact',
-  '/create-invoice',
-  '/dashboard',
-  '/deal-room',
-  '/freelance-fit-advisor',
-  '/growth-plan',
-  '/invoice/',
-  '/launch',
-  '/leads',
-  '/login',
-  '/money-gps',
-  '/organization',
-  '/outbound-autopilot',
-  '/payment',
-  '/payments',
-  '/profit-tracker',
-  '/proposal-writer',
-  '/public/invoice',
-  '/p/invoice',
-  '/recurring',
-  '/sales-agent',
-  '/settings',
-  '/signup',
-  '/team-invite',
-  '/team-workspace'
-];
-
-const WhatsAppFloatingButton = () => {
-  const { pathname } = useLocation();
-  const hiddenOnCurrentRoute = appRoutePrefixes.some((prefix) => pathname.startsWith(prefix));
-
-  if (hiddenOnCurrentRoute) return null;
-
-  const supportWhatsAppUrl = getWhatsAppShareUrl(supportMessage, SUPPORT_WHATSAPP_PHONE);
-
-  return (
-    <a
-      href={supportWhatsAppUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-4 z-40 print:hidden sm:right-5"
-      aria-label="Send feedback to ClientFlow AI on WhatsApp"
-    >
-      <div className="rounded-full bg-green-500 p-3.5 shadow-lg shadow-black/25 transition hover:scale-110 sm:p-4">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="white"
-          viewBox="0 0 24 24"
-          className="h-5 w-5 sm:h-6 sm:w-6"
-        >
-          <path d="M20.52 3.48A11.87 11.87 0 0012.02 0C5.38 0 .03 5.35.03 11.99c0 2.12.55 4.19 1.6 6.02L0 24l6.2-1.62a11.93 11.93 0 005.82 1.49h.01c6.63 0 11.99-5.35 11.99-11.99 0-3.2-1.25-6.21-3.5-8.4z" />
-        </svg>
-      </div>
-    </a>
-  );
 };
 
 export default function App() {
@@ -1048,11 +979,9 @@ export default function App() {
         />
 
       </Routes>
-      {/* ✅ WhatsApp Floating Button */}
       <DeviceReminderAgent />
       <PlanReminderAgent />
       <SupportChatWidget />
-      <WhatsAppFloatingButton />
       <LiveFeedback />
       <UserOnboardingModal />
     </BrowserRouter>
