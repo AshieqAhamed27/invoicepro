@@ -519,7 +519,16 @@ const serializeUser = (user) => {
         enterpriseRole: user.enterpriseRole,
         enterpriseJoinedAt: user.enterpriseJoinedAt,
         role: user.role,
-        isDemo: Boolean(user.isDemo)
+        isDemo: Boolean(user.isDemo),
+        agentConfig: user.agentConfig || { name: 'Flow', voiceEnabled: true, monthlyGoal: 0 },
+        isBirthday: (() => {
+            if (!user.birthMonth || !user.birthDay) return false;
+            const now = new Date();
+            return (now.getMonth() + 1) === Number(user.birthMonth) && now.getDate() === Number(user.birthDay);
+        })(),
+        claimedBirthdayGiftYear: user.claimedBirthdayGiftYear || null,
+        birthMonth: user.birthMonth || null,
+        birthDay: user.birthDay || null
     };
 };
 
@@ -1197,6 +1206,28 @@ router.put(
                 }
             }
 
+            if (req.body.agentConfig && typeof req.body.agentConfig === 'object') {
+                if (!req.user.agentConfig) req.user.agentConfig = {};
+                if (req.body.agentConfig.name !== undefined) {
+                    req.user.agentConfig.name = String(req.body.agentConfig.name).trim().slice(0, 30) || 'Flow';
+                }
+                if (req.body.agentConfig.voiceEnabled !== undefined) {
+                    req.user.agentConfig.voiceEnabled = Boolean(req.body.agentConfig.voiceEnabled);
+                }
+                if (req.body.agentConfig.monthlyGoal !== undefined) {
+                    req.user.agentConfig.monthlyGoal = Math.max(0, Number(req.body.agentConfig.monthlyGoal) || 0);
+                }
+            }
+
+            if (req.body.birthMonth !== undefined) {
+                const bm = Number(req.body.birthMonth);
+                req.user.birthMonth = (bm >= 1 && bm <= 12) ? bm : null;
+            }
+            if (req.body.birthDay !== undefined) {
+                const bd = Number(req.body.birthDay);
+                req.user.birthDay = (bd >= 1 && bd <= 31) ? bd : null;
+            }
+
             await req.user.save();
 
             res.json({
@@ -1218,6 +1249,42 @@ router.put(
         }
     }
 );
+
+router.post('/claim-birthday-gift', protect, async (req, res) => {
+    try {
+        const user = req.user;
+        const now = new Date();
+        const currentYear = now.getFullYear();
+
+        const isBirthday = user.birthMonth && user.birthDay &&
+            (now.getMonth() + 1) === Number(user.birthMonth) &&
+            now.getDate() === Number(user.birthDay);
+
+        if (!isBirthday) {
+            return res.status(400).json({ message: 'Birthday gift can only be claimed on your birthday.' });
+        }
+
+        if (user.claimedBirthdayGiftYear === currentYear) {
+            return res.status(400).json({ message: 'You have already claimed your birthday gift for this year!' });
+        }
+
+        user.claimedBirthdayGiftYear = currentYear;
+        const fourteenDays = 14 * 24 * 60 * 60 * 1000;
+        const currentExpiry = user.planExpiresAt && new Date(user.planExpiresAt) > now ? new Date(user.planExpiresAt).getTime() : now.getTime();
+        user.plan = user.plan && user.plan !== 'free' ? user.plan : 'starter';
+        user.planExpiresAt = new Date(currentExpiry + fourteenDays);
+        await user.save();
+
+        res.json({
+            success: true,
+            message: `🎉 Happy Birthday ${user.name || 'there'}! Your 14 Days of Pro Access is active!`,
+            user: serializeUser(user)
+        });
+    } catch (err) {
+        console.error('CLAIM BIRTHDAY GIFT ERROR:', err);
+        res.status(500).json({ message: 'Failed to claim birthday gift' });
+    }
+});
 
 router.get('/public-profile/:id', async(req, res) => {
     try {

@@ -12,6 +12,7 @@ const settingsNav = [
   { label: 'Business Profile', href: '#business-profile' },
   { label: 'Payment Setup', href: '#payment-setup' },
   { label: 'Branding', href: '#branding' },
+  { label: 'AI Assistant', href: '#assistant-settings' },
   { label: 'Product Settings', href: '#product-settings' },
   { label: 'Automation', href: '#automation-settings' },
   { label: 'Security', href: '#security-settings' }
@@ -26,12 +27,11 @@ const productSettings = [
     to: '/payment'
   },
   {
-    label: 'AI Coach',
-    title: 'AI Client Coach',
-    detail: 'Guides freelancers on finding clients, talking to them, closing the deal, and collecting payment.',
-    status: 'Pro',
-    to: '/ai-coach',
-    requiresPro: true
+    label: 'AI Assistant',
+    title: 'Flow Co-Pilot Agent',
+    detail: 'Voice & text assistant that creates invoices, audits overdue payments, and tracks your monthly goals.',
+    status: 'Included',
+    to: '#assistant-settings'
   },
   {
     label: 'Growth Plan',
@@ -167,7 +167,12 @@ export default function Settings() {
     address: '',
     logo: '',
     persona: '',
-    freelanceExperience: ''
+    freelanceExperience: '',
+    agentName: 'Flow',
+    voiceEnabled: true,
+    monthlyGoal: 0,
+    birthMonth: '',
+    birthDay: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -205,7 +210,12 @@ export default function Settings() {
         address: user.address || 'Tamil Nadu, India',
         logo: user.logo || '',
         persona: user.persona || '',
-        freelanceExperience: user.freelanceExperience || ''
+        freelanceExperience: user.freelanceExperience || '',
+        agentName: user.agentConfig?.name || 'Flow',
+        voiceEnabled: user.agentConfig?.voiceEnabled !== false,
+        monthlyGoal: user.agentConfig?.monthlyGoal || 0,
+        birthMonth: user.birthMonth ? String(user.birthMonth) : '',
+        birthDay: user.birthDay ? String(user.birthDay) : ''
       });
     } catch {
       alert('Failed to load profile');
@@ -235,7 +245,19 @@ export default function Settings() {
         return;
       }
 
-      const res = await api.put('/auth/profile', { ...form, logo: safeLogo });
+      const payload = {
+        ...form,
+        logo: safeLogo,
+        agentConfig: {
+          name: (form.agentName || 'Flow').trim(),
+          voiceEnabled: form.voiceEnabled,
+          monthlyGoal: Number(form.monthlyGoal) || 0
+        },
+        birthMonth: form.birthMonth ? Number(form.birthMonth) : null,
+        birthDay: form.birthDay ? Number(form.birthDay) : null
+      };
+
+      const res = await api.put('/auth/profile', payload);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       alert('Profile updated successfully!');
     } catch {
@@ -662,6 +684,106 @@ export default function Settings() {
                     )}
                   </Link>
                 ))}
+              </div>
+            </section>
+
+            {/* ─── AI ASSISTANT & PREFERENCES ─── */}
+            <section id="assistant-settings" className="premium-panel p-5 sm:p-8 scroll-mt-28">
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-white leading-none mb-1">AI Assistant & Co-Pilot</h2>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Customize your voice and system controller</p>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="text-xs font-bold text-slate-800 dark:text-zinc-400 uppercase tracking-wider mb-2 block">
+                    Assistant Name
+                  </label>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {['Flow', 'Chief', 'Aria', 'Jarvis'].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setForm((p) => ({ ...p, agentName: preset }))}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
+                          form.agentName === preset
+                            ? 'bg-blue-600 border-blue-400 text-white'
+                            : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/20'
+                        }`}
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    name="agentName"
+                    value={form.agentName}
+                    onChange={handleChange}
+                    placeholder="Or enter a custom name..."
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-yellow-400 focus:outline-none"
+                  />
+                  <p className="mt-1.5 text-xs text-zinc-500">The assistant will introduce itself and respond to this name.</p>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-2xl border border-white/5 bg-black/20 p-4">
+                  <input
+                    type="checkbox"
+                    id="voiceEnabled"
+                    checked={form.voiceEnabled}
+                    onChange={(e) => setForm((p) => ({ ...p, voiceEnabled: e.target.checked }))}
+                    className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-yellow-400 focus:ring-yellow-400"
+                  />
+                  <label htmlFor="voiceEnabled" className="text-sm font-semibold text-white cursor-pointer">
+                    Enable spoken voice replies (Assistant speaks answers aloud)
+                  </label>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="text-xs font-bold text-slate-800 dark:text-zinc-400 uppercase tracking-wider mb-2 block">
+                      Monthly Revenue Target (₹)
+                    </label>
+                    <input
+                      type="number"
+                      name="monthlyGoal"
+                      value={form.monthlyGoal || ''}
+                      onChange={handleChange}
+                      placeholder="e.g. 100000"
+                      className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-yellow-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-800 dark:text-zinc-400 uppercase tracking-wider mb-2 block">
+                      Account Birthday (Optional)
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <select
+                        name="birthMonth"
+                        value={form.birthMonth || ''}
+                        onChange={handleChange}
+                        className="rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white focus:border-yellow-400 focus:outline-none"
+                      >
+                        <option value="">Month</option>
+                        {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, i) => (
+                          <option key={m} value={i + 1}>{m}</option>
+                        ))}
+                      </select>
+                      <select
+                        name="birthDay"
+                        value={form.birthDay || ''}
+                        onChange={handleChange}
+                        className="rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white focus:border-yellow-400 focus:outline-none"
+                      >
+                        <option value="">Day</option>
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 

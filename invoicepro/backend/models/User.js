@@ -280,6 +280,33 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
+    },
+    agentConfig: {
+        name: {
+            type: String,
+            default: 'Flow',
+            trim: true
+        },
+        voiceEnabled: {
+            type: Boolean,
+            default: true
+        },
+        monthlyGoal: {
+            type: Number,
+            default: 0
+        }
+    },
+    birthMonth: {
+        type: Number,
+        default: null
+    },
+    birthDay: {
+        type: Number,
+        default: null
+    },
+    claimedBirthdayGiftYear: {
+        type: Number,
+        default: null
     }
 }, {
     timestamps: true

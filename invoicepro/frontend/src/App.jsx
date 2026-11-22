@@ -14,7 +14,6 @@ import ScrollAnimator from './components/ScrollAnimator';
 import ProFeatureGate from './components/ProFeatureGate';
 import PlanReminderAgent from './components/PlanReminderAgent';
 import DeviceReminderAgent from './components/DeviceReminderAgent';
-import SupportChatWidget from './components/SupportChatWidget';
 import LiveFeedback from './components/LiveFeedback';
 import UserOnboardingModal from './components/UserOnboardingModal';
 import LoadingScreen from './components/LoadingScreen';
@@ -981,7 +980,6 @@ export default function App() {
       </Routes>
       <DeviceReminderAgent />
       <PlanReminderAgent />
-      <SupportChatWidget />
       <LiveFeedback />
       <UserOnboardingModal />
     </BrowserRouter>

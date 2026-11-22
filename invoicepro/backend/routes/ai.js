@@ -756,15 +756,23 @@ const getSalesAgentPlan = ({ leads = [], invoices = [], user = {} }) => {
 const detectAgentIntent = (message) => {
     const text = String(message || '').toLowerCase();
 
-    if (/\b(create|generate|make|draft|prepare|new)\b/.test(text) && /\b(invoice|proposal|bill)\b/.test(text)) {
+    if (/\b(create|generate|make|draft|prepare|new|bill)\b/.test(text) && /\b(invoice|proposal|bill)\b/.test(text)) {
         return 'create_invoice';
+    }
+
+    if (/\b(goal|target|monthly goal|monthly target|revenue goal)\b/.test(text)) {
+        return 'goal_status';
+    }
+
+    if (/\b(overdue|late|who owes|unpaid|pending payment)\b/.test(text)) {
+        return 'overdue_audit';
     }
 
     if (/\b(total|calculate|calc|gst|tax|amount|subtotal)\b/.test(text)) {
         return 'calculate_total';
     }
 
-    if (/\b(pending|paid|overdue|due|status|cash|collection|collect|unpaid)\b/.test(text)) {
+    if (/\b(pending|paid|due|status|cash|collection|collect)\b/.test(text)) {
         return 'status_summary';
     }
 
@@ -2574,13 +2582,63 @@ router.post('/agent', protect, requirePro, async(req, res) => {
         if (statusSummary.overdue > 0) suggestions.push(`Follow up on ${statusSummary.overdue} overdue invoice${statusSummary.overdue > 1 ? 's' : ''} worth ${formatCurrency(statusSummary.overdueAmount)}.`);
         if (!suggestions.length) suggestions.push('Keep due dates and payment links on every invoice so the agent can track cashflow clearly.');
 
-        const reply = draft
-            ? `I prepared a ${draft.documentType} draft for ${draft.clientName || 'your client'} with total ${formatCurrency(draft.amount)}. Review it before sending.`
-            : `You have ${statusSummary.pending} pending invoice${statusSummary.pending === 1 ? '' : 's'}, ${statusSummary.paid} paid, and ${statusSummary.overdue} overdue. Pending value is ${formatCurrency(statusSummary.pendingAmount)}.`;
+        const agentName = req.user.agentConfig?.name || 'Flow';
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthPaid = invoices.filter(inv => inv.status === 'paid' && new Date(inv.paidAt || inv.createdAt) >= startOfMonth);
+        const currentRevenue = monthPaid.reduce((s, inv) => s + (Number(inv.amount) || 0), 0);
+        let monthlyGoal = req.user.agentConfig?.monthlyGoal || 0;
+
+        // Check if message is setting a goal
+        const goalMatch = message.match(/(?:goal|target)\s*(?:is|to|=|of)?\s*(?:₹|rs\.?|inr)?\s*([\d,]+(?:\.\d+)?)\s*(lakh|lac|k)?/i);
+        if (goalMatch) {
+            let num = parseFloat(goalMatch[1].replace(/,/g, ''));
+            const unit = (goalMatch[2] || '').toLowerCase();
+            if (unit === 'lakh' || unit === 'lac') num *= 100000;
+            else if (unit === 'k') num *= 1000;
+            if (num > 0) {
+                if (!req.user.agentConfig) req.user.agentConfig = {};
+                req.user.agentConfig.monthlyGoal = Math.round(num);
+                await req.user.save();
+                monthlyGoal = Math.round(num);
+            }
+        }
+
+        const overdueInvoices = invoices.filter(inv => inv.status === 'pending' && inv.dueDate && new Date(inv.dueDate) < now)
+            .map(inv => ({
+                _id: inv._id,
+                invoiceNumber: inv.invoiceNumber,
+                clientName: inv.clientName,
+                amount: inv.amount,
+                currency: inv.currency || 'INR',
+                dueDate: inv.dueDate,
+                daysOverdue: Math.max(1, Math.floor((now - new Date(inv.dueDate)) / (1000 * 60 * 60 * 24)))
+            }));
+
+        let reply = '';
+        if (draft) {
+            reply = `I prepared a draft for ${draft.clientName || 'your client'} totaling ${formatCurrency(draft.amount)}. Please review and confirm below.`;
+        } else if (intent === 'goal_status') {
+            if (monthlyGoal > 0) {
+                const pct = Math.min(100, Math.round((currentRevenue / monthlyGoal) * 100));
+                reply = `You have collected ${formatCurrency(currentRevenue)} towards your ${formatCurrency(monthlyGoal)} goal (${pct}% achieved).`;
+            } else {
+                reply = `You haven't set a revenue goal yet. You can say: "Set monthly goal to ₹1,00,000".`;
+            }
+        } else if (intent === 'overdue_audit') {
+            if (overdueInvoices.length > 0) {
+                reply = `You have ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''} worth ${formatCurrency(statusSummary.overdueAmount)}. I've listed them below with 1-click reminders.`;
+            } else {
+                reply = `Great news! You have no overdue invoices right now.`;
+            }
+        } else {
+            reply = `You have ${statusSummary.pending} pending invoice${statusSummary.pending === 1 ? '' : 's'} (${formatCurrency(statusSummary.pendingAmount)}) and ${statusSummary.paid} paid (${formatCurrency(statusSummary.paidAmount)}).`;
+        }
 
         res.json({
             source,
             intent,
+            agentName,
             reply,
             draft,
             totals: draft || intent === 'calculate_total' || hasContextItems
@@ -2594,6 +2652,12 @@ router.post('/agent', protect, requirePro, async(req, res) => {
                 }
                 : null,
             statusSummary,
+            overdueInvoices,
+            goalData: {
+                goal: monthlyGoal,
+                currentRevenue,
+                percentage: monthlyGoal > 0 ? Math.min(100, Math.round((currentRevenue / monthlyGoal) * 100)) : 0
+            },
             suggestions: suggestions.slice(0, 4)
         });
     } catch (err) {

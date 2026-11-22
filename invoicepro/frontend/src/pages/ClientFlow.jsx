@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import FlowAgentBar from '../components/FlowAgentBar';
+import SecretBirthdayCelebration from '../components/SecretBirthdayCelebration';
 import api from '../utils/api';
 import { getUser, hasProAccess } from '../utils/auth';
 import useDocumentMeta from '../utils/useDocumentMeta';
@@ -225,6 +227,21 @@ export default function ClientFlow() {
       <Navbar />
 
       <main className="container-custom py-6 sm:py-8 md:py-10">
+
+        {/* ─── Secret Birthday Magical Celebration Overlay (Activates only on their day) ─── */}
+        <SecretBirthdayCelebration
+          user={user}
+          onUserUpdated={(u) => {
+            setCurrentUser(u);
+            localStorage.setItem('user', JSON.stringify(u));
+          }}
+        />
+
+        {/* ─── Co-Pilot Agent Command Bar ─── */}
+        <FlowAgentBar
+          user={user}
+          onInvoiceCreated={fetchDashboardData}
+        />
 
         {/* ─── 1. Pro Upgrade Card for Non-Pro ─── */}
         {!isPro ? (
