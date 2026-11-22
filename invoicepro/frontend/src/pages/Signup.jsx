@@ -99,7 +99,11 @@ export default function Signup() {
       return;
     }
 
-    const cleanPhoneDigits = (form.phone || '').replace(/\D/g, '');
+    let cleanPhoneDigits = (form.phone || '').replace(/\D/g, '');
+    if (cleanPhoneDigits.startsWith(countryCode)) {
+      cleanPhoneDigits = cleanPhoneDigits.slice(countryCode.length);
+    }
+    cleanPhoneDigits = cleanPhoneDigits.replace(/^0+/, '');
     if (!cleanPhoneDigits || cleanPhoneDigits.length < 6) {
       setError('Please provide a valid WhatsApp mobile number (minimum 6 digits).');
       return;

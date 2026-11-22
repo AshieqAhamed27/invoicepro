@@ -170,9 +170,7 @@ export default function PublicInvoice() {
   const tdsAmount = hasTds
     ? Number(invoice.tds?.amount ?? ((subtotal * tdsPercent) / 100))
     : 0;
-  const netReceivable = invoice.netPayable
-    ? Number(invoice.netPayable)
-    : (total - tdsAmount);
+  const netReceivable = Math.max(0, total - tdsAmount);
   const payableAmount = tdsAmount > 0 && netReceivable > 0 ? netReceivable : total;
   const documentDate = invoiceMeta.isProposal ? invoice.validUntil : invoice.dueDate;
   const razorpayPaymentUrl = '';

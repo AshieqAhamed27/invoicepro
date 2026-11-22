@@ -255,8 +255,14 @@ const invoiceSchema = new mongoose.Schema({
     // ✅ FIXED STATUS SYSTEM
     status: {
         type: String,
-        enum: ['pending', 'paid'],
+        enum: ['pending', 'paid', 'payment_review', 'overdue', 'cancelled'],
         default: 'pending'
+    },
+
+    paymentReviewStatus: {
+        type: String,
+        enum: ['pending_confirmation', 'confirmed', 'rejected'],
+        default: null
     },
 
     // ✅ NEW: PAYMENT TRACKING

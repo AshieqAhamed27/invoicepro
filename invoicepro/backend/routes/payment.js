@@ -1110,6 +1110,7 @@ router.post('/razorpay/verify', protect, async(req, res) => {
             if (shasum.digest('hex') !== razorpay_signature) return res.status(400).json({ message: 'Verification failed' });
 
             // Fetch order from Razorpay to verify genuine plan and owning user
+            let orderVerified = false;
             const authHeader = getRazorpayAuthHeader();
             if (authHeader && razorpay_order_id) {
                 try {
@@ -1118,18 +1119,23 @@ router.post('/razorpay/verify', protect, async(req, res) => {
                         method: 'GET',
                         authHeader
                     });
-                    if (orderRes.ok && orderRes.body?.notes) {
-                        const orderPlan = normalizePlan(orderRes.body.notes.plan);
+                    if (orderRes.ok && orderRes.body) {
+                        if (orderRes.body.notes?.userId && String(orderRes.body.notes.userId) !== String(req.user._id)) {
+                            return res.status(403).json({ message: 'Payment order does not belong to this account.' });
+                        }
+                        const orderPlan = normalizePlan(orderRes.body.notes?.plan);
                         if (orderPlan) {
                             verifiedPlan = orderPlan;
-                        }
-                        if (orderRes.body.notes.userId && String(orderRes.body.notes.userId) !== String(req.user._id)) {
-                            return res.status(403).json({ message: 'Payment order does not belong to this account.' });
+                            orderVerified = true;
                         }
                     }
                 } catch (orderErr) {
                     console.warn('[Payment] Could not fetch Razorpay order for plan verification:', orderErr.message);
                 }
+            }
+
+            if (!orderVerified) {
+                return res.status(400).json({ message: 'Could not verify payment plan with payment provider.' });
             }
         }
 
@@ -1722,11 +1728,21 @@ router.post('/webhook', async (req, res) => {
             if (notes?.plan && notes?.userId && isValidObjectId(notes.userId)) {
                 const normalizedPlan = normalizePlan(notes.plan);
                 if (normalizedPlan) {
+                    const paymentId = paymentEntity?.id || payload?.payment?.entity?.id;
                     const u = await User.findById(notes.userId);
-                    if (u) await setUserPlan(u, normalizedPlan, {
-                        subscriptionStatus: notes.checkoutType === 'one_time' || planDetails[normalizedPlan].checkoutType === 'one_time' ? 'one_time_payment' : 'webhook_payment',
-                        lastPaymentAt: new Date()
-                    });
+                    if (u) {
+                        const isDuplicate = paymentId && u.processedPaymentIds && u.processedPaymentIds.includes(paymentId);
+                        if (!isDuplicate) {
+                            if (paymentId) {
+                                if (!u.processedPaymentIds) u.processedPaymentIds = [];
+                                u.processedPaymentIds.push(paymentId);
+                            }
+                            await setUserPlan(u, normalizedPlan, {
+                                subscriptionStatus: notes.checkoutType === 'one_time' || planDetails[normalizedPlan].checkoutType === 'one_time' ? 'one_time_payment' : 'webhook_payment',
+                                lastPaymentAt: new Date()
+                            });
+                        }
+                    }
                 }
             }
             if (notes?.agencySetupId && isValidObjectId(notes.agencySetupId)) {

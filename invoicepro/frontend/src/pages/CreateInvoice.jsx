@@ -187,7 +187,6 @@ export default function CreateInvoice() {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const key = user?._id || user?.id || user?.email || 'default';
       localStorage.setItem(`cf_first_invoice_shared_${key}`, 'true');
-      localStorage.setItem('cf_first_invoice_shared', 'true');
     } catch { }
   };
 

@@ -15,13 +15,27 @@ const normalizePhone = (phone, countryCode) => {
     // If explicit countryCode is passed
     if (countryCode) {
         const cc = String(countryCode).replace(/\D/g, '');
-        if (cc && digits.startsWith(cc)) return digits;
-        if (cc) return `${cc}${digits}`;
+        if (cc) {
+            if (digits.startsWith(cc)) {
+                const rest = digits.slice(cc.length).replace(/^0+/, '');
+                return `${cc}${rest}`;
+            }
+            const local = digits.replace(/^0+/, '');
+            return `${cc}${local}`;
+        }
     }
 
     // If string started with '+' (explicit international format)
     if (hasPlus) {
+        if (digits.startsWith('440')) {
+            return `44${digits.slice(2).replace(/^0+/, '')}`;
+        }
         return digits;
+    }
+
+    // If UK domestic mobile with trunk zero (e.g. 07123456789 -> 447123456789)
+    if (digits.length === 11 && digits.startsWith('07')) {
+        return `44${digits.slice(1)}`;
     }
 
     // If already 12 digits starting with India's 91

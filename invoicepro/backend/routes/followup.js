@@ -376,6 +376,8 @@ router.post('/:id/send', protect, async (req, res) => {
 
     let whatsappUrl = null;
 
+    let sent = false;
+
     // Attempt to send via email if channel is email and credentials exist
     if (followUp.channel === 'email' && followUp.recipientEmail) {
       const transporter = buildTransporter();
@@ -387,6 +389,7 @@ router.post('/:id/send', protect, async (req, res) => {
             subject: followUp.subject || 'Following up with you',
             text: followUp.message,
           });
+          sent = true;
         } catch (mailErr) {
           console.error('[FollowUp] Email send failed:', mailErr.message);
           followUp.status = 'failed';
@@ -395,26 +398,40 @@ router.post('/:id/send', protect, async (req, res) => {
         }
       }
     } else if (followUp.channel === 'whatsapp' && followUp.recipientPhone) {
+      const digits = String(followUp.recipientPhone).replace(/\D/g, '');
+      const cleanPhone = digits.length === 10 ? `91${digits}` : digits;
+      whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(followUp.message || '')}`;
+
       if (process.env.WHATSAPP_BOT_ENABLED === 'true') {
         try {
           await sendWhatsAppMessage({
             to: followUp.recipientPhone,
             textBody: followUp.message
           });
+          sent = true;
         } catch (waErr) {
-          console.warn('[FollowUp] Direct WhatsApp API send failed, fallback to direct dispatch URL:', waErr.message);
+          console.warn('[FollowUp] Direct WhatsApp API send failed:', waErr.message);
+          followUp.status = 'failed';
+          await followUp.save();
+          return res.status(500).json({ message: 'Direct WhatsApp message send failed', whatsappUrl, error: waErr.message });
         }
       }
-      const digits = String(followUp.recipientPhone).replace(/\D/g, '');
-      const cleanPhone = digits.length === 10 ? `91${digits}` : digits;
-      whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(followUp.message || '')}`;
     }
 
-    followUp.sentAt = new Date();
-    followUp.status = 'sent';
-    await followUp.save();
+    if (sent) {
+      followUp.sentAt = new Date();
+      followUp.status = 'sent';
+      await followUp.save();
+    }
 
-    return res.json({ success: true, sentAt: followUp.sentAt, channel: followUp.channel, whatsappUrl });
+    return res.json({
+      success: true,
+      sent,
+      sentAt: followUp.sentAt,
+      channel: followUp.channel,
+      whatsappUrl,
+      message: sent ? 'Follow-up sent successfully.' : (whatsappUrl ? 'WhatsApp dispatch link generated.' : 'Follow-up scheduled.')
+    });
   } catch (err) {
     return res.status(500).json({ message: 'Failed to send follow-up', error: err.message });
   }

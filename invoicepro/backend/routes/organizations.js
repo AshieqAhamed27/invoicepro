@@ -834,8 +834,8 @@ router.post('/:id/members', protect, async(req, res) => {
             return res.status(400).json({ message: 'Owner role cannot be assigned from invite.' });
         }
 
-        if (role === 'admin' && accessRole !== 'owner' && accessRole !== 'admin') {
-            return res.status(403).json({ message: 'Only organization owners and administrators can assign administrator roles.' });
+        if (['admin', 'billing', 'security'].includes(role) && accessRole !== 'owner' && accessRole !== 'admin') {
+            return res.status(403).json({ message: 'Only organization owners and administrators can assign administrator, billing, or security roles.' });
         }
 
         if (organization.security?.enforceAllowedDomains) {

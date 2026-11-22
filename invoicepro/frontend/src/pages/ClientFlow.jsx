@@ -75,7 +75,7 @@ export default function ClientFlow() {
       const val = localStorage.getItem(`cf_first_invoice_shared_${key}`);
       if (val !== null) return val === 'true';
     }
-    return localStorage.getItem('cf_first_invoice_shared') === 'true';
+    return false;
   });
 
   const [data, setData] = useState({
@@ -92,7 +92,11 @@ export default function ClientFlow() {
 
   const handleSavePhone = async (e) => {
     e.preventDefault();
-    const digits = phoneInput.replace(/\D/g, '');
+    let digits = phoneInput.replace(/\D/g, '');
+    if (digits.startsWith(countryCode)) {
+      digits = digits.slice(countryCode.length);
+    }
+    digits = digits.replace(/^0+/, '');
     if (digits.length < 6) return;
     const fullPhone = `+${countryCode}${digits}`;
     try {
@@ -174,13 +178,11 @@ export default function ClientFlow() {
       await navigator.clipboard.writeText(url);
       setCopiedInvoiceId(invoice._id);
       localStorage.setItem(`cf_first_invoice_shared_${getAccountKey()}`, 'true');
-      localStorage.setItem('cf_first_invoice_shared', 'true');
       setInvoiceShared(true);
       setTimeout(() => setCopiedInvoiceId(''), 2500);
     } catch {
       window.prompt('Copy public invoice link:', url);
       localStorage.setItem(`cf_first_invoice_shared_${getAccountKey()}`, 'true');
-      localStorage.setItem('cf_first_invoice_shared', 'true');
       setInvoiceShared(true);
     }
   };
@@ -193,7 +195,6 @@ export default function ClientFlow() {
     const message = `Hi ${invoice.clientName || 'there'}! This is a polite note regarding invoice #${invoice.invoiceNumber || 'INV'} for ${amountStr}. You can view the invoice and complete payment directly via UPI / Card here:\n${publicUrl}\n\nThank you for working together!`;
     const shareUrl = getWhatsAppShareUrl(message, clientPhone);
     localStorage.setItem(`cf_first_invoice_shared_${getAccountKey()}`, 'true');
-    localStorage.setItem('cf_first_invoice_shared', 'true');
     setInvoiceShared(true);
     window.open(shareUrl, '_blank');
   };

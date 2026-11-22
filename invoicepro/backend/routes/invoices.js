@@ -284,11 +284,10 @@ router.post('/public/:id/accept', async(req, res) => {
         }
 
         if (proposal.proposalStatus === 'accepted') {
-            const sourceLead = await markProposalLeadWon(proposal);
+            await markProposalLeadWon(proposal);
             return res.json({
                 message: 'Proposal already accepted.',
-                proposal,
-                lead: sourceLead
+                proposal
             });
         }
 
@@ -443,8 +442,14 @@ router.post('/', protect, async(req, res) => {
 
         const invoiceNumber = await generateDocumentNumber(user._id, normalizedDocumentType);
 
-        const baseAmount = Number(amount) || 0;
-        const totalTax = (Number(cgst) || 0) + (Number(sgst) || 0);
+        const itemsList = Array.isArray(items) ? items : [];
+        const itemsSubtotal = itemsList.reduce((sum, it) => sum + (Number(it.price) || 0), 0);
+        const cgstRate = Number(cgst) || 0;
+        const sgstRate = Number(sgst) || 0;
+        const totalTaxRate = cgstRate + sgstRate;
+        const baseAmount = itemsSubtotal > 0 ? itemsSubtotal : (totalTaxRate > 0 ? (Number(amount) || 0) / (1 + totalTaxRate / 100) : (Number(amount) || 0));
+        const totalAmount = Number(amount) || (baseAmount + (baseAmount * totalTaxRate) / 100);
+
         let tdsData = {
             enabled: false,
             rate: 0,
@@ -469,7 +474,7 @@ router.post('/', protect, async(req, res) => {
             };
         }
 
-        const netPayable = Math.max(0, baseAmount + totalTax - (tdsData.enabled ? tdsData.amount : 0));
+        const netPayable = Math.max(0, totalAmount - (tdsData.enabled ? tdsData.amount : 0));
 
         const invoice = await Invoice.create({
             documentType: normalizedDocumentType,
@@ -1531,8 +1536,7 @@ router.post('/:id/reconcile-tds', protect, async (req, res) => {
             reconciledAt: certNo ? new Date() : null
         };
 
-        const totalTax = (Number(invoice.cgst) || 0) + (Number(invoice.sgst) || 0);
-        invoice.netPayable = Math.max(0, Number(invoice.amount) + totalTax - tdsAmount);
+        invoice.netPayable = Math.max(0, Number(invoice.amount || 0) - tdsAmount);
 
         if (note) {
             invoice.notes = invoice.notes ? `${invoice.notes}\n[TDS Note]: ${note}` : `[TDS Note]: ${note}`;
@@ -1681,15 +1685,22 @@ router.get('/tax/ca-export', protect, async (req, res) => {
             ];
 
             const rows = invoices.map(inv => {
-                const amt = Number(inv.amount || 0);
+                const totalInvoiced = Number(inv.amount || 0);
                 const cgstRate = Number(inv.cgst || 0);
                 const sgstRate = Number(inv.sgst || 0);
-                const cgstAmt = (amt * cgstRate) / 100;
-                const sgstAmt = (amt * sgstRate) / 100;
-                const total = amt + cgstAmt + sgstAmt;
+                const totalTaxRate = cgstRate + sgstRate;
+                const itemsSubtotal = Array.isArray(inv.items) && inv.items.length > 0
+                    ? inv.items.reduce((sum, it) => sum + (Number(it.price) || 0), 0)
+                    : 0;
+                const grossAmt = itemsSubtotal > 0
+                    ? itemsSubtotal
+                    : (totalTaxRate > 0 ? (totalInvoiced / (1 + totalTaxRate / 100)) : totalInvoiced);
+                const cgstAmt = (grossAmt * cgstRate) / 100;
+                const sgstAmt = (grossAmt * sgstRate) / 100;
+                const total = totalTaxRate > 0 && itemsSubtotal > 0 ? (grossAmt + cgstAmt + sgstAmt) : totalInvoiced;
                 const tdsRate = inv.tds?.enabled ? (inv.tds.rate || 0) : 0;
                 const tdsAmt = inv.tds?.enabled ? (inv.tds.amount || 0) : 0;
-                const net = inv.netPayable || (total - tdsAmt);
+                const net = Math.max(0, total - tdsAmt);
 
                 return [
                     inv.invoiceNumber,
@@ -1697,7 +1708,7 @@ router.get('/tax/ca-export', protect, async (req, res) => {
                     `"${(inv.clientName || '').replace(/"/g, '""')}"`,
                     inv.clientEmail || '',
                     inv.currency || 'INR',
-                    amt.toFixed(2),
+                    grossAmt.toFixed(2),
                     cgstAmt.toFixed(2),
                     sgstAmt.toFixed(2),
                     total.toFixed(2),

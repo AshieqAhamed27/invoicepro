@@ -410,11 +410,18 @@ export default function InvoiceView() {
     meta.isProposal ? 'Service proposal' : 'Professional service'
   );
   const subtotal = items.reduce((sum, item) => sum + getLineTotal(item), 0);
-  const total = Number(invoice.amount || 0);
-  const tax = Math.max(0, total - subtotal);
-  const tdsRate = Number(invoice.tdsPercent || 0);
-  const tdsAmount = (subtotal * tdsRate) / 100;
-  const netReceivable = total - tdsAmount;
+  const cgst = Number(invoice.cgst || 0);
+  const sgst = Number(invoice.sgst || 0);
+  const totalTaxRate = cgst + sgst;
+  const calculatedTotal = subtotal + (subtotal * totalTaxRate) / 100;
+  const total = Number(invoice.amount || 0) || calculatedTotal;
+  const tax = Math.max(0, totalTaxRate > 0 ? (subtotal * totalTaxRate) / 100 : (total - subtotal));
+  const hasTds = Boolean(invoice.tds?.enabled || (invoice.tds?.amount && invoice.tds.amount > 0) || invoice.tdsPercent);
+  const tdsRate = hasTds ? Number(invoice.tds?.rate ?? invoice.tdsPercent ?? 0) : 0;
+  const tdsAmount = hasTds
+    ? Number(invoice.tds?.amount ?? ((subtotal * tdsRate) / 100))
+    : 0;
+  const netReceivable = Math.max(0, total - tdsAmount);
   const finalUpi = invoice.currency === 'INR' ? (invoice.upiId || businessUpi || '') : '';
   const isInternationalInvoice = !meta.isProposal && invoice.currency !== 'INR';
   const publicDocumentUrl = `${window.location.origin}/public/invoice/${invoice._id}`;
