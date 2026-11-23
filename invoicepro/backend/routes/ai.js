@@ -2533,21 +2533,26 @@ router.post('/quick-invoice', protect, async(req, res) => {
     }
 });
 
-const callAiJarvisResponse = async ({ message, user, agentName, contextSummary }) => {
-    const prompt = `You are ${agentName}, an elite, highly articulate, loyal, and charming AI Chief of Staff (inspired by JARVIS from Iron Man and Claude) for a creative freelancer named ${user.name || 'there'} inside their ClientFlow AI studio.
-Your personality: Calm, witty, supportive, confident, and professional.
-Tone rules:
-- Speak in smooth, natural, spoken-ready English (1-3 sentences max).
-- If the user says "hi", "hello", "how are you", or small talk, respond warmly and personally. DO NOT dump invoices or database statistics unless specifically asked.
-- If the user mentions feeling tired or stressed, be empathetic and supportive.
-- Business context (for reference only, do not repeat unless relevant to user's question): User has ${contextSummary.pending} pending invoices and monthly goal of ${contextSummary.goal}.
+const callAiJarvisResponse = async ({ message, history = [], user, agentName, contextSummary }) => {
+    const historySnippet = history && history.length > 0
+        ? history.map(h => `${h.role === 'user' ? (user.name || 'User') : agentName}: ${h.text}`).join('\n')
+        : '';
 
-User says: "${message}"
+    const prompt = `You are ${agentName}, an elite, charming, witty, and highly articulate AI Chief of Staff (inspired by JARVIS from Iron Man and Claude 3.5 Sonnet) assisting ${user.name || 'there'} inside their ClientFlow AI studio.
+Persona:
+- Calm, charismatic, intelligent, and subtly humorous.
+- Loyal partner who treats the user as an ambitious founder/creator.
+- Speaks in natural, spoken-ready English (1 to 3 sentences maximum).
+- NEVER dumps invoice counts or database statistics unless the user specifically asks for numbers.
+- If the user says "hi", "how are you", or small talk, respond with warmth, wit, and effortless poise.
+- If the user asks for business or freelance advice, offer sharp, high-leverage guidance concisely.
+
+${historySnippet ? `Previous conversation:\n${historySnippet}\n` : ''}User says: "${message}"
 
 Your reply as ${agentName}:`;
 
     try {
-        const res = await callAiText({ prompt, timeout: 8000, maxTokens: 150 });
+        const res = await callAiText({ prompt, timeout: 8000, maxTokens: 180 });
         if (res && res.text) {
             return res.text.replace(/^(flow|jarvis|chief|aria):\s*/i, '').trim();
         }
@@ -2555,17 +2560,41 @@ Your reply as ${agentName}:`;
         console.warn('JARVIS AI text fallback:', e.message);
     }
 
+    // Dynamic, charismatic fallbacks (JARVIS caliber)
     const cleanMsg = String(message).toLowerCase().trim();
-    if (/\b(hi|hello|hey|greetings|morning|evening|afternoon)\b/.test(cleanMsg)) {
-        return `Hello ${user.name || 'there'}. All systems are running smoothly in the studio. What are we working on today?`;
+    const userName = user.name || 'there';
+
+    if (/\b(hi|hello|hey|yo|greetings|morning|afternoon|evening)\b/.test(cleanMsg)) {
+        const greetings = [
+            `A very pleasant day to you, ${userName}. All systems across your studio are online and at your command. What are we orchestrating today?`,
+            `Good to see you, ${userName}. Ledger is balanced, coffee is virtually brewed. How can I assist your workflow today?`,
+            `Hello ${userName}! Always ready to help you bill clients, track overdue payments, or tackle revenue goals. Where shall we start?`
+        ];
+        return greetings[Math.floor(Math.random() * greetings.length)];
     }
+
     if (/\b(who are you|what are you|what can you do)\b/.test(cleanMsg)) {
-        return `I am ${agentName}, your personal AI Chief of Staff. You can talk to me to bill clients, track late payments, set revenue goals, or brainstorm. What do you need?`;
+        return `I am ${agentName}, your AI Chief of Staff. I handle your client invoices, follow up on late payments with 1-click WhatsApp alerts, monitor revenue targets, and keep your creative business running smoothly. What's on your agenda?`;
     }
-    if (/\b(how are you|how is it going|how r u)\b/.test(cleanMsg)) {
-        return `Operating at peak efficiency, ${user.name || 'sir'}. Ready whenever you want to create an invoice or check on your cash flow.`;
+
+    if (/\b(how are you|how is it going|how r u|what's up|sup)\b/.test(cleanMsg)) {
+        const statusReplies = [
+            `Operating at peak efficiency, ${userName}. Ready to turn your creative work into paid invoices whenever you give the word.`,
+            `Never better, ${userName}. Systems are running fast, receivables are tracked, and I'm ready for whatever you need.`,
+            `All clear on my end! What's the main priority for the studio today?`
+        ];
+        return statusReplies[Math.floor(Math.random() * statusReplies.length)];
     }
-    return `Right with you, ${user.name || 'there'}. How can I assist your business today?`;
+
+    if (/\b(thank|thanks|appreciate|good job|well done)\b/.test(cleanMsg)) {
+        return `Always at your service, ${userName}. That is what a proper Chief of Staff is here for. Let me know what we tackle next.`;
+    }
+
+    if (/\b(tired|stressed|exhausted|overwhelmed|busy)\b/.test(cleanMsg)) {
+        return `Take a breath, ${userName}. Freelance growth is a marathon. Let me handle the paperwork, invoices, and payment tracking so you can focus on recharge and creative flow.`;
+    }
+
+    return `Understood, ${userName}. I'm right here with you. Would you like to create an invoice, check who owes you, or review your goals?`;
 };
 
 router.post('/agent', protect, requirePro, async(req, res) => {
@@ -2669,6 +2698,7 @@ router.post('/agent', protect, requirePro, async(req, res) => {
         } else {
             reply = await callAiJarvisResponse({
                 message,
+                history: Array.isArray(req.body?.history) ? req.body.history.slice(-6) : [],
                 user: req.user,
                 agentName,
                 contextSummary: {

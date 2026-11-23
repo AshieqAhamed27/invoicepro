@@ -520,7 +520,7 @@ const serializeUser = (user) => {
         enterpriseJoinedAt: user.enterpriseJoinedAt,
         role: user.role,
         isDemo: Boolean(user.isDemo),
-        agentConfig: user.agentConfig || { name: 'Flow', voiceEnabled: true, monthlyGoal: 0 },
+        agentConfig: user.agentConfig || { name: 'Flow', voiceEnabled: true, voiceName: '', monthlyGoal: 0 },
         isBirthday: (() => {
             if (!user.birthMonth || !user.birthDay) return false;
             const now = new Date();
@@ -1213,6 +1213,9 @@ router.put(
                 }
                 if (req.body.agentConfig.voiceEnabled !== undefined) {
                     req.user.agentConfig.voiceEnabled = Boolean(req.body.agentConfig.voiceEnabled);
+                }
+                if (req.body.agentConfig.voiceName !== undefined) {
+                    req.user.agentConfig.voiceName = String(req.body.agentConfig.voiceName).trim().slice(0, 100);
                 }
                 if (req.body.agentConfig.monthlyGoal !== undefined) {
                     req.user.agentConfig.monthlyGoal = Math.max(0, Number(req.body.agentConfig.monthlyGoal) || 0);

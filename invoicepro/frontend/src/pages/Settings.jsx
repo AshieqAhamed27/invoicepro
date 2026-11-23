@@ -170,10 +170,13 @@ export default function Settings() {
     freelanceExperience: '',
     agentName: 'Flow',
     voiceEnabled: true,
+    voiceName: '',
     monthlyGoal: 0,
     birthMonth: '',
     birthDay: ''
   });
+
+  const [systemVoices, setSystemVoices] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -189,7 +192,38 @@ export default function Settings() {
 
   useEffect(() => {
     fetchProfile();
+
+    const loadVoices = () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        const v = window.speechSynthesis.getVoices() || [];
+        setSystemVoices(v);
+      }
+    };
+    loadVoices();
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
   }, []);
+
+  const handleTestVoice = (voiceURI) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(`Hello! I am your AI assistant. How does my voice sound?`);
+      const v = systemVoices.find((item) => item.voiceURI === voiceURI || item.name === voiceURI);
+      if (v) {
+        utterance.voice = v;
+        utterance.lang = v.lang;
+      }
+      utterance.rate = 1.0;
+      window.speechSynthesis.speak(utterance);
+    } catch {}
+  };
 
   const fetchProfile = async () => {
     try {
@@ -213,6 +247,7 @@ export default function Settings() {
         freelanceExperience: user.freelanceExperience || '',
         agentName: user.agentConfig?.name || 'Flow',
         voiceEnabled: user.agentConfig?.voiceEnabled !== false,
+        voiceName: user.agentConfig?.voiceName || '',
         monthlyGoal: user.agentConfig?.monthlyGoal || 0,
         birthMonth: user.birthMonth ? String(user.birthMonth) : '',
         birthDay: user.birthDay ? String(user.birthDay) : ''
@@ -251,6 +286,7 @@ export default function Settings() {
         agentConfig: {
           name: (form.agentName || 'Flow').trim(),
           voiceEnabled: form.voiceEnabled,
+          voiceName: form.voiceName || '',
           monthlyGoal: Number(form.monthlyGoal) || 0
         },
         birthMonth: form.birthMonth ? Number(form.birthMonth) : null,
@@ -735,8 +771,50 @@ export default function Settings() {
                     className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-yellow-400 focus:ring-yellow-400"
                   />
                   <label htmlFor="voiceEnabled" className="text-sm font-semibold text-white cursor-pointer">
-                    Enable spoken voice replies (Assistant speaks answers aloud)
+                    Enable spoken voice replies (Assistant speaks answers aloud when you talk)
                   </label>
+                </div>
+
+                {/* Voice Selection with Live Audio Preview */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold text-slate-800 dark:text-zinc-400 uppercase tracking-wider block">
+                      Assistant Voice Accent & Persona
+                    </label>
+                    {form.voiceName && (
+                      <button
+                        type="button"
+                        onClick={() => handleTestVoice(form.voiceName)}
+                        className="text-xs font-bold text-yellow-400 hover:text-yellow-300 transition flex items-center gap-1"
+                      >
+                        <span>🔊</span>
+                        <span>Test Voice</span>
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    name="voiceName"
+                    value={form.voiceName || ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setForm((p) => ({ ...p, voiceName: v }));
+                      if (v) handleTestVoice(v);
+                    }}
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white focus:border-yellow-400 focus:outline-none"
+                  >
+                    <option value="" className="bg-slate-900 text-white">Default Assistant Voice (JARVIS British / System)</option>
+                    {systemVoices
+                      .filter((v) => v.lang.startsWith('en'))
+                      .concat(systemVoices.filter((v) => !v.lang.startsWith('en')).slice(0, 5))
+                      .map((voice) => (
+                        <option key={voice.voiceURI || voice.name} value={voice.voiceURI || voice.name} className="bg-slate-900 text-white">
+                          {voice.name} ({voice.lang})
+                        </option>
+                      ))}
+                  </select>
+                  <p className="mt-1.5 text-xs text-zinc-500">
+                    Choose from British (JARVIS), US (Claude), or any system voice installed in your browser.
+                  </p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">

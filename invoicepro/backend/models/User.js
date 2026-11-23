@@ -291,6 +291,11 @@ const userSchema = new mongoose.Schema({
             type: Boolean,
             default: true
         },
+        voiceName: {
+            type: String,
+            default: '',
+            trim: true
+        },
         monthlyGoal: {
             type: Number,
             default: 0
