@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { clearAuth, isLoggedIn, getUser, hasProAccess, getPlanLabel, setPostLoginRedirect } from '../utils/auth';
 import BrandLogo from './BrandLogo';
@@ -6,10 +6,8 @@ import BrandLogo from './BrandLogo';
 // ─── Core Navigation Links for Freelancers ───
 const primaryAppLinks = [
   { to: '/client-flow', label: '📊 Dashboard' },
-  { to: '/client-finder', label: '🔍 Find Clients' },
   { to: '/create-invoice', label: '📄 Invoices & QR' },
   { to: '/proposal-writer', label: '✍️ AI Proposals' },
-  { to: '/profit-tracker', label: '📈 Profit Tracker' },
   { to: '/clients', label: '👥 Clients' }
 ];
 
@@ -18,10 +16,26 @@ export default function Navbar() {
   const location = useLocation();
   const loggedIn = isLoggedIn();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
+  const toolsRef = useRef(null);
   const user = getUser();
   const isAdmin = user?.role === 'admin';
   const isPro = hasProAccess(user);
   const planLabel = getPlanLabel(user);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (toolsRef.current && !toolsRef.current.contains(e.target)) {
+        setToolsDropdownOpen(false);
+      }
+    };
+    if (toolsDropdownOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [toolsDropdownOpen]);
 
   const handleLogout = () => {
     clearAuth();
@@ -141,10 +155,48 @@ export default function Navbar() {
           ) : (
             <>
               {primaryAppLinks.map((link) => (
-                <NavLink key={link.to} to={link.to} className={(state) => `rounded-lg border px-3.5 py-2 font-bold text-sm tracking-wide ${navClass(state)}`}>
+                <NavLink key={link.to} to={link.to} className={(state) => `rounded-lg border px-3 py-2 font-bold text-sm tracking-wide ${navClass(state)}`}>
                   {link.label}
                 </NavLink>
               ))}
+
+              {/* ─── Compact More Tools Dropdown (Keeps Header Minimal) ─── */}
+              <div className="relative" ref={toolsRef}>
+                <button
+                  type="button"
+                  onClick={() => setToolsDropdownOpen((v) => !v)}
+                  className={`rounded-lg border px-3 py-2 font-bold text-sm flex items-center gap-1 transition ${
+                    location.pathname === '/profit-tracker' || location.pathname === '/client-finder'
+                      ? 'text-indigo-600 bg-indigo-50 border-indigo-200'
+                      : 'text-slate-600 border-transparent hover:text-slate-950 hover:bg-slate-100/80'
+                  }`}
+                >
+                  <span>⚡ Tools</span>
+                  <span className="text-[9px] opacity-75">▼</span>
+                </button>
+
+                {toolsDropdownOpen && (
+                  <div className="absolute top-full mt-2 left-0 w-64 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-2 shadow-2xl z-50 animate-fade-in">
+                    <NavLink
+                      to="/client-finder"
+                      onClick={() => setToolsDropdownOpen(false)}
+                      className="flex flex-col p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                    >
+                      <span className="font-bold text-xs text-slate-900 dark:text-white">🔍 Find Clients</span>
+                      <span className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">High-conversion startup leads radar</span>
+                    </NavLink>
+                    <NavLink
+                      to="/profit-tracker"
+                      onClick={() => setToolsDropdownOpen(false)}
+                      className="flex flex-col p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                    >
+                      <span className="font-bold text-xs text-slate-900 dark:text-white">📈 Profit Tracker</span>
+                      <span className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">Real net take-home & hourly wage</span>
+                    </NavLink>
+                  </div>
+                )}
+              </div>
+
               <NavLink to="/settings" className={(state) => `rounded-lg border px-3 py-2 font-bold text-sm ${navClass(state)}`}>
                 Settings
               </NavLink>
@@ -286,13 +338,17 @@ export default function Navbar() {
                     <span className="block text-sm font-black">✍️ AI Proposals</span>
                     <span className="mt-0.5 block text-xs font-semibold text-slate-500">Generate 60-sec proposals with 50% advance milestone</span>
                   </NavLink>
-                  <NavLink to="/profit-tracker" onClick={closeMenu} className={mobileItemClass}>
-                    <span className="block text-sm font-black">📈 Profit Tracker</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-slate-500">Track real net profit, tool overheads & hourly wage</span>
-                  </NavLink>
                   <NavLink to="/clients" onClick={closeMenu} className={mobileItemClass}>
                     <span className="block text-sm font-black">👥 Clients Directory</span>
                     <span className="mt-0.5 block text-xs font-semibold text-slate-500">Saved clients, contacts & payment history</span>
+                  </NavLink>
+                  <NavLink to="/client-finder" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">🔍 Find Clients</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-slate-500">Startup leads radar & client outreach</span>
+                  </NavLink>
+                  <NavLink to="/profit-tracker" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">📈 Profit Tracker</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-slate-500">Track real net profit, tool overheads & hourly wage</span>
                   </NavLink>
                   <NavLink to="/settings" onClick={closeMenu} className={mobileItemClass}>
                     <span className="block text-sm font-black">⚙️ Settings & Bank UPI</span>

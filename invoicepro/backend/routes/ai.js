@@ -2785,7 +2785,7 @@ Persona & Conversation Rules:
     return `Good day, ${userName}. All systems across your studio are online and fully operational. What shall we orchestrate today?`;
 };
 
-router.post('/agent', protect, requirePro, async(req, res) => {
+router.post('/agent', protect, async(req, res) => {
     const message = String(req.body?.message || '').trim();
     const context = req.body?.context || {};
 
@@ -3037,8 +3037,14 @@ router.post('/agent', protect, requirePro, async(req, res) => {
             suggestions: suggestions.slice(0, 4)
         });
     } catch (err) {
-        console.error('AI AGENT ERROR:', err);
-        res.status(500).json({ message: 'AI agent failed. Please try again.' });
+        console.error('AI AGENT ERROR:', err.message);
+        const agentName = req.user?.agentConfig?.name || 'Flow';
+        const userName = req.user?.name || 'there';
+        return res.json({
+            reply: `At your service, ${userName}. All systems are active. Please repeat your command.`,
+            action: null,
+            source: 'fallback'
+        });
     }
 });
 

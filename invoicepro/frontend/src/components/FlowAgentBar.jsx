@@ -324,11 +324,26 @@ export default function FlowAgentBar({
     setCreatedInvoice(null);
 
     try {
-      const res = await api.post('/ai/agent', {
-        message: query,
-        languageMode: activeLang.id,
-        history: chatMemory.slice(-8)
-      });
+      let res;
+      try {
+        res = await api.post('/ai/agent', {
+          message: query,
+          languageMode: activeLang.id,
+          history: chatMemory.slice(-8)
+        });
+      } catch (firstErr) {
+        // Auto-retry once on cold boot or connection reset
+        if (!firstErr.response || firstErr.code === 'ERR_NETWORK' || firstErr.message?.includes('timeout')) {
+          await new Promise((r) => setTimeout(r, 1500));
+          res = await api.post('/ai/agent', {
+            message: query,
+            languageMode: activeLang.id,
+            history: chatMemory.slice(-8)
+          });
+        } else {
+          throw firstErr;
+        }
+      }
       const data = res.data;
 
       // Update multi-turn conversational memory
@@ -392,7 +407,10 @@ export default function FlowAgentBar({
         speakAloud(data.reply, activeLang.id);
       }
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Unable to execute command.');
+      const serverMsg = err.response?.data?.message;
+      const friendlyNotice = serverMsg || '⚡ Flow is reconnecting to workspace neural services. Please try your command again in a moment.';
+      setErrorMsg(friendlyNotice);
+      setTimeout(() => setErrorMsg(''), 6000);
     } finally {
       setLoading(false);
     }
@@ -748,8 +766,18 @@ export default function FlowAgentBar({
       )}
 
       {errorMsg && (
-        <div className="mt-3 rounded-2xl border border-red-500/20 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs text-red-600 dark:text-red-300">
-          {errorMsg}
+        <div className="mt-3 rounded-2xl border border-amber-500/30 bg-amber-950/40 p-3.5 text-xs text-amber-200 flex items-center justify-between gap-3 shadow-lg animate-fade-in backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="text-sm">⚡</span>
+            <span>{errorMsg}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setErrorMsg('')}
+            className="text-amber-400 hover:text-white p-1 text-xs transition"
+          >
+            ✕
+          </button>
         </div>
       )}
 
