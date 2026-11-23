@@ -1683,25 +1683,47 @@ const extractAnthropicText = (body) => {
         .trim();
 };
 
-const normalizeAiProvider = (value = 'openai') => {
-    const provider = String(value || 'openai').trim().toLowerCase();
+const normalizeAiProvider = (value = 'groq') => {
+    const provider = String(value || 'groq').trim().toLowerCase();
+    if (provider === 'groq') return 'groq';
+    if (provider === 'gemini') return 'gemini';
     if (provider === 'ollama') return 'ollama';
     if (provider === 'anthropic' || provider === 'claude') return 'anthropic';
-    if (provider === 'auto') return 'auto';
-    return 'openai';
+    return 'groq';
 };
 
 const getAiProviderOrder = () => {
-    const preferred = normalizeAiProvider(process.env.AI_PROVIDER || 'openai');
-    if (preferred === 'ollama') return ['ollama', 'openai', 'anthropic'];
-    const order = preferred === 'anthropic' || preferred === 'auto'
-        ? ['anthropic', 'openai']
-        : ['openai', 'anthropic'];
+    const order = [];
+    if (process.env.GROQ_API_KEY) order.push('groq');
+    if (process.env.GEMINI_API_KEY) order.push('gemini');
+    if (process.env.OPENAI_API_KEY) order.push('openai');
+    if (process.env.ANTHROPIC_API_KEY) order.push('anthropic');
+    if (order.length === 0) order.push('groq', 'openai');
 
     return Array.from(new Set(order));
 };
 
 const getAiProviderConfig = (provider) => {
+    if (provider === 'groq') {
+        return {
+            provider: 'groq',
+            apiKey: process.env.GROQ_API_KEY,
+            hostname: 'api.groq.com',
+            path: '/openai/v1/chat/completions',
+            model: process.env.GROQ_MODEL || 'qwen/qwen3.8-27b'
+        };
+    }
+
+    if (provider === 'gemini') {
+        return {
+            provider: 'gemini',
+            apiKey: process.env.GEMINI_API_KEY,
+            hostname: 'generativelanguage.googleapis.com',
+            path: `/v1beta/models/${process.env.GEMINI_MODEL || 'gemini-3.8-flash'}:generateContent?key=${process.env.GEMINI_API_KEY}`,
+            model: process.env.GEMINI_MODEL || 'gemini-3.8-flash'
+        };
+    }
+
     if (provider === 'ollama') {
         const baseUrl = process.env.OLLAMA_BASE_URL || process.env.OLLAMA_HOST || 'http://127.0.0.1:11434';
         try {
@@ -1754,6 +1776,25 @@ const getAnthropicMaxTokens = (maxTokens = 1200) => {
 };
 
 const buildAiPayload = ({ provider, model, prompt, maxTokens }) => {
+    if (provider === 'groq') {
+        return JSON.stringify({
+            model: model || 'qwen/qwen3.8-27b',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: Math.min(maxTokens || 400, 1500),
+            temperature: 0.6
+        });
+    }
+
+    if (provider === 'gemini') {
+        return JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                maxOutputTokens: Math.min(maxTokens || 400, 1500),
+                temperature: 0.7
+            }
+        });
+    }
+
     if (provider === 'ollama') {
         return JSON.stringify({
             model,
@@ -1780,6 +1821,13 @@ const buildAiPayload = ({ provider, model, prompt, maxTokens }) => {
 };
 
 const buildAiHeaders = ({ provider, apiKey, payload }) => {
+    if (provider === 'gemini') {
+        return {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(payload)
+        };
+    }
+
     if (provider === 'ollama') {
         return {
             'Content-Type': 'application/json',
@@ -1804,6 +1852,8 @@ const buildAiHeaders = ({ provider, apiKey, payload }) => {
 };
 
 const extractAiText = (provider, body) => {
+    if (provider === 'groq') return body?.choices?.[0]?.message?.content || '';
+    if (provider === 'gemini') return body?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     if (provider === 'ollama') return body?.response || '';
     return provider === 'anthropic' ? extractAnthropicText(body) : extractOpenAiText(body);
 };
@@ -2586,124 +2636,23 @@ ${historySnippet ? `Previous conversation:\n${historySnippet}\n` : ''}User says:
 Your reply as ${agentName}:`;
 
     try {
-        const res = await callAiText({ prompt, timeout: 8000, maxTokens: 180 });
+        const res = await callAiText({ prompt, timeout: 8000, maxTokens: 250 });
         if (res && res.text) {
             return res.text.replace(/^(flow|jarvis|chief|aria):\s*/i, '').trim();
         }
     } catch (e) {
-        console.warn('JARVIS AI text fallback:', e.message);
+        console.warn('JARVIS AI live text error:', e.message);
     }
 
-    // Dynamic, charismatic fallbacks (JARVIS caliber)
-    const cleanMsg = String(message).toLowerCase().trim();
+    // Only if live network fails:
     const userName = user.name || 'there';
-
-    // ─── TANGLISH ADVICE & CONVERSATION ───
     if (isTanglish) {
-        if (/\b(first\s*client|client.*pidika|client.*eduka|client.*find|get.*client)\b/i.test(cleanMsg)) {
-            return `First client pidika 3 practical steps, ${userName}: 1) Ungaloda friends, college seniors, or old colleagues-a contact pannunga. 2) Oru specific problem solve pannitharen nu sollunga (e.g. 'Unga site revamp pannitharen'). 3) Fast ah deliver panni testimonial vaangunga. Project confirm aana odane sollunga, invoice naan podren!`;
-        }
-        if (/\b(price|charge|pricing|evlo\s*kekalam|rate|fees)\b/i.test(cleanMsg)) {
-            return `Oru pothum hourly rate charge pannathinga, ${userName}! Project oda business value paathu fixed pricing vainga (minimum ₹15,000 to ₹30,000 baseline). Kandippa 50% advance vaangitu thaan velai start pannanum!`;
-        }
-        if (/\b(late\s*payment|kaasu\s*thara\s*maatingran|pending\s*payment|money\s*not\s*paid)\b/i.test(cleanMsg)) {
-            return `Late payment-ku polite ah escalate pannunga, ${userName}: 1) Due date annaiku WhatsApp reminder with UPI QR. 2) 3 days delay aana call panni follow up. 3) 7 days ku mela delay aana deliverables pause pannidunga. Enkitta 'Yaaru kaasu tharanum?' nu ketta WhatsApp link ready pannitharuven!`;
-        }
-        if (/\b(discount|koraika|kammi\s*panna)\b/i.test(cleanMsg)) {
-            return `Price kuraika sonna scope-aiyum kuraichidunga, ${userName}! 'Unga budget ku thagundhapadi [Feature X] remove pannitu panlam, full scope venumna standard rate thaan' nu professional ah sollunga.`;
-        }
-        if (/\b(hi|hello|hey|vanakkam|greetings|morning|afternoon|evening)\b/i.test(cleanMsg)) {
-            return `Vanakkam ${userName}! Studio la ellam super ah ready ah iruku. Innaiku yaaru ku bill ready pannanum?`;
-        }
-        if (/\b(epdi|how are you|how r u|what's up|sup)\b/i.test(cleanMsg)) {
-            return `Peak efficiency la operate aaguthu, ${userName}! Ungaloda client billings and payments naan paathukren. Neenga chill ah creative work pannunga.`;
-        }
-        if (/\b(who are you|yaaru neenga|what can you do)\b/i.test(cleanMsg)) {
-            return `Naan thaan ${agentName}, ungaloda personal AI Chief of Staff! Invoices create panna, late payments track panna, revenue goals reach panna naan ready. Enna pannanum nu sollunga!`;
-        }
-        if (/\b(thank|thanks|super|nandri)\b/i.test(cleanMsg)) {
-            return `Enna nanba, ithukelam thanks sollitu! Always at your service. Next enna pannanum?`;
-        }
-        if (/\b(tired|stressed|exhausted|overwhelmed|busy)\b/i.test(cleanMsg)) {
-            return `Konjam rest edunga ${userName}! Administrative velai ellam naan paathukren. Unga business safe hands la iruku.`;
-        }
-        return `Ready ah irukken ${userName}! Unga studio command-ku wait panren. Next enna execute pannanum?`;
+        return `Vanakkam ${userName}, neural network reconnect aaguthu. Oru second la sollunga!`;
     }
-
-    // ─── PURE TAMIL ADVICE & CONVERSATION ───
     if (isTamil) {
-        if (/வாடிக்கையாளர்|முதல்/.test(cleanMsg)) {
-            return `உங்கள் முதல் வாடிக்கையாளரைப் பெற: 1) உங்களுக்குத் தெரிந்த 5 நபர்களை அணுகி, ஒரு குறிப்பிட்ட வேலையை விரைவாகச் செய்து கொடுங்கள். 2) நல்ல நற்சான்றிதழைப் (testimonial) பெறுங்கள். வேலை உறுதியானதும் எனக்குத் தெரிவியுங்கள், உடனடி ரசீதை நான் தயார் செய்கிறேன்!`;
-        }
-        if (/விலை|கட்டணம்/.test(cleanMsg)) {
-            return `மணிநேரக் கட்டணம் வசூலிக்காதீர்கள், திட்டத்தின் வணிக மதிப்பை அடிப்படையாகக் கொண்டு நிலையான கட்டணம் (Fixed Price) நிர்ணயிக்கவும். எப்போதுமே 50% முன்பணம் பெற்றுக்கொண்டு பணியைத் தொடங்குங்கள்!`;
-        }
-        if (/வணக்கம்|காலை|ஹலோ/.test(cleanMsg)) {
-            return `வணக்கம் ${userName}! உங்கள் ஸ்டுடியோவில் அனைத்து பணிகளும் சிறப்பாக இயங்குகின்றன. இன்று என்ன செய்ய வேண்டும்?`;
-        }
-        return `கட்டளையிடுங்கள் ${userName}, உங்கள் ஸ்டுடியோ கட்டுப்பாட்டில் உள்ளது. அடுத்து என்ன செய்ய வேண்டும்?`;
+        return `வணக்கம் ${userName}, இணைய இணைப்பு மீளமைக்கப்படுகிறது. ஒரு வினாடியில் மீண்டும் முயற்சிக்கவும்.`;
     }
-
-    // ─── ENGLISH FREELANCE & BUSINESS MASTERCLASS ADVICE ───
-    if (/\b(first\s*client|get.*client|find.*client|landing.*client|new.*client|how.*to.*client)\b/i.test(cleanMsg)) {
-        return `To land your first client fast, ${userName}: 1) Reach out directly to 5 past colleagues or warm contacts with a hyper-specific, zero-risk offer (e.g., 'I can redesign your landing page or audit your sales funnel in 48 hours'). 2) Focus on speed and an undeniable testimonial rather than immediate top-tier pay. Once they say yes, tell me: 'Bill [Name] ₹[Amount]' and I'll prepare your professional invoice with UPI QR code in seconds!`;
-    }
-
-    if (/\b(how.*price|how.*charge|pricing|what.*to.*charge|hourly.*vs.*fixed|rate|fees)\b/i.test(cleanMsg)) {
-        return `Never bill by the hour—anchor your pricing directly to the business outcome, ${userName}. If your design or code helps a client close even two deals, charging ₹30,000 to ₹50,000 is an easy investment for them. Always collect a 50% upfront deposit before starting work.`;
-    }
-
-    if (/\b(cold\s*email|pitch|pitching|outreach|how.*to.*pitch|proposal)\b/i.test(cleanMsg)) {
-        return `Ditch long generic template emails, ${userName}. Instead, send a 2-minute personalized video or 3 quick bullet points showing a specific bug, design flaw, or missed revenue opportunity on their current site. Demonstrating immediate value upfront gets 5x higher response rates.`;
-    }
-
-    if (/\b(late\s*payment|client.*not.*pay|unpaid.*invoice|chase.*payment|follow.*up.*payment)\b/i.test(cleanMsg)) {
-        return `Use a firm 3-step escalation, ${userName}: 1) A courtesy reminder 2 days before due date. 2) A direct WhatsApp message with your UPI/payment link on the due date. 3) Pause all deliverables if it passes 7 days. You can say 'Who owes me money?' anytime and I'll generate instant 1-click WhatsApp reminders for you.`;
-    }
-
-    if (/\b(discount|lower.*price|client.*asking.*discount|negotiat)\b/i.test(cleanMsg)) {
-        return `Never lower your price without lowering the scope, ${userName}. Tell them: 'I understand your budget constraints. We can hit that price by removing [Feature X], or we can keep the full scope at my standard rate.' This protects your positioning and keeps you from being commoditized.`;
-    }
-
-    if (/\b(retainer|recurring|predictable.*income|monthly.*retainer)\b/i.test(cleanMsg)) {
-        return `Convert one-off clients into monthly retainers by offering ongoing maintenance, security updates, and priority design iterations for a fixed monthly fee (e.g. ₹15,000 to ₹25,000/month). Predictable retainers eliminate the freelancer feast-or-famine cycle.`;
-    }
-
-    if (/\b(scale|grow.*agency|agency|more.*revenue)\b/i.test(cleanMsg)) {
-        return `To scale beyond your time, ${userName}: Productize your services into fixed-scope packages (e.g. '3-day brand kit' or '1-week Shopify sprint') and systematize delivery. When your pipeline fills up, double your prices on the next 3 proposals.`;
-    }
-
-    if (/\b(hi|hello|hey|yo|greetings|morning|afternoon|evening)\b/.test(cleanMsg)) {
-        const greetings = [
-            `A very pleasant day to you, ${userName}. All systems across your studio are online and at your command. What are we orchestrating today?`,
-            `Good to see you, ${userName}. Ledger is balanced, coffee is virtually brewed. How can I assist your workflow today?`,
-            `Hello ${userName}! Always ready to help you bill clients, track overdue payments, or tackle revenue goals. Where shall we start?`
-        ];
-        return greetings[Math.floor(Math.random() * greetings.length)];
-    }
-
-    if (/\b(who are you|what are you|what can you do)\b/.test(cleanMsg)) {
-        return `I am ${agentName}, your AI Chief of Staff. I handle your client invoices, follow up on late payments with 1-click WhatsApp alerts, monitor revenue targets, and advise you on growing your freelance studio. What's on your agenda?`;
-    }
-
-    if (/\b(how are you|how is it going|how r u|what's up|sup)\b/.test(cleanMsg)) {
-        const statusReplies = [
-            `Operating at peak efficiency, ${userName}. Ready to turn your creative work into paid invoices whenever you give the word.`,
-            `Never better, ${userName}. Systems are running fast, receivables are tracked, and I'm ready for whatever you need.`,
-            `All clear on my end! What's the main priority for the studio today?`
-        ];
-        return statusReplies[Math.floor(Math.random() * statusReplies.length)];
-    }
-
-    if (/\b(thank|thanks|appreciate|good job|well done)\b/.test(cleanMsg)) {
-        return `Always at your service, ${userName}. That is what a proper Chief of Staff is here for. Let me know what we tackle next.`;
-    }
-
-    if (/\b(tired|stressed|exhausted|overwhelmed|busy)\b/.test(cleanMsg)) {
-        return `Take a breath, ${userName}. Freelance growth is a marathon. Let me handle the paperwork, invoices, and payment tracking so you can focus on recharge and creative flow.`;
-    }
-
-    return `At your service, ${userName}. Systems online and calibrated. Ready for your next invoice, client audit, or revenue target.`;
+    return `At your service, ${userName}. Neural connection had a brief timeout. Please repeat your command.`;
 };
 
 router.post('/agent', protect, requirePro, async(req, res) => {
