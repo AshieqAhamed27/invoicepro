@@ -12,21 +12,7 @@ export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
   const userName = user?.name || 'Friend';
   const agentName = user?.agentConfig?.name || 'Flow';
 
-  // 1. Spoken Birthday Greeting from Flow / JARVIS
-  useEffect(() => {
-    if (isBirthday && !dismissed && window.speechSynthesis && user?.agentConfig?.voiceEnabled !== false) {
-      try {
-        const text = `Good morning ${userName}. Before we look at business today... happy birthday from all of us. I've unlocked your birthday gift in your workspace today!`;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-IN';
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        window.speechSynthesis.speak(utterance);
-      } catch {}
-    }
-  }, [isBirthday, userName]);
-
-  // 2. 60 FPS Golden Stardust Canvas Particle System (Apple / Spotify Caliber)
+  // 1. 60 FPS Golden Stardust Canvas Particle System (Apple / Spotify Caliber)
   useEffect(() => {
     if (!isBirthday || dismissed) return;
     const canvas = canvasRef.current;
@@ -96,6 +82,17 @@ export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
       setGiftClaimed(true);
       if (res.data?.user && onUserUpdated) {
         onUserUpdated(res.data.user);
+      }
+      // Speak warm birthday greeting when user explicitly opens their gift
+      if (window.speechSynthesis && user?.agentConfig?.voiceEnabled !== false) {
+        try {
+          window.speechSynthesis.cancel();
+          const text = `Happy birthday ${userName}! Your exclusive 14-day Pro workspace upgrade is officially active. Enjoy your special day!`;
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'en-IN';
+          utterance.rate = 1.0;
+          window.speechSynthesis.speak(utterance);
+        } catch {}
       }
     } catch (err) {
       setGiftResult({

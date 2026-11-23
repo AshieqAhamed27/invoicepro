@@ -39,13 +39,23 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
         const transcript = event.results?.[0]?.[0]?.transcript || '';
         if (transcript.trim()) {
           setInput(transcript);
-          handleSendCommand(transcript);
+          // User spoke via microphone -> reply will be spoken aloud
+          handleSendCommand(transcript, { isVoiceInput: true });
         }
       };
 
       recognitionRef.current = recognition;
     }
   }, []);
+
+  const stopSpeaking = () => {
+    if (window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
+    }
+    setIsSpeaking(false);
+  };
 
   // Natural text-to-speech reply
   const speakAloud = (text) => {
@@ -66,6 +76,9 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
   };
 
   const toggleListening = () => {
+    // Stop any ongoing speech when user taps mic
+    stopSpeaking();
+
     if (!recognitionRef.current) {
       setErrorMsg('Voice input is not supported in this browser. You can type commands below.');
       return;
@@ -75,7 +88,6 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
       recognitionRef.current.stop();
     } else {
       try {
-        if (window.speechSynthesis) window.speechSynthesis.cancel();
         recognitionRef.current.start();
       } catch {
         recognitionRef.current.stop();
@@ -83,12 +95,15 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
     }
   };
 
-  const handleSendCommand = async (textToSend) => {
+  const handleSendCommand = async (textToSend, { isVoiceInput = false } = {}) => {
     const query = (textToSend || input).trim();
     if (!query) return;
 
+    // Stop any previous speech
+    stopSpeaking();
+
     // Add user message to conversation thread
-    const userMsg = { role: 'user', text: query, time: new Date() };
+    const userMsg = { role: 'user', text: query, time: new Date(), isVoice: isVoiceInput };
     setConversation((prev) => [...prev.slice(-6), userMsg]);
     setInput('');
     setLoading(true);
@@ -120,7 +135,10 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
         setActiveOverdues(data.overdueInvoices);
       }
 
-      if (data.reply) {
+      // 🔊 STRICT MODALITY RULE:
+      // Speak aloud ONLY if the user spoke via microphone.
+      // If user typed (or clicked a chip), reply stays strictly text.
+      if (data.reply && isVoiceInput) {
         speakAloud(data.reply);
       }
 
@@ -236,7 +254,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              handleSendCommand();
+              handleSendCommand(input, { isVoiceInput: false });
             }}
             className="flex flex-1 items-center gap-2"
           >
@@ -260,7 +278,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
                     ? 'border-red-400 bg-red-500/20 text-red-400 shadow-lg shadow-red-500/20 animate-pulse'
                     : 'border-white/10 bg-white/5 text-slate-400 hover:border-cyan-400/40 hover:text-cyan-300'
                 }`}
-                title="Toggle voice mic"
+                title={isListening ? "Listening... tap to stop" : "Speak to Flow (assistant will speak reply back)"}
                 aria-label="Toggle voice"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -276,6 +294,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
               disabled={loading || !input.trim()}
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white shadow-lg shadow-cyan-500/25 transition hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
               aria-label="Send query"
+              title="Send text (assistant will reply with text)"
             >
               {loading ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -293,28 +312,28 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
           <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Quick Commands:</span>
           <button
             type="button"
-            onClick={() => handleSendCommand('Hi')}
+            onClick={() => handleSendCommand('Hi', { isVoiceInput: false })}
             className="rounded-xl border border-white/5 bg-white/[0.03] px-3 py-1 text-slate-300 transition hover:border-cyan-400/30 hover:bg-cyan-500/10 hover:text-cyan-200"
           >
             👋 "Hi Flow"
           </button>
           <button
             type="button"
-            onClick={() => handleSendCommand('Bill Vikram ₹20,000 for website design with 18% GST due in 7 days')}
+            onClick={() => handleSendCommand('Bill Vikram ₹20,000 for website design with 18% GST due in 7 days', { isVoiceInput: false })}
             className="rounded-xl border border-white/5 bg-white/[0.03] px-3 py-1 text-slate-300 transition hover:border-cyan-400/30 hover:bg-cyan-500/10 hover:text-cyan-200"
           >
             📄 "Bill Vikram ₹20k"
           </button>
           <button
             type="button"
-            onClick={() => handleSendCommand('Who owes me money?')}
+            onClick={() => handleSendCommand('Who owes me money?', { isVoiceInput: false })}
             className="rounded-xl border border-white/5 bg-white/[0.03] px-3 py-1 text-slate-300 transition hover:border-cyan-400/30 hover:bg-cyan-500/10 hover:text-cyan-200"
           >
             ⏰ "Who owes me?"
           </button>
           <button
             type="button"
-            onClick={() => handleSendCommand('How is my monthly revenue goal?')}
+            onClick={() => handleSendCommand('How is my monthly revenue goal?', { isVoiceInput: false })}
             className="rounded-xl border border-white/5 bg-white/[0.03] px-3 py-1 text-slate-300 transition hover:border-cyan-400/30 hover:bg-cyan-500/10 hover:text-cyan-200"
           >
             🎯 "Goal progress"
@@ -335,11 +354,28 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
               }`}
             >
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10 text-xs font-black">
-                {msg.role === 'user' ? 'You' : '⚡'}
+                {msg.role === 'user' ? (msg.isVoice ? '🎤' : 'You') : '⚡'}
               </span>
               <div className="flex-1">
                 <p className="leading-relaxed">{msg.text}</p>
               </div>
+              {msg.role === 'assistant' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isSpeaking) {
+                      stopSpeaking();
+                    } else {
+                      speakAloud(msg.text);
+                    }
+                  }}
+                  className="rounded-lg p-1 text-xs text-slate-400 transition hover:bg-white/10 hover:text-cyan-300"
+                  title={isSpeaking ? 'Stop speaking' : 'Read aloud'}
+                  aria-label={isSpeaking ? 'Stop speaking' : 'Read aloud'}
+                >
+                  {isSpeaking ? '⏹️' : '🔊'}
+                </button>
+              )}
             </div>
           ))}
         </div>
