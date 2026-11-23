@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 
 export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
@@ -6,22 +6,85 @@ export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
   const [isOpening, setIsOpening] = useState(false);
   const [giftClaimed, setGiftClaimed] = useState(Boolean(user?.claimedBirthdayGiftYear === new Date().getFullYear()));
   const [giftResult, setGiftResult] = useState(null);
+  const canvasRef = useRef(null);
 
   const isBirthday = Boolean(user?.isBirthday);
   const userName = user?.name || 'Friend';
   const agentName = user?.agentConfig?.name || 'Flow';
 
+  // 1. Spoken Birthday Greeting from Flow / JARVIS
   useEffect(() => {
     if (isBirthday && !dismissed && window.speechSynthesis && user?.agentConfig?.voiceEnabled !== false) {
       try {
-        const text = `Happy Birthday ${userName}! Wishing you health, wealth, and dream clients from all of us at ClientFlow AI.`;
+        const text = `Good morning ${userName}. Before we look at business today... happy birthday from all of us. I've unlocked your birthday gift in your workspace today!`;
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-IN';
         utterance.rate = 1.0;
+        utterance.pitch = 1.0;
         window.speechSynthesis.speak(utterance);
       } catch {}
     }
   }, [isBirthday, userName]);
+
+  // 2. 60 FPS Golden Stardust Canvas Particle System (Apple / Spotify Caliber)
+  useEffect(() => {
+    if (!isBirthday || dismissed) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    let width = (canvas.width = canvas.offsetWidth);
+    let height = (canvas.height = canvas.offsetHeight);
+
+    const particles = Array.from({ length: 45 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 2.2 + 0.8,
+      speedY: Math.random() * 0.7 + 0.3,
+      speedX: (Math.random() - 0.5) * 0.4,
+      opacity: Math.random() * 0.7 + 0.3,
+      pulse: Math.random() * 0.03 + 0.01
+    }));
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach((p) => {
+        p.y -= p.speedY;
+        p.x += p.speedX;
+        p.opacity += Math.sin(Date.now() * p.pulse) * 0.01;
+
+        if (p.y < 0) {
+          p.y = height;
+          p.x = Math.random() * width;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(251, 191, 36, ${Math.max(0.1, Math.min(0.9, p.opacity))})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#f59e0b';
+        ctx.fill();
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [isBirthday, dismissed]);
 
   if (!isBirthday || dismissed) return null;
 
@@ -36,7 +99,7 @@ export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
       }
     } catch (err) {
       setGiftResult({
-        message: err.response?.data?.message || '🎉 Happy Birthday! Enjoy your special day with ClientFlow AI.'
+        message: err.response?.data?.message || '🎉 Happy Birthday! Enjoy your special celebration with ClientFlow AI.'
       });
     } finally {
       setIsOpening(false);
@@ -44,63 +107,83 @@ export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
   };
 
   return (
-    <div className="relative mb-6 overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-purple-950/40 to-slate-950 p-6 shadow-2xl backdrop-blur-2xl animate-fade-in">
-      {/* Golden celebratory shimmer lines */}
-      <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
-      <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+    <div className="relative mb-8 overflow-hidden rounded-3xl border border-amber-500/40 bg-gradient-to-br from-slate-950 via-amber-950/20 to-black p-6 sm:p-8 shadow-[0_20px_60px_rgba(245,158,11,0.15)] backdrop-blur-3xl animate-fade-in">
+      
+      {/* 60 FPS Golden Stardust Canvas Background */}
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-70"
+      />
 
-      {/* Dismiss button */}
-      <button
-        type="button"
-        onClick={() => setDismissed(true)}
-        className="absolute top-4 right-4 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-slate-400 hover:text-white hover:bg-white/10 transition"
-        title="Dismiss celebration"
-      >
-        ✕ Standard view
-      </button>
+      {/* Radial Specular Lighting */}
+      <div className="pointer-events-none absolute -top-32 left-1/3 h-64 w-96 rounded-full bg-gradient-to-r from-amber-500/20 via-pink-500/10 to-purple-600/15 blur-3xl" />
 
-      <div className="relative z-10 flex flex-col items-center text-center sm:flex-row sm:text-left sm:justify-between sm:gap-6">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3.5 py-1 text-xs font-black text-amber-300">
-            <span>🎂</span>
-            <span>TODAY IS YOUR SPECIAL DAY</span>
-          </div>
+      {/* Top Controls: Dismiss anytime */}
+      <div className="relative z-10 flex items-center justify-between pb-3">
+        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/10 px-3.5 py-1 text-xs font-black uppercase tracking-widest text-amber-300 shadow-sm">
+          <span className="animate-spin">✨</span>
+          <span>A SPECIAL DAY IN YOUR STUDIO</span>
+        </div>
 
-          <h2 className="mt-3 text-2xl font-black text-white sm:text-3xl">
-            🎉 Happy Birthday, <span className="bg-gradient-to-r from-amber-300 via-pink-400 to-purple-400 bg-clip-text text-transparent">{userName}</span>!
+        <button
+          type="button"
+          onClick={() => setDismissed(true)}
+          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:bg-white/10 hover:text-white"
+          title="Return to standard view"
+        >
+          ✕ Standard view
+        </button>
+      </div>
+
+      <div className="relative z-10 mt-4 flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
+        <div className="max-w-xl">
+          <h2 className="text-3xl font-black text-white sm:text-4xl tracking-tight">
+            🎉 Happy Birthday,{' '}
+            <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
+              {userName}
+            </span>!
           </h2>
 
-          <p className="mt-1.5 max-w-xl text-sm text-slate-300">
-            Your entire workspace is celebrating you today. {agentName} prepared a personal gift to celebrate your journey and help you scale your freelance business!
+          <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base font-normal">
+            Your entire workspace is celebrating you today. {agentName} prepared a personal gift to celebrate your journey and help you scale your freelance studio.
+          </p>
+
+          <p className="mt-2 text-xs font-semibold text-amber-300/80">
+            ⭐ Exclusive Founder Unlock • Available Today Only
           </p>
         </div>
 
-        {/* 🎁 The Interactive Unboxing Gift Box */}
-        <div className="mt-5 shrink-0 sm:mt-0">
+        {/* 🎁 3D Metallic Holographic Gift Box */}
+        <div className="shrink-0">
           {!giftClaimed ? (
             <button
               type="button"
               onClick={handleOpenGift}
               disabled={isOpening}
-              className="group relative flex flex-col items-center justify-center rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-500/20 to-purple-600/20 p-5 shadow-xl transition-all duration-300 hover:scale-105 hover:border-amber-300 hover:shadow-amber-500/20"
+              className="group relative flex flex-col items-center justify-center rounded-3xl border border-amber-400/50 bg-gradient-to-b from-amber-500/20 via-slate-900 to-black p-6 shadow-[0_10px_30px_rgba(245,158,11,0.25)] transition-all duration-300 hover:scale-110 hover:border-amber-300 active:scale-95"
             >
-              <span className="text-4xl animate-bounce">🎁</span>
-              <span className="mt-2 text-xs font-black tracking-wide text-amber-200 group-hover:text-amber-100">
+              {/* Outer Glow Halo */}
+              <span className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-amber-400/30 to-purple-500/30 blur-lg transition group-hover:opacity-100 opacity-60" />
+
+              <span className="relative text-5xl transition-transform duration-300 group-hover:scale-110 animate-bounce">
+                🎁
+              </span>
+              <span className="relative mt-3 text-xs font-black uppercase tracking-wider text-amber-200 group-hover:text-white">
                 {isOpening ? 'Unboxing...' : 'Tap to Open Gift'}
               </span>
             </button>
           ) : (
-            <div className="rounded-2xl border border-emerald-400/40 bg-emerald-950/50 p-4 text-center">
-              <span className="text-3xl">✨ 👑 ✨</span>
-              <p className="mt-1 text-xs font-black text-emerald-300">GIFT UNLOCKED!</p>
-              <p className="text-[11px] text-slate-300">14 Days of Pro Access Active</p>
+            <div className="rounded-3xl border border-emerald-400/50 bg-gradient-to-b from-emerald-950/80 to-slate-950 p-6 text-center shadow-xl shadow-emerald-500/10">
+              <span className="text-4xl animate-pulse">👑</span>
+              <p className="mt-2 text-xs font-black tracking-widest text-emerald-300 uppercase">GIFT ACTIVE</p>
+              <p className="mt-1 text-xs font-semibold text-slate-200">14 Days of Pro Access Unlocked</p>
             </div>
           )}
         </div>
       </div>
 
       {giftResult && (
-        <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-950/30 p-3 text-center text-xs font-bold text-emerald-300">
+        <div className="relative z-10 mt-5 rounded-2xl border border-emerald-400/30 bg-emerald-950/60 p-4 text-center text-xs font-bold text-emerald-300 backdrop-blur-md animate-fade-in">
           {giftResult.message}
         </div>
       )}

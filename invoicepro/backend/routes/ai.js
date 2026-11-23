@@ -2533,6 +2533,41 @@ router.post('/quick-invoice', protect, async(req, res) => {
     }
 });
 
+const callAiJarvisResponse = async ({ message, user, agentName, contextSummary }) => {
+    const prompt = `You are ${agentName}, an elite, highly articulate, loyal, and charming AI Chief of Staff (inspired by JARVIS from Iron Man and Claude) for a creative freelancer named ${user.name || 'there'} inside their ClientFlow AI studio.
+Your personality: Calm, witty, supportive, confident, and professional.
+Tone rules:
+- Speak in smooth, natural, spoken-ready English (1-3 sentences max).
+- If the user says "hi", "hello", "how are you", or small talk, respond warmly and personally. DO NOT dump invoices or database statistics unless specifically asked.
+- If the user mentions feeling tired or stressed, be empathetic and supportive.
+- Business context (for reference only, do not repeat unless relevant to user's question): User has ${contextSummary.pending} pending invoices and monthly goal of ${contextSummary.goal}.
+
+User says: "${message}"
+
+Your reply as ${agentName}:`;
+
+    try {
+        const res = await callAiText({ prompt, timeout: 8000, maxTokens: 150 });
+        if (res && res.text) {
+            return res.text.replace(/^(flow|jarvis|chief|aria):\s*/i, '').trim();
+        }
+    } catch (e) {
+        console.warn('JARVIS AI text fallback:', e.message);
+    }
+
+    const cleanMsg = String(message).toLowerCase().trim();
+    if (/\b(hi|hello|hey|greetings|morning|evening|afternoon)\b/.test(cleanMsg)) {
+        return `Hello ${user.name || 'there'}. All systems are running smoothly in the studio. What are we working on today?`;
+    }
+    if (/\b(who are you|what are you|what can you do)\b/.test(cleanMsg)) {
+        return `I am ${agentName}, your personal AI Chief of Staff. You can talk to me to bill clients, track late payments, set revenue goals, or brainstorm. What do you need?`;
+    }
+    if (/\b(how are you|how is it going|how r u)\b/.test(cleanMsg)) {
+        return `Operating at peak efficiency, ${user.name || 'sir'}. Ready whenever you want to create an invoice or check on your cash flow.`;
+    }
+    return `Right with you, ${user.name || 'there'}. How can I assist your business today?`;
+};
+
 router.post('/agent', protect, requirePro, async(req, res) => {
     const message = String(req.body?.message || '').trim();
     const context = req.body?.context || {};
@@ -2632,7 +2667,15 @@ router.post('/agent', protect, requirePro, async(req, res) => {
                 reply = `Great news! You have no overdue invoices right now.`;
             }
         } else {
-            reply = `You have ${statusSummary.pending} pending invoice${statusSummary.pending === 1 ? '' : 's'} (${formatCurrency(statusSummary.pendingAmount)}) and ${statusSummary.paid} paid (${formatCurrency(statusSummary.paidAmount)}).`;
+            reply = await callAiJarvisResponse({
+                message,
+                user: req.user,
+                agentName,
+                contextSummary: {
+                    pending: statusSummary.pending,
+                    goal: monthlyGoal > 0 ? formatCurrency(monthlyGoal) : 'not set'
+                }
+            });
         }
 
         res.json({
