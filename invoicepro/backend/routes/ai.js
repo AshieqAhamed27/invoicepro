@@ -815,6 +815,85 @@ const detectAgentIntent = (message) => {
     return 'assistant';
 };
 
+const detectNavigationRoute = (message) => {
+    const text = String(message || '').toLowerCase().trim();
+    const hasNavVerb = /\b(move|go|navigate|open|take me|show|redirect|load|open pannu|po|thira|kootitu po|jao|kholo|chalo)\b/i.test(text);
+
+    // 1. AI Proposal Writer
+    if (
+        (/\b(proposal|proposals|pitch|bid)\b/i.test(text) && (hasNavVerb || /\b(page|writer|tool|screen|tab)\b/i.test(text))) ||
+        /\b(ai proposal|proposal page|proposal writer)\b/i.test(text)
+    ) {
+        return { path: '/proposal-writer', label: 'AI Proposal Writer' };
+    }
+
+    // 2. Client Finder / Leads Radar
+    if (
+        (/\b(client finder|find client|lead radar|prospects)\b/i.test(text) && hasNavVerb) ||
+        /\b(client finder page|leads page|client radar)\b/i.test(text)
+    ) {
+        return { path: '/client-finder', label: 'Client Finder' };
+    }
+
+    // 3. Create Invoice / Billing
+    if (
+        (/\b(create invoice|new invoice|invoice maker|billing)\b/i.test(text) && hasNavVerb) ||
+        /\b(invoice page|create invoice page)\b/i.test(text)
+    ) {
+        return { path: '/create-invoice', label: 'Create Invoice' };
+    }
+
+    // 4. Settings
+    if (
+        (/\b(settings|profile|account|preferences)\b/i.test(text) && hasNavVerb) ||
+        /\b(settings page|profile page)\b/i.test(text)
+    ) {
+        return { path: '/settings', label: 'Settings' };
+    }
+
+    // 5. Payments
+    if (
+        (/\b(payments|payment links|razorpay|upi)\b/i.test(text) && hasNavVerb) ||
+        /\b(payments page|payment links page)\b/i.test(text)
+    ) {
+        return { path: '/payments', label: 'Payments' };
+    }
+
+    // 6. Clients / CRM
+    if (
+        (/\b(clients|client list|crm)\b/i.test(text) && hasNavVerb) ||
+        /\b(clients page|client list page)\b/i.test(text)
+    ) {
+        return { path: '/clients', label: 'Clients' };
+    }
+
+    // 7. Profit Tracker / Analytics
+    if (
+        (/\b(profit|profits|profit tracker|analytics)\b/i.test(text) && hasNavVerb) ||
+        /\b(profit page|analytics page)\b/i.test(text)
+    ) {
+        return { path: '/profit-tracker', label: 'Profit Tracker' };
+    }
+
+    // 8. Recurring Billing
+    if (
+        (/\b(recurring|retainer|retainers)\b/i.test(text) && hasNavVerb) ||
+        /\b(recurring page|retainer page)\b/i.test(text)
+    ) {
+        return { path: '/recurring', label: 'Recurring Retainers' };
+    }
+
+    // 9. Dashboard / Home
+    if (
+        (/\b(dashboard|home|client flow)\b/i.test(text) && hasNavVerb) ||
+        /\b(dashboard page|home page)\b/i.test(text)
+    ) {
+        return { path: '/client-flow', label: 'Dashboard' };
+    }
+
+    return null;
+};
+
 const extractJsonObject = (text) => {
     const raw = String(text || '').trim();
     if (!raw) return null;
@@ -2757,7 +2836,22 @@ router.post('/agent', protect, requirePro, async(req, res) => {
         let reply = '';
         let action = null;
 
-        if (draft) {
+        const navRoute = detectNavigationRoute(message);
+
+        if (navRoute) {
+            action = {
+                type: 'NAVIGATE',
+                path: navRoute.path,
+                label: navRoute.label
+            };
+            if (isTanglish) {
+                reply = `${navRoute.label} page-ku redirect panren Ashieq!`;
+            } else if (isTamil) {
+                reply = `உடனடியாக ${navRoute.label} பக்கத்திற்கு செல்கிறேன்.`;
+            } else {
+                reply = `Navigating to ${navRoute.label} now, ${req.user.name || 'sir'}.`;
+            }
+        } else if (draft) {
             action = { type: 'STAGE_INVOICE_DRAFT', draft };
             if (isTanglish) {
                 reply = `${draft.clientName || 'Client'} ku ₹${Number(draft.amount || 0).toLocaleString('en-IN')} draft ready panniten! Keela irukura details check pannitu confirm pannunga.`;

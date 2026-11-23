@@ -337,12 +337,15 @@ export default function FlowAgentBar({
         onHighlightOverdue(data.action.overdueIds || []);
       }
 
-      // B. Screen Manipulation: Navigate to Workspace Tool (e.g. Client Finder)
-      if (data.action?.type === 'NAVIGATE' && onNavigate && data.action.path) {
-        // Allow brief moment for user to see telemetry, then launch
+      // B. Screen Manipulation: Navigate to Workspace Tool (e.g. AI Proposal Writer, Client Finder)
+      if (data.action?.type === 'NAVIGATE' && data.action.path) {
         setTimeout(() => {
-          onNavigate(data.action.path);
-        }, 1200);
+          if (onNavigate) {
+            onNavigate(data.action.path);
+          } else {
+            window.location.href = data.action.path;
+          }
+        }, 300);
       }
 
       // C. Screen Manipulation: Stage Invoice Draft for Explicit Approval
