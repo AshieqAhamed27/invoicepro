@@ -8,16 +8,16 @@ const SUPPORTED_LANGUAGES = [
     id: 'en',
     name: 'English',
     flag: '🇬🇧',
-    badge: 'Standard',
-    subtext: 'Global JARVIS persona',
+    badge: 'JARVIS OS',
+    subtext: 'Global executive intelligence',
     speechLang: 'en-IN',
-    previewText: 'Language set to English. Ready for your command.',
-    placeholder: 'Speak or type: e.g. "Hi", "Bill Vikram ₹20k", "Who owes me?"',
+    previewText: 'JARVIS online. Standing by for workspace command.',
+    placeholder: 'Command JARVIS or speak: "Bill Vikram ₹20k", "Who owes me?", "Find clients"...',
     chips: [
-      { label: '👋 "Hi Flow"', cmd: 'Hi' },
       { label: '📄 "Bill Vikram ₹20k"', cmd: 'Bill Vikram ₹20,000 for website design with 18% GST due in 7 days' },
-      { label: '⏰ "Who owes me?"', cmd: 'Who owes me money?' },
-      { label: '🎯 "Goal progress"', cmd: 'How is my monthly revenue goal?' }
+      { label: '⏰ "Who owes me?"', cmd: 'Who owes me money? Highlight overdue accounts' },
+      { label: '👥 "Find first client"', cmd: 'How to get my first client? Open client radar' },
+      { label: '🎯 "Goal progress"', cmd: 'How is my monthly revenue goal progress?' }
     ]
   },
   {
@@ -25,15 +25,15 @@ const SUPPORTED_LANGUAGES = [
     name: 'Tanglish',
     flag: '🇮🇳',
     badge: 'தமிழ் + Eng',
-    subtext: 'Tamil written in English',
+    subtext: 'Tamil spoken in English letters',
     speechLang: 'en-IN',
-    previewText: 'Language set to Tanglish! Vanakkam nanba, innaiku yaaru ku bill ready pannanum?',
-    placeholder: 'Tanglish-la sollunga: "Vanakkam", "Vikram ku ₹20k bill podu", "Yaaru kaasu tharanum?"',
+    previewText: 'Vanakkam Ashieq! All systems peak efficiency-la iruku. Next enna execute pannanum?',
+    placeholder: 'Tanglish-la sollunga: "Vikram ku ₹20k bill podu", "Yaaru kaasu tharanum?"...',
     chips: [
       { label: '👋 "Vanakkam Flow"', cmd: 'Vanakkam Flow' },
       { label: '📄 "Vikram ku ₹20k bill podu"', cmd: 'Vikram ku ₹20,000 website design-ku 18% GST oda invoice podu' },
-      { label: '⏰ "Yaaru kaasu tharanum?"', cmd: 'Yaaru kaasu tharanum? Overdue bills evlo?' },
-      { label: '🎯 "Goal status enna?"', cmd: 'Monthly revenue goal status enna?' }
+      { label: '⏰ "Yaaru kaasu tharanum?"', cmd: 'Yaaru kaasu tharanum? Overdue bills highlight pannu' },
+      { label: '👥 "Client eduka radar"', cmd: 'How to get my first client? Client finder radar open pannu' }
     ]
   },
   {
@@ -41,15 +41,15 @@ const SUPPORTED_LANGUAGES = [
     name: 'தமிழ் (Tamil)',
     flag: '🇮🇳',
     badge: 'தமிழ்',
-    subtext: 'தூய தமிழ் வடிவம்',
+    subtext: 'தூய தமிழ் இயக்க முறைமை',
     speechLang: 'ta-IN',
-    previewText: 'மொழி தமிழுக்கு மாற்றப்பட்டது. வணக்கம்! இன்று என்ன செய்ய வேண்டும்?',
-    placeholder: 'தமிழில் பேசுங்கள்: "வணக்கம்", "விக்ரமுக்கு பில் போடு", "பாக்கி பணம் எவ்வளவு?"',
+    previewText: 'வணக்கம்! ஸ்டுடியோ செயல்பாடுகள் தயார் நிலையில் உள்ளன. என்ன செய்ய வேண்டும்?',
+    placeholder: 'கட்டளையிடுங்கள்: "விக்ரமுக்கு பில் போடு", "பாக்கி பணம் எவ்வளவு?"...',
     chips: [
       { label: '👋 "வணக்கம் Flow"', cmd: 'வணக்கம் Flow' },
       { label: '📄 "விக்ரமுக்கு ₹20k பில்"', cmd: 'விக்ரமுக்கு ₹20,000 வலைத்தள வடிவமைப்புக்காக 18% GST உடன் ரசீது உருவாக்கு' },
-      { label: '⏰ "பாக்கி பணம் எவ்வளவு?"', cmd: 'யாருடைய பணம் பாக்கி உள்ளது?' },
-      { label: '🎯 "இலக்கு நிலை என்ன?"', cmd: 'எனது மாத வருவாய் இலக்கு நிலை என்ன?' }
+      { label: '⏰ "பாக்கி பணம் எவ்வளவு?"', cmd: 'யாருடைய பணம் பாக்கி உள்ளது? லெட்ஜரில் காட்டு' },
+      { label: '👥 "வாடிக்கையாளர் தேடு"', cmd: 'புதிய வாடிக்கையாளர்களைத் தேட Client Finder திறக்கவும்' }
     ]
   },
   {
@@ -57,19 +57,61 @@ const SUPPORTED_LANGUAGES = [
     name: 'हिंदी (Hindi)',
     flag: '🇮🇳',
     badge: 'हिंदी',
+    subtext: 'स्मार्ट ऑपरेटिंग असिस्टेंट',
     speechLang: 'hi-IN',
-    previewText: 'भाषा हिंदी चुनी गई है। नमस्ते! आज क्या काम करना है?',
-    placeholder: 'हिंदी में बोलें या लिखें: "नमस्ते", "Vikram ko bill banao", "Kiska baki hai?"',
+    previewText: 'नमस्ते! सभी सिस्टम ऑनलाइन हैं। आज क्या काम करना है?',
+    placeholder: 'कमांड दें या बोलें: "Vikram ko bill banao", "Kiska baki hai?"...',
     chips: [
       { label: '👋 "नमस्ते Flow"', cmd: 'नमस्ते Flow' },
       { label: '📄 "Vikram ko ₹20k bill"', cmd: 'Vikram ko ₹20,000 website design ke liye 18% GST ke sath bill banao' },
       { label: '⏰ "Kiska baki hai?"', cmd: 'Kiska payment baki hai? Overdue invoices dikhao' },
-      { label: '🎯 "Goal status kya hai?"', cmd: 'Mera monthly revenue goal status kya hai?' }
+      { label: '👥 "Client dhoondo"', cmd: 'Naye clients dhoondne ke liye Client Finder open karo' }
     ]
   }
 ];
 
-export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) {
+// Pure Web Audio synthesized sound feedback (zero latency, zero MP3 assets)
+const playAudioChime = (type = 'listen') => {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+
+    if (type === 'listen') {
+      // Soft high-tech ping
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(840, now + 0.12);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.start(now);
+      osc.stop(now + 0.26);
+    } else if (type === 'affirm') {
+      // Metallic affirmative authorization chime
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.setValueAtTime(660, now + 0.08);
+      osc.frequency.setValueAtTime(880, now + 0.16);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    }
+  } catch {}
+};
+
+export default function FlowAgentBar({
+  user,
+  onInvoiceCreated,
+  onGoalUpdated,
+  onHighlightOverdue,
+  onNavigate
+}) {
   const agentName = user?.agentConfig?.name || 'Flow';
   const voiceEnabled = user?.agentConfig?.voiceEnabled !== false;
 
@@ -78,9 +120,10 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
-  const [conversation, setConversation] = useState([]);
+
+  // Active HUD Telemetry State (Zero Chatbot History container)
+  const [activeTelemetry, setActiveTelemetry] = useState(null);
   const [activeDraft, setActiveDraft] = useState(null);
-  const [activeOverdues, setActiveOverdues] = useState(null);
   const [createdInvoice, setCreatedInvoice] = useState(null);
   const [draftActionLoading, setDraftActionLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -93,8 +136,6 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
   const [availableVoices, setAvailableVoices] = useState([]);
 
   const recognitionRef = useRef(null);
-  const chatScrollRef = useRef(null);
-  const messagesEndRef = useRef(null);
   const langPickerRef = useRef(null);
 
   const activeLang = SUPPORTED_LANGUAGES.find((l) => l.id === selectedLangId) || SUPPORTED_LANGUAGES[0];
@@ -121,7 +162,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
     };
   }, []);
 
-  // Close dropdown on outside click
+  // 2. Dismiss language dropdown on outside click
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (langPickerRef.current && !langPickerRef.current.contains(e.target)) {
@@ -136,7 +177,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
     };
   }, [showLangPicker]);
 
-  // 2. Initialize Web Speech Recognition with dynamic language
+  // 3. Initialize Web Speech Recognition
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -146,27 +187,23 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
       recognition.interimResults = false;
       recognition.lang = activeLang.speechLang || 'en-IN';
 
-      recognition.onstart = () => setIsListening(true);
+      recognition.onstart = () => {
+        setIsListening(true);
+        playAudioChime('listen');
+      };
       recognition.onend = () => setIsListening(false);
       recognition.onerror = () => setIsListening(false);
       recognition.onresult = (event) => {
         const transcript = event.results?.[0]?.[0]?.transcript || '';
         if (transcript.trim()) {
           setInput(transcript);
-          handleSendCommand(transcript, { isVoiceInput: true });
+          handleExecuteCommand(transcript, { isVoiceInput: true });
         }
       };
 
       recognitionRef.current = recognition;
     }
   }, [activeLang.speechLang]);
-
-  // 3. Smooth Chat Auto-Scroll
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [conversation, loading]);
 
   const stopSpeaking = () => {
     if (window.speechSynthesis) {
@@ -195,14 +232,14 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
                       voices.find((v) => v.lang === 'en-IN');
         utterance.lang = chosenVoice ? chosenVoice.lang : 'hi-IN';
       } else if (langId === 'tanglish') {
-        // Indian English voice speaks Tanglish authentically!
+        // Indian English voice articulates Tanglish natively!
         chosenVoice = voices.find((v) => v.lang === 'en-IN') ||
                       voices.find((v) => /india|hindi|tamil/i.test(v.name)) ||
                       voices.find((v) => v.lang.startsWith('en')) ||
                       voices[0];
         utterance.lang = chosenVoice ? chosenVoice.lang : 'en-IN';
       } else {
-        // Clean single English voice (UK / US natural)
+        // Clean single English global voice
         chosenVoice =
           voices.find((v) => /google uk english male|george|daniel|ryan|oliver/i.test(v.name)) ||
           voices.find((v) => v.lang === 'en-GB') ||
@@ -216,7 +253,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
         utterance.voice = chosenVoice;
       }
 
-      utterance.rate = 1.0;
+      utterance.rate = 1.02;
       utterance.pitch = 1.0;
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
@@ -236,7 +273,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
       recognitionRef.current.lang = lang.speechLang;
     }
 
-    // Play pleasant voice preview in chosen language
+    // Play instant voice acknowledgment in chosen dialect
     speakAloud(lang.previewText, lang.id);
 
     try {
@@ -251,90 +288,87 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
 
   const toggleListening = () => {
     stopSpeaking();
-
-    if (!recognitionRef.current) {
-      setErrorMsg('Voice input is not supported in this browser. You can type commands below.');
-      return;
-    }
-    setErrorMsg('');
     if (isListening) {
-      recognitionRef.current.stop();
+      if (recognitionRef.current) recognitionRef.current.stop();
+      setIsListening(false);
     } else {
-      try {
-        recognitionRef.current.start();
-      } catch {
-        recognitionRef.current.stop();
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+        } catch {
+          setIsListening(false);
+        }
       }
     }
   };
 
-  const handleSendCommand = async (textToSend, { isVoiceInput = false } = {}) => {
-    const query = (textToSend || input).trim();
+  // ─── 4. EXECUTE COMMAND & DRIVE THE SCREEN ───
+  const handleExecuteCommand = async (textToRun, { isVoiceInput = false } = {}) => {
+    const query = (textToRun || input).trim();
     if (!query) return;
 
     stopSpeaking();
-
-    const userMsg = {
-      role: 'user',
-      text: query,
-      time: new Date(),
-      isVoice: isVoiceInput
-    };
-
-    setConversation((prev) => [...prev.slice(-30), userMsg]);
     setInput('');
     setLoading(true);
     setErrorMsg('');
     setCreatedInvoice(null);
 
     try {
-      const historyPayload = conversation.slice(-6).map((c) => ({
-        role: c.role,
-        text: c.text
-      }));
-
       const res = await api.post('/ai/agent', {
         message: query,
-        history: historyPayload,
         languageMode: activeLang.id
       });
       const data = res.data;
 
-      const assistantMsg = {
-        role: 'assistant',
-        text: data.reply || `I'm on it.`,
+      const telemetryResult = {
+        query,
+        reply: data.reply || 'Command processed.',
+        isVoice: isVoiceInput,
+        action: data.action || null,
         draft: data.draft || null,
         totals: data.totals || null,
-        overdueInvoices: data.overdueInvoices || null,
-        time: new Date()
+        timestamp: new Date()
       };
 
-      setConversation((prev) => [...prev.slice(-30), assistantMsg]);
+      setActiveTelemetry(telemetryResult);
 
+      // A. Screen Manipulation: Highlight Overdue Invoices in Ledger
+      if (data.action?.type === 'HIGHLIGHT_OVERDUE' && onHighlightOverdue) {
+        onHighlightOverdue(data.action.overdueIds || []);
+      }
+
+      // B. Screen Manipulation: Navigate to Workspace Tool (e.g. Client Finder)
+      if (data.action?.type === 'NAVIGATE' && onNavigate && data.action.path) {
+        // Allow brief moment for user to see telemetry, then launch
+        setTimeout(() => {
+          onNavigate(data.action.path);
+        }, 1200);
+      }
+
+      // C. Screen Manipulation: Stage Invoice Draft for Explicit Approval
       if (data.draft) {
         setActiveDraft({ ...data.draft, totals: data.totals });
       } else {
         setActiveDraft(null);
       }
 
-      if (data.overdueInvoices && data.overdueInvoices.length > 0) {
-        setActiveOverdues(data.overdueInvoices);
-      }
-
-      if (data.reply && isVoiceInput) {
-        speakAloud(data.reply, activeLang.id);
-      }
-
+      // D. Screen Manipulation: Update Revenue Goal
       if (data.goalData && onGoalUpdated) {
         onGoalUpdated(data.goalData);
       }
+
+      // E. Strict Modality: Speak back aloud ONLY if spoken via microphone
+      if (isVoiceInput && data.reply) {
+        speakAloud(data.reply, activeLang.id);
+      }
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Unable to connect to assistant.');
+      setErrorMsg(err.response?.data?.message || 'Unable to execute command.');
     } finally {
       setLoading(false);
     }
   };
 
+  // ─── 5. 100% USER PERMISSION: CONFIRM & CREATE INVOICE ───
   const handleConfirmCreateInvoice = async () => {
     if (!activeDraft) return;
 
@@ -353,27 +387,33 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
           { name: activeDraft.serviceDescription || 'Professional Service', price: activeDraft.amount || 0 }
         ],
         dueDate: activeDraft.dueDate || null,
-        notes: activeDraft.notes || `Created via ${agentName} AI Co-Pilot`
+        notes: activeDraft.notes || `Authorized via ${agentName} JARVIS Controller`
       };
 
       const res = await api.post('/invoices', payload);
       const newInv = res.data?.invoice;
+      playAudioChime('affirm');
+
       setCreatedInvoice(newInv);
       setActiveDraft(null);
 
       const successReply = activeLang.id === 'tanglish'
-        ? `Invoice #${newInv?.invoiceNumber || ''} (${newInv?.clientName || 'client'}) create panniten! WhatsApp la share panna ready.`
+        ? `Invoice #${newInv?.invoiceNumber || ''} (${newInv?.clientName || 'client'}) ledger-la create aayidichu! WhatsApp link ready.`
         : activeLang.id === 'ta'
-          ? `ரசீது #${newInv?.invoiceNumber || ''} வெற்றிகரமாக உருவாக்கப்பட்டது! பகிர தயாராக உள்ளது.`
-          : `Confirmed! Invoice #${newInv?.invoiceNumber || ''} for ${newInv?.clientName || 'client'} has been generated. Ready to share!`;
+          ? `ரசீது #${newInv?.invoiceNumber || ''} உறுதிசெய்யப்பட்டு உருவாக்கப்பட்டது! பகிரலாம்.`
+          : `Confirmed. Invoice #${newInv?.invoiceNumber || ''} for ${newInv?.clientName || 'client'} has been recorded. Direct link ready.`;
 
-      setConversation((prev) => [
-        ...prev,
-        { role: 'assistant', text: successReply, isSuccess: true, time: new Date() }
-      ]);
+      setActiveTelemetry({
+        query: 'Invoice Authorization',
+        reply: successReply,
+        isVoice: false,
+        action: { type: 'INVOICE_CREATED', invoice: newInv },
+        timestamp: new Date()
+      });
+
       if (onInvoiceCreated) onInvoiceCreated(newInv);
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Failed to create invoice.');
+      setErrorMsg(err.response?.data?.message || 'Failed to authorize invoice creation.');
     } finally {
       setDraftActionLoading(false);
     }
@@ -388,27 +428,36 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
+  const scrollToLedger = () => {
+    const el = document.getElementById('cash-recovery-center');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="w-full mb-6 sm:mb-8">
-      {/* ─── DYNAMIC COMMAND CAPSULE (World-Class Clean Alignment) ─── */}
-      <div className="relative rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl p-4 sm:p-5 shadow-lg dark:shadow-[0_16px_48px_rgba(0,0,0,0.65)] transition-all">
+      {/* ─── JARVIS DYNAMIC OPERATING HUD CAPSULE ─── */}
+      <div className="relative rounded-3xl border border-slate-200/90 dark:border-cyan-500/30 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl p-4 sm:p-5 shadow-lg dark:shadow-[0_16px_56px_rgba(6,182,212,0.18)] transition-all">
         
-        {/* ─── 1. TOP HEADER ROW: Assistant Identity, Live Status & Multi-Language Dropdown ─── */}
+        {/* ─── 1. HUD HEADER: Identity, Arc Reactor Status & Curated Language ─── */}
         <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-slate-100 dark:border-white/[0.08]">
           
-          {/* Left: Living Orb + Name + Status */}
+          {/* Left: Living Arc Reactor Orb + System Callout */}
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={toggleListening}
-              className={`group relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl border transition hover:scale-105 active:scale-95 focus:outline-none shrink-0 ${
+              className={`group relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl border transition-all hover:scale-105 active:scale-95 focus:outline-none shrink-0 ${
                 isListening
-                  ? 'border-red-400 bg-red-500/10 text-red-500 shadow-md shadow-red-500/20'
+                  ? 'border-red-400 bg-red-500/15 text-red-500 shadow-lg shadow-red-500/30 animate-pulse'
                   : isSpeaking
-                    ? 'border-cyan-400 bg-cyan-500/10 text-cyan-500 shadow-md shadow-cyan-500/20'
-                    : 'border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-slate-900 text-indigo-600 dark:text-cyan-400'
+                    ? 'border-cyan-400 bg-cyan-500/15 text-cyan-400 shadow-lg shadow-cyan-500/30 animate-pulse'
+                    : loading
+                      ? 'border-indigo-400 bg-indigo-500/15 text-indigo-400 shadow-lg shadow-indigo-500/30'
+                      : 'border-slate-200 dark:border-cyan-500/30 bg-slate-100 dark:bg-cyan-950/20 text-indigo-600 dark:text-cyan-400'
               }`}
-              title={isListening ? 'Listening... Tap to stop' : `Talk to ${agentName}`}
+              title={isListening ? 'Listening... Tap to stop' : `Voice Command (${agentName})`}
             >
               <div className="flex items-center justify-center gap-1">
                 <span className={`w-1 rounded-full bg-current transition-all ${isListening || isSpeaking ? 'h-5 animate-pulse' : 'h-3'}`} />
@@ -419,44 +468,46 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
 
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-xs sm:text-sm font-black tracking-wide text-slate-900 dark:text-white uppercase leading-none">
-                  {agentName}
+                <h3 className="text-xs sm:text-sm font-black tracking-wider text-slate-900 dark:text-white uppercase leading-none">
+                  {agentName} <span className="text-[10px] text-cyan-500 font-mono">v2.5</span>
                 </h3>
                 <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border transition ${
                   isListening
                     ? 'bg-red-500/15 text-red-600 dark:text-red-300 border-red-500/30 animate-pulse'
                     : isSpeaking
                       ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-300 border-cyan-500/30 animate-pulse'
-                      : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25'
+                      : loading
+                        ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border-indigo-500/30 animate-pulse'
+                        : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25'
                 }`}>
-                  {isListening ? 'Listening...' : isSpeaking ? 'Speaking...' : 'Ready'}
+                  {isListening ? 'Listening...' : isSpeaking ? 'Speaking...' : loading ? 'Executing...' : 'Online'}
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                AI Chief of Staff
+              <p className="text-[10px] sm:text-[11px] font-mono font-medium text-slate-500 dark:text-cyan-400/80 mt-0.5">
+                WORKSPACE CONTROLLER // OS HUD
               </p>
             </div>
           </div>
 
-          {/* Right: Curated Multi-Language Selector (Clean & Uncluttered) */}
+          {/* Right: Curated Multi-Language Selector (Clean, Uncluttered & Never Clips) */}
           <div className="relative shrink-0" ref={langPickerRef}>
             <button
               type="button"
               onClick={() => setShowLangPicker((p) => !p)}
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] px-2.5 sm:px-3 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition hover:border-indigo-400 dark:hover:border-cyan-400/50 hover:bg-slate-100 dark:hover:bg-white/[0.08]"
-              title="Select language (English, Tanglish, Tamil, Hindi)"
+              title="Select Language (English, Tanglish, Tamil, Hindi)"
             >
               <span>{activeLang.flag}</span>
               <span className="font-bold">{activeLang.name}</span>
               <span className="text-[9px] text-slate-400">▼</span>
             </button>
 
-            {/* Language Selector Popover */}
+            {/* Language Selector Popover (Right-aligned, never cut off) */}
             {showLangPicker && (
-              <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl border border-slate-200 dark:border-white/15 bg-white dark:bg-slate-950 p-3 shadow-2xl z-50 animate-fade-in">
+              <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl border border-slate-200 dark:border-cyan-500/30 bg-white dark:bg-slate-950 p-3 shadow-2xl z-50 animate-fade-in">
                 <div className="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-100 dark:border-white/10">
-                  <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">
-                    Select Language
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-cyan-300">
+                    Dialect & Persona
                   </span>
                   <button
                     type="button"
@@ -503,16 +554,16 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
           </div>
         </div>
 
-        {/* ─── 2. UNIFIED COMMAND CAPSULE (Input + Mic + Send Integrated) ─── */}
+        {/* ─── 2. COMMAND INPUT CAPSULE (Integrated Mic + Action Runner) ─── */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleSendCommand(input, { isVoiceInput: false });
+            handleExecuteCommand(input, { isVoiceInput: false });
           }}
-          className="mt-3.5 flex items-center rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/40 p-1.5 focus-within:border-indigo-500 dark:focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-indigo-500/15 dark:focus-within:ring-cyan-500/20 transition shadow-inner"
+          className="mt-3.5 flex items-center rounded-2xl border border-slate-200 dark:border-cyan-500/20 bg-slate-50 dark:bg-black/40 p-1.5 focus-within:border-indigo-500 dark:focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-indigo-500/15 dark:focus-within:ring-cyan-500/25 transition shadow-inner"
         >
           <span className="pl-3 pr-1 text-indigo-500 dark:text-cyan-400 shrink-0 text-sm">
-            ✨
+            ⚡
           </span>
 
           <input
@@ -547,8 +598,8 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
               type="submit"
               disabled={loading || !input.trim()}
               className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-cyan-500 dark:to-indigo-600 text-white shadow-md shadow-indigo-500/20 dark:shadow-cyan-500/25 transition hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
-              aria-label="Send query"
-              title="Send text"
+              aria-label="Execute command"
+              title="Execute"
             >
               {loading ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -561,16 +612,16 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
           </div>
         </form>
 
-        {/* ─── 3. QUICK COMMAND SUGGESTION CHIPS (Adapts to Active Language) ─── */}
+        {/* ─── 3. QUICK COMMAND TRIGGERS ─── */}
         <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
-          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">
-            Commands:
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-cyan-500/70 shrink-0 font-mono">
+            COMMANDS:
           </span>
           {activeLang.chips.map((chip, idx) => (
             <button
               key={idx}
               type="button"
-              onClick={() => handleSendCommand(chip.cmd, { isVoiceInput: false })}
+              onClick={() => handleExecuteCommand(chip.cmd, { isVoiceInput: false })}
               className="rounded-xl border border-slate-200 dark:border-white/5 bg-slate-100/70 dark:bg-white/[0.03] px-3 py-1 font-medium text-slate-700 dark:text-slate-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:border-cyan-400/40 dark:hover:bg-cyan-500/10 hover:text-indigo-700 dark:hover:text-cyan-200 transition shrink-0 whitespace-nowrap"
             >
               {chip.label}
@@ -579,93 +630,90 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
         </div>
       </div>
 
-      {/* ─── LIVE SCROLLABLE CONVERSATION STREAM ─── */}
-      {conversation.length > 0 && (
-        <div className="mt-3.5 rounded-3xl border border-slate-200 dark:border-white/[0.08] bg-white/95 dark:bg-slate-950/75 p-3.5 sm:p-5 shadow-xl backdrop-blur-xl animate-fade-in">
-          <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-slate-100 dark:border-white/[0.06] text-xs">
+      {/* ─── 4. LIVE JARVIS MISSION READOUT HUD (Zero Chat Log! Solid Obsidian + High Contrast) ─── */}
+      {activeTelemetry && (
+        <div className="mt-3.5 rounded-3xl border border-cyan-500/30 dark:border-cyan-500/40 bg-slate-900/98 dark:bg-slate-950 p-4 sm:p-5 shadow-2xl backdrop-blur-2xl animate-fade-in relative overflow-hidden">
+          {/* Subtle Cyber Grid Glow */}
+          <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-800 dark:border-white/[0.08] text-xs">
             <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Conversation History ({conversation.length})
+              <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-widest text-cyan-300">
+                JARVIS TELEMETRY // {activeTelemetry.isVoice ? 'VOICE COMMAND' : 'CONSOLE COMMAND'}
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                stopSpeaking();
-                setConversation([]);
-              }}
-              className="rounded-lg px-2 py-0.5 text-[10px] font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-white transition hover:bg-slate-100 dark:hover:bg-white/5"
-              title="Clear chat history"
-            >
-              Clear Chat
-            </button>
-          </div>
 
-          <div
-            ref={chatScrollRef}
-            className="max-h-64 sm:max-h-80 overflow-y-auto space-y-3 pr-1.5 scroll-smooth overscroll-contain"
-            style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'rgba(150,150,150,0.3) transparent'
-            }}
-          >
-            {conversation.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex items-start gap-3 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm transition-all animate-fade-in ${
-                  msg.role === 'user'
-                    ? 'bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 ml-3 sm:ml-12 shadow-sm'
-                    : 'bg-slate-900 dark:bg-slate-900 border border-slate-800 dark:border-slate-700 mr-3 sm:mr-12 shadow-lg'
-                }`}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (isSpeaking) {
+                    stopSpeaking();
+                  } else {
+                    speakAloud(activeTelemetry.reply, activeLang.id);
+                  }
+                }}
+                className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 transition flex items-center gap-1"
+                title={isSpeaking ? 'Mute voice' : 'Play audio'}
               >
-                <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl text-xs font-black ${
-                  msg.role === 'user'
-                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
-                    : 'bg-indigo-600 text-white'
-                }`}>
-                  {msg.role === 'user' ? (msg.isVoice ? '🎤' : 'You') : '⚡'}
-                </span>
+                <span>{isSpeaking ? '⏹️' : '🔊'}</span>
+                <span>{isSpeaking ? 'Mute' : 'Audio'}</span>
+              </button>
 
-                <div className="flex-1 min-w-0">
-                  <p className={`leading-relaxed break-words font-medium text-xs sm:text-sm ${
-                    msg.role === 'user'
-                      ? 'text-slate-900 dark:text-slate-100'
-                      : 'text-white'
-                  }`}>
-                    {msg.text}
-                  </p>
-                </div>
-
-                {msg.role === 'assistant' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isSpeaking) {
-                        stopSpeaking();
-                      } else {
-                        speakAloud(msg.text, activeLang.id);
-                      }
-                    }}
-                    className="shrink-0 rounded-xl p-2 text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 transition active:scale-95"
-                    title={isSpeaking ? 'Stop speaking' : 'Read aloud'}
-                    aria-label={isSpeaking ? 'Stop speaking' : 'Read aloud'}
-                  >
-                    {isSpeaking ? '⏹️' : '🔊'}
-                  </button>
-                )}
-              </div>
-            ))}
-
-            {loading && (
-              <div className="flex items-center gap-2.5 rounded-2xl bg-slate-900 border border-slate-800 p-3.5 text-xs text-white animate-pulse mr-4 sm:mr-16 shadow-md">
-                <span className="flex h-6 w-6 items-center justify-center rounded-xl bg-indigo-600 text-white text-xs">⚡</span>
-                <span className="font-semibold text-white">{agentName} is thinking...</span>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
+              <button
+                type="button"
+                onClick={() => {
+                  stopSpeaking();
+                  setActiveTelemetry(null);
+                }}
+                className="rounded-lg px-2 py-1 text-[11px] font-bold text-slate-400 hover:text-white transition hover:bg-white/10"
+                title="Dismiss readout"
+              >
+                ✕
+              </button>
+            </div>
           </div>
+
+          {/* Guaranteed High-Contrast Pure White Text Readout */}
+          <div className="py-1">
+            <p className="text-sm sm:text-base font-medium text-white leading-relaxed tracking-wide">
+              {activeTelemetry.reply}
+            </p>
+          </div>
+
+          {/* Interactive Screen Action Banner */}
+          {activeTelemetry.action?.type === 'HIGHLIGHT_OVERDUE' && (
+            <div className="mt-3.5 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs font-mono text-amber-400">
+                <span>⚡</span>
+                <span>LEDGER ILLUMINATED ({activeTelemetry.action.count || 'Accounts'} Overdue)</span>
+              </div>
+              <button
+                type="button"
+                onClick={scrollToLedger}
+                className="rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-4 py-1.5 transition shadow-md active:scale-95"
+              >
+                View in Ledger ↓
+              </button>
+            </div>
+          )}
+
+          {activeTelemetry.action?.type === 'NAVIGATE' && (
+            <div className="mt-3.5 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs font-mono text-cyan-400">
+                <span>🚀</span>
+                <span>NAVIGATING TO {activeTelemetry.action.label || 'RADAR'}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => onNavigate && onNavigate(activeTelemetry.action.path)}
+                className="rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs px-4 py-1.5 transition shadow-md active:scale-95"
+              >
+                Launch Now →
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -675,13 +723,13 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
         </div>
       )}
 
-      {/* ─── 🔒 100% USER PERMISSION DRAFT CARD ─── */}
+      {/* ─── 5. 🔒 100% USER PERMISSION HOLOGRAPHIC DRAFT CARD ─── */}
       {activeDraft && (
         <div className="mt-4 overflow-hidden rounded-3xl border border-indigo-300 dark:border-cyan-500/40 bg-white dark:bg-gradient-to-b dark:from-slate-900/98 dark:to-slate-950 p-4 sm:p-6 shadow-2xl backdrop-blur-2xl animate-fade-in">
           <div className="flex items-start justify-between border-b border-slate-100 dark:border-white/10 pb-4">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 dark:border-cyan-400/30 bg-indigo-50 dark:bg-cyan-400/10 px-3 py-0.5 text-xs font-black text-indigo-700 dark:text-cyan-300">
-                🔒 Ready for Your Approval
+                🔒 Ready for Your Authorization
               </span>
               <h4 className="mt-2 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
                 Invoice Draft for {activeDraft.clientName || 'Client'}
@@ -704,12 +752,16 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
             </div>
             <div className="rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/40 p-3.5">
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Subtotal</span>
-              <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white truncate">{formatCurrency(activeDraft.totals?.subtotal || activeDraft.amount, activeDraft.currency)}</p>
+              <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white truncate">
+                {formatCurrency(activeDraft.totals?.subtotal || activeDraft.amount, activeDraft.currency)}
+              </p>
             </div>
             <div className="rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/40 p-3.5">
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">GST Rate</span>
               <p className="mt-1 text-sm font-bold text-emerald-600 dark:text-emerald-400 truncate">
-                {activeDraft.totals?.taxRate > 0 ? `${activeDraft.totals.taxRate}% (+${formatCurrency(activeDraft.totals.tax, activeDraft.currency)})` : '0%'}
+                {activeDraft.totals?.taxRate > 0
+                  ? `${activeDraft.totals.taxRate}% (+${formatCurrency(activeDraft.totals.tax, activeDraft.currency)})`
+                  : '0%'}
               </p>
             </div>
             <div className="rounded-2xl border border-indigo-200 dark:border-cyan-500/30 bg-indigo-50/50 dark:bg-cyan-950/30 p-3.5">
@@ -722,7 +774,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-100 dark:border-white/5">
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              🔒 Nothing is saved to your account until you approve.
+              🔒 100% Permission Safe: Nothing is added to your database until you click confirm.
             </p>
             <div className="flex items-center gap-2.5 sm:gap-3">
               <button
@@ -738,73 +790,53 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
                 disabled={draftActionLoading}
                 className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-2.5 text-xs font-black shadow-lg shadow-emerald-500/25 transition hover:scale-105 active:scale-95 disabled:opacity-50"
               >
-                {draftActionLoading ? 'Creating...' : '✅ Confirm & Create Invoice'}
+                {draftActionLoading ? 'Authorizing...' : '✅ Confirm & Create Invoice'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ─── CREATED INVOICE SHARE CARD ─── */}
+      {/* ─── 6. CREATED INVOICE SHARE CARD ─── */}
       {createdInvoice && (
         <div className="mt-4 rounded-3xl border border-emerald-500/30 bg-white dark:bg-gradient-to-r dark:from-emerald-950/50 dark:to-slate-950 p-4 sm:p-5 shadow-xl animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <p className="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">✅ Invoice Ready</p>
-              <h5 className="mt-1 text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                #{createdInvoice.invoiceNumber} for {createdInvoice.clientName} ({formatCurrency(createdInvoice.amount, createdInvoice.currency)})
-              </h5>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 text-xl border border-emerald-500/30">
+                ✓
+              </span>
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  Invoice Created & Logged to Ledger
+                </span>
+                <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                  #{createdInvoice.invoiceNumber || 'INV'} • {createdInvoice.clientName || 'Client'} ({formatCurrency(createdInvoice.amount, createdInvoice.currency)})
+                </h4>
+              </div>
             </div>
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <a
-                href={`/invoice/${createdInvoice._id}`}
-                className="flex-1 sm:flex-initial text-center rounded-xl border border-slate-200 dark:border-white/10 px-4 py-2 text-xs font-bold text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition"
-              >
-                View
-              </a>
+
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => shareWhatsApp(createdInvoice)}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-2 rounded-xl bg-emerald-500 text-white px-5 py-2 text-xs font-black shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-600"
+                className="flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-4 py-2 transition shadow-md active:scale-95"
               >
-                💬 Share on WhatsApp
+                <span>📱</span>
+                <span>Send WhatsApp</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = `${window.location.origin}/public/invoice/${createdInvoice._id}`;
+                  navigator.clipboard.writeText(url);
+                  alert('Public invoice link copied to clipboard!');
+                }}
+                className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-white font-bold text-xs px-3.5 py-2 transition"
+              >
+                <span>📋</span>
+                <span>Copy Link</span>
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── OVERDUE AUDIT SUMMARY CARD ─── */}
-      {activeOverdues?.length > 0 && !activeDraft && (
-        <div className="mt-4 rounded-3xl border border-amber-300 dark:border-amber-500/30 bg-white dark:bg-slate-950 p-4 sm:p-5 shadow-xl animate-fade-in">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
-            <span className="text-xs font-black tracking-wider text-amber-600 dark:text-amber-300 uppercase">
-              ⚠️ {activeOverdues.length} Unpaid Overdue Invoice{activeOverdues.length > 1 ? 's' : ''}
-            </span>
-            <button
-              type="button"
-              onClick={() => setActiveOverdues(null)}
-              className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-white p-1"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="mt-3 space-y-2">
-            {activeOverdues.map((inv) => (
-              <div key={inv._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] p-3.5">
-                <div>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">{inv.clientName} (#{inv.invoiceNumber})</p>
-                  <p className="text-xs text-red-500 dark:text-red-400">{inv.daysOverdue} days past due • {formatCurrency(inv.amount, inv.currency)}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => shareWhatsApp(inv)}
-                  className="self-start sm:self-auto rounded-xl border border-emerald-500/40 bg-emerald-50 dark:bg-emerald-500/20 px-3.5 py-1.5 text-xs font-black text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500 hover:text-white transition"
-                >
-                  💬 Send Reminder
-                </button>
-              </div>
-            ))}
           </div>
         </div>
       )}

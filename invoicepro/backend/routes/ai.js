@@ -782,6 +782,13 @@ const detectAgentIntent = (message) => {
         return 'overdue_audit';
     }
 
+    // 4. Client Acquisition / Finder (JARVIS Action)
+    if (
+        /\b(first\s*client|get.*client|find.*client|landing.*client|new.*client|leads|client eduka|client pidika|lead radar|how.*to.*client|how to get client|vaadikkaiyaalar|grahak)\b/i.test(text)
+    ) {
+        return 'find_clients';
+    }
+
     if (/\b(total|calculate|calc|gst|tax|amount|subtotal|moththam|kanakku)\b/i.test(text)) {
         return 'calculate_total';
     }
@@ -2620,7 +2627,7 @@ Your reply as ${agentName}:`;
         if (/\b(tired|stressed|exhausted|overwhelmed|busy)\b/i.test(cleanMsg)) {
             return `Konjam rest edunga ${userName}! Administrative velai ellam naan paathukren. Unga business safe hands la iruku.`;
         }
-        return `Kandippa ${userName}! Unga command ku naan ready. Invoice create pannanuma, late bills check pannanuma?`;
+        return `Ready ah irukken ${userName}! Unga studio command-ku wait panren. Next enna execute pannanum?`;
     }
 
     // ─── PURE TAMIL ADVICE & CONVERSATION ───
@@ -2634,7 +2641,7 @@ Your reply as ${agentName}:`;
         if (/வணக்கம்|காலை|ஹலோ/.test(cleanMsg)) {
             return `வணக்கம் ${userName}! உங்கள் ஸ்டுடியோவில் அனைத்து பணிகளும் சிறப்பாக இயங்குகின்றன. இன்று என்ன செய்ய வேண்டும்?`;
         }
-        return `கட்டளையிடுங்கள் ${userName}, உங்களுக்கு உதவ நான் எப்போதும் தயார். என்ன செய்ய வேண்டும்?`;
+        return `கட்டளையிடுங்கள் ${userName}, உங்கள் ஸ்டுடியோ கட்டுப்பாட்டில் உள்ளது. அடுத்து என்ன செய்ய வேண்டும்?`;
     }
 
     // ─── ENGLISH FREELANCE & BUSINESS MASTERCLASS ADVICE ───
@@ -2696,7 +2703,7 @@ Your reply as ${agentName}:`;
         return `Take a breath, ${userName}. Freelance growth is a marathon. Let me handle the paperwork, invoices, and payment tracking so you can focus on recharge and creative flow.`;
     }
 
-    return `Understood, ${userName}. I'm right here with you. Would you like to create an invoice, check who owes you, or review your goals?`;
+    return `At your service, ${userName}. Systems online and calibrated. Ready for your next invoice, client audit, or revenue target.`;
 };
 
 router.post('/agent', protect, requirePro, async(req, res) => {
@@ -2786,7 +2793,10 @@ router.post('/agent', protect, requirePro, async(req, res) => {
         const isTamil = languageMode === 'ta' || /[\u0B80-\u0BFF]/.test(message);
 
         let reply = '';
+        let action = null;
+
         if (draft) {
+            action = { type: 'STAGE_INVOICE_DRAFT', draft };
             if (isTanglish) {
                 reply = `${draft.clientName || 'Client'} ku ₹${Number(draft.amount || 0).toLocaleString('en-IN')} draft ready panniten! Keela irukura details check pannitu confirm pannunga.`;
             } else if (isTamil) {
@@ -2795,6 +2805,14 @@ router.post('/agent', protect, requirePro, async(req, res) => {
                 reply = `I prepared a draft for ${draft.clientName || 'your client'} totaling ${formatCurrency(draft.amount)}. Please review and confirm below.`;
             }
         } else if (intent === 'goal_status') {
+            action = {
+                type: 'UPDATE_GOAL',
+                goalData: {
+                    goal: monthlyGoal,
+                    currentRevenue,
+                    percentage: monthlyGoal > 0 ? Math.min(100, Math.round((currentRevenue / monthlyGoal) * 100)) : 0
+                }
+            };
             if (monthlyGoal > 0) {
                 const pct = Math.min(100, Math.round((currentRevenue / monthlyGoal) * 100));
                 if (isTanglish) {
@@ -2810,18 +2828,37 @@ router.post('/agent', protect, requirePro, async(req, res) => {
                     : `You haven't set a revenue goal yet. You can say: "Set monthly goal to ₹1,00,000".`;
             }
         } else if (intent === 'overdue_audit') {
+            action = {
+                type: 'HIGHLIGHT_OVERDUE',
+                overdueIds: overdueInvoices.map((inv) => String(inv._id)),
+                count: overdueInvoices.length,
+                totalAmount: statusSummary.overdueAmount
+            };
             if (overdueInvoices.length > 0) {
                 if (isTanglish) {
-                    reply = `${overdueInvoices.length} overdue invoice(s) iruku (moththam ${formatCurrency(statusSummary.overdueAmount)}). Keela list panniruken, 1-click la WhatsApp reminder anupalam.`;
+                    reply = `${overdueInvoices.length} overdue invoice(s) iruku (moththam ${formatCurrency(statusSummary.overdueAmount)}). Keela ledger-la highlight panniruken, 1-click WhatsApp reminder ready!`;
                 } else if (isTamil) {
-                    reply = `${overdueInvoices.length} தாமதமான ரசீதுகள் உள்ளன. கீழேயுள்ள பட்டன் மூலம் வாட்ஸ்அப் நினைவூட்டல் அனுப்பலாம்.`;
+                    reply = `${overdueInvoices.length} தாமதமான ரசீதுகள் உங்கள் லெட்ஜரில் ஹைலைட் செய்யப்பட்டுள்ளன. வாட்ஸ்அப் மூலம் உடனடியாக அனுப்பலாம்.`;
                 } else {
-                    reply = `You have ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''} worth ${formatCurrency(statusSummary.overdueAmount)}. I've listed them below with 1-click reminders.`;
+                    reply = `Highlighting ${overdueInvoices.length} overdue account${overdueInvoices.length > 1 ? 's' : ''} on your ledger below, ${req.user.name || 'sir'}. Total receivables: ${formatCurrency(statusSummary.overdueAmount)}.`;
                 }
             } else {
                 reply = isTanglish
-                    ? `Super news! Ippo ungaluku entha overdue invoice-um illa.`
-                    : `Great news! You have no overdue invoices right now.`;
+                    ? `Super news! Ippo ungaluku entha overdue invoice-um illa. All accounts settled!`
+                    : `Great news! You have no overdue invoices right now. All accounts are settled.`;
+            }
+        } else if (intent === 'find_clients') {
+            action = {
+                type: 'NAVIGATE',
+                path: '/client-finder',
+                label: 'Client Finder'
+            };
+            if (isTanglish) {
+                reply = `Opening Client Finder radar now, ${req.user.name || 'Ashieq'}! Local startup leads and targeted outreach ready ah iruku.`;
+            } else if (isTamil) {
+                reply = `உங்கள் வாடிக்கையாளர் கண்டறிதல் கருவியை (Client Finder) திறக்கிறேன். புதிய வாடிக்கையாளர்களைத் தேடலாம்.`;
+            } else {
+                reply = `Opening your Client Finder and scanning high-conversion freelance leads now, ${req.user.name || 'sir'}.`;
             }
         } else {
             reply = await callAiJarvisResponse({
@@ -2840,6 +2877,7 @@ router.post('/agent', protect, requirePro, async(req, res) => {
         res.json({
             source,
             intent,
+            action,
             agentName,
             reply,
             draft,

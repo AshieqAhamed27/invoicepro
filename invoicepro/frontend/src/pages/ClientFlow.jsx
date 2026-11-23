@@ -87,6 +87,20 @@ export default function ClientFlow() {
     cloudData: {}
   });
 
+  // JARVIS OS Screen Manipulation & Ledger Highlights
+  const [highlightedInvoiceIds, setHighlightedInvoiceIds] = useState([]);
+
+  const handleHighlightOverdue = (ids = []) => {
+    const stringIds = (ids || []).map(String);
+    setHighlightedInvoiceIds(stringIds);
+    setTimeout(() => {
+      const section = document.getElementById('cash-recovery-center');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 150);
+  };
+
   useDocumentMeta({
     title: 'Dashboard | ClientFlow AI',
     description: 'Clean freelancer dashboard: 3-step billing, UPI payouts, and payment recovery.'
@@ -241,6 +255,9 @@ export default function ClientFlow() {
         <FlowAgentBar
           user={user}
           onInvoiceCreated={loadFlow}
+          onHighlightOverdue={handleHighlightOverdue}
+          onNavigate={(path) => navigate(path)}
+          onGoalUpdated={loadFlow}
         />
 
         {/* ─── 1. Pro Upgrade Card for Non-Pro ─── */}
@@ -763,7 +780,7 @@ export default function ClientFlow() {
         </section>
 
         {/* ─── 5. Recent Invoices & 1-Click WhatsApp Reminder Table ─── */}
-        <section className="mb-10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-950/40 p-6 shadow-sm">
+        <section id="cash-recovery-center" className="mb-10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-950/40 p-6 shadow-sm transition-all scroll-mt-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-white/10">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">Cash Recovery Center</p>
@@ -813,11 +830,24 @@ export default function ClientFlow() {
                   <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                     {recentInvoices.map((inv) => {
                       const isPaid = inv.status === 'paid';
+                      const isHighlighted = highlightedInvoiceIds.includes(String(inv._id));
                       const amountStr = inv.currency === 'INR' ? `₹${inv.amount?.toLocaleString('en-IN')}` : `${inv.currency} ${inv.amount}`;
                       return (
-                        <tr key={inv._id} className="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition">
+                        <tr
+                          key={inv._id}
+                          className={`transition-all duration-300 ${
+                            isHighlighted
+                              ? 'bg-amber-500/15 dark:bg-amber-500/20 ring-2 ring-amber-400 shadow-[0_0_24px_rgba(251,191,36,0.4)] animate-pulse'
+                              : 'hover:bg-slate-50/80 dark:hover:bg-white/[0.02]'
+                          }`}
+                        >
                           <td className="py-3.5 px-3 font-mono font-bold text-slate-900 dark:text-white whitespace-nowrap">
                             #{inv.invoiceNumber || 'INV'}
+                            {isHighlighted && (
+                              <span className="ml-2 inline-flex items-center gap-1 rounded-md bg-amber-500 text-slate-950 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider">
+                                ⚡ Follow Up
+                              </span>
+                            )}
                           </td>
                           <td className="py-3.5 px-3 font-semibold text-slate-800 dark:text-zinc-200 whitespace-nowrap">
                             {inv.clientName || 'Client'}
