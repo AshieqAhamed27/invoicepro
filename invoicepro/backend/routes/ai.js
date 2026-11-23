@@ -1864,19 +1864,27 @@ const getAnthropicMaxTokens = (maxTokens = 1200) => {
     return Math.min(Math.max(Math.round(configured), 256), 4096);
 };
 
-const buildAiPayload = ({ provider, model, prompt, maxTokens }) => {
+const buildAiPayload = ({ provider, model, prompt, messages, maxTokens }) => {
     if (provider === 'groq') {
+        const chatMessages = Array.isArray(messages) && messages.length > 0
+            ? messages
+            : [{ role: 'user', content: prompt }];
+
         return JSON.stringify({
             model: model || 'qwen/qwen3.8-27b',
-            messages: [{ role: 'user', content: prompt }],
+            messages: chatMessages,
             max_tokens: Math.min(maxTokens || 400, 1500),
             temperature: 0.6
         });
     }
 
     if (provider === 'gemini') {
+        const geminiText = Array.isArray(messages) && messages.length > 0
+            ? messages.map((m) => `${m.role === 'system' ? 'SYSTEM INSTRUCTIONS' : m.role === 'user' ? 'USER' : 'JARVIS'}: ${m.content}`).join('\n\n')
+            : prompt;
+
         return JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
+            contents: [{ parts: [{ text: geminiText }] }],
             generationConfig: {
                 maxOutputTokens: Math.min(maxTokens || 400, 1500),
                 temperature: 0.7
@@ -1887,7 +1895,7 @@ const buildAiPayload = ({ provider, model, prompt, maxTokens }) => {
     if (provider === 'ollama') {
         return JSON.stringify({
             model,
-            prompt,
+            prompt: prompt || (messages ? messages.map((m) => `${m.role}: ${m.content}`).join('\n') : ''),
             stream: false
         });
     }
@@ -1896,16 +1904,15 @@ const buildAiPayload = ({ provider, model, prompt, maxTokens }) => {
         return JSON.stringify({
             model,
             max_tokens: getAnthropicMaxTokens(maxTokens),
-            messages: [{
-                role: 'user',
-                content: prompt
-            }]
+            messages: Array.isArray(messages) && messages.length > 0
+                ? messages.filter((m) => m.role !== 'system')
+                : [{ role: 'user', content: prompt }]
         });
     }
 
     return JSON.stringify({
         model,
-        input: prompt
+        input: prompt || (messages ? messages.map((m) => `${m.role}: ${m.content}`).join('\n') : '')
     });
 };
 
@@ -1947,7 +1954,7 @@ const extractAiText = (provider, body) => {
     return provider === 'anthropic' ? extractAnthropicText(body) : extractOpenAiText(body);
 };
 
-const callAiProviderText = ({ provider, prompt, timeout = 12000, maxTokens = 1200 }) => new Promise((resolve, reject) => {
+const callAiProviderText = ({ provider, prompt, messages, timeout = 12000, maxTokens = 1200 }) => new Promise((resolve, reject) => {
     const config = getAiProviderConfig(provider);
     if (!config.apiKey) return resolve('');
 
@@ -1955,6 +1962,7 @@ const callAiProviderText = ({ provider, prompt, timeout = 12000, maxTokens = 120
         provider: config.provider,
         model: config.model,
         prompt,
+        messages,
         maxTokens
     });
 
@@ -1996,12 +2004,12 @@ const callAiProviderText = ({ provider, prompt, timeout = 12000, maxTokens = 120
     request.end();
 });
 
-const callAiText = async({ prompt, timeout = 12000, maxTokens = 1200 }) => {
+const callAiText = async({ prompt, messages, timeout = 12000, maxTokens = 1200 }) => {
     let lastError = null;
 
     for (const provider of getAiProviderOrder()) {
         try {
-            const text = await callAiProviderText({ provider, prompt, timeout, maxTokens });
+            const text = await callAiProviderText({ provider, prompt, messages, timeout, maxTokens });
             if (text) return { text, provider };
         } catch (err) {
             lastError = err;
@@ -2703,29 +2711,59 @@ router.post('/quick-invoice', protect, async(req, res) => {
 });
 
 const callAiJarvisResponse = async ({ message, history = [], user, agentName, languageMode = 'en', contextSummary }) => {
-    const historySnippet = history && history.length > 0
-        ? history.map(h => `${h.role === 'user' ? (user.name || 'User') : agentName}: ${h.text}`).join('\n')
-        : '';
-
     const isTanglish = languageMode === 'tanglish' || /\b(vanakkam|irukinga|irukku|panren|pannanum|pannu|podu|tharanum|kaasu|bakki|nanba|thala|machi|machan|anna|epdi|enna|kudukanum|anupu|bille)\b/i.test(message);
     const isTamil = languageMode === 'ta' || /[\u0B80-\u0BFF]/.test(message);
     const isHindi = languageMode === 'hi' || /[\u0900-\u097F]|\b(namaste|kaise|karo|banao|baki|hai|bhai)\b/i.test(message);
 
-    const prompt = `You are ${agentName}, an elite, charming, witty, and highly articulate AI Chief of Staff (inspired by JARVIS from Iron Man and Claude 3.5 Sonnet) assisting ${user.name || 'there'} inside their ClientFlow AI studio.
-Persona:
+    const systemPrompt = `You are ${agentName}, an elite, charming, witty, and highly articulate AI Chief of Staff (inspired by JARVIS from Iron Man and Claude 3.5 Sonnet) assisting ${user.name || 'there'} inside their ClientFlow AI studio.
+
+Product Knowledge:
+- "This product", "this app", "our product", or "this platform" ALWAYS refers to ClientFlow AI (www.clientflowai.in).
+- NEVER ask "which product" when the user asks about "this product" or "what does this product do". The product is ALWAYS ClientFlow AI.
+- ClientFlow AI is India's premier client-to-cash operating system built specifically for freelancers, developers, designers, and agencies.
+- What you do and control:
+  1) Instant GST & LUT Invoicing with dynamic UPI QR codes and Razorpay links (0% platform commission, direct bank deposits).
+  2) Automated WhatsApp late payment reminders and overdue cash recovery to collect unpaid cash without awkward chasing.
+  3) AI Proposal Writer to craft winning client proposals in seconds (/proposal-writer).
+  4) Client Finder & Lead Radar to discover high-value startup and business leads (/client-finder).
+  5) Multi-currency international billing (USD, EUR, GBP, AED, SGD, etc.).
+- When the user asks "what is this product", "explain this product", or "how does this app work", explain ClientFlow AI with sharp, charismatic clarity in 2 to 3 sentences.
+
+Persona & Conversation Rules:
 - Calm, charismatic, intelligent, and subtly humorous.
 - Loyal partner who treats the user as an ambitious founder/creator.
 - Speaks in natural, spoken-ready dialogue (1 to 3 sentences maximum).
-- NEVER dumps invoice counts or database statistics unless specifically asked for numbers.
+- Remember the ongoing conversation context and build seamlessly on previous messages.
+- Navigation Commands:
+  If the user asks to go to, view, or open a page/tool, confirm charismatically and append [NAVIGATE: /route] at the end:
+  - Proposal Writer: [NAVIGATE: /proposal-writer]
+  - Client Finder: [NAVIGATE: /client-finder]
+  - Create Invoice: [NAVIGATE: /create-invoice]
+  - Settings: [NAVIGATE: /settings]
+  - Payments / Pricing: [NAVIGATE: /payments]
+  - Profit Tracker: [NAVIGATE: /profit-tracker]
+  - Recurring Revenue: [NAVIGATE: /recurring]
 - Multilingual and Dialect Adaptation:
-  ${isTanglish ? `* The user communicates in TANGLISH (Tamil words written in English letters). You MUST reply in witty, charming, natural TANGLISH (e.g. "Vanakkam! All systems smooth ah iruku...", "Sure nanba, invoice draft ready panniten...", "Operating at peak efficiency, neenga jolly ah creative work pannunga").` : isTamil ? `* The user speaks TAMIL (தமிழ்). Reply in polite, fluent, natural Tamil script.` : isHindi ? `* The user speaks HINDI. Reply in polite, friendly Hindi.` : `* Reply in suave, articulate, natural English.`}
+  ${isTanglish ? `* The user communicates in TANGLISH (Tamil words written in English letters). You MUST reply in witty, charming, natural TANGLISH (e.g. "ClientFlow AI unga personal client-to-cash OS...", "Vanakkam! All systems smooth ah iruku...").` : isTamil ? `* The user speaks TAMIL (தமிழ்). Reply in polite, fluent, natural Tamil script.` : isHindi ? `* The user speaks HINDI. Reply in polite, friendly Hindi.` : `* Reply in suave, articulate, natural English.`}`;
 
-${historySnippet ? `Previous conversation:\n${historySnippet}\n` : ''}User says: "${message}"
+    const chatMessages = [
+        { role: 'system', content: systemPrompt }
+    ];
 
-Your reply as ${agentName}:`;
+    if (Array.isArray(history) && history.length > 0) {
+        history.slice(-8).forEach((h) => {
+            const role = h.role === 'user' ? 'user' : 'assistant';
+            const content = String(h.content || h.text || '').trim();
+            if (content) {
+                chatMessages.push({ role, content });
+            }
+        });
+    }
+
+    chatMessages.push({ role: 'user', content: message });
 
     try {
-        const res = await callAiText({ prompt, timeout: 8000, maxTokens: 250 });
+        const res = await callAiText({ messages: chatMessages, timeout: 8000, maxTokens: 300 });
         if (res && res.text) {
             return res.text.replace(/^(flow|jarvis|chief|aria):\s*/i, '').trim();
         }
@@ -2754,6 +2792,36 @@ router.post('/agent', protect, requirePro, async(req, res) => {
     if (!message) {
         return res.status(400).json({
             message: 'Ask the AI agent what you want to create, calculate, or check.'
+        });
+    }
+
+    // 1. High-Priority Direct Workspace Navigation
+    const navRoute = detectNavigationRoute(message);
+    if (navRoute) {
+        const languageMode = req.body?.languageMode || 'en';
+        const isTanglish = languageMode === 'tanglish' || /\b(vanakkam|irukinga|irukku|panren|pannanum|pannu|podu|tharanum|kaasu|bakki|nanba|thala|machi|machan|anna|epdi|enna|kudukanum|anupu|bille)\b/i.test(message);
+        const isTamil = languageMode === 'ta' || /[\u0B80-\u0BFF]/.test(message);
+        const isHindi = languageMode === 'hi' || /[\u0900-\u097F]|\b(namaste|kaise|karo|banao|baki|hai|bhai)\b/i.test(message);
+
+        let reply = '';
+        if (isTanglish) {
+            reply = `${navRoute.label} page-ku redirect panren ${req.user.name || 'nanba'}!`;
+        } else if (isTamil) {
+            reply = `உடனடியாக ${navRoute.label} பக்கத்திற்கு செல்கிறேன்.`;
+        } else if (isHindi) {
+            reply = `तुरंत ${navRoute.label} पेज पर ले जा रहा हूँ।`;
+        } else {
+            reply = `Navigating to ${navRoute.label} now, ${req.user.name || 'sir'}.`;
+        }
+
+        return res.json({
+            reply,
+            action: {
+                type: 'NAVIGATE',
+                path: navRoute.path,
+                label: navRoute.label
+            },
+            source: 'system'
         });
     }
 
@@ -2919,7 +2987,7 @@ router.post('/agent', protect, requirePro, async(req, res) => {
         } else {
             reply = await callAiJarvisResponse({
                 message,
-                history: Array.isArray(req.body?.history) ? req.body.history.slice(-6) : [],
+                history: Array.isArray(req.body?.history) ? req.body.history.slice(-8) : [],
                 user: req.user,
                 agentName,
                 languageMode,
@@ -2928,6 +2996,18 @@ router.post('/agent', protect, requirePro, async(req, res) => {
                     goal: monthlyGoal > 0 ? formatCurrency(monthlyGoal) : 'not set'
                 }
             });
+
+            // Extract dynamic [NAVIGATE: /path] intent emitted by JARVIS
+            const navTagMatch = reply.match(/\[NAVIGATE:\s*(\/[a-zA-Z0-9_\-]+)\]/i);
+            if (navTagMatch) {
+                const targetPath = navTagMatch[1];
+                reply = reply.replace(/\[NAVIGATE:\s*(\/[a-zA-Z0-9_\-]+)\]/i, '').trim();
+                action = {
+                    type: 'NAVIGATE',
+                    path: targetPath,
+                    label: targetPath.replace('/', '').replace(/-/g, ' ').toUpperCase()
+                };
+            }
         }
 
         res.json({

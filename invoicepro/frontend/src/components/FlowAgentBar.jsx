@@ -128,6 +128,16 @@ export default function FlowAgentBar({
   const [draftActionLoading, setDraftActionLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // JARVIS Conversational Multi-Turn Memory
+  const [chatMemory, setChatMemory] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem('cf_jarvis_memory');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
   // Curated Multi-Language State
   const [selectedLangId, setSelectedLangId] = useState(
     () => localStorage.getItem('flow_agent_lang') || 'en'
@@ -316,9 +326,21 @@ export default function FlowAgentBar({
     try {
       const res = await api.post('/ai/agent', {
         message: query,
-        languageMode: activeLang.id
+        languageMode: activeLang.id,
+        history: chatMemory.slice(-8)
       });
       const data = res.data;
+
+      // Update multi-turn conversational memory
+      const updatedMemory = [
+        ...chatMemory.slice(-7),
+        { role: 'user', content: query },
+        { role: 'assistant', content: data.reply || '' }
+      ];
+      setChatMemory(updatedMemory);
+      try {
+        sessionStorage.setItem('cf_jarvis_memory', JSON.stringify(updatedMemory));
+      } catch {}
 
       const telemetryResult = {
         query,
@@ -339,13 +361,18 @@ export default function FlowAgentBar({
 
       // B. Screen Manipulation: Navigate to Workspace Tool (e.g. AI Proposal Writer, Client Finder)
       if (data.action?.type === 'NAVIGATE' && data.action.path) {
+        const targetPath = data.action.path;
         setTimeout(() => {
-          if (onNavigate) {
-            onNavigate(data.action.path);
+          if (typeof onNavigate === 'function') {
+            try {
+              onNavigate(targetPath);
+            } catch {
+              window.location.href = targetPath;
+            }
           } else {
-            window.location.href = data.action.path;
+            window.location.href = targetPath;
           }
-        }, 300);
+        }, 350);
       }
 
       // C. Screen Manipulation: Stage Invoice Draft for Explicit Approval
