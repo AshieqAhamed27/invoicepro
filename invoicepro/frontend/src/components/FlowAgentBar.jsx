@@ -613,22 +613,30 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
             {conversation.map((msg, i) => (
               <div
                 key={i}
-                className={`flex items-start gap-2.5 sm:gap-3 rounded-2xl p-3 sm:p-3.5 text-xs sm:text-sm transition-all animate-fade-in ${
+                className={`flex items-start gap-3 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm transition-all animate-fade-in ${
                   msg.role === 'user'
-                    ? 'bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 ml-3 sm:ml-12 text-slate-800 dark:text-slate-200'
-                    : 'bg-indigo-50/70 dark:bg-gradient-to-r dark:from-cyan-950/40 dark:via-slate-900/70 dark:to-slate-950/90 border border-indigo-200/80 dark:border-cyan-500/20 mr-3 sm:mr-12 text-slate-900 dark:text-white shadow-sm'
+                    ? 'bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 ml-3 sm:ml-12 shadow-sm'
+                    : 'bg-slate-900 dark:bg-slate-900 border border-slate-800 dark:border-slate-700 mr-3 sm:mr-12 shadow-lg'
                 }`}
               >
-                <span className={`flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-xl text-[10px] sm:text-xs font-black ${
+                <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-xl text-xs font-black ${
                   msg.role === 'user'
-                    ? 'bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-white'
-                    : 'bg-indigo-600 text-white dark:bg-cyan-500/20 dark:text-cyan-300'
+                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
+                    : 'bg-indigo-600 text-white'
                 }`}>
                   {msg.role === 'user' ? (msg.isVoice ? '🎤' : 'You') : '⚡'}
                 </span>
+
                 <div className="flex-1 min-w-0">
-                  <p className="leading-relaxed break-words">{msg.text}</p>
+                  <p className={`leading-relaxed break-words font-medium text-xs sm:text-sm ${
+                    msg.role === 'user'
+                      ? 'text-slate-900 dark:text-slate-100'
+                      : 'text-white'
+                  }`}>
+                    {msg.text}
+                  </p>
                 </div>
+
                 {msg.role === 'assistant' && (
                   <button
                     type="button"
@@ -639,7 +647,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
                         speakAloud(msg.text, activeLang.id);
                       }
                     }}
-                    className="shrink-0 rounded-lg p-1 text-xs text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-300 transition"
+                    className="shrink-0 rounded-xl p-2 text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 transition active:scale-95"
                     title={isSpeaking ? 'Stop speaking' : 'Read aloud'}
                     aria-label={isSpeaking ? 'Stop speaking' : 'Read aloud'}
                   >
@@ -650,9 +658,9 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
             ))}
 
             {loading && (
-              <div className="flex items-center gap-2.5 rounded-2xl bg-indigo-50/70 dark:bg-cyan-950/30 border border-indigo-200 dark:border-cyan-500/20 p-3 text-xs text-indigo-700 dark:text-cyan-300 animate-pulse mr-4 sm:mr-16">
-                <span className="flex h-6 w-6 items-center justify-center rounded-xl bg-indigo-600 text-white dark:bg-cyan-500/20 text-xs">⚡</span>
-                <span className="font-semibold">{agentName} is thinking...</span>
+              <div className="flex items-center gap-2.5 rounded-2xl bg-slate-900 border border-slate-800 p-3.5 text-xs text-white animate-pulse mr-4 sm:mr-16 shadow-md">
+                <span className="flex h-6 w-6 items-center justify-center rounded-xl bg-indigo-600 text-white text-xs">⚡</span>
+                <span className="font-semibold text-white">{agentName} is thinking...</span>
               </div>
             )}
 

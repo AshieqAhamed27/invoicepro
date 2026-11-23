@@ -2591,7 +2591,20 @@ Your reply as ${agentName}:`;
     const cleanMsg = String(message).toLowerCase().trim();
     const userName = user.name || 'there';
 
+    // ─── TANGLISH ADVICE & CONVERSATION ───
     if (isTanglish) {
+        if (/\b(first\s*client|client.*pidika|client.*eduka|client.*find|get.*client)\b/i.test(cleanMsg)) {
+            return `First client pidika 3 practical steps, ${userName}: 1) Ungaloda friends, college seniors, or old colleagues-a contact pannunga. 2) Oru specific problem solve pannitharen nu sollunga (e.g. 'Unga site revamp pannitharen'). 3) Fast ah deliver panni testimonial vaangunga. Project confirm aana odane sollunga, invoice naan podren!`;
+        }
+        if (/\b(price|charge|pricing|evlo\s*kekalam|rate|fees)\b/i.test(cleanMsg)) {
+            return `Oru pothum hourly rate charge pannathinga, ${userName}! Project oda business value paathu fixed pricing vainga (minimum ₹15,000 to ₹30,000 baseline). Kandippa 50% advance vaangitu thaan velai start pannanum!`;
+        }
+        if (/\b(late\s*payment|kaasu\s*thara\s*maatingran|pending\s*payment|money\s*not\s*paid)\b/i.test(cleanMsg)) {
+            return `Late payment-ku polite ah escalate pannunga, ${userName}: 1) Due date annaiku WhatsApp reminder with UPI QR. 2) 3 days delay aana call panni follow up. 3) 7 days ku mela delay aana deliverables pause pannidunga. Enkitta 'Yaaru kaasu tharanum?' nu ketta WhatsApp link ready pannitharuven!`;
+        }
+        if (/\b(discount|koraika|kammi\s*panna)\b/i.test(cleanMsg)) {
+            return `Price kuraika sonna scope-aiyum kuraichidunga, ${userName}! 'Unga budget ku thagundhapadi [Feature X] remove pannitu panlam, full scope venumna standard rate thaan' nu professional ah sollunga.`;
+        }
         if (/\b(hi|hello|hey|vanakkam|greetings|morning|afternoon|evening)\b/i.test(cleanMsg)) {
             return `Vanakkam ${userName}! Studio la ellam super ah ready ah iruku. Innaiku yaaru ku bill ready pannanum?`;
         }
@@ -2610,11 +2623,47 @@ Your reply as ${agentName}:`;
         return `Kandippa ${userName}! Unga command ku naan ready. Invoice create pannanuma, late bills check pannanuma?`;
     }
 
+    // ─── PURE TAMIL ADVICE & CONVERSATION ───
     if (isTamil) {
-        if (/வணக்கம்|காலை|ஹலோ|வணக்கம்/.test(cleanMsg)) {
+        if (/வாடிக்கையாளர்|முதல்/.test(cleanMsg)) {
+            return `உங்கள் முதல் வாடிக்கையாளரைப் பெற: 1) உங்களுக்குத் தெரிந்த 5 நபர்களை அணுகி, ஒரு குறிப்பிட்ட வேலையை விரைவாகச் செய்து கொடுங்கள். 2) நல்ல நற்சான்றிதழைப் (testimonial) பெறுங்கள். வேலை உறுதியானதும் எனக்குத் தெரிவியுங்கள், உடனடி ரசீதை நான் தயார் செய்கிறேன்!`;
+        }
+        if (/விலை|கட்டணம்/.test(cleanMsg)) {
+            return `மணிநேரக் கட்டணம் வசூலிக்காதீர்கள், திட்டத்தின் வணிக மதிப்பை அடிப்படையாகக் கொண்டு நிலையான கட்டணம் (Fixed Price) நிர்ணயிக்கவும். எப்போதுமே 50% முன்பணம் பெற்றுக்கொண்டு பணியைத் தொடங்குங்கள்!`;
+        }
+        if (/வணக்கம்|காலை|ஹலோ/.test(cleanMsg)) {
             return `வணக்கம் ${userName}! உங்கள் ஸ்டுடியோவில் அனைத்து பணிகளும் சிறப்பாக இயங்குகின்றன. இன்று என்ன செய்ய வேண்டும்?`;
         }
         return `கட்டளையிடுங்கள் ${userName}, உங்களுக்கு உதவ நான் எப்போதும் தயார். என்ன செய்ய வேண்டும்?`;
+    }
+
+    // ─── ENGLISH FREELANCE & BUSINESS MASTERCLASS ADVICE ───
+    if (/\b(first\s*client|get.*client|find.*client|landing.*client|new.*client|how.*to.*client)\b/i.test(cleanMsg)) {
+        return `To land your first client fast, ${userName}: 1) Reach out directly to 5 past colleagues or warm contacts with a hyper-specific, zero-risk offer (e.g., 'I can redesign your landing page or audit your sales funnel in 48 hours'). 2) Focus on speed and an undeniable testimonial rather than immediate top-tier pay. Once they say yes, tell me: 'Bill [Name] ₹[Amount]' and I'll prepare your professional invoice with UPI QR code in seconds!`;
+    }
+
+    if (/\b(how.*price|how.*charge|pricing|what.*to.*charge|hourly.*vs.*fixed|rate|fees)\b/i.test(cleanMsg)) {
+        return `Never bill by the hour—anchor your pricing directly to the business outcome, ${userName}. If your design or code helps a client close even two deals, charging ₹30,000 to ₹50,000 is an easy investment for them. Always collect a 50% upfront deposit before starting work.`;
+    }
+
+    if (/\b(cold\s*email|pitch|pitching|outreach|how.*to.*pitch|proposal)\b/i.test(cleanMsg)) {
+        return `Ditch long generic template emails, ${userName}. Instead, send a 2-minute personalized video or 3 quick bullet points showing a specific bug, design flaw, or missed revenue opportunity on their current site. Demonstrating immediate value upfront gets 5x higher response rates.`;
+    }
+
+    if (/\b(late\s*payment|client.*not.*pay|unpaid.*invoice|chase.*payment|follow.*up.*payment)\b/i.test(cleanMsg)) {
+        return `Use a firm 3-step escalation, ${userName}: 1) A courtesy reminder 2 days before due date. 2) A direct WhatsApp message with your UPI/payment link on the due date. 3) Pause all deliverables if it passes 7 days. You can say 'Who owes me money?' anytime and I'll generate instant 1-click WhatsApp reminders for you.`;
+    }
+
+    if (/\b(discount|lower.*price|client.*asking.*discount|negotiat)\b/i.test(cleanMsg)) {
+        return `Never lower your price without lowering the scope, ${userName}. Tell them: 'I understand your budget constraints. We can hit that price by removing [Feature X], or we can keep the full scope at my standard rate.' This protects your positioning and keeps you from being commoditized.`;
+    }
+
+    if (/\b(retainer|recurring|predictable.*income|monthly.*retainer)\b/i.test(cleanMsg)) {
+        return `Convert one-off clients into monthly retainers by offering ongoing maintenance, security updates, and priority design iterations for a fixed monthly fee (e.g. ₹15,000 to ₹25,000/month). Predictable retainers eliminate the freelancer feast-or-famine cycle.`;
+    }
+
+    if (/\b(scale|grow.*agency|agency|more.*revenue)\b/i.test(cleanMsg)) {
+        return `To scale beyond your time, ${userName}: Productize your services into fixed-scope packages (e.g. '3-day brand kit' or '1-week Shopify sprint') and systematize delivery. When your pipeline fills up, double your prices on the next 3 proposals.`;
     }
 
     if (/\b(hi|hello|hey|yo|greetings|morning|afternoon|evening)\b/.test(cleanMsg)) {
@@ -2627,7 +2676,7 @@ Your reply as ${agentName}:`;
     }
 
     if (/\b(who are you|what are you|what can you do)\b/.test(cleanMsg)) {
-        return `I am ${agentName}, your AI Chief of Staff. I handle your client invoices, follow up on late payments with 1-click WhatsApp alerts, monitor revenue targets, and keep your creative business running smoothly. What's on your agenda?`;
+        return `I am ${agentName}, your AI Chief of Staff. I handle your client invoices, follow up on late payments with 1-click WhatsApp alerts, monitor revenue targets, and advise you on growing your freelance studio. What's on your agenda?`;
     }
 
     if (/\b(how are you|how is it going|how r u|what's up|sup)\b/.test(cleanMsg)) {
