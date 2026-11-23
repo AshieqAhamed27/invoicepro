@@ -3,6 +3,72 @@ import api from '../utils/api';
 import { formatCurrency } from '../utils/auth';
 import { getWhatsAppShareUrl } from '../utils/whatsapp';
 
+const SUPPORTED_LANGUAGES = [
+  {
+    id: 'en',
+    name: 'English',
+    flag: '🇬🇧',
+    badge: 'Standard',
+    subtext: 'Global JARVIS persona',
+    speechLang: 'en-IN',
+    previewText: 'Language set to English. Ready for your command.',
+    placeholder: 'Speak or type: e.g. "Hi", "Bill Vikram ₹20k", "Who owes me?"',
+    chips: [
+      { label: '👋 "Hi Flow"', cmd: 'Hi' },
+      { label: '📄 "Bill Vikram ₹20k"', cmd: 'Bill Vikram ₹20,000 for website design with 18% GST due in 7 days' },
+      { label: '⏰ "Who owes me?"', cmd: 'Who owes me money?' },
+      { label: '🎯 "Goal progress"', cmd: 'How is my monthly revenue goal?' }
+    ]
+  },
+  {
+    id: 'tanglish',
+    name: 'Tanglish',
+    flag: '🇮🇳',
+    badge: 'தமிழ் + Eng',
+    subtext: 'Tamil written in English',
+    speechLang: 'en-IN',
+    previewText: 'Language set to Tanglish! Vanakkam nanba, innaiku yaaru ku bill ready pannanum?',
+    placeholder: 'Tanglish-la sollunga: "Vanakkam", "Vikram ku ₹20k bill podu", "Yaaru kaasu tharanum?"',
+    chips: [
+      { label: '👋 "Vanakkam Flow"', cmd: 'Vanakkam Flow' },
+      { label: '📄 "Vikram ku ₹20k bill podu"', cmd: 'Vikram ku ₹20,000 website design-ku 18% GST oda invoice podu' },
+      { label: '⏰ "Yaaru kaasu tharanum?"', cmd: 'Yaaru kaasu tharanum? Overdue bills evlo?' },
+      { label: '🎯 "Goal status enna?"', cmd: 'Monthly revenue goal status enna?' }
+    ]
+  },
+  {
+    id: 'ta',
+    name: 'தமிழ் (Tamil)',
+    flag: '🇮🇳',
+    badge: 'தமிழ்',
+    subtext: 'தூய தமிழ் வடிவம்',
+    speechLang: 'ta-IN',
+    previewText: 'மொழி தமிழுக்கு மாற்றப்பட்டது. வணக்கம்! இன்று என்ன செய்ய வேண்டும்?',
+    placeholder: 'தமிழில் பேசுங்கள்: "வணக்கம்", "விக்ரமுக்கு பில் போடு", "பாக்கி பணம் எவ்வளவு?"',
+    chips: [
+      { label: '👋 "வணக்கம் Flow"', cmd: 'வணக்கம் Flow' },
+      { label: '📄 "விக்ரமுக்கு ₹20k பில்"', cmd: 'விக்ரமுக்கு ₹20,000 வலைத்தள வடிவமைப்புக்காக 18% GST உடன் ரசீது உருவாக்கு' },
+      { label: '⏰ "பாக்கி பணம் எவ்வளவு?"', cmd: 'யாருடைய பணம் பாக்கி உள்ளது?' },
+      { label: '🎯 "இலக்கு நிலை என்ன?"', cmd: 'எனது மாத வருவாய் இலக்கு நிலை என்ன?' }
+    ]
+  },
+  {
+    id: 'hi',
+    name: 'हिंदी (Hindi)',
+    flag: '🇮🇳',
+    badge: 'हिंदी',
+    speechLang: 'hi-IN',
+    previewText: 'भाषा हिंदी चुनी गई है। नमस्ते! आज क्या काम करना है?',
+    placeholder: 'हिंदी में बोलें या लिखें: "नमस्ते", "Vikram ko bill banao", "Kiska baki hai?"',
+    chips: [
+      { label: '👋 "नमस्ते Flow"', cmd: 'नमस्ते Flow' },
+      { label: '📄 "Vikram ko ₹20k bill"', cmd: 'Vikram ko ₹20,000 website design ke liye 18% GST ke sath bill banao' },
+      { label: '⏰ "Kiska baki hai?"', cmd: 'Kiska payment baki hai? Overdue invoices dikhao' },
+      { label: '🎯 "Goal status kya hai?"', cmd: 'Mera monthly revenue goal status kya hai?' }
+    ]
+  }
+];
+
 export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) {
   const agentName = user?.agentConfig?.name || 'Flow';
   const voiceEnabled = user?.agentConfig?.voiceEnabled !== false;
@@ -19,17 +85,19 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
   const [draftActionLoading, setDraftActionLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Voice Selection States
-  const [availableVoices, setAvailableVoices] = useState([]);
-  const [selectedVoiceURI, setSelectedVoiceURI] = useState(
-    () => localStorage.getItem('flow_agent_voice') || user?.agentConfig?.voiceName || ''
+  // Curated Multi-Language State
+  const [selectedLangId, setSelectedLangId] = useState(
+    () => localStorage.getItem('flow_agent_lang') || 'en'
   );
-  const [showVoicePicker, setShowVoicePicker] = useState(false);
+  const [showLangPicker, setShowLangPicker] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState([]);
 
   const recognitionRef = useRef(null);
   const chatScrollRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const voicePickerRef = useRef(null);
+  const langPickerRef = useRef(null);
+
+  const activeLang = SUPPORTED_LANGUAGES.find((l) => l.id === selectedLangId) || SUPPORTED_LANGUAGES[0];
 
   // 1. Detect & Load System Voices
   useEffect(() => {
@@ -53,22 +121,22 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
     };
   }, []);
 
-  // Close voice picker when clicking outside
+  // Close dropdown on outside click
   useEffect(() => {
     const handleOutsideClick = (e) => {
-      if (voicePickerRef.current && !voicePickerRef.current.contains(e.target)) {
-        setShowVoicePicker(false);
+      if (langPickerRef.current && !langPickerRef.current.contains(e.target)) {
+        setShowLangPicker(false);
       }
     };
-    if (showVoicePicker) {
+    if (showLangPicker) {
       document.addEventListener('mousedown', handleOutsideClick);
     }
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [showVoicePicker]);
+  }, [showLangPicker]);
 
-  // 2. Initialize Web Speech Recognition
+  // 2. Initialize Web Speech Recognition with dynamic language
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -76,7 +144,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = 'en-IN';
+      recognition.lang = activeLang.speechLang || 'en-IN';
 
       recognition.onstart = () => setIsListening(true);
       recognition.onend = () => setIsListening(false);
@@ -91,7 +159,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
 
       recognitionRef.current = recognition;
     }
-  }, []);
+  }, [activeLang.speechLang]);
 
   // 3. Smooth Chat Auto-Scroll
   useEffect(() => {
@@ -100,7 +168,6 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
     }
   }, [conversation, loading]);
 
-  // Stop active speech synthesis
   const stopSpeaking = () => {
     if (window.speechSynthesis) {
       try {
@@ -110,36 +177,47 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
     setIsSpeaking(false);
   };
 
-  // Natural text-to-speech reply with selected voice
-  const speakAloud = (text, customVoiceURI = null) => {
+  // Natural speech playback adapted to language
+  const speakAloud = (text, langId = activeLang.id) => {
     if (!voiceEnabled || !window.speechSynthesis || !text) return;
     try {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-
       const voices = availableVoices.length > 0 ? availableVoices : (window.speechSynthesis.getVoices() || []);
-      const targetURI = customVoiceURI || selectedVoiceURI;
 
       let chosenVoice = null;
-      if (targetURI) {
-        chosenVoice = voices.find((v) => v.voiceURI === targetURI || v.name === targetURI);
-      }
-      if (!chosenVoice) {
+      if (langId === 'ta') {
+        chosenVoice = voices.find((v) => v.lang === 'ta-IN' || v.lang.startsWith('ta')) ||
+                      voices.find((v) => v.lang === 'en-IN');
+        utterance.lang = chosenVoice ? chosenVoice.lang : 'ta-IN';
+      } else if (langId === 'hi') {
+        chosenVoice = voices.find((v) => v.lang === 'hi-IN' || v.lang.startsWith('hi')) ||
+                      voices.find((v) => v.lang === 'en-IN');
+        utterance.lang = chosenVoice ? chosenVoice.lang : 'hi-IN';
+      } else if (langId === 'tanglish') {
+        // Indian English voice speaks Tanglish authentically!
+        chosenVoice = voices.find((v) => v.lang === 'en-IN') ||
+                      voices.find((v) => /india|hindi|tamil/i.test(v.name)) ||
+                      voices.find((v) => v.lang.startsWith('en')) ||
+                      voices[0];
+        utterance.lang = chosenVoice ? chosenVoice.lang : 'en-IN';
+      } else {
+        // Clean single English voice (UK / US natural)
         chosenVoice =
           voices.find((v) => /google uk english male|george|daniel|ryan|oliver/i.test(v.name)) ||
           voices.find((v) => v.lang === 'en-GB') ||
-          voices.find((v) => /guy|david|natural|samantha|karen/i.test(v.name)) ||
+          voices.find((v) => /guy|david|natural|samantha/i.test(v.name)) ||
           voices.find((v) => v.lang.startsWith('en')) ||
           voices[0];
+        utterance.lang = chosenVoice ? chosenVoice.lang : 'en-US';
       }
 
       if (chosenVoice) {
         utterance.voice = chosenVoice;
-        utterance.lang = chosenVoice.lang;
       }
 
       utterance.rate = 1.0;
-      utterance.pitch = chosenVoice && /male/i.test(chosenVoice.name) ? 0.95 : 1.0;
+      utterance.pitch = 1.0;
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
@@ -149,19 +227,23 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
     }
   };
 
-  const handleSelectVoice = async (voice) => {
-    const uri = voice.voiceURI || voice.name;
-    setSelectedVoiceURI(uri);
-    localStorage.setItem('flow_agent_voice', uri);
-    setShowVoicePicker(false);
+  const handleSelectLanguage = (lang) => {
+    setSelectedLangId(lang.id);
+    localStorage.setItem('flow_agent_lang', lang.id);
+    setShowLangPicker(false);
 
-    speakAloud(`Voice updated. Ready for your command.`, uri);
+    if (recognitionRef.current) {
+      recognitionRef.current.lang = lang.speechLang;
+    }
+
+    // Play pleasant voice preview in chosen language
+    speakAloud(lang.previewText, lang.id);
 
     try {
-      await api.put('/auth/profile', {
+      api.put('/auth/profile', {
         agentConfig: {
           ...user?.agentConfig,
-          voiceName: uri
+          languageMode: lang.id
         }
       });
     } catch {}
@@ -213,7 +295,8 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
 
       const res = await api.post('/ai/agent', {
         message: query,
-        history: historyPayload
+        history: historyPayload,
+        languageMode: activeLang.id
       });
       const data = res.data;
 
@@ -238,9 +321,8 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
         setActiveOverdues(data.overdueInvoices);
       }
 
-      // Speak aloud only when user used voice input
       if (data.reply && isVoiceInput) {
-        speakAloud(data.reply);
+        speakAloud(data.reply, activeLang.id);
       }
 
       if (data.goalData && onGoalUpdated) {
@@ -279,7 +361,12 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
       setCreatedInvoice(newInv);
       setActiveDraft(null);
 
-      const successReply = `Confirmed! Invoice #${newInv?.invoiceNumber || ''} for ${newInv?.clientName || 'client'} has been generated. Ready to share!`;
+      const successReply = activeLang.id === 'tanglish'
+        ? `Invoice #${newInv?.invoiceNumber || ''} (${newInv?.clientName || 'client'}) create panniten! WhatsApp la share panna ready.`
+        : activeLang.id === 'ta'
+          ? `ரசீது #${newInv?.invoiceNumber || ''} வெற்றிகரமாக உருவாக்கப்பட்டது! பகிர தயாராக உள்ளது.`
+          : `Confirmed! Invoice #${newInv?.invoiceNumber || ''} for ${newInv?.clientName || 'client'} has been generated. Ready to share!`;
+
       setConversation((prev) => [
         ...prev,
         { role: 'assistant', text: successReply, isSuccess: true, time: new Date() }
@@ -301,21 +388,15 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  // Find active voice label
-  const currentVoiceObj = availableVoices.find((v) => v.voiceURI === selectedVoiceURI || v.name === selectedVoiceURI);
-  const currentVoiceLabel = currentVoiceObj
-    ? currentVoiceObj.name.replace(/(Microsoft|Google|Apple)\s*/i, '').slice(0, 18)
-    : 'Default Voice';
-
   return (
     <div className="w-full mb-6 sm:mb-8">
       {/* ─── DYNAMIC COMMAND CAPSULE (World-Class Clean Alignment) ─── */}
       <div className="relative rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl p-4 sm:p-5 shadow-lg dark:shadow-[0_16px_48px_rgba(0,0,0,0.65)] transition-all">
         
-        {/* ─── 1. TOP HEADER ROW: Assistant Identity, Live Status & Voice Picker ─── */}
+        {/* ─── 1. TOP HEADER ROW: Assistant Identity, Live Status & Multi-Language Dropdown ─── */}
         <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-slate-100 dark:border-white/[0.08]">
           
-          {/* Left: Orb + Name + Status */}
+          {/* Left: Living Orb + Name + Status */}
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -329,7 +410,6 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
               }`}
               title={isListening ? 'Listening... Tap to stop' : `Talk to ${agentName}`}
             >
-              {/* Soundwave Visualizer */}
               <div className="flex items-center justify-center gap-1">
                 <span className={`w-1 rounded-full bg-current transition-all ${isListening || isSpeaking ? 'h-5 animate-pulse' : 'h-3'}`} />
                 <span className={`w-1 rounded-full bg-current transition-all ${isListening || isSpeaking ? 'h-7 animate-pulse delay-75' : 'h-4'}`} />
@@ -358,63 +438,65 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
             </div>
           </div>
 
-          {/* Right: Voice Selector Dropdown (Cleanly Placed at Top Right) */}
-          <div className="relative shrink-0" ref={voicePickerRef}>
+          {/* Right: Curated Multi-Language Selector (Clean & Uncluttered) */}
+          <div className="relative shrink-0" ref={langPickerRef}>
             <button
               type="button"
-              onClick={() => setShowVoicePicker((p) => !p)}
+              onClick={() => setShowLangPicker((p) => !p)}
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/[0.04] px-2.5 sm:px-3 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition hover:border-indigo-400 dark:hover:border-cyan-400/50 hover:bg-slate-100 dark:hover:bg-white/[0.08]"
-              title="Change assistant voice"
+              title="Select language (English, Tanglish, Tamil, Hindi)"
             >
-              <span>🎙️</span>
-              <span className="hidden sm:inline max-w-[120px] truncate">{currentVoiceLabel}</span>
+              <span>{activeLang.flag}</span>
+              <span className="font-bold">{activeLang.name}</span>
               <span className="text-[9px] text-slate-400">▼</span>
             </button>
 
-            {/* Voice Dropdown Popover */}
-            {showVoicePicker && (
+            {/* Language Selector Popover */}
+            {showLangPicker && (
               <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl border border-slate-200 dark:border-white/15 bg-white dark:bg-slate-950 p-3 shadow-2xl z-50 animate-fade-in">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-white/10">
+                <div className="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-100 dark:border-white/10">
                   <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">
-                    Assistant Voice
+                    Select Language
                   </span>
                   <button
                     type="button"
-                    onClick={() => setShowVoicePicker(false)}
+                    onClick={() => setShowLangPicker(false)}
                     className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-white p-1"
                   >
                     ✕
                   </button>
                 </div>
 
-                <div className="mt-2 max-h-56 overflow-y-auto space-y-1 pr-1 text-xs">
-                  {availableVoices.length === 0 && (
-                    <p className="p-3 text-slate-400 text-center">Loading browser voices...</p>
-                  )}
-                  {availableVoices
-                    .filter((v) => v.lang.startsWith('en'))
-                    .concat(availableVoices.filter((v) => !v.lang.startsWith('en')).slice(0, 5))
-                    .map((voice) => {
-                      const isSelected = selectedVoiceURI === voice.voiceURI || selectedVoiceURI === voice.name;
-                      return (
-                        <button
-                          key={voice.voiceURI || voice.name}
-                          type="button"
-                          onClick={() => handleSelectVoice(voice)}
-                          className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-left transition ${
-                            isSelected
-                              ? 'bg-indigo-50 text-indigo-700 dark:bg-cyan-500/20 dark:text-cyan-200 border border-indigo-200 dark:border-cyan-400/40 font-bold'
-                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'
-                          }`}
-                        >
-                          <div className="truncate pr-2">
-                            <p className="truncate font-semibold">{voice.name}</p>
-                            <p className="text-[10px] text-slate-400">{voice.lang}</p>
+                <div className="space-y-1 text-xs">
+                  {SUPPORTED_LANGUAGES.map((lang) => {
+                    const isSelected = selectedLangId === lang.id;
+                    return (
+                      <button
+                        key={lang.id}
+                        type="button"
+                        onClick={() => handleSelectLanguage(lang)}
+                        className={`w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-left transition ${
+                          isSelected
+                            ? 'bg-indigo-50 text-indigo-700 dark:bg-cyan-500/20 dark:text-cyan-200 border border-indigo-200 dark:border-cyan-400/40 font-bold'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-lg">{lang.flag}</span>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-bold">{lang.name}</span>
+                              <span className="rounded-md bg-slate-200/60 dark:bg-white/10 px-1.5 py-0.2 text-[9px] font-semibold text-slate-600 dark:text-slate-300">
+                                {lang.badge}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{lang.subtext}</p>
                           </div>
-                          {isSelected && <span className="text-indigo-600 dark:text-cyan-300 font-black text-xs">✓</span>}
-                        </button>
-                      );
-                    })}
+                        </div>
+                        {isSelected && <span className="text-indigo-600 dark:text-cyan-300 font-black text-sm">✓</span>}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -429,21 +511,18 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
           }}
           className="mt-3.5 flex items-center rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/40 p-1.5 focus-within:border-indigo-500 dark:focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-indigo-500/15 dark:focus-within:ring-cyan-500/20 transition shadow-inner"
         >
-          {/* Sparkle Icon */}
           <span className="pl-3 pr-1 text-indigo-500 dark:text-cyan-400 shrink-0 text-sm">
             ✨
           </span>
 
-          {/* Text Input Field */}
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={`Speak or type: e.g. "Hi", "Bill Vikram ₹20k", "Who owes me?"`}
+            placeholder={activeLang.placeholder}
             className="flex-1 bg-transparent px-2.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none"
           />
 
-          {/* Integrated Actions Cluster */}
           <div className="flex items-center gap-1 shrink-0">
             {speechSupported && (
               <button
@@ -454,7 +533,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
                     ? 'bg-red-500 text-white shadow-md shadow-red-500/30 animate-pulse'
                     : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-300 hover:bg-slate-200/60 dark:hover:bg-white/10'
                 }`}
-                title={isListening ? 'Listening... tap to stop' : 'Speak to Flow (assistant speaks reply back)'}
+                title={isListening ? 'Listening... tap to stop' : `Speak in ${activeLang.name}`}
                 aria-label="Toggle voice"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -469,7 +548,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
               disabled={loading || !input.trim()}
               className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-cyan-500 dark:to-indigo-600 text-white shadow-md shadow-indigo-500/20 dark:shadow-cyan-500/25 transition hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
               aria-label="Send query"
-              title="Send text (assistant will reply with text)"
+              title="Send text"
             >
               {loading ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -482,39 +561,21 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
           </div>
         </form>
 
-        {/* ─── 3. QUICK COMMAND SUGGESTION CHIPS ─── */}
+        {/* ─── 3. QUICK COMMAND SUGGESTION CHIPS (Adapts to Active Language) ─── */}
         <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
           <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">
             Commands:
           </span>
-          <button
-            type="button"
-            onClick={() => handleSendCommand('Hi', { isVoiceInput: false })}
-            className="rounded-xl border border-slate-200 dark:border-white/5 bg-slate-100/70 dark:bg-white/[0.03] px-3 py-1 font-medium text-slate-700 dark:text-slate-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:border-cyan-400/40 dark:hover:bg-cyan-500/10 hover:text-indigo-700 dark:hover:text-cyan-200 transition shrink-0 whitespace-nowrap"
-          >
-            👋 "Hi Flow"
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSendCommand('Bill Vikram ₹20,000 for website design with 18% GST due in 7 days', { isVoiceInput: false })}
-            className="rounded-xl border border-slate-200 dark:border-white/5 bg-slate-100/70 dark:bg-white/[0.03] px-3 py-1 font-medium text-slate-700 dark:text-slate-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:border-cyan-400/40 dark:hover:bg-cyan-500/10 hover:text-indigo-700 dark:hover:text-cyan-200 transition shrink-0 whitespace-nowrap"
-          >
-            📄 "Bill Vikram ₹20k"
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSendCommand('Who owes me money?', { isVoiceInput: false })}
-            className="rounded-xl border border-slate-200 dark:border-white/5 bg-slate-100/70 dark:bg-white/[0.03] px-3 py-1 font-medium text-slate-700 dark:text-slate-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:border-cyan-400/40 dark:hover:bg-cyan-500/10 hover:text-indigo-700 dark:hover:text-cyan-200 transition shrink-0 whitespace-nowrap"
-          >
-            ⏰ "Who owes me?"
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSendCommand('How is my monthly revenue goal?', { isVoiceInput: false })}
-            className="rounded-xl border border-slate-200 dark:border-white/5 bg-slate-100/70 dark:bg-white/[0.03] px-3 py-1 font-medium text-slate-700 dark:text-slate-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:border-cyan-400/40 dark:hover:bg-cyan-500/10 hover:text-indigo-700 dark:hover:text-cyan-200 transition shrink-0 whitespace-nowrap"
-          >
-            🎯 "Goal progress"
-          </button>
+          {activeLang.chips.map((chip, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSendCommand(chip.cmd, { isVoiceInput: false })}
+              className="rounded-xl border border-slate-200 dark:border-white/5 bg-slate-100/70 dark:bg-white/[0.03] px-3 py-1 font-medium text-slate-700 dark:text-slate-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:border-cyan-400/40 dark:hover:bg-cyan-500/10 hover:text-indigo-700 dark:hover:text-cyan-200 transition shrink-0 whitespace-nowrap"
+            >
+              {chip.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -541,7 +602,6 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
             </button>
           </div>
 
-          {/* Smooth Scrollable Container */}
           <div
             ref={chatScrollRef}
             className="max-h-64 sm:max-h-80 overflow-y-auto space-y-3 pr-1.5 scroll-smooth overscroll-contain"
@@ -576,7 +636,7 @@ export default function FlowAgentBar({ user, onInvoiceCreated, onGoalUpdated }) 
                       if (isSpeaking) {
                         stopSpeaking();
                       } else {
-                        speakAloud(msg.text);
+                        speakAloud(msg.text, activeLang.id);
                       }
                     }}
                     className="shrink-0 rounded-lg p-1 text-xs text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-300 transition"

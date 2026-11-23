@@ -756,23 +756,37 @@ const getSalesAgentPlan = ({ leads = [], invoices = [], user = {} }) => {
 const detectAgentIntent = (message) => {
     const text = String(message || '').toLowerCase();
 
-    if (/\b(create|generate|make|draft|prepare|new|bill)\b/.test(text) && /\b(invoice|proposal|bill)\b/.test(text)) {
+    // 1. Create Invoice (English, Tamil, Tanglish)
+    if (
+        (/\b(create|generate|make|draft|prepare|new|bill|podu|anupu|pannu|uruvakku|send|ready pannu)\b/i.test(text) &&
+         /\b(invoice|proposal|bill|bille|billu|rasidhu|invoisu|billi)\b/i.test(text)) ||
+        /\b(bill\s*podu|invoice\s*podu|invoice\s*pannu|bill\s*pannu|bill\s*ready|விலைப்\s*பட்டியல்|ரசீது|இன்வாய்ஸ்)\b/i.test(text) ||
+        /\b(?:ku|kku)\s+(?:invoice|bill)\b/i.test(text)
+    ) {
         return 'create_invoice';
     }
 
-    if (/\b(goal|target|monthly goal|monthly target|revenue goal)\b/.test(text)) {
+    // 2. Revenue Goal (English, Tamil, Tanglish)
+    if (
+        /\b(goal|target|monthly goal|monthly target|revenue goal|ilakku|targetu)\b/i.test(text) ||
+        /\b(goal\s*status|target\s*enna|இலக்கு|ilaku)\b/i.test(text)
+    ) {
         return 'goal_status';
     }
 
-    if (/\b(overdue|late|who owes|unpaid|pending payment)\b/.test(text)) {
+    // 3. Overdue Audit (English, Tamil, Tanglish)
+    if (
+        /\b(overdue|late|who owes|unpaid|pending payment|yaaru kaasu|tharanum|bakki|panam|pending bills|late payment|kudukanum|vara vendiyathu|vara vendum)\b/i.test(text) ||
+        /\b(பாக்கி|யார் பணம்|கொடுக்க வேண்டும்|தாமதம்)\b/i.test(text)
+    ) {
         return 'overdue_audit';
     }
 
-    if (/\b(total|calculate|calc|gst|tax|amount|subtotal)\b/.test(text)) {
+    if (/\b(total|calculate|calc|gst|tax|amount|subtotal|moththam|kanakku)\b/i.test(text)) {
         return 'calculate_total';
     }
 
-    if (/\b(pending|paid|due|status|cash|collection|collect)\b/.test(text)) {
+    if (/\b(pending|paid|due|status|cash|collection|collect|varavendiyathu)\b/i.test(text)) {
         return 'status_summary';
     }
 
@@ -801,18 +815,27 @@ const buildRuleInvoiceDraft = (message, user = {}) => {
     const text = String(message || '');
     const email = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] || '';
     const taxRates = extractTaxRates(text);
-    const amountMatch = text.match(/(?:rs\.?|inr|₹)\s*([0-9][\d,]*(?:\.\d+)?)|([0-9][\d,]*(?:\.\d+)?)\s*(?:rs\.?|inr|₹)/i);
+    const amountMatch = text.match(/(?:rs\.?|inr|₹|rubai|roobai)?\s*([0-9][\d,]*(?:\.\d+)?)\s*(?:rs\.?|inr|₹|rubai|roobai|k|lakh)?/i);
     const price = toMoneyNumber(amountMatch?.[1] || amountMatch?.[2]);
     const documentType = /\bproposal\b/i.test(text) ? 'proposal' : 'invoice';
-    const nameMatch = text.match(/\bfor\s+([a-zA-Z][a-zA-Z0-9 .&'-]{1,60})/);
-    const roughName = nameMatch?.[1]
-        ?.replace(email, '')
-        ?.replace(/\b(?:invoice|proposal|bill|website|design|development|service|services|for|with|due|rs|inr|gst|tax).*/i, '')
-        ?.trim();
+
+    // Support English, Tanglish ("Vikram ku", "Suresh kku", "Ramesh-ku"), and Tamil names
+    let roughName = '';
+    const tanglishNameMatch = text.match(/\b([a-zA-Z][a-zA-Z0-9 .&'-]{1,30})\s*(?:ku|kku|-ku|-kku)\b/i);
+    const englishNameMatch = text.match(/\b(?:for|to|bill)\s+([a-zA-Z][a-zA-Z0-9 .&'-]{1,30})/i);
+    if (tanglishNameMatch) {
+        roughName = tanglishNameMatch[1].trim();
+    } else if (englishNameMatch) {
+        roughName = englishNameMatch[1]
+            .replace(email, '')
+            .replace(/\b(?:invoice|proposal|bill|website|design|development|service|services|for|with|due|rs|inr|gst|tax).*/i, '')
+            .trim();
+    }
+
     const itemText = text
         .replace(email, '')
         .replace(amountMatch?.[0] || '', '')
-        .replace(/\b(create|generate|make|draft|prepare|new|invoice|proposal|bill|for|with|gst|tax|due|in|days?|today|tomorrow)\b/gi, ' ')
+        .replace(/\b(create|generate|make|draft|prepare|new|invoice|proposal|bill|for|with|gst|tax|due|in|days?|today|tomorrow|podu|pannu|anupu|ku|kku|oda|potu)\b/gi, ' ')
         .replace(/\s+/g, ' ')
         .trim();
 
@@ -2533,19 +2556,23 @@ router.post('/quick-invoice', protect, async(req, res) => {
     }
 });
 
-const callAiJarvisResponse = async ({ message, history = [], user, agentName, contextSummary }) => {
+const callAiJarvisResponse = async ({ message, history = [], user, agentName, languageMode = 'en', contextSummary }) => {
     const historySnippet = history && history.length > 0
         ? history.map(h => `${h.role === 'user' ? (user.name || 'User') : agentName}: ${h.text}`).join('\n')
         : '';
+
+    const isTanglish = languageMode === 'tanglish' || /\b(vanakkam|irukinga|irukku|panren|pannanum|pannu|podu|tharanum|kaasu|bakki|nanba|thala|machi|machan|anna|epdi|enna|kudukanum|anupu|bille)\b/i.test(message);
+    const isTamil = languageMode === 'ta' || /[\u0B80-\u0BFF]/.test(message);
+    const isHindi = languageMode === 'hi' || /[\u0900-\u097F]|\b(namaste|kaise|karo|banao|baki|hai|bhai)\b/i.test(message);
 
     const prompt = `You are ${agentName}, an elite, charming, witty, and highly articulate AI Chief of Staff (inspired by JARVIS from Iron Man and Claude 3.5 Sonnet) assisting ${user.name || 'there'} inside their ClientFlow AI studio.
 Persona:
 - Calm, charismatic, intelligent, and subtly humorous.
 - Loyal partner who treats the user as an ambitious founder/creator.
-- Speaks in natural, spoken-ready English (1 to 3 sentences maximum).
-- NEVER dumps invoice counts or database statistics unless the user specifically asks for numbers.
-- If the user says "hi", "how are you", or small talk, respond with warmth, wit, and effortless poise.
-- If the user asks for business or freelance advice, offer sharp, high-leverage guidance concisely.
+- Speaks in natural, spoken-ready dialogue (1 to 3 sentences maximum).
+- NEVER dumps invoice counts or database statistics unless specifically asked for numbers.
+- Multilingual and Dialect Adaptation:
+  ${isTanglish ? `* The user communicates in TANGLISH (Tamil words written in English letters). You MUST reply in witty, charming, natural TANGLISH (e.g. "Vanakkam! All systems smooth ah iruku...", "Sure nanba, invoice draft ready panniten...", "Operating at peak efficiency, neenga jolly ah creative work pannunga").` : isTamil ? `* The user speaks TAMIL (தமிழ்). Reply in polite, fluent, natural Tamil script.` : isHindi ? `* The user speaks HINDI. Reply in polite, friendly Hindi.` : `* Reply in suave, articulate, natural English.`}
 
 ${historySnippet ? `Previous conversation:\n${historySnippet}\n` : ''}User says: "${message}"
 
@@ -2563,6 +2590,32 @@ Your reply as ${agentName}:`;
     // Dynamic, charismatic fallbacks (JARVIS caliber)
     const cleanMsg = String(message).toLowerCase().trim();
     const userName = user.name || 'there';
+
+    if (isTanglish) {
+        if (/\b(hi|hello|hey|vanakkam|greetings|morning|afternoon|evening)\b/i.test(cleanMsg)) {
+            return `Vanakkam ${userName}! Studio la ellam super ah ready ah iruku. Innaiku yaaru ku bill ready pannanum?`;
+        }
+        if (/\b(epdi|how are you|how r u|what's up|sup)\b/i.test(cleanMsg)) {
+            return `Peak efficiency la operate aaguthu, ${userName}! Ungaloda client billings and payments naan paathukren. Neenga chill ah creative work pannunga.`;
+        }
+        if (/\b(who are you|yaaru neenga|what can you do)\b/i.test(cleanMsg)) {
+            return `Naan thaan ${agentName}, ungaloda personal AI Chief of Staff! Invoices create panna, late payments track panna, revenue goals reach panna naan ready. Enna pannanum nu sollunga!`;
+        }
+        if (/\b(thank|thanks|super|nandri)\b/i.test(cleanMsg)) {
+            return `Enna nanba, ithukelam thanks sollitu! Always at your service. Next enna pannanum?`;
+        }
+        if (/\b(tired|stressed|exhausted|overwhelmed|busy)\b/i.test(cleanMsg)) {
+            return `Konjam rest edunga ${userName}! Administrative velai ellam naan paathukren. Unga business safe hands la iruku.`;
+        }
+        return `Kandippa ${userName}! Unga command ku naan ready. Invoice create pannanuma, late bills check pannanuma?`;
+    }
+
+    if (isTamil) {
+        if (/வணக்கம்|காலை|ஹலோ|வணக்கம்/.test(cleanMsg)) {
+            return `வணக்கம் ${userName}! உங்கள் ஸ்டுடியோவில் அனைத்து பணிகளும் சிறப்பாக இயங்குகின்றன. இன்று என்ன செய்ய வேண்டும்?`;
+        }
+        return `கட்டளையிடுங்கள் ${userName}, உங்களுக்கு உதவ நான் எப்போதும் தயார். என்ன செய்ய வேண்டும்?`;
+    }
 
     if (/\b(hi|hello|hey|yo|greetings|morning|afternoon|evening)\b/.test(cleanMsg)) {
         const greetings = [
@@ -2679,21 +2732,47 @@ router.post('/agent', protect, requirePro, async(req, res) => {
                 daysOverdue: Math.max(1, Math.floor((now - new Date(inv.dueDate)) / (1000 * 60 * 60 * 24)))
             }));
 
+        const languageMode = req.body?.languageMode || 'en';
+        const isTanglish = languageMode === 'tanglish' || /\b(vanakkam|irukinga|irukku|panren|pannanum|pannu|podu|tharanum|kaasu|bakki|nanba|thala|machi|machan|anna|epdi|enna|kudukanum|anupu|bille)\b/i.test(message);
+        const isTamil = languageMode === 'ta' || /[\u0B80-\u0BFF]/.test(message);
+
         let reply = '';
         if (draft) {
-            reply = `I prepared a draft for ${draft.clientName || 'your client'} totaling ${formatCurrency(draft.amount)}. Please review and confirm below.`;
+            if (isTanglish) {
+                reply = `${draft.clientName || 'Client'} ku ₹${Number(draft.amount || 0).toLocaleString('en-IN')} draft ready panniten! Keela irukura details check pannitu confirm pannunga.`;
+            } else if (isTamil) {
+                reply = `${draft.clientName || 'வாடிக்கையாளர்'} க்கு ₹${Number(draft.amount || 0).toLocaleString('en-IN')} மதிப்புள்ள ரசீது வரைவு தயாராக உள்ளது. சரிபார்த்து உறுதிப்படுத்தவும்.`;
+            } else {
+                reply = `I prepared a draft for ${draft.clientName || 'your client'} totaling ${formatCurrency(draft.amount)}. Please review and confirm below.`;
+            }
         } else if (intent === 'goal_status') {
             if (monthlyGoal > 0) {
                 const pct = Math.min(100, Math.round((currentRevenue / monthlyGoal) * 100));
-                reply = `You have collected ${formatCurrency(currentRevenue)} towards your ${formatCurrency(monthlyGoal)} goal (${pct}% achieved).`;
+                if (isTanglish) {
+                    reply = `Unga ${formatCurrency(monthlyGoal)} goal-la ippo varaikkum ${formatCurrency(currentRevenue)} collect aagiyiruku (${pct}% achieved). Super progress!`;
+                } else if (isTamil) {
+                    reply = `உங்கள் ${formatCurrency(monthlyGoal)} இலக்கில் ${formatCurrency(currentRevenue)} வசூலிக்கப்பட்டுள்ளது (${pct}% நிறைவு).`;
+                } else {
+                    reply = `You have collected ${formatCurrency(currentRevenue)} towards your ${formatCurrency(monthlyGoal)} goal (${pct}% achieved).`;
+                }
             } else {
-                reply = `You haven't set a revenue goal yet. You can say: "Set monthly goal to ₹1,00,000".`;
+                reply = isTanglish
+                    ? `Neenga innum monthly revenue goal set pannala. "Set goal to ₹1,00,000" nu sollunga!`
+                    : `You haven't set a revenue goal yet. You can say: "Set monthly goal to ₹1,00,000".`;
             }
         } else if (intent === 'overdue_audit') {
             if (overdueInvoices.length > 0) {
-                reply = `You have ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''} worth ${formatCurrency(statusSummary.overdueAmount)}. I've listed them below with 1-click reminders.`;
+                if (isTanglish) {
+                    reply = `${overdueInvoices.length} overdue invoice(s) iruku (moththam ${formatCurrency(statusSummary.overdueAmount)}). Keela list panniruken, 1-click la WhatsApp reminder anupalam.`;
+                } else if (isTamil) {
+                    reply = `${overdueInvoices.length} தாமதமான ரசீதுகள் உள்ளன. கீழேயுள்ள பட்டன் மூலம் வாட்ஸ்அப் நினைவூட்டல் அனுப்பலாம்.`;
+                } else {
+                    reply = `You have ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''} worth ${formatCurrency(statusSummary.overdueAmount)}. I've listed them below with 1-click reminders.`;
+                }
             } else {
-                reply = `Great news! You have no overdue invoices right now.`;
+                reply = isTanglish
+                    ? `Super news! Ippo ungaluku entha overdue invoice-um illa.`
+                    : `Great news! You have no overdue invoices right now.`;
             }
         } else {
             reply = await callAiJarvisResponse({
@@ -2701,6 +2780,7 @@ router.post('/agent', protect, requirePro, async(req, res) => {
                 history: Array.isArray(req.body?.history) ? req.body.history.slice(-6) : [],
                 user: req.user,
                 agentName,
+                languageMode,
                 contextSummary: {
                     pending: statusSummary.pending,
                     goal: monthlyGoal > 0 ? formatCurrency(monthlyGoal) : 'not set'
