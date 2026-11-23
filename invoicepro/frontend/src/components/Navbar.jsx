@@ -9,6 +9,7 @@ const primaryAppLinks = [
   { to: '/client-finder', label: '🔍 Find Clients' },
   { to: '/create-invoice', label: '📄 Invoices & QR' },
   { to: '/proposal-writer', label: '✍️ AI Proposals' },
+  { to: '/profit-tracker', label: '📈 Profit Tracker' },
   { to: '/clients', label: '👥 Clients' }
 ];
 
@@ -284,6 +285,10 @@ export default function Navbar() {
                   <NavLink to="/proposal-writer" onClick={closeMenu} className={mobileItemClass}>
                     <span className="block text-sm font-black">✍️ AI Proposals</span>
                     <span className="mt-0.5 block text-xs font-semibold text-slate-500">Generate 60-sec proposals with 50% advance milestone</span>
+                  </NavLink>
+                  <NavLink to="/profit-tracker" onClick={closeMenu} className={mobileItemClass}>
+                    <span className="block text-sm font-black">📈 Profit Tracker</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-slate-500">Track real net profit, tool overheads & hourly wage</span>
                   </NavLink>
                   <NavLink to="/clients" onClick={closeMenu} className={mobileItemClass}>
                     <span className="block text-sm font-black">👥 Clients Directory</span>

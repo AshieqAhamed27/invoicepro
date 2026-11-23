@@ -414,6 +414,13 @@ export default function ClientFlow() {
             </button>
             <button
               type="button"
+              onClick={() => navigate('/profit-tracker')}
+              className="px-3.5 py-2.5 rounded-xl border border-emerald-300 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 font-bold text-xs uppercase tracking-wider transition shadow-sm flex items-center gap-1.5"
+            >
+              <span>📈 Profit Tracker</span>
+            </button>
+            <button
+              type="button"
               onClick={() => navigate('/settings')}
               className="px-3.5 py-2.5 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 hover:text-slate-950 dark:hover:text-white font-bold text-xs uppercase tracking-wider transition"
             >
@@ -884,6 +891,15 @@ export default function ClientFlow() {
                                 💬 Remind
                               </button>
                             )}
+
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/profit-tracker?invoiceId=${inv._id}`)}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition"
+                              title="Calculate profit & take-home margin for this project"
+                            >
+                              Profit 📊
+                            </button>
 
                             <button
                               type="button"

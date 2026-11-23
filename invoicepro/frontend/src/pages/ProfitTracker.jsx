@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import useDocumentMeta from '../utils/useDocumentMeta';
+import api from '../utils/api';
 
 const STORAGE_KEY = 'clientflow_profit_tracker_state';
 
@@ -73,6 +75,14 @@ const toneClasses = {
 };
 
 export default function ProfitTracker() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const urlInvoiceId = searchParams.get('invoiceId');
+
+  const [invoices, setInvoices] = useState([]);
+  const [loadingInvoices, setLoadingInvoices] = useState(true);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState('');
+
   const [state, setState] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
@@ -87,11 +97,69 @@ export default function ProfitTracker() {
     description: 'Track project profit after AI tools, software subscriptions, payment fees, collaborator costs, and delivery hours.'
   });
 
+  // 1. Fetch real workspace invoices from MongoDB
+  useEffect(() => {
+    let mounted = true;
+    api.get('/invoices')
+      .then((res) => {
+        if (!mounted) return;
+        const list = Array.isArray(res.data?.invoices) ? res.data.invoices : [];
+        setInvoices(list);
+        setLoadingInvoices(false);
+
+        // Auto-select invoice if passed via URL (e.g. from cash recovery center)
+        if (urlInvoiceId) {
+          const match = list.find((inv) => String(inv._id) === String(urlInvoiceId));
+          if (match) {
+            handleSelectInvoice(match);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Unable to load invoices for Profit Tracker:', err.message);
+        if (mounted) setLoadingInvoices(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [urlInvoiceId]);
+
+  const handleSelectInvoice = (inv) => {
+    if (!inv) {
+      setSelectedInvoiceId('');
+      return;
+    }
+
+    setSelectedInvoiceId(inv._id);
+
+    // If previously customized for this specific invoice, restore it
+    try {
+      const savedForInv = localStorage.getItem(`cf_profit_inv_${inv._id}`);
+      if (savedForInv) {
+        const parsed = JSON.parse(savedForInv);
+        setState((prev) => ({ ...prev, ...parsed }));
+        return;
+      }
+    } catch {}
+
+    // Auto-populate from real invoice data
+    setState((prev) => ({
+      ...prev,
+      projectName: `${inv.invoiceNumber ? '#' + inv.invoiceNumber + ' - ' : ''}${inv.clientName || 'Client Project'}`,
+      clientRevenue: Number(inv.amount || 0),
+      paymentFeePercent: inv.paymentLink ? 2.0 : 0
+    }));
+  };
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (selectedInvoiceId) {
+        localStorage.setItem(`cf_profit_inv_${selectedInvoiceId}`, JSON.stringify(state));
+      }
     } catch { }
-  }, [state]);
+  }, [state, selectedInvoiceId]);
 
   const numbers = useMemo(() => {
     const toolCost = state.tools.reduce((total, tool) => {
@@ -185,9 +253,10 @@ export default function ProfitTracker() {
             <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-zinc-400 sm:text-lg">
               ClientFlow AI now checks revenue, AI tools, software subscriptions, payment fees, team cost, and delivery hours so freelancers do not work hard and still lose money.
             </p>
-            <div className="mt-5 max-w-3xl rounded-2xl border border-yellow-300/20 bg-yellow-300/[0.08] px-4 py-3">
-              <p className="text-sm font-bold leading-relaxed text-yellow-100">
-                Example values are added only to help you understand this tool. Edit them with your real project values to see actual profit.
+            <div className="mt-5 max-w-3xl rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-3 flex items-center gap-3">
+              <span className="text-emerald-400 text-lg">⚡</span>
+              <p className="text-sm font-semibold leading-relaxed text-emerald-200">
+                Connected to your real workspace invoices. Select an existing client invoice below to auto-import billed revenue and evaluate true take-home margins.
               </p>
             </div>
           </div>
@@ -268,23 +337,79 @@ export default function ProfitTracker() {
 
         <section className="grid gap-6 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
           <div className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-7">
+            {/* ─── Real Workspace Invoice Synchronizer ─── */}
+            <div className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/30 p-4 sm:p-5 shadow-inner">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs font-black uppercase tracking-wider text-emerald-300">
+                    Sync from Live Invoices
+                  </span>
+                </div>
+                {selectedInvoiceId && (
+                  <span className="text-[11px] font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                    ✓ Live Invoice Linked
+                  </span>
+                )}
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                <select
+                  value={selectedInvoiceId}
+                  onChange={(e) => {
+                    const inv = invoices.find((i) => String(i._id) === String(e.target.value));
+                    handleSelectInvoice(inv);
+                  }}
+                  disabled={loadingInvoices}
+                  className="w-full rounded-xl border border-white/10 bg-black/50 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-white outline-none transition focus:border-emerald-400"
+                >
+                  <option value="">
+                    {loadingInvoices
+                      ? 'Loading invoices...'
+                      : invoices.length > 0
+                      ? '⚡ Select an invoice to auto-import billed revenue...'
+                      : 'No invoices found (enter custom values below)'}
+                  </option>
+                  {invoices.map((inv) => (
+                    <option key={inv._id} value={inv._id}>
+                      #{inv.invoiceNumber || 'INV'} — {inv.clientName || 'Client'} (₹{Number(inv.amount || 0).toLocaleString('en-IN')} • {inv.status?.toUpperCase() || 'DRAFT'})
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/create-invoice')}
+                  className="whitespace-nowrap rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider px-4 py-2.5 transition shadow-sm active:scale-95"
+                >
+                  + New Invoice
+                </button>
+              </div>
+
+              <p className="mt-2 text-[11px] text-zinc-400">
+                {selectedInvoiceId
+                  ? 'Billed amount & client details imported. Adjust delivery hours and collaborator expenses below to calculate true net income.'
+                  : 'Select any real invoice above to automatically import its amount, or customize project values manually below.'}
+              </p>
+            </div>
+
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Project numbers</p>
-                <h2 className="mt-2 text-2xl font-black text-white">Enter the real project cost</h2>
+                <h2 className="mt-2 text-2xl font-black text-white">Project Financials</h2>
               </div>
               <button
                 type="button"
                 onClick={resetExample}
-                className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition hover:bg-white/10"
               >
-                Reset example
+                Reset to default
               </button>
             </div>
 
             <div className="mt-6 grid gap-4">
               <label className="grid gap-2">
-                <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Project name</span>
+                <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Project / Client name</span>
                 <input
                   value={state.projectName}
                   onChange={(event) => updateField('projectName', event.target.value)}
