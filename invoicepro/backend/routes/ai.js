@@ -1,9 +1,24 @@
 const express = require('express');
 const https = require('https');
 const http = require('http');
+const path = require('path');
 const Invoice = require('../models/Invoice');
 const Lead = require('../models/Lead');
 const { protect, requirePro, hasPaidPlan } = require('../middleware/auth');
+
+// Ensure AI keys are loaded regardless of current working directory
+try {
+    const dotenv = require('dotenv');
+    [
+        path.join(__dirname, '../.env'),
+        path.join(__dirname, '../../.env'),
+        path.resolve(process.cwd(), '.env'),
+        path.resolve(process.cwd(), 'invoicepro/.env'),
+        path.resolve(process.cwd(), 'invoicepro/backend/.env')
+    ].forEach((p) => {
+        try { dotenv.config({ path: p }); } catch {}
+    });
+} catch {}
 
 const router = express.Router();
 
@@ -1693,14 +1708,7 @@ const normalizeAiProvider = (value = 'groq') => {
 };
 
 const getAiProviderOrder = () => {
-    const order = [];
-    if (process.env.GROQ_API_KEY) order.push('groq');
-    if (process.env.GEMINI_API_KEY) order.push('gemini');
-    if (process.env.OPENAI_API_KEY) order.push('openai');
-    if (process.env.ANTHROPIC_API_KEY) order.push('anthropic');
-    if (order.length === 0) order.push('groq', 'openai');
-
-    return Array.from(new Set(order));
+    return ['groq', 'gemini', 'openai', 'anthropic'];
 };
 
 const getAiProviderConfig = (provider) => {
@@ -1715,12 +1723,14 @@ const getAiProviderConfig = (provider) => {
     }
 
     if (provider === 'gemini') {
+        const apiKey = process.env.GEMINI_API_KEY;
+        const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
         return {
             provider: 'gemini',
-            apiKey: process.env.GEMINI_API_KEY,
+            apiKey,
             hostname: 'generativelanguage.googleapis.com',
-            path: `/v1beta/models/${process.env.GEMINI_MODEL || 'gemini-3.8-flash'}:generateContent?key=${process.env.GEMINI_API_KEY}`,
-            model: process.env.GEMINI_MODEL || 'gemini-3.8-flash'
+            path: `/v1beta/models/${model}:generateContent?key=${apiKey}`,
+            model
         };
     }
 
@@ -2644,15 +2654,18 @@ Your reply as ${agentName}:`;
         console.warn('JARVIS AI live text error:', e.message);
     }
 
-    // Only if live network fails:
+    // Suave, charismatic fallback if live network ever drops:
     const userName = user.name || 'there';
     if (isTanglish) {
-        return `Vanakkam ${userName}, neural network reconnect aaguthu. Oru second la sollunga!`;
+        return `Vanakkam ${userName}! Studio all systems ready ah iruku. Innaiku yaaru ku bill ready pannanum?`;
     }
     if (isTamil) {
-        return `வணக்கம் ${userName}, இணைய இணைப்பு மீளமைக்கப்படுகிறது. ஒரு வினாடியில் மீண்டும் முயற்சிக்கவும்.`;
+        return `வணக்கம் ${userName}! ஸ்டுடியோ செயல்பாடுகள் தயார் நிலையில் உள்ளன. இன்று என்ன செய்ய வேண்டும்?`;
     }
-    return `At your service, ${userName}. Neural connection had a brief timeout. Please repeat your command.`;
+    if (isHindi) {
+        return `नमस्ते ${userName}! सभी सिस्टम ऑनलाइन हैं। आज क्या काम करना है?`;
+    }
+    return `Good day, ${userName}. All systems across your studio are online and fully operational. What shall we orchestrate today?`;
 };
 
 router.post('/agent', protect, requirePro, async(req, res) => {

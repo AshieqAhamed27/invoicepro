@@ -1,7 +1,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+const path = require('path');
+const dotenv = require('dotenv');
+
+// Robust multi-path .env resolution
+[
+    path.join(__dirname, '.env'),
+    path.join(__dirname, '../.env'),
+    path.join(__dirname, '../../.env'),
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), 'invoicepro/.env'),
+    path.resolve(process.cwd(), 'invoicepro/backend/.env')
+].forEach((envPath) => {
+    try {
+        dotenv.config({ path: envPath });
+    } catch {}
+});
 const {
     createRateLimiter,
     getSecurityConfig,
