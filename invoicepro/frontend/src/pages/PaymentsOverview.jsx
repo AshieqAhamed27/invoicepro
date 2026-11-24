@@ -99,6 +99,13 @@ const paymentOptions = [
   }
 ];
 
+const whyPay = [
+  ['Recover delayed money', 'If one pending invoice gets collected faster, Pro can be worth more than the monthly price.'],
+  ['Close deals faster', 'Cleaner proposals, deal rooms, and follow-ups reduce confusion before the client pays.'],
+  ['Save business hours', 'One workspace reduces switching between notes, chat, invoices, files, and reminders.'],
+  ['Look professional', 'A clear workroom, invoice, proof, and payment follow-up makes freelancers look like an agency.']
+];
+
 const checkoutSteps = [
   ['Choose payment type', 'Free 30-Day Trial, Pro Monthly (₹249), or Pro Annual (₹1,999).'],
   ['Login or signup', 'A workspace account is required so access can be attached to the correct user.'],
@@ -206,8 +213,8 @@ export default function PaymentsOverview() {
                 <button type="button" onClick={startFree} className="btn btn-primary px-7 py-4 text-sm">
                   {loggedIn ? 'Open Workspace' : 'Start 30 Days Free →'}
                 </button>
-                <a href="#setup-service-payments" className="rounded-2xl border border-white/15 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/[0.09]">
-                  1-on-1 Setup Help →
+                <a href="#software-plans" className="rounded-2xl border border-white/15 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/[0.09]">
+                  View Pro Plans ↓
                 </a>
               </div>
             </div>
@@ -235,7 +242,7 @@ export default function PaymentsOverview() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 py-14 sm:py-16">
+        <section id="software-plans" className="border-b border-white/5 py-14 sm:py-16 scroll-mt-10">
           <div className="container-custom">
             <div className="mb-8 max-w-3xl">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Software Access Plans</p>
