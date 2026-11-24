@@ -14,10 +14,10 @@ const SUPPORTED_LANGUAGES = [
     previewText: 'JARVIS online. Standing by for workspace command.',
     placeholder: 'Command JARVIS or speak: "Bill Vikram ₹20k", "Who owes me?", "Find clients"...',
     chips: [
-      { label: '📄 "Bill Vikram ₹20k"', cmd: 'Bill Vikram ₹20,000 for website design with 18% GST due in 7 days' },
-      { label: '⏰ "Who owes me?"', cmd: 'Who owes me money? Highlight overdue accounts' },
-      { label: '👥 "Find first client"', cmd: 'How to get my first client? Open client radar' },
-      { label: '🎯 "Goal progress"', cmd: 'How is my monthly revenue goal progress?' }
+      { label: '📄 Bill Vikram ₹20k', cmd: 'Bill Vikram ₹20,000 for website design with 18% GST due in 7 days' },
+      { label: '⏰ Who owes me?', cmd: 'Who owes me money? Highlight overdue accounts' },
+      { label: '👥 Find first client', cmd: 'How to get my first client? Open client radar' },
+      { label: '🎯 Goal progress', cmd: 'How is my monthly revenue goal progress?' }
     ]
   },
   {
@@ -30,10 +30,10 @@ const SUPPORTED_LANGUAGES = [
     previewText: 'Vanakkam Ashieq! All systems peak efficiency-la iruku. Next enna execute pannanum?',
     placeholder: 'Tanglish-la sollunga: "Vikram ku ₹20k bill podu", "Yaaru kaasu tharanum?"...',
     chips: [
-      { label: '👋 "Vanakkam Flow"', cmd: 'Vanakkam Flow' },
-      { label: '📄 "Vikram ku ₹20k bill podu"', cmd: 'Vikram ku ₹20,000 website design-ku 18% GST oda invoice podu' },
-      { label: '⏰ "Yaaru kaasu tharanum?"', cmd: 'Yaaru kaasu tharanum? Overdue bills highlight pannu' },
-      { label: '👥 "Client eduka radar"', cmd: 'How to get my first client? Client finder radar open pannu' }
+      { label: '👋 Vanakkam Flow', cmd: 'Vanakkam Flow' },
+      { label: '📄 Vikram ku ₹20k bill', cmd: 'Vikram ku ₹20,000 website design-ku 18% GST oda invoice podu' },
+      { label: '⏰ Yaaru kaasu tharanum?', cmd: 'Yaaru kaasu tharanum? Overdue bills highlight pannu' },
+      { label: '👥 Client radar', cmd: 'How to get my first client? Client finder radar open pannu' }
     ]
   },
   {
@@ -46,10 +46,10 @@ const SUPPORTED_LANGUAGES = [
     previewText: 'வணக்கம்! ஸ்டுடியோ செயல்பாடுகள் தயார் நிலையில் உள்ளன. என்ன செய்ய வேண்டும்?',
     placeholder: 'கட்டளையிடுங்கள்: "விக்ரமுக்கு பில் போடு", "பாக்கி பணம் எவ்வளவு?"...',
     chips: [
-      { label: '👋 "வணக்கம் Flow"', cmd: 'வணக்கம் Flow' },
-      { label: '📄 "விக்ரமுக்கு ₹20k பில்"', cmd: 'விக்ரமுக்கு ₹20,000 வலைத்தள வடிவமைப்புக்காக 18% GST உடன் ரசீது உருவாக்கு' },
-      { label: '⏰ "பாக்கி பணம் எவ்வளவு?"', cmd: 'யாருடைய பணம் பாக்கி உள்ளது? லெட்ஜரில் காட்டு' },
-      { label: '👥 "வாடிக்கையாளர் தேடு"', cmd: 'புதிய வாடிக்கையாளர்களைத் தேட Client Finder திறக்கவும்' }
+      { label: '👋 வணக்கம் Flow', cmd: 'வணக்கம் Flow' },
+      { label: '📄 விக்ரமுக்கு ₹20k பில்', cmd: 'விக்ரமுக்கு ₹20,000 வலைத்தள வடிவமைப்புக்காக 18% GST உடன் ரசீது உருவாக்கு' },
+      { label: '⏰ பாக்கி பணம் எவ்வளவு?', cmd: 'யாருடைய பணம் பாக்கி உள்ளது? லெட்ஜரில் காட்டு' },
+      { label: '👥 வாடிக்கையாளர் தேடு', cmd: 'புதிய வாடிக்கையாளர்களைத் தேட Client Finder திறக்கவும்' }
     ]
   },
   {
@@ -62,10 +62,10 @@ const SUPPORTED_LANGUAGES = [
     previewText: 'नमस्ते! सभी सिस्टम ऑनलाइन हैं। आज क्या काम करना है?',
     placeholder: 'कमांड दें या बोलें: "Vikram ko bill banao", "Kiska baki hai?"...',
     chips: [
-      { label: '👋 "नमस्ते Flow"', cmd: 'नमस्ते Flow' },
-      { label: '📄 "Vikram ko ₹20k bill"', cmd: 'Vikram ko ₹20,000 website design ke liye 18% GST ke sath bill banao' },
-      { label: '⏰ "Kiska baki hai?"', cmd: 'Kiska payment baki hai? Overdue invoices dikhao' },
-      { label: '👥 "Client dhoondo"', cmd: 'Naye clients dhoondne ke liye Client Finder open karo' }
+      { label: '👋 नमस्ते Flow', cmd: 'नमस्ते Flow' },
+      { label: '📄 Vikram ko ₹20k bill', cmd: 'Vikram ko ₹20,000 website design ke liye 18% GST ke sath bill banao' },
+      { label: '⏰ Kiska baki hai?', cmd: 'Kiska payment baki hai? Overdue invoices dikhao' },
+      { label: '👥 Client dhoondo', cmd: 'Naye clients dhoondne ke liye Client Finder open karo' }
     ]
   }
 ];
@@ -526,7 +526,7 @@ export default function FlowAgentBar({
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs sm:text-sm font-black tracking-wider text-slate-900 dark:text-white uppercase leading-none">
-                    {agentName} <span className="text-[10px] text-cyan-500 font-mono">v2.5</span>
+                    {agentName} <span className="text-[10px] text-indigo-600 dark:text-cyan-400 font-mono font-bold">v2.5</span>
                   </h3>
                   <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border transition ${
                     isListening
@@ -541,7 +541,7 @@ export default function FlowAgentBar({
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-mono font-medium text-slate-500 dark:text-cyan-400/80 mt-0.5">
-                  WORKSPACE CONTROLLER // OS HUD
+                  AI WORKSPACE CO-PILOT
                 </p>
               </div>
             </div>
@@ -662,11 +662,11 @@ export default function FlowAgentBar({
             {/* Subtle Cyber Grid Glow */}
             <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-800 text-xs">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs">
               <div className="flex items-center gap-2">
                 <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
                 <span className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-widest text-cyan-300">
-                  JARVIS TELEMETRY // {activeTelemetry.isVoice ? 'VOICE COMMAND' : 'CONSOLE COMMAND'}
+                  FLOW ASSISTANT // {activeTelemetry.isVoice ? 'VOICE COMMAND' : 'CONSOLE COMMAND'}
                 </span>
               </div>
 
