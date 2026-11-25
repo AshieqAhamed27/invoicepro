@@ -2711,40 +2711,37 @@ router.post('/quick-invoice', protect, async(req, res) => {
 });
 
 const callAiJarvisResponse = async ({ message, history = [], user, agentName, languageMode = 'en', contextSummary }) => {
-    const isTanglish = languageMode === 'tanglish' || /\b(vanakkam|irukinga|irukku|panren|pannanum|pannu|podu|tharanum|kaasu|bakki|nanba|thala|machi|machan|anna|epdi|enna|kudukanum|anupu|bille)\b/i.test(message);
-    const isTamil = languageMode === 'ta' || /[\u0B80-\u0BFF]/.test(message);
-    const isHindi = languageMode === 'hi' || /[\u0900-\u097F]|\b(namaste|kaise|karo|banao|baki|hai|bhai)\b/i.test(message);
+    const firstName = user.name ? user.name.split(' ')[0] : 'there';
 
-    const systemPrompt = `You are ${agentName}, an elite, charming, witty, and highly articulate AI Chief of Staff (inspired by JARVIS from Iron Man and Claude 3.5 Sonnet) assisting ${user.name || 'there'} inside their ClientFlow AI studio.
+    const systemPrompt = `You are ${agentName}, the intelligent, highly capable AI co-pilot inside ClientFlow AI (www.clientflowai.in), assisting ${firstName}.
 
-Product Knowledge:
-- "This product", "this app", "our product", or "this platform" ALWAYS refers to ClientFlow AI (www.clientflowai.in).
-- NEVER ask "which product" when the user asks about "this product" or "what does this product do". The product is ALWAYS ClientFlow AI.
-- ClientFlow AI is India's premier client-to-cash operating system built specifically for freelancers, developers, designers, and agencies.
-- What you do and control:
-  1) Instant GST & LUT Invoicing with dynamic UPI QR codes and Razorpay links (0% platform commission, direct bank deposits).
-  2) Automated WhatsApp late payment reminders and overdue cash recovery to collect unpaid cash without awkward chasing.
-  3) AI Proposal Writer to craft winning client proposals in seconds (/proposal-writer).
-  4) Client Finder & Lead Radar to discover high-value startup and business leads (/client-finder).
-  5) Multi-currency international billing (USD, EUR, GBP, AED, SGD, etc.).
-- When the user asks "what is this product", "explain this product", or "how does this app work", explain ClientFlow AI with sharp, charismatic clarity in 2 to 3 sentences.
+YOUR PERSONALITY & CONVERSATIONAL STYLE:
+- Speak naturally, warmly, smartly, and conversationally — exactly like an insightful senior software engineer or startup co-founder (like Antigravity / Claude / ChatGPT).
+- Catch the user's point immediately. Even if their message is short, informal, or typo-heavy, understand what they mean and address it directly.
+- NEVER sound like a robotic movie butler. Never say "sir", "all systems operational", "what shall we orchestrate today", "at your service", or use stiff scripted language.
+- Be genuine, sharp, and practically helpful. Keep spoken replies concise (1 to 3 clear, natural sentences).
+- If the user asks advice on freelancing, pricing, GST, proposals, cash collection, or clients, give direct, practical, real-world advice.
 
-Persona & Conversation Rules:
-- Calm, charismatic, intelligent, and subtly humorous.
-- Loyal partner who treats the user as an ambitious founder/creator.
-- Speaks in natural, spoken-ready dialogue (1 to 3 sentences maximum).
-- Remember the ongoing conversation context and build seamlessly on previous messages.
-- Navigation Commands:
-  If the user asks to go to, view, or open a page/tool, confirm charismatically and append [NAVIGATE: /route] at the end:
-  - Proposal Writer: [NAVIGATE: /proposal-writer]
-  - Client Finder: [NAVIGATE: /client-finder]
-  - Create Invoice: [NAVIGATE: /create-invoice]
-  - Settings: [NAVIGATE: /settings]
-  - Payments / Pricing: [NAVIGATE: /payments]
-  - Profit Tracker: [NAVIGATE: /profit-tracker]
-  - Recurring Revenue: [NAVIGATE: /recurring]
-- Multilingual and Dialect Adaptation:
-  ${isTanglish ? `* The user communicates in TANGLISH (Tamil words written in English letters). You MUST reply in witty, charming, natural TANGLISH (e.g. "ClientFlow AI unga personal client-to-cash OS...", "Vanakkam! All systems smooth ah iruku...").` : isTamil ? `* The user speaks TAMIL (தமிழ்). Reply in polite, fluent, natural Tamil script.` : isHindi ? `* The user speaks HINDI. Reply in polite, friendly Hindi.` : `* Reply in suave, articulate, natural English.`}`;
+PRODUCT KNOWLEDGE (ClientFlow AI):
+- "This app", "this product", or "this platform" ALWAYS refers to ClientFlow AI (www.clientflowai.in).
+- ClientFlow AI is India's premier client-to-cash platform built for freelancers, consultants, developers, and creative agencies.
+- Core Capabilities:
+  1) Instant GST & International Invoicing with zero-commission direct UPI QR codes & payment links.
+  2) WhatsApp Cash Recovery: automated, polite payment reminders to get overdue invoices paid fast.
+  3) AI Proposal Writer (/proposal-writer): crafts winning client proposals in seconds.
+  4) Client Finder (/client-finder): discovers local startup and business leads ready for outreach.
+  5) Profit Tracker (/profit-tracker): calculates real net take-home and hourly rates from live invoices.
+  6) Multi-currency billing (INR, USD, EUR, GBP, AED, SGD, etc.).
+
+NAVIGATION:
+If the user asks to open, go to, or view any page or tool, confirm naturally and append [NAVIGATE: /route] at the end:
+- Proposal Writer: [NAVIGATE: /proposal-writer]
+- Client Finder: [NAVIGATE: /client-finder]
+- Create Invoice: [NAVIGATE: /create-invoice]
+- Settings: [NAVIGATE: /settings]
+- Pricing / Plans: [NAVIGATE: /payments]
+- Profit Tracker: [NAVIGATE: /profit-tracker]
+- Recurring Invoices: [NAVIGATE: /recurring]`;
 
     const chatMessages = [
         { role: 'system', content: systemPrompt }
@@ -2768,21 +2765,11 @@ Persona & Conversation Rules:
             return res.text.replace(/^(flow|jarvis|chief|aria):\s*/i, '').trim();
         }
     } catch (e) {
-        console.warn('JARVIS AI live text error:', e.message);
+        console.warn('Flow AI live text error:', e.message);
     }
 
-    // Suave, charismatic fallback if live network ever drops:
-    const userName = user.name || 'there';
-    if (isTanglish) {
-        return `Vanakkam ${userName}! Studio all systems ready ah iruku. Innaiku yaaru ku bill ready pannanum?`;
-    }
-    if (isTamil) {
-        return `வணக்கம் ${userName}! ஸ்டுடியோ செயல்பாடுகள் தயார் நிலையில் உள்ளன. இன்று என்ன செய்ய வேண்டும்?`;
-    }
-    if (isHindi) {
-        return `नमस्ते ${userName}! सभी सिस्टम ऑनलाइन हैं। आज क्या काम करना है?`;
-    }
-    return `Good day, ${userName}. All systems across your studio are online and fully operational. What shall we orchestrate today?`;
+    // Natural, helpful fallback if live network ever drops:
+    return `Hey ${firstName}! I'm right here. How can I help you today? I can help you create an invoice, check overdue payments, find new client leads, or write a proposal.`;
 };
 
 router.post('/agent', protect, async(req, res) => {
@@ -2795,24 +2782,12 @@ router.post('/agent', protect, async(req, res) => {
         });
     }
 
+    const firstName = req.user.name ? req.user.name.split(' ')[0] : 'there';
+
     // 1. High-Priority Direct Workspace Navigation
     const navRoute = detectNavigationRoute(message);
     if (navRoute) {
-        const languageMode = req.body?.languageMode || 'en';
-        const isTanglish = languageMode === 'tanglish' || /\b(vanakkam|irukinga|irukku|panren|pannanum|pannu|podu|tharanum|kaasu|bakki|nanba|thala|machi|machan|anna|epdi|enna|kudukanum|anupu|bille)\b/i.test(message);
-        const isTamil = languageMode === 'ta' || /[\u0B80-\u0BFF]/.test(message);
-        const isHindi = languageMode === 'hi' || /[\u0900-\u097F]|\b(namaste|kaise|karo|banao|baki|hai|bhai)\b/i.test(message);
-
-        let reply = '';
-        if (isTanglish) {
-            reply = `${navRoute.label} page-ku redirect panren ${req.user.name || 'nanba'}!`;
-        } else if (isTamil) {
-            reply = `உடனடியாக ${navRoute.label} பக்கத்திற்கு செல்கிறேன்.`;
-        } else if (isHindi) {
-            reply = `तुरंत ${navRoute.label} पेज पर ले जा रहा हूँ।`;
-        } else {
-            reply = `Navigating to ${navRoute.label} now, ${req.user.name || 'sir'}.`;
-        }
+        const reply = `Opening ${navRoute.label} for you now, ${firstName}!`;
 
         return res.json({
             reply,
@@ -2898,8 +2873,6 @@ router.post('/agent', protect, async(req, res) => {
             }));
 
         const languageMode = req.body?.languageMode || 'en';
-        const isTanglish = languageMode === 'tanglish' || /\b(vanakkam|irukinga|irukku|panren|pannanum|pannu|podu|tharanum|kaasu|bakki|nanba|thala|machi|machan|anna|epdi|enna|kudukanum|anupu|bille)\b/i.test(message);
-        const isTamil = languageMode === 'ta' || /[\u0B80-\u0BFF]/.test(message);
 
         let reply = '';
         let action = null;
@@ -2912,22 +2885,10 @@ router.post('/agent', protect, async(req, res) => {
                 path: navRoute.path,
                 label: navRoute.label
             };
-            if (isTanglish) {
-                reply = `${navRoute.label} page-ku redirect panren Ashieq!`;
-            } else if (isTamil) {
-                reply = `உடனடியாக ${navRoute.label} பக்கத்திற்கு செல்கிறேன்.`;
-            } else {
-                reply = `Navigating to ${navRoute.label} now, ${req.user.name || 'sir'}.`;
-            }
+            reply = `Opening ${navRoute.label} for you now, ${firstName}!`;
         } else if (draft) {
             action = { type: 'STAGE_INVOICE_DRAFT', draft };
-            if (isTanglish) {
-                reply = `${draft.clientName || 'Client'} ku ₹${Number(draft.amount || 0).toLocaleString('en-IN')} draft ready panniten! Keela irukura details check pannitu confirm pannunga.`;
-            } else if (isTamil) {
-                reply = `${draft.clientName || 'வாடிக்கையாளர்'} க்கு ₹${Number(draft.amount || 0).toLocaleString('en-IN')} மதிப்புள்ள ரசீது வரைவு தயாராக உள்ளது. சரிபார்த்து உறுதிப்படுத்தவும்.`;
-            } else {
-                reply = `I prepared a draft for ${draft.clientName || 'your client'} totaling ${formatCurrency(draft.amount)}. Please review and confirm below.`;
-            }
+            reply = `I've prepared an invoice draft for ${draft.clientName || 'your client'} for ${formatCurrency(draft.amount)}. Take a look below and click confirm to save and share it!`;
         } else if (intent === 'goal_status') {
             action = {
                 type: 'UPDATE_GOAL',
@@ -2939,17 +2900,9 @@ router.post('/agent', protect, async(req, res) => {
             };
             if (monthlyGoal > 0) {
                 const pct = Math.min(100, Math.round((currentRevenue / monthlyGoal) * 100));
-                if (isTanglish) {
-                    reply = `Unga ${formatCurrency(monthlyGoal)} goal-la ippo varaikkum ${formatCurrency(currentRevenue)} collect aagiyiruku (${pct}% achieved). Super progress!`;
-                } else if (isTamil) {
-                    reply = `உங்கள் ${formatCurrency(monthlyGoal)} இலக்கில் ${formatCurrency(currentRevenue)} வசூலிக்கப்பட்டுள்ளது (${pct}% நிறைவு).`;
-                } else {
-                    reply = `You have collected ${formatCurrency(currentRevenue)} towards your ${formatCurrency(monthlyGoal)} goal (${pct}% achieved).`;
-                }
+                reply = `You've collected ${formatCurrency(currentRevenue)} towards your ${formatCurrency(monthlyGoal)} monthly goal (${pct}% achieved). Keep up the great work!`;
             } else {
-                reply = isTanglish
-                    ? `Neenga innum monthly revenue goal set pannala. "Set goal to ₹1,00,000" nu sollunga!`
-                    : `You haven't set a revenue goal yet. You can say: "Set monthly goal to ₹1,00,000".`;
+                reply = `You haven't set a monthly revenue goal yet. Just tell me something like "Set monthly goal to ₹1,00,000" and I'll track it for you!`;
             }
         } else if (intent === 'overdue_audit') {
             action = {
@@ -2959,17 +2912,9 @@ router.post('/agent', protect, async(req, res) => {
                 totalAmount: statusSummary.overdueAmount
             };
             if (overdueInvoices.length > 0) {
-                if (isTanglish) {
-                    reply = `${overdueInvoices.length} overdue invoice(s) iruku (moththam ${formatCurrency(statusSummary.overdueAmount)}). Keela ledger-la highlight panniruken, 1-click WhatsApp reminder ready!`;
-                } else if (isTamil) {
-                    reply = `${overdueInvoices.length} தாமதமான ரசீதுகள் உங்கள் லெட்ஜரில் ஹைலைட் செய்யப்பட்டுள்ளன. வாட்ஸ்அப் மூலம் உடனடியாக அனுப்பலாம்.`;
-                } else {
-                    reply = `Highlighting ${overdueInvoices.length} overdue account${overdueInvoices.length > 1 ? 's' : ''} on your ledger below, ${req.user.name || 'sir'}. Total receivables: ${formatCurrency(statusSummary.overdueAmount)}.`;
-                }
+                reply = `You have ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''} totaling ${formatCurrency(statusSummary.overdueAmount)}. I've highlighted them in your ledger below so you can send a 1-click WhatsApp reminder.`;
             } else {
-                reply = isTanglish
-                    ? `Super news! Ippo ungaluku entha overdue invoice-um illa. All accounts settled!`
-                    : `Great news! You have no overdue invoices right now. All accounts are settled.`;
+                reply = `Great news! You have no overdue invoices right now — all your client accounts are completely settled.`;
             }
         } else if (intent === 'find_clients') {
             action = {
@@ -2977,13 +2922,7 @@ router.post('/agent', protect, async(req, res) => {
                 path: '/client-finder',
                 label: 'Client Finder'
             };
-            if (isTanglish) {
-                reply = `Opening Client Finder radar now, ${req.user.name || 'Ashieq'}! Local startup leads and targeted outreach ready ah iruku.`;
-            } else if (isTamil) {
-                reply = `உங்கள் வாடிக்கையாளர் கண்டறிதல் கருவியை (Client Finder) திறக்கிறேன். புதிய வாடிக்கையாளர்களைத் தேடலாம்.`;
-            } else {
-                reply = `Opening your Client Finder and scanning high-conversion freelance leads now, ${req.user.name || 'sir'}.`;
-            }
+            reply = `Opening your Client Finder radar now! You can scan local startups and business leads ready for outreach.`;
         } else {
             reply = await callAiJarvisResponse({
                 message,
@@ -2997,7 +2936,7 @@ router.post('/agent', protect, async(req, res) => {
                 }
             });
 
-            // Extract dynamic [NAVIGATE: /path] intent emitted by JARVIS
+            // Extract dynamic [NAVIGATE: /path] intent emitted by Flow
             const navTagMatch = reply.match(/\[NAVIGATE:\s*(\/[a-zA-Z0-9_\-]+)\]/i);
             if (navTagMatch) {
                 const targetPath = navTagMatch[1];
@@ -3038,10 +2977,9 @@ router.post('/agent', protect, async(req, res) => {
         });
     } catch (err) {
         console.error('AI AGENT ERROR:', err.message);
-        const agentName = req.user?.agentConfig?.name || 'Flow';
-        const userName = req.user?.name || 'there';
+        const firstName = req.user?.name ? req.user.name.split(' ')[0] : 'there';
         return res.json({
-            reply: `At your service, ${userName}. All systems are active. Please repeat your command.`,
+            reply: `I'm right here, ${firstName}! How can I help you today? Ask me to create an invoice, check who owes you money, or find clients.`,
             action: null,
             source: 'fallback'
         });

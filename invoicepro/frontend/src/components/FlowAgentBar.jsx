@@ -7,7 +7,7 @@ const AGENT_CONFIG = {
   id: 'en',
   name: 'English',
   speechLang: 'en-IN',
-  placeholder: 'Command JARVIS or speak: "Bill Vikram ₹20k", "Who owes me?", "Find clients"...',
+  placeholder: 'Ask Flow or speak: "Bill Vikram ₹20k", "Who owes me?", "Find clients"...',
   chips: [
     { label: '📄 Bill Vikram ₹20k', cmd: 'Bill Vikram ₹20,000 for website design with 18% GST due in 7 days' },
     { label: '⏰ Who owes me?', cmd: 'Who owes me money? Highlight overdue accounts' },
