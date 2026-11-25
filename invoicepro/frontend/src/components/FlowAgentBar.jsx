@@ -3,72 +3,18 @@ import api from '../utils/api';
 import { formatCurrency } from '../utils/auth';
 import { getWhatsAppShareUrl } from '../utils/whatsapp';
 
-const SUPPORTED_LANGUAGES = [
-  {
-    id: 'en',
-    name: 'English',
-    flag: '🇬🇧',
-    badge: 'JARVIS OS',
-    subtext: 'Global executive intelligence',
-    speechLang: 'en-IN',
-    previewText: 'JARVIS online. Standing by for workspace command.',
-    placeholder: 'Command JARVIS or speak: "Bill Vikram ₹20k", "Who owes me?", "Find clients"...',
-    chips: [
-      { label: '📄 Bill Vikram ₹20k', cmd: 'Bill Vikram ₹20,000 for website design with 18% GST due in 7 days' },
-      { label: '⏰ Who owes me?', cmd: 'Who owes me money? Highlight overdue accounts' },
-      { label: '👥 Find first client', cmd: 'How to get my first client? Open client radar' },
-      { label: '🎯 Goal progress', cmd: 'How is my monthly revenue goal progress?' }
-    ]
-  },
-  {
-    id: 'tanglish',
-    name: 'Tanglish',
-    flag: '🇮🇳',
-    badge: 'தமிழ் + Eng',
-    subtext: 'Tamil spoken in English letters',
-    speechLang: 'en-IN',
-    previewText: 'Vanakkam Ashieq! All systems peak efficiency-la iruku. Next enna execute pannanum?',
-    placeholder: 'Tanglish-la sollunga: "Vikram ku ₹20k bill podu", "Yaaru kaasu tharanum?"...',
-    chips: [
-      { label: '👋 Vanakkam Flow', cmd: 'Vanakkam Flow' },
-      { label: '📄 Vikram ku ₹20k bill', cmd: 'Vikram ku ₹20,000 website design-ku 18% GST oda invoice podu' },
-      { label: '⏰ Yaaru kaasu tharanum?', cmd: 'Yaaru kaasu tharanum? Overdue bills highlight pannu' },
-      { label: '👥 Client radar', cmd: 'How to get my first client? Client finder radar open pannu' }
-    ]
-  },
-  {
-    id: 'ta',
-    name: 'தமிழ் (Tamil)',
-    flag: '🇮🇳',
-    badge: 'தமிழ்',
-    subtext: 'தூய தமிழ் இயக்க முறைமை',
-    speechLang: 'ta-IN',
-    previewText: 'வணக்கம்! ஸ்டுடியோ செயல்பாடுகள் தயார் நிலையில் உள்ளன. என்ன செய்ய வேண்டும்?',
-    placeholder: 'கட்டளையிடுங்கள்: "விக்ரமுக்கு பில் போடு", "பாக்கி பணம் எவ்வளவு?"...',
-    chips: [
-      { label: '👋 வணக்கம் Flow', cmd: 'வணக்கம் Flow' },
-      { label: '📄 விக்ரமுக்கு ₹20k பில்', cmd: 'விக்ரமுக்கு ₹20,000 வலைத்தள வடிவமைப்புக்காக 18% GST உடன் ரசீது உருவாக்கு' },
-      { label: '⏰ பாக்கி பணம் எவ்வளவு?', cmd: 'யாருடைய பணம் பாக்கி உள்ளது? லெட்ஜரில் காட்டு' },
-      { label: '👥 வாடிக்கையாளர் தேடு', cmd: 'புதிய வாடிக்கையாளர்களைத் தேட Client Finder திறக்கவும்' }
-    ]
-  },
-  {
-    id: 'hi',
-    name: 'हिंदी (Hindi)',
-    flag: '🇮🇳',
-    badge: 'हिंदी',
-    subtext: 'स्मार्ट ऑपरेटिंग असिस्टेंट',
-    speechLang: 'hi-IN',
-    previewText: 'नमस्ते! सभी सिस्टम ऑनलाइन हैं। आज क्या काम करना है?',
-    placeholder: 'कमांड दें या बोलें: "Vikram ko bill banao", "Kiska baki hai?"...',
-    chips: [
-      { label: '👋 नमस्ते Flow', cmd: 'नमस्ते Flow' },
-      { label: '📄 Vikram ko ₹20k bill', cmd: 'Vikram ko ₹20,000 website design ke liye 18% GST ke sath bill banao' },
-      { label: '⏰ Kiska baki hai?', cmd: 'Kiska payment baki hai? Overdue invoices dikhao' },
-      { label: '👥 Client dhoondo', cmd: 'Naye clients dhoondne ke liye Client Finder open karo' }
-    ]
-  }
-];
+const AGENT_CONFIG = {
+  id: 'en',
+  name: 'English',
+  speechLang: 'en-IN',
+  placeholder: 'Command JARVIS or speak: "Bill Vikram ₹20k", "Who owes me?", "Find clients"...',
+  chips: [
+    { label: '📄 Bill Vikram ₹20k', cmd: 'Bill Vikram ₹20,000 for website design with 18% GST due in 7 days' },
+    { label: '⏰ Who owes me?', cmd: 'Who owes me money? Highlight overdue accounts' },
+    { label: '👥 Find first client', cmd: 'How to get my first client? Open client radar' },
+    { label: '🎯 Goal progress', cmd: 'How is my monthly revenue goal progress?' }
+  ]
+};
 
 // Pure Web Audio synthesized sound feedback (zero latency, zero MP3 assets)
 const playAudioChime = (type = 'listen') => {
@@ -138,19 +84,11 @@ export default function FlowAgentBar({
     }
   });
 
-  // Curated Multi-Language State
-  const [selectedLangId, setSelectedLangId] = useState(
-    () => localStorage.getItem('flow_agent_lang') || 'en'
-  );
-  const [showLangPicker, setShowLangPicker] = useState(false);
   const [availableVoices, setAvailableVoices] = useState([]);
 
   const recognitionRef = useRef(null);
-  const langPickerRef = useRef(null);
   const executeCommandRef = useRef(null);
   const errorTimerRef = useRef(null);
-
-  const activeLang = SUPPORTED_LANGUAGES.find((l) => l.id === selectedLangId) || SUPPORTED_LANGUAGES[0];
 
   // 1. Detect & Load System Voices
   useEffect(() => {
@@ -174,29 +112,7 @@ export default function FlowAgentBar({
     };
   }, []);
 
-  // 2. Dismiss language modal on outside click or Escape key
-  useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (langPickerRef.current && !langPickerRef.current.contains(e.target)) {
-        setShowLangPicker(false);
-      }
-    };
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setShowLangPicker(false);
-      }
-    };
-    if (showLangPicker) {
-      document.addEventListener('mousedown', handleOutsideClick);
-      document.addEventListener('keydown', handleKeyDown);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showLangPicker]);
-
-  // 3. Initialize Web Speech Recognition
+  // 2. Initialize Web Speech Recognition (English)
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -204,7 +120,7 @@ export default function FlowAgentBar({
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = activeLang.speechLang || 'en-IN';
+      recognition.lang = AGENT_CONFIG.speechLang;
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -225,7 +141,7 @@ export default function FlowAgentBar({
     return () => {
       if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
     };
-  }, [activeLang.speechLang]);
+  }, []);
 
   const stopSpeaking = () => {
     if (window.speechSynthesis) {
@@ -236,41 +152,22 @@ export default function FlowAgentBar({
     setIsSpeaking(false);
   };
 
-  // Natural speech playback adapted to language
-  const speakAloud = (text, langId = activeLang.id) => {
+  // Natural English speech playback
+  const speakAloud = (text) => {
     if (!voiceEnabled || !window.speechSynthesis || !text) return;
     try {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       const voices = availableVoices.length > 0 ? availableVoices : (window.speechSynthesis.getVoices() || []);
 
-      let chosenVoice = null;
-      if (langId === 'ta') {
-        chosenVoice = voices.find((v) => v.lang === 'ta-IN' || v.lang.startsWith('ta')) ||
-                      voices.find((v) => v.lang === 'en-IN');
-        utterance.lang = chosenVoice ? chosenVoice.lang : 'ta-IN';
-      } else if (langId === 'hi') {
-        chosenVoice = voices.find((v) => v.lang === 'hi-IN' || v.lang.startsWith('hi')) ||
-                      voices.find((v) => v.lang === 'en-IN');
-        utterance.lang = chosenVoice ? chosenVoice.lang : 'hi-IN';
-      } else if (langId === 'tanglish') {
-        // Indian English voice articulates Tanglish natively!
-        chosenVoice = voices.find((v) => v.lang === 'en-IN') ||
-                      voices.find((v) => /india|hindi|tamil/i.test(v.name)) ||
-                      voices.find((v) => v.lang.startsWith('en')) ||
-                      voices[0];
-        utterance.lang = chosenVoice ? chosenVoice.lang : 'en-IN';
-      } else {
-        // Clean single English global voice
-        chosenVoice =
-          voices.find((v) => /google uk english male|george|daniel|ryan|oliver/i.test(v.name)) ||
-          voices.find((v) => v.lang === 'en-GB') ||
-          voices.find((v) => /guy|david|natural|samantha/i.test(v.name)) ||
-          voices.find((v) => v.lang.startsWith('en')) ||
-          voices[0];
-        utterance.lang = chosenVoice ? chosenVoice.lang : 'en-US';
-      }
+      const chosenVoice =
+        voices.find((v) => /google uk english male|george|daniel|ryan|oliver/i.test(v.name)) ||
+        voices.find((v) => v.lang === 'en-GB') ||
+        voices.find((v) => /guy|david|natural|samantha/i.test(v.name)) ||
+        voices.find((v) => v.lang.startsWith('en')) ||
+        voices[0];
 
+      utterance.lang = chosenVoice ? chosenVoice.lang : 'en-US';
       if (chosenVoice) {
         utterance.voice = chosenVoice;
       }
@@ -284,28 +181,6 @@ export default function FlowAgentBar({
     } catch {
       setIsSpeaking(false);
     }
-  };
-
-  const handleSelectLanguage = (lang) => {
-    setSelectedLangId(lang.id);
-    localStorage.setItem('flow_agent_lang', lang.id);
-    setShowLangPicker(false);
-
-    if (recognitionRef.current) {
-      recognitionRef.current.lang = lang.speechLang;
-    }
-
-    // Play instant voice acknowledgment in chosen dialect
-    speakAloud(lang.previewText, lang.id);
-
-    try {
-      api.put('/auth/profile', {
-        agentConfig: {
-          ...user?.agentConfig,
-          languageMode: lang.id
-        }
-      });
-    } catch {}
   };
 
   const toggleListening = () => {
@@ -340,7 +215,7 @@ export default function FlowAgentBar({
       try {
         res = await api.post('/ai/agent', {
           message: query,
-          languageMode: activeLang.id,
+          languageMode: 'en',
           history: chatMemory.slice(-8)
         });
       } catch (firstErr) {
@@ -349,7 +224,7 @@ export default function FlowAgentBar({
           await new Promise((r) => setTimeout(r, 1500));
           res = await api.post('/ai/agent', {
             message: query,
-            languageMode: activeLang.id,
+            languageMode: 'en',
             history: chatMemory.slice(-8)
           });
         } else {
@@ -416,7 +291,7 @@ export default function FlowAgentBar({
 
       // E. Strict Modality: Speak back aloud ONLY if spoken via microphone
       if (isVoiceInput && data.reply) {
-        speakAloud(data.reply, activeLang.id);
+        speakAloud(data.reply);
       }
     } catch (err) {
       const serverMsg = err.response?.data?.message;
@@ -460,11 +335,7 @@ export default function FlowAgentBar({
       setCreatedInvoice(newInv);
       setActiveDraft(null);
 
-      const successReply = activeLang.id === 'tanglish'
-        ? `Invoice #${newInv?.invoiceNumber || ''} (${newInv?.clientName || 'client'}) ledger-la create aayidichu! WhatsApp link ready.`
-        : activeLang.id === 'ta'
-          ? `ரசீது #${newInv?.invoiceNumber || ''} உறுதிசெய்யப்பட்டு உருவாக்கப்பட்டது! பகிரலாம்.`
-          : `Confirmed. Invoice #${newInv?.invoiceNumber || ''} for ${newInv?.clientName || 'client'} has been recorded. Direct link ready.`;
+      const successReply = `Confirmed. Invoice #${newInv?.invoiceNumber || ''} for ${newInv?.clientName || 'client'} has been recorded. Direct link ready.`;
 
       setActiveTelemetry({
         query: 'Invoice Authorization',
@@ -505,7 +376,7 @@ export default function FlowAgentBar({
         
         {/* ─── Primary Controls Section (Header, Input, Quick Chips) ─── */}
         <div className="p-4 sm:p-5">
-          {/* 1. HUD HEADER: Identity, Arc Reactor Status & Curated Language */}
+          {/* 1. HUD HEADER: Identity & Arc Reactor Status */}
           <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-slate-100 dark:border-slate-800/80">
             
             {/* Left: Living Arc Reactor Orb + System Callout */}
@@ -553,22 +424,6 @@ export default function FlowAgentBar({
                 </p>
               </div>
             </div>
-
-            {/* Right: Curated Multi-Language Trigger (Clean Pill with guaranteed high contrast) */}
-            <div className="relative shrink-0">
-              <button
-                type="button"
-                onClick={() => setShowLangPicker(true)}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 transition hover:border-indigo-400 dark:hover:border-cyan-400 hover:bg-slate-100 dark:hover:bg-slate-800 shadow-sm"
-                title="Select Language (English, Tanglish, Tamil, Hindi)"
-              >
-                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-indigo-100 dark:bg-cyan-950 text-indigo-700 dark:text-cyan-300 text-[10px] font-black">
-                  {activeLang.id === 'en' ? 'EN' : activeLang.id === 'tanglish' ? 'TG' : activeLang.id === 'ta' ? 'த' : 'हि'}
-                </span>
-                <span className="font-bold">{activeLang.name}</span>
-                <span className="text-[10px] text-slate-400">▼</span>
-              </button>
-            </div>
           </div>
 
           {/* 2. COMMAND INPUT CAPSULE (Integrated Mic + Action Runner) */}
@@ -587,7 +442,7 @@ export default function FlowAgentBar({
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={activeLang.placeholder}
+              placeholder={AGENT_CONFIG.placeholder}
               className="flex-1 bg-transparent px-2.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none"
             />
 
@@ -601,7 +456,7 @@ export default function FlowAgentBar({
                       ? 'bg-red-500 text-white shadow-md shadow-red-500/30 animate-pulse'
                       : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-300 hover:bg-slate-200/60 dark:hover:bg-white/10'
                   }`}
-                  title={isListening ? 'Listening... tap to stop' : `Speak in ${activeLang.name}`}
+                  title={isListening ? 'Listening... tap to stop' : 'Speak a command'}
                   aria-label="Toggle voice"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -634,7 +489,7 @@ export default function FlowAgentBar({
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-cyan-500/70 shrink-0 font-mono">
               COMMANDS:
             </span>
-            {activeLang.chips.map((chip, idx) => (
+            {AGENT_CONFIG.chips.map((chip, idx) => (
               <button
                 key={idx}
                 type="button"
@@ -685,7 +540,7 @@ export default function FlowAgentBar({
                     if (isSpeaking) {
                       stopSpeaking();
                     } else {
-                      speakAloud(activeTelemetry.reply, activeLang.id);
+                      speakAloud(activeTelemetry.reply);
                     }
                   }}
                   className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 transition flex items-center gap-1.5"
@@ -752,82 +607,6 @@ export default function FlowAgentBar({
           </div>
         )}
       </div>
-
-      {/* ─── DIALECT & PERSONA MODAL DIALOG (Never overlaps or clips) ─── */}
-      {showLangPicker && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in"
-          onClick={() => setShowLangPicker(false)}
-        >
-          <div
-            ref={langPickerRef}
-            className="w-full max-w-sm rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-2xl relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
-              <div>
-                <h4 className="text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                  Dialect & Persona
-                </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                  Select speech and conversational intelligence mode
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowLangPicker(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              {SUPPORTED_LANGUAGES.map((lang) => {
-                const isSelected = selectedLangId === lang.id;
-                return (
-                  <button
-                    key={lang.id}
-                    type="button"
-                    onClick={() => handleSelectLanguage(lang)}
-                    className={`w-full flex items-center justify-between rounded-2xl p-3 text-left transition border ${
-                      isSelected
-                        ? 'bg-indigo-50 border-indigo-300 text-indigo-950 dark:bg-cyan-950/40 dark:border-cyan-500/50 dark:text-cyan-100 shadow-sm'
-                        : 'border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/30 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-black text-xs ${
-                          isSelected
-                            ? 'bg-indigo-600 text-white dark:bg-cyan-500 dark:text-slate-950 shadow-md'
-                            : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                        }`}
-                      >
-                        {lang.id === 'en' ? 'EN' : lang.id === 'tanglish' ? 'TG' : lang.id === 'ta' ? 'தமிழ்' : 'हिंदी'}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-slate-900 dark:text-white">{lang.name}</span>
-                          <span className="rounded-md bg-slate-200/80 dark:bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-700 dark:text-slate-300">
-                            {lang.badge}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{lang.subtext}</p>
-                      </div>
-                    </div>
-                    {isSelected && (
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white dark:bg-cyan-500 dark:text-slate-950 text-xs font-bold shrink-0">
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ─── 5. 🔒 100% USER PERMISSION HOLOGRAPHIC DRAFT CARD ─── */}
       {activeDraft && (
