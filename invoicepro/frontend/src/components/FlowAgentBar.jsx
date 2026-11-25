@@ -219,9 +219,9 @@ export default function FlowAgentBar({
           history: chatMemory.slice(-8)
         });
       } catch (firstErr) {
-        // Auto-retry once on cold boot or connection reset
-        if (!firstErr.response || firstErr.code === 'ERR_NETWORK' || firstErr.message?.includes('timeout')) {
-          await new Promise((r) => setTimeout(r, 1500));
+        // Instant single retry only on actual network drops or cold boot
+        if (!firstErr.response && (firstErr.code === 'ERR_NETWORK' || firstErr.message?.includes('Network Error'))) {
+          await new Promise((r) => setTimeout(r, 400));
           res = await api.post('/ai/agent', {
             message: query,
             languageMode: 'en',

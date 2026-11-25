@@ -1792,18 +1792,26 @@ const getAiProviderOrder = () => {
 
 const getAiProviderConfig = (provider) => {
     if (provider === 'groq') {
+        const rawModel = String(process.env.GROQ_MODEL || '').trim();
+        // Guard against invalid/fictitious model names and default to ultra-fast Groq Llama 3.3
+        const model = (rawModel && !/qwen|gpt-oss|3\.8/i.test(rawModel))
+            ? rawModel
+            : 'llama-3.3-70b-versatile';
         return {
             provider: 'groq',
             apiKey: process.env.GROQ_API_KEY,
             hostname: 'api.groq.com',
             path: '/openai/v1/chat/completions',
-            model: process.env.GROQ_MODEL || 'qwen/qwen3.8-27b'
+            model
         };
     }
 
     if (provider === 'gemini') {
         const apiKey = process.env.GEMINI_API_KEY;
-        const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+        const rawModel = String(process.env.GEMINI_MODEL || '').trim();
+        const model = (rawModel && !/3\.8|2\.5/i.test(rawModel))
+            ? rawModel
+            : 'gemini-1.5-flash';
         return {
             provider: 'gemini',
             apiKey,
@@ -1871,7 +1879,7 @@ const buildAiPayload = ({ provider, model, prompt, messages, maxTokens }) => {
             : [{ role: 'user', content: prompt }];
 
         return JSON.stringify({
-            model: model || 'qwen/qwen3.8-27b',
+            model: (model && !/qwen|gpt-oss|3\.8/i.test(model)) ? model : 'llama-3.3-70b-versatile',
             messages: chatMessages,
             max_tokens: Math.min(maxTokens || 400, 1500),
             temperature: 0.6
@@ -2526,7 +2534,7 @@ const callAiInvoiceDraft = async({ message, user }) => {
         `User message: ${message}`
     ].join('\n');
 
-    return callAiJson({ prompt, timeout: 12000, maxTokens: 900 });
+    return callAiJson({ prompt, timeout: 3500, maxTokens: 400 });
 };
 
 const callAiPriceSuggestion = async({ context, fallback }) => {
@@ -2760,7 +2768,7 @@ If the user asks to open, go to, or view any page or tool, confirm naturally and
     chatMessages.push({ role: 'user', content: message });
 
     try {
-        const res = await callAiText({ messages: chatMessages, timeout: 8000, maxTokens: 300 });
+        const res = await callAiText({ messages: chatMessages, timeout: 3500, maxTokens: 250 });
         if (res && res.text) {
             return res.text.replace(/^(flow|jarvis|chief|aria):\s*/i, '').trim();
         }
