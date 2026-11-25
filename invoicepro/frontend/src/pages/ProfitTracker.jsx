@@ -3,8 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import useDocumentMeta from '../utils/useDocumentMeta';
 import api from '../utils/api';
+import { getUser, formatCurrency as formatDocCurrency } from '../utils/auth';
 
-const STORAGE_KEY = 'clientflow_profit_tracker_state';
+const FX_RATES_TO_INR = { INR: 1, USD: 85, EUR: 92, GBP: 108, CAD: 62, AUD: 56, SGD: 63, AED: 23 };
 
 const defaultTools = [
   { id: 'chatgpt', name: 'ChatGPT or AI assistant', monthlyCost: 1999, allocation: 25 },
@@ -79,13 +80,17 @@ export default function ProfitTracker() {
   const [searchParams] = useSearchParams();
   const urlInvoiceId = searchParams.get('invoiceId');
 
+  const user = getUser();
+  const userId = user?._id || 'anon';
+  const storageKey = `cf_profit_tracker_${userId}`;
+
   const [invoices, setInvoices] = useState([]);
   const [loadingInvoices, setLoadingInvoices] = useState(true);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState('');
 
   const [state, setState] = useState(() => {
     try {
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      const stored = JSON.parse(localStorage.getItem(storageKey) || 'null');
       return stored ? { ...defaultState, ...stored, tools: stored.tools?.length ? stored.tools : defaultTools } : defaultState;
     } catch {
       return defaultState;
@@ -143,23 +148,33 @@ export default function ProfitTracker() {
       }
     } catch {}
 
-    // Auto-populate from real invoice data
+    // Auto-populate from real invoice data with accurate currency conversion & fee calculation
+    const invCurrency = String(inv.currency || 'INR').toUpperCase();
+    const rate = FX_RATES_TO_INR[invCurrency] || 1;
+    const isDirectUpi = !inv.paymentLink || inv.paymentLink?.provider === 'direct';
+    const isForeign = invCurrency !== 'INR';
+    const feeRate = isDirectUpi ? 0 : isForeign ? 3.5 : 2.0;
+    const rawAmount = Number(inv.amount || 0);
+    const convertedRevenue = invCurrency === 'INR' ? rawAmount : Math.round(rawAmount * rate);
+
     setState((prev) => ({
       ...prev,
       projectName: `${inv.invoiceNumber ? '#' + inv.invoiceNumber + ' - ' : ''}${inv.clientName || 'Client Project'}`,
-      clientRevenue: Number(inv.amount || 0),
-      paymentFeePercent: inv.paymentLink ? 2.0 : 0
+      clientRevenue: convertedRevenue,
+      paymentFeePercent: feeRate,
+      collaboratorCost: 0,
+      otherExpenses: 0
     }));
   };
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(storageKey, JSON.stringify(state));
       if (selectedInvoiceId) {
         localStorage.setItem(`cf_profit_inv_${selectedInvoiceId}`, JSON.stringify(state));
       }
     } catch { }
-  }, [state, selectedInvoiceId]);
+  }, [state, selectedInvoiceId, storageKey]);
 
   const numbers = useMemo(() => {
     const toolCost = state.tools.reduce((total, tool) => {
@@ -372,7 +387,7 @@ export default function ProfitTracker() {
                   </option>
                   {invoices.map((inv) => (
                     <option key={inv._id} value={inv._id}>
-                      #{inv.invoiceNumber || 'INV'} — {inv.clientName || 'Client'} (₹{Number(inv.amount || 0).toLocaleString('en-IN')} • {inv.status?.toUpperCase() || 'DRAFT'})
+                      #{inv.invoiceNumber || 'INV'} — {inv.clientName || 'Client'} ({formatDocCurrency(inv.amount, inv.currency)} • {inv.status?.toUpperCase() || 'DRAFT'})
                     </option>
                   ))}
                 </select>

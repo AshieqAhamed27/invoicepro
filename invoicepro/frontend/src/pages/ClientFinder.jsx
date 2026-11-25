@@ -410,16 +410,26 @@ export default function ClientFinder() {
   );
 
   useEffect(() => {
+    const activeAccountKey = getUserStorageKey();
     const loadPipelineLeads = async () => {
       try {
         const res = await api.get('/leads');
-        const pipelineLeads = Array.isArray(res.data?.leads) ? res.data.leads.slice(0, 12) : [];
+        // Prevent writing into wrong account cache if user switched accounts mid-flight
+        if (getUserStorageKey() !== activeAccountKey) return;
 
-        // Scope directly to current account and apply empty result if account has no leads
-        setSavedLeads(pipelineLeads);
-        try {
-          localStorage.setItem(getUserStorageKey(), JSON.stringify(pipelineLeads));
-        } catch { }
+        const serverLeads = Array.isArray(res.data?.leads) ? res.data.leads.slice(0, 12) : [];
+
+        setSavedLeads((prev) => {
+          // Preserve local leads that haven't synced yet or failed upload so they don't disappear
+          const localOnly = (prev || []).filter(
+            (local) => !serverLeads.some((srv) => (srv._id && srv._id === local._id) || (srv.businessName && srv.businessName === local.businessName))
+          );
+          const merged = [...serverLeads, ...localOnly].slice(0, 12);
+          try {
+            localStorage.setItem(activeAccountKey, JSON.stringify(merged));
+          } catch { }
+          return merged;
+        });
       } catch { }
     };
 

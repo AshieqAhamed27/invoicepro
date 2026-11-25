@@ -117,20 +117,38 @@ const getInvoiceDocumentMatch = (documentType) => (
         : { documentType: { $ne: 'proposal' } }
 );
 
-// Generate billing document number
+// Generate billing document number resilient against race conditions
 const generateDocumentNumber = async(userId, documentType = 'invoice') => {
-    const lastInvoice = await Invoice.findOne({
-        user: userId,
-        ...getInvoiceDocumentMatch(documentType)
-    }).sort({ createdAt: -1 });
-
     const prefix = isProposalDocument(documentType) ? 'PRO' : 'INV';
-    if (!lastInvoice) return `${prefix}-0001`;
 
-    const lastNumMatch = lastInvoice.invoiceNumber.match(/(\d+)$/);
-    const lastNum = lastNumMatch ? parseInt(lastNumMatch[1]) : 0;
-    const nextNum = String(lastNum + 1).padStart(4, '0');
-    return `${prefix}-${nextNum}`;
+    // Scan existing documents for this user and prefix to find highest numerical suffix
+    const existingDocs = await Invoice.find({
+        user: userId,
+        ...getInvoiceDocumentMatch(documentType),
+        invoiceNumber: new RegExp(`^${prefix}-\\d+`)
+    }).select('invoiceNumber').lean();
+
+    let maxNum = 0;
+    for (const doc of existingDocs) {
+        const m = (doc.invoiceNumber || '').match(/(\d+)$/);
+        if (m) {
+            const num = parseInt(m[1], 10);
+            if (!isNaN(num) && num > maxNum) maxNum = num;
+        }
+    }
+
+    let nextNum = maxNum + 1;
+    let candidate = `${prefix}-${String(nextNum).padStart(4, '0')}`;
+
+    // Loop check ensuring candidate does not collide with concurrent records
+    let exists = await Invoice.exists({ user: userId, invoiceNumber: candidate });
+    while (exists) {
+        nextNum += 1;
+        candidate = `${prefix}-${String(nextNum).padStart(4, '0')}`;
+        exists = await Invoice.exists({ user: userId, invoiceNumber: candidate });
+    }
+
+    return candidate;
 };
 
 const generateInvoiceNumber = (userId) => generateDocumentNumber(userId, 'invoice');
@@ -183,10 +201,31 @@ router.get('/dashboard', protect, async(req, res) => {
             Invoice.aggregate([
                 { $match: { user: req.user._id, documentType: { $ne: 'proposal' } } },
                 {
+                    $project: {
+                        status: 1,
+                        amount: 1,
+                        currency: { $ifNull: ['$currency', 'INR'] },
+                        amountInInr: {
+                            $switch: {
+                                branches: [
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'USD'] }, then: { $multiply: ['$amount', 85] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'EUR'] }, then: { $multiply: ['$amount', 92] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'GBP'] }, then: { $multiply: ['$amount', 108] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'CAD'] }, then: { $multiply: ['$amount', 62] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'AUD'] }, then: { $multiply: ['$amount', 56] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'SGD'] }, then: { $multiply: ['$amount', 63] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'AED'] }, then: { $multiply: ['$amount', 23] } }
+                                ],
+                                default: '$amount'
+                            }
+                        }
+                    }
+                },
+                {
                     $group: {
                         _id: null,
-                        totalRevenue: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, '$amount', 0] } },
-                        pendingAmount: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, '$amount', 0] } },
+                        totalRevenue: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, '$amountInInr', 0] } },
+                        pendingAmount: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, '$amountInInr', 0] } },
                         pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
                         paid: { $sum: { $cond: [{ $eq: ['$status', 'paid'] }, 1, 0] } },
                         total: { $sum: 1 }
@@ -197,9 +236,28 @@ router.get('/dashboard', protect, async(req, res) => {
             Invoice.aggregate([
                 { $match: { user: req.user._id, documentType: { $ne: 'proposal' }, status: 'paid' } },
                 {
+                    $project: {
+                        createdAt: 1,
+                        amountInInr: {
+                            $switch: {
+                                branches: [
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'USD'] }, then: { $multiply: ['$amount', 85] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'EUR'] }, then: { $multiply: ['$amount', 92] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'GBP'] }, then: { $multiply: ['$amount', 108] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'CAD'] }, then: { $multiply: ['$amount', 62] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'AUD'] }, then: { $multiply: ['$amount', 56] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'SGD'] }, then: { $multiply: ['$amount', 63] } },
+                                    { case: { $eq: [{ $toUpper: '$currency' }, 'AED'] }, then: { $multiply: ['$amount', 23] } }
+                                ],
+                                default: '$amount'
+                            }
+                        }
+                    }
+                },
+                {
                     $group: {
                         _id: { month: { $month: '$createdAt' }, year: { $year: '$createdAt' } },
-                        amount: { $sum: '$amount' }
+                        amount: { $sum: '$amountInInr' }
                     }
                 },
                 { $sort: { '_id.year': -1, '_id.month': -1 } },
@@ -1059,7 +1117,7 @@ router.post('/recurring/:id/run-now', protect, requirePro, async(req, res) => {
 
         await schedule.save();
 
-        if (schedule.sendEmail) {
+        if (schedule.sendEmail && invoice.clientEmail && !invoice.clientEmail.includes('placeholder') && !invoice.clientEmail.includes('dummy') && !invoice.clientEmail.includes('noemail')) {
             setImmediate(async() => {
                 try {
                     const publicInvoiceLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
@@ -1104,7 +1162,7 @@ router.post('/recurring/run', async(req, res) => {
         processed += 1;
 
         try {
-            const user = await User.findById(schedule.user).select('plan companyName name email address gstNumber upiId logo');
+            const user = await User.findById(schedule.user).select('plan planExpiresAt role freeAccessStartedAt freeAccessExpiresAt companyName name email address gstNumber upiId logo');
             if (!user) {
                 schedule.status = 'paused';
                 schedule.pauseReason = 'user_missing';
@@ -1177,7 +1235,7 @@ router.post('/recurring/run', async(req, res) => {
 
             await schedule.save();
 
-            if (schedule.sendEmail) {
+            if (schedule.sendEmail && invoice.clientEmail && !invoice.clientEmail.includes('placeholder') && !invoice.clientEmail.includes('dummy') && !invoice.clientEmail.includes('noemail')) {
                 setImmediate(async() => {
                     try {
                         const publicInvoiceLink = getPublicInvoiceUrl(process.env.FRONTEND_URL, invoice._id);
@@ -1408,6 +1466,10 @@ router.post('/public/:id/verify-screenshot', upload.single('screenshot'), async 
             return res.status(400).json({ message: 'Please upload a payment screenshot.' });
         }
 
+        const expectedPayable = (invoice.tds?.enabled && Number(invoice.netPayable) > 0)
+            ? Number(invoice.netPayable)
+            : Number(invoice.amount || 0);
+
         const prompt = [
             'Analyze this image of a payment receipt or confirmation (e.g. from GPay, PhonePe, Paytm, net banking, or other bank transfers).',
             'Extract the following details:',
@@ -1417,7 +1479,7 @@ router.post('/public/:id/verify-screenshot', upload.single('screenshot'), async 
             '4. Transaction/Reference/UTR ID (as a string).',
             '5. Transaction Date (as a string).',
             '',
-            `Determine if this is a valid, successful transaction matching the expected invoice amount of ${invoice.amount} and currency of ${invoice.currency || 'INR'}.`,
+            `Determine if this is a valid, successful transaction matching either the net payable amount of ${expectedPayable} (accounting for any TDS deduction) or the full gross invoice amount of ${invoice.amount}, in currency ${invoice.currency || 'INR'}.`,
             'Return ONLY a raw JSON object (no markdown formatting, no ```json wrapper) with this structure:',
             '{',
             '  "isValid": true/false,',
@@ -1555,6 +1617,38 @@ router.post('/:id/reconcile-tds', protect, async (req, res) => {
     }
 });
 
+// Unified tax & TDS breakdown calculator ensuring 100% mathematical consistency across CSV, JSON and summaries
+const calculateInvoiceTaxBreakdown = (inv) => {
+    const totalInvoiced = Number(inv.amount || 0);
+    const cgstRate = Number(inv.cgst || 0);
+    const sgstRate = Number(inv.sgst || 0);
+    const totalTaxRate = cgstRate + sgstRate;
+    const itemsSubtotal = Array.isArray(inv.items) && inv.items.length > 0
+        ? inv.items.reduce((sum, it) => sum + (Number(it.price) || 0), 0)
+        : 0;
+    const grossAmt = itemsSubtotal > 0
+        ? itemsSubtotal
+        : (totalTaxRate > 0 ? (totalInvoiced / (1 + totalTaxRate / 100)) : totalInvoiced);
+    const cgstAmt = (grossAmt * cgstRate) / 100;
+    const sgstAmt = (grossAmt * sgstRate) / 100;
+    const total = totalTaxRate > 0 && itemsSubtotal > 0 ? (grossAmt + cgstAmt + sgstAmt) : totalInvoiced;
+    const tdsRate = inv.tds?.enabled ? (Number(inv.tds.rate) || 0) : 0;
+    const tdsAmt = inv.tds?.enabled ? (Number(inv.tds.amount) || 0) : 0;
+    const net = Math.max(0, inv.netPayable || (total - tdsAmt));
+
+    return {
+        grossAmt,
+        cgstRate,
+        sgstRate,
+        cgstAmt,
+        sgstAmt,
+        total,
+        tdsRate,
+        tdsAmt,
+        net
+    };
+};
+
 // 2. TDS ANNUAL / QUARTERLY SUMMARY (FOR 26AS & ITR FILING)
 router.get('/tax/tds-summary', protect, async (req, res) => {
     try {
@@ -1583,25 +1677,18 @@ router.get('/tax/tds-summary', protect, async (req, res) => {
         const tdsEntries = [];
 
         for (const inv of invoices) {
-            const amt = Number(inv.amount || 0);
-            const cgstRate = Number(inv.cgst || 0);
-            const sgstRate = Number(inv.sgst || 0);
-            const cgstAmt = (amt * cgstRate) / 100;
-            const sgstAmt = (amt * sgstRate) / 100;
-            const total = amt + cgstAmt + sgstAmt;
-            const tdsAmt = inv.tds?.enabled ? Number(inv.tds.amount || 0) : 0;
-            const net = inv.netPayable || (total - tdsAmt);
+            const tax = calculateInvoiceTaxBreakdown(inv);
 
-            totalGrossBilled += amt;
-            totalCgst += cgstAmt;
-            totalSgst += sgstAmt;
+            totalGrossBilled += tax.grossAmt;
+            totalCgst += tax.cgstAmt;
+            totalSgst += tax.sgstAmt;
 
-            if (tdsAmt > 0) {
-                totalTdsDeducted += tdsAmt;
+            if (tax.tdsAmt > 0) {
+                totalTdsDeducted += tax.tdsAmt;
                 if (inv.tds?.section === '194C') {
-                    section194CAmount += tdsAmt;
+                    section194CAmount += tax.tdsAmt;
                 } else {
-                    section194JAmount += tdsAmt;
+                    section194JAmount += tax.tdsAmt;
                 }
 
                 if (inv.tds?.reconciled) {
@@ -1614,18 +1701,19 @@ router.get('/tax/tds-summary', protect, async (req, res) => {
                     invoiceNumber: inv.invoiceNumber,
                     date: inv.date,
                     clientName: inv.clientName,
-                    amount: amt,
-                    tdsRate: inv.tds?.rate || 0,
+                    amount: tax.grossAmt,
+                    totalAmount: tax.total,
+                    tdsRate: tax.tdsRate,
                     tdsSection: inv.tds?.section || '194J',
-                    tdsAmount: tdsAmt,
-                    netReceived: net,
+                    tdsAmount: tax.tdsAmt,
+                    netReceived: tax.net,
                     certificateNumber: inv.tds?.certificateNumber || 'Pending Form 16A',
                     reconciled: Boolean(inv.tds?.reconciled)
                 });
             }
 
             if (inv.status === 'paid') {
-                totalNetReceived += net;
+                totalNetReceived += tax.net;
             }
         }
 
@@ -1685,37 +1773,21 @@ router.get('/tax/ca-export', protect, async (req, res) => {
             ];
 
             const rows = invoices.map(inv => {
-                const totalInvoiced = Number(inv.amount || 0);
-                const cgstRate = Number(inv.cgst || 0);
-                const sgstRate = Number(inv.sgst || 0);
-                const totalTaxRate = cgstRate + sgstRate;
-                const itemsSubtotal = Array.isArray(inv.items) && inv.items.length > 0
-                    ? inv.items.reduce((sum, it) => sum + (Number(it.price) || 0), 0)
-                    : 0;
-                const grossAmt = itemsSubtotal > 0
-                    ? itemsSubtotal
-                    : (totalTaxRate > 0 ? (totalInvoiced / (1 + totalTaxRate / 100)) : totalInvoiced);
-                const cgstAmt = (grossAmt * cgstRate) / 100;
-                const sgstAmt = (grossAmt * sgstRate) / 100;
-                const total = totalTaxRate > 0 && itemsSubtotal > 0 ? (grossAmt + cgstAmt + sgstAmt) : totalInvoiced;
-                const tdsRate = inv.tds?.enabled ? (inv.tds.rate || 0) : 0;
-                const tdsAmt = inv.tds?.enabled ? (inv.tds.amount || 0) : 0;
-                const net = Math.max(0, total - tdsAmt);
-
+                const tax = calculateInvoiceTaxBreakdown(inv);
                 return [
                     inv.invoiceNumber,
                     inv.date ? new Date(inv.date).toISOString().slice(0, 10) : '',
                     `"${(inv.clientName || '').replace(/"/g, '""')}"`,
                     inv.clientEmail || '',
                     inv.currency || 'INR',
-                    grossAmt.toFixed(2),
-                    cgstAmt.toFixed(2),
-                    sgstAmt.toFixed(2),
-                    total.toFixed(2),
+                    tax.grossAmt.toFixed(2),
+                    tax.cgstAmt.toFixed(2),
+                    tax.sgstAmt.toFixed(2),
+                    tax.total.toFixed(2),
                     inv.tds?.enabled ? (inv.tds.section || '194J') : 'N/A',
-                    tdsRate,
-                    tdsAmt.toFixed(2),
-                    net.toFixed(2),
+                    tax.tdsRate,
+                    tax.tdsAmt.toFixed(2),
+                    tax.net.toFixed(2),
                     inv.status,
                     `"${(inv.tds?.certificateNumber || '').replace(/"/g, '""')}"`
                 ].join(',');
@@ -1731,29 +1803,23 @@ router.get('/tax/ca-export', protect, async (req, res) => {
             financialYear: `FY ${currentYear}-${(currentYear + 1).toString().slice(-2)}`,
             count: invoices.length,
             invoices: invoices.map(inv => {
-                const amt = Number(inv.amount || 0);
-                const cgstRate = Number(inv.cgst || 0);
-                const sgstRate = Number(inv.sgst || 0);
-                const cgstAmt = (amt * cgstRate) / 100;
-                const sgstAmt = (amt * sgstRate) / 100;
-                const total = amt + cgstAmt + sgstAmt;
-                const tdsAmt = inv.tds?.enabled ? (inv.tds.amount || 0) : 0;
+                const tax = calculateInvoiceTaxBreakdown(inv);
                 return {
                     invoiceNumber: inv.invoiceNumber,
                     date: inv.date,
                     clientName: inv.clientName,
                     clientEmail: inv.clientEmail || '',
                     currency: inv.currency,
-                    grossAmount: amt,
-                    cgstRate: cgstRate,
-                    sgstRate: sgstRate,
-                    cgstAmount: cgstAmt,
-                    sgstAmount: sgstAmt,
-                    totalAmount: total,
+                    grossAmount: tax.grossAmt,
+                    cgstRate: tax.cgstRate,
+                    sgstRate: tax.sgstRate,
+                    cgstAmount: tax.cgstAmt,
+                    sgstAmount: tax.sgstAmt,
+                    totalAmount: tax.total,
                     tdsSection: inv.tds?.section || 'N/A',
-                    tdsRate: inv.tds?.rate || 0,
-                    tdsDeducted: tdsAmt,
-                    netPayable: inv.netPayable || (total - tdsAmt),
+                    tdsRate: tax.tdsRate,
+                    tdsDeducted: tax.tdsAmt,
+                    netPayable: tax.net,
                     status: inv.status,
                     certificateNumber: inv.tds?.certificateNumber || ''
                 };

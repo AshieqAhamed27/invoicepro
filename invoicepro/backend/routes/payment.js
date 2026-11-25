@@ -84,8 +84,8 @@ const planDetails = {
         globalAmountEnv: 'PRO_YEARLY_USD_AMOUNT'
     },
     founder90: {
-        amount: getConfiguredAmount('FOUNDER_90_AMOUNT', 799),
-        globalAmount: getConfiguredAmount('FOUNDER_90_USD_AMOUNT', 19),
+        amount: getConfiguredAmount('FOUNDER_90_AMOUNT', 899),
+        globalAmount: getConfiguredAmount('FOUNDER_90_USD_AMOUNT', 16),
         globalCurrency: DEFAULT_GLOBAL_CURRENCY,
         label: 'Founder 90 Days',
         durationDays: 90,
@@ -1068,6 +1068,19 @@ router.post('/public/verify', async(req, res) => {
             return res.json({ message: 'Already paid', status: 'paid' });
         }
 
+        if (!razorpay_payment_id) {
+            return res.status(400).json({ message: 'Payment ID is required.' });
+        }
+
+        // Prevent payment replay on invoices
+        const existingInvoiceWithPayment = await Invoice.findOne({
+            'paymentLink.paymentId': razorpay_payment_id,
+            _id: { $ne: invoice._id }
+        });
+        if (existingInvoiceWithPayment) {
+            return res.status(400).json({ message: 'This payment has already been credited to another invoice.' });
+        }
+
         if (process.env.PAYMENT_SIMULATION !== 'true') {
             if (!process.env.RAZORPAY_KEY_SECRET) {
                 return res.status(500).json({ message: 'Razorpay keys missing' });
@@ -1076,6 +1089,36 @@ router.post('/public/verify', async(req, res) => {
             const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
             shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
             if (shasum.digest('hex') !== razorpay_signature) return res.status(400).json({ message: 'Verification failed' });
+
+            // Validate that order genuinely corresponds to this invoice, amount and currency
+            const authHeader = getRazorpayAuthHeader();
+            if (authHeader && razorpay_order_id) {
+                try {
+                    const orderRes = await requestRazorpay({
+                        path: `/v1/orders/${razorpay_order_id}`,
+                        method: 'GET',
+                        authHeader
+                    });
+                    if (orderRes.ok && orderRes.body) {
+                        const notesInvoiceId = orderRes.body.notes?.invoiceId || orderRes.body.receipt;
+                        if (notesInvoiceId && String(notesInvoiceId) !== String(invoice._id)) {
+                            return res.status(400).json({ message: 'Payment order does not match this invoice.' });
+                        }
+                        const orderCurrency = String(orderRes.body.currency || '').toUpperCase();
+                        const invCurrency = String(invoice.currency || 'INR').toUpperCase();
+                        if (orderCurrency && orderCurrency !== invCurrency) {
+                            return res.status(400).json({ message: `Payment currency (${orderCurrency}) does not match invoice (${invCurrency}).` });
+                        }
+                        const orderAmount = Number(orderRes.body.amount || 0);
+                        const expectedPaise = Math.round(Number(invoice.amount || 0) * 100);
+                        if (orderAmount < expectedPaise) {
+                            return res.status(400).json({ message: 'Payment amount does not fully cover the invoice balance.' });
+                        }
+                    }
+                } catch (orderErr) {
+                    console.warn('[Payment] Could not verify public invoice order with provider:', orderErr.message);
+                }
+            }
         }
 
         await markInvoicePaidFromPayment(invoice, {
@@ -1092,7 +1135,7 @@ router.post('/razorpay/verify', protect, async(req, res) => {
         if (!normalizedPlan) return res.status(400).json({ message: 'Invalid plan' });
         if (!razorpay_payment_id) return res.status(400).json({ message: 'Payment ID is required' });
 
-        // Check for replay attacks: ensure this payment ID hasn't already been used
+        // Atomic replay prevention across users: check globally first
         const existingPaymentUser = await User.findOne({ processedPaymentIds: razorpay_payment_id });
         if (existingPaymentUser) {
             return res.status(400).json({ message: 'This payment has already been applied.' });
@@ -1120,7 +1163,9 @@ router.post('/razorpay/verify', protect, async(req, res) => {
                         authHeader
                     });
                     if (orderRes.ok && orderRes.body) {
-                        if (orderRes.body.notes?.userId && String(orderRes.body.notes.userId) !== String(req.user._id)) {
+                        // Order MUST belong to this user account
+                        const orderUserId = orderRes.body.notes?.userId;
+                        if (!orderUserId || String(orderUserId) !== String(req.user._id)) {
                             return res.status(403).json({ message: 'Payment order does not belong to this account.' });
                         }
                         const orderPlan = normalizePlan(orderRes.body.notes?.plan);
@@ -1139,12 +1184,15 @@ router.post('/razorpay/verify', protect, async(req, res) => {
             }
         }
 
-        const user = await User.findById(req.user._id);
-        if (!user) return res.status(404).json({ message: 'User not found' });
-
-        // Record the payment ID so it cannot be used again
-        if (!user.processedPaymentIds) user.processedPaymentIds = [];
-        user.processedPaymentIds.push(razorpay_payment_id);
+        // Atomic lock using findOneAndUpdate to prevent simultaneous race conditions
+        const user = await User.findOneAndUpdate(
+            { _id: req.user._id, processedPaymentIds: { $ne: razorpay_payment_id } },
+            { $addToSet: { processedPaymentIds: razorpay_payment_id } },
+            { new: true }
+        );
+        if (!user) {
+            return res.status(400).json({ message: 'This payment has already been processed or applied.' });
+        }
 
         await setUserPlan(user, verifiedPlan, {
             subscriptionProvider: 'razorpay',
@@ -1332,6 +1380,7 @@ router.get('/admin/revenue', protect, async(req, res) => {
         ]);
         const directCheckoutEstimate = directCheckoutUsers
             .filter((user) => !knownPlanRevenueUserIds.has(String(user._id)))
+            .filter((user) => !user.planExpiresAt || new Date(user.planExpiresAt) > new Date())
             .reduce((sum, user) => sum + getPlanAmount(user.plan), 0);
         const agencyEarnings = agencyEarningsResult[0] || { collected: 0, count: 0 };
         const planRevenue = subscriptionRevenue + manualRevenue + directCheckoutEstimate;
@@ -1632,13 +1681,21 @@ const syncSubscriptionFromWebhook = async(event, subscriptionEntity, paymentEnti
     ].includes(event) || ['cancelled', 'completed', 'expired', 'halted', 'paused'].includes(status);
 
     if (shouldActivate) {
-        await setUserPlan(user, normalizedPlan, {
-            expiresAt: subscription.currentEnd || getFallbackExpiry(normalizedPlan),
-            subscriptionId: subscription.providerSubscriptionId,
-            subscriptionProvider: 'razorpay',
-            subscriptionStatus: status || 'active',
-            lastPaymentAt: paymentEntity ? new Date() : user.lastPaymentAt
-        });
+        // Protect against stale/delayed webhooks for an older subscription overwriting a newer subscription
+        const isCurrentOrNewer = !user.razorpaySubscriptionId ||
+            user.razorpaySubscriptionId === subscription.providerSubscriptionId ||
+            !user.planExpiresAt ||
+            new Date(user.planExpiresAt) <= new Date();
+
+        if (isCurrentOrNewer) {
+            await setUserPlan(user, normalizedPlan, {
+                expiresAt: subscription.currentEnd || getFallbackExpiry(normalizedPlan),
+                subscriptionId: subscription.providerSubscriptionId,
+                subscriptionProvider: 'razorpay',
+                subscriptionStatus: status || 'active',
+                lastPaymentAt: paymentEntity ? new Date() : user.lastPaymentAt
+            });
+        }
         return;
     }
 

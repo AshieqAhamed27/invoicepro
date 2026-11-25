@@ -19,7 +19,13 @@ export default function CreateInvoice() {
   const [searchParams] = useSearchParams();
   const user = getUser() || {};
 
+  const isProposalParam = searchParams.get('type') === 'proposal';
+  const isRecurringParam = searchParams.get('recurring') === 'true';
+
   // Form State
+  const [docType, setDocType] = useState(isProposalParam ? 'proposal' : 'invoice');
+  const [isRecurring, setIsRecurring] = useState(isRecurringParam);
+  const [recurringFrequency, setRecurringFrequency] = useState('monthly');
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [clientPhone, setClientPhone] = useState('');
@@ -46,12 +52,33 @@ export default function CreateInvoice() {
   const [createdInvoice, setCreatedInvoice] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  // Initialize with user profile settings
+  // Initialize with user profile settings and draft from ProposalWriter / ClientRadar
   useEffect(() => {
     if (user.upiId) {
       setUpiId(user.upiId);
     }
-  }, []);
+
+    try {
+      const savedDraftRaw = localStorage.getItem('invoicepro_ai_invoice_draft');
+      if (savedDraftRaw) {
+        const draft = JSON.parse(savedDraftRaw);
+        if (draft.clientName) setClientName(draft.clientName);
+        if (draft.clientEmail) setClientEmail(draft.clientEmail);
+        if (draft.clientPhone) setClientPhone(draft.clientPhone);
+        if (draft.currency) setCurrency(draft.currency);
+        if (draft.upiId) setUpiId(draft.upiId);
+        if (draft.dueDate) setDueDate(draft.dueDate);
+        if (Array.isArray(draft.items) && draft.items.length > 0) {
+          setItems(draft.items.map(it => ({ name: it.name || it.description || '', price: it.price || it.amount || '' })));
+        } else if (draft.amount) {
+          setItems([{ name: draft.description || draft.serviceDescription || 'Project Scope', price: draft.amount }]);
+        }
+        if (draft.notes) setNotes(draft.notes);
+        if (draft.documentType === 'proposal' || isProposalParam) setDocType('proposal');
+        localStorage.removeItem('invoicepro_ai_invoice_draft');
+      }
+    } catch {}
+  }, [isProposalParam]);
 
   // Handle Quick Date Selection
   const setQuickDueDays = (days) => {
@@ -132,12 +159,22 @@ export default function CreateInvoice() {
       return;
     }
 
+    if (!clientName.trim()) {
+      alert('Please enter a client name.');
+      return;
+    }
+
+    if (!clientEmail.trim() && !clientPhone.trim()) {
+      alert('Please enter either a client email or phone number.');
+      return;
+    }
+
     if (subtotal <= 0) {
       alert('Please add at least one item with a valid price.');
       return;
     }
 
-    if (currency === 'INR' && !upiId.trim()) {
+    if (docType === 'invoice' && currency === 'INR' && !upiId.trim()) {
       alert('Please enter your UPI ID so your client can pay directly to your account.');
       return;
     }
@@ -150,12 +187,12 @@ export default function CreateInvoice() {
       const rawPhone = clientPhone.trim();
 
       const payload = {
-        documentType: 'invoice',
+        documentType: docType,
         clientName: clientName.trim(),
         clientEmail: rawEmail,
         clientPhone: rawPhone,
         currency,
-        upiId: currency === 'INR' ? upiId.trim() : '',
+        upiId: (docType === 'invoice' && currency === 'INR') ? upiId.trim() : '',
         dueDate,
         items: items.map(item => ({
           name: item.name.trim() || 'Service',
@@ -164,15 +201,16 @@ export default function CreateInvoice() {
         amount: total,
         cgst: halfTax,
         sgst: halfTax,
-        notes: notes.trim()
+        notes: notes.trim(),
+        recurring: (docType === 'invoice' && isRecurring) ? { enabled: true, frequency: recurringFrequency } : undefined
       };
 
       const res = await api.post('/invoices', payload);
       const inv = res.data?.invoice;
       setCreatedInvoice(inv);
-      trackEvent('create_invoice_success', { amount: total, currency });
+      trackEvent('create_invoice_success', { amount: total, currency, documentType: docType });
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to create invoice. Please try again.');
+      alert(err.response?.data?.message || 'Failed to create document. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -199,10 +237,13 @@ export default function CreateInvoice() {
   };
 
   const getWhatsAppShareUrl = () => {
-    const text = `Hi ${clientName},\n\nHere is your invoice #${createdInvoice?.invoiceNumber || ''} for ${currency} ${total.toLocaleString('en-IN')}.\n\nYou can view and pay it securely here:\n${publicPayUrl}\n\nThank you!`;
-    const targetPhone = clientPhone ? clientPhone.replace(/\D/g, '') : '';
-    return targetPhone
-      ? `https://wa.me/${targetPhone.length === 10 ? '91' + targetPhone : targetPhone}?text=${encodeURIComponent(text)}`
+    const docLabel = docType === 'proposal' ? 'proposal' : 'invoice';
+    const text = `Hi ${clientName},\n\nHere is your ${docLabel} #${createdInvoice?.invoiceNumber || ''} for ${currency} ${total.toLocaleString('en-IN')}.\n\nYou can view and accept/pay it securely here:\n${publicPayUrl}\n\nThank you!`;
+    const rawDigits = clientPhone ? clientPhone.replace(/\D/g, '') : '';
+    // Only prepend 91 for Indian 10-digit mobile numbers without country code; preserve international numbers
+    const cleanPhone = (rawDigits.length === 10 && !clientPhone.trim().startsWith('+')) ? `91${rawDigits}` : rawDigits;
+    return cleanPhone
+      ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`
       : `https://wa.me/?text=${encodeURIComponent(text)}`;
   };
 
@@ -290,12 +331,43 @@ export default function CreateInvoice() {
         ) : (
           /* MAIN FORM */
           <div className="space-y-6">
-            {/* Title */}
-            <div>
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight">Create Invoice</h1>
-              <p className="text-sm text-slate-500 mt-1">
-                Clients scan your UPI QR to pay directly into your bank account. Zero platform cut.
-              </p>
+            {/* Title & Document Mode Switcher */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+                  {docType === 'proposal' ? 'Create Proposal / Quote' : 'Create Invoice'}
+                </h1>
+                <p className="text-sm text-slate-500 mt-1">
+                  {docType === 'proposal'
+                    ? 'Send professional proposals with project scope. Clients review and accept with 1 click.'
+                    : 'Clients scan your UPI QR to pay directly into your bank account. Zero platform cut.'}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-1.5 p-1 bg-slate-200/70 rounded-2xl self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setDocType('invoice')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    docType === 'invoice'
+                      ? 'bg-white text-slate-950 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  📄 Invoice
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDocType('proposal')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    docType === 'proposal'
+                      ? 'bg-white text-slate-950 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  📝 Proposal
+                </button>
+              </div>
             </div>
 
             {/* AI AUTO-FILL BOX */}
@@ -570,6 +642,39 @@ export default function CreateInvoice() {
                 )}
               </div>
 
+              {/* Optional Section: Recurring Retainer Schedule */}
+              {docType === 'invoice' && (
+                <div className="pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isRecurring}
+                        onChange={(e) => setIsRecurring(e.target.checked)}
+                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                      />
+                      <span className="text-xs font-bold text-slate-700">🔄 Make this a Recurring Retainer Schedule</span>
+                    </label>
+                  </div>
+                  {isRecurring && (
+                    <div className="mt-3 p-4 bg-indigo-50/70 border border-indigo-200 rounded-2xl flex flex-wrap items-center gap-3 text-xs">
+                      <span className="font-bold text-indigo-900">Billing Frequency:</span>
+                      <select
+                        value={recurringFrequency}
+                        onChange={(e) => setRecurringFrequency(e.target.value)}
+                        className="bg-white border border-indigo-200 rounded-xl px-3 py-1.5 font-bold text-slate-900 focus:outline-none"
+                      >
+                        <option value="weekly">Weekly</option>
+                        <option value="biweekly">Every 2 Weeks (Bi-weekly)</option>
+                        <option value="monthly">Monthly Retainer</option>
+                        <option value="yearly">Yearly</option>
+                      </select>
+                      <span className="text-indigo-600 text-[11px]">Automatically issues a new payment link each cycle.</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Total & Submit Button */}
               <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
@@ -587,7 +692,7 @@ export default function CreateInvoice() {
                   disabled={submitting}
                   className="w-full sm:w-auto px-8 py-4 bg-slate-900 hover:bg-black text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-xl transition-all active:scale-95 disabled:opacity-50"
                 >
-                  {submitting ? 'Generating Invoice...' : 'Generate Invoice & Get Pay Link 🚀'}
+                  {submitting ? 'Creating Document...' : docType === 'proposal' ? 'Create Proposal & Get Link 🚀' : 'Generate Invoice & Get Pay Link 🚀'}
                 </button>
               </div>
             </form>

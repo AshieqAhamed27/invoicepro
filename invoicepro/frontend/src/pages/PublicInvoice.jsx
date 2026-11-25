@@ -171,7 +171,7 @@ export default function PublicInvoice() {
     ? Number(invoice.tds?.amount ?? ((subtotal * tdsPercent) / 100))
     : 0;
   const netReceivable = Math.max(0, total - tdsAmount);
-  const payableAmount = tdsAmount > 0 && netReceivable > 0 ? netReceivable : total;
+  const payableAmount = tdsAmount > 0 ? netReceivable : total;
   const documentDate = invoiceMeta.isProposal ? invoice.validUntil : invoice.dueDate;
   const razorpayPaymentUrl = '';
 
@@ -330,8 +330,9 @@ export default function PublicInvoice() {
         }
       });
 
-      setScreenshotStatus('Payment successfully verified by AI!');
-      alert(res.data.message || 'Payment successfully verified by AI!');
+      const statusMsg = res.data.message || 'Payment proof submitted for review!';
+      setScreenshotStatus(statusMsg);
+      alert(statusMsg);
       fetchInvoice();
     } catch (err) {
       console.error(err);
@@ -754,6 +755,20 @@ export default function PublicInvoice() {
                       </p>
                     )}
                   </div>
+              </div>
+            )}
+
+            {!invoiceMeta.isProposal && invoice.status === 'payment_review' && (
+              <div className="flex flex-col gap-4 rounded-xl border border-amber-200 bg-amber-50 p-6 sm:flex-row sm:items-center">
+                <div className="h-10 w-10 bg-amber-500 rounded-full flex items-center justify-center text-white shrink-0">
+                  <span className="text-xl">⏳</span>
+                </div>
+                <div>
+                  <p className="font-bold text-amber-900">Payment Proof Under Review</p>
+                  <p className="text-sm text-amber-700">
+                    Your receipt has been submitted and verified. The freelancer has been notified to confirm the bank deposit and mark this invoice settled.
+                  </p>
+                </div>
               </div>
             )}
 

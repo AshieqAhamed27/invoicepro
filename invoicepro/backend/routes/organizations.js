@@ -136,8 +136,8 @@ const findOrganizationForUser = async(user) => {
     return Organization.findOne({
         $or: [
             { owner: userId },
-            { 'members.user': userId },
-            { 'members.email': email }
+            { members: { $elemMatch: { user: userId, status: 'active' } } },
+            { members: { $elemMatch: { email: email, status: 'active' } } }
         ]
     }).sort({ createdAt: -1 });
 };
@@ -544,14 +544,18 @@ const syncUserMembership = async(user, organization, role) => {
 router.get('/me', protect, async(req, res) => {
     try {
         const organization = await findOrganizationForUser(req.user);
+        const role = organization ? getMemberRole(organization, req.user) : '';
+
+        // If user is neither owner, admin, nor active member, do not return organization workspace details
+        const isAuthorized = organization && (role || req.user.role === 'admin');
 
         res.json({
-            organization: organization ? await serializeOrganization(organization, req.user) : null,
+            organization: isAuthorized ? await serializeOrganization(organization, req.user) : null,
             defaults: {
                 seatPriceInr: 299,
                 seatPriceUsd: 5,
-                roleOptions: Object.entries(ROLE_DEFINITIONS).map(([role, definition]) => ({
-                    role,
+                roleOptions: Object.entries(ROLE_DEFINITIONS).map(([roleKey, definition]) => ({
+                    role: roleKey,
                     label: definition.label,
                     description: definition.description
                 }))
@@ -1145,6 +1149,19 @@ router.post('/:id/billing/verify', protect, async(req, res) => {
 
         if (!razorpay_order_id) {
             return res.status(400).json({ message: 'Missing organization billing order id.' });
+        }
+
+        // Prevent repeated confirmation from restarting billing period
+        if (razorpay_payment_id && organization.billing?.providerPaymentId === razorpay_payment_id) {
+            return res.json({
+                organization: await serializeOrganization(organization, req.user),
+                message: 'This payment has already been credited to organization billing.'
+            });
+        }
+
+        // Verify order corresponds to the organization's expected order
+        if (organization.billing?.providerOrderId && organization.billing.providerOrderId !== razorpay_order_id) {
+            return res.status(400).json({ message: 'Payment order does not match current organization billing order.' });
         }
 
         const isSimulation = process.env.PAYMENT_SIMULATION === 'true' && String(razorpay_order_id).startsWith('order_sim_org_');

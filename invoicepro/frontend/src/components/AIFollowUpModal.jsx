@@ -52,11 +52,19 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
     try {
       await api.patch(`/followup/${followUpId}`, { message: preview, subject });
       const res = await api.post(`/followup/${followUpId}/send`);
-      setStatusMessage({ type: 'success', text: 'Follow-up sent successfully!' });
-      if (onSuccess) onSuccess(res.data);
-      setTimeout(() => {
-        onClose();
-      }, 1500);
+      if (res.data?.sent) {
+        setStatusMessage({ type: 'success', text: 'Follow-up sent successfully!' });
+        if (onSuccess) onSuccess(res.data);
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      } else if (res.data?.whatsappUrl) {
+        setStatusMessage({ type: 'info', text: 'WhatsApp message link generated. Click Send on WhatsApp.' });
+        if (onSuccess) onSuccess(res.data);
+      } else {
+        setStatusMessage({ type: 'info', text: res.data?.message || 'Follow-up message prepared.' });
+        if (onSuccess) onSuccess(res.data);
+      }
     } catch (err) {
       setStatusMessage({ type: 'error', text: err.response?.data?.message || 'Failed to send email. Check your email settings.' });
     } finally {

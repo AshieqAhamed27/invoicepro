@@ -464,7 +464,7 @@ export default function Payment() {
   const alternatePlanDetails = getFallbackPlanDetails(alternateMarket);
   const current = serverPlanDetails[getSafePlan(plan)] || fallbackPlanDetails[getSafePlan(plan)];
   const currentPlanReady = current.checkoutType === 'one_time' || current.subscriptionReady;
-  const checkoutDisabled = freeAccessActive ? false : loading || pricingLoading || pricingBlocked || !currentPlanReady;
+  const checkoutDisabled = loading || pricingLoading || pricingBlocked || !currentPlanReady;
   const earlyAccessAlreadyUsed = Boolean(accountUser?.earlyAccessUsedAt);
   const earlyAccessClosed = earlyAccessStatus?.enabled === false || Number(earlyAccessStatus?.seatsRemaining || 0) <= 0;
   const activePlanLabel = getPlanLabel(accountUser);

@@ -47,8 +47,17 @@ export const updateUser = (updatedFields) => {
 };
 
 export const clearAuth = () => {
+  try {
+    const user = getUser();
+    if (user?._id) {
+      localStorage.removeItem(`cf_profit_tracker_${user._id}`);
+      sessionStorage.removeItem(`cf_flow_memory_${user._id}`);
+    }
+  } catch {}
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  sessionStorage.removeItem('cf_jarvis_memory');
+  sessionStorage.removeItem('cf_flow_memory');
   window.dispatchEvent(new Event('storage'));
   window.dispatchEvent(new CustomEvent('auth-change', { detail: { token: null, user: null } }));
 };

@@ -398,17 +398,23 @@ router.post('/:id/send', protect, async (req, res) => {
         }
       }
     } else if (followUp.channel === 'whatsapp' && followUp.recipientPhone) {
-      const digits = String(followUp.recipientPhone).replace(/\D/g, '');
-      const cleanPhone = digits.length === 10 ? `91${digits}` : digits;
+      const rawPhone = String(followUp.recipientPhone).trim();
+      const digits = rawPhone.replace(/\D/g, '');
+      // If phone starts with + or already has 11+ digits, preserve it as international; only prefix 91 if explicitly 10 digits without country code
+      const cleanPhone = (digits.length === 10 && !rawPhone.startsWith('+')) ? `91${digits}` : digits;
       whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(followUp.message || '')}`;
 
       if (process.env.WHATSAPP_BOT_ENABLED === 'true') {
         try {
-          await sendWhatsAppMessage({
-            to: followUp.recipientPhone,
+          const waRes = await sendWhatsAppMessage({
+            to: cleanPhone,
             textBody: followUp.message
           });
-          sent = true;
+          if (waRes && waRes.success === true) {
+            sent = true;
+          } else {
+            console.warn('[FollowUp] WhatsApp bot dispatch returned non-success:', waRes?.reason);
+          }
         } catch (waErr) {
           console.warn('[FollowUp] Direct WhatsApp API send failed:', waErr.message);
           followUp.status = 'failed';

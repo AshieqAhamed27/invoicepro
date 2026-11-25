@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../utils/api';
 
@@ -97,10 +98,17 @@ export default function Recurring() {
           <div className="px-5 py-6 sm:px-8 lg:px-10 lg:py-8 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold text-white">Schedules</h2>
-              <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest mt-1">
-                Create schedules from the Invoice Creation page
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1">
+                Automated retainers & recurring invoice cycles
               </p>
             </div>
+            <Link
+              to="/create-invoice?recurring=true"
+              className="rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider px-4 py-2.5 transition shadow-sm active:scale-95 inline-flex items-center gap-2 self-start md:self-auto"
+            >
+              <span>+</span>
+              <span>New Recurring Schedule</span>
+            </Link>
           </div>
 
           <div className="overflow-x-auto">
@@ -114,8 +122,14 @@ export default function Recurring() {
               <div className="m-5 rounded-[2rem] border-2 border-dashed border-white/5 p-8 text-center sm:m-10 sm:p-16">
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">No recurring schedules yet</p>
                 <p className="text-[10px] font-medium mt-2 text-zinc-600">
-                  Turn on Recurring Invoice while issuing an invoice to create one.
+                  Bill retainers automatically on a weekly, monthly, or yearly schedule.
                 </p>
+                <Link
+                  to="/create-invoice?recurring=true"
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-2 transition"
+                >
+                  + Create Your First Schedule
+                </Link>
               </div>
             ) : (
               <table className="premium-table w-full text-left min-w-[900px]">

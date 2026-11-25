@@ -74,15 +74,26 @@ export default function FlowAgentBar({
   const [draftActionLoading, setDraftActionLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // JARVIS Conversational Multi-Turn Memory
+  const memoryKey = user?._id ? `cf_flow_memory_${user._id}` : 'cf_flow_memory';
+
+  // Conversational Multi-Turn Memory (Scoped to active user)
   const [chatMemory, setChatMemory] = useState(() => {
     try {
-      const stored = sessionStorage.getItem('cf_jarvis_memory');
+      const stored = sessionStorage.getItem(memoryKey);
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
     }
   });
+
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem(memoryKey);
+      setChatMemory(stored ? JSON.parse(stored) : []);
+    } catch {
+      setChatMemory([]);
+    }
+  }, [user?._id]);
 
   const [availableVoices, setAvailableVoices] = useState([]);
 
@@ -241,7 +252,7 @@ export default function FlowAgentBar({
       ];
       setChatMemory(updatedMemory);
       try {
-        sessionStorage.setItem('cf_jarvis_memory', JSON.stringify(updatedMemory));
+        sessionStorage.setItem(memoryKey, JSON.stringify(updatedMemory));
       } catch {}
 
       const telemetryResult = {
