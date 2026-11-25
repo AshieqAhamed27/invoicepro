@@ -147,6 +147,8 @@ export default function FlowAgentBar({
 
   const recognitionRef = useRef(null);
   const langPickerRef = useRef(null);
+  const executeCommandRef = useRef(null);
+  const errorTimerRef = useRef(null);
 
   const activeLang = SUPPORTED_LANGUAGES.find((l) => l.id === selectedLangId) || SUPPORTED_LANGUAGES[0];
 
@@ -214,12 +216,15 @@ export default function FlowAgentBar({
         const transcript = event.results?.[0]?.[0]?.transcript || '';
         if (transcript.trim()) {
           setInput(transcript);
-          handleExecuteCommand(transcript, { isVoiceInput: true });
+          executeCommandRef.current?.(transcript, { isVoiceInput: true });
         }
       };
 
       recognitionRef.current = recognition;
     }
+    return () => {
+      if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    };
   }, [activeLang.speechLang]);
 
   const stopSpeaking = () => {
@@ -417,11 +422,14 @@ export default function FlowAgentBar({
       const serverMsg = err.response?.data?.message;
       const friendlyNotice = serverMsg || '⚡ Flow is reconnecting to workspace neural services. Please try your command again in a moment.';
       setErrorMsg(friendlyNotice);
-      setTimeout(() => setErrorMsg(''), 6000);
+      if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = setTimeout(() => setErrorMsg(''), 6000);
     } finally {
       setLoading(false);
     }
   };
+
+  executeCommandRef.current = handleExecuteCommand;
 
   // ─── 5. 100% USER PERMISSION: CONFIRM & CREATE INVOICE ───
   const handleConfirmCreateInvoice = async () => {

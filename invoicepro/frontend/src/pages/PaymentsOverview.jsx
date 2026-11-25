@@ -107,7 +107,7 @@ const whyPay = [
 ];
 
 const checkoutSteps = [
-  ['Choose payment type', 'Free 30-Day Trial, Pro Monthly (₹249), or Pro Annual (₹1,999).'],
+  ['Choose payment type', 'Free 30-Day Trial, Pro Monthly (₹499), or Pro Annual (₹1,999).'],
   ['Login or signup', 'A workspace account is required so access can be attached to the correct user.'],
   ['Pay securely', 'Checkout runs through configured payment providers such as Razorpay.'],
   ['Use the workflow', 'New users get 30 days free. After that, paid Pro software plans can be used when needed.']
