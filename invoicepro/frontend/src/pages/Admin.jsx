@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import api from '../utils/api';
 import Navbar from '../components/Navbar';
 
@@ -712,7 +712,7 @@ export default function Admin() {
   });
 
   return (
-    <div className="premium-page min-h-screen text-slate-900">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
@@ -787,17 +787,17 @@ export default function Admin() {
                   disabled={cleanupLoading}
                   className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-200 transition hover:border-red-400/30 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {cleanupLoading ? 'Cleaning...' : 'ðŸ§¹ Remove Duplicate Events'}
+                  {cleanupLoading ? 'Cleaning...' : '🧹 Remove Duplicate Events'}
                 </button>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
               {[
-                { label: 'ðŸ‘ï¸ Just Viewed', value: productTotals.viewOnlyVisitors, desc: 'Anonymous â€“ never signed up', border: 'border-sky-400/20 bg-sky-400/[0.06]', text: 'text-sky-300' },
-                { label: 'ðŸ“ Signed Up & Browsed', value: productTotals.signedUpAndViewed, desc: 'Registered members who viewed', border: 'border-white/10 bg-white/[0.03]', text: 'text-white' },
-                { label: 'ðŸŽ 30-Day Free Access', value: productTotals.freeAccess30DayMembers, desc: 'Active free trial window', border: 'border-yellow-400/20 bg-yellow-400/[0.06]', text: 'text-yellow-300' },
-                { label: 'ðŸ”¬ Tried Demo', value: productTotals.demoMembers, desc: 'isDemo accounts', border: 'border-violet-400/20 bg-violet-400/[0.06]', text: 'text-violet-300' },
-                { label: 'ðŸ’³ Paid Members', value: productTotals.paidMembers, desc: 'Active paid subscriptions', border: 'border-emerald-400/20 bg-emerald-400/[0.06]', text: 'text-emerald-300' }
+                { label: '👁️ Just Viewed', value: productTotals.viewOnlyVisitors, desc: 'Anonymous – never signed up', border: 'border-sky-400/20 bg-sky-400/[0.06]', text: 'text-sky-300' },
+                { label: '📝 Signed Up & Browsed', value: productTotals.signedUpAndViewed, desc: 'Registered members who viewed', border: 'border-white/10 bg-white/[0.03]', text: 'text-white' },
+                { label: '🎁 30-Day Free Access', value: productTotals.freeAccess30DayMembers, desc: 'Active free trial window', border: 'border-yellow-400/20 bg-yellow-400/[0.06]', text: 'text-yellow-300' },
+                { label: '🔬 Tried Demo', value: productTotals.demoMembers, desc: 'isDemo accounts', border: 'border-violet-400/20 bg-violet-400/[0.06]', text: 'text-violet-300' },
+                { label: '💳 Paid Members', value: productTotals.paidMembers, desc: 'Active paid subscriptions', border: 'border-emerald-400/20 bg-emerald-400/[0.06]', text: 'text-emerald-300' }
               ].map((item) => (
                 <div key={item.label} className={`rounded-[2rem] border p-5 ${item.border}`}>
                   <p className="text-xs font-black uppercase tracking-widest text-zinc-500">{item.label}</p>
@@ -1411,7 +1411,7 @@ export default function Admin() {
                   className="rounded-full border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-40"
                   title="Send a live test email to verify credentials and diagnose errors"
                 >
-                  {testingEmail ? 'Testing Connection...' : 'ðŸ§ª Test Email Connection'}
+                  {testingEmail ? 'Testing Connection...' : '🧪 Test Email Connection'}
                 </button>
                 <button
                   type="button"
@@ -1420,7 +1420,7 @@ export default function Admin() {
                   className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-40"
                   title="Send email invitation to all users who haven't added WhatsApp yet"
                 >
-                  {requestingPhones ? 'Sending Emails...' : 'ðŸ“± Email Users to Add WhatsApp'}
+                  {requestingPhones ? 'Sending Emails...' : '📱 Email Users to Add WhatsApp'}
                 </button>
                 <button
                   type="button"
@@ -1428,7 +1428,7 @@ export default function Admin() {
                   disabled={notifyingAllExpired || (userAccessSummary.expired || 0) === 0}
                   className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {notifyingAllExpired ? 'Notifying...' : `ðŸ”” Notify All Expired (${userAccessSummary.expired || 0})`}
+                  {notifyingAllExpired ? 'Notifying...' : `🔔 Notify All Expired (${userAccessSummary.expired || 0})`}
                 </button>
               </div>
             </div>
@@ -1447,7 +1447,7 @@ export default function Admin() {
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                 <div className="rounded-xl border border-sky-400/20 bg-sky-400/[0.06] p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-sky-300">ðŸ’¼ Freelancers</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-sky-300">💼 Freelancers</p>
                   <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.freelancers)}</p>
                   <p className="mt-0.5 text-[9px] font-bold text-sky-400">
                     {userAccessUsers.length > 0 ? Math.round((personaSummary.freelancers / userAccessUsers.length) * 100) : 0}% of all users
@@ -1455,25 +1455,25 @@ export default function Admin() {
                 </div>
 
                 <div className="rounded-xl border border-indigo-400/20 bg-indigo-400/[0.06] p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-indigo-300">ðŸ¢ Non-Freelancers</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-indigo-300">🏢 Non-Freelancers</p>
                   <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.nonFreelancers)}</p>
                   <p className="mt-0.5 text-[9px] font-bold text-indigo-400">Agencies, Businesses, Students</p>
                 </div>
 
                 <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-amber-300">ðŸŒ± Beginners (&lt; 1 yr)</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-amber-300">🌱 Beginners (&lt; 1 yr)</p>
                   <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.beginners)}</p>
                   <p className="mt-0.5 text-[9px] font-bold text-amber-400">Just started freelancing</p>
                 </div>
 
                 <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-emerald-300">ðŸš€ 1â€“3+ yrs Exp.</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-emerald-300">🚀 1–3+ yrs Exp.</p>
                   <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.experienced)}</p>
                   <p className="mt-0.5 text-[9px] font-bold text-emerald-400">Experienced freelancers</p>
                 </div>
 
                 <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">â“ Role Pending</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">❓ Role Pending</p>
                   <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.pending)}</p>
                   <p className="mt-0.5 text-[9px] font-bold text-zinc-500">Old users not logged in yet</p>
                 </div>
@@ -1484,10 +1484,10 @@ export default function Admin() {
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
               {[
                 { label: 'All Users', value: userAccessSummary.total, tone: 'text-white', border: 'border-white/10' },
-                { label: 'ðŸ’³ Paid Pro', value: userAccessSummary.paid, tone: 'text-emerald-300', border: 'border-emerald-400/20 bg-emerald-400/[0.04]' },
-                { label: 'ðŸŽ 30-Day Free', value: userAccessSummary.freeAccess, tone: 'text-yellow-300', border: 'border-yellow-400/20 bg-yellow-400/[0.04]' },
-                { label: 'ðŸ§ª Demo Accounts', value: userAccessSummary.demo, tone: 'text-violet-300', border: 'border-violet-400/20 bg-violet-400/[0.04]' },
-                { label: 'âš ï¸ Expired Plans', value: userAccessSummary.expired, tone: 'text-red-400', border: 'border-red-400/20 bg-red-400/[0.04]' }
+                { label: '💳 Paid Pro', value: userAccessSummary.paid, tone: 'text-emerald-300', border: 'border-emerald-400/20 bg-emerald-400/[0.04]' },
+                { label: '🎁 30-Day Free', value: userAccessSummary.freeAccess, tone: 'text-yellow-300', border: 'border-yellow-400/20 bg-yellow-400/[0.04]' },
+                { label: '🧪 Demo Accounts', value: userAccessSummary.demo, tone: 'text-violet-300', border: 'border-violet-400/20 bg-violet-400/[0.04]' },
+                { label: '⚠️ Expired Plans', value: userAccessSummary.expired, tone: 'text-red-400', border: 'border-red-400/20 bg-red-400/[0.04]' }
               ].map((item) => (
                 <div key={item.label} className={`rounded-2xl border p-4 ${item.border}`}>
                   <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{item.label}</p>
@@ -1503,14 +1503,14 @@ export default function Admin() {
               <div className="flex flex-wrap items-center gap-2">
                 {[
                   { id: 'all', label: 'All', count: userAccessSummary.total },
-                  { id: 'freelancer', label: 'ðŸ’¼ Freelancers', count: personaSummary.freelancers },
-                  { id: 'non_freelancer', label: 'ðŸ¢ Non-Freelancers', count: personaSummary.nonFreelancers },
-                  { id: 'beginner', label: 'ðŸŒ± Beginners', count: personaSummary.beginners },
-                  { id: 'pending', label: 'â“ Role Pending', count: personaSummary.pending },
-                  { id: 'paid', label: 'ðŸ’³ Paid', count: userAccessSummary.paid },
-                  { id: 'free_access', label: 'ðŸŽ 30-Day Free', count: userAccessSummary.freeAccess },
-                  { id: 'demo', label: 'ðŸ§ª Demo', count: userAccessSummary.demo },
-                  { id: 'expired', label: 'âš ï¸ Expired', count: userAccessSummary.expired }
+                  { id: 'freelancer', label: '💼 Freelancers', count: personaSummary.freelancers },
+                  { id: 'non_freelancer', label: '🏢 Non-Freelancers', count: personaSummary.nonFreelancers },
+                  { id: 'beginner', label: '🌱 Beginners', count: personaSummary.beginners },
+                  { id: 'pending', label: '❓ Role Pending', count: personaSummary.pending },
+                  { id: 'paid', label: '💳 Paid', count: userAccessSummary.paid },
+                  { id: 'free_access', label: '🎁 30-Day Free', count: userAccessSummary.freeAccess },
+                  { id: 'demo', label: '🧪 Demo', count: userAccessSummary.demo },
+                  { id: 'expired', label: '⚠️ Expired', count: userAccessSummary.expired }
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -1598,25 +1598,25 @@ export default function Admin() {
                           <p className="mt-0.5 truncate text-xs font-bold text-zinc-300">{user.name || 'Unnamed user'}</p>
                           {user.phone ? (
                             <p className="mt-1 flex items-center gap-1 text-xs font-extrabold text-emerald-400">
-                              <span>ðŸ“±</span>
+                              <span>📱</span>
                               <span>+{cleanPhone}</span>
                             </p>
                           ) : (
-                            <p className="mt-1 text-[11px] font-medium text-zinc-600">ðŸ“± No phone registered</p>
+                            <p className="mt-1 text-[11px] font-medium text-zinc-600">📱 No phone registered</p>
                           )}
                           <div className="mt-1 flex flex-wrap items-center gap-1.5">
                             {user.persona === 'freelancer' ? (
                               <span className="inline-flex items-center gap-1 rounded-full border border-sky-400/20 bg-sky-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-sky-300">
-                                ðŸ’¼ Freelancer Â· {
+                                💼 Freelancer · {
                                   user.freelanceExperience === 'beginner' ? 'Beginner (<1y)' :
-                                  user.freelanceExperience === '1_to_3_years' ? '1â€“3 yrs' :
-                                  user.freelanceExperience === '3_to_5_years' ? '3â€“5 yrs' :
+                                  user.freelanceExperience === '1_to_3_years' ? '1–3 yrs' :
+                                  user.freelanceExperience === '3_to_5_years' ? '3–5 yrs' :
                                   user.freelanceExperience === '5_plus_years' ? '5+ yrs' : 'Experience not set'
                                 }
                               </span>
                             ) : user.persona ? (
                               <span className="inline-flex items-center gap-1 rounded-full border border-indigo-400/20 bg-indigo-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-indigo-300">
-                                ðŸ¢ {
+                                🏢 {
                                   user.persona === 'agency' ? 'Agency / Team' :
                                   user.persona === 'small_business' ? 'Small Business' :
                                   user.persona === 'student' ? 'Student' : 'Other Field'
@@ -1624,7 +1624,7 @@ export default function Admin() {
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-800/60 px-2 py-0.5 text-[9px] font-bold text-zinc-500">
-                                â“ Role Pending
+                                ❓ Role Pending
                               </span>
                             )}
                           </div>
@@ -1647,11 +1647,11 @@ export default function Admin() {
                         <div className="text-[10px] font-bold tracking-tight text-zinc-400">
                           {isUserExpired ? (
                             <p className="font-black text-red-400">
-                              âš ï¸ Expired {user.daysExpired != null ? `${user.daysExpired}d ago` : ''}
+                              ⚠️ Expired {user.daysExpired != null ? `${user.daysExpired}d ago` : ''}
                             </p>
                           ) : user.daysRemaining != null ? (
                             <p className="font-black text-emerald-400">
-                              âœ“ {user.daysRemaining} days left
+                              ✓ {user.daysRemaining} days left
                             </p>
                           ) : (
                             <p className="text-zinc-500">Active</p>
@@ -1675,7 +1675,7 @@ export default function Admin() {
                                 className="inline-flex items-center justify-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/25 shadow-sm"
                                 title="Chat directly from your WhatsApp number"
                               >
-                                <span>ðŸ’¬ WhatsApp</span>
+                                <span>💬 WhatsApp</span>
                               </a>
                             ) : null}
                             {user.email && !user.email.endsWith('@clientflow.user') ? (
@@ -1686,7 +1686,7 @@ export default function Admin() {
                                 className="inline-flex items-center justify-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-red-300 transition hover:bg-red-500/25 shadow-sm"
                                 title="Open directly in Gmail Web in browser"
                               >
-                                <span>ðŸ”´ Gmail</span>
+                                <span>🔴 Gmail</span>
                               </a>
                             ) : null}
                             <button
@@ -1695,7 +1695,7 @@ export default function Admin() {
                               className="rounded-lg border border-sky-500/30 bg-sky-500/10 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-sky-300 transition hover:bg-sky-500/20"
                               title="Send custom email directly to user"
                             >
-                              âœ‰ï¸ Email
+                              ✉️ Email
                             </button>
                             {isUserExpired && (
                               <button
@@ -1720,7 +1720,7 @@ export default function Admin() {
                                   className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 transition hover:bg-emerald-500/25 disabled:opacity-50"
                                   title="Upgrade to Pro for 30 days"
                                 >
-                                  âš¡ 30d Pro
+                                  ⚡ 30d Pro
                                 </button>
                                 <button
                                   type="button"
@@ -1729,7 +1729,7 @@ export default function Admin() {
                                   className="rounded-lg border border-indigo-500/40 bg-indigo-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 transition hover:bg-indigo-500/25 disabled:opacity-50"
                                   title="Upgrade to Pro Annual for 365 days (1 Year)"
                                 >
-                                  â­ 1-Year Pass (365d)
+                                  ⭐ 1-Year Pass (365d)
                                 </button>
                                 <button
                                   type="button"
@@ -1738,7 +1738,7 @@ export default function Admin() {
                                   className="rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300 transition hover:bg-amber-500/25 disabled:opacity-50"
                                   title="Add 30 extra days of free trial"
                                 >
-                                  â³ +30d Trial
+                                  ⏳ +30d Trial
                                 </button>
                               </>
                             ) : (
@@ -1764,7 +1764,7 @@ export default function Admin() {
                               }`}
                               title={user.isBanned ? 'Unban user' : 'Ban user from logging in'}
                             >
-                              {user.isBanned ? 'âœ… Unban' : 'ðŸ›‘ Ban'}
+                              {user.isBanned ? '✅ Unban' : '🛑 Ban'}
                             </button>
                           </div>
                         </div>
@@ -1801,20 +1801,20 @@ export default function Admin() {
           )}
         </section>
 
-        {/* â­ USER REVIEWS & GOOGLE FEEDBACK */}
+        {/* ⭐ USER REVIEWS & GOOGLE FEEDBACK */}
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
           <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-yellow-400">User Ratings & Sentiment</p>
-                <h2 className="text-2xl font-black tracking-tight text-white">â­ User Reviews & Google Feedback</h2>
+                <h2 className="text-2xl font-black tracking-tight text-white">⭐ User Reviews & Google Feedback</h2>
                 <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
                   Ratings and reviews submitted by freelancers. Follow up directly with users on WhatsApp or thank happy reviewers.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-yellow-300">
-                  â­ {reviewStats.avgRating} / 5 Avg Rating
+                  ⭐ {reviewStats.avgRating} / 5 Avg Rating
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-zinc-300">
                   {reviews.length} Submissions
@@ -1825,7 +1825,7 @@ export default function Admin() {
                   disabled={reviewsLoading}
                   className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition"
                 >
-                  {reviewsLoading ? 'Refreshing...' : 'ðŸ”„ Refresh'}
+                  {reviewsLoading ? 'Refreshing...' : '🔄 Refresh'}
                 </button>
               </div>
             </div>
@@ -1836,7 +1836,7 @@ export default function Admin() {
               <div className="py-12 text-center text-sm font-bold text-zinc-500">Loading reviews...</div>
             ) : reviews.length === 0 ? (
               <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-8 text-center">
-                <p className="text-2xl mb-2">â­</p>
+                <p className="text-2xl mb-2">⭐</p>
                 <h3 className="text-lg font-black text-white">No reviews received yet</h3>
                 <p className="mt-1 text-sm text-zinc-500 max-w-md mx-auto">
                   When users submit 1-5 star ratings or feedback through the in-app review widget, they will appear here with 1-click WhatsApp reply buttons.
@@ -1845,7 +1845,7 @@ export default function Admin() {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {reviews.map((r) => {
-                  const stars = 'â˜…'.repeat(r.rating || 5);
+                  const stars = '★'.repeat(r.rating || 5);
                   const isPositive = (r.rating || 5) >= 4;
                   return (
                     <div
@@ -1861,7 +1861,7 @@ export default function Admin() {
                           <div className="flex items-center gap-1.5">
                             {r.postedToGoogle && (
                               <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-300">
-                                Google Review âœ…
+                                Google Review ✅
                               </span>
                             )}
                             <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-zinc-400">
@@ -1888,7 +1888,7 @@ export default function Admin() {
                               rel="noopener noreferrer"
                               className="rounded-lg bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-1 text-[10px] font-black uppercase text-emerald-300 hover:bg-emerald-500/30 transition"
                             >
-                              ðŸ’¬ WhatsApp
+                              💬 WhatsApp
                             </a>
                           )}
                         </div>
@@ -1961,7 +1961,7 @@ export default function Admin() {
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{booking.packageName}</p>
                       <h3 className="mt-2 text-2xl font-black text-white">{booking.customerName}</h3>
-                      <p className="mt-1 break-all text-xs font-bold text-zinc-500">{booking.email} Â· {booking.whatsapp}</p>
+                      <p className="mt-1 break-all text-xs font-bold text-zinc-500">{booking.email} · {booking.whatsapp}</p>
                       <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-sky-300">
                         Workflow: {(booking.workflowType || 'freelancers').replaceAll('_', ' ')}
                       </p>
@@ -1992,7 +1992,7 @@ export default function Admin() {
                     </p>
                     {(booking.targetClient || booking.incomeGoal || booking.portfolioUrl) && (
                       <p className="mt-2 text-xs font-bold leading-relaxed text-zinc-500">
-                        Target: {booking.targetClient || 'Not set'} Â· Goal: {booking.incomeGoal || 'Not set'} Â· Portfolio: {booking.portfolioUrl || 'Not set'}
+                        Target: {booking.targetClient || 'Not set'} · Goal: {booking.incomeGoal || 'Not set'} · Portfolio: {booking.portfolioUrl || 'Not set'}
                       </p>
                     )}
                   </div>
@@ -2351,7 +2351,7 @@ export default function Admin() {
             <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
               <div className="flex items-center justify-between border-b border-white/5 pb-4">
                 <div>
-                  <h3 className="text-lg font-black text-white">âœ‰ï¸ Direct Email</h3>
+                  <h3 className="text-lg font-black text-white">✉️ Direct Email</h3>
                   <p className="text-xs text-zinc-400">To: {emailModalUser.name || 'User'} &lt;{emailModalUser.email}&gt;</p>
                 </div>
                 <button
@@ -2359,7 +2359,7 @@ export default function Admin() {
                   onClick={() => setEmailModalUser(null)}
                   className="rounded-full border border-white/10 p-2 text-zinc-400 hover:text-white"
                 >
-                  âœ•
+                  ✕
                 </button>
               </div>
 

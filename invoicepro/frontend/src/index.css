@@ -85,12 +85,12 @@ html {
 }
 
 body {
-    @apply bg-[#f8fafc] text-slate-900 font-sans antialiased;
+    @apply bg-[#09090b] text-white font-sans antialiased;
     font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
     line-height: 1.5;
     overflow-x: hidden;
     position: relative;
-    color: #0f172a;
+    color: #f4f4f8;
     min-width: 320px;
 }
 
@@ -288,7 +288,7 @@ select option:disabled {
         @apply text-base font-medium;
     }
     p {
-        @apply text-slate-600 text-sm;
+        @apply text-zinc-400 text-sm;
     }
     /* Container */
     .container-custom {
@@ -868,233 +868,15 @@ select option:disabled {
     box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.12), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-/* ============================================================
-   LUMINOUS MODERN BRIGHT SAAS DESIGN SYSTEM
-   ============================================================ */
-
-html, body {
-    background-color: #f8fafc !important;
-    color: #0f172a !important;
-}
-
+/* Clean layout & typography baselines */
 .premium-page {
-    background-color: #f8fafc !important;
-    color: #0f172a !important;
     min-height: 100vh;
+    color: #f4f4f8;
+    overflow-x: hidden;
 }
 
-/* If a page container has both premium-page and text-white, default to obsidian text on the bright canvas */
-.premium-page.text-white,
-.premium-page > .text-white:not([class*="bg-"]):not([class*="btn"]) {
-    color: #0f172a !important;
-}
-
-.premium-panel,
-.surface,
-.card {
-    background: #ffffff !important;
-    border-color: #e2e8f0 !important;
-    color: #0f172a !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 10px 25px -5px rgba(15, 23, 42, 0.05) !important;
-}
-
-/* Universal Headings Contrast:
-   Headings inherit color naturally or match their explicit text-color class.
-   On light surfaces they default to obsidian slate (#0f172a); on dark surfaces they are pure white (#ffffff). */
 :where(h1, h2, h3, h4, h5, h6) {
     color: inherit;
-}
-
-/* Light surface headings default to obsidian slate unless explicitly styled */
-:where(body, .premium-page, .surface, .card):not([class*="bg-slate-9"]):not([class*="bg-slate-8"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not([class*="bg-[#0"]):not(.dark) :where(h1, h2, h3, h4, h5, h6):not([class*="text-"]) {
-    color: #0f172a;
-}
-
-/* Ensure text-white renders pure luminous white on dark surfaces, dark buttons, and colored elements */
-.dark .text-white,
-[class*="bg-slate-9"] .text-white,
-[class*="bg-slate-8"] .text-white,
-[class*="bg-zinc-9"] .text-white,
-[class*="bg-zinc-8"] .text-white,
-[class*="bg-black"] .text-white,
-[class*="bg-[#0"] .text-white,
-[class*="bg-[#1"] .text-white,
-.bg-slate-950 .text-white,
-.bg-slate-900 .text-white,
-.bg-zinc-950 .text-white,
-.bg-zinc-900 .text-white,
-.btn-primary,
-.btn-dark,
-[class*="bg-indigo-"] .text-white,
-[class*="bg-purple-"] .text-white,
-[class*="bg-blue-"] .text-white,
-[class*="bg-emerald-"] .text-white,
-[class*="bg-rose-"] .text-white,
-[class*="bg-amber-"] .text-white,
-[class*="bg-yellow-5"] .text-white,
-button[class*="bg-slate-9"],
-button[class*="bg-black"],
-button[class*="bg-zinc-9"] {
-    color: #ffffff !important;
-}
-
-/* On light surfaces, if an element has .text-white without being on a solid dark container/button,
-   render it as obsidian slate (#0f172a) so it is 100% visible and NEVER invisible white-on-white */
-body:not(.dark) .text-white:not([class*="bg-slate-9"] *):not([class*="bg-slate-8"] *):not([class*="bg-zinc-9"] *):not([class*="bg-zinc-8"] *):not([class*="bg-black"] *):not([class*="bg-[#0"] *):not([class*="bg-[#1"] *):not(.dark *):not([class*="bg-indigo"]):not([class*="bg-emerald"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-rose"]):not([class*="bg-amber"]):not([class*="bg-slate-9"]):not([class*="bg-black"]):not(.btn):not(.badge-dark),
-.premium-page:not(.dark) .text-white:not([class*="bg-slate-9"] *):not([class*="bg-slate-8"] *):not([class*="bg-zinc-9"] *):not([class*="bg-zinc-8"] *):not([class*="bg-black"] *):not([class*="bg-[#0"] *):not([class*="bg-[#1"] *):not(.dark *):not([class*="bg-indigo"]):not([class*="bg-emerald"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-rose"]):not([class*="bg-amber"]):not([class*="bg-slate-9"]):not([class*="bg-black"]):not(.btn):not(.badge-dark) {
-    color: #0f172a !important;
-}
-
-/* Dark surface guarantee:
-   Every dark container (bg-slate-950, bg-slate-900, bg-zinc-950, bg-black, .dark)
-   MUST guarantee 100% readable, high-contrast text and luminous headings. */
-.dark,
-[class*="bg-slate-950"],
-[class*="bg-slate-900"],
-[class*="bg-slate-850"],
-[class*="bg-slate-800"],
-[class*="bg-zinc-950"],
-[class*="bg-zinc-900"],
-[class*="bg-black"],
-.bg-slate-950,
-.bg-slate-900,
-.bg-zinc-950,
-.bg-zinc-900 {
-    color: #f1f5f9;
-}
-
-.dark :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
-[class*="bg-slate-950"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
-[class*="bg-slate-900"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
-[class*="bg-zinc-950"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
-[class*="bg-zinc-900"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
-[class*="bg-black"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
-.bg-slate-950 :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
-.bg-slate-900 :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]) {
-    color: #ffffff !important;
-}
-
-/* Luminous text on dark surfaces */
-.dark .text-slate-400,
-[class*="bg-slate-9"] .text-slate-400,
-[class*="bg-zinc-9"] .text-slate-400,
-[class*="bg-black"] .text-slate-400,
-.bg-slate-950 .text-slate-400,
-.bg-slate-900 .text-slate-400 {
-    color: #94a3b8 !important;
-}
-
-.dark .text-slate-300,
-[class*="bg-slate-9"] .text-slate-300,
-[class*="bg-zinc-9"] .text-slate-300,
-[class*="bg-black"] .text-slate-300,
-.bg-slate-950 .text-slate-300,
-.bg-slate-900 .text-slate-300 {
-    color: #cbd5e1 !important;
-}
-
-.dark .text-slate-200,
-[class*="bg-slate-9"] .text-slate-200,
-[class*="bg-zinc-9"] .text-slate-200,
-[class*="bg-black"] .text-slate-200,
-.bg-slate-950 .text-slate-200,
-.bg-slate-900 .text-slate-200 {
-    color: #e2e8f0 !important;
-}
-
-.dark .text-zinc-400,
-[class*="bg-slate-9"] .text-zinc-400,
-[class*="bg-zinc-9"] .text-zinc-400,
-[class*="bg-black"] .text-zinc-400,
-.bg-slate-950 .text-zinc-400,
-.bg-slate-900 .text-zinc-400 {
-    color: #a1a1aa !important;
-}
-
-.dark .text-zinc-300,
-[class*="bg-slate-9"] .text-zinc-300,
-[class*="bg-zinc-9"] .text-zinc-300,
-[class*="bg-black"] .text-zinc-300,
-.bg-slate-950 .text-zinc-300,
-.bg-slate-900 .text-zinc-300 {
-    color: #d4d4d8 !important;
-}
-
-/* Universal High-Contrast Readability on Light Surfaces:
-   Guarantees that muted text classes (.text-zinc-400, .text-slate-400, .text-zinc-500, etc.)
-   render with crisp, WCAG-compliant contrast (#475569 / #334155) on all light backgrounds,
-   preventing faint/washed-out text that is only readable when hovered or selected.
-   Dark containers (.dark, bg-slate-900, bg-slate-950, bg-zinc-900, bg-black) are cleanly excluded. */
-
-body:not(.dark) :is(.text-zinc-400, .text-slate-400, .text-gray-400, .text-neutral-400):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *),
-.premium-page:not(.dark) :is(.text-zinc-400, .text-slate-400, .text-gray-400, .text-neutral-400):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *) {
-    color: #475569 !important;
-}
-
-body:not(.dark) :is(.text-zinc-500, .text-slate-500, .text-gray-500, .text-neutral-500):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *),
-.premium-page:not(.dark) :is(.text-zinc-500, .text-slate-500, .text-gray-500, .text-neutral-500):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *) {
-    color: #334155 !important;
-}
-
-body:not(.dark) :is(.text-zinc-300, .text-slate-300, .text-gray-300, .text-neutral-300):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *),
-.premium-page:not(.dark) :is(.text-zinc-300, .text-slate-300, .text-gray-300, .text-neutral-300):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *) {
-    color: #475569 !important;
-}
-
-body:not(.dark) :is(.text-zinc-200, .text-slate-200):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *),
-.premium-page:not(.dark) :is(.text-zinc-200, .text-slate-200):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *) {
-    color: #475569 !important;
-}
-
-/* Light surface headings default to obsidian slate (#0f172a) with high contrast */
-body:not(.dark) :where(h1, h2, h3, h4, h5, h6):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]):not([class*="text-violet"]),
-.premium-page:not(.dark) :where(h1, h2, h3, h4, h5, h6):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]):not([class*="text-violet"]) {
-    color: #0f172a !important;
-}
-
-/* Prevent hover:text-white from turning text invisible on light surfaces */
-body:not(.dark) [class*="hover:text-white"]:not(.btn-primary):not(.btn-dark):not([class*="bg-slate-9"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not([class*="hover:bg-slate-9"]):not([class*="hover:bg-black"]):not([class*="hover:bg-indigo"]):hover,
-.premium-page:not(.dark) [class*="hover:text-white"]:not(.btn-primary):not(.btn-dark):not([class*="bg-slate-9"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not([class*="hover:bg-slate-9"]):not([class*="hover:bg-black"]):not([class*="hover:bg-indigo"]):hover {
-    color: #4f46e5 !important;
-}
-
-/* Form inputs & controls */
-input:not([type="checkbox"]):not([type="radio"]),
-textarea,
-select {
-    background-color: #ffffff !important;
-    border-color: #cbd5e1 !important;
-    color: #0f172a !important;
-}
-
-input::placeholder,
-textarea::placeholder {
-    color: #94a3b8 !important;
-}
-
-/* Borders and tables */
-[class*="border-white/"] {
-    border-color: #e2e8f0 !important;
-}
-
-[class*="divide-white/"] {
-    border-color: #f1f5f9 !important;
-}
-
-table {
-    background-color: #ffffff !important;
-    border-color: #e2e8f0 !important;
-}
-
-th {
-    background-color: #f8fafc !important;
-    color: #475569 !important;
-    border-color: #e2e8f0 !important;
-}
-
-td {
-    border-color: #f1f5f9 !important;
-    color: #0f172a !important;
 }
 
 /* Luminous Aurora Mesh */

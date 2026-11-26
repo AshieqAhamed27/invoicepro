@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import useDocumentMeta from '../utils/useDocumentMeta';
@@ -197,7 +197,7 @@ export default function ClientCoach() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-slate-900">
+    <div className="premium-page min-h-screen text-white">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
@@ -211,12 +211,12 @@ export default function ClientCoach() {
               Find clients, talk better, close the deal, and collect money.
             </h1>
             <p className="mt-5 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
-              This coach turns a freelancerâ€™s service into a daily sales plan with copy-ready messages, objection replies, closing steps, and payment follow-up.
+              This coach turns a freelancer’s service into a daily sales plan with copy-ready messages, objection replies, closing steps, and payment follow-up.
             </p>
           </div>
 
           <div className="rounded-[2rem] border border-yellow-300/20 bg-yellow-300/[0.06] p-5 sm:p-6">
-            <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Todayâ€™s coaching score</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Today’s coaching score</p>
             <p className="mt-3 text-5xl font-black text-white">{previewPlan.score}</p>
             <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
               {previewPlan.oneAction}
