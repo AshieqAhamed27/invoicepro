@@ -46,7 +46,7 @@ export default function WorkflowMode({ modeKey }) {
   const agencyPath = `/agency?workflow=${workflow.key}#agency-booking`;
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main>

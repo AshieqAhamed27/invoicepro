@@ -23,7 +23,7 @@ const features = [
 export default function HowToUse() {
   useDocumentMeta({ title: `How to use ${COMPANY_NAME}`, description: 'A simple step-by-step guide to ClientFlow AI features for new and returning users.', path: '/how-to-use' });
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
       <main>
         <section className="border-b border-white/10 bg-zinc-950/70 py-16 sm:py-20"><div className="container-custom max-w-4xl"><p className="text-xs font-black uppercase tracking-widest text-cyan-300">Start here</p><h1 className="mt-4 text-4xl font-black leading-tight sm:text-6xl">Use one step at a time.</h1><p className="mt-5 max-w-3xl text-base font-medium leading-7 text-zinc-400">ClientFlow AI has many tools, but you do not need to learn all of them. Pick your current goal, complete one useful action, then return when you need the next stage.</p><Link to="/signup" className="mt-7 inline-flex rounded-lg bg-yellow-300 px-6 py-4 text-sm font-black uppercase text-slate-950 hover:bg-yellow-200">Start with one real task</Link></div></section>

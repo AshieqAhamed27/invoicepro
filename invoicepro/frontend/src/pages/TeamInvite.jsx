@@ -78,7 +78,7 @@ export default function TeamInvite() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main className="container-custom flex min-h-[calc(100vh-120px)] items-center py-10">

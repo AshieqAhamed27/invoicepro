@@ -412,7 +412,7 @@ export default function BusinessAutopilot() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">

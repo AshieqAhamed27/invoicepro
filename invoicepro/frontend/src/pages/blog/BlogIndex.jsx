@@ -51,7 +51,7 @@ export default function BlogIndex() {
   });
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main className="container-custom py-12 sm:py-16">

@@ -896,29 +896,9 @@ html, body {
     min-height: 100vh;
 }
 
-/* Neutralize all hardcoded dark backgrounds */
-[class*="bg-[#090d14]"],
-[class*="bg-[#09090b]"],
-[class*="bg-[#07090d]"],
-[class*="bg-[#0d0b18]"],
-[class*="bg-[#0b0914]"],
-[class*="bg-[#110d24]"],
-[class*="bg-[#0a0716]"],
-[class*="bg-[#0d1119]"],
-[class*="bg-[#0a0f1d]"] {
-    background-color: #f8fafc !important;
-    color: #0f172a !important;
-}
-
-[class*="bg-black/"],
-[class*="bg-white/[0.0"],
-[class*="bg-white/5"],
-.bg-zinc-950,
-.bg-zinc-900,
-[class*="bg-zinc-950"],
-[class*="bg-zinc-900"] {
-    background-color: #ffffff !important;
-    border-color: #e2e8f0 !important;
+/* If a page container has both premium-page and text-white, default to obsidian text on the bright canvas */
+.premium-page.text-white,
+.premium-page > .text-white:not([class*="bg-"]):not([class*="btn"]) {
     color: #0f172a !important;
 }
 
@@ -931,41 +911,103 @@ html, body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 10px 25px -5px rgba(15, 23, 42, 0.05) !important;
 }
 
+/* Universal Headings Contrast:
+   Headings inherit color naturally or match their explicit text-color class.
+   On light surfaces they default to obsidian slate (#0f172a); on dark surfaces they are pure white (#ffffff). */
 :where(h1, h2, h3, h4, h5, h6) {
-    color: #0f172a !important;
+    color: inherit;
 }
 
-/* Ensure all text is 100% visible and high-contrast */
-.text-white:not(.btn-primary):not(.btn-dark):not([class*="bg-indigo-6"]):not([class*="bg-emerald-6"]):not([class*="bg-slate-7"]):not([class*="bg-slate-8"]):not([class*="bg-slate-9"]):not([class*="bg-zinc-7"]):not([class*="bg-zinc-8"]):not([class*="bg-zinc-9"]):not([class*="bg-gray-8"]):not([class*="bg-gray-9"]):not([class*="bg-black"]):not([class*="bg-rose"]):not([class*="bg-blue-6"]):not(.badge):not(.rounded-full) {
-    color: #0f172a !important;
+/* Light surface headings default to obsidian slate unless explicitly styled */
+:where(body, .premium-page, .surface, .card):not([class*="bg-slate-9"]):not([class*="bg-slate-8"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not([class*="bg-[#0"]):not(.dark) :where(h1, h2, h3, h4, h5, h6):not([class*="text-"]) {
+    color: #0f172a;
 }
 
-/* Ensure buttons without a solid dark background never have white text */
-button:not(.btn-primary):not(.btn-dark):not([class*="bg-indigo-6"]):not([class*="bg-emerald-6"]):not([class*="bg-slate-7"]):not([class*="bg-slate-8"]):not([class*="bg-slate-9"]):not([class*="bg-zinc-7"]):not([class*="bg-zinc-8"]):not([class*="bg-zinc-9"]):not([class*="bg-gray-8"]):not([class*="bg-gray-9"]):not([class*="bg-black"]):not([class*="bg-rose"]):not([class*="bg-blue-6"]) .text-white,
-button:not(.btn-primary):not(.btn-dark):not([class*="bg-indigo-6"]):not([class*="bg-emerald-6"]):not([class*="bg-slate-7"]):not([class*="bg-slate-8"]):not([class*="bg-slate-9"]):not([class*="bg-zinc-7"]):not([class*="bg-zinc-8"]):not([class*="bg-zinc-9"]):not([class*="bg-gray-8"]):not([class*="bg-gray-9"]):not([class*="bg-black"]):not([class*="bg-rose"]):not([class*="bg-blue-6"]) [class*="text-white"] {
-    color: #0f172a !important;
+/* Ensure text-white always renders clean, crisp white */
+.text-white {
+    color: #ffffff !important;
 }
 
-/* Ensure hover text is always visible and never turns invisible white against light backgrounds */
-[class*="hover:text-white"]:not(.btn-primary):not(.btn-dark):not([class*="bg-indigo-6"]):not([class*="bg-emerald-6"]):not([class*="bg-slate-7"]):not([class*="bg-slate-8"]):not([class*="bg-slate-9"]):not([class*="bg-zinc-7"]):not([class*="bg-zinc-8"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):hover {
-    color: #4f46e5 !important;
+/* Dark surface guarantee:
+   Every dark container (bg-slate-950, bg-slate-900, bg-zinc-950, bg-black, .dark)
+   MUST guarantee 100% readable, high-contrast text and luminous headings. */
+.dark,
+[class*="bg-slate-950"],
+[class*="bg-slate-900"],
+[class*="bg-slate-850"],
+[class*="bg-slate-800"],
+[class*="bg-zinc-950"],
+[class*="bg-zinc-900"],
+[class*="bg-black"],
+.bg-slate-950,
+.bg-slate-900,
+.bg-zinc-950,
+.bg-zinc-900 {
+    color: #f1f5f9;
 }
 
-.text-zinc-200,
-.text-zinc-300,
-.text-zinc-400,
-.text-slate-200,
-.text-slate-300,
-.text-slate-400 {
-    color: #334155 !important;
+.dark :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
+[class*="bg-slate-950"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
+[class*="bg-slate-900"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
+[class*="bg-zinc-950"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
+[class*="bg-zinc-900"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
+[class*="bg-black"] :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
+.bg-slate-950 :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]),
+.bg-slate-900 :where(h1, h2, h3, h4, h5, h6):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]) {
+    color: #ffffff !important;
 }
 
-.text-zinc-500,
-.text-zinc-600,
-.text-slate-500,
-.text-slate-600 {
-    color: #0f172a !important;
-    font-weight: 600;
+/* Luminous text on dark surfaces */
+.dark .text-slate-400,
+[class*="bg-slate-9"] .text-slate-400,
+[class*="bg-zinc-9"] .text-slate-400,
+[class*="bg-black"] .text-slate-400,
+.bg-slate-950 .text-slate-400,
+.bg-slate-900 .text-slate-400 {
+    color: #94a3b8 !important;
+}
+
+.dark .text-slate-300,
+[class*="bg-slate-9"] .text-slate-300,
+[class*="bg-zinc-9"] .text-slate-300,
+[class*="bg-black"] .text-slate-300,
+.bg-slate-950 .text-slate-300,
+.bg-slate-900 .text-slate-300 {
+    color: #cbd5e1 !important;
+}
+
+.dark .text-slate-200,
+[class*="bg-slate-9"] .text-slate-200,
+[class*="bg-zinc-9"] .text-slate-200,
+[class*="bg-black"] .text-slate-200,
+.bg-slate-950 .text-slate-200,
+.bg-slate-900 .text-slate-200 {
+    color: #e2e8f0 !important;
+}
+
+.dark .text-zinc-400,
+[class*="bg-slate-9"] .text-zinc-400,
+[class*="bg-zinc-9"] .text-zinc-400,
+[class*="bg-black"] .text-zinc-400,
+.bg-slate-950 .text-zinc-400,
+.bg-slate-900 .text-zinc-400 {
+    color: #a1a1aa !important;
+}
+
+.dark .text-zinc-300,
+[class*="bg-slate-9"] .text-zinc-300,
+[class*="bg-zinc-9"] .text-zinc-300,
+[class*="bg-black"] .text-zinc-300,
+.bg-slate-950 .text-zinc-300,
+.bg-slate-900 .text-zinc-300 {
+    color: #d4d4d8 !important;
+}
+
+/* Accessible contrast on light surfaces */
+:where(body, .premium-page, .surface, .card):not([class*="bg-slate-9"]):not([class*="bg-slate-8"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not(.dark) > :is(.text-slate-400, .text-zinc-400),
+:where(body, .premium-page, .surface, .card):not([class*="bg-slate-9"]):not([class*="bg-slate-8"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not(.dark) p:is(.text-slate-400, .text-zinc-400),
+:where(body, .premium-page, .surface, .card):not([class*="bg-slate-9"]):not([class*="bg-slate-8"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not(.dark) span:is(.text-slate-400, .text-zinc-400) {
+    color: #475569;
 }
 
 /* Form inputs & controls */

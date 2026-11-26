@@ -254,17 +254,17 @@ export default function PlanCheckout() {
         <div className="mb-6">
           <Link 
             to="/payments" 
-            className="inline-flex items-center text-sm text-slate-400 hover:text-yellow-400 transition-colors"
+            className="inline-flex items-center text-sm font-medium text-slate-300 hover:text-yellow-400 transition-colors"
           >
             ← Back to All Plans
           </Link>
         </div>
 
         {/* Currency Switcher */}
-        <div className="flex justify-between items-center mb-8 bg-slate-900/60 p-4 rounded-xl border border-slate-800 backdrop-blur">
+        <div className="flex justify-between items-center mb-8 bg-slate-900/80 p-4 rounded-xl border border-slate-800 backdrop-blur">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Billing Region</span>
-            <p className="text-sm text-slate-200">{market === 'india' ? '🇮🇳 India (INR)' : '🌐 International (USD)'}</p>
+            <p className="text-sm font-semibold text-white">{market === 'india' ? '🇮🇳 India (INR)' : '🌐 International (USD)'}</p>
           </div>
           <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800">
             <button
@@ -272,8 +272,8 @@ export default function PlanCheckout() {
                 setMarket('india');
                 localStorage.setItem('billingMarket', 'india');
               }}
-              className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
-                market === 'india' ? 'bg-yellow-500 text-black shadow-md' : 'text-slate-400 hover:text-white'
+              className={`px-3 py-1 text-xs rounded-md font-bold transition-all ${
+                market === 'india' ? 'bg-yellow-500 text-black shadow-md' : 'text-slate-300 hover:text-white'
               }`}
             >
               INR (₹)
@@ -283,8 +283,8 @@ export default function PlanCheckout() {
                 setMarket('global');
                 localStorage.setItem('billingMarket', 'global');
               }}
-              className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
-                market === 'global' ? 'bg-yellow-500 text-black shadow-md' : 'text-slate-400 hover:text-white'
+              className={`px-3 py-1 text-xs rounded-md font-bold transition-all ${
+                market === 'global' ? 'bg-yellow-500 text-black shadow-md' : 'text-slate-300 hover:text-white'
               }`}
             >
               USD ($)
@@ -293,31 +293,31 @@ export default function PlanCheckout() {
         </div>
 
         {/* Selected Plan Details Card */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-10 shadow-2xl backdrop-blur relative overflow-hidden">
+        <div className="bg-slate-900/95 border border-slate-800 rounded-2xl p-6 sm:p-10 shadow-2xl backdrop-blur relative overflow-hidden">
           {/* Subtle Background Glow */}
           <div className="absolute -top-24 -right-24 w-72 h-72 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-6 border-b border-slate-800">
             <div>
-              <span className="inline-block px-3 py-1 text-xs font-semibold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-full mb-2">
+              <span className="inline-block px-3 py-1 text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 rounded-full mb-2">
                 {plan.badge}
               </span>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">{plan.label}</h1>
-              <p className="text-slate-400 text-sm mt-1">{plan.description}</p>
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">{plan.label}</h1>
+              <p className="text-slate-300 text-sm mt-1.5 leading-relaxed">{plan.description}</p>
             </div>
             <div className="text-left sm:text-right">
               <div className="text-3xl sm:text-4xl font-black text-yellow-400">{priceDisplay}</div>
-              <div className="text-xs text-slate-400 mt-1">{plan.period}</div>
+              <div className="text-xs font-semibold text-slate-300 mt-1">{plan.period}</div>
             </div>
           </div>
 
           {/* Plan Features */}
           <div className="mb-8">
-            <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">What's Included:</h3>
+            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider mb-4">What's Included:</h3>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {plan.features.map((feat, idx) => (
-                <li key={idx} className="flex items-start text-sm text-slate-300">
-                  <span className="text-emerald-400 font-bold mr-2">✓</span>
+                <li key={idx} className="flex items-start text-sm text-slate-100 font-medium">
+                  <span className="text-emerald-400 font-bold mr-2 text-base">✓</span>
                   <span>{feat}</span>
                 </li>
               ))}

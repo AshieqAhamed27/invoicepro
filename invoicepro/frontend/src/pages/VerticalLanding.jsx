@@ -266,7 +266,7 @@ export default function VerticalLanding({ pageKey }) {
   const trackSecondary = () => trackCtaClick(page.secondaryCta, page.path, secondaryPath);
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main>

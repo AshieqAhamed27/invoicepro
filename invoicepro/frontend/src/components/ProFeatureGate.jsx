@@ -17,7 +17,7 @@ export default function ProFeatureGate({
   const redirectPath = `${location.pathname}${location.search || ''}${location.hash || ''}`;
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
       <main className="container-custom flex min-h-[calc(100vh-5rem)] items-center py-10 sm:py-16">
         <section className="mx-auto grid w-full max-w-5xl gap-8">

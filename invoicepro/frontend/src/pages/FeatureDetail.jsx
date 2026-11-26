@@ -39,7 +39,7 @@ export default function FeatureDetail() {
   if (!feature) return <Navigate to="/" replace />;
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main>

@@ -21,7 +21,7 @@ export default function GSTCompliance() {
   useDocumentMeta({ title: `${COMPANY_NAME} GST compliance status`, description: 'A clear summary of ClientFlow AI GST invoice support and planned e-invoicing, HSN suggestions, and GSTR exports.', path: '/gst-compliance' });
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
       <main>
         <section className="border-b border-white/10 bg-zinc-950/70 py-16 sm:py-20"><div className="container-custom max-w-4xl"><p className="text-xs font-black uppercase tracking-widest text-yellow-300">GST compliance status</p><h1 className="mt-4 text-4xl font-black leading-tight sm:text-6xl">Clear about what works today and what is next.</h1><p className="mt-5 max-w-3xl text-base font-medium leading-7 text-zinc-400">Tax compliance is too important for vague promises. This page separates current invoice capabilities from the work still on the roadmap.</p></div></section>

@@ -52,7 +52,7 @@ export default function Terms() {
   );
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main className="container-custom py-10 sm:py-14 md:py-20">

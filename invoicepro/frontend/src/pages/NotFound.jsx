@@ -19,7 +19,7 @@ export default function NotFound() {
   const secondaryLabel = loggedIn ? 'Create Invoice' : 'Sign In';
 
   return (
-    <div className="premium-page min-h-screen text-white selection:bg-yellow-400 selection:text-black">
+    <div className="premium-page min-h-screen text-slate-900 selection:bg-yellow-400 selection:text-black">
       <Navbar />
 
       <main className="container-custom py-12 sm:py-20 md:py-28">
