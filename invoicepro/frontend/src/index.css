@@ -288,7 +288,7 @@ select option:disabled {
         @apply text-base font-medium;
     }
     p {
-        @apply text-zinc-400 text-sm;
+        @apply text-slate-600 text-sm;
     }
     /* Container */
     .container-custom {
@@ -795,23 +795,10 @@ select option:disabled {
 
 .premium-page :where(section[class*="border"], article[class*="border"], div[class*="border"], a[class*="border"]) {
     border-color: var(--premium-border);
-    background-image: var(--premium-glass);
 }
 
 .premium-page :where(section[class*="border-yellow"], article[class*="border-yellow"], div[class*="border-yellow"], a[class*="border-yellow"]) {
-    background-image: var(--premium-glass-warm);
-}
-
-.premium-page :where(section[class*="bg-emerald"], article[class*="bg-emerald"], div[class*="bg-emerald"], section[class*="bg-cyan"], article[class*="bg-cyan"], div[class*="bg-cyan"], section[class*="bg-sky"], article[class*="bg-sky"], div[class*="bg-sky"], section[class*="bg-violet"], div[class*="bg-violet"]) {
-    background-image: linear-gradient(135deg, rgba(139,92,246,0.14), rgba(255,255,255,0.03) 45%, rgba(232,121,249,0.08));
-}
-
-.premium-page :where(h1) {
-    text-shadow: 0 20px 58px rgba(0, 0, 0, 0.42);
-}
-
-.premium-page :where(h2, h3) {
-    text-shadow: 0 14px 42px rgba(0, 0, 0, 0.28);
+    border-color: rgba(234, 179, 8, 0.35);
 }
 
 .premium-page :where(label) {
@@ -923,9 +910,39 @@ html, body {
     color: #0f172a;
 }
 
-/* Ensure text-white always renders clean, crisp white */
-.text-white {
+/* Ensure text-white renders pure luminous white on dark surfaces, dark buttons, and colored elements */
+.dark .text-white,
+[class*="bg-slate-9"] .text-white,
+[class*="bg-slate-8"] .text-white,
+[class*="bg-zinc-9"] .text-white,
+[class*="bg-zinc-8"] .text-white,
+[class*="bg-black"] .text-white,
+[class*="bg-[#0"] .text-white,
+[class*="bg-[#1"] .text-white,
+.bg-slate-950 .text-white,
+.bg-slate-900 .text-white,
+.bg-zinc-950 .text-white,
+.bg-zinc-900 .text-white,
+.btn-primary,
+.btn-dark,
+[class*="bg-indigo-"] .text-white,
+[class*="bg-purple-"] .text-white,
+[class*="bg-blue-"] .text-white,
+[class*="bg-emerald-"] .text-white,
+[class*="bg-rose-"] .text-white,
+[class*="bg-amber-"] .text-white,
+[class*="bg-yellow-5"] .text-white,
+button[class*="bg-slate-9"],
+button[class*="bg-black"],
+button[class*="bg-zinc-9"] {
     color: #ffffff !important;
+}
+
+/* On light surfaces, if an element has .text-white without being on a solid dark container/button,
+   render it as obsidian slate (#0f172a) so it is 100% visible and NEVER invisible white-on-white */
+body:not(.dark) .text-white:not([class*="bg-slate-9"] *):not([class*="bg-slate-8"] *):not([class*="bg-zinc-9"] *):not([class*="bg-zinc-8"] *):not([class*="bg-black"] *):not([class*="bg-[#0"] *):not([class*="bg-[#1"] *):not(.dark *):not([class*="bg-indigo"]):not([class*="bg-emerald"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-rose"]):not([class*="bg-amber"]):not([class*="bg-slate-9"]):not([class*="bg-black"]):not(.btn):not(.badge-dark),
+.premium-page:not(.dark) .text-white:not([class*="bg-slate-9"] *):not([class*="bg-slate-8"] *):not([class*="bg-zinc-9"] *):not([class*="bg-zinc-8"] *):not([class*="bg-black"] *):not([class*="bg-[#0"] *):not([class*="bg-[#1"] *):not(.dark *):not([class*="bg-indigo"]):not([class*="bg-emerald"]):not([class*="bg-purple"]):not([class*="bg-blue"]):not([class*="bg-rose"]):not([class*="bg-amber"]):not([class*="bg-slate-9"]):not([class*="bg-black"]):not(.btn):not(.badge-dark) {
+    color: #0f172a !important;
 }
 
 /* Dark surface guarantee:
@@ -1003,11 +1020,42 @@ html, body {
     color: #d4d4d8 !important;
 }
 
-/* Accessible contrast on light surfaces */
-:where(body, .premium-page, .surface, .card):not([class*="bg-slate-9"]):not([class*="bg-slate-8"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not(.dark) > :is(.text-slate-400, .text-zinc-400),
-:where(body, .premium-page, .surface, .card):not([class*="bg-slate-9"]):not([class*="bg-slate-8"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not(.dark) p:is(.text-slate-400, .text-zinc-400),
-:where(body, .premium-page, .surface, .card):not([class*="bg-slate-9"]):not([class*="bg-slate-8"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not(.dark) span:is(.text-slate-400, .text-zinc-400) {
-    color: #475569;
+/* Universal High-Contrast Readability on Light Surfaces:
+   Guarantees that muted text classes (.text-zinc-400, .text-slate-400, .text-zinc-500, etc.)
+   render with crisp, WCAG-compliant contrast (#475569 / #334155) on all light backgrounds,
+   preventing faint/washed-out text that is only readable when hovered or selected.
+   Dark containers (.dark, bg-slate-900, bg-slate-950, bg-zinc-900, bg-black) are cleanly excluded. */
+
+body:not(.dark) :is(.text-zinc-400, .text-slate-400, .text-gray-400, .text-neutral-400):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *),
+.premium-page:not(.dark) :is(.text-zinc-400, .text-slate-400, .text-gray-400, .text-neutral-400):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *) {
+    color: #475569 !important;
+}
+
+body:not(.dark) :is(.text-zinc-500, .text-slate-500, .text-gray-500, .text-neutral-500):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *),
+.premium-page:not(.dark) :is(.text-zinc-500, .text-slate-500, .text-gray-500, .text-neutral-500):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *) {
+    color: #334155 !important;
+}
+
+body:not(.dark) :is(.text-zinc-300, .text-slate-300, .text-gray-300, .text-neutral-300):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *),
+.premium-page:not(.dark) :is(.text-zinc-300, .text-slate-300, .text-gray-300, .text-neutral-300):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *) {
+    color: #475569 !important;
+}
+
+body:not(.dark) :is(.text-zinc-200, .text-slate-200):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *),
+.premium-page:not(.dark) :is(.text-zinc-200, .text-slate-200):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *) {
+    color: #475569 !important;
+}
+
+/* Light surface headings default to obsidian slate (#0f172a) with high contrast */
+body:not(.dark) :where(h1, h2, h3, h4, h5, h6):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]):not([class*="text-violet"]),
+.premium-page:not(.dark) :where(h1, h2, h3, h4, h5, h6):not([class*="bg-slate-9"] *):not([class*="bg-zinc-9"] *):not([class*="bg-black"] *):not(.dark *):not([class*="text-emerald"]):not([class*="text-yellow"]):not([class*="text-cyan"]):not([class*="text-amber"]):not([class*="text-indigo"]):not([class*="text-rose"]):not([class*="text-sky"]):not([class*="text-purple"]):not([class*="text-violet"]) {
+    color: #0f172a !important;
+}
+
+/* Prevent hover:text-white from turning text invisible on light surfaces */
+body:not(.dark) [class*="hover:text-white"]:not(.btn-primary):not(.btn-dark):not([class*="bg-slate-9"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not([class*="hover:bg-slate-9"]):not([class*="hover:bg-black"]):not([class*="hover:bg-indigo"]):hover,
+.premium-page:not(.dark) [class*="hover:text-white"]:not(.btn-primary):not(.btn-dark):not([class*="bg-slate-9"]):not([class*="bg-zinc-9"]):not([class*="bg-black"]):not([class*="hover:bg-slate-9"]):not([class*="hover:bg-black"]):not([class*="hover:bg-indigo"]):hover {
+    color: #4f46e5 !important;
 }
 
 /* Form inputs & controls */
@@ -1146,10 +1194,9 @@ td {
     }
 
     .premium-page :where(a[class*="border"], button[class*="border"], article[class*="border"], section[class*="border"], .grid > div[class*="border"]):hover {
-        transform: translateY(-3px);
-        border-color: rgba(168,85,247,0.38);
-        background-image: linear-gradient(135deg, rgba(139,92,246,0.14), rgba(255,255,255,0.04) 48%, rgba(232,121,249,0.08));
-        box-shadow: 0 0 40px rgba(168,85,247,0.12), 0 24px 68px rgba(0,0,0,0.32);
+        transform: translateY(-2px);
+        border-color: rgba(99, 102, 241, 0.35);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
     }
 
     .premium-page :where(a, button):not(:disabled):hover {
