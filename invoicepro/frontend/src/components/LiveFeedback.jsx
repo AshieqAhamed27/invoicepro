@@ -240,7 +240,7 @@ const LiveFeedback = () => {
                   <select 
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-[#130f24] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-yellow-400/50 transition-colors"
+                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 transition-colors"
                   >
                     <option value="Review">⭐ Public Review & Star Rating</option>
                     <option value="Feature Request">💡 Feature Request</option>
@@ -256,7 +256,7 @@ const LiveFeedback = () => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="What do you love most, or what can we improve for your freelance workflow?"
-                    className="w-full bg-[#130f24] border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-yellow-400/50 transition-colors resize-none h-24 placeholder-zinc-600 hover:border-slate-200"
+                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 transition-colors resize-none h-24 hover:border-slate-400"
                     required
                   />
                 </div>
@@ -271,7 +271,7 @@ const LiveFeedback = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="e.g. Rahul"
-                        className="mt-1 w-full bg-[#130f24] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-yellow-400/50"
+                        className="mt-1 w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
                       />
                     </div>
                     <div>
@@ -281,7 +281,7 @@ const LiveFeedback = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@email.com"
-                        className="mt-1 w-full bg-[#130f24] border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-yellow-400/50"
+                        className="mt-1 w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
                       />
                     </div>
                   </div>
