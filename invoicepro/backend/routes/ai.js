@@ -821,7 +821,7 @@ const detectNavigationRoute = (message) => {
 
     // 1. AI Proposal Writer
     if (
-        (/\b(proposal|proposals|pitch|bid)\b/i.test(text) && (hasNavVerb || /\b(page|writer|tool|screen|tab)\b/i.test(text))) ||
+        (/\b(proposal|proposals|pitch|bid)\b/i.test(text) && (hasNavVerb || /\b(page|writer|tool|screen|tab|write|draft|create|make|generate)\b/i.test(text))) ||
         /\b(ai proposal|proposal page|proposal writer)\b/i.test(text)
     ) {
         return { path: '/proposal-writer', label: 'AI Proposal Writer' };
