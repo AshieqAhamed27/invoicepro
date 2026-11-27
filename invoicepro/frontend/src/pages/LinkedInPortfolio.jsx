@@ -148,7 +148,7 @@ export default function LinkedInPortfolio() {
             <div className="grid gap-4 md:grid-cols-2">
               {quickLinks.map(([title, href, detail]) => {
                 const isMail = href.startsWith('mailto:');
-                const className = 'rounded-[1.5rem] border border-slate-200 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-amber-200';
+                const className = 'rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 transition-all hover:-translate-y-1 hover:border-amber-200';
 
                 const content = (
                   <>

@@ -1082,7 +1082,7 @@ export default function Payment() {
                     Upwork and Fiverr monetize marketplace transactions. ClientFlow AI should monetize the operating system freelancers use to win, manage, and collect from their own clients.
                   </p>
                 </div>
-                <div className="shrink-0 rounded-2xl border border-slate-200 bg-black/25 px-5 py-4">
+                <div className="shrink-0 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Main revenue model</p>
                   <p className="mt-2 text-xl font-black text-slate-900">Pro + Setup</p>
                 </div>

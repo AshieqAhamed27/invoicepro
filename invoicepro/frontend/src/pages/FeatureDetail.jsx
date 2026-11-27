@@ -134,7 +134,7 @@ export default function FeatureDetail() {
 
             <div className="grid gap-4">
               {feature.included.map((item) => (
-                <div key={item} className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+                <div key={item} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                   <p className="text-sm font-black leading-relaxed text-slate-900">{item}</p>
                 </div>
               ))}
@@ -171,7 +171,7 @@ export default function FeatureDetail() {
           </div>
         </section>
 
-        <section className="border-t border-slate-200 bg-black/25 py-14 sm:py-16">
+        <section className="border-t border-slate-200 bg-slate-50 py-14 sm:py-16">
           <div className="container-custom rounded-[2rem] border border-amber-200 bg-yellow-300/[0.06] p-6 text-center sm:p-10">
             <h2 className="mx-auto max-w-3xl text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
               Ready to use {feature.title}?

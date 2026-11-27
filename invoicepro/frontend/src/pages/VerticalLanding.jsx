@@ -386,7 +386,7 @@ export default function VerticalLanding({ pageKey }) {
 
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
               {page.features.map((feature, index) => (
-                <div key={feature} className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+                <div key={feature} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                   <p className="text-3xl font-black text-slate-900/15">0{index + 1}</p>
                   <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-700">{feature}</p>
                 </div>

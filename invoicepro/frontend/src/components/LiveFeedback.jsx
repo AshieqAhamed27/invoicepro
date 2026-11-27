@@ -73,7 +73,7 @@ const LiveFeedback = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="group flex flex-col items-center gap-2 bg-[#0d091b]/95 backdrop-blur-md border border-r-0 border-yellow-500/30 hover:border-yellow-400 hover:bg-amber-50 text-yellow-400 hover:text-yellow-300 py-4 px-2.5 rounded-l-2xl shadow-2xl shadow-black/80 transition-all duration-300"
+          className="group flex flex-col items-center gap-2 bg-white backdrop-blur-md border border-r-0 border-yellow-500/30 hover:border-yellow-400 hover:bg-amber-50 text-yellow-400 hover:text-yellow-300 py-4 px-2.5 rounded-l-2xl shadow-2xl shadow-black/80 transition-all duration-300"
           title="Rate ClientFlow AI & Share Feedback"
         >
           <span className="text-base transition-transform group-hover:scale-125">⭐</span>
@@ -88,7 +88,7 @@ const LiveFeedback = () => {
 
       {/* Feedback Modal / Popover */}
       {isOpen && (
-        <div className="bg-[#0b0816]/98 backdrop-blur-xl border border-r-0 border-slate-200 rounded-l-3xl shadow-2xl shadow-black/90 w-[350px] sm:w-[380px] max-h-[92vh] overflow-y-auto flex flex-col animate-in slide-in-from-right-8 fade-in duration-300">
+        <div className="bg-white backdrop-blur-xl border border-r-0 border-slate-200 rounded-l-3xl shadow-2xl shadow-black/90 w-[350px] sm:w-[380px] max-h-[92vh] overflow-y-auto flex flex-col animate-in slide-in-from-right-8 fade-in duration-300">
           <div className="bg-slate-50 px-5 py-4 flex justify-between items-center border-b border-slate-200">
             <div>
               <h3 className="font-black text-slate-900 text-base flex items-center gap-2">

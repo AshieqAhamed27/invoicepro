@@ -450,7 +450,7 @@ export default function LeadPipeline() {
                 <div key={status.id} className={`min-h-[220px] rounded-2xl border p-3 ${status.tone}`}>
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <p className="text-[10px] font-black uppercase tracking-widest">{status.label}</p>
-                    <span className="rounded-full bg-black/25 px-2 py-1 text-[10px] font-black">
+                    <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black">
                       {groupedLeads[status.id]?.length || 0}
                     </span>
                   </div>
@@ -460,7 +460,7 @@ export default function LeadPipeline() {
                       const actions = getContactActions(lead);
 
                       return (
-                        <article key={lead._id} className="flex min-h-[240px] flex-col rounded-2xl border border-slate-200 bg-[#080b10]/90 p-4 text-slate-900 shadow-xl shadow-black/20">
+                        <article key={lead._id} className="flex min-h-[240px] flex-col rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl shadow-black/20">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
                               <h3 className="truncate text-sm font-black text-slate-900">{getLeadName(lead)}</h3>

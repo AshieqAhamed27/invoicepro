@@ -226,7 +226,7 @@ export default function SEOPage({ pageKey }) {
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">
                 Product snapshot
               </p>
-              <div className="mt-5 rounded-lg border border-slate-200 bg-black/25 p-5">
+              <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-5">
                 <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-5">
                   <div>
                     <p className="text-sm font-black text-slate-900">{COMPANY_NAME}</p>

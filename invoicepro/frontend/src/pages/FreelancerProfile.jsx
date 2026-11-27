@@ -202,32 +202,32 @@ export default function FreelancerProfile() {
                 <input
                   value={inquiryForm.contactName}
                   onChange={(event) => updateInquiryField('contactName', event.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Your name"
                 />
                 <input
                   type="email"
                   value={inquiryForm.email}
                   onChange={(event) => updateInquiryField('email', event.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Email"
                 />
                 <input
                   value={inquiryForm.phone}
                   onChange={(event) => updateInquiryField('phone', event.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Phone or WhatsApp"
                 />
                 <input
                   value={inquiryForm.businessName}
                   onChange={(event) => updateInquiryField('businessName', event.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Business name"
                 />
                 <input
                   value={inquiryForm.service}
                   onChange={(event) => updateInquiryField('service', event.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Service needed"
                 />
                 <input
@@ -235,21 +235,21 @@ export default function FreelancerProfile() {
                   min="0"
                   value={inquiryForm.budget}
                   onChange={(event) => updateInquiryField('budget', event.target.value)}
-                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Budget"
                 />
               </div>
               <input
                 value={inquiryForm.timeline}
                 onChange={(event) => updateInquiryField('timeline', event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                 placeholder="Timeline"
               />
               <textarea
                 value={inquiryForm.projectNeed}
                 onChange={(event) => updateInquiryField('projectNeed', event.target.value)}
                 rows={4}
-                className="min-h-[112px] resize-none rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                className="min-h-[112px] resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                 placeholder="What do you need help with?"
               />
 

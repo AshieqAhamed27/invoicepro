@@ -225,7 +225,7 @@ export default function Portfolio() {
 
             <div className="grid gap-4">
               {timeline.map(([title, detail], index) => (
-                <div key={title} className="flex gap-4 rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+                <div key={title} className="flex gap-4 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-yellow-300 text-sm font-black text-slate-950">
                     {index + 1}
                   </span>

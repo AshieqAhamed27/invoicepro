@@ -162,7 +162,7 @@ export default function AuthProviderButtons({
               onClick={() => startOAuthLogin(provider.id)}
               className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-black text-slate-900 transition ${provider.className}`}
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-black/25 text-xs">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-xs">
                 {provider.shortLabel}
               </span>
               <span>{provider.label}</span>

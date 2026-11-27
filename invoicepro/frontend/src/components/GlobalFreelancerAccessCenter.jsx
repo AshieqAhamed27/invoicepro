@@ -176,7 +176,7 @@ export default function GlobalFreelancerAccessCenter({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Access readiness</p>
           <p className="mt-2 text-5xl font-black text-slate-900">{accessScore}%</p>
           <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">
@@ -256,7 +256,7 @@ export default function GlobalFreelancerAccessCenter({
           ))}
         </div>
 
-        <aside className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5 sm:p-6">
+        <aside className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-700">Selected problem</p>

@@ -812,7 +812,7 @@ export default function OrganizationWorkspace() {
                     <p className={labelClass}>Members</p>
                     <h2 className="mt-2 text-2xl font-black text-slate-900">Company access</h2>
                   </div>
-                  <span className="rounded-full border border-slate-200 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                     {organization.members?.length || 0} members
                   </span>
                 </div>

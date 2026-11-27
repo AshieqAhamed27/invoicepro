@@ -432,7 +432,7 @@ export default function AgencyServices() {
                     setActiveAutomationStep(step.id);
                     document.getElementById('agency-setup-details')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
-                  className="rounded-[1.5rem] border border-amber-200 bg-black/25 p-5 text-left transition-all hover:-translate-y-1 hover:border-amber-200 hover:bg-yellow-300/[0.08]"
+                  className="rounded-[1.5rem] border border-amber-200 bg-slate-50 p-5 text-left transition-all hover:-translate-y-1 hover:border-amber-200 hover:bg-yellow-300/[0.08]"
                 >
                   <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-yellow-300 text-sm font-black text-slate-950">
                     {step.step}
@@ -534,11 +534,11 @@ export default function AgencyServices() {
                 </div>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl border border-slate-200 bg-black/25 p-4">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">User does</p>
                     <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{selectedAutomation.userAction}</p>
                   </div>
-                  <div className="rounded-2xl border border-slate-200 bg-black/25 p-4">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">AI / team prepares</p>
                     <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{selectedAutomation.aiAction}</p>
                   </div>
@@ -563,7 +563,7 @@ export default function AgencyServices() {
 
             <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {setupDeliverables.map(([title, detail]) => (
-                <div key={title} className="rounded-2xl border border-slate-200 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-emerald-200">
+                <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition-all hover:-translate-y-1 hover:border-emerald-200">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">{title}</p>
                   <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">{detail}</p>
                 </div>
@@ -621,7 +621,7 @@ export default function AgencyServices() {
 
             <div className="grid gap-4">
               {process.map(([step, title, text]) => (
-                <div key={step} className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-emerald-200">
+                <div key={step} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 transition-all hover:-translate-y-1 hover:border-emerald-200">
                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">{step}</p>
                   <h3 className="mt-3 text-lg font-black text-slate-900">{title}</h3>
                   <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{text}</p>
@@ -706,7 +706,7 @@ export default function AgencyServices() {
                   'If setup is not delivered, the setup fee can be refunded.',
                   'This is not an income guarantee. It is a delivered setup and action plan.'
                 ].map((item) => (
-                  <div key={item} className="rounded-2xl border border-slate-200 bg-black/25 p-4">
+                  <div key={item} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <p className="text-sm font-semibold leading-relaxed text-slate-700">{item}</p>
                   </div>
                 ))}
@@ -896,7 +896,7 @@ export default function AgencyServices() {
             </div>
             <div className="grid gap-3">
               {whoItHelps.map((item) => (
-                <div key={item} className="rounded-2xl border border-slate-200 bg-black/25 p-4">
+                <div key={item} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <p className="text-sm font-semibold leading-relaxed text-slate-700">{item}</p>
                 </div>
               ))}
@@ -917,7 +917,7 @@ export default function AgencyServices() {
             </div>
 
             <div className="grid gap-4">
-              <div className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+              <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Early feedback</p>
                 <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">
                   The interface feels clean, lightweight, and simple for an invoicing and freelancer workflow.

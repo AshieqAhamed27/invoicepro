@@ -60,7 +60,7 @@ export default function LoadingScreen({
         </div>
 
         {/* Center Brand Glyph */}
-        <div className="relative flex items-center justify-center rounded-2xl border border-slate-200 bg-[#0d111a]/80 p-2 shadow-inner backdrop-blur-sm">
+        <div className="relative flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-2 shadow-inner backdrop-blur-sm">
           <div className="flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-emerald-500/25">
             CF
           </div>

@@ -669,7 +669,7 @@ export default function BusinessAutomationCenter({
                       <button
                         type="button"
                         onClick={() => navigate(`/invoice/${target.id || target._id}`)}
-                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         Open
                       </button>
@@ -724,7 +724,7 @@ export default function BusinessAutomationCenter({
                       <button
                         type="button"
                         onClick={() => copyText(lead.message, 'Lead follow-up copied.', 'copy_automation_lead_followup', { cadence: lead.cadence })}
-                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         Copy
                       </button>
@@ -770,7 +770,7 @@ export default function BusinessAutomationCenter({
                       <button
                         type="button"
                         onClick={() => navigate(`/invoice/${proposal._id || proposal.id}`)}
-                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         Open
                       </button>
@@ -827,7 +827,7 @@ export default function BusinessAutomationCenter({
                       <button
                         type="button"
                         onClick={() => copyText(candidate.pitch, 'Recurring pitch copied.', 'copy_recurring_pitch', { value: candidate.suggestedMonthly })}
-                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         Copy Pitch
                       </button>
@@ -856,7 +856,7 @@ export default function BusinessAutomationCenter({
                 localStorage.removeItem('clientflow_dismissed_risk_alerts');
               } catch { }
             }}
-            className="rounded-xl border border-slate-200 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-100"
+            className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-100"
           >
             Reset Alerts
           </button>
@@ -889,7 +889,7 @@ export default function BusinessAutomationCenter({
                 <button
                   type="button"
                   onClick={alert.action}
-                  className="mt-5 rounded-xl border border-slate-200 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
+                  className="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                 >
                   {alert.actionLabel}
                 </button>

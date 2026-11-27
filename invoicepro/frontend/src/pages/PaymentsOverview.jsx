@@ -319,7 +319,7 @@ export default function PaymentsOverview() {
             </div>
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {whyPay.map(([title, text]) => (
-                <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+                <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                   <h3 className="text-lg font-black text-slate-900">{title}</h3>
                   <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{text}</p>
                 </div>

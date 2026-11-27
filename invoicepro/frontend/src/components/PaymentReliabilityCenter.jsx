@@ -108,7 +108,7 @@ export default function PaymentReliabilityCenter({
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Reliability score</p>
           <p className="mt-2 text-5xl font-black text-slate-900">{loading ? '--' : `${reliabilityScore}%`}</p>
           <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">

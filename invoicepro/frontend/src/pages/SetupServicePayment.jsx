@@ -425,7 +425,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
                       <p className="mt-5 text-sm font-semibold leading-relaxed text-slate-600">
                         {option.detail}
                       </p>
-                      <p className="mt-6 rounded-xl border border-slate-200 bg-black/25 p-4 text-xs font-bold leading-relaxed text-slate-700">
+                      <p className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs font-bold leading-relaxed text-slate-700">
                         {option.bestFor}
                       </p>
                     </div>

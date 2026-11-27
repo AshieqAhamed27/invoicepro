@@ -218,7 +218,7 @@ export default function IntegrationReadinessHub({ health = null, compact = false
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Current product score</p>
           <p className="mt-2 text-5xl font-black text-slate-900">{loading ? '--' : `${readiness.currentProductScore ?? readiness.score}%`}</p>
           <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">
@@ -273,7 +273,7 @@ export default function IntegrationReadinessHub({ health = null, compact = false
           })}
         </div>
 
-        <aside className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5 sm:p-6">
+        <aside className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-700">Next setup actions</p>
           <h3 className="mt-3 text-2xl font-black text-slate-900">Keep real and demo clearly separated.</h3>
           <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">

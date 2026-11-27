@@ -628,7 +628,7 @@ export default function TeamWorkspace() {
                 {statusLabel(activeProject?.status || 'planning')}
               </span>
             </div>
-            <p className="mt-4 rounded-2xl border border-slate-200 bg-black/25 p-4 text-sm font-semibold leading-relaxed text-slate-700">
+            <p className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold leading-relaxed text-slate-700">
               {health.nextAction}
             </p>
           </div>
@@ -666,7 +666,7 @@ export default function TeamWorkspace() {
             ['4', 'Create invoice', 'Turn delivered work into payment.'],
             ['5', 'Collect payment', 'Follow up before cash gets stuck.']
           ].map(([step, title, text]) => (
-            <div key={step} className="rounded-[1.25rem] border border-slate-200 bg-black/25 p-4 transition-all hover:-translate-y-1 hover:border-emerald-200">
+            <div key={step} className="rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4 transition-all hover:-translate-y-1 hover:border-emerald-200">
               <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-300 text-sm font-black text-slate-950">{step}</span>
               <h2 className="mt-4 text-lg font-black text-slate-900">{title}</h2>
               <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{text}</p>
@@ -790,7 +790,7 @@ export default function TeamWorkspace() {
                         <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${getStatusClass(activeProject.status)}`}>
                           {statusLabel(activeProject.status)}
                         </span>
-                        <span className="rounded-full border border-slate-200 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                           {getRoleLabel(activeProject.accessRole || 'owner', roleOptions)}
                         </span>
                       </div>
@@ -805,7 +805,7 @@ export default function TeamWorkspace() {
                       </p>
                     </div>
 
-                    <div className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+                    <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Commercials</p>
                       <p className="mt-3 text-3xl font-black text-slate-900">{formatCurrency(activeProject.budget, activeProject.currency)}</p>
                       <p className="mt-1 text-sm font-semibold text-slate-600">Deadline: {formatDate(activeProject.deadline)}</p>
@@ -844,7 +844,7 @@ export default function TeamWorkspace() {
                           <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Milestones</p>
                           <h3 className="mt-2 text-2xl font-black text-slate-900">Work that must finish</h3>
                         </div>
-                        <span className="rounded-full border border-slate-200 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                           {tasks.filter((task) => task.status === 'done').length}/{tasks.length || 0} done
                         </span>
                       </div>

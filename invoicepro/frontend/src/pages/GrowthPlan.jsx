@@ -609,7 +609,7 @@ export default function GrowthPlan() {
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Income Goal</p>
-                    <span className="rounded-full border border-slate-200 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
+                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                       Work backward plan
                     </span>
                   </div>
@@ -620,7 +620,7 @@ export default function GrowthPlan() {
                     The plan converts your income target into how many clients, proposals, and leads you need this month.
                   </p>
 
-                  <div className="mt-6 rounded-2xl border border-slate-200 bg-black/25 p-5">
+                  <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
                     <div className="mb-3 flex items-center justify-between gap-4">
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Collected this month</p>
                       <p className="text-xs font-black text-slate-900">{incomePlan.progress}%</p>
@@ -643,7 +643,7 @@ export default function GrowthPlan() {
                     <GoalInput label="Close Rate %" value={goal.closeRate} min="5" max="100" onChange={(value) => updateGoal('closeRate', value)} />
                     <GoalInput label="Lead to Proposal %" value={goal.proposalRate} min="5" max="100" onChange={(value) => updateGoal('proposalRate', value)} />
                   </div>
-                  <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Service You Sell</p>
                     <input
                       type="text"
@@ -723,7 +723,7 @@ export default function GrowthPlan() {
                       <button
                         type="button"
                         onClick={() => navigate(action.route)}
-                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         {action.cta}
                       </button>
@@ -758,7 +758,7 @@ export default function GrowthPlan() {
                       key={pkg.name}
                       type="button"
                       onClick={() => createPackageDraft(pkg)}
-                      className="rounded-2xl border border-slate-200 bg-black/25 p-5 text-left transition hover:-translate-y-1 hover:border-purple-300/30"
+                      className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-left transition hover:-translate-y-1 hover:border-purple-300/30"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -801,7 +801,7 @@ export default function GrowthPlan() {
                         <button
                           type="button"
                           onClick={() => copyText(client.pitch, 'Monthly client pitch copied.', 'copy_growth_recurring_pitch')}
-                          className="rounded-xl border border-slate-200 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
+                          className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                         >
                           Copy Pitch
                         </button>
@@ -841,7 +841,7 @@ export default function GrowthPlan() {
 
               <div className="grid gap-4 xl:grid-cols-3">
                 {retentionMessages.length ? retentionMessages.map((client) => (
-                  <div key={client.clientName} className="rounded-[1.75rem] border border-slate-200 bg-black/25 p-5">
+                  <div key={client.clientName} className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
                     <p className="text-lg font-black text-slate-900">{client.clientName}</p>
                     <p className="mt-1 text-xs font-semibold text-slate-600">{formatMoney(client.paidAmount)} paid history</p>
                     <div className="mt-5 grid gap-3">
@@ -889,7 +889,7 @@ function MetricMini({ label, value, tone = 'white' }) {
 
 function GoalInput({ label, prefix = '', value, min, max, onChange }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
       <div className="mt-3 flex items-center gap-3">
         {prefix && <span className="text-sm font-black text-slate-600">{prefix}</span>}

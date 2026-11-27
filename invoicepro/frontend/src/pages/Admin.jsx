@@ -1850,7 +1850,7 @@ export default function Admin() {
                   return (
                     <div
                       key={r._id}
-                      className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-[#0d0a1b]/80 p-5 shadow-lg"
+                      className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-lg"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-3">

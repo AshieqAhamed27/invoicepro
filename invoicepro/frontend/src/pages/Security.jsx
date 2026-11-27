@@ -125,7 +125,7 @@ export default function Security() {
                   ['Role permissions', 'Product control available'],
                   ['Backup export', 'Product control available']
                 ].map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-black/25 p-4">
+                  <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <span className="text-sm font-black text-slate-900">{label}</span>
                     <span className="text-right text-xs font-bold text-slate-600">{value}</span>
                   </div>
@@ -175,7 +175,7 @@ export default function Security() {
 
               <div className="grid gap-4">
                 {complianceStatus.map((item) => (
-                  <div key={item.title} className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+                  <div key={item.title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <h3 className="text-xl font-black text-slate-900">{item.title}</h3>
                       <span className="w-fit rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-700">
@@ -243,7 +243,7 @@ export default function Security() {
               </a>
             </div>
 
-            <div className="rounded-[2rem] border border-slate-200 bg-black/25 p-6">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Business identity</p>
               <h3 className="mt-3 text-2xl font-black text-slate-900">{COMPANY_NAME}</h3>
               <div className="mt-5 grid gap-3 text-sm font-semibold leading-relaxed text-slate-600">

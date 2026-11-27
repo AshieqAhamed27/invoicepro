@@ -212,7 +212,7 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
           ))}
         </div>
 
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-black/25 p-5 sm:p-6">
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
