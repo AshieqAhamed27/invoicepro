@@ -317,10 +317,10 @@ const getLeadFit = (lead, plan, form) => {
   const finalScore = Math.max(5, Math.min(100, score));
   const label = finalScore >= 78 ? 'Hot lead' : finalScore >= 55 ? 'Good fit' : finalScore >= 35 ? 'Needs nurture' : 'Low fit';
   const toneClass = finalScore >= 78
-    ? 'text-emerald-300 border-emerald-400/20 bg-emerald-400/10'
+    ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
     : finalScore >= 55
-      ? 'text-yellow-300 border-yellow-400/20 bg-yellow-400/10'
-      : 'text-zinc-300 border-white/10 bg-white/5';
+      ? 'text-amber-700 border-amber-200 bg-amber-50'
+      : 'text-slate-700 border-slate-200 bg-slate-100';
 
   return {
     score: finalScore,
@@ -678,7 +678,7 @@ export default function ClientFinder() {
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Skills / Outcome</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Skills / Outcome</span>
                 <textarea
                   value={form.skills}
                   onChange={(event) => updateField('skills', event.target.value)}
@@ -690,7 +690,7 @@ export default function ClientFinder() {
 
               <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2'}>
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Target Market</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Target Market</span>
                   <input
                     value={form.targetMarket}
                     onChange={(event) => updateField('targetMarket', event.target.value)}
@@ -700,7 +700,7 @@ export default function ClientFinder() {
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Location</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Location</span>
                   <input
                     value={form.location}
                     onChange={(event) => updateField('location', event.target.value)}
@@ -712,7 +712,7 @@ export default function ClientFinder() {
 
               <div className={plan ? 'grid gap-4 sm:grid-cols-2 xl:col-span-2' : 'grid gap-4 sm:grid-cols-2'}>
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Project Price</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Project Price</span>
                   <input
                     type="number"
                     min="0"
@@ -724,7 +724,7 @@ export default function ClientFinder() {
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Currency</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Currency</span>
                   <select
                     value={form.currency}
                     onChange={(event) => updateField('currency', event.target.value)}
@@ -737,7 +737,7 @@ export default function ClientFinder() {
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Experience</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Experience</span>
                   <select
                     value={form.experienceLevel}
                     onChange={(event) => updateField('experienceLevel', event.target.value)}
@@ -752,7 +752,7 @@ export default function ClientFinder() {
               </div>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Goal</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Goal</span>
                 <input
                   value={form.goal}
                   onChange={(event) => updateField('goal', event.target.value)}
@@ -763,8 +763,8 @@ export default function ClientFinder() {
             </div>
 
             {formError && (
-              <div className="mt-5 rounded-2xl border border-red-400/20 bg-red-400/10 p-4">
-                <p className="text-xs font-bold leading-relaxed text-red-200">{formError}</p>
+              <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4">
+                <p className="text-xs font-bold leading-relaxed text-rose-700">{formError}</p>
               </div>
             )}
 
@@ -776,7 +776,7 @@ export default function ClientFinder() {
               {loading ? 'Finding Clients...' : 'Generate Client Plan'}
             </button>
 
-            <p className="mt-4 text-xs font-semibold leading-relaxed text-zinc-500">
+            <p className="mt-4 text-xs font-semibold leading-relaxed text-slate-600">
               No fake clients are generated. The agent gives a plan and opens real public searches where you save actual prospects.
             </p>
           </form>
@@ -846,7 +846,7 @@ export default function ClientFinder() {
                       <p className="mt-2 text-lg font-black text-slate-900">{plan.starterOffer?.title}</p>
                       <p className="mt-2 text-sm font-semibold text-slate-600">{plan.starterOffer?.promise}</p>
                       <p className="mt-4 text-3xl font-black text-emerald-600">{formatMoney(plan.starterOffer?.price, plan.currency || form.currency)}</p>
-                      <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-400">
+                      <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">
                         Proposal currency: {plan.currency || form.currency}. International card collection depends on Razorpay approval.
                       </p>
                     </div>
@@ -861,53 +861,53 @@ export default function ClientFinder() {
                   </div>
                 </div>
 
-                <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
+                <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 sm:p-8">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">
                         Client Operating System
                       </p>
-                      <h3 className="mt-2 text-2xl font-black text-white">
+                      <h3 className="mt-2 text-2xl font-black text-slate-900">
                         {plan.growthSystem?.headline || 'Find, qualify, propose, invoice'}
                       </h3>
                     </div>
-                    <p className="max-w-md text-xs font-semibold leading-relaxed text-zinc-500">
+                    <p className="max-w-md text-xs font-semibold leading-relaxed text-slate-600">
                       This keeps your growth workflow connected to proposals and invoices instead of becoming another generic lead list.
                     </p>
                   </div>
 
                   <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                     {(plan.growthSystem?.pipeline || []).map((stage, index) => (
-                      <div key={`${stage.stage}-${index}`} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <div key={`${stage.stage}-${index}`} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-yellow-400 text-xs font-black text-black">
                           {index + 1}
                         </span>
-                        <p className="mt-4 text-sm font-black text-white">{stage.stage}</p>
-                        <p className="mt-2 text-xs font-bold leading-relaxed text-zinc-500">{stage.goal}</p>
-                        <p className="mt-3 text-xs font-semibold leading-relaxed text-yellow-100/70">{stage.action}</p>
+                        <p className="mt-4 text-sm font-black text-slate-900">{stage.stage}</p>
+                        <p className="mt-2 text-xs font-bold leading-relaxed text-slate-600">{stage.goal}</p>
+                        <p className="mt-3 text-xs font-semibold leading-relaxed text-amber-700/70">{stage.action}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-6">
-                  <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-6 sm:p-8">
+                  <div className="rounded-[2rem] border border-emerald-200 bg-emerald-400/[0.035] p-6 sm:p-8">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Real Client Searches</p>
-                        <h3 className="mt-2 text-2xl font-black text-white">Find actual businesses, then save verified leads.</h3>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Real Client Searches</p>
+                        <h3 className="mt-2 text-2xl font-black text-slate-900">Find actual businesses, then save verified leads.</h3>
                       </div>
-                      <p className="max-w-md text-xs font-semibold leading-relaxed text-zinc-500">
+                      <p className="max-w-md text-xs font-semibold leading-relaxed text-slate-600">
                         ClientFlow AI opens public search pages. It does not invent names, scrape private data, or auto-message people.
                       </p>
                     </div>
 
                     <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                       {realLeadSources.map((source) => (
-                        <div key={`${source.platform}-${source.query}`} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{source.platform}</p>
-                          <p className="mt-2 break-words text-sm font-black text-white">{source.query}</p>
-                          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{source.note}</p>
+                        <div key={`${source.platform}-${source.query}`} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">{source.platform}</p>
+                          <p className="mt-2 break-words text-sm font-black text-slate-900">{source.query}</p>
+                          <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{source.note}</p>
                           <a
                             href={getLeadSearchUrl(source.platform, source.query)}
                             target="_blank"
@@ -922,13 +922,13 @@ export default function ClientFinder() {
                     </div>
                   </div>
 
-                  <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] p-6 sm:p-8">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">AI Lead Fit Radar</p>
-                    <h3 className="mt-2 text-2xl font-black text-white">Score a real prospect before pitching.</h3>
+                  <div className="rounded-[2rem] border border-emerald-200 bg-emerald-400/[0.035] p-6 sm:p-8">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">AI Lead Fit Radar</p>
+                    <h3 className="mt-2 text-2xl font-black text-slate-900">Score a real prospect before pitching.</h3>
 
                     <div className="mt-6 grid gap-4 sm:grid-cols-2">
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Business Name</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Business Name</span>
                         <input
                           value={leadForm.businessName}
                           onChange={(event) => updateLeadField('businessName', event.target.value)}
@@ -938,7 +938,7 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Contact Name</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Contact Name</span>
                         <input
                           value={leadForm.contactName}
                           onChange={(event) => updateLeadField('contactName', event.target.value)}
@@ -948,7 +948,7 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Email</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Email</span>
                         <input
                           type="email"
                           value={leadForm.email}
@@ -959,7 +959,7 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Phone</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Phone</span>
                         <input
                           value={leadForm.phone}
                           onChange={(event) => updateLeadField('phone', event.target.value)}
@@ -969,7 +969,7 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Website</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Website</span>
                         <input
                           value={leadForm.website}
                           onChange={(event) => updateLeadField('website', event.target.value)}
@@ -979,7 +979,7 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">LinkedIn</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">LinkedIn</span>
                         <input
                           value={leadForm.linkedinUrl}
                           onChange={(event) => updateLeadField('linkedinUrl', event.target.value)}
@@ -989,7 +989,7 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Instagram</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Instagram</span>
                         <input
                           value={leadForm.instagramUrl}
                           onChange={(event) => updateLeadField('instagramUrl', event.target.value)}
@@ -999,7 +999,7 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Niche</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Niche</span>
                         <input
                           value={leadForm.niche}
                           onChange={(event) => updateLeadField('niche', event.target.value)}
@@ -1009,7 +1009,7 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Budget Signal</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Budget Signal</span>
                         <input
                           type="number"
                           min="0"
@@ -1023,7 +1023,7 @@ export default function ClientFinder() {
 
                     <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_180px]">
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Pain / Opportunity</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Pain / Opportunity</span>
                         <textarea
                           value={leadForm.pain}
                           onChange={(event) => updateLeadField('pain', event.target.value)}
@@ -1034,7 +1034,7 @@ export default function ClientFinder() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Urgency</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Urgency</span>
                         <select
                           value={leadForm.urgency}
                           onChange={(event) => updateLeadField('urgency', event.target.value)}
@@ -1048,24 +1048,24 @@ export default function ClientFinder() {
                     </div>
                   </div>
 
-                  <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
+                  <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 sm:p-8">
                     <div className="flex items-start justify-between gap-5">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Lead Score</p>
-                        <p className="mt-2 text-5xl font-black text-white">{leadFit?.score || 0}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Lead Score</p>
+                        <p className="mt-2 text-5xl font-black text-slate-900">{leadFit?.score || 0}</p>
                       </div>
-                      <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${leadFit?.toneClass || 'border-white/10 text-zinc-400'}`}>
+                      <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${leadFit?.toneClass || 'border-slate-200 text-slate-600'}`}>
                         {leadFit?.label || 'Not scored'}
                       </span>
                     </div>
 
-                    <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">
+                    <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600">
                       {leadFit?.nextStep}
                     </p>
 
                     <div className="mt-5 space-y-2">
                       {(leadFit?.reasons || []).map((reason) => (
-                        <p key={reason} className="rounded-xl border border-white/8 bg-black/20 px-4 py-3 text-xs font-semibold text-zinc-400">
+                        <p key={reason} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-600">
                           {reason}
                         </p>
                       ))}
@@ -1075,21 +1075,21 @@ export default function ClientFinder() {
                       <button
                         type="button"
                         onClick={() => copyLeadOutreach()}
-                        className="rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-400/15"
+                        className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-sky-700 transition hover:bg-sky-50"
                       >
                         Copy Pitch
                       </button>
                       <button
                         type="button"
                         onClick={saveLead}
-                        className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                        className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                       >
                         Save Lead
                       </button>
                       <button
                         type="button"
                         onClick={() => saveLeadAsClient()}
-                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/10"
+                        className="rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-100"
                       >
                         Save Client
                       </button>
@@ -1102,8 +1102,8 @@ export default function ClientFinder() {
                       </button>
                     </div>
 
-                    <div className="mt-6 rounded-2xl border border-white/8 bg-black/20 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Direct Client Links</p>
+                    <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Direct Client Links</p>
                       {currentLeadActions.length ? (
                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                           {currentLeadActions.map((action) => (
@@ -1120,7 +1120,7 @@ export default function ClientFinder() {
                           ))}
                         </div>
                       ) : (
-                        <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">
+                        <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-600">
                           Add phone, email, LinkedIn, Instagram, or website to message or call this prospect directly.
                         </p>
                       )}
@@ -1129,29 +1129,29 @@ export default function ClientFinder() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-                    <h3 className="text-xl font-black text-white">Target Clients</h3>
+                  <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                    <h3 className="text-xl font-black text-slate-900">Target Clients</h3>
                     <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                       {(plan.targetClients || []).map((client, index) => (
-                        <div key={`${client.segment}-${index}`} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <p className="text-sm font-black text-white">{client.segment}</p>
-                          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{client.problem}</p>
-                          <p className="mt-auto pt-3 text-xs font-bold text-emerald-300">{client.whereToFind}</p>
+                        <div key={`${client.segment}-${index}`} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-sm font-black text-slate-900">{client.segment}</p>
+                          <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{client.problem}</p>
+                          <p className="mt-auto pt-3 text-xs font-bold text-emerald-700">{client.whereToFind}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-                    <h3 className="text-xl font-black text-white">Lead Searches</h3>
+                  <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                    <h3 className="text-xl font-black text-slate-900">Lead Searches</h3>
                     <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                       {(plan.leadSearches || []).map((lead, index) => (
                         <div
                           key={`${lead.platform}-${index}`}
-                          className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4"
+                          className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4"
                         >
-                          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{lead.platform}</p>
-                          <p className="mt-2 break-words text-sm font-bold text-white">{lead.query}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">{lead.platform}</p>
+                          <p className="mt-2 break-words text-sm font-bold text-slate-900">{lead.query}</p>
                           <div className="mt-auto grid gap-2 pt-4 sm:grid-cols-2">
                             <a
                               href={getLeadSearchUrl(lead.platform, lead.query)}
@@ -1176,17 +1176,17 @@ export default function ClientFinder() {
                   </div>
                 </div>
 
-                <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
-                  <h3 className="text-xl font-black text-white">Outreach Messages</h3>
+                <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 sm:p-8">
+                  <h3 className="text-xl font-black text-slate-900">Outreach Messages</h3>
                   <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {(plan.outreachMessages || []).map((message, index) => (
-                      <div key={`${message.channel}-${index}`} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">{message.channel}</p>
-                        <p className="mt-3 whitespace-pre-line text-sm font-semibold leading-relaxed text-zinc-300">{message.text}</p>
+                      <div key={`${message.channel}-${index}`} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-sky-700">{message.channel}</p>
+                        <p className="mt-3 whitespace-pre-line text-sm font-semibold leading-relaxed text-slate-700">{message.text}</p>
                         <button
                           type="button"
                           onClick={() => copyText(message.text, `${message.channel} message`)}
-                          className="mt-auto rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-400/15"
+                          className="mt-auto rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-sky-700 transition hover:bg-sky-50"
                         >
                           Copy
                         </button>
@@ -1196,32 +1196,32 @@ export default function ClientFinder() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-                    <h3 className="text-xl font-black text-white">Packages</h3>
+                  <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                    <h3 className="text-xl font-black text-slate-900">Packages</h3>
                     <div className="mt-5 grid gap-3 md:grid-cols-3">
                       {(plan.packages || []).map((item) => (
-                        <div key={item.name} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <div key={item.name} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
                           <div className="flex h-full flex-col gap-4">
                             <div>
-                              <p className="font-black text-white">{item.name}</p>
-                              <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{item.scope}</p>
+                              <p className="font-black text-slate-900">{item.name}</p>
+                              <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">{item.scope}</p>
                             </div>
-                            <p className="mt-auto shrink-0 text-sm font-black text-emerald-300">{formatMoney(item.price, plan.currency || form.currency)}</p>
+                            <p className="mt-auto shrink-0 text-sm font-black text-emerald-700">{formatMoney(item.price, plan.currency || form.currency)}</p>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-                    <h3 className="text-xl font-black text-white">7-Day Action Plan</h3>
+                  <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                    <h3 className="text-xl font-black text-slate-900">7-Day Action Plan</h3>
                     <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {(plan.weeklyPlan || []).map((step, index) => (
-                        <div key={step} className="flex gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <div key={step} className="flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-yellow-400 text-xs font-black text-black">
                             {index + 1}
                           </span>
-                          <p className="text-sm font-semibold leading-relaxed text-zinc-300">{step}</p>
+                          <p className="text-sm font-semibold leading-relaxed text-slate-700">{step}</p>
                         </div>
                       ))}
                     </div>
@@ -1229,15 +1229,15 @@ export default function ClientFinder() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-                    <h3 className="text-xl font-black text-white">Discovery Questions</h3>
+                  <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                    <h3 className="text-xl font-black text-slate-900">Discovery Questions</h3>
                     <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {(plan.discoveryQuestions || []).map((question) => (
                         <button
                           key={question}
                           type="button"
                           onClick={() => copyText(question, 'Discovery question')}
-                          className="w-full rounded-2xl border border-white/8 bg-black/20 p-4 text-left text-sm font-semibold leading-relaxed text-zinc-300 transition hover:bg-white/[0.06]"
+                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left text-sm font-semibold leading-relaxed text-slate-700 transition hover:bg-slate-50"
                         >
                           {question}
                         </button>
@@ -1245,17 +1245,17 @@ export default function ClientFinder() {
                     </div>
                   </div>
 
-                  <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-                    <h3 className="text-xl font-black text-white">Objection Replies</h3>
+                  <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                    <h3 className="text-xl font-black text-slate-900">Objection Replies</h3>
                     <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {(plan.objectionHandlers || []).map((item) => (
-                        <div key={item.objection} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <p className="text-sm font-black text-white">{item.objection}</p>
-                          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{item.response}</p>
+                        <div key={item.objection} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-sm font-black text-slate-900">{item.objection}</p>
+                          <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{item.response}</p>
                           <button
                             type="button"
                             onClick={() => copyText(item.response, 'Objection reply')}
-                            className="mt-auto rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15"
+                            className="mt-auto rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-amber-700 transition hover:bg-amber-50"
                           >
                             Copy
                           </button>
@@ -1266,26 +1266,26 @@ export default function ClientFinder() {
                 </div>
 
                 <div className="space-y-6">
-                  <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-                    <h3 className="text-xl font-black text-white">Qualification Scorecard</h3>
+                  <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                    <h3 className="text-xl font-black text-slate-900">Qualification Scorecard</h3>
                     <div className="mt-5 grid gap-3 md:grid-cols-2">
                       {(plan.qualificationScorecard || []).map((item) => (
-                        <div key={item.criterion} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <p className="text-sm font-black text-white">{item.criterion}</p>
-                          <p className="mt-2 text-xs font-semibold leading-relaxed text-emerald-200/80">Strong: {item.strongSignal}</p>
-                          <p className="mt-1 text-xs font-semibold leading-relaxed text-red-200/70">Weak: {item.weakSignal}</p>
+                        <div key={item.criterion} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-sm font-black text-slate-900">{item.criterion}</p>
+                          <p className="mt-2 text-xs font-semibold leading-relaxed text-emerald-700/80">Strong: {item.strongSignal}</p>
+                          <p className="mt-1 text-xs font-semibold leading-relaxed text-rose-700/70">Weak: {item.weakSignal}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+                  <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <h3 className="text-xl font-black text-white">Saved Growth Leads</h3>
+                      <h3 className="text-xl font-black text-slate-900">Saved Growth Leads</h3>
                       <button
                         type="button"
                         onClick={() => navigate('/leads')}
-                        className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                        className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                       >
                         Open Pipeline
                       </button>
@@ -1297,24 +1297,24 @@ export default function ClientFinder() {
                           const leadId = lead._id || lead.id || `${lead.email}-${lead.businessName}`;
 
                           return (
-                            <div key={leadId} className="flex h-full flex-col rounded-2xl border border-white/8 bg-black/20 p-4">
+                            <div key={leadId} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
                               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div className="min-w-0">
-                                  <p className="truncate text-sm font-black text-white">{lead.businessName || lead.contactName || lead.email}</p>
-                                  <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                                  <p className="truncate text-sm font-black text-slate-900">{lead.businessName || lead.contactName || lead.email}</p>
+                                  <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-slate-500">
                                     {lead.fitLabel} / Score {lead.fitScore}
                                   </p>
                                 </div>
                                 <button
                                   type="button"
                                   onClick={() => startProposal(lead)}
-                                  className="shrink-0 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15"
+                                  className="shrink-0 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-amber-700 transition hover:bg-amber-50"
                                 >
                                   Proposal
                                 </button>
                               </div>
                               {lead.pain && (
-                                <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">{lead.pain}</p>
+                                <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-600">{lead.pain}</p>
                               )}
                               <div className="mt-auto grid gap-2 pt-4 sm:grid-cols-2">
                                 <button
@@ -1355,20 +1355,20 @@ export default function ClientFinder() {
                           );
                         })
                       ) : (
-                        <div className="rounded-2xl border border-white/8 bg-black/20 p-6 text-center md:col-span-2">
-                          <p className="text-sm font-bold text-zinc-400">No growth leads saved yet.</p>
-                          <p className="mt-2 text-xs font-semibold text-zinc-600">Score a prospect above and save it to keep your pipeline moving.</p>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center md:col-span-2">
+                          <p className="text-sm font-bold text-slate-600">No growth leads saved yet.</p>
+                          <p className="mt-2 text-xs font-semibold text-slate-500">Score a prospect above and save it to keep your pipeline moving.</p>
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-[2rem] border border-yellow-400/15 bg-yellow-400/[0.04] p-6">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Safe Growth Rules</p>
+                <div className="rounded-[2rem] border border-amber-200 bg-yellow-400/[0.04] p-6">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Safe Growth Rules</p>
                   <div className="mt-4 grid gap-3 md:grid-cols-3">
                     {(plan.guardrails || []).map((rule) => (
-                      <p key={rule} className="rounded-2xl border border-white/8 bg-black/20 p-4 text-xs font-semibold leading-relaxed text-zinc-400">
+                      <p key={rule} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-semibold leading-relaxed text-slate-600">
                         {rule}
                       </p>
                     ))}

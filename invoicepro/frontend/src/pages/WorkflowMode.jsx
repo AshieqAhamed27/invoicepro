@@ -50,21 +50,21 @@ export default function WorkflowMode({ modeKey }) {
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden border-b border-white/5">
+        <section className="relative overflow-hidden border-b border-slate-200">
           <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-sky-400/10 via-yellow-300/5 to-transparent" />
           <div className="container-custom responsive-split-even relative py-14 sm:py-16 lg:py-24">
             <div>
-              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-sky-300/20 bg-sky-300/10 px-4 py-2">
+              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-sky-200 bg-sky-50 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-sky-300" />
-                <span className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-200">
+                <span className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">
                   {workflow.label}
                 </span>
               </div>
 
-              <h1 className="max-w-4xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-4xl text-4xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
                 {workflow.headline}
               </h1>
-              <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400 sm:text-lg">
+              <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-slate-600 sm:text-lg">
                 {workflow.summary}
               </p>
 
@@ -85,19 +85,19 @@ export default function WorkflowMode({ modeKey }) {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/30 sm:p-6">
-              <div className="flex items-center justify-between gap-4 border-b border-white/8 pb-5">
+            <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-black/30 sm:p-6">
+              <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-5">
                 <BrandLogo showText={false} markClassName="h-12 w-12" />
-                <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">
                   Clear path
                 </span>
               </div>
-              <p className="mt-5 text-sm font-semibold leading-relaxed text-zinc-400">
+              <p className="mt-5 text-sm font-semibold leading-relaxed text-slate-600">
                 This workflow connects existing ClientFlow AI features into one role-specific path for {workflow.audience}.
               </p>
-              <div className="mt-5 rounded-2xl border border-yellow-300/20 bg-yellow-300/10 p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Agency setup outcome</p>
-                <p className="mt-2 text-sm font-black leading-relaxed text-white">{workflow.setupOutcome}</p>
+              <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Agency setup outcome</p>
+                <p className="mt-2 text-sm font-black leading-relaxed text-slate-900">{workflow.setupOutcome}</p>
               </div>
             </div>
           </div>
@@ -106,8 +106,8 @@ export default function WorkflowMode({ modeKey }) {
         <section className="py-14 sm:py-16">
           <div className="container-custom">
             <div className="max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Workflow steps</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Workflow steps</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Follow this order so the product feels simple.
               </h2>
             </div>
@@ -117,16 +117,16 @@ export default function WorkflowMode({ modeKey }) {
                 const nextPath = loggedIn ? path : '/signup';
 
                 return (
-                  <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
+                  <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 transition-all hover:-translate-y-1 hover:border-amber-200">
                     <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-yellow-300 text-sm font-black text-slate-950">
                       {index + 1}
                     </span>
-                    <h3 className="mt-5 text-lg font-black text-white">{title}</h3>
-                    <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{detail}</p>
-                    <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-sky-300">{tool}</p>
+                    <h3 className="mt-5 text-lg font-black text-slate-900">{title}</h3>
+                    <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{detail}</p>
+                    <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-sky-700">{tool}</p>
                     <Link
                       to={nextPath}
-                      className="mt-4 inline-flex rounded-xl border border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                      className="mt-4 inline-flex rounded-xl border border-slate-200 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                     >
                       Open step
                     </Link>
@@ -137,12 +137,12 @@ export default function WorkflowMode({ modeKey }) {
           </div>
         </section>
 
-        <section className="border-y border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
-          <div className="container-custom rounded-[2rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-6 text-center sm:p-10">
-            <h2 className="mx-auto max-w-3xl text-3xl font-black tracking-tight text-white sm:text-4xl">
+        <section className="border-y border-slate-200 bg-emerald-400/[0.035] py-14 sm:py-16">
+          <div className="container-custom rounded-[2rem] border border-emerald-200 bg-emerald-300/[0.06] p-6 text-center sm:p-10">
+            <h2 className="mx-auto max-w-3xl text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
               Want this workflow set up for you?
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+            <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
               ClientFlow AI Agency can set up the exact {workflow.label.toLowerCase()} with your offer, messages, proposal, project workspace, invoice, and payment flow.
             </p>
             <Link to={agencyPath} className="btn btn-primary mt-7 inline-flex px-7 py-4 text-sm">

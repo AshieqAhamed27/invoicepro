@@ -83,20 +83,20 @@ export default function Security() {
       <Navbar />
 
       <main>
-        <section className="border-b border-white/5">
+        <section className="border-b border-slate-200">
           <div className="container-custom grid gap-10 py-12 sm:py-16 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:py-20">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">
                 Security readiness
               </p>
-              <h1 className="mt-4 max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="mt-4 max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
                 Honest security posture for freelancers, agencies, and teams.
               </h1>
-              <p className="mt-6 max-w-3xl text-base font-semibold leading-relaxed text-zinc-300 sm:text-lg">
+              <p className="mt-6 max-w-3xl text-base font-semibold leading-relaxed text-slate-700 sm:text-lg">
                 {COMPANY_NAME} is building the controls enterprise buyers expect: protected accounts, role-based
                 permissions, audit exports, backup exports, payment-provider handling, and clear support channels.
               </p>
-              <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-500">
+              <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600">
                 We do not claim SOC 2 or ISO 27001 certification today. Those require external audit and certification.
                 This page separates what is already in the product from what must be done manually later.
               </p>
@@ -107,16 +107,16 @@ export default function Security() {
                 </Link>
                 <a
                   href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI Security Question`}
-                  className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/15"
+                  className="rounded-2xl border border-emerald-200 bg-emerald-50 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                 >
                   Contact Security
                 </a>
               </div>
             </div>
 
-            <aside className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-6 shadow-2xl shadow-black/25">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">Current status</p>
-              <h2 className="mt-3 text-2xl font-black text-white">Security-ready foundation</h2>
+            <aside className="rounded-[2rem] border border-emerald-200 bg-emerald-300/[0.06] p-6 shadow-2xl shadow-black/25">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Current status</p>
+              <h2 className="mt-3 text-2xl font-black text-slate-900">Security-ready foundation</h2>
               <div className="mt-6 grid gap-3">
                 {[
                   ['SOC 2', 'Not certified yet'],
@@ -125,13 +125,13 @@ export default function Security() {
                   ['Role permissions', 'Product control available'],
                   ['Backup export', 'Product control available']
                 ].map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-black/25 p-4">
-                    <span className="text-sm font-black text-white">{label}</span>
-                    <span className="text-right text-xs font-bold text-zinc-400">{value}</span>
+                  <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-black/25 p-4">
+                    <span className="text-sm font-black text-slate-900">{label}</span>
+                    <span className="text-right text-xs font-bold text-slate-600">{value}</span>
                   </div>
                 ))}
               </div>
-              <p className="mt-5 text-xs font-semibold leading-relaxed text-zinc-500">
+              <p className="mt-5 text-xs font-semibold leading-relaxed text-slate-600">
                 Effective date: {LEGAL_EFFECTIVE_DATE}
               </p>
             </aside>
@@ -140,34 +140,34 @@ export default function Security() {
 
         <section className="container-custom py-12 sm:py-16">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Available now</p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Available now</p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
               Product controls that can support enterprise trust.
             </h2>
-            <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+            <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
               These are the security and operating controls users can understand before they buy or invite a team.
             </p>
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {availableControls.map(([title, text]) => (
-              <article key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/25 hover:bg-emerald-300/[0.04]">
-                <h3 className="text-base font-black text-white">{title}</h3>
-                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+              <article key={title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 transition-all hover:-translate-y-1 hover:border-emerald-200 hover:bg-emerald-300/[0.04]">
+                <h3 className="text-base font-black text-slate-900">{title}</h3>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{text}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="border-y border-white/5 bg-sky-400/[0.035]">
+        <section className="border-y border-slate-200 bg-sky-400/[0.035]">
           <div className="container-custom py-12 sm:py-16">
             <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">SOC 2 and ISO</p>
-                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-700">SOC 2 and ISO</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                   Compliance wording must stay truthful.
                 </h2>
-                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
                   For marketing and enterprise sales, use this wording: security-ready foundation with audit logs,
                   role permissions, backup exports, payment-provider handling, and data retention controls.
                 </p>
@@ -175,14 +175,14 @@ export default function Security() {
 
               <div className="grid gap-4">
                 {complianceStatus.map((item) => (
-                  <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5">
+                  <div key={item.title} className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <h3 className="text-xl font-black text-white">{item.title}</h3>
-                      <span className="w-fit rounded-full border border-sky-300/20 bg-sky-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-200">
+                      <h3 className="text-xl font-black text-slate-900">{item.title}</h3>
+                      <span className="w-fit rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-700">
                         {item.status}
                       </span>
                     </div>
-                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{item.detail}</p>
+                    <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{item.detail}</p>
                   </div>
                 ))}
               </div>
@@ -193,30 +193,30 @@ export default function Security() {
         <section className="container-custom py-12 sm:py-16">
           <div className="grid gap-8 lg:grid-cols-2">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Manual later</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Manual later</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 These cannot be completed by code alone.
               </h2>
               <div className="mt-8 grid gap-4">
                 {manualItems.map(([title, text]) => (
-                  <div key={title} className="rounded-2xl border border-yellow-300/15 bg-yellow-300/[0.045] p-5">
-                    <p className="text-base font-black text-white">{title}</p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                  <div key={title} className="rounded-2xl border border-amber-200 bg-yellow-300/[0.045] p-5">
+                    <p className="text-base font-black text-slate-900">{title}</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{text}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">User responsibility</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">User responsibility</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Security also depends on how each workspace is used.
               </h2>
               <div className="mt-8 grid gap-4">
                 {userResponsibilities.map(([title, text]) => (
-                  <div key={title} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-                    <p className="text-base font-black text-white">{title}</p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                  <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-base font-black text-slate-900">{title}</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{text}</p>
                   </div>
                 ))}
               </div>
@@ -224,14 +224,14 @@ export default function Security() {
           </div>
         </section>
 
-        <section className="border-t border-white/5 bg-zinc-950/70">
+        <section className="border-t border-slate-200 bg-white">
           <div className="container-custom grid gap-8 py-12 sm:py-16 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-red-300">Responsible disclosure</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-rose-700">Responsible disclosure</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Report security issues privately.
               </h2>
-              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
                 If you believe you found a security issue, please do not post it publicly. Email enough detail for us
                 to reproduce and review the issue safely.
               </p>
@@ -243,16 +243,16 @@ export default function Security() {
               </a>
             </div>
 
-            <div className="rounded-[2rem] border border-white/8 bg-black/25 p-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Business identity</p>
-              <h3 className="mt-3 text-2xl font-black text-white">{COMPANY_NAME}</h3>
-              <div className="mt-5 grid gap-3 text-sm font-semibold leading-relaxed text-zinc-400">
+            <div className="rounded-[2rem] border border-slate-200 bg-black/25 p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Business identity</p>
+              <h3 className="mt-3 text-2xl font-black text-slate-900">{COMPANY_NAME}</h3>
+              <div className="mt-5 grid gap-3 text-sm font-semibold leading-relaxed text-slate-600">
                 <p>{COMPANY_LEGAL_DESCRIPTION}</p>
                 <p className="break-all">Udyam Registration Number: {UDYAM_REGISTRATION_NUMBER}</p>
                 <p className="break-all">Security contact: {SUPPORT_EMAIL}</p>
                 <p>
-                  Also read the <Link className="font-black text-yellow-200 hover:text-yellow-100" to="/privacy">Privacy Policy</Link>
-                  {' '}and <Link className="font-black text-yellow-200 hover:text-yellow-100" to="/terms">Terms of Use</Link>.
+                  Also read the <Link className="font-black text-amber-700 hover:text-yellow-100" to="/privacy">Privacy Policy</Link>
+                  {' '}and <Link className="font-black text-amber-700 hover:text-yellow-100" to="/terms">Terms of Use</Link>.
                 </p>
               </div>
             </div>

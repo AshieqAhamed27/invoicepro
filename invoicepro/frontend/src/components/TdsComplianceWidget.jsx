@@ -77,19 +77,19 @@ export default function TdsComplianceWidget() {
   };
 
   return (
-    <div className="p-6 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl text-slate-100 backdrop-blur-sm">
+    <div className="p-6 bg-white border border-slate-800 rounded-2xl shadow-xl text-slate-800 backdrop-blur-sm">
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20">
               🇮🇳 India Tax Compliance
             </span>
-            <span className="text-xs text-slate-400">Section 194J & 194C</span>
+            <span className="text-xs text-slate-600">Section 194J & 194C</span>
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-white mt-1">
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 mt-1">
             TDS Receivable & 26AS Reconciliation
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-600 mt-0.5">
             Track tax deducted by Indian B2B clients and export clean records for your Chartered Accountant
           </p>
         </div>
@@ -97,23 +97,23 @@ export default function TdsComplianceWidget() {
         <button
           onClick={handleDownloadCaExport}
           disabled={isExporting}
-          className="flex items-center gap-1.5 py-2 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs transition shadow-md shadow-teal-600/20 disabled:opacity-50"
+          className="flex items-center gap-1.5 py-2 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-slate-900 font-medium text-xs transition shadow-md shadow-teal-600/20 disabled:opacity-50"
         >
           {isExporting ? 'Exporting...' : '📑 Export for CA (Tally / Excel)'}
         </button>
       </div>
 
       {isLoading ? (
-        <div className="py-10 text-center text-sm text-slate-400">Loading tax data...</div>
+        <div className="py-10 text-center text-sm text-slate-600">Loading tax data...</div>
       ) : error ? (
-        <div className="my-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+        <div className="my-4 p-3 rounded-xl bg-rose-50 border border-red-500/20 text-red-400 text-xs">
           {error}
         </div>
       ) : (
         <div className="mt-5 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800">
-              <span className="text-xs text-slate-400">Total TDS Deducted</span>
+              <span className="text-xs text-slate-600">Total TDS Deducted</span>
               <div className="text-xl font-bold text-teal-400 mt-0.5">
                 {formatINR(summary?.totalTdsDeducted)}
               </div>
@@ -121,23 +121,23 @@ export default function TdsComplianceWidget() {
             </div>
 
             <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800">
-              <span className="text-xs text-slate-400">Sec 194J (10% / 2%)</span>
-              <div className="text-xl font-bold text-white mt-0.5">
+              <span className="text-xs text-slate-600">Sec 194J (10% / 2%)</span>
+              <div className="text-xl font-bold text-slate-900 mt-0.5">
                 {formatINR(summary?.section194J)}
               </div>
               <span className="text-[11px] text-slate-500">Professional & Tech Fees</span>
             </div>
 
             <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800">
-              <span className="text-xs text-slate-400">Sec 194C (1% / 2%)</span>
-              <div className="text-xl font-bold text-white mt-0.5">
+              <span className="text-xs text-slate-600">Sec 194C (1% / 2%)</span>
+              <div className="text-xl font-bold text-slate-900 mt-0.5">
                 {formatINR(summary?.section194C)}
               </div>
               <span className="text-[11px] text-slate-500">Contractor Services</span>
             </div>
 
             <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800">
-              <span className="text-xs text-slate-400">Form 16A Audit Status</span>
+              <span className="text-xs text-slate-600">Form 16A Audit Status</span>
               <div className="text-xl font-bold text-emerald-400 mt-0.5">
                 {summary?.reconciledCount || 0} / {(summary?.reconciledCount || 0) + (summary?.pendingCertificateCount || 0)}
               </div>
@@ -151,7 +151,7 @@ export default function TdsComplianceWidget() {
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800 text-slate-400">
+                  <tr className="border-b border-slate-800 text-slate-600">
                     <th className="py-2 px-3">Invoice #</th>
                     <th className="py-2 px-3">Client</th>
                     <th className="py-2 px-3">Gross</th>
@@ -161,25 +161,25 @@ export default function TdsComplianceWidget() {
                     <th className="py-2 px-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 text-slate-200">
+                <tbody className="divide-y divide-slate-800/60 text-slate-800">
                   {entries.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-slate-800/30 transition">
-                      <td className="py-2.5 px-3 font-mono font-medium">{item.invoiceNumber}</td>
-                      <td className="py-2.5 px-3">{item.clientName}</td>
-                      <td className="py-2.5 px-3">{formatINR(item.amount)}</td>
+                    <tr key={idx} className="hover:bg-slate-50 transition">
+                      <td className="py-2.5 px-3 font-mono font-medium text-slate-900">{item.invoiceNumber}</td>
+                      <td className="py-2.5 px-3 text-slate-700">{item.clientName}</td>
+                      <td className="py-2.5 px-3 text-slate-900 font-semibold">{formatINR(item.amount)}</td>
                       <td className="py-2.5 px-3">
-                        <span className="px-1.5 py-0.5 rounded bg-slate-800 font-mono text-[11px] text-teal-300">
+                        <span className="px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 font-mono text-[11px] text-teal-800">
                           {item.tdsSection} ({item.tdsRate}%)
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-semibold text-teal-400">{formatINR(item.tdsAmount)}</td>
+                      <td className="py-2.5 px-3 font-semibold text-teal-700">{formatINR(item.tdsAmount)}</td>
                       <td className="py-2.5 px-3">
                         {item.reconciled ? (
-                          <span className="text-emerald-400 flex items-center gap-1 font-mono text-[11px]">
+                          <span className="text-emerald-700 flex items-center gap-1 font-mono text-[11px]">
                             ✓ {item.certificateNumber}
                           </span>
                         ) : (
-                          <span className="text-amber-400 text-[11px]">Pending Form 16A</span>
+                          <span className="text-amber-700 text-[11px] font-medium">Pending Form 16A</span>
                         )}
                       </td>
                       <td className="py-2.5 px-3 text-right">
@@ -190,7 +190,7 @@ export default function TdsComplianceWidget() {
                               placeholder="Cert No."
                               value={certInput}
                               onChange={(e) => setCertInput(e.target.value)}
-                              className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-[11px] text-white w-24 focus:outline-none"
+                              className="bg-white border border-slate-300 rounded px-2 py-1 text-[11px] text-slate-900 w-24 focus:outline-none focus:border-indigo-500"
                             />
                             <button
                               onClick={() => handleReconcile(item.invoiceNumber)}
@@ -200,7 +200,7 @@ export default function TdsComplianceWidget() {
                             </button>
                             <button
                               onClick={() => setReconcilingId(null)}
-                              className="px-1 text-slate-400 text-[11px]"
+                              className="px-1 text-slate-600 text-[11px]"
                             >
                               ✕
                             </button>
@@ -211,7 +211,7 @@ export default function TdsComplianceWidget() {
                               setReconcilingId(item.invoiceNumber);
                               setCertInput('');
                             }}
-                            className="text-slate-400 hover:text-teal-300 text-[11px] underline"
+                            className="text-slate-600 hover:text-teal-300 text-[11px] underline"
                           >
                             {item.reconciled ? 'Edit Cert' : 'Log Cert'}
                           </button>

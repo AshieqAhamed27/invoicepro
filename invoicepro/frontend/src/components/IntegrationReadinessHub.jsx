@@ -5,27 +5,27 @@ import api from '../utils/api';
 const statusCopy = {
   active: {
     label: 'Active',
-    className: 'border-emerald-300/25 bg-emerald-300/[0.08] text-emerald-200'
+    className: 'border-emerald-200 bg-emerald-300/[0.08] text-emerald-700'
   },
   connected: {
     label: 'Connected',
-    className: 'border-emerald-300/25 bg-emerald-300/[0.08] text-emerald-200'
+    className: 'border-emerald-200 bg-emerald-300/[0.08] text-emerald-700'
   },
   'demo-mode': {
     label: 'Demo Mode',
-    className: 'border-sky-300/25 bg-sky-300/[0.08] text-sky-200'
+    className: 'border-sky-200 bg-sky-300/[0.08] text-sky-700'
   },
   'needs-setup': {
     label: 'Needs Setup',
-    className: 'border-yellow-300/25 bg-yellow-300/[0.08] text-yellow-100'
+    className: 'border-amber-200 bg-yellow-300/[0.08] text-amber-700'
   },
   'missing-key': {
     label: 'Missing Key',
-    className: 'border-red-300/20 bg-red-300/[0.07] text-red-200'
+    className: 'border-rose-200 bg-red-300/[0.07] text-rose-700'
   },
   optional: {
     label: 'Optional',
-    className: 'border-white/10 bg-white/[0.04] text-zinc-300'
+    className: 'border-slate-200 bg-slate-50 text-slate-700'
   }
 };
 
@@ -206,22 +206,22 @@ export default function IntegrationReadinessHub({ health = null, compact = false
     .slice(0, 3);
 
   return (
-    <section className={`reveal reveal-delay-1 mb-12 rounded-[2rem] border border-cyan-300/20 bg-cyan-300/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-8 ${compact ? '' : 'lg:p-10'}`}>
+    <section className={`reveal reveal-delay-1 mb-12 rounded-[2rem] border border-indigo-200 bg-cyan-300/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-8 ${compact ? '' : 'lg:p-10'}`}>
       <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(260px,0.35fr)] lg:items-end">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">Integration readiness hub</p>
-          <h2 className={`${compact ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl'} mt-3 font-black tracking-tight text-white`}>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-700">Integration readiness hub</p>
+          <h2 className={`${compact ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl'} mt-3 font-black tracking-tight text-slate-900`}>
             Show which real systems are connected before users trust the workflow.
           </h2>
-          <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
             This checks backend configuration for AI providers, payments, billing APIs, and cloud providers. It does not show secret values and it does not pretend optional integrations are live.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Current product score</p>
-          <p className="mt-2 text-5xl font-black text-white">{loading ? '--' : `${readiness.currentProductScore ?? readiness.score}%`}</p>
-          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+        <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Current product score</p>
+          <p className="mt-2 text-5xl font-black text-slate-900">{loading ? '--' : `${readiness.currentProductScore ?? readiness.score}%`}</p>
+          <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">
             {error || `${readiness.readyCount || 0}/${readiness.total || integrations.length} providers configured, ${readiness.liveCount || 0} live.`}
           </p>
         </div>
@@ -233,10 +233,10 @@ export default function IntegrationReadinessHub({ health = null, compact = false
           ['Payment systems', grouped.Payments?.length || 0, 'Razorpay live or demo state'],
           ['Cloud and billing', (grouped.Cloud?.length || 0) + (grouped['Billing API']?.length || 0), 'AWS, Azure, GCP, Stripe readiness']
         ].map(([label, value, detail]) => (
-          <div key={label} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
-            <p className="text-[10px] font-black uppercase tracking-widest text-cyan-300">{label}</p>
-            <p className="mt-2 text-4xl font-black text-white">{loading ? '--' : value}</p>
-            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{detail}</p>
+          <div key={label} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-700">{label}</p>
+            <p className="mt-2 text-4xl font-black text-slate-900">{loading ? '--' : value}</p>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{detail}</p>
           </div>
         ))}
       </div>
@@ -247,23 +247,23 @@ export default function IntegrationReadinessHub({ health = null, compact = false
             const status = getStatusMeta(integration.status);
 
             return (
-              <article key={integration.id} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
+              <article key={integration.id} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{integration.group}</p>
-                    <h3 className="mt-2 text-xl font-black text-white">{integration.name}</h3>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">{integration.group}</p>
+                    <h3 className="mt-2 text-xl font-black text-slate-900">{integration.name}</h3>
                   </div>
                   <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${status.className}`}>
                     {status.label}
                   </span>
                 </div>
 
-                <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">{integration.detail}</p>
-                <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-600">{integration.action}</p>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600">{integration.detail}</p>
+                <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-500">{integration.action}</p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   {(integration.env || []).slice(0, 4).map((item) => (
-                    <span key={item} className="rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-500">
+                    <span key={item} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-slate-600">
                       {item}
                     </span>
                   ))}
@@ -273,10 +273,10 @@ export default function IntegrationReadinessHub({ health = null, compact = false
           })}
         </div>
 
-        <aside className="rounded-[1.5rem] border border-white/10 bg-black/25 p-5 sm:p-6">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">Next setup actions</p>
-          <h3 className="mt-3 text-2xl font-black text-white">Keep real and demo clearly separated.</h3>
-          <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">
+        <aside className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5 sm:p-6">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-700">Next setup actions</p>
+          <h3 className="mt-3 text-2xl font-black text-slate-900">Keep real and demo clearly separated.</h3>
+          <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
             Users can start with the current workflow. Real money, global billing, and cloud automation should only be advertised as live after the matching provider is configured.
           </p>
 
@@ -285,14 +285,14 @@ export default function IntegrationReadinessHub({ health = null, compact = false
               const status = getStatusMeta(integration.status);
 
               return (
-                <div key={integration.id} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                <div key={integration.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-sm font-black text-white">{integration.name}</p>
+                    <p className="text-sm font-black text-slate-900">{integration.name}</p>
                     <span className={`rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-widest ${status.className}`}>
                       {status.label}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{integration.action}</p>
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{integration.action}</p>
                 </div>
               );
             })}
@@ -307,13 +307,13 @@ export default function IntegrationReadinessHub({ health = null, compact = false
             </Link>
             <Link
               to="/settings"
-              className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-center text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.08] active:scale-95"
+              className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-center text-xs font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-50 active:scale-95"
             >
               Settings
             </Link>
           </div>
 
-          <p className="mt-4 text-xs font-semibold leading-relaxed text-zinc-600">
+          <p className="mt-4 text-xs font-semibold leading-relaxed text-slate-500">
             {readiness.note || 'Only readiness booleans are shown. Secret values stay in the backend environment.'}
           </p>
         </aside>

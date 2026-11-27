@@ -166,10 +166,10 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
   const fieldCopy = getFieldCopy(serviceType);
   const theme = {
     hero: 'bg-yellow-400/[0.04]',
-    eyebrow: 'text-yellow-300',
+    eyebrow: 'text-amber-700',
     selected: 'border-yellow-300/45 bg-yellow-300/[0.1] shadow-2xl shadow-yellow-950/25',
     recommended: 'border-yellow-300/35 bg-yellow-300/[0.075] hover:border-yellow-300/50',
-    step: 'text-yellow-300',
+    step: 'text-amber-700',
     action: 'bg-yellow-400 text-black',
     submit: 'bg-yellow-400 text-black hover:bg-yellow-300'
   };
@@ -330,29 +330,29 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
       <Navbar />
 
       <main>
-        <section className={`border-b border-white/5 py-14 sm:py-16 lg:py-20 ${theme.hero}`}>
+        <section className={`border-b border-slate-200 py-14 sm:py-16 lg:py-20 ${theme.hero}`}>
           <div className="container-custom responsive-heading-grid">
             <div>
               <p className={`text-[10px] font-black uppercase tracking-[0.24em] ${theme.eyebrow}`}>
                 {config.eyebrow}
               </p>
-              <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-5xl">
+              <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
                 {config.title}
               </h1>
-              <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400">
+              <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-slate-600">
                 {config.description}
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 {relatedPaymentPages.map((item) => (
-                  <Link key={item.id} to={item.path} className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10">
+                  <Link key={item.id} to={item.path} className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-center text-xs font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100">
                     {item.label}
                   </Link>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] border border-white/10 bg-black/30 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Billing region</p>
+            <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Billing region</p>
               <div className="mt-4 grid gap-3">
                 {[
                   ['india', 'India billing', 'Pay in INR using Razorpay-supported Indian methods.'],
@@ -364,12 +364,12 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
                     onClick={() => selectMarket(id)}
                     className={`rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 ${
                       market === id
-                        ? 'border-yellow-300/45 bg-yellow-300/10 text-white'
-                        : 'border-white/8 bg-white/[0.03] text-zinc-400 hover:border-white/15 hover:bg-white/[0.06] hover:text-white'
+                        ? 'border-yellow-300/45 bg-amber-50 text-slate-900'
+                        : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-indigo-700'
                     }`}
                   >
                     <span className="block text-sm font-black">{label}</span>
-                    <span className="mt-1 block text-xs font-semibold leading-relaxed text-zinc-500">{detail}</span>
+                    <span className="mt-1 block text-xs font-semibold leading-relaxed text-slate-600">{detail}</span>
                   </button>
                 ))}
               </div>
@@ -379,12 +379,12 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
 
         
 
-        <section className="border-b border-white/5 py-14 sm:py-16">
+        <section className="border-b border-slate-200 py-14 sm:py-16">
           <div className="container-custom">
             <div className="mb-8 max-w-3xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">Choose payment</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">{config.paymentTitle}</h2>
-              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-600">Choose payment</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">{config.paymentTitle}</h2>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
                 {config.paymentDetail}
               </p>
             </div>
@@ -396,7 +396,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
                 const selectedClass = theme.selected;
                 const idleClass = option.recommended
                   ? theme.recommended
-                  : 'border-white/10 bg-white/[0.04] hover:border-white/20 hover:bg-white/[0.06]';
+                  : 'border-slate-200 bg-slate-50 hover:border-slate-200 hover:bg-slate-50';
 
                 return (
                   <button
@@ -408,31 +408,31 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
                     }`}
                   >
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-zinc-500">
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-600">
                         {selected ? 'Selected' : option.badge}
                       </p>
-                      <h3 className="mt-5 text-2xl font-black leading-tight text-white">
+                      <h3 className="mt-5 text-2xl font-black leading-tight text-slate-900">
                         {option.title}
                       </h3>
                       <div className="mt-6">
-                        <p className="text-4xl font-black tracking-tight text-white">
+                        <p className="text-4xl font-black tracking-tight text-slate-900">
                           {amount}
                         </p>
-                        <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                        <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                           {option.priceNote}
                         </p>
                       </div>
-                      <p className="mt-5 text-sm font-semibold leading-relaxed text-zinc-400">
+                      <p className="mt-5 text-sm font-semibold leading-relaxed text-slate-600">
                         {option.detail}
                       </p>
-                      <p className="mt-6 rounded-xl border border-white/8 bg-black/25 p-4 text-xs font-bold leading-relaxed text-zinc-300">
+                      <p className="mt-6 rounded-xl border border-slate-200 bg-black/25 p-4 text-xs font-bold leading-relaxed text-slate-700">
                         {option.bestFor}
                       </p>
                     </div>
 
                     <div className="mt-6 grid gap-3">
                       {option.points.map((point) => (
-                        <p key={point} className="text-xs font-semibold leading-relaxed text-zinc-500">
+                        <p key={point} className="text-xs font-semibold leading-relaxed text-slate-600">
                           {point}
                         </p>
                       ))}
@@ -442,7 +442,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
                       className={`mt-auto rounded-2xl px-5 py-4 text-center text-sm font-black transition-all ${
                         selected
                           ? theme.action
-                          : 'border border-white/10 bg-white/[0.04] text-white'
+                          : 'border border-slate-200 bg-slate-50 text-slate-900'
                       }`}
                     >
                       {selected ? `Continue with ${option.label}` : option.label}
@@ -454,9 +454,9 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {config.steps.map(([step, label]) => (
-                <div key={step} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                <div key={step} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <p className={`text-[10px] font-black uppercase tracking-widest ${theme.step}`}>{step}</p>
-                  <p className="mt-2 text-sm font-black text-white">{label}</p>
+                  <p className="mt-2 text-sm font-black text-slate-900">{label}</p>
                 </div>
               ))}
             </div>
@@ -464,38 +464,38 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
             <form
               id="setup-payment-form"
               onSubmit={handleSubmit}
-              className="mt-10 rounded-[1.75rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/25 sm:p-6 lg:p-8"
+              className="mt-10 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-black/25 sm:p-6 lg:p-8"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Payment form</p>
-                  <h3 className="mt-2 text-2xl font-black text-white">{selectedOption.label}</h3>
-                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Payment form</p>
+                  <h3 className="mt-2 text-2xl font-black text-slate-900">{selectedOption.label}</h3>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">
                     Amount: {formatMoney(selectedOption.amount[market], selectedOption.currency[market])}
                   </p>
                 </div>
-                <Link to="/payments" className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10">
+                <Link to="/payments" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100">
                   All Payments
                 </Link>
               </div>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                <input name="customerName" value={form.customerName} onChange={updateField} placeholder="Your name" className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
-                <input name="email" type="email" value={form.email} onChange={updateField} placeholder="Email" className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
-                <input name="whatsapp" value={form.whatsapp} onChange={updateField} placeholder="WhatsApp number" className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
-                <input name="targetClient" value={form.targetClient} onChange={updateField} placeholder={fieldCopy.targetClient} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
-                <input name="skill" value={form.skill} onChange={updateField} placeholder={fieldCopy.skill} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
-                <input name="incomeGoal" value={form.incomeGoal} onChange={updateField} placeholder={fieldCopy.incomeGoal} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
-                <textarea name="problem" value={form.problem} onChange={updateField} placeholder={fieldCopy.problem} rows={5} className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-zinc-700 focus:border-emerald-300/50 sm:col-span-2" />
+                <input name="customerName" value={form.customerName} onChange={updateField} placeholder="Your name" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
+                <input name="email" type="email" value={form.email} onChange={updateField} placeholder="Email" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
+                <input name="whatsapp" value={form.whatsapp} onChange={updateField} placeholder="WhatsApp number" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
+                <input name="targetClient" value={form.targetClient} onChange={updateField} placeholder={fieldCopy.targetClient} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
+                <input name="skill" value={form.skill} onChange={updateField} placeholder={fieldCopy.skill} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
+                <input name="incomeGoal" value={form.incomeGoal} onChange={updateField} placeholder={fieldCopy.incomeGoal} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-zinc-700 focus:border-emerald-300/50" />
+                <textarea name="problem" value={form.problem} onChange={updateField} placeholder={fieldCopy.problem} rows={5} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none placeholder:text-zinc-700 focus:border-emerald-300/50 sm:col-span-2" />
               </div>
 
               {error && (
-                <div className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
                   {error}
                 </div>
               )}
               {success && (
-                <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm font-bold text-emerald-200">
+                <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">
                   {success}
                 </div>
               )}
@@ -508,7 +508,7 @@ export default function SetupServicePayment({ serviceType = 'agency' }) {
                 {loading ? 'Opening Razorpay...' : `Pay ${formatMoney(selectedOption.amount[market], selectedOption.currency[market])}`}
               </button>
 
-              <p className="mt-4 text-center text-xs font-semibold leading-relaxed text-zinc-600">
+              <p className="mt-4 text-center text-xs font-semibold leading-relaxed text-slate-500">
                 Need help before paying? Email {SUPPORT_EMAIL}.
               </p>
             </form>

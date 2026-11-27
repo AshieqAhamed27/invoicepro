@@ -47,10 +47,10 @@ export default function LeadConversionBar({ lead, onUpdated }) {
         <span
           className={`px-2 py-0.5 rounded-full font-semibold border ${
             lead.fitScore >= 75
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
               : lead.fitScore >= 50
-              ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-              : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+              ? 'bg-amber-50 text-amber-700 border-amber-200'
+              : 'bg-slate-100 text-slate-700 border-slate-200'
           }`}
           title={lead.fitLabel}
         >
@@ -60,7 +60,7 @@ export default function LeadConversionBar({ lead, onUpdated }) {
         <button
           onClick={handleScoreLead}
           disabled={isScoring}
-          className="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-indigo-300 font-medium transition border border-indigo-500/20 disabled:opacity-50"
+          className="px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium transition border border-indigo-200 disabled:opacity-50"
         >
           {isScoring ? 'Scoring...' : '🎯 Score Fit'}
         </button>
@@ -70,7 +70,7 @@ export default function LeadConversionBar({ lead, onUpdated }) {
         <button
           onClick={handleConvertToClient}
           disabled={isConverting}
-          className="px-2.5 py-1 rounded-md bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-medium transition border border-emerald-500/30 disabled:opacity-50"
+          className="px-2.5 py-1 rounded-md bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-700 font-medium transition border border-emerald-500/30 disabled:opacity-50"
         >
           {isConverting ? 'Converting...' : '✓ Convert to Client'}
         </button>

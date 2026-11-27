@@ -7,7 +7,7 @@ import { COMPANY_SHORT_NAME } from '../utils/company';
 
 const inputClass = 'w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20';
 const labelClass = 'text-xs font-bold uppercase tracking-wider text-slate-800';
-const panelClass = 'rounded-2xl border border-white/10 bg-white/[0.035] p-5 shadow-xl shadow-black/10';
+const panelClass = 'rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-xl shadow-black/10';
 
 const loadRazorpayScript = () => new Promise((resolve) => {
   if (window.Razorpay) {
@@ -375,17 +375,17 @@ export default function OrganizationWorkspace() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070a0f] text-white">
+    <div className="min-h-screen bg-[#070a0f] text-slate-900">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10">
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className={labelClass}>Enterprise workspace</p>
-            <h1 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
               {organization?.name || 'Company control center'}
             </h1>
-            <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-zinc-500">
+            <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
               Manage company members, seat billing, SSO access, audit exports, backup policy, and all company workrooms from one place.
             </p>
           </div>
@@ -399,26 +399,26 @@ export default function OrganizationWorkspace() {
         </div>
 
         {error && (
-          <div className="mb-5 rounded-2xl border border-red-300/20 bg-red-500/10 p-4 text-sm font-bold text-red-100">
+          <div className="mb-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
             {error}
           </div>
         )}
 
         {message && (
-          <div className="mb-5 rounded-2xl border border-emerald-300/20 bg-emerald-500/10 p-4 text-sm font-bold text-emerald-100">
+          <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">
             {message}
           </div>
         )}
 
         {loading ? (
           <div className={panelClass}>
-            <p className="text-sm font-bold text-zinc-400">Loading organization workspace...</p>
+            <p className="text-sm font-bold text-slate-600">Loading organization workspace...</p>
           </div>
         ) : !organization ? (
           <form onSubmit={createOrganization} className="grid gap-5 lg:grid-cols-[1fr_0.8fr]">
             <section className={panelClass}>
               <p className={labelClass}>Create company account</p>
-              <h2 className="mt-2 text-2xl font-black text-white">Start your organization workspace</h2>
+              <h2 className="mt-2 text-2xl font-black text-slate-900">Start your organization workspace</h2>
               <div className="mt-6 grid gap-4">
                 <label className="grid gap-2">
                   <span className={labelClass}>Company name</span>
@@ -447,7 +447,7 @@ export default function OrganizationWorkspace() {
 
             <aside className={panelClass}>
               <p className={labelClass}>Included enterprise base</p>
-              <div className="mt-5 grid gap-3 text-sm font-semibold text-zinc-400">
+              <div className="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
                 {[
                   'One company owner account',
                   'Razorpay seat billing checkout',
@@ -457,7 +457,7 @@ export default function OrganizationWorkspace() {
                   'CSV/PDF audit export',
                   'Manual JSON backup export'
                 ].map((item) => (
-                  <div key={item} className="rounded-xl border border-white/8 bg-black/20 px-4 py-3">{item}</div>
+                  <div key={item} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">{item}</div>
                 ))}
               </div>
             </aside>
@@ -473,8 +473,8 @@ export default function OrganizationWorkspace() {
               ].map(([label, value, detail]) => (
                 <div key={label} className={panelClass}>
                   <p className={labelClass}>{label}</p>
-                  <p className="mt-3 text-2xl font-black text-white">{value}</p>
-                  <p className="mt-2 text-xs font-semibold text-zinc-500">{detail}</p>
+                  <p className="mt-3 text-2xl font-black text-slate-900">{value}</p>
+                  <p className="mt-2 text-xs font-semibold text-slate-600">{detail}</p>
                 </div>
               ))}
             </section>
@@ -483,21 +483,21 @@ export default function OrganizationWorkspace() {
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className={labelClass}>Enterprise readiness</p>
-                  <h2 className="mt-2 text-2xl font-black text-white">{readiness.label}</h2>
-                  <p className="mt-2 text-sm font-semibold leading-7 text-zinc-500">
+                  <h2 className="mt-2 text-2xl font-black text-slate-900">{readiness.label}</h2>
+                  <p className="mt-2 text-sm font-semibold leading-7 text-slate-600">
                     {readiness.completed || 0} of {readiness.total || 0} enterprise controls are complete. This tells a company what is ready before more people use the workspace.
                   </p>
                   {readiness.nextAction && (
-                    <p className="mt-3 rounded-xl border border-yellow-300/20 bg-yellow-300/10 px-4 py-3 text-sm font-bold text-yellow-100">
+                    <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-700">
                       Next: {readiness.nextAction.action}
                     </p>
                   )}
                 </div>
 
-                <div className="min-w-full rounded-2xl border border-white/8 bg-black/20 p-5 lg:min-w-[260px]">
+                <div className="min-w-full rounded-2xl border border-slate-200 bg-slate-50 p-5 lg:min-w-[260px]">
                   <div className="flex items-end justify-between gap-4">
-                    <p className="text-5xl font-black text-white">{readiness.score || 0}%</p>
-                    <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                    <p className="text-5xl font-black text-slate-900">{readiness.score || 0}%</p>
+                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">
                       {readiness.level || 'foundation_needed'}
                     </span>
                   </div>
@@ -511,16 +511,16 @@ export default function OrganizationWorkspace() {
                 {(readiness.items || []).map((item) => (
                   <div key={item.id} className={`rounded-xl border p-4 ${
                     item.done
-                      ? 'border-emerald-300/20 bg-emerald-300/[0.08]'
-                      : 'border-white/8 bg-black/20'
+                      ? 'border-emerald-200 bg-emerald-300/[0.08]'
+                      : 'border-slate-200 bg-slate-50'
                   }`}>
                     <p className={`text-[10px] font-black uppercase tracking-widest ${
-                      item.done ? 'text-emerald-200' : 'text-zinc-600'
+                      item.done ? 'text-emerald-700' : 'text-slate-500'
                     }`}>
                       {item.done ? 'Complete' : 'Needed'}
                     </p>
-                    <h3 className="mt-2 text-sm font-black text-white">{item.label}</h3>
-                    <p className="mt-2 text-xs font-semibold leading-6 text-zinc-500">{item.detail}</p>
+                    <h3 className="mt-2 text-sm font-black text-slate-900">{item.label}</h3>
+                    <p className="mt-2 text-xs font-semibold leading-6 text-slate-600">{item.detail}</p>
                   </div>
                 ))}
               </div>
@@ -528,10 +528,10 @@ export default function OrganizationWorkspace() {
 
             <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
               <form onSubmit={updateSettings} className={panelClass}>
-                <div className="flex flex-col gap-3 border-b border-white/8 pb-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className={labelClass}>Company settings</p>
-                    <h2 className="mt-2 text-2xl font-black text-white">Organization, billing, SSO, security</h2>
+                    <h2 className="mt-2 text-2xl font-black text-slate-900">Organization, billing, SSO, security</h2>
                   </div>
                   <button type="submit" disabled={saving === 'settings'} className="btn btn-primary">
                     {saving === 'settings' ? 'Saving...' : 'Save Settings'}
@@ -653,14 +653,14 @@ export default function OrganizationWorkspace() {
                     </div>
 
                     <div className="grid gap-4 lg:grid-cols-[0.5fr_0.8fr_1fr]">
-                      <label className="flex items-center gap-3 rounded-xl border border-white/8 bg-black/20 p-4">
+                      <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <input
                           type="checkbox"
                           checked={settingsForm.sso.enabled}
                           disabled={!canManageSecurity}
                           onChange={(event) => updateNestedForm('sso', 'enabled', event.target.checked)}
                         />
-                        <span className="text-sm font-black text-white">SSO enabled</span>
+                        <span className="text-sm font-black text-slate-900">SSO enabled</span>
                       </label>
                       <label className="grid gap-2">
                         <span className={labelClass}>SSO provider</span>
@@ -688,23 +688,23 @@ export default function OrganizationWorkspace() {
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-4">
-                      <label className="flex items-center gap-3 rounded-xl border border-white/8 bg-black/20 p-4">
+                      <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <input
                           type="checkbox"
                           checked={settingsForm.security.requireSso}
                           disabled={!canManageSecurity}
                           onChange={(event) => updateNestedForm('security', 'requireSso', event.target.checked)}
                         />
-                        <span className="text-sm font-black text-white">Require SSO</span>
+                        <span className="text-sm font-black text-slate-900">Require SSO</span>
                       </label>
-                      <label className="flex items-center gap-3 rounded-xl border border-white/8 bg-black/20 p-4">
+                      <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <input
                           type="checkbox"
                           checked={settingsForm.security.enforceAllowedDomains}
                           disabled={!canManageSecurity}
                           onChange={(event) => updateNestedForm('security', 'enforceAllowedDomains', event.target.checked)}
                         />
-                        <span className="text-sm font-black text-white">Domain lock</span>
+                        <span className="text-sm font-black text-slate-900">Domain lock</span>
                       </label>
                       <label className="grid gap-2">
                         <span className={labelClass}>Audit retention</span>
@@ -736,19 +736,19 @@ export default function OrganizationWorkspace() {
               <aside className="grid gap-5">
                 <section className={panelClass}>
                   <p className={labelClass}>Seat billing</p>
-                  <h3 className="mt-2 text-xl font-black text-white">Per-member price preview</h3>
-                  <div className="mt-5 grid gap-3 text-sm font-semibold text-zinc-400">
-                    <div className="flex justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-4 py-3">
+                  <h3 className="mt-2 text-xl font-black text-slate-900">Per-member price preview</h3>
+                  <div className="mt-5 grid gap-3 text-sm font-semibold text-slate-600">
+                    <div className="flex justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                       <span>Billable seats</span>
-                      <strong className="text-white">{billing.billableSeats || 0}</strong>
+                      <strong className="text-slate-900">{billing.billableSeats || 0}</strong>
                     </div>
-                    <div className="flex justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-4 py-3">
+                    <div className="flex justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                       <span>Monthly total</span>
-                      <strong className="text-white">{formatMoney(billing.monthlyTotal, billing.currency)}</strong>
+                      <strong className="text-slate-900">{formatMoney(billing.monthlyTotal, billing.currency)}</strong>
                     </div>
-                    <div className="flex justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-4 py-3">
+                    <div className="flex justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                       <span>Billing status</span>
-                      <strong className="text-white">{billing.status || 'preview'}</strong>
+                      <strong className="text-slate-900">{billing.status || 'preview'}</strong>
                     </div>
                   </div>
                   <button type="button" onClick={refreshBilling} disabled={!canManageBilling || saving === 'billing-preview'} className="btn btn-secondary mt-5 w-full">
@@ -763,7 +763,7 @@ export default function OrganizationWorkspace() {
                     {saving === 'seat-billing-payment' ? 'Opening Checkout...' : 'Pay Seat Billing'}
                   </button>
                   {billing.currentPeriodEnd && (
-                    <p className="mt-3 text-xs font-semibold leading-6 text-zinc-600">
+                    <p className="mt-3 text-xs font-semibold leading-6 text-slate-500">
                       Active until {formatDateTime(billing.currentPeriodEnd)}
                     </p>
                   )}
@@ -771,7 +771,7 @@ export default function OrganizationWorkspace() {
 
                 <section className={panelClass}>
                   <p className={labelClass}>Exports</p>
-                  <h3 className="mt-2 text-xl font-black text-white">Audit and backup</h3>
+                  <h3 className="mt-2 text-xl font-black text-slate-900">Audit and backup</h3>
                   <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                     <button
                       type="button"
@@ -798,7 +798,7 @@ export default function OrganizationWorkspace() {
                       Backup Export
                     </button>
                   </div>
-                  <p className="mt-4 text-xs font-semibold leading-6 text-zinc-600">
+                  <p className="mt-4 text-xs font-semibold leading-6 text-slate-500">
                     Last backup: {formatDateTime(organization.retention?.lastBackupAt)}
                   </p>
                 </section>
@@ -807,12 +807,12 @@ export default function OrganizationWorkspace() {
 
             <section className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
               <div className={panelClass}>
-                <div className="flex flex-col gap-3 border-b border-white/8 pb-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className={labelClass}>Members</p>
-                    <h2 className="mt-2 text-2xl font-black text-white">Company access</h2>
+                    <h2 className="mt-2 text-2xl font-black text-slate-900">Company access</h2>
                   </div>
-                  <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                  <span className="rounded-full border border-slate-200 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                     {organization.members?.length || 0} members
                   </span>
                 </div>
@@ -843,10 +843,10 @@ export default function OrganizationWorkspace() {
 
                 <div className="mt-5 grid gap-3">
                   {(organization.members || []).map((member) => (
-                    <div key={member.id || member.email} className="grid gap-3 rounded-xl border border-white/8 bg-black/20 p-4 md:grid-cols-[1fr_0.48fr_0.45fr_auto] md:items-center">
+                    <div key={member.id || member.email} className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[1fr_0.48fr_0.45fr_auto] md:items-center">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-white">{member.name || member.email}</p>
-                        <p className="truncate text-xs font-semibold text-zinc-600">{member.email}</p>
+                        <p className="truncate text-sm font-black text-slate-900">{member.name || member.email}</p>
+                        <p className="truncate text-xs font-semibold text-slate-500">{member.email}</p>
                       </div>
                       <select
                         value={member.role}
@@ -872,7 +872,7 @@ export default function OrganizationWorkspace() {
                         type="button"
                         disabled={!canManageMembers || member.role === 'owner' || saving === member.id}
                         onClick={() => removeMember(member)}
-                        className="rounded-xl border border-red-300/20 bg-red-500/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-red-100 transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-45"
+                        className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-45"
                       >
                         Remove
                       </button>
@@ -882,10 +882,10 @@ export default function OrganizationWorkspace() {
               </div>
 
               <div className={panelClass}>
-                <div className="flex flex-col gap-3 border-b border-white/8 pb-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className={labelClass}>Company workrooms</p>
-                    <h2 className="mt-2 text-2xl font-black text-white">Projects under this organization</h2>
+                    <h2 className="mt-2 text-2xl font-black text-slate-900">Projects under this organization</h2>
                   </div>
                   <button type="button" disabled={!canManageOrganization || saving === 'attach-projects'} onClick={attachProjects} className="btn btn-secondary">
                     {saving === 'attach-projects' ? 'Attaching...' : 'Attach Existing'}
@@ -897,19 +897,19 @@ export default function OrganizationWorkspace() {
                     <Link
                       key={project.id}
                       to="/client-workroom"
-                      className="grid gap-3 rounded-xl border border-white/8 bg-black/20 p-4 transition hover:border-yellow-300/20 hover:bg-yellow-300/[0.04] md:grid-cols-[1fr_0.45fr_0.35fr] md:items-center"
+                      className="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition hover:border-amber-200 hover:bg-yellow-300/[0.04] md:grid-cols-[1fr_0.45fr_0.35fr] md:items-center"
                     >
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-white">{project.title}</p>
-                        <p className="truncate text-xs font-semibold text-zinc-600">{project.clientName || 'No client name'} - {formatDateTime(project.updatedAt)}</p>
+                        <p className="truncate text-sm font-black text-slate-900">{project.title}</p>
+                        <p className="truncate text-xs font-semibold text-slate-500">{project.clientName || 'No client name'} - {formatDateTime(project.updatedAt)}</p>
                       </div>
-                      <p className="text-sm font-black text-zinc-300">{formatMoney(project.budget, project.currency)}</p>
-                      <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-center text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      <p className="text-sm font-black text-slate-700">{formatMoney(project.budget, project.currency)}</p>
+                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-center text-[10px] font-black uppercase tracking-widest text-slate-600">
                         {project.status}
                       </span>
                     </Link>
                   )) : (
-                    <div className="rounded-xl border border-white/8 bg-black/20 p-5 text-sm font-semibold text-zinc-500">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm font-semibold text-slate-600">
                       No company workrooms attached yet.
                     </div>
                   )}
@@ -920,18 +920,18 @@ export default function OrganizationWorkspace() {
             {canExportAudit && (
               <section className={panelClass}>
                 <p className={labelClass}>Recent audit</p>
-                <h2 className="mt-2 text-2xl font-black text-white">Organization activity</h2>
+                <h2 className="mt-2 text-2xl font-black text-slate-900">Organization activity</h2>
                 <div className="mt-5 grid gap-3 md:grid-cols-2">
                   {(organization.auditLogs || []).slice(0, 12).map((log) => (
-                    <div key={log.id || `${log.action}-${log.createdAt}`} className="rounded-xl border border-white/8 bg-black/20 p-4">
-                      <p className="text-sm font-black text-white">{log.label || log.action}</p>
-                      <p className="mt-1 text-xs font-semibold text-zinc-600">
+                    <div key={log.id || `${log.action}-${log.createdAt}`} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-black text-slate-900">{log.label || log.action}</p>
+                      <p className="mt-1 text-xs font-semibold text-slate-500">
                         {log.actor?.email || 'system'} - {formatDateTime(log.createdAt)}
                       </p>
                     </div>
                   ))}
                   {!(organization.auditLogs || []).length && (
-                    <div className="rounded-xl border border-white/8 bg-black/20 p-5 text-sm font-semibold text-zinc-500">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm font-semibold text-slate-600">
                       No organization audit events yet.
                     </div>
                   )}

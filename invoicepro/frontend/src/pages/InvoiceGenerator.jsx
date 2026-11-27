@@ -23,7 +23,7 @@ export default function InvoiceGenerator() {
           Invoice Generator India
         </h1>
 
-        <p className="mt-4 max-w-2xl text-zinc-400">
+        <p className="mt-4 max-w-2xl text-slate-600">
           Create professional GST invoices online for freelancers, agencies, and businesses in India.
           Send invoice links and get paid faster using UPI or Razorpay.
         </p>
@@ -43,7 +43,7 @@ export default function InvoiceGenerator() {
           <h2 className="text-2xl font-bold">
             Create GST Invoices Online
           </h2>
-          <p className="mt-3 text-zinc-400 max-w-2xl">
+          <p className="mt-3 text-slate-600 max-w-2xl">
             ClientFlow AI allows you to create GST-ready invoices with tax fields, client details,
             due dates, and payment instructions. Perfect for Indian freelancers and consultants.
           </p>
@@ -54,7 +54,7 @@ export default function InvoiceGenerator() {
           <h2 className="text-2xl font-bold">
             Accept UPI and Razorpay Payments
           </h2>
-          <p className="mt-3 text-zinc-400 max-w-2xl">
+          <p className="mt-3 text-slate-600 max-w-2xl">
             Share invoice links with your clients and collect payments using Razorpay checkout
             or UPI apps like Google Pay, PhonePe, and Paytm.
           </p>
@@ -65,7 +65,7 @@ export default function InvoiceGenerator() {
           <h2 className="text-2xl font-bold">
             Built for Freelancers and Agencies
           </h2>
-          <p className="mt-3 text-zinc-400 max-w-2xl">
+          <p className="mt-3 text-slate-600 max-w-2xl">
             Whether you are a freelancer, agency, or consultant, ClientFlow AI helps you manage
             billing, recurring invoices, and payment tracking in one place.
           </p>

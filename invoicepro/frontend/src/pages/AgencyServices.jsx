@@ -342,25 +342,25 @@ export default function AgencyServices() {
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden border-b border-white/5">
+        <section className="relative overflow-hidden border-b border-slate-200">
           <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-emerald-400/10 via-yellow-300/5 to-transparent" />
           <div className="container-custom responsive-split-even relative py-14 sm:py-16 lg:py-24">
             <div>
-              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2">
+              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-300" />
-                <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+                <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">
                   Software plus setup service
                 </span>
               </div>
 
-              <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
                 ClientFlow AI Agency.
                 <span className="block bg-gradient-to-r from-yellow-200 via-emerald-200 to-sky-200 bg-clip-text text-transparent">
                   We set up your freelancer business system for you.
                 </span>
               </h1>
 
-              <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 sm:text-lg">
+              <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-slate-600 sm:text-lg">
                 If a freelancer is confused about finding clients, writing proposals, managing delivery, and collecting payment, we help set up the full workflow inside ClientFlow AI.
               </p>
 
@@ -377,32 +377,32 @@ export default function AgencyServices() {
                 </Link>
               </div>
 
-              <p className="mt-5 max-w-xl text-xs font-semibold leading-relaxed text-zinc-500">
+              <p className="mt-5 max-w-xl text-xs font-semibold leading-relaxed text-slate-600">
                 Honest note: we do not guarantee income. We help create the system, strategy, daily actions, and payment workflow so the freelancer can execute with clarity.
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-4 shadow-2xl shadow-black/30">
-              <div className="rounded-[1.5rem] border border-white/8 bg-black/30 p-5">
+            <div className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-2xl shadow-black/30">
+              <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                 <div className="flex items-center justify-between gap-4">
                   <BrandLogo showText={false} markClassName="h-12 w-12" />
-                  <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-200">
+                  <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-amber-700">
                     Agency setup
                   </span>
                 </div>
 
-                <div className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200">Main outcome</p>
-                  <p className="mt-2 text-xl font-black leading-tight text-white">
+                <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Main outcome</p>
+                  <p className="mt-2 text-xl font-black leading-tight text-slate-900">
                     A freelancer knows who to message, what to propose, how to deliver, and how to collect payment.
                   </p>
                 </div>
 
                 <div className="mt-5 grid gap-3">
                   {['Offer', 'Leads', 'Proposal', 'Delivery', 'Payment'].map((item) => (
-                    <div key={item} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-                      <p className="text-sm font-black text-white">{item} workflow</p>
-                      <p className="mt-1 text-xs font-semibold text-zinc-500">Configured inside ClientFlow AI</p>
+                    <div key={item} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-black text-slate-900">{item} workflow</p>
+                      <p className="mt-1 text-xs font-semibold text-slate-600">Configured inside ClientFlow AI</p>
                     </div>
                   ))}
                 </div>
@@ -411,14 +411,14 @@ export default function AgencyServices() {
           </div>
         </section>
 
-        <section id="agency-setup-process" className="border-b border-yellow-300/15 bg-yellow-300/[0.06] py-14 sm:py-16">
+        <section id="agency-setup-process" className="border-b border-amber-200 bg-yellow-300/[0.06] py-14 sm:py-16">
           <div className="container-custom">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Start here</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Start here</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 How ClientFlow AI Agency setup works.
               </h2>
-              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-300 sm:text-base">
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-700 sm:text-base">
                 The user does not need to understand every tool. They only follow these 5 steps.
               </p>
             </div>
@@ -432,19 +432,19 @@ export default function AgencyServices() {
                     setActiveAutomationStep(step.id);
                     document.getElementById('agency-setup-details')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
-                  className="rounded-[1.5rem] border border-yellow-300/20 bg-black/25 p-5 text-left transition-all hover:-translate-y-1 hover:border-yellow-300/40 hover:bg-yellow-300/[0.08]"
+                  className="rounded-[1.5rem] border border-amber-200 bg-black/25 p-5 text-left transition-all hover:-translate-y-1 hover:border-amber-200 hover:bg-yellow-300/[0.08]"
                 >
                   <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-yellow-300 text-sm font-black text-slate-950">
                     {step.step}
                   </span>
-                  <h3 className="mt-4 text-base font-black leading-tight text-white">{step.title}</h3>
-                  <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-400">{step.output}</p>
+                  <h3 className="mt-4 text-base font-black leading-tight text-slate-900">{step.title}</h3>
+                  <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-600">{step.output}</p>
                 </button>
               ))}
             </div>
 
-            <div className="mt-8 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.08] p-5 text-center">
-              <p className="text-base font-black text-white">
+            <div className="mt-8 rounded-[1.5rem] border border-emerald-200 bg-emerald-300/[0.08] p-5 text-center">
+              <p className="text-base font-black text-slate-900">
                 Simple meaning: we set up their offer, leads, proposal, project workspace, invoice, payment follow-up, and 7-day action plan.
               </p>
               <button
@@ -458,43 +458,43 @@ export default function AgencyServices() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-zinc-950/45 py-14 sm:py-16">
+        <section className="border-b border-slate-200 bg-zinc-950/45 py-14 sm:py-16">
           <div className="container-custom">
             <div className="max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">What we do</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">What we do</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 A done-for-you setup service built around the product.
               </h2>
             </div>
 
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {outcomes.map((item) => (
-                <div key={item.title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-6 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
-                  <h3 className="text-xl font-black text-white">{item.title}</h3>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{item.text}</p>
+                <div key={item.title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-6 transition-all hover:-translate-y-1 hover:border-amber-200">
+                  <h3 className="text-xl font-black text-slate-900">{item.title}</h3>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">{item.text}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="agency-setup-details" className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+        <section id="agency-setup-details" className="border-b border-slate-200 bg-emerald-400/[0.035] py-14 sm:py-16">
           <div className="container-custom">
             <div className="mb-8 grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-end">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Agency Setup Autopilot</p>
-                <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">Agency Setup Autopilot</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                   The user sees one guided setup process.
                 </h2>
-                <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+                <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
                   Instead of asking buyers to understand every feature, the agency page explains the exact path: choose setup, fill intake, pay, receive the system, then follow daily actions.
                 </p>
               </div>
 
-              <div className="rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.08] p-5">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">Current selected setup</p>
-                <p className="mt-2 text-2xl font-black text-white">{selectedPackage.name}</p>
-                <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+              <div className="rounded-[1.5rem] border border-emerald-200 bg-emerald-300/[0.08] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Current selected setup</p>
+                <p className="mt-2 text-2xl font-black text-slate-900">{selectedPackage.name}</p>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">
                   {selectedWorkflow.label}: {selectedWorkflow.setupOutcome}
                 </p>
               </div>
@@ -510,43 +510,43 @@ export default function AgencyServices() {
                     className={`rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 ${
                       activeAutomationStep === step.id
                         ? 'border-emerald-300/35 bg-emerald-300/[0.1]'
-                        : 'border-white/8 bg-white/[0.03] hover:border-emerald-300/25'
+                        : 'border-slate-200 bg-slate-50 hover:border-emerald-200'
                     }`}
                   >
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{step.step}</p>
-                    <h3 className="mt-2 text-sm font-black text-white">{step.title}</h3>
-                    <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{step.output}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">{step.step}</p>
+                    <h3 className="mt-2 text-sm font-black text-slate-900">{step.title}</h3>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{step.output}</p>
                   </button>
                 ))}
               </div>
 
-              <div className="rounded-[1.75rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/25 sm:p-6">
+              <div className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-black/25 sm:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">
                       Step {selectedAutomation.step}
                     </p>
-                    <h3 className="mt-2 text-2xl font-black text-white">{selectedAutomation.title}</h3>
+                    <h3 className="mt-2 text-2xl font-black text-slate-900">{selectedAutomation.title}</h3>
                   </div>
-                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-300">
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-slate-700">
                     {selectedAutomation.output}
                   </span>
                 </div>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl border border-white/8 bg-black/25 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">User does</p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{selectedAutomation.userAction}</p>
+                  <div className="rounded-2xl border border-slate-200 bg-black/25 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">User does</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{selectedAutomation.userAction}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-black/25 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">AI / team prepares</p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{selectedAutomation.aiAction}</p>
+                  <div className="rounded-2xl border border-slate-200 bg-black/25 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">AI / team prepares</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{selectedAutomation.aiAction}</p>
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-2xl border border-yellow-300/20 bg-yellow-300/[0.08] p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Why this removes confusion</p>
-                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+                <div className="mt-6 rounded-2xl border border-amber-200 bg-yellow-300/[0.08] p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Why this removes confusion</p>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">
                     The buyer never has to decide between many tools. Each setup step tells them what to do, what we prepare, and what they receive next.
                   </p>
                 </div>
@@ -563,23 +563,23 @@ export default function AgencyServices() {
 
             <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {setupDeliverables.map(([title, detail]) => (
-                <div key={title} className="rounded-2xl border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{title}</p>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">{detail}</p>
+                <div key={title} className="rounded-2xl border border-slate-200 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-emerald-200">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">{title}</p>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">{detail}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+        <section className="border-b border-slate-200 bg-sky-400/[0.035] py-14 sm:py-16">
           <div className="container-custom">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Choose setup workflow</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-700">Choose setup workflow</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Each buyer gets a different setup path.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">
+              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600">
                 This keeps users from feeling lost. A developer gets a developer workflow, a designer gets a designer workflow, and an agency gets a team workflow.
               </p>
             </div>
@@ -593,12 +593,12 @@ export default function AgencyServices() {
                   className={`rounded-[1.5rem] border p-5 text-left transition-all hover:-translate-y-1 ${
                     bookingForm.workflowType === workflow.key
                       ? 'border-sky-300/35 bg-sky-300/[0.1]'
-                      : 'border-white/8 bg-white/[0.03] hover:border-sky-300/25'
+                      : 'border-slate-200 bg-slate-50 hover:border-sky-200'
                   }`}
                 >
-                  <p className="text-lg font-black text-white">{workflow.label}</p>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">{workflow.setupOutcome}</p>
-                  <p className="mt-5 text-[10px] font-black uppercase tracking-widest text-sky-300">
+                  <p className="text-lg font-black text-slate-900">{workflow.label}</p>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">{workflow.setupOutcome}</p>
+                  <p className="mt-5 text-[10px] font-black uppercase tracking-widest text-sky-700">
                     Select workflow
                   </p>
                 </button>
@@ -607,24 +607,24 @@ export default function AgencyServices() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+        <section className="border-b border-slate-200 bg-emerald-400/[0.035] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">How it works</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">How it works</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Simple enough for beginners, useful enough for serious freelancers.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
                 This lets you sell a real service now: setup, guidance, and workflow support. The SaaS becomes the system used to deliver that service.
               </p>
             </div>
 
             <div className="grid gap-4">
               {process.map(([step, title, text]) => (
-                <div key={step} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{step}</p>
-                  <h3 className="mt-3 text-lg font-black text-white">{title}</h3>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{text}</p>
+                <div key={step} className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-emerald-200">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">{step}</p>
+                  <h3 className="mt-3 text-lg font-black text-slate-900">{title}</h3>
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{text}</p>
                 </div>
               ))}
             </div>
@@ -634,11 +634,11 @@ export default function AgencyServices() {
         <section className="py-14 sm:py-16">
           <div className="container-custom">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Service packages</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-700">Service packages</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Earn from setup services while the SaaS grows.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">
+              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600">
                 These packages can be sold through LinkedIn, WhatsApp, referrals, and direct freelancer communities.
               </p>
             </div>
@@ -650,15 +650,15 @@ export default function AgencyServices() {
                   className={`rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${
                     plan.featured
                       ? 'border-yellow-300/35 bg-yellow-300/[0.08] shadow-2xl shadow-yellow-950/20'
-                      : 'border-white/8 bg-white/[0.03]'
+                      : 'border-slate-200 bg-slate-50'
                   }`}
                 >
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">{plan.name}</p>
-                  <p className="mt-4 text-4xl font-black text-white">{plan.price}</p>
-                  <p className="mt-2 text-sm font-semibold text-zinc-400">{plan.note}</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">{plan.name}</p>
+                  <p className="mt-4 text-4xl font-black text-slate-900">{plan.price}</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-600">{plan.note}</p>
                   <div className="mt-6 space-y-3">
                     {plan.features.map((feature) => (
-                      <p key={feature} className="rounded-xl border border-white/8 bg-black/20 p-3 text-sm font-semibold leading-relaxed text-zinc-300">
+                      <p key={feature} className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm font-semibold leading-relaxed text-slate-700">
                         {feature}
                       </p>
                     ))}
@@ -669,7 +669,7 @@ export default function AgencyServices() {
                     className={`mt-6 flex w-full justify-center rounded-2xl px-5 py-4 text-sm font-black transition-all active:scale-95 ${
                       plan.featured
                         ? 'bg-yellow-400 text-black hover:bg-yellow-300'
-                        : 'border border-white/10 text-white hover:bg-white/10'
+                        : 'border border-slate-200 text-slate-900 hover:bg-slate-100'
                     }`}
                   >
                     Choose this setup
@@ -680,22 +680,22 @@ export default function AgencyServices() {
           </div>
         </section>
 
-        <section id="agency-booking" className="border-y border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+        <section id="agency-booking" className="border-y border-slate-200 bg-sky-400/[0.035] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Book and pay</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-700">Book and pay</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Tell us your skill. We prepare your setup.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
                 This is the onboarding flow after someone chooses a setup package. It collects the exact details needed to create their offer, outreach plan, proposal flow, workspace, and payment process.
               </p>
 
-              <div className="mt-6 rounded-[1.5rem] border border-yellow-300/20 bg-yellow-300/[0.08] p-5">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">Selected package</p>
-                <p className="mt-2 text-2xl font-black text-white">{selectedPackage.name}</p>
-                <p className="mt-1 text-sm font-semibold text-zinc-400">{selectedPackage.price} - {selectedPackage.note}</p>
-                <p className="mt-3 rounded-2xl border border-sky-300/20 bg-sky-300/10 p-3 text-sm font-black text-sky-100">
+              <div className="mt-6 rounded-[1.5rem] border border-amber-200 bg-yellow-300/[0.08] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Selected package</p>
+                <p className="mt-2 text-2xl font-black text-slate-900">{selectedPackage.name}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-600">{selectedPackage.price} - {selectedPackage.note}</p>
+                <p className="mt-3 rounded-2xl border border-sky-200 bg-sky-50 p-3 text-sm font-black text-sky-700">
                   Workflow: {selectedWorkflow.label}
                 </p>
               </div>
@@ -706,17 +706,17 @@ export default function AgencyServices() {
                   'If setup is not delivered, the setup fee can be refunded.',
                   'This is not an income guarantee. It is a delivered setup and action plan.'
                 ].map((item) => (
-                  <div key={item} className="rounded-2xl border border-white/8 bg-black/25 p-4">
-                    <p className="text-sm font-semibold leading-relaxed text-zinc-300">{item}</p>
+                  <div key={item} className="rounded-2xl border border-slate-200 bg-black/25 p-4">
+                    <p className="text-sm font-semibold leading-relaxed text-slate-700">{item}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <form onSubmit={handleBookingSubmit} className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/25 sm:p-6">
+            <form onSubmit={handleBookingSubmit} className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-black/25 sm:p-6">
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Full name</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Full name</span>
                   <input
                     required
                     name="customerName"
@@ -728,7 +728,7 @@ export default function AgencyServices() {
                 </label>
 
                 <label className="block">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Email</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Email</span>
                   <input
                     required
                     type="email"
@@ -782,14 +782,14 @@ export default function AgencyServices() {
                       </option>
                     ))}
                   </select>
-                  <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">
                     {selectedWorkflow.setupOutcome}
                   </p>
                 </label>
               </div>
 
               <label className="mt-4 block">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">What skill/service do you sell?</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">What skill/service do you sell?</span>
                 <input
                   required
                   name="skill"
@@ -801,7 +801,7 @@ export default function AgencyServices() {
               </label>
 
               <label className="mt-4 block">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Biggest problem now</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Biggest problem now</span>
                 <textarea
                   required
                   name="problem"
@@ -814,7 +814,7 @@ export default function AgencyServices() {
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Target client</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Target client</span>
                   <input
                     name="targetClient"
                     value={bookingForm.targetClient}
@@ -825,7 +825,7 @@ export default function AgencyServices() {
                 </label>
 
                 <label className="block">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Monthly income goal</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Monthly income goal</span>
                   <input
                     name="incomeGoal"
                     value={bookingForm.incomeGoal}
@@ -836,7 +836,7 @@ export default function AgencyServices() {
                 </label>
 
                 <label className="block">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Portfolio link</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Portfolio link</span>
                   <input
                     name="portfolioUrl"
                     value={bookingForm.portfolioUrl}
@@ -864,13 +864,13 @@ export default function AgencyServices() {
               </div>
 
               {bookingError && (
-                <div className="mt-5 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+                <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
                   {bookingError}
                 </div>
               )}
 
               {bookingSuccess && (
-                <div className="mt-5 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm font-bold text-emerald-300">
+                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">
                   {bookingSuccess}
                 </div>
               )}
@@ -886,46 +886,46 @@ export default function AgencyServices() {
           </div>
         </section>
 
-        <section className="border-y border-white/5 bg-yellow-400/[0.045] py-14 sm:py-16">
+        <section className="border-y border-slate-200 bg-yellow-400/[0.045] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Best for</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Best for</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Freelancers who need clarity before they need more tools.
               </h2>
             </div>
             <div className="grid gap-3">
               {whoItHelps.map((item) => (
-                <div key={item} className="rounded-2xl border border-white/8 bg-black/25 p-4">
-                  <p className="text-sm font-semibold leading-relaxed text-zinc-300">{item}</p>
+                <div key={item} className="rounded-2xl border border-slate-200 bg-black/25 p-4">
+                  <p className="text-sm font-semibold leading-relaxed text-slate-700">{item}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-zinc-950/45 py-14 sm:py-16">
+        <section className="border-b border-slate-200 bg-zinc-950/45 py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Proof and guarantee</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">Proof and guarantee</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Make buying feel safer for first users.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
                 Early users need trust before they pay. The page now explains what gets delivered, what does not get promised, and what happens if setup is not delivered.
               </p>
             </div>
 
             <div className="grid gap-4">
-              <div className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Early feedback</p>
-                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+              <div className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Early feedback</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">
                   The interface feels clean, lightweight, and simple for an invoicing and freelancer workflow.
                 </p>
               </div>
-              <div className="rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.08] p-5">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">Delivery guarantee</p>
-                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+              <div className="rounded-[1.5rem] border border-emerald-200 bg-emerald-300/[0.08] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Delivery guarantee</p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">
                   If the paid setup is not delivered, the setup fee can be refunded. This is a delivery guarantee, not an income guarantee.
                 </p>
               </div>
@@ -933,14 +933,14 @@ export default function AgencyServices() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-sky-400/[0.035] py-14 sm:py-16">
+        <section className="border-b border-slate-200 bg-sky-400/[0.035] py-14 sm:py-16">
           <div className="container-custom">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">Outreach scripts</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-700">Outreach scripts</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Use this to find first setup clients.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">
+              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600">
                 These are simple LinkedIn or WhatsApp messages. Ask for feedback first, then offer setup help only if they show a real problem.
               </p>
             </div>
@@ -951,9 +951,9 @@ export default function AgencyServices() {
                 ['If they reply', 'Thanks. What is harder for you right now: finding clients, writing proposals, managing projects, or collecting payment? I am using the answers to improve the product.'],
                 ['Soft offer', 'If useful, I can help set up your first client workflow: offer, outreach message, proposal template, project workspace, invoice, and payment flow. No pressure, only if it solves your current problem.']
               ].map(([title, text]) => (
-                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-sky-300/25">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">{title}</p>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">{text}</p>
+                <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 transition-all hover:-translate-y-1 hover:border-sky-200">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">{title}</p>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">{text}</p>
                 </div>
               ))}
             </div>
@@ -961,15 +961,15 @@ export default function AgencyServices() {
         </section>
 
         <section className="py-14 sm:py-16">
-          <div className="container-custom rounded-[2rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-6 text-center sm:p-10">
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">
+          <div className="container-custom rounded-[2rem] border border-emerald-200 bg-emerald-300/[0.06] p-6 text-center sm:p-10">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">
               Udyam registered: {UDYAM_REGISTRATION_NUMBER}
             </p>
-            <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
+            <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
               Start with the agency offer. Convert happy users into SaaS subscribers.
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-              Contact: <a href={`mailto:${SUPPORT_EMAIL}`} className="font-black text-white hover:text-yellow-300">{SUPPORT_EMAIL}</a>
+            <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
+              Contact: <a href={`mailto:${SUPPORT_EMAIL}`} className="font-black text-slate-900 hover:text-yellow-300">{SUPPORT_EMAIL}</a>
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
               <Link to="/contact" className="btn btn-primary px-7 py-4 text-sm">

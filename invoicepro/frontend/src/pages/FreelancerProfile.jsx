@@ -124,7 +124,7 @@ export default function FreelancerProfile() {
       <div className="premium-page min-h-screen">
         <Navbar />
         <main className="container-custom flex min-h-[60vh] items-center justify-center py-16">
-          <p className="text-sm font-black uppercase tracking-widest text-zinc-500">Loading profile...</p>
+          <p className="text-sm font-black uppercase tracking-widest text-slate-600">Loading profile...</p>
         </main>
       </div>
     );
@@ -136,8 +136,8 @@ export default function FreelancerProfile() {
         <Navbar />
         <main className="container-custom py-16">
           <div className="premium-panel mx-auto max-w-xl p-8 text-center">
-            <h1 className="text-3xl font-black text-white">Profile unavailable</h1>
-            <p className="mt-3 text-sm font-semibold text-zinc-500">{error || 'This profile could not be loaded.'}</p>
+            <h1 className="text-3xl font-black text-slate-900">Profile unavailable</h1>
+            <p className="mt-3 text-sm font-semibold text-slate-600">{error || 'This profile could not be loaded.'}</p>
             <Link to="/" className="btn btn-primary mt-6">Open ClientFlow AI</Link>
           </div>
         </main>
@@ -152,25 +152,25 @@ export default function FreelancerProfile() {
       <main className="container-custom py-8 sm:py-12 md:py-16">
         <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.42fr)] lg:items-start">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
-              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">
                 Direct client profile
               </span>
             </div>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
               {logoUrl ? (
-                <div className="h-20 w-20 rounded-2xl border border-white/10 bg-white p-2">
+                <div className="h-20 w-20 rounded-2xl border border-slate-200 bg-white p-2">
                   <img src={logoUrl} alt={`${profile.displayName} logo`} className="h-full w-full object-contain" />
                 </div>
               ) : (
                 <BrandLogo showText={false} markClassName="h-20 w-20" />
               )}
               <div>
-                <h1 className="text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">
+                <h1 className="text-4xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl">
                   {profile.displayName}
                 </h1>
-                <p className="mt-2 text-base font-semibold text-zinc-400">
+                <p className="mt-2 text-base font-semibold text-slate-600">
                   Project workflow, proposal, invoice, and payment collection handled with {COMPANY_SHORT_NAME}.
                 </p>
               </div>
@@ -182,18 +182,18 @@ export default function FreelancerProfile() {
                 ['Approval path', 'Proposals and changes are tracked before delivery.'],
                 ['Payment ready', 'Invoices, payment links, and follow-ups are organized.']
               ].map(([title, detail]) => (
-                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
-                  <h2 className="text-lg font-black text-white">{title}</h2>
-                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{detail}</p>
+                <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                  <h2 className="text-lg font-black text-slate-900">{title}</h2>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{detail}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <aside className="rounded-[2rem] border border-white/8 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Contact</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Start a project enquiry</h2>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">
+          <aside className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 shadow-2xl shadow-black/20 sm:p-6">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Contact</p>
+            <h2 className="mt-2 text-2xl font-black text-slate-900">Start a project enquiry</h2>
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
               Share your project need, budget, and timeline. The enquiry becomes a saved lead in the freelancer workflow.
             </p>
 
@@ -202,32 +202,32 @@ export default function FreelancerProfile() {
                 <input
                   value={inquiryForm.contactName}
                   onChange={(event) => updateInquiryField('contactName', event.target.value)}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Your name"
                 />
                 <input
                   type="email"
                   value={inquiryForm.email}
                   onChange={(event) => updateInquiryField('email', event.target.value)}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Email"
                 />
                 <input
                   value={inquiryForm.phone}
                   onChange={(event) => updateInquiryField('phone', event.target.value)}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Phone or WhatsApp"
                 />
                 <input
                   value={inquiryForm.businessName}
                   onChange={(event) => updateInquiryField('businessName', event.target.value)}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Business name"
                 />
                 <input
                   value={inquiryForm.service}
                   onChange={(event) => updateInquiryField('service', event.target.value)}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Service needed"
                 />
                 <input
@@ -235,32 +235,32 @@ export default function FreelancerProfile() {
                   min="0"
                   value={inquiryForm.budget}
                   onChange={(event) => updateInquiryField('budget', event.target.value)}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                   placeholder="Budget"
                 />
               </div>
               <input
                 value={inquiryForm.timeline}
                 onChange={(event) => updateInquiryField('timeline', event.target.value)}
-                className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                className="rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                 placeholder="Timeline"
               />
               <textarea
                 value={inquiryForm.projectNeed}
                 onChange={(event) => updateInquiryField('projectNeed', event.target.value)}
                 rows={4}
-                className="min-h-[112px] resize-none rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
+                className="min-h-[112px] resize-none rounded-2xl border border-slate-200 bg-black/25 px-4 py-3 text-sm font-bold text-slate-900 outline-none transition placeholder:text-zinc-700 focus:border-yellow-300/50"
                 placeholder="What do you need help with?"
               />
 
               {inquiryStatus.error && (
-                <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-3 text-xs font-bold leading-relaxed text-red-200">
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold leading-relaxed text-rose-700">
                   {inquiryStatus.error}
                 </div>
               )}
 
               {inquiryStatus.message && (
-                <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-3 text-xs font-bold leading-relaxed text-emerald-100">
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold leading-relaxed text-emerald-700">
                   {inquiryStatus.message}
                 </div>
               )}
@@ -275,38 +275,38 @@ export default function FreelancerProfile() {
             </form>
 
             {mailtoUrl && (
-              <a href={mailtoUrl} className="mt-3 block rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-center text-xs font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/[0.07] hover:text-white">
+              <a href={mailtoUrl} className="mt-3 block rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-center text-xs font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-50 hover:text-indigo-700">
                 Email Instead
               </a>
             )}
             <div className="mt-5 grid gap-3">
-              <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Member since</p>
-                <p className="mt-1 text-sm font-black text-white">{formatDate(profile.memberSince)}</p>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Member since</p>
+                <p className="mt-1 text-sm font-black text-slate-900">{formatDate(profile.memberSince)}</p>
               </div>
-              <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Billing readiness</p>
-                <p className="mt-1 text-sm font-black text-white">{profile.gstReady ? 'GST-ready' : 'Invoice-ready'}</p>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Billing readiness</p>
+                <p className="mt-1 text-sm font-black text-slate-900">{profile.gstReady ? 'GST-ready' : 'Invoice-ready'}</p>
               </div>
             </div>
           </aside>
         </section>
 
-        <section className="mt-8 rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 sm:p-7">
+        <section className="mt-8 rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-7">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Services</p>
-              <h2 className="mt-2 text-2xl font-black text-white">A cleaner alternative to scattered freelance work</h2>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Services</p>
+              <h2 className="mt-2 text-2xl font-black text-slate-900">A cleaner alternative to scattered freelance work</h2>
             </div>
-            <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-200">
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-amber-700">
               No marketplace dependency
             </span>
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             {(profile.services || []).map((service) => (
-              <article key={service} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
-                <h3 className="text-base font-black text-white">{service}</h3>
-                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">
+              <article key={service} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                <h3 className="text-base font-black text-slate-900">{service}</h3>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
                   Managed with a direct-client workflow: proposal, scope, approval, invoice, and payment status.
                 </p>
               </article>

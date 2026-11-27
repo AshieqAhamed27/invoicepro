@@ -6,10 +6,10 @@ import useDocumentMeta from '../utils/useDocumentMeta';
 import { trackEvent } from '../utils/analytics';
 
 const actionTone = {
-  High: 'border-red-400/20 bg-red-400/10 text-red-200',
-  Medium: 'border-yellow-400/20 bg-yellow-400/10 text-yellow-200',
-  Start: 'border-sky-400/20 bg-sky-400/10 text-sky-200',
-  Normal: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
+  High: 'border-rose-200 bg-rose-50 text-rose-700',
+  Medium: 'border-amber-200 bg-amber-50 text-amber-700',
+  Start: 'border-sky-200 bg-sky-50 text-sky-700',
+  Normal: 'border-emerald-200 bg-emerald-50 text-emerald-700'
 };
 
 const formatMoney = (amount) =>
@@ -29,10 +29,10 @@ const formatDate = (value) => {
 
 const SkeletonBlock = () => (
   <div className="grid gap-5">
-    <div className="h-40 animate-pulse rounded-[2rem] bg-white/5" />
+    <div className="h-40 animate-pulse rounded-[2rem] bg-slate-100" />
     <div className="grid gap-4 md:grid-cols-2">
       {[1, 2, 3, 4].map((item) => (
-        <div key={item} className="h-36 animate-pulse rounded-[1.5rem] bg-white/5" />
+        <div key={item} className="h-36 animate-pulse rounded-[1.5rem] bg-slate-100" />
       ))}
     </div>
   </div>
@@ -87,26 +87,26 @@ export default function SalesAgent() {
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal responsive-heading-grid mb-10">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700">
                 AI SDR & Sales Automation Agent
               </span>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               Know who to contact, what to say, and what money to collect today.
             </h1>
-            <p className="mt-5 max-w-3xl text-base font-medium leading-relaxed text-zinc-500 sm:text-lg">
+            <p className="mt-5 max-w-3xl text-base font-medium leading-relaxed text-slate-600 sm:text-lg">
               The agent reads your leads, proposals, and invoices, then creates a daily sales action list. It prepares messages, but the user approves every send.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-white/8 bg-black/20 p-5">
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Next Best Move</p>
-            <p className="mt-3 text-xl font-black leading-tight text-white">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Next Best Move</p>
+            <p className="mt-3 text-xl font-black leading-tight text-slate-900">
               {agent?.nextBestMove?.title || 'Build your first sales action list'}
             </p>
-            <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-500">
+            <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
               {agent?.nextBestMove?.detail || 'Save leads and create proposals/invoices so the agent can rank your next action.'}
             </p>
           </div>
@@ -114,7 +114,7 @@ export default function SalesAgent() {
 
         <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold leading-relaxed text-zinc-400">
+            <p className="text-sm font-semibold leading-relaxed text-slate-600">
               {agent?.summary || 'Loading your sales pipeline...'}
             </p>
           </div>
@@ -122,7 +122,7 @@ export default function SalesAgent() {
             <button
               type="button"
               onClick={loadAgent}
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-slate-100"
             >
               Refresh Agent
             </button>
@@ -139,11 +139,11 @@ export default function SalesAgent() {
           <SkeletonBlock />
         ) : error ? (
           <div className="premium-panel p-8 text-center">
-            <p className="text-sm font-bold text-red-300">{error}</p>
+            <p className="text-sm font-bold text-rose-700">{error}</p>
             <button
               type="button"
               onClick={loadAgent}
-              className="mt-5 rounded-xl border border-white/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-white hover:bg-white/10"
+              className="mt-5 rounded-xl border border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-900 hover:bg-slate-100"
             >
               Try Again
             </button>
@@ -152,10 +152,10 @@ export default function SalesAgent() {
           <div className="space-y-8">
             <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {(agent?.scoreCards || []).map((card) => (
-                <div key={card.label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{card.label}</p>
-                  <p className="mt-2 text-3xl font-black text-white">{card.value}</p>
-                  <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">{card.note}</p>
+                <div key={card.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{card.label}</p>
+                  <p className="mt-2 text-3xl font-black text-slate-900">{card.value}</p>
+                  <p className="mt-2 text-xs font-medium leading-relaxed text-slate-600">{card.note}</p>
                 </div>
               ))}
             </section>
@@ -164,12 +164,12 @@ export default function SalesAgent() {
               <div className="premium-panel p-5 sm:p-8">
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Today</p>
-                    <h2 className="mt-2 text-2xl font-black text-white">Sales Action Plan</h2>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Today</p>
+                    <h2 className="mt-2 text-2xl font-black text-slate-900">Sales Action Plan</h2>
                   </div>
                   <Link
                     to="/leads"
-                    className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10"
+                    className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-slate-100"
                   >
                     Open Pipeline
                   </Link>
@@ -177,7 +177,7 @@ export default function SalesAgent() {
 
                 <div className="grid gap-4">
                   {(agent?.dailyActions || []).map((action, index) => (
-                    <article key={`${action.type}-${index}`} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
+                    <article key={`${action.type}-${index}`} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-3">
@@ -187,12 +187,12 @@ export default function SalesAgent() {
                             <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${actionTone[action.priority] || actionTone.Normal}`}>
                               {action.priority}
                             </span>
-                            <span className="rounded-full border border-yellow-300/20 bg-yellow-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-yellow-200">
+                            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-amber-700">
                               {action.value}
                             </span>
                           </div>
-                          <h3 className="mt-4 text-xl font-black leading-tight text-white">{action.title}</h3>
-                          <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">{action.detail}</p>
+                          <h3 className="mt-4 text-xl font-black leading-tight text-slate-900">{action.title}</h3>
+                          <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{action.detail}</p>
                         </div>
 
                         <div className="grid shrink-0 gap-3 sm:grid-cols-2 lg:w-48 lg:grid-cols-1">
@@ -205,7 +205,7 @@ export default function SalesAgent() {
                           <button
                             type="button"
                             onClick={() => copyText(action.title, action.message)}
-                            className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10"
+                            className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-slate-100"
                           >
                             {copied === action.title ? 'Copied' : 'Copy Message'}
                           </button>
@@ -218,7 +218,7 @@ export default function SalesAgent() {
 
               <aside className="space-y-5">
                 <div className="premium-panel p-5 sm:p-6">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Sales Forecast</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Sales Forecast</p>
                   <div className="mt-5 grid gap-3">
                     {[
                       ['Pipeline', formatMoney(forecast.pipelineValue)],
@@ -226,25 +226,25 @@ export default function SalesAgent() {
                       ['Accepted proposals', formatMoney(forecast.acceptedProposalValue)],
                       ['Pending invoices', formatMoney(forecast.pendingInvoiceValue)]
                     ].map(([label, value]) => (
-                      <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                        <p className="text-right text-sm font-black text-white">{value}</p>
+                      <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
+                        <p className="text-right text-sm font-black text-slate-900">{value}</p>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-5 rounded-2xl border border-emerald-400/15 bg-emerald-400/10 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Focus</p>
-                    <p className="mt-2 text-sm font-bold leading-relaxed text-white">{forecast.closeFocus}</p>
+                  <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Focus</p>
+                    <p className="mt-2 text-sm font-bold leading-relaxed text-slate-900">{forecast.closeFocus}</p>
                   </div>
                 </div>
 
                 <div className="premium-panel p-5 sm:p-6">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Automation Rules</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Automation Rules</p>
                   <div className="mt-5 grid gap-3">
                     {(agent?.rules || []).map((rule) => (
-                      <div key={rule} className="flex gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <div key={rule} className="flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-300" />
-                        <p className="text-xs font-semibold leading-relaxed text-zinc-400">{rule}</p>
+                        <p className="text-xs font-semibold leading-relaxed text-slate-600">{rule}</p>
                       </div>
                     ))}
                   </div>
@@ -254,30 +254,30 @@ export default function SalesAgent() {
 
             <section className="premium-panel p-5 sm:p-8">
               <div className="mb-6">
-                <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Message Library</p>
-                <h2 className="mt-2 text-2xl font-black text-white">Copy-ready sales scripts</h2>
-                <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">
+                <p className="text-[10px] font-black uppercase tracking-widest text-sky-700">Message Library</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-900">Copy-ready sales scripts</h2>
+                <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">
                   These are prepared from your current leads, proposals, and invoices. Edit before sending.
                 </p>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
                 {(agent?.scripts || []).map((script) => (
-                  <article key={script.label} className="rounded-2xl border border-white/8 bg-black/20 p-5">
+                  <article key={script.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                     <div className="mb-4 flex items-start justify-between gap-4">
                       <div>
-                        <h3 className="text-base font-black text-white">{script.label}</h3>
-                        <p className="mt-1 text-xs font-medium text-zinc-500">{script.useCase}</p>
+                        <h3 className="text-base font-black text-slate-900">{script.label}</h3>
+                        <p className="mt-1 text-xs font-medium text-slate-600">{script.useCase}</p>
                       </div>
                       <button
                         type="button"
                         onClick={() => copyText(script.label, script.text)}
-                        className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 hover:text-white"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-100 hover:text-indigo-700"
                       >
                         {copied === script.label ? 'Copied' : 'Copy'}
                       </button>
                     </div>
-                    <pre className="whitespace-pre-wrap break-words rounded-xl bg-white/[0.03] p-4 text-sm font-medium leading-relaxed text-zinc-400">{script.text}</pre>
+                    <pre className="whitespace-pre-wrap break-words rounded-xl bg-slate-50 p-4 text-sm font-medium leading-relaxed text-slate-600">{script.text}</pre>
                   </article>
                 ))}
               </div>
@@ -285,59 +285,59 @@ export default function SalesAgent() {
 
             <section className="grid gap-5 xl:grid-cols-3">
               <div className="premium-panel p-5 sm:p-8">
-                <h2 className="text-xl font-black text-white">Lead Queue</h2>
+                <h2 className="text-xl font-black text-slate-900">Lead Queue</h2>
                 <div className="mt-5 grid gap-3">
                   {(agent?.leadQueue || []).length ? agent.leadQueue.map((lead) => (
-                    <div key={lead.id || lead.name} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                    <div key={lead.id || lead.name} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="truncate text-sm font-black text-white">{lead.name}</p>
-                        <span className="rounded-full border border-emerald-400/15 bg-emerald-400/10 px-2 py-1 text-[10px] font-black text-emerald-300">
+                        <p className="truncate text-sm font-black text-slate-900">{lead.name}</p>
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-700">
                           {lead.score}
                         </span>
                       </div>
-                      <p className="mt-2 line-clamp-2 text-xs font-medium leading-relaxed text-zinc-500">{lead.reason}</p>
-                      <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                      <p className="mt-2 line-clamp-2 text-xs font-medium leading-relaxed text-slate-600">{lead.reason}</p>
+                      <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
                         Follow-up: {formatDate(lead.nextFollowUpAt)}
                       </p>
                     </div>
                   )) : (
-                    <p className="rounded-2xl border border-white/8 bg-black/20 p-4 text-sm font-medium text-zinc-500">No saved leads yet.</p>
+                    <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-600">No saved leads yet.</p>
                   )}
                 </div>
               </div>
 
               <div className="premium-panel p-5 sm:p-8">
-                <h2 className="text-xl font-black text-white">Proposal Queue</h2>
+                <h2 className="text-xl font-black text-slate-900">Proposal Queue</h2>
                 <div className="mt-5 grid gap-3">
                   {(agent?.proposalQueue || []).length ? agent.proposalQueue.map((proposal) => (
-                    <div key={proposal.id || proposal.invoiceNumber} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                      <p className="truncate text-sm font-black text-white">{proposal.clientName || 'Client proposal'}</p>
+                    <div key={proposal.id || proposal.invoiceNumber} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="truncate text-sm font-black text-slate-900">{proposal.clientName || 'Client proposal'}</p>
                       <div className="mt-3 flex items-center justify-between gap-3">
-                        <span className="text-xs font-bold text-yellow-300">{formatMoney(proposal.amount)}</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{proposal.status}</span>
+                        <span className="text-xs font-bold text-amber-700">{formatMoney(proposal.amount)}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{proposal.status}</span>
                       </div>
-                      <p className="mt-2 text-xs font-medium text-zinc-500">Valid: {formatDate(proposal.validUntil)}</p>
+                      <p className="mt-2 text-xs font-medium text-slate-600">Valid: {formatDate(proposal.validUntil)}</p>
                     </div>
                   )) : (
-                    <p className="rounded-2xl border border-white/8 bg-black/20 p-4 text-sm font-medium text-zinc-500">No open proposals yet.</p>
+                    <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-600">No open proposals yet.</p>
                   )}
                 </div>
               </div>
 
               <div className="premium-panel p-5 sm:p-8">
-                <h2 className="text-xl font-black text-white">Collection Queue</h2>
+                <h2 className="text-xl font-black text-slate-900">Collection Queue</h2>
                 <div className="mt-5 grid gap-3">
                   {(agent?.collectionQueue || []).length ? agent.collectionQueue.map((invoice) => (
-                    <div key={invoice.id || invoice.invoiceNumber} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                    <div key={invoice.id || invoice.invoiceNumber} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="truncate text-sm font-black text-white">{invoice.clientName}</p>
-                        <span className="text-xs font-black text-yellow-300">{formatMoney(invoice.amount)}</span>
+                        <p className="truncate text-sm font-black text-slate-900">{invoice.clientName}</p>
+                        <span className="text-xs font-black text-amber-700">{formatMoney(invoice.amount)}</span>
                       </div>
-                      <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">{invoice.reason}</p>
-                      <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">{invoice.automationLabel}</p>
+                      <p className="mt-2 text-xs font-medium leading-relaxed text-slate-600">{invoice.reason}</p>
+                      <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-500">{invoice.automationLabel}</p>
                     </div>
                   )) : (
-                    <p className="rounded-2xl border border-white/8 bg-black/20 p-4 text-sm font-medium text-zinc-500">No pending collections.</p>
+                    <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-600">No pending collections.</p>
                   )}
                 </div>
               </div>

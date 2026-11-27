@@ -397,11 +397,11 @@ export default function FlowAgentBar({
                 onClick={toggleListening}
                 className={`group relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl border transition-all hover:scale-105 active:scale-95 focus:outline-none shrink-0 ${
                   isListening
-                    ? 'border-red-400 bg-red-500/15 text-red-500 shadow-lg shadow-red-500/30 animate-pulse'
+                    ? 'border-red-400 bg-rose-50 text-red-500 shadow-lg shadow-red-500/30 animate-pulse'
                     : isSpeaking
-                      ? 'border-cyan-400 bg-cyan-500/15 text-cyan-400 shadow-lg shadow-cyan-500/30 animate-pulse'
+                      ? 'border-cyan-400 bg-indigo-50 text-cyan-400 shadow-lg shadow-cyan-500/30 animate-pulse'
                       : loading
-                        ? 'border-indigo-400 bg-indigo-500/15 text-indigo-400 shadow-lg shadow-indigo-500/30'
+                        ? 'border-indigo-400 bg-indigo-50 text-indigo-400 shadow-lg shadow-indigo-500/30'
                         : 'border-slate-200 dark:border-cyan-500/30 bg-slate-100 dark:bg-cyan-950/20 text-indigo-600 dark:text-cyan-400'
                 }`}
                 title={isListening ? 'Listening... Tap to stop' : `Voice Command (${agentName})`}
@@ -420,12 +420,12 @@ export default function FlowAgentBar({
                   </h3>
                   <span className={`rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border transition ${
                     isListening
-                      ? 'bg-red-500/15 text-red-600 dark:text-red-300 border-red-500/30 animate-pulse'
+                      ? 'bg-rose-50 text-red-600 dark:text-red-300 border-red-500/30 animate-pulse'
                       : isSpeaking
-                        ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-300 border-cyan-500/30 animate-pulse'
+                        ? 'bg-indigo-50 text-cyan-600 dark:text-cyan-300 border-cyan-500/30 animate-pulse'
                         : loading
-                          ? 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 border-indigo-500/30 animate-pulse'
-                          : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25'
+                          ? 'bg-indigo-50 text-indigo-600 dark:text-indigo-300 border-indigo-500/30 animate-pulse'
+                          : 'bg-emerald-50 text-emerald-600 dark:text-emerald-400 border-emerald-500/25'
                   }`}>
                     {isListening ? 'Listening...' : isSpeaking ? 'Speaking...' : loading ? 'Executing...' : 'Online'}
                   </span>
@@ -443,7 +443,7 @@ export default function FlowAgentBar({
               e.preventDefault();
               handleExecuteCommand(input, { isVoiceInput: false });
             }}
-            className="mt-3.5 flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/60 p-1.5 focus-within:border-indigo-500 dark:focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-indigo-500/15 dark:focus-within:ring-cyan-500/25 transition shadow-inner"
+            className="mt-3.5 flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-white p-1.5 focus-within:border-indigo-500 dark:focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-indigo-500/15 dark:focus-within:ring-cyan-500/25 transition shadow-inner"
           >
             <span className="pl-3 pr-1 text-indigo-500 dark:text-cyan-400 shrink-0 text-sm">
               ⚡
@@ -465,7 +465,7 @@ export default function FlowAgentBar({
                   className={`flex h-9 w-9 items-center justify-center rounded-xl transition active:scale-95 ${
                     isListening
                       ? 'bg-red-500 text-white shadow-md shadow-red-500/30 animate-pulse'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-300 hover:bg-slate-200/60 dark:hover:bg-white/10'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-300 hover:bg-slate-200/60 dark:hover:bg-slate-100'
                   }`}
                   title={isListening ? 'Listening... tap to stop' : 'Speak a command'}
                   aria-label="Toggle voice"
@@ -497,7 +497,7 @@ export default function FlowAgentBar({
 
           {/* 3. QUICK COMMAND TRIGGERS */}
           <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-cyan-500/70 shrink-0 font-mono">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-cyan-500/70 shrink-0 font-mono">
               COMMANDS:
             </span>
             {AGENT_CONFIG.chips.map((chip, idx) => (
@@ -505,7 +505,7 @@ export default function FlowAgentBar({
                 key={idx}
                 type="button"
                 onClick={() => handleExecuteCommand(chip.cmd, { isVoiceInput: false })}
-                className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-800/40 px-3 py-1 font-medium text-slate-700 dark:text-slate-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:border-cyan-400/40 dark:hover:bg-cyan-500/10 hover:text-indigo-700 dark:hover:text-cyan-200 transition shrink-0 whitespace-nowrap"
+                className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-800/40 px-3 py-1 font-medium text-slate-700 dark:text-slate-300 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:border-indigo-200 dark:hover:bg-indigo-50 hover:text-indigo-700 dark:hover:text-cyan-200 transition shrink-0 whitespace-nowrap"
               >
                 {chip.label}
               </button>
@@ -522,7 +522,7 @@ export default function FlowAgentBar({
               <button
                 type="button"
                 onClick={() => setErrorMsg('')}
-                className="text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-white p-1 text-xs transition"
+                className="text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-indigo-700 p-1 text-xs transition"
               >
                 ✕
               </button>
@@ -532,14 +532,14 @@ export default function FlowAgentBar({
 
         {/* ─── 4. INTEGRATED JARVIS MISSION READOUT (Seamlessly docked inside HUD) ─── */}
         {activeTelemetry && (
-          <div className="border-t border-slate-200 dark:border-slate-800/90 bg-slate-900 dark:bg-slate-950 p-4 sm:p-5 text-white animate-fade-in relative overflow-hidden">
+          <div className="border-t border-slate-200 bg-slate-50 p-4 sm:p-5 text-slate-900 animate-fade-in relative overflow-hidden">
             {/* Subtle Cyber Grid Glow */}
-            <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-100/60 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800 text-xs">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 text-xs">
               <div className="flex items-center gap-2">
-                <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-widest text-cyan-300">
+                <span className="flex h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
+                <span className="text-[10px] sm:text-[11px] font-black font-mono uppercase tracking-widest text-indigo-700">
                   FLOW ASSISTANT // {activeTelemetry.isVoice ? 'VOICE COMMAND' : 'CONSOLE COMMAND'}
                 </span>
               </div>
@@ -554,7 +554,7 @@ export default function FlowAgentBar({
                       speakAloud(activeTelemetry.reply);
                     }
                   }}
-                  className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 transition flex items-center gap-1.5"
+                  className="rounded-lg px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:text-indigo-700 bg-white border border-slate-200 hover:bg-slate-100 transition flex items-center gap-1.5"
                   title={isSpeaking ? 'Mute voice' : 'Play audio'}
                 >
                   <span>{isSpeaking ? '⏹️' : '🔊'}</span>
@@ -567,7 +567,7 @@ export default function FlowAgentBar({
                     stopSpeaking();
                     setActiveTelemetry(null);
                   }}
-                  className="rounded-lg px-2 py-1 text-[11px] font-bold text-slate-400 hover:text-white transition hover:bg-white/10"
+                  className="rounded-lg px-2 py-1 text-[11px] font-bold text-slate-600 hover:text-indigo-700 transition hover:bg-slate-100"
                   title="Dismiss readout"
                 >
                   ✕
@@ -577,7 +577,7 @@ export default function FlowAgentBar({
 
             {/* Guaranteed High-Contrast Pure White Text Readout */}
             <div className="py-1">
-              <p className="text-sm sm:text-base font-medium text-white leading-relaxed tracking-wide">
+              <p className="text-sm sm:text-base font-medium text-slate-900 leading-relaxed tracking-wide">
                 {activeTelemetry.reply}
               </p>
             </div>
@@ -622,9 +622,9 @@ export default function FlowAgentBar({
       {/* ─── 5. 🔒 100% USER PERMISSION HOLOGRAPHIC DRAFT CARD ─── */}
       {activeDraft && (
         <div className="mt-4 overflow-hidden rounded-3xl border border-indigo-300 dark:border-cyan-500/40 bg-white dark:bg-gradient-to-b dark:from-slate-900/98 dark:to-slate-950 p-4 sm:p-6 shadow-2xl backdrop-blur-2xl animate-fade-in">
-          <div className="flex items-start justify-between border-b border-slate-100 dark:border-white/10 pb-4">
+          <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-200 pb-4">
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 dark:border-cyan-400/30 bg-indigo-50 dark:bg-cyan-400/10 px-3 py-0.5 text-xs font-black text-indigo-700 dark:text-cyan-300">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 dark:border-indigo-200 bg-indigo-50 dark:bg-indigo-50 px-3 py-0.5 text-xs font-black text-indigo-700 dark:text-cyan-300">
                 🔒 Ready for Your Authorization
               </span>
               <h4 className="mt-2 text-lg sm:text-xl font-black text-slate-900 dark:text-white">
@@ -634,7 +634,7 @@ export default function FlowAgentBar({
             <button
               type="button"
               onClick={() => setActiveDraft(null)}
-              className="rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition"
+              className="rounded-full border border-slate-200 dark:border-slate-200 bg-slate-50 dark:bg-slate-100 p-2 text-slate-600 hover:text-slate-600 dark:hover:text-indigo-700 transition"
               title="Close draft"
             >
               ✕
@@ -642,18 +642,18 @@ export default function FlowAgentBar({
           </div>
 
           <div className="my-4 sm:my-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
-            <div className="rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/40 p-3.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Client</span>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-200 bg-slate-50 dark:bg-slate-50 p-3.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-600">Client</span>
               <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white truncate">{activeDraft.clientName || 'N/A'}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/40 p-3.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Subtotal</span>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-200 bg-slate-50 dark:bg-slate-50 p-3.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-600">Subtotal</span>
               <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white truncate">
                 {formatCurrency(activeDraft.totals?.subtotal || activeDraft.amount, activeDraft.currency)}
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/40 p-3.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">GST Rate</span>
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-200 bg-slate-50 dark:bg-slate-50 p-3.5">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-600">GST Rate</span>
               <p className="mt-1 text-sm font-bold text-emerald-600 dark:text-emerald-400 truncate">
                 {activeDraft.totals?.taxRate > 0
                   ? `${activeDraft.totals.taxRate}% (+${formatCurrency(activeDraft.totals.tax, activeDraft.currency)})`
@@ -668,7 +668,7 @@ export default function FlowAgentBar({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-100 dark:border-white/5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-200">
             <p className="text-xs text-slate-500 dark:text-slate-400">
               🔒 100% Permission Safe: Nothing is added to your database until you click confirm.
             </p>
@@ -676,7 +676,7 @@ export default function FlowAgentBar({
               <button
                 type="button"
                 onClick={() => setActiveDraft(null)}
-                className="w-full sm:w-auto rounded-2xl border border-slate-200 dark:border-white/10 px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                className="w-full sm:w-auto rounded-2xl border border-slate-200 dark:border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-100 transition"
               >
                 Dismiss
               </button>
@@ -684,7 +684,7 @@ export default function FlowAgentBar({
                 type="button"
                 onClick={handleConfirmCreateInvoice}
                 disabled={draftActionLoading}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-2.5 text-xs font-black shadow-lg shadow-emerald-500/25 transition hover:scale-105 active:scale-95 disabled:opacity-50"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-900 px-6 py-2.5 text-xs font-black shadow-lg shadow-emerald-500/25 transition hover:scale-105 active:scale-95 disabled:opacity-50"
               >
                 {draftActionLoading ? 'Authorizing...' : '✅ Confirm & Create Invoice'}
               </button>
@@ -698,7 +698,7 @@ export default function FlowAgentBar({
         <div className="mt-4 rounded-3xl border border-emerald-500/30 bg-white dark:bg-gradient-to-r dark:from-emerald-950/50 dark:to-slate-950 p-4 sm:p-5 shadow-xl animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 text-xl border border-emerald-500/30">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-400 text-xl border border-emerald-500/30">
                 ✓
               </span>
               <div>
@@ -727,7 +727,7 @@ export default function FlowAgentBar({
                   navigator.clipboard.writeText(url);
                   alert('Public invoice link copied to clipboard!');
                 }}
-                className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-white font-bold text-xs px-3.5 py-2 transition"
+                className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-200 bg-slate-100 dark:bg-slate-100 hover:bg-slate-200 dark:hover:bg-slate-100 text-slate-700 dark:text-white font-bold text-xs px-3.5 py-2 transition"
               >
                 <span>📋</span>
                 <span>Copy Link</span>

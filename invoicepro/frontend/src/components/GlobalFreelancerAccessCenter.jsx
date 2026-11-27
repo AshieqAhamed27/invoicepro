@@ -118,9 +118,9 @@ const loadProfile = () => {
 };
 
 const getStatusClass = (status) => {
-  if (status === 'Built in') return 'border-emerald-300/25 bg-emerald-300/[0.08] text-emerald-200';
-  if (status === 'Workflow live') return 'border-sky-300/25 bg-sky-300/[0.08] text-sky-200';
-  return 'border-yellow-300/25 bg-yellow-300/[0.08] text-yellow-100';
+  if (status === 'Built in') return 'border-emerald-200 bg-emerald-300/[0.08] text-emerald-700';
+  if (status === 'Workflow live') return 'border-sky-200 bg-sky-300/[0.08] text-sky-700';
+  return 'border-amber-200 bg-yellow-300/[0.08] text-amber-700';
 };
 
 export default function GlobalFreelancerAccessCenter({
@@ -164,22 +164,22 @@ export default function GlobalFreelancerAccessCenter({
   };
 
   return (
-    <section className={`reveal reveal-delay-1 mb-12 rounded-[2rem] border border-violet-300/20 bg-violet-300/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 ${compact ? '' : 'lg:p-10'}`}>
+    <section className={`reveal reveal-delay-1 mb-12 rounded-[2rem] border border-violet-200 bg-violet-300/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 ${compact ? '' : 'lg:p-10'}`}>
       <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(260px,0.35fr)] lg:items-end">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-300">Global freelancer access</p>
-          <h2 className={`${compact ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl'} mt-3 font-black tracking-tight text-white`}>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-700">Global freelancer access</p>
+          <h2 className={`${compact ? 'text-2xl sm:text-3xl' : 'text-3xl sm:text-4xl'} mt-3 font-black tracking-tight text-slate-900`}>
             Solve the access gaps freelancers face with clients in other countries.
           </h2>
-          <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
             ClientFlow AI turns the missing pieces into a guided workflow: client access, proposal protection, delivery proof, invoice records, payment collection, and stable income planning.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Access readiness</p>
-          <p className="mt-2 text-5xl font-black text-white">{accessScore}%</p>
-          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+        <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Access readiness</p>
+          <p className="mt-2 text-5xl font-black text-slate-900">{accessScore}%</p>
+          <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">
             {solvedCount}/{scoredProblems.length} access problems have an active workflow signal.
           </p>
         </div>
@@ -238,29 +238,29 @@ export default function GlobalFreelancerAccessCenter({
               className={`rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 active:scale-[0.99] ${
                 activeProblem.id === problem.id
                   ? 'border-violet-300/35 bg-violet-300/[0.08]'
-                  : 'border-white/8 bg-black/20 hover:border-violet-300/20'
+                  : 'border-slate-200 bg-slate-50 hover:border-violet-200'
               }`}
             >
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-sm font-black text-white">{problem.title}</h3>
+                <h3 className="text-sm font-black text-slate-900">{problem.title}</h3>
                 <span className={`shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${
                   problem.solved
-                    ? 'border-emerald-300/25 bg-emerald-300/10 text-emerald-200'
-                    : 'border-yellow-300/20 bg-yellow-300/10 text-yellow-100'
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                    : 'border-amber-200 bg-amber-50 text-amber-700'
                 }`}>
                   {problem.solved ? 'Active' : 'Start'}
                 </span>
               </div>
-              <p className="mt-3 text-xs font-semibold leading-relaxed text-zinc-500">{problem.gap}</p>
+              <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-600">{problem.gap}</p>
             </button>
           ))}
         </div>
 
-        <aside className="rounded-[1.5rem] border border-white/10 bg-black/25 p-5 sm:p-6">
+        <aside className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-300">Selected problem</p>
-              <h3 className="mt-3 text-2xl font-black text-white">{activeProblem.title}</h3>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-violet-700">Selected problem</p>
+              <h3 className="mt-3 text-2xl font-black text-slate-900">{activeProblem.title}</h3>
             </div>
             <span className={`shrink-0 rounded-full border px-3 py-1.5 text-[9px] font-black uppercase tracking-widest ${getStatusClass(activeProblem.status)}`}>
               {activeProblem.status}
@@ -268,19 +268,19 @@ export default function GlobalFreelancerAccessCenter({
           </div>
 
           <div className="mt-5 grid gap-3">
-            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">What we solve now</p>
-              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{activeProblem.solution}</p>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">What we solve now</p>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{activeProblem.solution}</p>
             </div>
-            <div className="rounded-2xl border border-yellow-300/15 bg-yellow-300/[0.05] p-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Needs partner later</p>
-              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{activeProblem.later}</p>
+            <div className="rounded-2xl border border-amber-200 bg-yellow-300/[0.05] p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Needs partner later</p>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{activeProblem.later}</p>
             </div>
           </div>
 
-          <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Configured plan</p>
-            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+          <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Configured plan</p>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">
               Target {profile.targetCountry} clients, invoice in {profile.currency}, and collect through {profile.paymentPath.toLowerCase()}.
             </p>
           </div>

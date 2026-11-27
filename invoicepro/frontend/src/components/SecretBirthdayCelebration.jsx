@@ -117,7 +117,7 @@ export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
 
       {/* Top Controls: Dismiss anytime */}
       <div className="relative z-10 flex items-center justify-between pb-3">
-        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-400/10 px-3.5 py-1 text-xs font-black uppercase tracking-widest text-amber-300 shadow-sm">
+        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-50 px-3.5 py-1 text-xs font-black uppercase tracking-widest text-amber-700 shadow-sm">
           <span className="animate-spin">✨</span>
           <span>A SPECIAL DAY IN YOUR STUDIO</span>
         </div>
@@ -125,7 +125,7 @@ export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:bg-white/10 hover:text-white"
+          className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-indigo-700"
           title="Return to standard view"
         >
           ✕ Standard view
@@ -134,18 +134,18 @@ export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
 
       <div className="relative z-10 mt-4 flex flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
         <div className="max-w-xl">
-          <h2 className="text-3xl font-black text-white sm:text-4xl tracking-tight">
+          <h2 className="text-3xl font-black text-slate-900 sm:text-4xl tracking-tight">
             🎉 Happy Birthday,{' '}
             <span className="bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent">
               {userName}
             </span>!
           </h2>
 
-          <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base font-normal">
+          <p className="mt-2 text-sm leading-relaxed text-slate-700 sm:text-base font-normal">
             Your entire workspace is celebrating you today. {agentName} prepared a personal gift to celebrate your journey and help you scale your freelance studio.
           </p>
 
-          <p className="mt-2 text-xs font-semibold text-amber-300/80">
+          <p className="mt-2 text-xs font-semibold text-amber-700/80">
             ⭐ Exclusive Founder Unlock • Available Today Only
           </p>
         </div>
@@ -165,22 +165,22 @@ export default function SecretBirthdayCelebration({ user, onUserUpdated }) {
               <span className="relative text-5xl transition-transform duration-300 group-hover:scale-110 animate-bounce">
                 🎁
               </span>
-              <span className="relative mt-3 text-xs font-black uppercase tracking-wider text-amber-200 group-hover:text-white">
+              <span className="relative mt-3 text-xs font-black uppercase tracking-wider text-amber-700 group-hover:text-indigo-700">
                 {isOpening ? 'Unboxing...' : 'Tap to Open Gift'}
               </span>
             </button>
           ) : (
             <div className="rounded-3xl border border-emerald-400/50 bg-gradient-to-b from-emerald-950/80 to-slate-950 p-6 text-center shadow-xl shadow-emerald-500/10">
               <span className="text-4xl animate-pulse">👑</span>
-              <p className="mt-2 text-xs font-black tracking-widest text-emerald-300 uppercase">GIFT ACTIVE</p>
-              <p className="mt-1 text-xs font-semibold text-slate-200">14 Days of Pro Access Unlocked</p>
+              <p className="mt-2 text-xs font-black tracking-widest text-emerald-700 uppercase">GIFT ACTIVE</p>
+              <p className="mt-1 text-xs font-semibold text-slate-800">14 Days of Pro Access Unlocked</p>
             </div>
           )}
         </div>
       </div>
 
       {giftResult && (
-        <div className="relative z-10 mt-5 rounded-2xl border border-emerald-400/30 bg-emerald-950/60 p-4 text-center text-xs font-bold text-emerald-300 backdrop-blur-md animate-fade-in">
+        <div className="relative z-10 mt-5 rounded-2xl border border-emerald-200 bg-emerald-950/60 p-4 text-center text-xs font-bold text-emerald-700 backdrop-blur-md animate-fade-in">
           {giftResult.message}
         </div>
       )}

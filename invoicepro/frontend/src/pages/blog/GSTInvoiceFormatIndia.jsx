@@ -45,7 +45,7 @@ export default function GSTInvoiceFormatIndia() {
           GST Invoice Format for Freelancers in India (2026)
         </h1>
 
-        <p className="mt-4 text-zinc-400">
+        <p className="mt-4 text-slate-600">
           If you're a freelancer in India, creating a GST-compliant invoice is important.
           This guide explains the correct invoice format and required fields.
         </p>
@@ -53,7 +53,7 @@ export default function GSTInvoiceFormatIndia() {
         <h2 className="mt-10 text-2xl font-bold">
           Required Fields in GST Invoice
         </h2>
-        <p className="mt-3 text-zinc-400">
+        <p className="mt-3 text-slate-600">
           A GST invoice must include invoice number, date, supplier details,
           GSTIN, client details, item description, tax breakdown, and total amount.
         </p>
@@ -61,14 +61,14 @@ export default function GSTInvoiceFormatIndia() {
         <h2 className="mt-10 text-2xl font-bold">
           GST Invoice Example
         </h2>
-        <p className="mt-3 text-zinc-400">
+        <p className="mt-3 text-slate-600">
           A typical invoice includes line items, CGST and SGST or IGST, and total payable amount.
         </p>
 
         <h2 className="mt-10 text-2xl font-bold">
           How to Create GST Invoice Easily
         </h2>
-        <p className="mt-3 text-zinc-400">
+        <p className="mt-3 text-slate-600">
           Instead of manual work, you can use tools like ClientFlow AI to generate GST invoices
           and send payment links instantly.
         </p>
@@ -76,7 +76,7 @@ export default function GSTInvoiceFormatIndia() {
         <h2 className="mt-10 text-2xl font-bold">
           Accept Payments via UPI or Razorpay
         </h2>
-        <p className="mt-3 text-zinc-400">
+        <p className="mt-3 text-slate-600">
           After creating invoice, share link and collect payments using UPI apps or Razorpay checkout.
         </p>
 

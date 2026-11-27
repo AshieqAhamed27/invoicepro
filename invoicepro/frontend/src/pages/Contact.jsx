@@ -35,80 +35,80 @@ export default function Contact() {
       <main className="container-custom py-10 sm:py-14 md:py-20">
         <section className="responsive-heading-grid">
           <div className="max-w-3xl">
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Contact</p>
-            <h1 className="mt-4 max-w-[11ch] break-words text-[2.5rem] font-black tracking-tight leading-[0.97] text-white sm:max-w-none sm:text-5xl md:text-6xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Contact</p>
+            <h1 className="mt-4 max-w-[11ch] break-words text-[2.5rem] font-black tracking-tight leading-[0.97] text-slate-900 sm:max-w-none sm:text-5xl md:text-6xl">
               Reach a real person when you need help with billing.
             </h1>
-            <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-zinc-400 md:text-lg">
+            <p className="mt-6 max-w-2xl text-base font-medium leading-relaxed text-slate-600 md:text-lg">
               {COMPANY_NAME} is built for freelancers, consultants, and agencies that want a cleaner system for clients, projects, proposals, invoices, and payments.
               For paid setup help, use the agency booking flow.
             </p>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5 sm:p-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Support email</p>
-                <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-3 block break-all text-lg font-black text-white hover:text-yellow-300 sm:text-xl sm:break-normal">
+              <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Support email</p>
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-3 block break-all text-lg font-black text-slate-900 hover:text-yellow-300 sm:text-xl sm:break-normal">
                   {SUPPORT_EMAIL}
                 </a>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
+                <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
                   Best for setup help, product questions, and issues related to invoices or payments.
                 </p>
               </div>
 
-              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5 sm:p-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Mobile</p>
-                <a href={`tel:${SUPPORT_PHONE_TEL}`} className="mt-3 block text-lg font-black text-white hover:text-yellow-300 sm:text-xl">
+              <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Mobile</p>
+                <a href={`tel:${SUPPORT_PHONE_TEL}`} className="mt-3 block text-lg font-black text-slate-900 hover:text-yellow-300 sm:text-xl">
                   {SUPPORT_PHONE_DISPLAY}
                 </a>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
+                <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
                   Best for urgent product or setup questions.
                 </p>
               </div>
 
-              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5 sm:p-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">LinkedIn</p>
+              <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">LinkedIn</p>
                 <a
                   href={LINKEDIN_PROFILE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 block break-words text-lg font-black text-white hover:text-yellow-300 sm:text-xl"
+                  className="mt-3 block break-words text-lg font-black text-slate-900 hover:text-yellow-300 sm:text-xl"
                 >
                   Ashieq Ahamed
                 </a>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
+                <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
                   Connect for feedback, early access, and product updates.
                 </p>
               </div>
 
-              <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-5 sm:p-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Business registration</p>
-                <p className="mt-3 text-xl font-black text-white">{COMPANY_LOCATION}</p>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
+              <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Business registration</p>
+                <p className="mt-3 text-xl font-black text-slate-900">{COMPANY_LOCATION}</p>
+                <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
                   {COMPANY_LEGAL_DESCRIPTION}
                 </p>
-                <p className="mt-3 break-all text-xs font-black uppercase tracking-widest text-yellow-300">
+                <p className="mt-3 break-all text-xs font-black uppercase tracking-widest text-amber-700">
                   Udyam No: {UDYAM_REGISTRATION_NUMBER}
                 </p>
               </div>
             </div>
           </div>
 
-          <aside className="rounded-[2rem] border border-white/8 bg-zinc-950 p-6 sm:rounded-[2.5rem] sm:p-10">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">What to include</p>
-            <h2 className="mt-4 max-w-[12ch] break-words text-2xl font-black text-white sm:max-w-none sm:text-3xl">Make your support request easier to solve</h2>
+          <aside className="rounded-[2rem] border border-slate-200 bg-white p-6 sm:rounded-[2.5rem] sm:p-10 shadow-sm">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">What to include</p>
+            <h2 className="mt-4 max-w-[12ch] break-words text-2xl font-black text-slate-900 sm:max-w-none sm:text-3xl">Make your support request easier to solve</h2>
 
             <div className="mt-8 space-y-4">
               {contactTopics.map((topic) => (
-                <div key={topic} className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
-                  <span className="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                  <p className="text-sm font-medium leading-relaxed text-zinc-300">{topic}</p>
+                <div key={topic} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <span className="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-600" />
+                  <p className="text-sm font-medium leading-relaxed text-slate-700">{topic}</p>
                 </div>
               ))}
             </div>
 
             <a
               href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI%20Support`}
-              className="mt-8 inline-flex rounded-2xl bg-white px-6 py-4 text-sm font-black text-black transition-all hover:scale-[1.02] active:scale-95"
+              className="mt-8 inline-flex rounded-2xl bg-slate-900 px-6 py-4 text-sm font-black text-white transition-all hover:bg-black hover:scale-[1.02] active:scale-95 shadow-sm"
             >
               Email Support
             </a>
@@ -116,7 +116,7 @@ export default function Contact() {
               href="https://wa.me/919080963704"
               target="_blank"
               rel="noopener noreferrer"
-              className="ml-0 mt-3 inline-flex rounded-2xl border border-emerald-300/30 bg-emerald-500/20 px-6 py-4 text-sm font-black text-emerald-200 transition-all hover:scale-[1.02] active:scale-95 sm:ml-3"
+              className="ml-0 mt-3 inline-flex rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-4 text-sm font-black text-emerald-700 transition-all hover:scale-[1.02] active:scale-95 sm:ml-3"
             >
               WhatsApp Support (+91 90809 63704)
             </a>

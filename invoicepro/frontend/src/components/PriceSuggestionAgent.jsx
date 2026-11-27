@@ -98,19 +98,19 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
 
   return (
     <section className="premium-panel overflow-hidden">
-      <div className="border-b border-white/10 bg-white/[0.02] p-5 sm:p-6">
+      <div className="border-b border-slate-200 bg-slate-50 p-5 sm:p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-lg border border-yellow-400/20 bg-yellow-400/10 px-3 py-1.5">
+            <div className="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5">
               <span className="h-2 w-2 rounded-full bg-yellow-400" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">
                 AI Price Suggestion
               </p>
             </div>
-            <h2 className="mt-4 text-2xl font-black tracking-tight text-white">
+            <h2 className="mt-4 text-2xl font-black tracking-tight text-slate-900">
               Get a realistic market range for your service.
             </h2>
-            <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+            <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
               Estimate a fair INR range, package options, and strategy tips before you quote the client.
             </p>
           </div>
@@ -121,12 +121,12 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
         <div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
-              <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Service</p>
+              <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-slate-500">Service</p>
               <input
                 value={form.serviceName}
                 onChange={(e) => setForm({ ...form, serviceName: e.target.value })}
                 placeholder="Website design, logo design, SEO audit, consulting..."
-                className="input bg-black/20 border-white/5 py-4"
+                className="input bg-slate-50 border-slate-200 py-4"
               />
             </div>
 
@@ -174,12 +174,12 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
             </div>
 
             <div className="space-y-1.5">
-              <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Timeline</p>
+              <p className="ml-1 text-[10px] font-black uppercase tracking-widest text-slate-500">Timeline</p>
               <input
                 value={form.timeline}
                 onChange={(e) => setForm({ ...form, timeline: e.target.value })}
                 placeholder="Normal, 1 week, urgent..."
-                className="input bg-black/20 border-white/5 py-3"
+                className="input bg-slate-50 border-slate-200 py-3"
               />
             </div>
           </div>
@@ -194,7 +194,7 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
           </button>
 
           {error && (
-            <div className="mt-5 rounded-xl border border-red-400/20 bg-red-400/5 p-4 text-sm font-bold text-red-300">
+            <div className="mt-5 rounded-xl border border-rose-200 bg-red-400/5 p-4 text-sm font-bold text-rose-700">
               {error}
             </div>
           )}
@@ -203,59 +203,59 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
         <aside className="space-y-4">
           {range ? (
             <>
-              <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+              <div className="rounded-xl border border-emerald-200 bg-emerald-400/5 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
                   Suggested Range
                 </p>
-                <p className="mt-3 text-sm font-black text-white">{suggestion.serviceLabel}</p>
+                <p className="mt-3 text-sm font-black text-slate-900">{suggestion.serviceLabel}</p>
                 <div className="mt-4 grid gap-2 text-center sm:grid-cols-3">
-                  <div className="rounded-lg bg-white/[0.04] p-3">
-                    <p className="break-words text-sm font-black text-zinc-300">{formatMoney(range.low)}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase text-zinc-600">Low</p>
+                  <div className="rounded-lg bg-slate-50 p-3">
+                    <p className="break-words text-sm font-black text-slate-700">{formatMoney(range.low)}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase text-slate-500">Low</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => applyPrice(range.recommended, suggestion.serviceLabel)}
-                    className="rounded-lg border border-emerald-400/25 bg-emerald-400/10 p-3 transition-all hover:bg-emerald-400 hover:text-black"
+                    className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 transition-all hover:bg-emerald-400 hover:text-black"
                   >
-                    <p className="break-words text-sm font-black text-emerald-200">{formatMoney(range.recommended)}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase text-emerald-300">Apply</p>
+                    <p className="break-words text-sm font-black text-emerald-700">{formatMoney(range.recommended)}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase text-emerald-700">Apply</p>
                   </button>
-                  <div className="rounded-lg bg-white/[0.04] p-3">
-                    <p className="break-words text-sm font-black text-zinc-300">{formatMoney(range.high)}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase text-zinc-600">High</p>
+                  <div className="rounded-lg bg-slate-50 p-3">
+                    <p className="break-words text-sm font-black text-slate-700">{formatMoney(range.high)}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase text-slate-500">High</p>
                   </div>
                 </div>
-                <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-slate-500">
                   Source: {getAiSourceLabel(result.source)}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Packages</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Packages</p>
                 <div className="mt-3 space-y-2">
                   {suggestion.packageIdeas?.map((pkg) => (
                     <button
                       key={`${pkg.name}-${pkg.price}`}
                       type="button"
                       onClick={() => applyPrice(pkg.price, `${suggestion.serviceLabel} - ${pkg.name}`)}
-                      className="w-full rounded-lg border border-white/10 bg-white/[0.03] p-3 text-left transition-all hover:border-yellow-400/25 hover:bg-yellow-400/10"
+                      className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-left transition-all hover:border-amber-200 hover:bg-amber-50"
                     >
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-                        <p className="text-sm font-black text-white">{pkg.name}</p>
-                        <p className="shrink-0 text-sm font-black text-yellow-300">{formatMoney(pkg.price)}</p>
+                        <p className="text-sm font-black text-slate-900">{pkg.name}</p>
+                        <p className="shrink-0 text-sm font-black text-amber-700">{formatMoney(pkg.price)}</p>
                       </div>
-                      <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{pkg.positioning}</p>
+                      <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">{pkg.positioning}</p>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/5 p-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Strategy Tips</p>
+              <div className="rounded-xl border border-amber-200 bg-yellow-400/5 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Strategy Tips</p>
                 <div className="mt-3 space-y-2">
                   {suggestion.strategyTips?.slice(0, 3).map((tip) => (
-                    <p key={tip} className="text-xs font-semibold leading-relaxed text-zinc-300">
+                    <p key={tip} className="text-xs font-semibold leading-relaxed text-slate-700">
                       {tip}
                     </p>
                   ))}
@@ -263,9 +263,9 @@ export default function PriceSuggestionAgent({ context = {}, onApplyPrice }) {
               </div>
             </>
           ) : (
-            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">How to use</p>
-              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">How to use</p>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
                 Add your service name and choose complexity. The agent will suggest low, recommended, and premium pricing.
               </p>
             </div>

@@ -58,7 +58,7 @@ export default function LinkedInPortfolio() {
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden border-b border-white/5">
+        <section className="relative overflow-hidden border-b border-slate-200">
           <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-sky-400/10 via-yellow-300/5 to-transparent" />
           <div className="container-custom relative py-12 sm:py-16 lg:py-20">
             <div className="mx-auto max-w-4xl text-center">
@@ -66,16 +66,16 @@ export default function LinkedInPortfolio() {
                 <BrandLogo showText={false} markClassName="h-14 w-14" />
               </div>
 
-              <p className="text-[10px] font-black uppercase tracking-[0.28em] text-yellow-300">
+              <p className="text-[10px] font-black uppercase tracking-[0.28em] text-amber-700">
                 LinkedIn introduction
               </p>
-              <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-black leading-[1.02] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
                 Hi, I’m {builderName}. I’m building {COMPANY_NAME}.
               </h1>
-              <p className="mx-auto mt-6 max-w-2xl text-base font-semibold leading-relaxed text-zinc-300 sm:text-lg">
+              <p className="mx-auto mt-6 max-w-2xl text-base font-semibold leading-relaxed text-slate-700 sm:text-lg">
                 ClientFlow AI helps freelancers build stable income, find clients, manage projects, create invoices, and collect payments from one simple workflow.
               </p>
-              <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+              <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                 I’m currently looking for honest feedback, early users, and conversations with freelancers, developers, designers, consultants, and small agencies.
               </p>
 
@@ -91,25 +91,25 @@ export default function LinkedInPortfolio() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-zinc-950/40 py-12 sm:py-16">
+        <section className="border-b border-slate-200 bg-zinc-950/40 py-12 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-300">What I am building</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-sky-700">What I am building</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 A freelancer business system for the full client journey.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
                 The product is not only invoice creation. The goal is to help freelancers move from lead to proposal, project delivery, invoice, and payment collection.
               </p>
             </div>
 
             <div className="grid gap-3">
               {focusAreas.map((item, index) => (
-                <div key={item} className="flex gap-4 rounded-[1.35rem] border border-white/8 bg-white/[0.03] p-4">
+                <div key={item} className="flex gap-4 rounded-[1.35rem] border border-slate-200 bg-slate-50 p-4">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-300 text-sm font-black text-slate-950">
                     {index + 1}
                   </span>
-                  <p className="text-sm font-semibold leading-relaxed text-zinc-300">{item}</p>
+                  <p className="text-sm font-semibold leading-relaxed text-slate-700">{item}</p>
                 </div>
               ))}
             </div>
@@ -119,28 +119,28 @@ export default function LinkedInPortfolio() {
         <section className="py-12 sm:py-16">
           <div className="container-custom">
             <div className="mb-8 max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Quick proof</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">Quick proof</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Current stage.
               </h2>
             </div>
 
             <div className="grid gap-5 md:grid-cols-4">
               {proofPoints.map(([title, detail]) => (
-                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.035] p-5">
-                  <p className="text-lg font-black text-white">{title}</p>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{detail}</p>
+                <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                  <p className="text-lg font-black text-slate-900">{title}</p>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{detail}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="border-y border-white/5 bg-yellow-400/[0.045] py-12 sm:py-16">
+        <section className="border-y border-slate-200 bg-yellow-400/[0.045] py-12 sm:py-16">
           <div className="container-custom">
             <div className="mb-8 max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Useful links</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Useful links</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 If you came from LinkedIn, start here.
               </h2>
             </div>
@@ -148,12 +148,12 @@ export default function LinkedInPortfolio() {
             <div className="grid gap-4 md:grid-cols-2">
               {quickLinks.map(([title, href, detail]) => {
                 const isMail = href.startsWith('mailto:');
-                const className = 'rounded-[1.5rem] border border-white/8 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/25';
+                const className = 'rounded-[1.5rem] border border-slate-200 bg-black/25 p-5 transition-all hover:-translate-y-1 hover:border-amber-200';
 
                 const content = (
                   <>
-                    <p className="text-lg font-black text-white">{title}</p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{detail}</p>
+                    <p className="text-lg font-black text-slate-900">{title}</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{detail}</p>
                   </>
                 );
 

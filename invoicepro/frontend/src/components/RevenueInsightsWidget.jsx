@@ -85,8 +85,8 @@ function ProgressRing({ progress, size = 120, strokeWidth = 10, color = 'current
         />
       </svg>
       <div className="absolute flex flex-col items-center justify-center text-center">
-        <span className="text-xl font-bold text-white">{animatedProgress.toFixed(0)}%</span>
-        <span className="text-[10px] text-zinc-400 uppercase tracking-wider">of target</span>
+        <span className="text-xl font-bold text-slate-900">{animatedProgress.toFixed(0)}%</span>
+        <span className="text-[10px] text-slate-600 uppercase tracking-wider">of target</span>
       </div>
     </div>
   );
@@ -204,28 +204,28 @@ export default function RevenueInsightsWidget({ stats }) {
   const progressPercentage = Math.min((data.totalRevenue / data.monthlyTarget) * 100, 100);
 
   return (
-    <section className="w-full bg-zinc-950 p-6 rounded-2xl border border-zinc-800/50 shadow-2xl relative overflow-hidden">
+    <section className="w-full bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
       {/* Background glow effects */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-fuchsia-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-violet-100/60 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 bg-fuchsia-100/60 rounded-full blur-3xl pointer-events-none"></div>
       
       <div className="flex items-center gap-3 mb-8 relative z-10">
-        <h2 className="text-2xl font-bold text-white tracking-tight">Revenue Intelligence</h2>
-        <span className="violet-pill px-3 py-1 text-xs font-semibold bg-violet-500/20 text-violet-400 border border-violet-500/30 rounded-full flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Revenue Intelligence</h2>
+        <span className="violet-pill px-3 py-1 text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200 rounded-full flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse"></span>
           Live Sync
         </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
         {/* Card 1: Revenue Ring & Stats */}
-        <div className="glow-card bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden group">
+        <div className="glow-card bg-white border border-slate-200 rounded-xl p-5 flex flex-col justify-between relative overflow-hidden group shadow-sm">
           <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
           <div className="flex items-start justify-between mb-2">
             <div>
-              <p className="text-zinc-400 text-sm font-medium">Monthly Revenue</p>
-              <h3 className="text-2xl font-bold text-white mt-1 animated-gradient-text bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
+              <p className="text-slate-600 text-sm font-medium">Monthly Revenue</p>
+              <h3 className="text-2xl font-bold text-slate-900 mt-1">
                 {formatINR(revenueCount)}
               </h3>
             </div>
@@ -234,20 +234,20 @@ export default function RevenueInsightsWidget({ stats }) {
           <div className="flex items-center justify-between mt-4">
             <ProgressRing progress={progressPercentage} size={80} strokeWidth={8} color="#8b5cf6" />
             <div className="text-right">
-              <p className="text-zinc-500 text-xs">Target</p>
-              <p className="text-zinc-300 font-medium text-sm">{formatINR(targetCount)}</p>
+              <p className="text-slate-600 text-xs">Target</p>
+              <p className="text-slate-700 font-medium text-sm">{formatINR(targetCount)}</p>
             </div>
           </div>
         </div>
 
         {/* Card 2: Sparkline */}
-        <div className="glow-card bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden group">
+        <div className="glow-card bg-white border border-zinc-800/60 rounded-xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
           <div>
-            <p className="text-zinc-400 text-sm font-medium">Last 7 Days</p>
+            <p className="text-slate-600 text-sm font-medium">Last 7 Days</p>
             <div className="flex items-end gap-2 mt-1">
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-xl font-bold text-slate-900">
                 {formatINR(data.recentDailyRevenue[data.recentDailyRevenue.length - 1])}
               </h3>
               <span className="text-emerald-400 text-xs font-medium mb-1 flex items-center">
@@ -266,9 +266,9 @@ export default function RevenueInsightsWidget({ stats }) {
         </div>
 
         {/* Card 3: Money At Risk */}
-        <div className="glow-card bg-zinc-900/50 border border-red-900/30 rounded-xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden group">
+        <div className="glow-card bg-white border border-red-900/30 rounded-xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-2xl -mr-10 -mt-10 animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50 rounded-full blur-2xl -mr-10 -mt-10 animate-pulse"></div>
           
           <div>
             <div className="flex items-center justify-between">
@@ -280,24 +280,24 @@ export default function RevenueInsightsWidget({ stats }) {
                 </svg>
                 Money at Risk
               </p>
-              <span className="bg-red-500/20 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/20">
+              <span className="bg-rose-50 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/20">
                 {data.overdueCount} Invoices
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-white mt-2">
+            <h3 className="text-2xl font-bold text-slate-900 mt-2">
               {formatINR(overdueCount)}
             </h3>
           </div>
           
           <div className="mt-5 flex gap-2">
-            <button className="flex-1 bg-white/5 hover:bg-white/10 text-white text-xs font-medium py-2 rounded-lg border border-white/10 transition-colors">
+            <button className="flex-1 bg-slate-100 hover:bg-slate-100 text-slate-900 text-xs font-medium py-2 rounded-lg border border-slate-200 transition-colors">
               Send Reminders
             </button>
           </div>
         </div>
 
         {/* Card 4: Predicted Revenue */}
-        <div className="glow-card bg-zinc-900/50 border border-amber-900/30 rounded-xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden group">
+        <div className="glow-card bg-white border border-amber-900/30 rounded-xl p-5 flex flex-col justify-between backdrop-blur-sm relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
           <div>
@@ -308,15 +308,15 @@ export default function RevenueInsightsWidget({ stats }) {
               </svg>
               Next 30 Days
             </p>
-            <h3 className="text-2xl font-bold text-white mt-2">
+            <h3 className="text-2xl font-bold text-slate-900 mt-2">
               {formatINR(pipelineCount)}
             </h3>
-            <p className="text-zinc-500 text-xs mt-1">Based on active pipeline</p>
+            <p className="text-slate-600 text-xs mt-1">Based on active pipeline</p>
           </div>
           
           <div className="mt-4 pt-3 border-t border-zinc-800/60">
             <div className="flex justify-between items-center text-xs">
-              <span className="text-zinc-400">Confidence Score</span>
+              <span className="text-slate-600">Confidence Score</span>
               <span className="text-emerald-400 font-medium">85% High</span>
             </div>
             <div className="w-full bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">

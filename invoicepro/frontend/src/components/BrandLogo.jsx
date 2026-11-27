@@ -2,7 +2,7 @@ import React from 'react';
 import { COMPANY_LOGO, COMPANY_SHORT_NAME } from '../utils/company';
 
 export default function BrandLogo({ showText = true, className = '', markClassName = '', textColor = 'slate' }) {
-  const textClass = textColor === 'white' ? 'text-white' : 'text-slate-900';
+  const textClass = textColor === 'white' ? 'text-slate-900' : 'text-slate-900';
 
   return (
     <div className={`inline-flex items-center gap-2.5 sm:gap-3 ${className}`}>

@@ -186,10 +186,10 @@ export default function PlanReminderAgent() {
   if (!shouldRemind || isDismissed) return null;
 
   const toneClass = reminder.tone === 'danger'
-    ? 'border-red-300/25 bg-red-300/[0.1] text-red-100'
+    ? 'border-rose-200 bg-red-300/[0.1] text-rose-700'
     : reminder.tone === 'warning'
-      ? 'border-yellow-300/25 bg-yellow-300/[0.1] text-yellow-100'
-      : 'border-sky-300/25 bg-sky-300/[0.1] text-sky-100';
+      ? 'border-amber-200 bg-yellow-300/[0.1] text-amber-700'
+      : 'border-sky-200 bg-sky-300/[0.1] text-sky-700';
 
   return (
     <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-3 right-3 z-50 print:hidden sm:left-5 sm:right-auto sm:max-w-md">
@@ -197,13 +197,13 @@ export default function PlanReminderAgent() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.22em] opacity-80">AI plan reminder agent</p>
-            <h3 className="mt-1 text-base font-black text-white">{reminder.title}</h3>
+            <h3 className="mt-1 text-base font-black text-slate-900">{reminder.title}</h3>
             <p className="mt-1 text-xs font-semibold leading-relaxed opacity-85">{reminder.body}</p>
           </div>
           <button
             type="button"
             onClick={dismissToday}
-            className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white/70 transition hover:bg-black/30"
+            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-900/70 transition hover:bg-slate-50"
           >
             Hide
           </button>
@@ -220,7 +220,7 @@ export default function PlanReminderAgent() {
             <button
               type="button"
               onClick={enableDeviceReminders}
-              className="rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.12]"
+              className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-50"
             >
               Enable Device Alert
             </button>
@@ -228,7 +228,7 @@ export default function PlanReminderAgent() {
             <button
               type="button"
               onClick={dismissToday}
-              className="rounded-2xl border border-white/15 bg-white/[0.08] px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.12]"
+              className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-50"
             >
               Remind Later
             </button>

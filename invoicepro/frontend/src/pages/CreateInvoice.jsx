@@ -401,7 +401,7 @@ export default function CreateInvoice() {
             <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
               {/* Section 1: Client Details */}
               <div>
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">1. Client Details</h3>
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-600 mb-4">1. Client Details</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">
@@ -451,7 +451,7 @@ export default function CreateInvoice() {
               {/* Section 2: Items / Services Billed */}
               <div className="pt-4 border-t border-slate-100">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">2. Service & Pricing</h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">2. Service & Pricing</h3>
                   <button
                     type="button"
                     onClick={addItem}
@@ -492,7 +492,7 @@ export default function CreateInvoice() {
                           <button
                             type="button"
                             onClick={() => removeItem(index)}
-                            className="text-slate-400 hover:text-rose-500 p-2 text-lg leading-none shrink-0"
+                            className="text-slate-600 hover:text-rose-500 p-2 text-lg leading-none shrink-0"
                             title="Remove item"
                           >
                             ✕
@@ -506,7 +506,7 @@ export default function CreateInvoice() {
 
               {/* Section 3: Payment & Due Date */}
               <div className="pt-4 border-t border-slate-100">
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">3. Payout & Due Date</h3>
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-600 mb-4">3. Payout & Due Date</h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   {/* Your UPI ID */}
@@ -678,7 +678,7 @@ export default function CreateInvoice() {
               {/* Total & Submit Button */}
               <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-slate-400 font-bold">Total Amount</p>
+                  <p className="text-xs uppercase tracking-wider text-slate-600 font-bold">Total Amount</p>
                   <p className="text-2xl sm:text-3xl font-black text-slate-900">
                     {currency === 'INR' ? '₹' : currency} {total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>

@@ -128,18 +128,18 @@ export default function Login() {
 
       <main className="container-custom grid items-start gap-8 py-8 sm:gap-10 sm:py-12 xl:min-h-[calc(100vh-120px)] xl:grid-cols-2 xl:items-center xl:gap-12">
         <section className="hidden lg:block relative">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-yellow-400/10 blur-[120px]" />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-amber-50 blur-[120px]" />
           <div className="max-w-xl relative">
-            <div className="mb-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+            <div className="mb-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200">
                <span className="h-1.5 w-1.5 bg-yellow-400 rounded-full animate-pulse" />
-               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Client billing workspace</p>
+               <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Client billing workspace</p>
             </div>
 
             <h1 className="mb-6 text-4xl font-black leading-none tracking-tight xl:text-5xl">
-              Sign in to manage <br /> <span className="text-yellow-300">invoices and collections.</span>
+              Sign in to manage <br /> <span className="text-amber-700">invoices and collections.</span>
             </h1>
 
-            <p className="mb-12 text-lg text-zinc-500 font-medium leading-relaxed">
+            <p className="mb-12 text-lg text-slate-600 font-medium leading-relaxed">
               Access your clients, invoice history, recurring schedules, and payment tracking from one secure workspace.
             </p>
 
@@ -149,11 +149,11 @@ export default function Login() {
                  { t: 'Client records', d: 'Keep billing history and saved client details in one place.' },
                  { t: 'Need help?', d: `Support is available at ${SUPPORT_EMAIL}.` }
                ].map((item, i) => (
-                 <div key={i} className="flex items-start gap-4 p-5 rounded-2xl border border-white/5 bg-white/[0.02]">
+                 <div key={i} className="flex items-start gap-4 p-5 rounded-2xl border border-slate-200 bg-slate-50">
                     <div className="h-2 w-2 rounded-full bg-yellow-400 mt-2" />
                     <div>
-                       <p className="font-bold text-white text-sm">{item.t}</p>
-                       <p className="text-xs text-zinc-600 font-medium">{item.d}</p>
+                       <p className="font-bold text-slate-900 text-sm">{item.t}</p>
+                       <p className="text-xs text-slate-500 font-medium">{item.d}</p>
                     </div>
                  </div>
                ))}
@@ -164,32 +164,32 @@ export default function Login() {
         <section className="reveal mx-auto w-full max-w-xl lg:max-w-none">
           <div className="premium-panel p-6 sm:p-10 lg:p-12">
             <div className="mb-10">
-              <h2 className="text-3xl font-black text-white leading-none mb-3">
+              <h2 className="text-3xl font-black text-slate-900 leading-none mb-3">
                 Welcome.
               </h2>
-              <p className="text-sm font-medium text-zinc-500">
+              <p className="text-sm font-medium text-slate-600">
                 Continue with your credentials or try our interactive demo.
               </p>
             </div>
 
             {/* Demo Mode CTA Card */}
-            <div className="mb-6 p-4 rounded-2xl border border-violet-500/25 bg-violet-500/10 flex items-center justify-between gap-4">
+            <div className="mb-6 p-4 rounded-2xl border border-violet-500/25 bg-violet-50 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-black text-white">Want to evaluate without signing up?</p>
-                <p className="text-[11px] font-medium text-violet-300/80">Explore pre-filled leads, invoices & proposals in 1 click.</p>
+                <p className="text-xs font-black text-slate-900">Want to evaluate without signing up?</p>
+                <p className="text-[11px] font-medium text-violet-700/80">Explore pre-filled leads, invoices & proposals in 1 click.</p>
               </div>
               <button
                 type="button"
                 onClick={handleDemoLogin}
                 disabled={loading}
-                className="shrink-0 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2.5 text-xs font-black uppercase text-white shadow-md transition hover:opacity-90 disabled:opacity-50"
+                className="shrink-0 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2.5 text-xs font-black uppercase text-slate-900 shadow-md transition hover:opacity-90 disabled:opacity-50"
               >
                 Try Demo →
               </button>
             </div>
 
             {error && (
-              <div className="mb-8 p-4 rounded-2xl border border-red-400/20 bg-red-400/5 text-xs font-bold text-red-400">
+              <div className="mb-8 p-4 rounded-2xl border border-rose-200 bg-red-400/5 text-xs font-bold text-red-400">
                 {error}
               </div>
             )}
@@ -203,7 +203,7 @@ export default function Login() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">
                     Mobile Number (WhatsApp) or Email
                   </p>
                   <input
@@ -213,12 +213,12 @@ export default function Login() {
                     placeholder="9876543210 or name@company.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 font-bold"
+                    className="input py-4 bg-slate-50 border-slate-200 focus:bg-slate-50 font-bold"
                   />
               </div>
 
               <div className="space-y-1.5">
-                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Password</p>
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest ml-1">Password</p>
                   <input
                     type="password"
                     required
@@ -226,7 +226,7 @@ export default function Login() {
                     placeholder="********"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
+                    className="input py-4 bg-slate-50 border-slate-200 focus:bg-slate-50"
                   />
               </div>
 
@@ -239,18 +239,18 @@ export default function Login() {
               </button>
             </form>
 
-            <div className="mt-10 pt-8 border-t border-white/5 text-center">
-              <p className="text-sm font-medium text-zinc-400">
+            <div className="mt-10 pt-8 border-t border-slate-200 text-center">
+              <p className="text-sm font-medium text-slate-600">
                 New to ClientFlow AI?{' '}
-                <Link to="/signup" className="font-black text-yellow-300 hover:text-white transition-colors">
+                <Link to="/signup" className="font-black text-amber-700 hover:text-indigo-700 transition-colors">
                   Create an account
                 </Link>
               </p>
-              <p className="mt-4 text-xs font-medium text-zinc-400">
+              <p className="mt-4 text-xs font-medium text-slate-600">
                 By continuing, you agree to our{' '}
-                <Link to="/terms" className="text-zinc-300 hover:text-white transition-colors underline">Terms</Link>
+                <Link to="/terms" className="text-slate-700 hover:text-indigo-700 transition-colors underline">Terms</Link>
                 {' '}and{' '}
-                <Link to="/privacy" className="text-zinc-300 hover:text-white transition-colors underline">Privacy Policy</Link>.
+                <Link to="/privacy" className="text-slate-700 hover:text-indigo-700 transition-colors underline">Privacy Policy</Link>.
               </p>
             </div>
           </div>

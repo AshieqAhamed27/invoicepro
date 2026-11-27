@@ -57,10 +57,10 @@ export default function BlogIndex() {
       <main className="container-custom py-12 sm:py-16">
         <header className="max-w-3xl mb-12">
           <span className="violet-pill mb-4 inline-flex">Freelance Knowledge Base</span>
-          <h1 className="text-4xl font-black leading-tight sm:text-5xl lg:text-6xl text-white">
+          <h1 className="text-4xl font-black leading-tight sm:text-5xl lg:text-6xl text-slate-900">
             Guides & Insights for Indian Creators.
           </h1>
-          <p className="mt-4 text-base font-semibold leading-relaxed text-zinc-400 sm:text-lg">
+          <p className="mt-4 text-base font-semibold leading-relaxed text-slate-600 sm:text-lg">
             Practical articles on GST invoicing, tax compliance, pricing strategies, and automated client billing systems.
           </p>
         </header>
@@ -70,21 +70,21 @@ export default function BlogIndex() {
             <article key={item.slug} className="glow-card p-7 flex flex-col justify-between group">
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-300 bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/20">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-700 bg-violet-50 px-3 py-1 rounded-full border border-violet-500/20">
                     {item.tag}
                   </span>
-                  <span className="text-xs font-semibold text-zinc-500">{item.readTime}</span>
+                  <span className="text-xs font-semibold text-slate-600">{item.readTime}</span>
                 </div>
-                <h2 className="text-xl font-black text-white group-hover:text-violet-300 transition-colors">
+                <h2 className="text-xl font-black text-slate-900 group-hover:text-violet-300 transition-colors">
                   <Link to={item.link}>{item.title}</Link>
                 </h2>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-400">
+                <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
                   {item.description}
                 </p>
               </div>
 
               <div className="mt-6 pt-4 border-t border-white/[0.08] flex items-center justify-between">
-                <span className="text-xs font-semibold text-zinc-600">{item.date}</span>
+                <span className="text-xs font-semibold text-slate-500">{item.date}</span>
                 <Link to={item.link} className="text-xs font-black uppercase text-violet-400 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
                   Read Article →
                 </Link>

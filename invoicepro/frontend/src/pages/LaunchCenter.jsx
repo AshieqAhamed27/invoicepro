@@ -7,8 +7,8 @@ import { getUser, hasProAccess } from '../utils/auth';
 
 const statusClass = (ready) =>
   ready
-    ? 'border-emerald-400/15 bg-emerald-400/10 text-emerald-300'
-    : 'border-yellow-400/15 bg-yellow-400/10 text-yellow-200';
+    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+    : 'border-amber-200 bg-amber-50 text-amber-700';
 
 const formatMoney = (amount) => `Rs ${Number(amount || 0).toLocaleString('en-IN')}`;
 
@@ -88,19 +88,19 @@ const recentUpdates = [
 ];
 
 const LaunchCheck = ({ check }) => (
-  <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.02] p-6">
+  <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6">
     <div className="mb-5 flex items-start justify-between gap-4">
       <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{check.category}</p>
-        <h3 className="mt-2 text-lg font-black leading-tight text-white">{check.label}</h3>
+        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">{check.category}</p>
+        <h3 className="mt-2 text-lg font-black leading-tight text-slate-900">{check.label}</h3>
       </div>
       <CheckPill ready={check.ready} />
     </div>
-    <p className="text-sm font-medium leading-relaxed text-zinc-400">{check.ready ? check.doneText : check.action}</p>
+    <p className="text-sm font-medium leading-relaxed text-slate-600">{check.ready ? check.doneText : check.action}</p>
     {check.path && !check.ready && (
       <Link
         to={check.path}
-        className="mt-5 inline-flex rounded-xl border border-white/10 px-4 py-2 text-xs font-black text-white transition-all hover:bg-white/10"
+        className="mt-5 inline-flex rounded-xl border border-slate-200 px-4 py-2 text-xs font-black text-slate-900 transition-all hover:bg-slate-100"
       >
         Open
       </Link>
@@ -262,43 +262,43 @@ export default function LaunchCenter() {
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal responsive-heading-grid mb-12">
           <div className="min-w-0">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/15 bg-emerald-400/10 px-3 py-1">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Company Launch Center</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Company Launch Center</p>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               Make ClientFlow AI ready to find clients, team up, deliver, and collect.
             </h1>
-            <p className="mt-5 max-w-2xl text-base sm:text-lg font-medium leading-relaxed text-zinc-400">
+            <p className="mt-5 max-w-2xl text-base sm:text-lg font-medium leading-relaxed text-slate-600">
               A freelancer business workspace to find clients, bring another freelancer into bigger projects,
               split delivery work with AI, then invoice and collect payment.
             </p>
           </div>
 
           <div className="premium-panel p-5 text-center sm:p-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Go-live score</p>
-            <p className="mt-4 text-5xl font-black tracking-tighter text-white sm:text-7xl">{loading ? '--' : companyScore}%</p>
-            <p className="mt-3 text-sm font-bold text-zinc-500">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Go-live score</p>
+            <p className="mt-4 text-5xl font-black tracking-tighter text-slate-900 sm:text-7xl">{loading ? '--' : companyScore}%</p>
+            <p className="mt-3 text-sm font-bold text-slate-600">
               {readiness.moneyReady ? 'Ready for real checkout traffic' : 'Finish blockers before paid launch'}
             </p>
           </div>
         </section>
 
         {error && (
-          <div className="mb-8 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+          <div className="mb-8 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
             {error}
           </div>
         )}
 
         <section className="reveal reveal-delay-1 mb-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: 'Collected', value: formatMoney(stats.totalRevenue), tone: 'text-emerald-300' },
-            { label: 'Unpaid invoices', value: Number(stats.pending || 0), tone: 'text-yellow-300' },
-            { label: 'Paid invoices', value: Number(stats.paid || 0), tone: 'text-white' },
-            { label: 'Checkout pricing', value: pricingReady ? 'Live' : 'Check', tone: pricingReady ? 'text-emerald-300' : 'text-yellow-300' }
+            { label: 'Collected', value: formatMoney(stats.totalRevenue), tone: 'text-emerald-700' },
+            { label: 'Unpaid invoices', value: Number(stats.pending || 0), tone: 'text-amber-700' },
+            { label: 'Paid invoices', value: Number(stats.paid || 0), tone: 'text-slate-900' },
+            { label: 'Checkout pricing', value: pricingReady ? 'Live' : 'Check', tone: pricingReady ? 'text-emerald-700' : 'text-amber-700' }
           ].map((item) => (
-            <div key={item.label} className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{item.label}</p>
+            <div key={item.label} className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">{item.label}</p>
               <p className={`mt-4 text-4xl font-black tracking-tight ${item.tone}`}>{loading ? '--' : item.value}</p>
             </div>
           ))}
@@ -310,8 +310,8 @@ export default function LaunchCenter() {
           <div className="premium-panel p-5 sm:p-8">
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Priority actions</p>
-                <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">Next moves that unlock revenue</h2>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Priority actions</p>
+                <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Next moves that unlock revenue</h2>
               </div>
               <button
                 type="button"
@@ -325,23 +325,23 @@ export default function LaunchCenter() {
             {loading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((item) => (
-                  <div key={item} className="h-20 rounded-2xl bg-white/5 animate-pulse" />
+                  <div key={item} className="h-20 rounded-2xl bg-slate-100 animate-pulse" />
                 ))}
               </div>
             ) : priorityActions.length ? (
               <div className="space-y-4">
                 {priorityActions.map((action, index) => (
-                  <div key={action.id} className="rounded-2xl border border-white/8 bg-black/20 p-5">
+                  <div key={action.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                     <div className="flex items-start gap-4">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-400 text-sm font-black text-black">
                         {index + 1}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-black text-white">{action.label}</p>
-                        <p className="mt-1 text-sm font-medium leading-relaxed text-zinc-500">{action.action}</p>
+                        <p className="text-sm font-black text-slate-900">{action.label}</p>
+                        <p className="mt-1 text-sm font-medium leading-relaxed text-slate-600">{action.action}</p>
                       </div>
                       {action.path && (
-                        <Link to={action.path} className="shrink-0 rounded-xl border border-white/10 px-4 py-2 text-xs font-black text-white hover:bg-white/10">
+                        <Link to={action.path} className="shrink-0 rounded-xl border border-slate-200 px-4 py-2 text-xs font-black text-slate-900 hover:bg-slate-100">
                           Fix
                         </Link>
                       )}
@@ -350,9 +350,9 @@ export default function LaunchCenter() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-[2rem] border border-emerald-400/15 bg-emerald-400/10 p-8">
-                <p className="text-2xl font-black text-white">Launch checklist complete.</p>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-emerald-100/80">
+              <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 p-8">
+                <p className="text-2xl font-black text-slate-900">Launch checklist complete.</p>
+                <p className="mt-3 text-sm font-medium leading-relaxed text-emerald-700/80">
                   Keep testing real customer flows, monitor payments, and collect feedback from the first paying users.
                 </p>
               </div>
@@ -360,8 +360,8 @@ export default function LaunchCenter() {
           </div>
 
           <div className="premium-panel p-5 sm:p-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Revenue machine</p>
-            <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">The loop this SaaS must repeat</h2>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Revenue machine</p>
+            <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">The loop this SaaS must repeat</h2>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {[
@@ -371,10 +371,10 @@ export default function LaunchCenter() {
                 { step: '04', title: 'Collect payment', detail: 'Razorpay, UPI, email reminders, and public invoice links move cash.' },
                 { step: '05', title: 'Retain customer', detail: 'AI insights, team delivery rooms, and recurring invoices make Pro worth keeping.' }
               ].map((item) => (
-                <div key={item.step} className="rounded-[1.75rem] border border-white/8 bg-black/20 p-6">
-                  <p className="text-3xl font-black text-white/15">{item.step}</p>
-                  <h3 className="mt-4 text-xl font-black text-white">{item.title}</h3>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-500">{item.detail}</p>
+                <div key={item.step} className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6">
+                  <p className="text-3xl font-black text-slate-900/15">{item.step}</p>
+                  <h3 className="mt-4 text-xl font-black text-slate-900">{item.title}</h3>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">{item.detail}</p>
                 </div>
               ))}
             </div>
@@ -382,35 +382,35 @@ export default function LaunchCenter() {
         </section>
 
         <section className="reveal reveal-delay-2 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 p-5 sm:p-8">
+          <div className="border-b border-slate-200 p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Readiness checklist</p>
-                <h2 className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">Company setup and product operations</h2>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Readiness checklist</p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Company setup and product operations</h2>
               </div>
-              <span className={`rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest ${readiness.moneyReady ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300' : 'border-yellow-400/20 bg-yellow-400/10 text-yellow-200'}`}>
+              <span className={`rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest ${readiness.moneyReady ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
                 {readiness.stage || 'checking'}
               </span>
             </div>
           </div>
 
-          <div className="border-b border-white/5 p-5 sm:p-8">
+          <div className="border-b border-slate-200 p-5 sm:p-8">
             <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Recent updates</p>
-                <h3 className="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl">What has improved recently</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Recent updates</p>
+                <h3 className="mt-2 text-xl font-black tracking-tight text-slate-900 sm:text-2xl">What has improved recently</h3>
               </div>
-              <p className="max-w-xl text-sm font-medium leading-relaxed text-zinc-500">
+              <p className="max-w-xl text-sm font-medium leading-relaxed text-slate-600">
                 These are the latest product and company-readiness improvements added before launch.
               </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {recentUpdates.map((update) => (
-                <div key={update.title} className="rounded-[1.5rem] border border-white/8 bg-black/20 p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-300">{update.label}</p>
-                  <h4 className="mt-3 text-base font-black leading-tight text-white">{update.title}</h4>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-500">{update.detail}</p>
+                <div key={update.title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700">{update.label}</p>
+                  <h4 className="mt-3 text-base font-black leading-tight text-slate-900">{update.title}</h4>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">{update.detail}</p>
                 </div>
               ))}
             </div>
@@ -418,40 +418,40 @@ export default function LaunchCenter() {
 
           <div className="grid gap-5 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-3">
             {loading
-              ? [1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="h-48 rounded-[1.75rem] bg-white/5 animate-pulse" />)
+              ? [1, 2, 3, 4, 5, 6].map((item) => <div key={item} className="h-48 rounded-[1.75rem] bg-slate-100 animate-pulse" />)
               : allChecks.map((check) => <LaunchCheck key={check.id} check={check} />)}
           </div>
         </section>
 
         <section className="reveal reveal-delay-3 grid gap-8 lg:grid-cols-3">
-          <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Razorpay webhook</p>
-            <p className="mt-4 break-all text-sm font-black leading-relaxed text-white">
+          <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Razorpay webhook</p>
+            <p className="mt-4 break-all text-sm font-black leading-relaxed text-slate-900">
               {readiness.webhookUrlHint || 'https://your-render-backend.onrender.com/api/payment/webhook'}
             </p>
-            <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-500">
+            <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600">
               Replace the domain with your real Render backend URL.
             </p>
           </div>
 
-          <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Open revenue</p>
-            <p className="mt-4 text-4xl font-black tracking-tight text-white">{formatMoney(pendingAmount)}</p>
-            <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-500">
+          <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Open revenue</p>
+            <p className="mt-4 text-4xl font-black tracking-tight text-slate-900">{formatMoney(pendingAmount)}</p>
+            <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600">
               Pending amount becomes useful once due dates, reminders, and payment links are consistent.
             </p>
           </div>
 
-          <div className="rounded-[2rem] border border-white/8 bg-white/[0.02] p-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Checkout plans</p>
+          <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Checkout plans</p>
             <div className="mt-4 space-y-3">
               {plans.length ? plans.map((plan) => (
-                <div key={plan.id} className="flex items-center justify-between gap-4 rounded-2xl border border-white/8 bg-black/20 px-4 py-3">
-                  <p className="text-sm font-black capitalize text-white">{plan.label || plan.id}</p>
-                  <p className="text-sm font-black text-yellow-300">Rs {plan.amount}</p>
+                <div key={plan.id} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <p className="text-sm font-black capitalize text-slate-900">{plan.label || plan.id}</p>
+                  <p className="text-sm font-black text-amber-700">Rs {plan.amount}</p>
                 </div>
               )) : (
-                <p className="text-sm font-medium leading-relaxed text-zinc-500">Pricing endpoint is not available yet.</p>
+                <p className="text-sm font-medium leading-relaxed text-slate-600">Pricing endpoint is not available yet.</p>
               )}
             </div>
           </div>

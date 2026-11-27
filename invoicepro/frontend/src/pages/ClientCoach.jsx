@@ -197,28 +197,28 @@ export default function ClientCoach() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal responsive-heading-grid mb-10">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-yellow-300/20 bg-yellow-300/10 px-3 py-1.5">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5">
               <span className="h-2 w-2 rounded-full bg-yellow-300" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">AI Client Coach</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">AI Client Coach</p>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl">
+            <h1 className="max-w-4xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
               Find clients, talk better, close the deal, and collect money.
             </h1>
-            <p className="mt-5 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+            <p className="mt-5 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
               This coach turns a freelancer’s service into a daily sales plan with copy-ready messages, objection replies, closing steps, and payment follow-up.
             </p>
           </div>
 
-          <div className="rounded-[2rem] border border-yellow-300/20 bg-yellow-300/[0.06] p-5 sm:p-6">
-            <p className="text-[10px] font-black uppercase tracking-widest text-yellow-200">Today’s coaching score</p>
-            <p className="mt-3 text-5xl font-black text-white">{previewPlan.score}</p>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+          <div className="rounded-[2rem] border border-amber-200 bg-yellow-300/[0.06] p-5 sm:p-6">
+            <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Today’s coaching score</p>
+            <p className="mt-3 text-5xl font-black text-slate-900">{previewPlan.score}</p>
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">
               {previewPlan.oneAction}
             </p>
           </div>
@@ -226,21 +226,21 @@ export default function ClientCoach() {
 
         <section className="grid gap-8">
           <form onSubmit={generatePlan} className="reveal reveal-delay-1 premium-panel h-fit p-5 sm:p-7">
-            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Coach setup</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Tell the coach what you sell</h2>
-            <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Coach setup</p>
+            <h2 className="mt-2 text-2xl font-black text-slate-900">Tell the coach what you sell</h2>
+            <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">
               Fill these fields so the agent gives specific client advice instead of generic motivation.
             </p>
 
             {error && (
-              <div className="mt-5 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-semibold text-red-100">
+              <div className="mt-5 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-semibold text-rose-700">
                 {error}
               </div>
             )}
 
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Your service</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Your service</span>
                 <input
                   value={form.service}
                   onChange={(event) => updateField('service', event.target.value)}
@@ -250,7 +250,7 @@ export default function ClientCoach() {
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Target client</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Target client</span>
                 <input
                   value={form.targetClient}
                   onChange={(event) => updateField('targetClient', event.target.value)}
@@ -260,7 +260,7 @@ export default function ClientCoach() {
               </label>
 
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Result you promise</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Result you promise</span>
                 <input
                   value={form.result}
                   onChange={(event) => updateField('result', event.target.value)}
@@ -271,7 +271,7 @@ export default function ClientCoach() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Starter price</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Starter price</span>
                   <input
                     type="number"
                     min="0"
@@ -283,7 +283,7 @@ export default function ClientCoach() {
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Currency</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Currency</span>
                   <select
                     value={form.currency}
                     onChange={(event) => updateField('currency', event.target.value)}
@@ -298,7 +298,7 @@ export default function ClientCoach() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Channel</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Channel</span>
                   <select
                     value={form.channel}
                     onChange={(event) => updateField('channel', event.target.value)}
@@ -311,7 +311,7 @@ export default function ClientCoach() {
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Deal stage</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Deal stage</span>
                   <select
                     value={form.stage}
                     onChange={(event) => updateField('stage', event.target.value)}
@@ -325,7 +325,7 @@ export default function ClientCoach() {
               </div>
 
               <label className="grid gap-2 md:col-span-2 xl:col-span-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Extra context</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">Extra context</span>
                 <textarea
                   value={form.notes}
                   onChange={(event) => updateField('notes', event.target.value)}
@@ -345,9 +345,9 @@ export default function ClientCoach() {
             <section className="premium-panel p-5 sm:p-8">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{previewPlan.stage}</p>
-                  <h2 className="mt-2 text-3xl font-black text-white">Your deal coaching plan</h2>
-                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">{previewPlan.stage}</p>
+                  <h2 className="mt-2 text-3xl font-black text-slate-900">Your deal coaching plan</h2>
+                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                     Follow these steps in order. The goal is not more busy work. The goal is one real client conversation and one payment step.
                   </p>
                 </div>
@@ -362,17 +362,17 @@ export default function ClientCoach() {
 
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 {previewPlan.phases.map((phase) => (
-                  <div key={phase.title} className="rounded-3xl border border-white/8 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">{phase.title}</p>
-                    <h3 className="mt-2 text-xl font-black text-white">{phase.subtitle}</h3>
+                  <div key={phase.title} className="rounded-3xl border border-slate-200 bg-slate-50 p-5 transition-all hover:-translate-y-1 hover:border-amber-200">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">{phase.title}</p>
+                    <h3 className="mt-2 text-xl font-black text-slate-900">{phase.subtitle}</h3>
                     <div className="mt-4 space-y-2">
                       {phase.steps.map((step) => (
-                        <p key={step} className="rounded-2xl border border-white/8 bg-black/20 p-3 text-xs font-semibold leading-relaxed text-zinc-300">
+                        <p key={step} className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs font-semibold leading-relaxed text-slate-700">
                           {step}
                         </p>
                       ))}
                     </div>
-                    <p className="mt-4 rounded-2xl border border-yellow-300/15 bg-yellow-300/10 p-3 text-sm font-black leading-relaxed text-yellow-100">
+                    <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-black leading-relaxed text-amber-700">
                       {phase.action}
                     </p>
                   </div>
@@ -382,45 +382,45 @@ export default function ClientCoach() {
 
             <section className="grid gap-8">
               <div className="premium-panel p-5 sm:p-8">
-                <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Copy-ready scripts</p>
-                <h2 className="mt-2 text-2xl font-black text-white">Say the right thing at each step</h2>
+                <p className="text-[10px] font-black uppercase tracking-widest text-sky-700">Copy-ready scripts</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-900">Say the right thing at each step</h2>
                 <div className="mt-5 grid gap-4">
                   {previewPlan.scripts.map((script) => (
-                    <div key={script.label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                    <div key={script.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-black text-white">{script.label}</p>
+                        <p className="text-sm font-black text-slate-900">{script.label}</p>
                         <button
                           type="button"
                           onClick={() => copyText(script.text, script.label)}
-                          className="rounded-xl border border-white/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10"
+                          className="rounded-xl border border-slate-200 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-100"
                         >
                           Copy
                         </button>
                       </div>
-                      <p className="mt-3 whitespace-pre-line text-sm font-medium leading-relaxed text-zinc-300">{script.text}</p>
+                      <p className="mt-3 whitespace-pre-line text-sm font-medium leading-relaxed text-slate-700">{script.text}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               <aside className="grid gap-5 xl:grid-cols-2">
-                <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-5">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Objection replies</p>
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Objection replies</p>
                   <div className="mt-4 space-y-3">
                     {previewPlan.objections.map((item) => (
-                      <div key={item.objection} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                        <p className="text-sm font-black text-white">{item.objection}</p>
-                        <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-400">{item.response}</p>
+                      <div key={item.objection} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                        <p className="text-sm font-black text-slate-900">{item.objection}</p>
+                        <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{item.response}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-5">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Close checklist</p>
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Close checklist</p>
                   <div className="mt-4 space-y-2">
                     {previewPlan.checklist.map((item) => (
-                      <p key={item} className="rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-semibold leading-relaxed text-zinc-300">
+                      <p key={item} className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-semibold leading-relaxed text-slate-700">
                         {item}
                       </p>
                     ))}
@@ -430,7 +430,7 @@ export default function ClientCoach() {
             </section>
 
             <section className="premium-panel p-5 sm:p-8">
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Next action inside ClientFlow AI</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Next action inside ClientFlow AI</p>
               <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {[
                   ['Find Clients', '/client-finder'],
@@ -442,10 +442,10 @@ export default function ClientCoach() {
                     key={path}
                     type="button"
                     onClick={() => navigate(path)}
-                    className="rounded-2xl border border-white/8 bg-black/20 p-4 text-left text-sm font-black text-white transition hover:-translate-y-1 hover:border-yellow-300/25"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left text-sm font-black text-slate-900 transition hover:-translate-y-1 hover:border-amber-200"
                   >
                     {label}
-                    <span className="mt-2 block text-xs font-semibold text-zinc-500">Open tool</span>
+                    <span className="mt-2 block text-xs font-semibold text-slate-600">Open tool</span>
                   </button>
                 ))}
               </div>

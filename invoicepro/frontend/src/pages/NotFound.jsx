@@ -24,19 +24,19 @@ export default function NotFound() {
 
       <main className="container-custom py-12 sm:py-20 md:py-28">
         <section className="premium-panel relative overflow-hidden p-6 sm:p-10 lg:p-14">
-          <div className="absolute -top-24 right-0 h-80 w-80 rounded-full bg-yellow-400/10 blur-[140px]" />
-          <div className="absolute -bottom-32 left-0 h-96 w-96 rounded-full bg-emerald-400/10 blur-[160px]" />
+          <div className="absolute -top-24 right-0 h-80 w-80 rounded-full bg-amber-50 blur-[140px]" />
+          <div className="absolute -bottom-32 left-0 h-96 w-96 rounded-full bg-emerald-50 blur-[160px]" />
 
           <div className="relative max-w-2xl">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-zinc-600">
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-500">
               Error 404
             </p>
 
-            <h1 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight leading-[0.95] text-white">
+            <h1 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight leading-[0.95] text-slate-900">
               Lost in the ledger.
             </h1>
 
-            <p className="mt-6 text-zinc-500 font-medium leading-relaxed">
+            <p className="mt-6 text-slate-600 font-medium leading-relaxed">
               This page does not exist or has moved. Use the shortcuts below to get back on track.
             </p>
 

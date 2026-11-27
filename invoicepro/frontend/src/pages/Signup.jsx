@@ -148,19 +148,19 @@ export default function Signup() {
 
       <main className="container-custom grid items-start gap-8 py-8 sm:gap-10 sm:py-12 xl:min-h-[calc(100vh-120px)] xl:grid-cols-2 xl:items-center xl:gap-12">
         <section className="hidden lg:block relative text-left">
-           <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-emerald-500/10 blur-[140px] pointer-events-none" />
+           <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-emerald-50 blur-[140px] pointer-events-none" />
           
            <div className="max-w-xl relative">
-              <div className="mb-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+              <div className="mb-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200">
                  <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Set up your billing workspace</p>
+                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Set up your billing workspace</p>
               </div>
 
               <h1 className="mb-6 text-4xl font-black leading-none tracking-tight xl:text-5xl">
                 Start finding clients <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-white">and getting paid faster.</span>
               </h1>
 
-              <p className="mb-12 text-lg text-zinc-500 font-medium leading-relaxed">
+              <p className="mb-12 text-lg text-slate-600 font-medium leading-relaxed">
                 Create your India-ready workspace to manage leads, proposals, invoices,
                 Razorpay or UPI collection, and daily follow-ups from day one.
               </p>
@@ -173,12 +173,12 @@ export default function Signup() {
                   { t: 'Support when you need it', d: `Reach us at ${SUPPORT_EMAIL} if you need help getting set up.` }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-5 transition-transform hover:translate-x-2 duration-300">
-                     <div className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                     <div className="h-12 w-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
                         <svg className="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                      </div>
                      <div>
-                        <p className="font-bold text-white text-base leading-none mb-1">{item.t}</p>
-                        <p className="text-xs text-zinc-600 font-bold uppercase tracking-widest">{item.d}</p>
+                        <p className="font-bold text-slate-900 text-base leading-none mb-1">{item.t}</p>
+                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{item.d}</p>
                      </div>
                   </div>
                 ))}
@@ -189,16 +189,16 @@ export default function Signup() {
         <section className="reveal mx-auto w-full max-w-xl lg:max-w-none">
           <div className="premium-panel p-6 sm:p-10 lg:p-12">
             <div className="mb-10">
-              <h2 className="text-3xl font-black text-white leading-none mb-3">
+              <h2 className="text-3xl font-black text-slate-900 leading-none mb-3">
                 Create Account.
               </h2>
-              <p className="text-sm font-medium text-zinc-500">
+              <p className="text-sm font-medium text-slate-600">
                 No credit card required. Not limited to U.S. or Canada-only workflows.
               </p>
             </div>
 
             {error && (
-              <div className="mb-8 p-4 rounded-2xl border border-red-400/20 bg-red-400/5 text-xs font-bold text-red-400">
+              <div className="mb-8 p-4 rounded-2xl border border-rose-200 bg-red-400/5 text-xs font-bold text-red-400">
                 {error}
               </div>
             )}
@@ -213,7 +213,7 @@ export default function Signup() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Full Name</p>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</p>
                     <input
                       type="text"
                       required
@@ -221,18 +221,18 @@ export default function Signup() {
                       placeholder="Jane Doe"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
+                      className="input py-4 bg-slate-50 border-slate-200 focus:bg-slate-50"
                     />
                 </div>
                 <div className="space-y-1.5">
-                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Company</p>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Company</p>
                     <input
                       type="text"
                       autoComplete="organization"
                       placeholder="Optional"
                       value={form.companyName}
                       onChange={(e) => setForm({ ...form, companyName: e.target.value })}
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
+                      className="input py-4 bg-slate-50 border-slate-200 focus:bg-slate-50"
                     />
                 </div>
               </div>
@@ -240,10 +240,10 @@ export default function Signup() {
               {/* Email Address - Strictly Required */}
               <div className="space-y-1.5">
                   <div className="flex items-center justify-between ml-1">
-                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                       Email Address <span className="text-emerald-400 font-bold">*</span>
                     </p>
-                    <span className="text-[10px] font-bold text-zinc-500">Required</span>
+                    <span className="text-[10px] font-bold text-slate-600">Required</span>
                   </div>
                   <input
                     type="email"
@@ -252,14 +252,14 @@ export default function Signup() {
                     placeholder="name@company.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 font-medium"
+                    className="input py-4 bg-slate-50 border-slate-200 focus:bg-slate-50 font-medium"
                   />
               </div>
 
               {/* Mobile Number (WhatsApp) - Strictly Required */}
               <div className="space-y-1.5">
                   <div className="flex items-center justify-between ml-1">
-                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                       Mobile Number (WhatsApp) <span className="text-emerald-400 font-bold">*</span>
                     </p>
                     <span className="text-[10px] font-bold text-emerald-400">Required</span>
@@ -268,15 +268,15 @@ export default function Signup() {
                     <select
                       value={countryCode}
                       onChange={(e) => setCountryCode(e.target.value)}
-                      className="h-[46px] w-[120px] sm:w-[130px] shrink-0 px-2.5 bg-zinc-900 border border-white/10 focus:border-emerald-500 text-xs font-bold text-white rounded-xl cursor-pointer outline-none"
+                      className="h-[46px] w-[120px] sm:w-[130px] shrink-0 px-2.5 bg-white border border-slate-200 focus:border-emerald-500 text-xs font-bold text-slate-900 rounded-xl cursor-pointer outline-none"
                     >
-                      <option value="91" className="bg-zinc-900 text-white">🇮🇳 +91 (IN)</option>
-                      <option value="1" className="bg-zinc-900 text-white">🇺🇸 +1 (US)</option>
-                      <option value="44" className="bg-zinc-900 text-white">🇬🇧 +44 (UK)</option>
-                      <option value="971" className="bg-zinc-900 text-white">🇦🇪 +971 (UAE)</option>
-                      <option value="65" className="bg-zinc-900 text-white">🇸🇬 +65 (SG)</option>
-                      <option value="61" className="bg-zinc-900 text-white">🇦🇺 +61 (AU)</option>
-                      <option value="49" className="bg-zinc-900 text-white">🇩🇪 +49 (DE)</option>
+                      <option value="91" className="bg-white text-slate-900">🇮🇳 +91 (IN)</option>
+                      <option value="1" className="bg-white text-slate-900">🇺🇸 +1 (US)</option>
+                      <option value="44" className="bg-white text-slate-900">🇬🇧 +44 (UK)</option>
+                      <option value="971" className="bg-white text-slate-900">🇦🇪 +971 (UAE)</option>
+                      <option value="65" className="bg-white text-slate-900">🇸🇬 +65 (SG)</option>
+                      <option value="61" className="bg-white text-slate-900">🇦🇺 +61 (AU)</option>
+                      <option value="49" className="bg-white text-slate-900">🇩🇪 +49 (DE)</option>
                     </select>
                     <input
                       type="tel"
@@ -285,10 +285,10 @@ export default function Signup() {
                       placeholder="Phone number"
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, '').slice(0, 15) })}
-                      className="input py-4 bg-black/20 border-white/5 focus:bg-black/60 flex-1 min-w-0 font-bold tracking-wider"
+                      className="input py-4 bg-slate-50 border-slate-200 focus:bg-slate-50 flex-1 min-w-0 font-bold tracking-wider"
                     />
                   </div>
-                  <p className="text-[11px] text-zinc-500 ml-1">
+                  <p className="text-[11px] text-slate-600 ml-1">
                     Used to send you payment alerts & direct WhatsApp invoice links.
                   </p>
               </div>
@@ -296,10 +296,10 @@ export default function Signup() {
               {/* Role Selection */}
               <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between ml-1">
-                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                  <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                     Who are you? <span className="text-emerald-400 font-bold">*</span>
                   </p>
-                  <span className="text-[10px] font-bold text-zinc-500">Customizes your workspace</span>
+                  <span className="text-[10px] font-bold text-slate-600">Customizes your workspace</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {[
@@ -315,12 +315,12 @@ export default function Signup() {
                       onClick={() => setForm({ ...form, persona: role.id })}
                       className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition ${
                         form.persona === role.id
-                          ? 'border-emerald-400/60 bg-emerald-400/10 text-white shadow-sm ring-1 ring-emerald-400/30'
-                          : 'border-white/5 bg-black/20 text-zinc-400 hover:border-white/10 hover:text-zinc-200'
+                          ? 'border-emerald-400/60 bg-emerald-50 text-slate-900 shadow-sm ring-1 ring-emerald-400/30'
+                          : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-200 hover:text-zinc-200'
                       }`}
                     >
                       <span className="text-xs font-black">{role.label}</span>
-                      <span className="text-[9px] font-medium text-zinc-500 mt-0.5">{role.desc}</span>
+                      <span className="text-[9px] font-medium text-slate-600 mt-0.5">{role.desc}</span>
                     </button>
                   ))}
                 </div>
@@ -328,8 +328,8 @@ export default function Signup() {
 
               {/* Conditional Freelance Experience */}
               {form.persona === 'freelancer' && (
-                <div className="space-y-2 rounded-xl border border-sky-400/20 bg-sky-400/[0.04] p-3 animate-fadeIn">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">
+                <div className="space-y-2 rounded-xl border border-sky-200 bg-sky-400/[0.04] p-3 animate-fadeIn">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-sky-700">
                     Freelance Experience Level
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -345,12 +345,12 @@ export default function Signup() {
                         onClick={() => setForm({ ...form, freelanceExperience: exp.id })}
                         className={`flex items-center justify-between p-2 rounded-lg border text-left transition ${
                           form.freelanceExperience === exp.id
-                            ? 'border-sky-400/60 bg-sky-400/15 text-white ring-1 ring-sky-400/30'
-                            : 'border-white/5 bg-black/20 text-zinc-400 hover:border-white/10 hover:text-zinc-200'
+                            ? 'border-sky-400/60 bg-sky-50 text-slate-900 ring-1 ring-sky-400/30'
+                            : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-200 hover:text-zinc-200'
                         }`}
                       >
                         <span className="text-[11px] font-bold">{exp.label}</span>
-                        <span className="text-[9px] font-medium text-zinc-500">{exp.sub}</span>
+                        <span className="text-[9px] font-medium text-slate-600">{exp.sub}</span>
                       </button>
                     ))}
                   </div>
@@ -358,7 +358,7 @@ export default function Signup() {
               )}
 
               <div className="space-y-1.5">
-                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest ml-1">Password</p>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Password</p>
                   <input
                     type="password"
                     required
@@ -366,7 +366,7 @@ export default function Signup() {
                     placeholder="8+ characters"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="input py-4 bg-black/20 border-white/5 focus:bg-black/60"
+                    className="input py-4 bg-slate-50 border-slate-200 focus:bg-slate-50"
                   />
               </div>
 
@@ -379,18 +379,18 @@ export default function Signup() {
               </button>
             </form>
 
-            <div className="mt-10 pt-8 border-t border-white/5 text-center">
-              <p className="text-sm font-medium text-zinc-500">
+            <div className="mt-10 pt-8 border-t border-slate-200 text-center">
+              <p className="text-sm font-medium text-slate-600">
                 Already have a workspace?{' '}
-                <Link to="/login" className="font-black text-yellow-300 hover:text-white transition-colors">
+                <Link to="/login" className="font-black text-amber-700 hover:text-indigo-700 transition-colors">
                   Sign in here
                 </Link>
               </p>
-              <p className="mt-4 text-xs font-medium text-zinc-600">
+              <p className="mt-4 text-xs font-medium text-slate-500">
                 By creating an account, you agree to our{' '}
-                <Link to="/terms" className="text-zinc-400 hover:text-white transition-colors">Terms</Link>
+                <Link to="/terms" className="text-slate-600 hover:text-indigo-700 transition-colors">Terms</Link>
                 {' '}and{' '}
-                <Link to="/privacy" className="text-zinc-400 hover:text-white transition-colors">Privacy Policy</Link>.
+                <Link to="/privacy" className="text-slate-600 hover:text-indigo-700 transition-colors">Privacy Policy</Link>.
               </p>
             </div>
           </div>

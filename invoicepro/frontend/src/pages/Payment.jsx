@@ -290,35 +290,35 @@ const SimplePaymentCheckout = ({
       <Navbar />
       <main className="container-custom py-10 sm:py-14 lg:py-18">
         <section className="mx-auto max-w-5xl">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-300">Simple, secure subscription</p>
-          <h1 className="mt-4 text-4xl font-black leading-tight text-white sm:text-5xl">Choose a plan. Pay securely. Start working.</h1>
-          <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-zinc-400">You do not need to pay to try ClientFlow AI. New users get 30 days of free access. When you are ready, choose one plan below and complete payment with Razorpay.</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-700">Simple, secure subscription</p>
+          <h1 className="mt-4 text-4xl font-black leading-tight text-slate-900 sm:text-5xl">Choose a plan. Pay securely. Start working.</h1>
+          <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-slate-600">You do not need to pay to try ClientFlow AI. New users get 30 days of free access. When you are ready, choose one plan below and complete payment with Razorpay.</p>
 
           <ol className="mt-8 grid gap-3 sm:grid-cols-3">
             {[
               ['1', 'Try free first', 'Use the complete workflow for 30 days.'],
               ['2', 'Choose your plan', 'Pick monthly, yearly, or the 90-day offer.'],
               ['3', 'Pay with Razorpay', 'Use UPI, cards, netbanking, or supported global cards.']
-            ].map(([number, title, text]) => <li key={number} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-300 text-sm font-black text-slate-950">{number}</span><h2 className="mt-4 text-lg font-black text-white">{title}</h2><p className="mt-2 text-sm font-medium leading-6 text-zinc-400">{text}</p></li>)}
+            ].map(([number, title, text]) => <li key={number} className="rounded-2xl border border-slate-200 bg-slate-50 p-5"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-300 text-sm font-black text-slate-950">{number}</span><h2 className="mt-4 text-lg font-black text-slate-900">{title}</h2><p className="mt-2 text-sm font-medium leading-6 text-slate-600">{text}</p></li>)}
           </ol>
 
-          {freeAccessActive && <div className="mt-6 rounded-2xl border border-emerald-300/30 bg-emerald-300/[0.08] p-6"><p className="text-xs font-black uppercase tracking-widest text-emerald-200">Your free access is active</p><h2 className="mt-2 text-2xl font-black">You have {freeAccessState.daysLeft || 30} days left — no payment needed today.</h2><p className="mt-2 text-sm font-medium text-zinc-300">Keep using ClientFlow AI. You can return here when you are ready to subscribe.</p><Link to="/client-flow" className="mt-5 inline-flex rounded-xl bg-emerald-300 px-5 py-3 text-sm font-black uppercase text-slate-950">Open workspace</Link></div>}
+          {freeAccessActive && <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-300/[0.08] p-6"><p className="text-xs font-black uppercase tracking-widest text-emerald-700">Your free access is active</p><h2 className="mt-2 text-2xl font-black">You have {freeAccessState.daysLeft || 30} days left — no payment needed today.</h2><p className="mt-2 text-sm font-medium text-slate-700">Keep using ClientFlow AI. You can return here when you are ready to subscribe.</p><Link to="/client-flow" className="mt-5 inline-flex rounded-xl bg-emerald-300 px-5 py-3 text-sm font-black uppercase text-slate-950">Open workspace</Link></div>}
 
-          <section className="mt-10 rounded-3xl border border-white/10 bg-[#0d1119] p-5 sm:p-8">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-black uppercase tracking-widest text-cyan-300">Step 2 of 3</p><h2 className="mt-2 text-2xl font-black">Choose software access</h2><p className="mt-2 text-sm font-medium text-zinc-400">All plans include the same core client-to-payment workflow. Choose how long you want access.</p></div><div className="flex rounded-xl border border-white/10 p-1 text-xs font-black"><button type="button" onClick={() => onSelectMarket('india')} className={`rounded-lg px-3 py-2 ${market === 'india' ? 'bg-white text-slate-950' : 'text-zinc-400'}`}>India (₹)</button><button type="button" onClick={() => onSelectMarket('global')} className={`rounded-lg px-3 py-2 ${market === 'global' ? 'bg-white text-slate-950' : 'text-zinc-400'}`}>International ($)</button></div></div>
-            <div className="mt-6 grid gap-4 md:grid-cols-3">{Object.entries(plans).map(([id, details]) => <button key={id} type="button" onClick={() => onSelectPlan(id)} className={`rounded-2xl border p-5 text-left transition ${plan === id ? 'border-yellow-300 bg-yellow-300/[0.09] ring-1 ring-yellow-300/50' : 'border-white/10 bg-black/20 hover:border-white/30'}`}><div className="flex items-start justify-between gap-3"><p className="text-base font-black text-white">{details.label}</p>{plan === id && <span className="rounded-full bg-yellow-300 px-2 py-1 text-[10px] font-black text-slate-950">SELECTED</span>}</div><p className="mt-4 text-3xl font-black text-white">{pricingLoading ? '…' : formatMoney(details.amount, details.currency)}</p><p className="mt-2 text-xs font-bold text-zinc-400">{details.duration}</p><p className="mt-4 text-sm font-medium leading-6 text-zinc-400">{planFeatureDetails[id]?.fit || details.note}</p></button>)}</div>
+          <section className="mt-10 rounded-3xl border border-slate-200 bg-[#0d1119] p-5 sm:p-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-black uppercase tracking-widest text-indigo-700">Step 2 of 3</p><h2 className="mt-2 text-2xl font-black">Choose software access</h2><p className="mt-2 text-sm font-medium text-slate-600">All plans include the same core client-to-payment workflow. Choose how long you want access.</p></div><div className="flex rounded-xl border border-slate-200 p-1 text-xs font-black"><button type="button" onClick={() => onSelectMarket('india')} className={`rounded-lg px-3 py-2 ${market === 'india' ? 'bg-white text-slate-950' : 'text-slate-600'}`}>India (₹)</button><button type="button" onClick={() => onSelectMarket('global')} className={`rounded-lg px-3 py-2 ${market === 'global' ? 'bg-white text-slate-950' : 'text-slate-600'}`}>International ($)</button></div></div>
+            <div className="mt-6 grid gap-4 md:grid-cols-3">{Object.entries(plans).map(([id, details]) => <button key={id} type="button" onClick={() => onSelectPlan(id)} className={`rounded-2xl border p-5 text-left transition ${plan === id ? 'border-yellow-300 bg-yellow-300/[0.09] ring-1 ring-yellow-300/50' : 'border-slate-200 bg-slate-50 hover:border-slate-200'}`}><div className="flex items-start justify-between gap-3"><p className="text-base font-black text-slate-900">{details.label}</p>{plan === id && <span className="rounded-full bg-yellow-300 px-2 py-1 text-[10px] font-black text-slate-950">SELECTED</span>}</div><p className="mt-4 text-3xl font-black text-slate-900">{pricingLoading ? '…' : formatMoney(details.amount, details.currency)}</p><p className="mt-2 text-xs font-bold text-slate-600">{details.duration}</p><p className="mt-4 text-sm font-medium leading-6 text-slate-600">{planFeatureDetails[id]?.fit || details.note}</p></button>)}</div>
           </section>
 
-          <section className="mt-6 grid gap-6 rounded-3xl border border-yellow-300/25 bg-yellow-300/[0.06] p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div><p className="text-xs font-black uppercase tracking-widest text-yellow-200">Step 3 of 3</p><h2 className="mt-2 text-2xl font-black text-white">Pay for {current.label}</h2><p className="mt-2 text-sm font-medium leading-6 text-zinc-300">{pricingLoading ? 'We are checking the current price.' : `${formatMoney(current.amount, current.currency)} · ${current.duration}.`} After payment, your Pro access starts immediately.</p><p className="mt-4 text-xs font-bold text-zinc-500">Secure checkout by Razorpay. You can use UPI, cards, and netbanking in India. You can manage or cancel an active subscription from this page.</p></div>
+          <section className="mt-6 grid gap-6 rounded-3xl border border-amber-200 bg-yellow-300/[0.06] p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div><p className="text-xs font-black uppercase tracking-widest text-amber-700">Step 3 of 3</p><h2 className="mt-2 text-2xl font-black text-slate-900">Pay for {current.label}</h2><p className="mt-2 text-sm font-medium leading-6 text-slate-700">{pricingLoading ? 'We are checking the current price.' : `${formatMoney(current.amount, current.currency)} · ${current.duration}.`} After payment, your Pro access starts immediately.</p><p className="mt-4 text-xs font-bold text-slate-600">Secure checkout by Razorpay. You can use UPI, cards, and netbanking in India. You can manage or cancel an active subscription from this page.</p></div>
             <button type="button" onClick={onCheckout} disabled={checkoutDisabled} className="rounded-xl bg-yellow-300 px-7 py-4 text-sm font-black uppercase tracking-wide text-slate-950 transition hover:bg-yellow-200 disabled:cursor-not-allowed disabled:opacity-60">{checkoutLabel}</button>
           </section>
 
-          {pricingWarning && <div className={`mt-5 rounded-2xl border p-4 text-sm font-semibold ${pricingBlocked ? 'border-red-400/30 bg-red-400/10 text-red-200' : 'border-yellow-300/30 bg-yellow-300/[0.07] text-yellow-100'}`}>{pricingWarning}</div>}
+          {pricingWarning && <div className={`mt-5 rounded-2xl border p-4 text-sm font-semibold ${pricingBlocked ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-amber-200 bg-yellow-300/[0.07] text-amber-700'}`}>{pricingWarning}</div>}
 
-          {subscriptionStatus && <section className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.05] p-5"><p className="text-xs font-black uppercase tracking-widest text-emerald-200">Your current subscription</p><p className="mt-2 font-black text-white">{subscriptionStatus.plan} · {subscriptionStatus.status}</p>{subscriptionStatus.currentEnd && <p className="mt-1 text-sm text-zinc-400">Access until {new Date(subscriptionStatus.currentEnd).toLocaleDateString('en-IN')}</p>}{canCancelSubscription && <button type="button" onClick={onCancel} disabled={cancelLoading} className="mt-4 rounded-lg border border-red-400/30 px-4 py-2 text-xs font-black uppercase text-red-200 disabled:opacity-60">{cancelLoading ? 'Cancelling…' : 'Cancel renewal'}</button>}</section>}
+          {subscriptionStatus && <section className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-300/[0.05] p-5"><p className="text-xs font-black uppercase tracking-widest text-emerald-700">Your current subscription</p><p className="mt-2 font-black text-slate-900">{subscriptionStatus.plan} · {subscriptionStatus.status}</p>{subscriptionStatus.currentEnd && <p className="mt-1 text-sm text-slate-600">Access until {new Date(subscriptionStatus.currentEnd).toLocaleDateString('en-IN')}</p>}{canCancelSubscription && <button type="button" onClick={onCancel} disabled={cancelLoading} className="mt-4 rounded-lg border border-rose-200 px-4 py-2 text-xs font-black uppercase text-rose-700 disabled:opacity-60">{cancelLoading ? 'Cancelling…' : 'Cancel renewal'}</button>}</section>}
 
-          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-zinc-400 sm:flex-row sm:items-center sm:justify-between"><p>Questions about plans or billing? Contact our 24/7 founder support.</p><div className="flex gap-4 font-bold"><a href="https://wa.me/919080963704" target="_blank" rel="noopener noreferrer" className="text-emerald-300 hover:text-white">WhatsApp Support</a><a href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI billing support`} className="text-cyan-200 hover:text-white">Billing help</a></div></div>
+          <div className="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between"><p>Questions about plans or billing? Contact our 24/7 founder support.</p><div className="flex gap-4 font-bold"><a href="https://wa.me/919080963704" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:text-indigo-700">WhatsApp Support</a><a href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI billing support`} className="text-indigo-700 hover:text-indigo-700">Billing help</a></div></div>
         </section>
       </main>
     </div>
@@ -974,21 +974,21 @@ export default function Payment() {
                <span className="h-px w-8 bg-yellow-400" />
                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Secure Checkout</p>
             </div>
-            <h1 className="text-4xl font-bold sm:text-5xl xl:text-7xl tracking-tight text-white mb-6 leading-none">
-              ClientFlow AI is free now <br /> <span className="text-zinc-600">for your freelance workflow.</span>
+            <h1 className="text-4xl font-bold sm:text-5xl xl:text-7xl tracking-tight text-slate-900 mb-6 leading-none">
+              ClientFlow AI is free now <br /> <span className="text-slate-500">for your freelance workflow.</span>
             </h1>
 
-            <p className="max-w-xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed mb-8 sm:mb-10">
+            <p className="max-w-xl text-base sm:text-lg text-slate-600 font-medium leading-relaxed mb-8 sm:mb-10">
               All logged-in users currently get the full lead-to-payment system: find clients, send proposals, manage delivery, create invoices, and follow up pending money.
             </p>
 
             {freeAccessActive && (
-              <div className="mb-6 rounded-[1.75rem] border border-emerald-300/25 bg-emerald-300/[0.08] p-5 sm:p-6">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">30-day free access is active</p>
-                <h2 className="mt-2 text-2xl font-black text-white">
+              <div className="mb-6 rounded-[1.75rem] border border-emerald-200 bg-emerald-300/[0.08] p-5 sm:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">30-day free access is active</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-900">
                   You have {freeAccessState.daysLeft || 30} day{(freeAccessState.daysLeft || 30) === 1 ? '' : 's'} left.
                 </h2>
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-300">
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-700">
                   Use the full software workflow during this window. Paid 1-on-1 Managed Setup is also available if a user wants hands-on setup help.
                 </p>
                 <Link to="/client-flow" className="mt-5 inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-emerald-200">
@@ -999,10 +999,10 @@ export default function Payment() {
 
             <div className="mb-6 rounded-[1.75rem] border border-indigo-500/20 bg-indigo-500/[0.06] p-5 sm:p-6">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-400">Software Access & Billing</p>
-              <h2 className="mt-2 text-2xl font-black text-white">
+              <h2 className="mt-2 text-2xl font-black text-slate-900">
                 Pro Software Plans
               </h2>
-              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                 All new accounts get 30 days of free unlimited access. Choose Pro Monthly or Pro Annual to lock in zero-escrow direct UPI and foreign payout features.
               </p>
             </div>
@@ -1018,33 +1018,33 @@ export default function Payment() {
                   onClick={() => selectMarket(id)}
                   className={`rounded-2xl border p-4 text-left transition-all ${
                     market === id
-                      ? 'border-cyan-300/40 bg-cyan-300/10 text-white'
-                      : 'border-white/10 bg-black/20 text-zinc-400 hover:border-white/20 hover:bg-white/5 hover:text-white'
+                      ? 'border-indigo-200 bg-indigo-50 text-slate-900'
+                      : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-200 hover:bg-slate-100 hover:text-indigo-700'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-[10px] font-black uppercase tracking-widest">{title}</p>
-                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                    <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-900">
                       {formatMoney(price.amount, price.currency)}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{text}</p>
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{text}</p>
                 </button>
               ))}
             </div>
 
-            <div className="mb-6 rounded-[1.75rem] border border-yellow-300/25 bg-yellow-300/[0.08] p-5 sm:p-6">
+            <div className="mb-6 rounded-[1.75rem] border border-amber-200 bg-yellow-300/[0.08] p-5 sm:p-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">You are buying</p>
-                  <h2 className="mt-2 text-2xl font-black text-white">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">You are buying</p>
+                  <h2 className="mt-2 text-2xl font-black text-slate-900">
                     {current.label} for {pricingLoading ? 'live price check' : formatMoney(current.amount, current.currency)}
                   </h2>
-                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">
                     Free software access lasts 30 days. After that, users can choose a paid software checkout plan without changing the product workflow.
                   </p>
                   {market === 'global' && (
-                    <p className="mt-3 text-xs font-bold leading-relaxed text-cyan-100/80">
+                    <p className="mt-3 text-xs font-bold leading-relaxed text-indigo-700/80">
                       International checkout needs international payments enabled on your Razorpay account. USD recurring subscriptions also need USD plan IDs in Render.
                     </p>
                   )}
@@ -1061,38 +1061,38 @@ export default function Payment() {
 
               <div className="mt-5 grid gap-3 md:grid-cols-3">
                 {checkoutValueCards.map(([title, text]) => (
-                  <div key={title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                    <p className="text-sm font-black text-white">{title}</p>
-                    <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{text}</p>
+                  <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-sm font-black text-slate-900">{title}</p>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{text}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mb-6 rounded-[1.75rem] border border-cyan-300/20 bg-cyan-300/[0.06] p-5 sm:p-6">
+            <div className="mb-6 rounded-[1.75rem] border border-indigo-200 bg-cyan-300/[0.06] p-5 sm:p-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                 <div className="max-w-2xl">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-300">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-700">
                     Why this is different
                   </p>
-                  <h2 className="mt-2 text-2xl font-black text-white">
+                  <h2 className="mt-2 text-2xl font-black text-slate-900">
                     Pro is a direct-client business system, not another freelance marketplace.
                   </h2>
-                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">
                     Upwork and Fiverr monetize marketplace transactions. ClientFlow AI should monetize the operating system freelancers use to win, manage, and collect from their own clients.
                   </p>
                 </div>
-                <div className="shrink-0 rounded-2xl border border-white/10 bg-black/25 px-5 py-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Main revenue model</p>
-                  <p className="mt-2 text-xl font-black text-white">Pro + Setup</p>
+                <div className="shrink-0 rounded-2xl border border-slate-200 bg-black/25 px-5 py-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Main revenue model</p>
+                  <p className="mt-2 text-xl font-black text-slate-900">Pro + Setup</p>
                 </div>
               </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {directClientValueItems.map(([title, text]) => (
-                  <div key={title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                    <p className="text-sm font-black text-white">{title}</p>
-                    <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{text}</p>
+                  <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-sm font-black text-slate-900">{title}</p>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{text}</p>
                   </div>
                 ))}
               </div>
@@ -1101,14 +1101,14 @@ export default function Payment() {
             <div className={`mb-6 rounded-[1.75rem] border p-5 sm:p-6 ${
               earlyIntent
                 ? 'border-emerald-300/35 bg-emerald-300/[0.1]'
-                : 'border-emerald-300/20 bg-emerald-300/[0.06]'
+                : 'border-emerald-200 bg-emerald-300/[0.06]'
             }`}>
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">
                     Early-user free access
                   </p>
-                  <h2 className="mt-2 text-2xl font-black text-white">
+                  <h2 className="mt-2 text-2xl font-black text-slate-900">
                     Full software access is open for 30 days after signup.
                   </h2>
                   <p className="mt-2 text-sm font-semibold leading-relaxed text-emerald-50/70">
@@ -1122,14 +1122,14 @@ export default function Payment() {
                     disabled={earlyAccessDisabled}
                     className={`w-full rounded-2xl px-5 py-4 text-sm font-black uppercase tracking-widest transition-all lg:w-auto ${
                       earlyAccessDisabled
-                        ? 'cursor-not-allowed border border-white/10 bg-white/[0.04] text-zinc-500'
+                        ? 'cursor-not-allowed border border-slate-200 bg-slate-50 text-slate-600'
                         : 'bg-emerald-300 text-slate-950 hover:-translate-y-0.5 hover:bg-emerald-200 active:scale-95'
                     }`}
                   >
                     {earlyAccessButtonLabel}
                   </button>
                   {earlyAccessStatus && (
-                    <p className="mt-3 text-center text-[10px] font-black uppercase tracking-widest text-emerald-100/60">
+                    <p className="mt-3 text-center text-[10px] font-black uppercase tracking-widest text-emerald-700/60">
                       {Math.max(0, Number(earlyAccessStatus.seatsRemaining || 0))} seats left
                     </p>
                   )}
@@ -1138,7 +1138,7 @@ export default function Payment() {
             </div>
 
             <div className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
+               <div className="absolute top-0 right-0 p-8 opacity-5 text-slate-900 pointer-events-none group-hover:opacity-10 transition-opacity">
                   <svg className="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" /></svg>
                </div>
 
@@ -1150,37 +1150,37 @@ export default function Payment() {
                      onClick={() => selectPlan(id)}
                      className={`rounded-xl border p-4 text-left transition-all ${
                        plan === id
-                         ? 'border-yellow-400/40 bg-yellow-400/10 text-white'
-                         : 'border-white/10 bg-black/20 text-zinc-400 hover:border-white/20 hover:bg-white/5 hover:text-white'
+                         ? 'border-amber-200 bg-amber-50 text-slate-900'
+                         : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-200 hover:bg-slate-100 hover:text-indigo-700'
                      }`}
                    >
                      <p className="text-[10px] font-black uppercase tracking-widest">{details.label}</p>
-                     <p className="mt-2 text-2xl font-black text-white">{formatMoney(details.amount, details.currency)}</p>
-                     <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                     <p className="mt-2 text-2xl font-black text-slate-900">{formatMoney(details.amount, details.currency)}</p>
+                     <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
                        {freeAccessActive ? 'Free trial active' : details.duration}
                      </p>
                      {planFeatureDetails[id] && (
-                       <div className="mt-4 rounded-xl border border-white/8 bg-black/20 p-3">
-                         <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                       <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">
                            {planFeatureDetails[id].title}
                          </p>
-                         <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-400">
+                         <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">
                            {planFeatureDetails[id].fit}
                          </p>
                          <div className="mt-3 grid gap-2">
                            {planFeatureDetails[id].features.slice(0, 3).map((feature) => (
-                             <p key={feature} className="text-[11px] font-semibold leading-relaxed text-zinc-500">
+                             <p key={feature} className="text-[11px] font-semibold leading-relaxed text-slate-600">
                                {feature}
                              </p>
                            ))}
                          </div>
                        </div>
                      )}
-                     <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-cyan-200/80">
+                     <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-indigo-700/80">
                        {alternateMarket === 'global' ? 'USD option' : 'INR option'}: {formatMoney(alternatePlanDetails[id]?.amount || 0, alternatePlanDetails[id]?.currency || 'USD')}
                      </p>
                      {details.checkoutType !== 'one_time' && !details.subscriptionReady && (
-                       <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+                       <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-amber-700">
                          Plan ID needed
                        </p>
                      )}
@@ -1188,32 +1188,32 @@ export default function Payment() {
                  ))}
                </div>
 
-               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 sm:mb-10 pb-8 sm:pb-10 border-b border-white/5">
+               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 sm:mb-10 pb-8 sm:pb-10 border-b border-slate-200">
                   <div className="min-w-0">
-                    <h2 className="text-xl sm:text-2xl font-black text-white italic mb-1">{current.label}</h2>
-                    <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest leading-relaxed">{current.note}</p>
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 italic mb-1">{current.label}</h2>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">{current.note}</p>
                   </div>
                   <div className="text-left sm:text-right">
-                    <p className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                    <p className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
                       {freeAccessActive ? 'Rs 0 / $0' : pricingLoading ? 'Checking...' : formatMoney(current.amount, current.currency)}
                     </p>
-                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-widest mt-1">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">
                       {freeAccessActive ? 'Current software price' : 'Subscription Price'}
                     </p>
                   </div>
                </div>
 
                {planFeatureDetails[getSafePlan(plan)] && (
-                 <div className="mb-8 rounded-[1.5rem] border border-yellow-300/15 bg-yellow-300/[0.05] p-5">
-                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">
+                 <div className="mb-8 rounded-[1.5rem] border border-amber-200 bg-yellow-300/[0.05] p-5">
+                   <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">
                      {planFeatureDetails[getSafePlan(plan)].title}
                    </p>
-                   <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+                   <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">
                      {planFeatureDetails[getSafePlan(plan)].fit}
                    </p>
                    <div className="mt-4 grid gap-3">
                      {planFeatureDetails[getSafePlan(plan)].features.map((feature) => (
-                       <p key={feature} className="text-xs font-semibold leading-relaxed text-zinc-500">
+                       <p key={feature} className="text-xs font-semibold leading-relaxed text-slate-600">
                          {feature}
                        </p>
                      ))}
@@ -1221,11 +1221,11 @@ export default function Payment() {
                  </div>
                )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8 text-[10px] font-black uppercase tracking-widest text-slate-600">
                   {proValueItems.map((item) => (
                     <div key={item} className="flex items-center gap-4 group/item">
                        <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                       <p className="group-hover:text-white transition-colors">{item}</p>
+                       <p className="group-hover:text-indigo-700 transition-colors">{item}</p>
                     </div>
                   ))}
                 </div>
@@ -1234,38 +1234,38 @@ export default function Payment() {
 
           <aside className="reveal reveal-delay-1 h-fit">
             <div className="premium-panel p-5 sm:p-8 xl:p-10">
-               <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 mb-8">
-                 <p className="text-[10px] uppercase tracking-widest font-black text-zinc-500">Payment Summary</p>
+               <div className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-slate-100 border border-slate-200 mb-8">
+                 <p className="text-[10px] uppercase tracking-widest font-black text-slate-600">Payment Summary</p>
                </div>
 
                 <div className="space-y-6 mb-10">
                   <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-sm font-bold">
-                    <span className="text-zinc-600 uppercase tracking-widest">
+                    <span className="text-slate-500 uppercase tracking-widest">
                       {current.checkoutType === 'one_time' ? 'One-Time Plan' : 'Recurring Plan'}
                     </span>
-                    <span className="text-white">{freeAccessActive ? 'Free now' : pricingLoading ? 'Checking...' : formatMoney(current.amount, current.currency)}</span>
+                    <span className="text-slate-900">{freeAccessActive ? 'Free now' : pricingLoading ? 'Checking...' : formatMoney(current.amount, current.currency)}</span>
                   </div>
                   <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-center text-sm font-bold">
-                    <span className="text-zinc-600 uppercase tracking-widest">Payment Processing</span>
+                    <span className="text-slate-500 uppercase tracking-widest">Payment Processing</span>
                     <span className="text-emerald-400 italic">{market === 'global' ? 'Global card' : 'Included'}</span>
                   </div>
-                  <div className="pt-6 border-t border-white/5 flex flex-col items-end">
-                    <p className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.2em] mb-2">Plan Amount</p>
-                    <p className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+                  <div className="pt-6 border-t border-slate-200 flex flex-col items-end">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Plan Amount</p>
+                    <p className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
                       {freeAccessActive ? 'Free' : pricingLoading ? '--' : formatMoney(current.amount, current.currency)}
                     </p>
-                    <p className="text-xs font-bold text-zinc-500 mt-2">{freeAccessActive ? `${freeAccessState.daysLeft || 30} days left` : current.duration}</p>
+                    <p className="text-xs font-bold text-slate-600 mt-2">{freeAccessActive ? `${freeAccessState.daysLeft || 30} days left` : current.duration}</p>
                   </div>
                </div>
 
                {subscriptionStatus && (
-                 <div className="mb-6 rounded-2xl border border-emerald-400/15 bg-emerald-400/10 p-4">
-                   <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Current Subscription</p>
-                   <p className="mt-2 text-sm font-bold text-white">
+                 <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                   <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Current Subscription</p>
+                   <p className="mt-2 text-sm font-bold text-slate-900">
                      {subscriptionStatus.plan} / {subscriptionStatus.status}
                    </p>
                    {subscriptionStatus.currentEnd && (
-                     <p className="mt-2 text-xs font-bold text-emerald-100/80">
+                     <p className="mt-2 text-xs font-bold text-emerald-700/80">
                        Current access until {new Date(subscriptionStatus.currentEnd).toLocaleDateString('en-IN')}
                      </p>
                    )}
@@ -1296,10 +1296,10 @@ export default function Payment() {
                  type="button"
                  onClick={handleEarlyAccessStart}
                  disabled={earlyAccessDisabled}
-                 className={`mt-3 w-full rounded-2xl border border-white/10 px-5 py-4 text-sm font-black text-white transition-all ${
+                 className={`mt-3 w-full rounded-2xl border border-slate-200 px-5 py-4 text-sm font-black text-slate-900 transition-all ${
                    earlyAccessDisabled
-                     ? 'cursor-not-allowed bg-white/[0.02] opacity-60'
-                     : 'bg-white/[0.03] hover:bg-white/[0.06] active:scale-[0.98]'
+                     ? 'cursor-not-allowed bg-slate-50 opacity-60'
+                     : 'bg-slate-50 hover:bg-slate-50 active:scale-[0.98]'
                  }`}
                >
                  {earlyAccessButtonLabel}
@@ -1308,16 +1308,16 @@ export default function Payment() {
                {pricingWarning && (
                  <div className={`mt-4 rounded-2xl border p-4 text-sm font-bold ${
                    pricingBlocked
-                     ? 'border-red-400/20 bg-red-400/10 text-red-300'
-                     : 'border-yellow-400/20 bg-yellow-400/10 text-yellow-200'
+                     ? 'border-rose-200 bg-rose-50 text-rose-700'
+                     : 'border-amber-200 bg-amber-50 text-amber-700'
                  }`}>
                    {pricingWarning}
                  </div>
                )}
 
-               <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Billing Support</p>
-                 <p className="mt-2 text-xs font-bold leading-relaxed text-zinc-500">
+               <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Billing Support</p>
+                 <p className="mt-2 text-xs font-bold leading-relaxed text-slate-600">
                    Cancel from here when a Razorpay subscription is active. Refunds are reviewed by support and processed through Razorpay when approved.
                  </p>
                  <div className="mt-4 grid gap-3">
@@ -1326,14 +1326,14 @@ export default function Payment() {
                        type="button"
                        onClick={handleCancelSubscription}
                        disabled={cancelLoading}
-                       className="rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+                       className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
                      >
                        {cancelLoading ? 'Cancelling...' : 'Cancel Renewal'}
                      </button>
                    )}
                    <a
                      href={`mailto:${SUPPORT_EMAIL}?subject=ClientFlow AI refund or billing support`}
-                     className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/[0.06]"
+                     className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-50"
                    >
                      Request Refund Support
                    </a>
@@ -1345,8 +1345,8 @@ export default function Payment() {
                </div>
             </div>
 
-             <div className="mt-8 p-8 rounded-[2rem] border border-white/5 bg-white/[0.01]">
-                <p className="text-[10px] font-bold text-zinc-600 leading-relaxed uppercase tracking-widest text-center">
+             <div className="mt-8 p-8 rounded-[2rem] border border-slate-200 bg-slate-50">
+                <p className="text-[10px] font-bold text-slate-500 leading-relaxed uppercase tracking-widest text-center">
                   Use early access to test the full workflow, the founder offer for 90-day paid access, or monthly billing for repeat subscribers.
                 </p>
              </div>

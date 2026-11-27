@@ -12,14 +12,14 @@ const oauthProviders = [
     label: 'GitHub',
     shortLabel: 'G',
     clientId: (import.meta.env.VITE_GITHUB_CLIENT_ID || '').trim(),
-    className: 'hover:border-white/30 hover:bg-white/10'
+    className: 'hover:border-slate-200 hover:bg-slate-100'
   },
   {
     id: 'microsoft',
     label: 'Microsoft',
     shortLabel: 'M',
     clientId: (import.meta.env.VITE_MICROSOFT_CLIENT_ID || '').trim(),
-    className: 'hover:border-sky-300/30 hover:bg-sky-300/10'
+    className: 'hover:border-sky-200 hover:bg-sky-50'
   }
 ];
 
@@ -160,9 +160,9 @@ export default function AuthProviderButtons({
               key={provider.id}
               type="button"
               onClick={() => startOAuthLogin(provider.id)}
-              className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm font-black text-white transition ${provider.className}`}
+              className={`flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-black text-slate-900 transition ${provider.className}`}
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-black/25 text-xs">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-black/25 text-xs">
                 {provider.shortLabel}
               </span>
               <span>{provider.label}</span>
@@ -172,9 +172,9 @@ export default function AuthProviderButtons({
       )}
 
       <div className="mt-8 flex items-center gap-4">
-        <span className="h-px flex-1 bg-white/5" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-700">{dividerLabel}</span>
-        <span className="h-px flex-1 bg-white/5" />
+        <span className="h-px flex-1 bg-slate-100" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{dividerLabel}</span>
+        <span className="h-px flex-1 bg-slate-100" />
       </div>
     </div>
   );

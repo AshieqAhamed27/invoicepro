@@ -42,14 +42,14 @@ const getProviderLabel = (provider) => {
 };
 const getAiStatusClass = (status) => {
   if (status === 'ready') return 'border-emerald-400/10 bg-emerald-400/5 text-emerald-400';
-  if (status === 'fallback-ready') return 'border-sky-400/10 bg-sky-400/5 text-sky-300';
+  if (status === 'fallback-ready') return 'border-sky-400/10 bg-sky-400/5 text-sky-700';
   return 'border-yellow-400/10 bg-yellow-400/5 text-yellow-400';
 };
 const getAiTestClass = (result) => {
-  if (!result) return 'border-white/5 bg-white/[0.03] text-zinc-400';
+  if (!result) return 'border-slate-200 bg-slate-50 text-slate-600';
   return result.passed
-    ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-300'
-    : 'border-yellow-400/10 bg-yellow-400/5 text-yellow-300';
+    ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-700'
+    : 'border-yellow-400/10 bg-yellow-400/5 text-amber-700';
 };
 const getPlanLabel = (plan) => {
   if (plan === 'free') return 'Free';
@@ -66,36 +66,36 @@ const getAccessBadgeInfo = (user) => {
   if (user?.isExpired || user?.accessCategory === 'expired') {
     return {
       label: 'Expired',
-      class: 'border-red-400/30 bg-red-400/10 text-red-300'
+      class: 'border-rose-200 bg-rose-50 text-rose-700'
     };
   }
   if (user?.isDemo || user?.accessCategory === 'demo') {
     return {
       label: 'Demo',
-      class: 'border-violet-400/30 bg-violet-400/10 text-violet-300'
+      class: 'border-violet-200 bg-violet-50 text-violet-700'
     };
   }
   if (user?.accessCategory === 'paid' || (user?.accessType === 'paid' && !user?.isExpired)) {
     return {
       label: 'Paid',
-      class: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
+      class: 'border-emerald-200 bg-emerald-50 text-emerald-700'
     };
   }
   if (user?.accessCategory === 'free_access') {
     return {
       label: '30-Day Free',
-      class: 'border-yellow-400/30 bg-yellow-400/10 text-yellow-300'
+      class: 'border-amber-200 bg-amber-50 text-amber-700'
     };
   }
   return {
     label: 'Free',
-    class: 'border-zinc-500/20 bg-zinc-500/10 text-zinc-300'
+    class: 'border-zinc-500/20 bg-zinc-500/10 text-slate-700'
   };
 };
 const getAccessLabel = (accessType) => accessType === 'paid' ? 'Paid' : 'Free';
 const getAccessClass = (accessType) => accessType === 'paid'
-  ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-300'
-  : 'border-yellow-400/10 bg-yellow-400/5 text-yellow-300';
+  ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-700'
+  : 'border-yellow-400/10 bg-yellow-400/5 text-amber-700';
 const USER_GRAPH_WIDTH = 720;
 const USER_GRAPH_HEIGHT = 220;
 const USER_GRAPH_PADDING = 30;
@@ -589,9 +589,9 @@ export default function Admin() {
     .reduce((sum, booking) => sum + Number(booking.amount || 0), 0);
   const getAgencyStatusClass = (status) => {
     if (status === 'delivered') return 'border-emerald-400/10 bg-emerald-400/5 text-emerald-400';
-    if (status === 'in_progress' || status === 'paid') return 'border-sky-400/10 bg-sky-400/5 text-sky-300';
+    if (status === 'in_progress' || status === 'paid') return 'border-sky-400/10 bg-sky-400/5 text-sky-700';
     if (status === 'payment_pending') return 'border-yellow-400/10 bg-yellow-400/5 text-yellow-400';
-    return 'border-red-400/10 bg-red-400/5 text-red-300';
+    return 'border-red-400/10 bg-red-400/5 text-rose-700';
   };
   const productTotals = productAnalytics?.totals || {};
   const registeredMembers = Number(productTotals.registeredMembers || 0);
@@ -609,16 +609,16 @@ export default function Admin() {
   const commonActionDetails = Array.isArray(productAnalytics?.topEvents) ? productAnalytics.topEvents : [];
   const activitySummaryItems = selectedDailyActivity
     ? [
-      { label: 'Viewers', value: selectedDailyActivity.visitors, tone: 'text-sky-300' },
-      { label: 'Members', value: selectedDailyActivity.members, tone: 'text-emerald-300' },
-      { label: 'Actions', value: selectedDailyActivity.featureEvents, tone: 'text-yellow-300' },
-      { label: 'Signups', value: selectedDailyActivity.signups, tone: 'text-white' }
+      { label: 'Viewers', value: selectedDailyActivity.visitors, tone: 'text-sky-700' },
+      { label: 'Members', value: selectedDailyActivity.members, tone: 'text-emerald-700' },
+      { label: 'Actions', value: selectedDailyActivity.featureEvents, tone: 'text-amber-700' },
+      { label: 'Signups', value: selectedDailyActivity.signups, tone: 'text-slate-900' }
     ]
     : [
-      { label: 'All viewers', value: productTotals.uniqueVisitors, tone: 'text-sky-300' },
-      { label: 'All members', value: productTotals.registeredMembers, tone: 'text-emerald-300' },
-      { label: 'Feature actions', value: commonActionDetails.reduce((sum, item) => sum + Number(item.events || 0), 0), tone: 'text-yellow-300' },
-      { label: 'Paid users', value: productTotals.paidMembers, tone: 'text-white' }
+      { label: 'All viewers', value: productTotals.uniqueVisitors, tone: 'text-sky-700' },
+      { label: 'All members', value: productTotals.registeredMembers, tone: 'text-emerald-700' },
+      { label: 'Feature actions', value: commonActionDetails.reduce((sum, item) => sum + Number(item.events || 0), 0), tone: 'text-amber-700' },
+      { label: 'Paid users', value: productTotals.paidMembers, tone: 'text-slate-900' }
     ];
   const activeGraphX = activeGraphIndex >= 0 ? getUserGraphX(dailyActivity, activeGraphIndex) : USER_GRAPH_PADDING;
   const activeTooltipX = Math.max(44, Math.min(USER_GRAPH_WIDTH - 190, activeGraphX - 78));
@@ -712,7 +712,7 @@ export default function Admin() {
   });
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
@@ -721,21 +721,21 @@ export default function Admin() {
             <span className="h-px w-8 bg-red-500" />
             <p className="text-[10px] font-black uppercase tracking-widest text-red-500">Security & Permissions</p>
           </div>
-          <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-4">
+          <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-slate-900 mb-4">
             Payment Audit
           </h1>
-          <p className="max-w-2xl text-lg text-zinc-500 font-medium leading-relaxed">
+          <p className="max-w-2xl text-lg text-slate-600 font-medium leading-relaxed">
             Verify manual payment evidence and confirm live checkout pricing.
           </p>
         </div>
 
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+          <div className="border-b border-slate-200 bg-slate-50 p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Product Growth</p>
-                <h2 className="text-2xl font-black tracking-tight text-white">Unique member and usage analytics</h2>
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-500">Product Growth</p>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900">Unique member and usage analytics</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                   Counts unique/new people only. Repeated visits from the same visitor are ignored in the main numbers.
                 </p>
               </div>
@@ -749,14 +749,14 @@ export default function Admin() {
 
           <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-5">
             {[
-              { label: 'Total Unique Viewers', value: productTotals.newProductViewers ?? productTotals.uniqueVisitors, tone: 'text-sky-300' },
+              { label: 'Total Unique Viewers', value: productTotals.newProductViewers ?? productTotals.uniqueVisitors, tone: 'text-sky-700' },
               { label: 'View-Only (No Signup)', value: productTotals.viewOnlyVisitors, tone: 'text-sky-400' },
-              { label: 'Signed Up & Viewed', value: productTotals.signedUpAndViewed, tone: 'text-white' },
-              { label: 'Free Users', value: productTotals.freeAccessMembers, tone: 'text-yellow-300' },
-              { label: 'Paid Users', value: productTotals.paidMembers, tone: 'text-emerald-300' }
+              { label: 'Signed Up & Viewed', value: productTotals.signedUpAndViewed, tone: 'text-slate-900' },
+              { label: 'Free Users', value: productTotals.freeAccessMembers, tone: 'text-amber-700' },
+              { label: 'Paid Users', value: productTotals.paidMembers, tone: 'text-emerald-700' }
             ].map((item) => (
-              <div key={item.label} className="rounded-[2rem] border border-white/5 bg-black/10 p-5">
-                <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
+              <div key={item.label} className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5">
+                <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</p>
                 <p className={`text-3xl font-black tracking-tight ${item.tone}`}>
                   {productAnalyticsLoading ? '--' : formatNumber(item.value)}
                 </p>
@@ -765,18 +765,18 @@ export default function Admin() {
           </div>
 
           {/* User Journey Funnel Breakdown */}
-          <div className="border-t border-white/5 px-5 pb-6 pt-6 sm:px-8">
+          <div className="border-t border-slate-200 px-5 pb-6 pt-6 sm:px-8">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">User Journey Funnel</p>
-                <h3 className="mt-1 text-xl font-black text-white">Where members are in the product</h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">User Journey Funnel</p>
+                <h3 className="mt-1 text-xl font-black text-slate-900">Where members are in the product</h3>
               </div>
               <div className="flex items-center gap-3">
                 {cleanupResult && (
                   <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
                     cleanupResult.ok
-                      ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-300'
-                      : 'border-red-400/10 bg-red-400/5 text-red-300'
+                      ? 'border-emerald-400/10 bg-emerald-400/5 text-emerald-700'
+                      : 'border-red-400/10 bg-red-400/5 text-rose-700'
                   }`}>
                     {cleanupResult.message || (cleanupResult.ok ? 'Done' : 'Failed')}
                   </span>
@@ -785,7 +785,7 @@ export default function Admin() {
                   type="button"
                   onClick={runCleanupDuplicates}
                   disabled={cleanupLoading}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-200 transition hover:border-red-400/30 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-800 transition hover:border-rose-200 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {cleanupLoading ? 'Cleaning...' : '🧹 Remove Duplicate Events'}
                 </button>
@@ -793,46 +793,46 @@ export default function Admin() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
               {[
-                { label: '👁️ Just Viewed', value: productTotals.viewOnlyVisitors, desc: 'Anonymous – never signed up', border: 'border-sky-400/20 bg-sky-400/[0.06]', text: 'text-sky-300' },
-                { label: '📝 Signed Up & Browsed', value: productTotals.signedUpAndViewed, desc: 'Registered members who viewed', border: 'border-white/10 bg-white/[0.03]', text: 'text-white' },
-                { label: '🎁 30-Day Free Access', value: productTotals.freeAccess30DayMembers, desc: 'Active free trial window', border: 'border-yellow-400/20 bg-yellow-400/[0.06]', text: 'text-yellow-300' },
-                { label: '🔬 Tried Demo', value: productTotals.demoMembers, desc: 'isDemo accounts', border: 'border-violet-400/20 bg-violet-400/[0.06]', text: 'text-violet-300' },
-                { label: '💳 Paid Members', value: productTotals.paidMembers, desc: 'Active paid subscriptions', border: 'border-emerald-400/20 bg-emerald-400/[0.06]', text: 'text-emerald-300' }
+                { label: '👁️ Just Viewed', value: productTotals.viewOnlyVisitors, desc: 'Anonymous – never signed up', border: 'border-sky-200 bg-sky-400/[0.06]', text: 'text-sky-700' },
+                { label: '📝 Signed Up & Browsed', value: productTotals.signedUpAndViewed, desc: 'Registered members who viewed', border: 'border-slate-200 bg-slate-50', text: 'text-slate-900' },
+                { label: '🎁 30-Day Free Access', value: productTotals.freeAccess30DayMembers, desc: 'Active free trial window', border: 'border-amber-200 bg-yellow-400/[0.06]', text: 'text-amber-700' },
+                { label: '🔬 Tried Demo', value: productTotals.demoMembers, desc: 'isDemo accounts', border: 'border-violet-200 bg-violet-400/[0.06]', text: 'text-violet-700' },
+                { label: '💳 Paid Members', value: productTotals.paidMembers, desc: 'Active paid subscriptions', border: 'border-emerald-200 bg-emerald-400/[0.06]', text: 'text-emerald-700' }
               ].map((item) => (
                 <div key={item.label} className={`rounded-[2rem] border p-5 ${item.border}`}>
-                  <p className="text-xs font-black uppercase tracking-widest text-zinc-500">{item.label}</p>
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-600">{item.label}</p>
                   <p className={`mt-3 text-4xl font-black tracking-tight ${item.text}`}>
                     {productAnalyticsLoading ? '--' : formatNumber(item.value)}
                   </p>
-                  <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{item.desc}</p>
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">{item.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="px-5 pb-5 sm:px-8 sm:pb-8">
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-5 sm:p-6">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Real-Time User Graph</p>
-                  <h3 className="mt-2 text-2xl font-black tracking-tight text-white">14-day user activity</h3>
-                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Real-Time User Graph</p>
+                  <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-900">14-day user activity</h3>
+                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                     Click a day to inspect only that day&apos;s user actions. Without a selection, the panel shows the overall product summary.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-sky-400/10 bg-sky-400/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-sky-300">
+                  <span className="rounded-full border border-sky-400/10 bg-sky-400/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-sky-700">
                     Auto 30s
                   </span>
-                  <span className="rounded-full border border-white/5 bg-white/[0.03] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600">
                     {formatDateTime(analyticsUpdatedAt || productAnalytics?.refreshedAt)}
                   </span>
                   <button
                     type="button"
                     onClick={() => fetchProductAnalytics()}
                     disabled={productAnalyticsLoading}
-                    className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-200 transition hover:border-sky-400/30 hover:text-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-800 transition hover:border-sky-200 hover:text-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {productAnalyticsLoading ? 'Refreshing' : 'Refresh'}
                   </button>
@@ -840,7 +840,7 @@ export default function Admin() {
                     <button
                       type="button"
                       onClick={() => setSelectedGraphIndex(null)}
-                      className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-yellow-200 transition hover:bg-yellow-400/15"
+                      className="rounded-full border border-amber-200 bg-amber-50 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-amber-700 transition hover:bg-amber-50"
                     >
                       Show all activity
                     </button>
@@ -849,7 +849,7 @@ export default function Admin() {
               </div>
 
               <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_240px]">
-                <div className="min-w-0 overflow-hidden rounded-[1.5rem] border border-white/5 bg-white/[0.025] p-4">
+                <div className="min-w-0 overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
                   {dailyActivity.length > 0 ? (
                     <>
                       <div className="overflow-x-auto" onMouseLeave={() => setHoveredGraphIndex(null)}>
@@ -1008,16 +1008,16 @@ export default function Admin() {
 
                       <div className="mt-4 flex flex-wrap gap-3">
                         {userGraphLines.map((line) => (
-                          <div key={line.key} className="flex items-center gap-2 rounded-full border border-white/5 bg-black/20 px-3 py-2">
+                          <div key={line.key} className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2">
                             <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: line.color }} />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">{line.label}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{line.label}</span>
                           </div>
                         ))}
                       </div>
                     </>
                   ) : (
-                    <div className="flex min-h-64 items-center justify-center rounded-2xl border border-white/5 bg-black/10 p-6 text-center">
-                      <p className="text-sm font-semibold text-zinc-500">
+                    <div className="flex min-h-64 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center">
+                      <p className="text-sm font-semibold text-slate-600">
                         {productAnalyticsLoading ? 'Loading live graph...' : 'No graph data yet.'}
                       </p>
                     </div>
@@ -1027,39 +1027,39 @@ export default function Admin() {
                 <div className="grid gap-3">
                   <div className={`rounded-2xl border p-4 transition duration-300 ${
                     selectedGraphIndex === null
-                      ? 'border-white/5 bg-white/[0.03]'
-                      : 'border-sky-400/20 bg-sky-400/10 shadow-lg shadow-sky-950/20'
+                      ? 'border-slate-200 bg-slate-50'
+                      : 'border-sky-200 bg-sky-50 shadow-lg shadow-sky-950/20'
                   }`}>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
                       {selectedGraphIndex === null ? 'Common overview' : 'Selected day'}
                     </p>
-                    <p className="mt-2 text-lg font-black tracking-tight text-white">
+                    <p className="mt-2 text-lg font-black tracking-tight text-slate-900">
                       {selectedDailyActivity?.label || 'All tracked activity'}
                     </p>
                   </div>
 
                   {activitySummaryItems.map((item) => (
-                    <div key={item.label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4 transition duration-300 hover:-translate-y-0.5 hover:border-white/10">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
+                    <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition duration-300 hover:-translate-y-0.5 hover:border-slate-200">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</p>
                       <p className={`mt-2 text-3xl font-black tracking-tight ${item.tone}`}>
                         {productAnalyticsLoading ? '--' : formatNumber(item.value)}
                       </p>
                     </div>
                   ))}
 
-                  <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
                       {selectedDailyActivity ? 'Actions on this day' : 'Common feature actions'}
                     </p>
                     <div className="mt-3 grid gap-2">
                       {(selectedDailyActivity ? selectedDayActions : commonActionDetails).slice(0, 5).map((item) => (
                         <div key={item.name || item.eventName} className="flex items-center justify-between gap-3 text-xs">
-                          <span className="min-w-0 truncate font-bold text-zinc-300">{item.name || item.eventName}</span>
-                          <span className="shrink-0 font-black text-yellow-200">{formatNumber(item.events)}</span>
+                          <span className="min-w-0 truncate font-bold text-slate-700">{item.name || item.eventName}</span>
+                          <span className="shrink-0 font-black text-amber-700">{formatNumber(item.events)}</span>
                         </div>
                       ))}
                       {(selectedDailyActivity ? selectedDayActions : commonActionDetails).length === 0 && (
-                        <p className="text-xs font-semibold text-zinc-600">No tracked feature actions for this view.</p>
+                        <p className="text-xs font-semibold text-slate-500">No tracked feature actions for this view.</p>
                       )}
                     </div>
                   </div>
@@ -1069,24 +1069,24 @@ export default function Admin() {
           </div>
 
           <div className="grid gap-6 px-5 pb-5 sm:px-8 sm:pb-8 lg:grid-cols-3">
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Growth Funnel</p>
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Growth Funnel</p>
               <div className="mt-4 grid gap-3">
                 {[
                   ['Visitor to member', formatPercent(signupRate)],
                   ['Member to paid', formatPercent(paidRate)],
                   ['Paid conversion', formatPercent(productTotals.paidConversionRate)]
                 ].map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                    <span className="text-xs font-black uppercase tracking-widest text-zinc-500">{label}</span>
-                    <span className="text-lg font-black text-white">{productAnalyticsLoading ? '--' : value}</span>
+                  <div key={label} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-600">{label}</span>
+                    <span className="text-lg font-black text-slate-900">{productAnalyticsLoading ? '--' : value}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Access Mix</p>
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Access Mix</p>
               <div className="mt-4 grid grid-cols-2 gap-3 text-center">
                 {[
                   ['Trial', productTotals.trialMembers],
@@ -1094,20 +1094,20 @@ export default function Admin() {
                   ['Paid', productTotals.paidMembers],
                   ['Admins', productTotals.adminMembers]
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                    <p className="text-2xl font-black text-white">{productAnalyticsLoading ? '--' : formatNumber(value)}</p>
-                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                  <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-2xl font-black text-slate-900">{productAnalyticsLoading ? '--' : formatNumber(value)}</p>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">New In Last 7 Days</p>
-              <p className="mt-4 text-4xl font-black text-white">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">New In Last 7 Days</p>
+              <p className="mt-4 text-4xl font-black text-slate-900">
                 {productAnalyticsLoading ? '--' : formatNumber(productAnalytics?.last7Days?.newVisitors)}
               </p>
-              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
+              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-slate-600">
                 {productAnalyticsLoading
                   ? 'Checking...'
                   : `${formatNumber(productAnalytics?.last7Days?.uniqueVisitors)} unique visitors active, repeated visits ignored`}
@@ -1116,51 +1116,51 @@ export default function Admin() {
           </div>
 
           {!productAnalyticsLoading && (
-            <div className="grid gap-6 border-t border-white/5 p-5 sm:p-8 lg:grid-cols-2">
-              <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Top Pages</p>
-                <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+            <div className="grid gap-6 border-t border-slate-200 p-5 sm:p-8 lg:grid-cols-2">
+              <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Top Pages</p>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">
                   Shows where users spend attention, so you can improve the real conversion path.
                 </p>
                 <div className="mt-4 grid gap-3">
                   {(productAnalytics?.topPages || []).length > 0 ? productAnalytics.topPages.map((page) => (
-                    <div key={page.path} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                    <div key={page.path} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-white">{page.title || page.path}</p>
-                          <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-widest text-zinc-600">{page.path}</p>
+                          <p className="truncate text-sm font-black text-slate-900">{page.title || page.path}</p>
+                          <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-widest text-slate-500">{page.path}</p>
                         </div>
-                        <span className="shrink-0 rounded-full border border-sky-400/10 bg-sky-400/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-sky-300">
+                        <span className="shrink-0 rounded-full border border-sky-400/10 bg-sky-400/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-sky-700">
                           {formatNumber(page.uniqueVisitors)} users
                         </span>
                       </div>
                     </div>
                   )) : (
-                    <p className="rounded-2xl border border-white/5 bg-white/[0.03] p-4 text-sm font-semibold text-zinc-500">
+                    <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-600">
                       No page data yet.
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Feature Usage</p>
-                <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+              <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Feature Usage</p>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">
                   Shows what users actually do after landing, not repeated page refreshes.
                 </p>
                 <div className="mt-4 grid gap-3">
                   {(productAnalytics?.topEvents || []).length > 0 ? productAnalytics.topEvents.map((event) => (
-                    <div key={event.eventName} className="flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.03] p-4">
+                    <div key={event.eventName} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-white">{event.eventName}</p>
-                        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                        <p className="truncate text-sm font-black text-slate-900">{event.eventName}</p>
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
                           {formatNumber(event.users)} members / {formatNumber(event.visitors)} visitors
                         </p>
                       </div>
-                      <span className="text-lg font-black text-emerald-300">{formatNumber(event.events)}</span>
+                      <span className="text-lg font-black text-emerald-700">{formatNumber(event.events)}</span>
                     </div>
                   )) : (
-                    <p className="rounded-2xl border border-white/5 bg-white/[0.03] p-4 text-sm font-semibold text-zinc-500">
+                    <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-600">
                       No feature events yet.
                     </p>
                   )}
@@ -1170,15 +1170,15 @@ export default function Admin() {
           )}
 
           {!productAnalyticsLoading && productAnalytics?.recentActivity?.length > 0 && (
-            <div className="border-t border-white/5 p-5 sm:p-8">
-              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent Unique Product Viewers</p>
+            <div className="border-t border-slate-200 p-5 sm:p-8">
+              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Recent Unique Product Viewers</p>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {productAnalytics.recentActivity.map((event) => (
-                  <div key={event.id} className="rounded-2xl border border-white/5 bg-black/10 p-4">
-                    <p className="truncate text-sm font-black text-white">{event.title || event.path || 'Product view'}</p>
-                    <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-widest text-zinc-600">{event.path || '/'}</p>
-                    <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-sky-300">{event.plan || 'visitor'}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{formatDateTime(event.createdAt)}</p>
+                  <div key={event.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="truncate text-sm font-black text-slate-900">{event.title || event.path || 'Product view'}</p>
+                    <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-widest text-slate-500">{event.path || '/'}</p>
+                    <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-sky-700">{event.plan || 'visitor'}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">{formatDateTime(event.createdAt)}</p>
                   </div>
                 ))}
               </div>
@@ -1187,7 +1187,7 @@ export default function Admin() {
 
           {productAnalyticsError && (
             <div className="px-8 pb-8">
-              <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm font-bold text-amber-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="rounded-2xl border border-amber-400/20 bg-amber-50 p-4 text-sm font-bold text-amber-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <span>{productAnalyticsError}</span>
                 <button
                   type="button"
@@ -1202,12 +1202,12 @@ export default function Admin() {
         </section>
 
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+          <div className="border-b border-slate-200 bg-slate-50 p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-emerald-300">Admin-only earnings</p>
-                <h2 className="text-2xl font-black tracking-tight text-white">How much this product earned</h2>
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-emerald-700">Admin-only earnings</p>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900">How much this product earned</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                   Counts ClientFlow AI plan money and paid setup services. Users&apos; paid invoices are shown separately because that money belongs to their clients/business.
                 </p>
               </div>
@@ -1223,28 +1223,28 @@ export default function Admin() {
           <div className="mx-5 mb-2 mt-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 via-black/40 to-emerald-950/20 p-5 sm:mx-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-300">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-700">
                   Live Growth & Conversion
                 </span>
-                <h3 className="mt-1 text-lg font-black text-white">Monthly Recurring Revenue & Conversions</h3>
-                <p className="text-xs text-zinc-400 mt-0.5">Automated stats across monthly, annual, and founder tiers</p>
+                <h3 className="mt-1 text-lg font-black text-slate-900">Monthly Recurring Revenue & Conversions</h3>
+                <p className="text-xs text-slate-600 mt-0.5">Automated stats across monthly, annual, and founder tiers</p>
               </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center sm:text-right">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Total Users</p>
-                  <p className="text-xl font-black text-white">{revenueSummaryLoading ? '--' : formatNumber(revenueSummary?.totalUsers)}</p>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center sm:text-right">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Total Users</p>
+                  <p className="text-xl font-black text-slate-900">{revenueSummaryLoading ? '--' : formatNumber(revenueSummary?.totalUsers)}</p>
                 </div>
-                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center sm:text-right">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center sm:text-right">
                   <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Conversion Rate</p>
-                  <p className="text-xl font-black text-emerald-300">{revenueSummaryLoading ? '--' : `${revenueSummary?.conversionRate || 0}%`}</p>
+                  <p className="text-xl font-black text-emerald-700">{revenueSummaryLoading ? '--' : `${revenueSummary?.conversionRate || 0}%`}</p>
                 </div>
-                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center sm:text-right">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-300">Live MRR</p>
-                  <p className="text-xl font-black text-amber-300">{revenueSummaryLoading ? '--' : formatMoney(revenueSummary?.mrr)}</p>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center sm:text-right">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Live MRR</p>
+                  <p className="text-xl font-black text-amber-700">{revenueSummaryLoading ? '--' : formatMoney(revenueSummary?.mrr)}</p>
                 </div>
-                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-center sm:text-right">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-center sm:text-right">
                   <p className="text-[10px] font-black uppercase tracking-widest text-sky-400">Active Paid</p>
-                  <p className="text-xl font-black text-sky-300">{revenueSummaryLoading ? '--' : `${revenueSummary?.paidUsers || 0} (${revenueSummary?.activeMonthly || 0}M / ${revenueSummary?.activeYearly || 0}Y)`}</p>
+                  <p className="text-xl font-black text-sky-700">{revenueSummaryLoading ? '--' : `${revenueSummary?.paidUsers || 0} (${revenueSummary?.activeMonthly || 0}M / ${revenueSummary?.activeYearly || 0}Y)`}</p>
                 </div>
               </div>
             </div>
@@ -1252,21 +1252,21 @@ export default function Admin() {
 
           <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-4">
             {[
-              { label: 'Total Product Earned', value: formatMoney(platformEarnings.totalEarned), tone: 'text-emerald-300' },
-              { label: 'Plan Earnings', value: formatMoney(platformEarnings.planRevenue), tone: 'text-white' },
-              { label: 'Setup Services Earned', value: formatMoney(platformEarnings.agencyRevenue), tone: 'text-yellow-300' },
-              { label: 'MRR Estimate', value: formatMoney(revenue?.subscriptions?.mrr), tone: 'text-sky-300' }
+              { label: 'Total Product Earned', value: formatMoney(platformEarnings.totalEarned), tone: 'text-emerald-700' },
+              { label: 'Plan Earnings', value: formatMoney(platformEarnings.planRevenue), tone: 'text-slate-900' },
+              { label: 'Setup Services Earned', value: formatMoney(platformEarnings.agencyRevenue), tone: 'text-amber-700' },
+              { label: 'MRR Estimate', value: formatMoney(revenue?.subscriptions?.mrr), tone: 'text-sky-700' }
             ].map((item) => (
-              <div key={item.label} className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-                <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
+              <div key={item.label} className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+                <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</p>
                 <p className={`text-3xl font-black tracking-tight ${item.tone}`}>{revenueLoading ? '--' : item.value}</p>
               </div>
             ))}
           </div>
 
           <div className="grid gap-6 px-5 pb-5 sm:px-8 sm:pb-8 lg:grid-cols-2">
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Earning Sources</p>
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Earning Sources</p>
               <div className="mt-4 grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
                 {[
                   ['Subscriptions', formatMoney(earningSources.subscriptions?.collected)],
@@ -1274,42 +1274,42 @@ export default function Admin() {
                   ['Direct Checkout', formatMoney(earningSources.directCheckoutEstimate?.collected)],
                   ['Setup Services', formatMoney(earningSources.agencySetup?.collected)]
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                    <p className="text-xl font-black text-white">{revenueLoading ? '--' : value}</p>
-                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+                  <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xl font-black text-slate-900">{revenueLoading ? '--' : value}</p>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
                   </div>
                 ))}
               </div>
-              <p className="mt-4 text-xs font-semibold leading-relaxed text-zinc-500">
+              <p className="mt-4 text-xs font-semibold leading-relaxed text-slate-600">
                 {platformEarnings.note || 'Only admin accounts can load this API.'}
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">User Invoice Money</p>
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">User Invoice Money</p>
               <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                  <p className="text-2xl font-black text-white">{revenueLoading ? '--' : formatMoney(revenue?.invoices?.paidRevenue)}</p>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Paid by their clients</p>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-2xl font-black text-slate-900">{revenueLoading ? '--' : formatMoney(revenue?.invoices?.paidRevenue)}</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-500">Paid by their clients</p>
                 </div>
-                <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                  <p className="text-2xl font-black text-yellow-300">{revenueLoading ? '--' : formatMoney(revenue?.invoices?.pendingRevenue)}</p>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-zinc-600">Pending invoices</p>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-2xl font-black text-amber-700">{revenueLoading ? '--' : formatMoney(revenue?.invoices?.pendingRevenue)}</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-500">Pending invoices</p>
                 </div>
               </div>
-              <p className="mt-4 text-xs font-bold uppercase tracking-widest text-zinc-500">
+              <p className="mt-4 text-xs font-bold uppercase tracking-widest text-slate-600">
                 {revenueLoading ? 'Checking...' : `${revenue?.invoices?.paymentLinks || 0} payment links / ${revenue?.invoices?.paidInvoices || 0} paid invoices`}
               </p>
             </div>
           </div>
 
-          <div className="border-t border-white/5 p-5 sm:p-8">
+          <div className="border-t border-slate-200 p-5 sm:p-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Paid Users</p>
-                <h3 className="mt-2 text-xl font-black text-white">Who paid for the product</h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Paid Users</p>
+                <h3 className="mt-2 text-xl font-black text-slate-900">Who paid for the product</h3>
               </div>
-              <span className="inline-flex rounded-full border border-emerald-400/10 bg-emerald-400/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-300">
+              <span className="inline-flex rounded-full border border-emerald-400/10 bg-emerald-400/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-700">
                 {revenueLoading ? '--' : `${paidUsersList.length} users`}
               </span>
             </div>
@@ -1317,37 +1317,37 @@ export default function Admin() {
             {revenueLoading ? (
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {[1, 2, 3].map((item) => (
-                  <div key={item} className="h-36 animate-pulse rounded-2xl border border-white/5 bg-white/[0.03]" />
+                  <div key={item} className="h-36 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
                 ))}
               </div>
             ) : paidUsersList.length === 0 ? (
-              <div className="mt-5 rounded-2xl border border-white/5 bg-black/10 p-6 text-sm font-semibold text-zinc-500">
+              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm font-semibold text-slate-600">
                 No paid users yet. When someone buys Pro or an approved paid plan, their name will appear here.
               </div>
             ) : (
               <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {paidUsersList.map((user) => (
-                  <div key={user.id || user.email} className="rounded-2xl border border-white/5 bg-black/10 p-4">
+                  <div key={user.id || user.email} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-white">{user.name || 'Unnamed user'}</p>
-                        <p className="mt-1 truncate text-xs font-bold text-zinc-500">{user.email || 'No email'}</p>
+                        <p className="truncate text-sm font-black text-slate-900">{user.name || 'Unnamed user'}</p>
+                        <p className="mt-1 truncate text-xs font-bold text-slate-600">{user.email || 'No email'}</p>
                       </div>
-                      <span className="shrink-0 rounded-full border border-emerald-400/10 bg-emerald-400/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-300">
+                      <span className="shrink-0 rounded-full border border-emerald-400/10 bg-emerald-400/5 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-700">
                         {getPlanLabel(user.plan)}
                       </span>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-2">
-                      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">Amount</p>
-                        <p className="mt-1 text-sm font-black text-emerald-300">{formatMoney(user.amount)}</p>
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Amount</p>
+                        <p className="mt-1 text-sm font-black text-emerald-700">{formatMoney(user.amount)}</p>
                       </div>
-                      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">Status</p>
-                        <p className="mt-1 truncate text-sm font-black capitalize text-white">{getStatusLabel(user.subscriptionStatus)}</p>
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Status</p>
+                        <p className="mt-1 truncate text-sm font-black capitalize text-slate-900">{getStatusLabel(user.subscriptionStatus)}</p>
                       </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                    <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
                       <span>Paid: {formatDate(user.lastPaymentAt || user.planStartedAt)}</span>
                       <span>Expire: {formatDate(user.planExpiresAt)}</span>
                     </div>
@@ -1357,12 +1357,12 @@ export default function Admin() {
             )}
           </div>
 
-          <div className="border-t border-white/5 p-5 sm:p-8">
+          <div className="border-t border-slate-200 p-5 sm:p-8">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Access Segmentation & Expiry</p>
-                <h3 className="mt-2 text-xl font-black text-white">Plan access checker</h3>
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Access Segmentation & Expiry</p>
+                <h3 className="mt-2 text-xl font-black text-slate-900">Plan access checker</h3>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                   Separated view for demo, paid, 30-day free access, and expired members with one-click expiry notifications.
                 </p>
               </div>
@@ -1371,8 +1371,8 @@ export default function Admin() {
                 {adminActionMsg && (
                   <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
                     adminActionMsg.ok
-                      ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
-                      : 'border-red-400/20 bg-red-400/10 text-red-300'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : 'border-rose-200 bg-rose-50 text-rose-700'
                   }`}>
                     {adminActionMsg.message}
                   </span>
@@ -1380,8 +1380,8 @@ export default function Admin() {
                 {testEmailResult && (
                   <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
                     testEmailResult.ok
-                      ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
-                      : 'border-red-400/20 bg-red-400/10 text-red-300'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : 'border-rose-200 bg-rose-50 text-rose-700'
                   }`}>
                     {testEmailResult.message}
                   </span>
@@ -1389,8 +1389,8 @@ export default function Admin() {
                 {notifyNoticeResult && (
                   <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
                     notifyNoticeResult.ok
-                      ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
-                      : 'border-red-400/20 bg-red-400/10 text-red-300'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : 'border-rose-200 bg-rose-50 text-rose-700'
                   }`}>
                     {notifyNoticeResult.message}
                   </span>
@@ -1398,8 +1398,8 @@ export default function Admin() {
                 {requestPhonesResult && (
                   <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
                     requestPhonesResult.ok
-                      ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'
-                      : 'border-red-400/20 bg-red-400/10 text-red-300'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : 'border-rose-200 bg-rose-50 text-rose-700'
                   }`}>
                     {requestPhonesResult.message}
                   </span>
@@ -1408,7 +1408,7 @@ export default function Admin() {
                   type="button"
                   onClick={handleTestEmailConnection}
                   disabled={testingEmail}
-                  className="rounded-full border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-full border border-sky-500/40 bg-sky-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-sky-700 transition hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-40"
                   title="Send a live test email to verify credentials and diagnose errors"
                 >
                   {testingEmail ? 'Testing Connection...' : '🧪 Test Email Connection'}
@@ -1417,7 +1417,7 @@ export default function Admin() {
                   type="button"
                   onClick={handleRequestPhonesFromActiveUsers}
                   disabled={requestingPhones}
-                  className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-full border border-emerald-500/30 bg-emerald-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40"
                   title="Send email invitation to all users who haven't added WhatsApp yet"
                 >
                   {requestingPhones ? 'Sending Emails...' : '📱 Email Users to Add WhatsApp'}
@@ -1426,7 +1426,7 @@ export default function Admin() {
                   type="button"
                   onClick={() => handleNotifyPlanExpired(null)}
                   disabled={notifyingAllExpired || (userAccessSummary.expired || 0) === 0}
-                  className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-full border border-red-500/30 bg-rose-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {notifyingAllExpired ? 'Notifying...' : `🔔 Notify All Expired (${userAccessSummary.expired || 0})`}
                 </button>
@@ -1434,48 +1434,48 @@ export default function Admin() {
             </div>
 
             {/* Demographic Persona Breakdown */}
-            <div className="mt-6 rounded-2xl border border-sky-400/20 bg-sky-400/[0.03] p-5">
+            <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-400/[0.03] p-5">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-sky-400">User Demographic Insights</p>
-                  <h4 className="text-sm font-black text-white">Freelancers vs Non-Freelancers Breakdown</h4>
+                  <h4 className="text-sm font-black text-slate-900">Freelancers vs Non-Freelancers Breakdown</h4>
                 </div>
-                <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400">
+                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-600">
                   <span>Total Members: {formatNumber(userAccessUsers.length)}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                <div className="rounded-xl border border-sky-400/20 bg-sky-400/[0.06] p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-sky-300">💼 Freelancers</p>
-                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.freelancers)}</p>
+                <div className="rounded-xl border border-sky-200 bg-sky-400/[0.06] p-3">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-sky-700">💼 Freelancers</p>
+                  <p className="mt-1 text-xl font-black text-slate-900">{formatNumber(personaSummary.freelancers)}</p>
                   <p className="mt-0.5 text-[9px] font-bold text-sky-400">
                     {userAccessUsers.length > 0 ? Math.round((personaSummary.freelancers / userAccessUsers.length) * 100) : 0}% of all users
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-indigo-400/20 bg-indigo-400/[0.06] p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-indigo-300">🏢 Non-Freelancers</p>
-                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.nonFreelancers)}</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-indigo-700">🏢 Non-Freelancers</p>
+                  <p className="mt-1 text-xl font-black text-slate-900">{formatNumber(personaSummary.nonFreelancers)}</p>
                   <p className="mt-0.5 text-[9px] font-bold text-indigo-400">Agencies, Businesses, Students</p>
                 </div>
 
                 <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-amber-300">🌱 Beginners (&lt; 1 yr)</p>
-                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.beginners)}</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-amber-700">🌱 Beginners (&lt; 1 yr)</p>
+                  <p className="mt-1 text-xl font-black text-slate-900">{formatNumber(personaSummary.beginners)}</p>
                   <p className="mt-0.5 text-[9px] font-bold text-amber-400">Just started freelancing</p>
                 </div>
 
-                <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.06] p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-emerald-300">🚀 1–3+ yrs Exp.</p>
-                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.experienced)}</p>
+                <div className="rounded-xl border border-emerald-200 bg-emerald-400/[0.06] p-3">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-emerald-700">🚀 1–3+ yrs Exp.</p>
+                  <p className="mt-1 text-xl font-black text-slate-900">{formatNumber(personaSummary.experienced)}</p>
                   <p className="mt-0.5 text-[9px] font-bold text-emerald-400">Experienced freelancers</p>
                 </div>
 
                 <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 p-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">❓ Role Pending</p>
-                  <p className="mt-1 text-xl font-black text-white">{formatNumber(personaSummary.pending)}</p>
-                  <p className="mt-0.5 text-[9px] font-bold text-zinc-500">Old users not logged in yet</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-600">❓ Role Pending</p>
+                  <p className="mt-1 text-xl font-black text-slate-900">{formatNumber(personaSummary.pending)}</p>
+                  <p className="mt-0.5 text-[9px] font-bold text-slate-600">Old users not logged in yet</p>
                 </div>
               </div>
             </div>
@@ -1483,14 +1483,14 @@ export default function Admin() {
             {/* Access Category Summary Counters */}
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
               {[
-                { label: 'All Users', value: userAccessSummary.total, tone: 'text-white', border: 'border-white/10' },
-                { label: '💳 Paid Pro', value: userAccessSummary.paid, tone: 'text-emerald-300', border: 'border-emerald-400/20 bg-emerald-400/[0.04]' },
-                { label: '🎁 30-Day Free', value: userAccessSummary.freeAccess, tone: 'text-yellow-300', border: 'border-yellow-400/20 bg-yellow-400/[0.04]' },
-                { label: '🧪 Demo Accounts', value: userAccessSummary.demo, tone: 'text-violet-300', border: 'border-violet-400/20 bg-violet-400/[0.04]' },
-                { label: '⚠️ Expired Plans', value: userAccessSummary.expired, tone: 'text-red-400', border: 'border-red-400/20 bg-red-400/[0.04]' }
+                { label: 'All Users', value: userAccessSummary.total, tone: 'text-slate-900', border: 'border-slate-200' },
+                { label: '💳 Paid Pro', value: userAccessSummary.paid, tone: 'text-emerald-700', border: 'border-emerald-200 bg-emerald-400/[0.04]' },
+                { label: '🎁 30-Day Free', value: userAccessSummary.freeAccess, tone: 'text-amber-700', border: 'border-amber-200 bg-yellow-400/[0.04]' },
+                { label: '🧪 Demo Accounts', value: userAccessSummary.demo, tone: 'text-violet-700', border: 'border-violet-200 bg-violet-400/[0.04]' },
+                { label: '⚠️ Expired Plans', value: userAccessSummary.expired, tone: 'text-red-400', border: 'border-rose-200 bg-red-400/[0.04]' }
               ].map((item) => (
                 <div key={item.label} className={`rounded-2xl border p-4 ${item.border}`}>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{item.label}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">{item.label}</p>
                   <p className={`mt-2 text-2xl font-black tracking-tight ${item.tone}`}>
                     {userAccessLoading ? '--' : formatNumber(item.value)}
                   </p>
@@ -1518,8 +1518,8 @@ export default function Admin() {
                     onClick={() => setAccessFilter(tab.id)}
                     className={`rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
                       accessFilter === tab.id
-                        ? 'border border-white/20 bg-white text-zinc-950 shadow-md'
-                        : 'border border-white/5 bg-white/[0.03] text-zinc-400 hover:border-white/10 hover:text-white'
+                        ? 'border border-slate-200 bg-white text-zinc-950 shadow-md'
+                        : 'border border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-200 hover:text-indigo-700'
                     }`}
                   >
                     {tab.label} ({userAccessLoading ? '--' : formatNumber(tab.count)})
@@ -1532,13 +1532,13 @@ export default function Admin() {
                   value={userAccessSearch}
                   onChange={(event) => setUserAccessSearch(event.target.value)}
                   placeholder="Search email, name, plan"
-                  className="h-10 w-full min-w-0 rounded-2xl border border-white/10 bg-black/20 px-4 text-xs font-bold text-white outline-none transition focus:border-red-500/60 sm:w-64"
+                  className="h-10 w-full min-w-0 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-xs font-bold text-slate-900 outline-none transition focus:border-red-500/60 sm:w-64"
                 />
                 {userAccessSearch && (
                   <button
                     type="button"
                     onClick={() => setUserAccessSearch('')}
-                    className="h-10 rounded-2xl border border-white/10 bg-white/[0.04] px-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:border-red-500/30 hover:text-white"
+                    className="h-10 rounded-2xl border border-slate-200 bg-slate-50 px-3 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:border-red-500/30 hover:text-indigo-700"
                   >
                     Clear
                   </button>
@@ -1549,25 +1549,25 @@ export default function Admin() {
             {userAccessLoading ? (
               <div className="mt-5 space-y-3">
                 {[1, 2, 3].map((item) => (
-                  <div key={item} className="h-20 animate-pulse rounded-2xl border border-white/5 bg-white/[0.03]" />
+                  <div key={item} className="h-20 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
                 ))}
               </div>
             ) : filteredUserAccessUsers.length === 0 ? (
-              <div className="mt-5 rounded-2xl border border-white/5 bg-black/10 p-6 text-sm font-semibold text-zinc-500">
+              <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm font-semibold text-slate-600">
                 {hasUserAccessSummaryOnly
                   ? 'User counts are loaded, but the email list is not available from the current backend response yet.'
                   : normalizedUserAccessSearch ? 'No user found for this search. Clear the search to show all users.' : 'No users found for this filter.'}
               </div>
             ) : (
-              <div className="mt-5 overflow-hidden rounded-2xl border border-white/5 bg-black/10">
-                <div className="hidden grid-cols-[minmax(0,1.2fr)_100px_100px_140px_260px] gap-3 border-b border-white/5 bg-white/[0.02] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 md:grid">
+              <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                <div className="hidden grid-cols-[minmax(0,1.2fr)_100px_100px_140px_260px] gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-500 md:grid">
                   <span>User Details</span>
                   <span>Access Type</span>
                   <span>Plan / Value</span>
                   <span>Expiry & Timing</span>
                   <span>Reachout & Manage</span>
                 </div>
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-slate-200">
                   {filteredUserAccessUsers.map((user) => {
                     const badge = getAccessBadgeInfo(user);
                     const isUserExpired = user.isExpired || user.accessCategory === 'expired';
@@ -1588,25 +1588,25 @@ export default function Admin() {
                       <div key={user.id || user.email} className="grid gap-3 p-4 md:grid-cols-[minmax(0,1.2fr)_100px_100px_140px_260px] md:items-center">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className="truncate text-sm font-black text-white">{user.email || 'No email'}</p>
+                            <p className="truncate text-sm font-black text-slate-900">{user.email || 'No email'}</p>
                             {user.isBanned && (
-                              <span className="shrink-0 rounded-full border border-red-500/40 bg-red-500/20 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-red-300">
+                              <span className="shrink-0 rounded-full border border-red-500/40 bg-rose-50 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-rose-700">
                                 BANNED
                               </span>
                             )}
                           </div>
-                          <p className="mt-0.5 truncate text-xs font-bold text-zinc-300">{user.name || 'Unnamed user'}</p>
+                          <p className="mt-0.5 truncate text-xs font-bold text-slate-700">{user.name || 'Unnamed user'}</p>
                           {user.phone ? (
                             <p className="mt-1 flex items-center gap-1 text-xs font-extrabold text-emerald-400">
                               <span>📱</span>
                               <span>+{cleanPhone}</span>
                             </p>
                           ) : (
-                            <p className="mt-1 text-[11px] font-medium text-zinc-600">📱 No phone registered</p>
+                            <p className="mt-1 text-[11px] font-medium text-slate-500">📱 No phone registered</p>
                           )}
                           <div className="mt-1 flex flex-wrap items-center gap-1.5">
                             {user.persona === 'freelancer' ? (
-                              <span className="inline-flex items-center gap-1 rounded-full border border-sky-400/20 bg-sky-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-sky-300">
+                              <span className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-sky-700">
                                 💼 Freelancer · {
                                   user.freelanceExperience === 'beginner' ? 'Beginner (<1y)' :
                                   user.freelanceExperience === '1_to_3_years' ? '1–3 yrs' :
@@ -1615,7 +1615,7 @@ export default function Admin() {
                                 }
                               </span>
                             ) : user.persona ? (
-                              <span className="inline-flex items-center gap-1 rounded-full border border-indigo-400/20 bg-indigo-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-indigo-300">
+                              <span className="inline-flex items-center gap-1 rounded-full border border-indigo-400/20 bg-indigo-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-indigo-700">
                                 🏢 {
                                   user.persona === 'agency' ? 'Agency / Team' :
                                   user.persona === 'small_business' ? 'Small Business' :
@@ -1623,12 +1623,12 @@ export default function Admin() {
                                 }
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-800/60 px-2 py-0.5 text-[9px] font-bold text-zinc-500">
+                              <span className="inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-800/60 px-2 py-0.5 text-[9px] font-bold text-slate-600">
                                 ❓ Role Pending
                               </span>
                             )}
                           </div>
-                          <p className="mt-1 text-[9px] font-bold text-zinc-600">Joined: {formatDate(user.createdAt)}</p>
+                          <p className="mt-1 text-[9px] font-bold text-slate-500">Joined: {formatDate(user.createdAt)}</p>
                         </div>
 
                         <div>
@@ -1638,13 +1638,13 @@ export default function Admin() {
                         </div>
 
                         <div>
-                          <p className="text-sm font-black text-white">{getPlanLabel(user.plan)}</p>
-                          <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                          <p className="text-sm font-black text-slate-900">{getPlanLabel(user.plan)}</p>
+                          <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
                             {user.accessCategory === 'paid' ? formatMoney(user.amount || pricing?.plans?.[user.plan]) : 'Rs 0'}
                           </p>
                         </div>
 
-                        <div className="text-[10px] font-bold tracking-tight text-zinc-400">
+                        <div className="text-[10px] font-bold tracking-tight text-slate-600">
                           {isUserExpired ? (
                             <p className="font-black text-red-400">
                               ⚠️ Expired {user.daysExpired != null ? `${user.daysExpired}d ago` : ''}
@@ -1654,9 +1654,9 @@ export default function Admin() {
                               ✓ {user.daysRemaining} days left
                             </p>
                           ) : (
-                            <p className="text-zinc-500">Active</p>
+                            <p className="text-slate-600">Active</p>
                           )}
-                          <p className="mt-1 text-[9px] text-zinc-500">
+                          <p className="mt-1 text-[9px] text-slate-600">
                             {user.freeAccessExpiresAt
                               ? `Exp: ${formatDate(user.freeAccessExpiresAt)}`
                               : user.planExpiresAt
@@ -1672,7 +1672,7 @@ export default function Admin() {
                                 href={`https://wa.me/${cleanPhone}?text=${waMessage}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/25 shadow-sm"
+                                className="inline-flex items-center justify-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-50 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-700 transition hover:bg-emerald-500/25 shadow-sm"
                                 title="Chat directly from your WhatsApp number"
                               >
                                 <span>💬 WhatsApp</span>
@@ -1683,7 +1683,7 @@ export default function Admin() {
                                 href={gmailUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center gap-1 rounded-lg border border-red-500/40 bg-red-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-red-300 transition hover:bg-red-500/25 shadow-sm"
+                                className="inline-flex items-center justify-center gap-1 rounded-lg border border-red-500/40 bg-rose-50 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-rose-700 transition hover:bg-red-500/25 shadow-sm"
                                 title="Open directly in Gmail Web in browser"
                               >
                                 <span>🔴 Gmail</span>
@@ -1692,7 +1692,7 @@ export default function Admin() {
                             <button
                               type="button"
                               onClick={() => handleOpenEmailModal(user)}
-                              className="rounded-lg border border-sky-500/30 bg-sky-500/10 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-sky-300 transition hover:bg-sky-500/20"
+                              className="rounded-lg border border-sky-500/30 bg-sky-50 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-sky-700 transition hover:bg-sky-50"
                               title="Send custom email directly to user"
                             >
                               ✉️ Email
@@ -1702,7 +1702,7 @@ export default function Admin() {
                                 type="button"
                                 onClick={() => handleNotifyPlanExpired(user.id || user._id)}
                                 disabled={isNotifyingThisUser}
-                                className="rounded-lg border border-red-500/30 bg-red-500/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
+                                className="rounded-lg border border-red-500/30 bg-rose-50 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-rose-700 transition hover:bg-rose-50 disabled:opacity-50"
                               >
                                 {isNotifyingThisUser ? 'Sending...' : 'Notify Expiry'}
                               </button>
@@ -1710,14 +1710,14 @@ export default function Admin() {
                           </div>
 
                           {/* Admin Management Controls */}
-                          <div className="flex flex-wrap items-center gap-1 border-t border-white/5 pt-1.5">
+                          <div className="flex flex-wrap items-center gap-1 border-t border-slate-200 pt-1.5">
                             {user.accessCategory !== 'paid' ? (
                               <>
                                 <button
                                   type="button"
                                   onClick={() => handleUpgradeUser(user, 'monthly', 30)}
                                   disabled={isActingOnThisUser}
-                                  className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 transition hover:bg-emerald-500/25 disabled:opacity-50"
+                                  className="rounded-lg border border-emerald-500/40 bg-emerald-50 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-300 transition hover:bg-emerald-500/25 disabled:opacity-50"
                                   title="Upgrade to Pro for 30 days"
                                 >
                                   ⚡ 30d Pro
@@ -1726,7 +1726,7 @@ export default function Admin() {
                                   type="button"
                                   onClick={() => handleUpgradeUser(user, 'yearly', 365)}
                                   disabled={isActingOnThisUser}
-                                  className="rounded-lg border border-indigo-500/40 bg-indigo-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 transition hover:bg-indigo-500/25 disabled:opacity-50"
+                                  className="rounded-lg border border-indigo-500/40 bg-indigo-50 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 transition hover:bg-indigo-500/25 disabled:opacity-50"
                                   title="Upgrade to Pro Annual for 365 days (1 Year)"
                                 >
                                   ⭐ 1-Year Pass (365d)
@@ -1735,7 +1735,7 @@ export default function Admin() {
                                   type="button"
                                   onClick={() => handleExtendTrial(user, 30)}
                                   disabled={isActingOnThisUser}
-                                  className="rounded-lg border border-amber-500/40 bg-amber-500/15 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300 transition hover:bg-amber-500/25 disabled:opacity-50"
+                                  className="rounded-lg border border-amber-500/40 bg-amber-50 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300 transition hover:bg-amber-500/25 disabled:opacity-50"
                                   title="Add 30 extra days of free trial"
                                 >
                                   ⏳ +30d Trial
@@ -1746,7 +1746,7 @@ export default function Admin() {
                                 type="button"
                                 onClick={() => handleDowngradeUser(user)}
                                 disabled={isActingOnThisUser}
-                                className="rounded-lg border border-zinc-700 bg-zinc-800 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-zinc-400 transition hover:text-white disabled:opacity-50"
+                                className="rounded-lg border border-slate-300 bg-slate-100 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-slate-700 transition hover:bg-slate-200 hover:text-slate-900 disabled:opacity-50"
                                 title="Revert user to free plan"
                               >
                                 Downgrade
@@ -1759,8 +1759,8 @@ export default function Admin() {
                               disabled={isActingOnThisUser}
                               className={`rounded-lg border px-2 py-1 text-[9px] font-black uppercase tracking-wider transition disabled:opacity-50 ${
                                 user.isBanned
-                                  ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25'
-                                  : 'border-red-500/40 bg-red-500/15 text-red-300 hover:bg-red-500/25'
+                                  ? 'border-emerald-500/40 bg-emerald-50 text-emerald-700 hover:bg-emerald-500/25'
+                                  : 'border-red-500/40 bg-rose-50 text-rose-700 hover:bg-red-500/25'
                               }`}
                               title={user.isBanned ? 'Unban user' : 'Ban user from logging in'}
                             >
@@ -1777,15 +1777,15 @@ export default function Admin() {
           </div>
 
           {!revenueLoading && revenue?.recentPaidInvoices?.length > 0 && (
-            <div className="border-t border-white/5 p-5 sm:p-8">
-              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Recent User Paid Invoices</p>
+            <div className="border-t border-slate-200 p-5 sm:p-8">
+              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Recent User Paid Invoices</p>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {revenue.recentPaidInvoices.map((invoice) => (
-                  <div key={invoice._id} className="rounded-2xl border border-white/5 bg-black/10 p-4">
-                    <p className="truncate text-sm font-black text-white">{invoice.clientName}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{invoice.invoiceNumber}</p>
-                    <p className="mt-3 text-lg font-black text-emerald-300">{formatMoney(invoice.amount)}</p>
-                    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-600">{formatDate(invoice.paidAt)}</p>
+                  <div key={invoice._id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="truncate text-sm font-black text-slate-900">{invoice.clientName}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">{invoice.invoiceNumber}</p>
+                    <p className="mt-3 text-lg font-black text-emerald-700">{formatMoney(invoice.amount)}</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">{formatDate(invoice.paidAt)}</p>
                   </div>
                 ))}
               </div>
@@ -1794,7 +1794,7 @@ export default function Admin() {
 
           {revenueError && (
             <div className="px-8 pb-8">
-              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
                 {revenueError}
               </div>
             </div>
@@ -1803,27 +1803,27 @@ export default function Admin() {
 
         {/* ⭐ USER REVIEWS & GOOGLE FEEDBACK */}
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+          <div className="border-b border-slate-200 bg-slate-50 p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-yellow-400">User Ratings & Sentiment</p>
-                <h2 className="text-2xl font-black tracking-tight text-white">⭐ User Reviews & Google Feedback</h2>
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                <h2 className="text-2xl font-black tracking-tight text-slate-900">⭐ User Reviews & Google Feedback</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                   Ratings and reviews submitted by freelancers. Follow up directly with users on WhatsApp or thank happy reviewers.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-yellow-300">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-amber-700">
                   ⭐ {reviewStats.avgRating} / 5 Avg Rating
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-zinc-300">
+                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-3.5 py-1.5 text-xs font-black uppercase tracking-widest text-slate-700">
                   {reviews.length} Submissions
                 </span>
                 <button
                   type="button"
                   onClick={fetchReviews}
                   disabled={reviewsLoading}
-                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition"
+                  className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition"
                 >
                   {reviewsLoading ? 'Refreshing...' : '🔄 Refresh'}
                 </button>
@@ -1833,12 +1833,12 @@ export default function Admin() {
 
           <div className="p-5 sm:p-8">
             {reviewsLoading ? (
-              <div className="py-12 text-center text-sm font-bold text-zinc-500">Loading reviews...</div>
+              <div className="py-12 text-center text-sm font-bold text-slate-600">Loading reviews...</div>
             ) : reviews.length === 0 ? (
-              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-8 text-center">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center">
                 <p className="text-2xl mb-2">⭐</p>
-                <h3 className="text-lg font-black text-white">No reviews received yet</h3>
-                <p className="mt-1 text-sm text-zinc-500 max-w-md mx-auto">
+                <h3 className="text-lg font-black text-slate-900">No reviews received yet</h3>
+                <p className="mt-1 text-sm text-slate-600 max-w-md mx-auto">
                   When users submit 1-5 star ratings or feedback through the in-app review widget, they will appear here with 1-click WhatsApp reply buttons.
                 </p>
               </div>
@@ -1850,49 +1850,49 @@ export default function Admin() {
                   return (
                     <div
                       key={r._id}
-                      className="flex flex-col justify-between rounded-2xl border border-white/10 bg-[#0d0a1b]/80 p-5 shadow-lg"
+                      className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-[#0d0a1b]/80 p-5 shadow-lg"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-3">
                           <div className="text-yellow-400 text-base font-black">
                             {stars}
-                            <span className="text-zinc-600 ml-1 text-xs">({r.rating}/5)</span>
+                            <span className="text-slate-500 ml-1 text-xs">({r.rating}/5)</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             {r.postedToGoogle && (
-                              <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-300">
+                              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-700">
                                 Google Review ✅
                               </span>
                             )}
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-zinc-400">
+                            <span className="rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-slate-600">
                               {r.category || 'Review'}
                             </span>
                           </div>
                         </div>
 
-                        <p className="text-sm font-medium leading-relaxed text-zinc-200 italic mb-4">
+                        <p className="text-sm font-medium leading-relaxed text-slate-800 italic mb-4">
                           "{r.message}"
                         </p>
                       </div>
 
-                      <div className="border-t border-white/5 pt-3">
+                      <div className="border-t border-slate-200 pt-3">
                         <div className="flex items-center justify-between gap-2">
                           <div>
-                            <p className="text-xs font-black text-white">{r.name || 'Anonymous'}</p>
-                            <p className="text-[11px] font-medium text-zinc-500">{r.email || 'No email'}</p>
+                            <p className="text-xs font-black text-slate-900">{r.name || 'Anonymous'}</p>
+                            <p className="text-[11px] font-medium text-slate-600">{r.email || 'No email'}</p>
                           </div>
                           {r.phone && (
                             <a
                               href={`https://wa.me/${r.phone}?text=${encodeURIComponent(`Hi ${r.name || 'there'}! Ashieq here from ClientFlow AI. Thank you for your review!`)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="rounded-lg bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-1 text-[10px] font-black uppercase text-emerald-300 hover:bg-emerald-500/30 transition"
+                              className="rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-[10px] font-black uppercase text-emerald-700 hover:bg-emerald-500/30 transition"
                             >
                               💬 WhatsApp
                             </a>
                           )}
                         </div>
-                        <p className="mt-2 text-[10px] text-zinc-600">
+                        <p className="mt-2 text-[10px] text-slate-500">
                           {new Date(r.createdAt).toLocaleDateString('en-IN', {
                             day: 'numeric',
                             month: 'short',
@@ -1910,12 +1910,12 @@ export default function Admin() {
         </section>
 
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+          <div className="border-b border-slate-200 bg-slate-50 p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">Paid Setup Services</p>
-                <h2 className="text-2xl font-black tracking-tight text-white">Setup clients and delivery checklist</h2>
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-500">Paid Setup Services</p>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900">Setup clients and delivery checklist</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                   Track paid setup clients, complete each delivery step, and keep the service outcome visible.
                 </p>
               </div>
@@ -1924,7 +1924,7 @@ export default function Admin() {
                   {formatMoney(agencyRevenue)} collected
                 </span>
                 <span className={`inline-flex rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
-                  agencyError ? 'border-red-400/10 bg-red-400/5 text-red-400' : 'border-sky-400/10 bg-sky-400/5 text-sky-300'
+                  agencyError ? 'border-red-400/10 bg-red-400/5 text-red-400' : 'border-sky-400/10 bg-sky-400/5 text-sky-700'
                 }`}>
                   {agencyError ? 'Unavailable' : `${agencyBookings.length} bookings`}
                 </span>
@@ -1934,7 +1934,7 @@ export default function Admin() {
 
           {agencyError && (
             <div className="p-5 sm:p-8">
-              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
                 {agencyError}
               </div>
             </div>
@@ -1943,26 +1943,26 @@ export default function Admin() {
           {agencyLoading ? (
             <div className="grid gap-5 p-5 sm:p-8 md:grid-cols-2">
               {[1, 2].map((item) => (
-                <div key={item} className="h-72 animate-pulse rounded-[2rem] border border-white/5 bg-white/[0.03]" />
+                <div key={item} className="h-72 animate-pulse rounded-[2rem] border border-slate-200 bg-slate-50" />
               ))}
             </div>
           ) : agencyBookings.length === 0 ? (
             <div className="p-5 sm:p-8">
-              <div className="rounded-[2rem] border border-white/5 bg-black/10 p-8 text-center">
-                <h3 className="text-xl font-black text-white">No setup-service clients yet</h3>
-                <p className="mt-2 text-sm font-semibold text-zinc-500">Agency, Automation, and Enterprise setup bookings will appear here.</p>
+              <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8 text-center">
+                <h3 className="text-xl font-black text-slate-900">No setup-service clients yet</h3>
+                <p className="mt-2 text-sm font-semibold text-slate-600">Agency, Automation, and Enterprise setup bookings will appear here.</p>
               </div>
             </div>
           ) : (
             <div className="grid gap-5 p-5 sm:p-8 xl:grid-cols-2">
               {agencyBookings.map((booking) => (
-                <div key={booking._id} className="rounded-[2rem] border border-white/5 bg-black/10 p-5">
+                <div key={booking._id} className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{booking.packageName}</p>
-                      <h3 className="mt-2 text-2xl font-black text-white">{booking.customerName}</h3>
-                      <p className="mt-1 break-all text-xs font-bold text-zinc-500">{booking.email} · {booking.whatsapp}</p>
-                      <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-sky-300">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{booking.packageName}</p>
+                      <h3 className="mt-2 text-2xl font-black text-slate-900">{booking.customerName}</h3>
+                      <p className="mt-1 break-all text-xs font-bold text-slate-600">{booking.email} · {booking.whatsapp}</p>
+                      <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-sky-700">
                         Workflow: {(booking.workflowType || 'freelancers').replaceAll('_', ' ')}
                       </p>
                     </div>
@@ -1972,33 +1972,33 @@ export default function Admin() {
                   </div>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Amount</p>
-                      <p className="mt-2 text-xl font-black text-emerald-300">{formatMoney(booking.amount, booking.currency)}</p>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Amount</p>
+                      <p className="mt-2 text-xl font-black text-emerald-700">{formatMoney(booking.amount, booking.currency)}</p>
                     </div>
-                    <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Booked</p>
-                      <p className="mt-2 text-sm font-black text-white">{formatDate(booking.createdAt)}</p>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Booked</p>
+                      <p className="mt-2 text-sm font-black text-slate-900">{formatDate(booking.createdAt)}</p>
                     </div>
                   </div>
 
-                  <div className="mt-5 rounded-2xl border border-white/5 bg-white/[0.03] p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Setup brief</p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
-                      <span className="text-white">Skill:</span> {booking.skill}
+                  <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Setup brief</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">
+                      <span className="text-slate-900">Skill:</span> {booking.skill}
                     </p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
-                      <span className="text-white">Problem:</span> {booking.problem}
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">
+                      <span className="text-slate-900">Problem:</span> {booking.problem}
                     </p>
                     {(booking.targetClient || booking.incomeGoal || booking.portfolioUrl) && (
-                      <p className="mt-2 text-xs font-bold leading-relaxed text-zinc-500">
+                      <p className="mt-2 text-xs font-bold leading-relaxed text-slate-600">
                         Target: {booking.targetClient || 'Not set'} · Goal: {booking.incomeGoal || 'Not set'} · Portfolio: {booking.portfolioUrl || 'Not set'}
                       </p>
                     )}
                   </div>
 
                   <div className="mt-5">
-                    <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Delivery checklist</p>
+                    <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">Delivery checklist</p>
                     <div className="grid gap-2">
                       {(booking.deliveryChecklist || []).map((item) => (
                         <button
@@ -2007,8 +2007,8 @@ export default function Admin() {
                           onClick={() => updateChecklistItem(booking._id, item)}
                           className={`flex items-start justify-between gap-3 rounded-2xl border p-3 text-left transition ${
                             item.done
-                              ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-200'
-                              : 'border-white/8 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.07]'
+                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                              : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           <span className="text-sm font-bold leading-relaxed">{item.label}</span>
@@ -2026,7 +2026,7 @@ export default function Admin() {
                         key={status}
                         type="button"
                         onClick={() => updateAgencyStatus(booking._id, status)}
-                        className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/10"
+                        className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-100"
                       >
                         {status.replaceAll('_', ' ')}
                       </button>
@@ -2039,10 +2039,10 @@ export default function Admin() {
         </section>
 
         <section className="reveal reveal-delay-1 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 p-5 sm:p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="border-b border-slate-200 p-5 sm:p-8 bg-slate-50 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Live Checkout Pricing</p>
-              <h2 className="text-2xl font-black text-white tracking-tight">Backend payment diagnostics</h2>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Live Checkout Pricing</p>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Backend payment diagnostics</h2>
             </div>
 
             <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${pricingError
@@ -2062,32 +2062,32 @@ export default function Admin() {
           </div>
 
           <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-3">
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Monthly Plan</p>
-              <p className="text-4xl font-black text-white tracking-tighter">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Monthly Plan</p>
+              <p className="text-4xl font-black text-slate-900 tracking-tighter">
                 {pricingLoading ? '--' : `Rs ${monthlyAmount ?? 'N/A'}`}
               </p>
-              <p className="mt-2 text-xs font-bold text-zinc-500">
+              <p className="mt-2 text-xs font-bold text-slate-600">
                 Source: backend / Razorpay plan
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Annual Plan</p>
-              <p className="text-4xl font-black text-white tracking-tighter">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Annual Plan</p>
+              <p className="text-4xl font-black text-slate-900 tracking-tighter">
                 {pricingLoading ? '--' : `Rs ${yearlyAmount ?? 'N/A'}`}
               </p>
-              <p className="mt-2 text-xs font-bold text-zinc-500">
+              <p className="mt-2 text-xs font-bold text-slate-600">
                 Source: backend / Razorpay plan
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Backend Target</p>
-              <p className="text-sm font-black text-white break-all leading-relaxed">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Backend Target</p>
+              <p className="text-sm font-black text-slate-900 break-all leading-relaxed">
                 {API_BASE_URL || 'Not configured'}
               </p>
-              <p className="mt-3 text-xs font-bold text-zinc-500 uppercase tracking-widest">
+              <p className="mt-3 text-xs font-bold text-slate-600 uppercase tracking-widest">
                 Version: {pricing?.pricingVersion || 'unknown'}
               </p>
             </div>
@@ -2095,7 +2095,7 @@ export default function Admin() {
 
           {pricingError && (
             <div className="px-8 pb-8">
-              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
                 {pricingError}
               </div>
             </div>
@@ -2103,12 +2103,12 @@ export default function Admin() {
         </section>
 
         <section className="reveal reveal-delay-2 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 bg-white/[0.01] p-5 sm:p-8">
+          <div className="border-b border-slate-200 bg-slate-50 p-5 sm:p-8">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">AI Provider Status</p>
-                <h2 className="text-2xl font-black tracking-tight text-white">Admin AI diagnostics</h2>
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+                <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-500">AI Provider Status</p>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900">Admin AI diagnostics</h2>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                   Verify which backend AI provider is selected, whether keys are configured, and whether a live AI route returns provider output.
                 </p>
               </div>
@@ -2120,7 +2120,7 @@ export default function Admin() {
                   type="button"
                   onClick={runAiSmokeTest}
                   disabled={aiTestLoading || healthLoading}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-zinc-200 transition hover:border-emerald-400/30 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-800 transition hover:border-emerald-200 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {aiTestLoading ? 'Testing...' : 'Run AI Test'}
                 </button>
@@ -2129,29 +2129,29 @@ export default function Admin() {
           </div>
 
           <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Selected Provider</p>
-              <p className="text-2xl font-black tracking-tight text-white">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">Selected Provider</p>
+              <p className="text-2xl font-black tracking-tight text-slate-900">
                 {healthLoading ? '--' : getProviderLabel(aiChecks.provider)}
               </p>
-              <p className="mt-2 text-xs font-bold text-zinc-500">
+              <p className="mt-2 text-xs font-bold text-slate-600">
                 Active: {healthLoading ? '--' : getProviderLabel(aiChecks.activeProvider || aiChecks.selectedProvider)}
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Active Model</p>
-              <p className="break-words text-xl font-black tracking-tight text-white">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">Active Model</p>
+              <p className="break-words text-xl font-black tracking-tight text-slate-900">
                 {healthLoading ? '--' : (aiChecks.activeModel || 'No provider ready')}
               </p>
-              <p className="mt-2 text-xs font-bold text-zinc-500">
+              <p className="mt-2 text-xs font-bold text-slate-600">
                 Status: {healthLoading ? '--' : aiStatusLabel}
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-zinc-600">Key Readiness</p>
-              <div className="space-y-2 text-xs font-bold text-zinc-400">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">Key Readiness</p>
+              <div className="space-y-2 text-xs font-bold text-slate-600">
                 <p>
                   Anthropic: {aiChecks.anthropicKey
                     ? 'Configured'
@@ -2185,16 +2185,16 @@ export default function Admin() {
           </div>
 
           <div className="grid gap-6 px-5 pb-5 sm:px-8 sm:pb-8 lg:grid-cols-2">
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Recommended Action</p>
-              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Recommended Action</p>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">
                 {healthLoading ? 'Checking backend AI environment...' : (aiChecks.action || 'Add an AI provider key in backend environment.')}
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Smoke Test Detail</p>
-              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Smoke Test Detail</p>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">
                 {aiTestError || aiTestResult?.answerPreview || 'Click Run AI Test after adding credits or redeploying the backend.'}
               </p>
             </div>
@@ -2202,10 +2202,10 @@ export default function Admin() {
         </section>
 
         <section className="reveal reveal-delay-2 mb-12 premium-panel overflow-hidden">
-          <div className="border-b border-white/5 p-5 sm:p-8 bg-white/[0.01] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="border-b border-slate-200 p-5 sm:p-8 bg-slate-50 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Runtime Diagnostics</p>
-              <h2 className="text-2xl font-black text-white tracking-tight">Live backend health details</h2>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Runtime Diagnostics</p>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Live backend health details</h2>
             </div>
 
             <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${healthError
@@ -2225,39 +2225,39 @@ export default function Admin() {
           </div>
 
           <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Startup Entrypoint</p>
-              <p className="text-2xl font-black text-white tracking-tight break-words">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Startup Entrypoint</p>
+              <p className="text-2xl font-black text-slate-900 tracking-tight break-words">
                 {healthLoading ? '--' : (health?.startup?.entrypoint || 'unknown')}
               </p>
-              <p className="mt-2 text-xs font-bold text-zinc-500">
+              <p className="mt-2 text-xs font-bold text-slate-600">
                 Port: {health?.startup?.port || '--'}
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Database State</p>
-              <p className="text-2xl font-black text-white tracking-tight">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Database State</p>
+              <p className="text-2xl font-black text-slate-900 tracking-tight">
                 {healthLoading ? '--' : (health?.database?.state || 'unknown')}
               </p>
-              <p className="mt-2 text-xs font-bold text-zinc-500">
+              <p className="mt-2 text-xs font-bold text-slate-600">
                 Uptime: {health?.startup?.uptimeSeconds ?? '--'}s
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Pricing Version</p>
-              <p className="text-2xl font-black text-white tracking-tight break-words">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Pricing Version</p>
+              <p className="text-2xl font-black text-slate-900 tracking-tight break-words">
                 {healthLoading ? '--' : (health?.pricingVersion || 'unknown')}
               </p>
-              <p className="mt-2 text-xs font-bold text-zinc-500">
+              <p className="mt-2 text-xs font-bold text-slate-600">
                 Node: {health?.startup?.nodeVersion || '--'}
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-white/5 bg-black/10 p-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-3">Env Sanity</p>
-              <div className="space-y-2 text-xs font-bold text-zinc-400">
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Env Sanity</p>
+              <div className="space-y-2 text-xs font-bold text-slate-600">
                 <p>Required: {requiredHealthy ? 'OK' : 'Check'}</p>
                 <p>Payments: {paymentChecks.simulationEnabled ? 'Simulation' : paymentHealthy ? 'Keys ready' : 'Check keys'}</p>
                 <p>AI: {aiReady ? getProviderLabel(aiChecks.activeProvider || aiChecks.selectedProvider) : 'Provider key missing'}</p>
@@ -2269,7 +2269,7 @@ export default function Admin() {
 
           {healthError && (
             <div className="px-8 pb-8">
-              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-300">
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
                 {healthError}
               </div>
             </div>
@@ -2279,29 +2279,29 @@ export default function Admin() {
         {loading ? (
           <div className="grid gap-6 md:grid-cols-2">
             {[1, 2].map((i) => (
-              <div key={i} className="h-96 rounded-[2.5rem] bg-white/5 border border-white/5 animate-pulse" />
+              <div key={i} className="h-96 rounded-[2.5rem] bg-slate-100 border border-slate-200 animate-pulse" />
             ))}
           </div>
         ) : requests.length === 0 ? (
           <div className="premium-panel p-8 text-center sm:p-12 lg:p-20">
-            <div className="h-20 w-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-white/5 text-zinc-700">
+            <div className="h-20 w-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-8 border border-slate-200 text-slate-500">
               <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
-            <h2 className="text-2xl font-black text-white mb-2">No Pending Actions</h2>
-            <p className="text-zinc-500 font-medium">All upgrade requests have been processed.</p>
+            <h2 className="text-2xl font-black text-slate-900 mb-2">No Pending Actions</h2>
+            <p className="text-slate-600 font-medium">All upgrade requests have been processed.</p>
           </div>
         ) : (
           <div className="reveal reveal-delay-2 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {requests.map((req) => (
               <div
                 key={req._id}
-                className="group premium-panel overflow-hidden transition-all hover:scale-[1.02] hover:border-white/10 shadow-2xl"
+                className="group premium-panel overflow-hidden transition-all hover:scale-[1.02] hover:border-slate-200 shadow-2xl"
               >
-                <div className="border-b border-white/5 p-8 bg-white/[0.01]">
+                <div className="border-b border-slate-200 p-8 bg-slate-50">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-2">Requested Logic</p>
-                      <h2 className="text-2xl font-black text-white capitalize tracking-tighter italic">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Requested Logic</p>
+                      <h2 className="text-2xl font-black text-slate-900 capitalize tracking-tighter italic">
                         {req.plan} Pro
                       </h2>
                     </div>
@@ -2314,13 +2314,13 @@ export default function Admin() {
                 </div>
 
                 <div className="p-8">
-                  <div className="relative mb-8 aspect-video rounded-2xl border border-white/5 overflow-hidden group/img">
+                  <div className="relative mb-8 aspect-video rounded-2xl border border-slate-200 overflow-hidden group/img">
                     <img
                       src={getScreenshotUrl(req)}
                       alt="Payment screenshot"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover/img:scale-110"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center p-4">
                       <a
                         href={getScreenshotUrl(req)}
                         target="_blank"
@@ -2347,17 +2347,17 @@ export default function Admin() {
         )}
         {/* Custom Direct Email Modal */}
         {emailModalUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-white/5 pb-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-4">
                 <div>
-                  <h3 className="text-lg font-black text-white">✉️ Direct Email</h3>
-                  <p className="text-xs text-zinc-400">To: {emailModalUser.name || 'User'} &lt;{emailModalUser.email}&gt;</p>
+                  <h3 className="text-lg font-black text-slate-900">✉️ Direct Email</h3>
+                  <p className="text-xs text-slate-600">To: {emailModalUser.name || 'User'} &lt;{emailModalUser.email}&gt;</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setEmailModalUser(null)}
-                  className="rounded-full border border-white/10 p-2 text-zinc-400 hover:text-white"
+                  className="rounded-full border border-slate-200 p-2 text-slate-600 hover:text-indigo-700"
                 >
                   ✕
                 </button>
@@ -2365,33 +2365,33 @@ export default function Admin() {
 
               <div className="mt-4 space-y-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400">Subject</label>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-600">Subject</label>
                   <input
                     type="text"
                     value={emailSubject}
                     onChange={(e) => setEmailSubject(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 text-xs text-white outline-none focus:border-amber-400"
+                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-900 outline-none focus:border-amber-400"
                     placeholder="Subject line"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400">Message</label>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-600">Message</label>
                   <textarea
                     rows={6}
                     value={emailBody}
                     onChange={(e) => setEmailBody(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 text-xs text-white outline-none focus:border-amber-400 leading-relaxed"
+                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-900 outline-none focus:border-amber-400 leading-relaxed"
                     placeholder="Write your email message..."
                   />
                 </div>
               </div>
 
-              <div className="mt-6 flex items-center justify-end gap-3 border-t border-white/5 pt-4">
+              <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-200 pt-4">
                 <button
                   type="button"
                   onClick={() => setEmailModalUser(null)}
-                  className="rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-zinc-400 hover:text-white"
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 hover:text-indigo-700"
                 >
                   Cancel
                 </button>

@@ -85,12 +85,12 @@ const automationStages = [
 ];
 
 const toneClasses = {
-  sky: 'border-sky-300/20 bg-sky-300/[0.06] text-sky-200',
-  emerald: 'border-emerald-300/20 bg-emerald-300/[0.06] text-emerald-200',
-  yellow: 'border-yellow-300/20 bg-yellow-300/[0.06] text-yellow-200',
+  sky: 'border-sky-200 bg-sky-300/[0.06] text-sky-700',
+  emerald: 'border-emerald-200 bg-emerald-300/[0.06] text-emerald-700',
+  yellow: 'border-amber-200 bg-yellow-300/[0.06] text-amber-700',
   purple: 'border-purple-300/20 bg-purple-300/[0.06] text-purple-200',
   orange: 'border-orange-300/20 bg-orange-300/[0.06] text-orange-200',
-  red: 'border-red-300/20 bg-red-300/[0.06] text-red-200'
+  red: 'border-rose-200 bg-red-300/[0.06] text-rose-700'
 };
 
 const buildFallbackTasks = () => [
@@ -164,10 +164,10 @@ const statusLabels = {
 };
 
 const getQueueStatusClass = (status) => {
-  if (status === 'approved') return 'border-emerald-300/25 bg-emerald-300/[0.08] text-emerald-200';
-  if (status === 'editing') return 'border-sky-300/25 bg-sky-300/[0.08] text-sky-200';
-  if (status === 'skipped') return 'border-zinc-300/15 bg-white/[0.04] text-zinc-400';
-  return 'border-yellow-300/20 bg-yellow-300/[0.08] text-yellow-100';
+  if (status === 'approved') return 'border-emerald-200 bg-emerald-300/[0.08] text-emerald-700';
+  if (status === 'editing') return 'border-sky-200 bg-sky-300/[0.08] text-sky-700';
+  if (status === 'skipped') return 'border-zinc-300/15 bg-slate-50 text-slate-600';
+  return 'border-amber-200 bg-yellow-300/[0.08] text-amber-700';
 };
 
 const buildAutomationTasks = ({ invoiceData, leadData }) => {
@@ -418,25 +418,25 @@ export default function BusinessAutopilot() {
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="mb-10 grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.55fr)] lg:items-end">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
-              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">
                 Full process automation
               </span>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               Automate the path from lead to paid work.
             </h1>
-            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-zinc-400 sm:text-lg">
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-600 sm:text-lg">
               Business Autopilot keeps every freelancer process simple: find the right lead, follow up, create proposal, manage delivery, send invoice, collect payment, and grow income.
             </p>
           </div>
 
-          <div className="rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/[0.07] p-5">
+          <div className="rounded-[1.5rem] border border-emerald-200 bg-emerald-300/[0.07] p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200">Today progress</p>
-                <p className="mt-3 text-5xl font-black text-white">{progress}%</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Today progress</p>
+                <p className="mt-3 text-5xl font-black text-slate-900">{progress}%</p>
               </div>
               <button
                 type="button"
@@ -444,35 +444,35 @@ export default function BusinessAutopilot() {
                 className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${
                   autopilotMode
                     ? 'border-emerald-200/30 bg-emerald-200 text-slate-950'
-                    : 'border-white/10 bg-black/20 text-zinc-300 hover:bg-white/10'
+                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 {autopilotMode ? 'On' : 'Off'}
               </button>
             </div>
-            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">
               {completedCount}/{tasks.length || 0} automation actions completed today. {autopilotMode ? 'Autopilot mode is active.' : 'Turn it on to make this the default easy path.'}
             </p>
-            <div className="mt-4 h-3 overflow-hidden rounded-full bg-black/30">
+            <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-50">
               <div className="h-full rounded-full bg-emerald-300 transition-all" style={{ width: `${progress}%` }} />
             </div>
           </div>
         </section>
 
         {error && (
-          <section className="mb-8 rounded-2xl border border-yellow-300/20 bg-yellow-300/[0.06] p-5">
-            <p className="text-sm font-semibold leading-relaxed text-yellow-100/85">{error}</p>
+          <section className="mb-8 rounded-2xl border border-amber-200 bg-yellow-300/[0.06] p-5">
+            <p className="text-sm font-semibold leading-relaxed text-amber-700/85">{error}</p>
           </section>
         )}
 
-        <section className="mb-12 rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-8">
+        <section className="mb-12 rounded-[2rem] border border-slate-200 bg-slate-50 p-5 shadow-2xl shadow-black/20 sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)]">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Next best action</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Next best action</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900">
                 {loading ? 'Finding your next action...' : nextTask?.title}
               </h2>
-              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
                 {loading
                   ? 'Autopilot is checking your leads, proposals, invoices, and payment status.'
                   : nextTask?.detail}
@@ -483,9 +483,9 @@ export default function BusinessAutopilot() {
                     ['AI prepared', getTaskReviewCopy(nextTask.stage).prepared],
                     ['Approval needed', getTaskReviewCopy(nextTask.stage).approval]
                   ].map(([label, text]) => (
-                    <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{label}</p>
-                      <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{text}</p>
+                    <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">{label}</p>
+                      <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{text}</p>
                     </div>
                   ))}
                 </div>
@@ -509,7 +509,7 @@ export default function BusinessAutopilot() {
                   <button
                     type="button"
                     onClick={() => updateTaskStatus(nextTask, 'skipped')}
-                    className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-4 text-sm font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/[0.08]"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-4 text-sm font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-50"
                   >
                     Skip
                   </button>
@@ -525,19 +525,19 @@ export default function BusinessAutopilot() {
                 const reviewCopy = getTaskReviewCopy(task.stage);
 
                 return (
-                  <div key={task.id} className={`rounded-2xl border p-4 transition-all ${done ? 'border-emerald-300/25 bg-emerald-300/[0.08]' : 'border-white/8 bg-black/20'}`}>
+                  <div key={task.id} className={`rounded-2xl border p-4 transition-all ${done ? 'border-emerald-200 bg-emerald-300/[0.08]' : 'border-slate-200 bg-slate-50'}`}>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
-                        <p className={`text-[10px] font-black uppercase tracking-widest ${stage.tone === 'red' ? 'text-red-200' : stage.tone === 'yellow' ? 'text-yellow-200' : 'text-emerald-200'}`}>
+                        <p className={`text-[10px] font-black uppercase tracking-widest ${stage.tone === 'red' ? 'text-rose-700' : stage.tone === 'yellow' ? 'text-amber-700' : 'text-emerald-700'}`}>
                           {index + 1}. {stage.label}
                         </p>
-                        <h3 className="mt-1 text-base font-black text-white">{task.title}</h3>
-                        <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{task.detail}</p>
+                        <h3 className="mt-1 text-base font-black text-slate-900">{task.title}</h3>
+                        <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{task.detail}</p>
                         <div className="mt-3 grid gap-2">
-                          <p className="rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs font-semibold leading-relaxed text-zinc-400">
+                          <p className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold leading-relaxed text-slate-600">
                             {reviewCopy.prepared}
                           </p>
-                          <p className="rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-xs font-semibold leading-relaxed text-zinc-400">
+                          <p className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold leading-relaxed text-slate-600">
                             {reviewCopy.approval}
                           </p>
                         </div>
@@ -549,21 +549,21 @@ export default function BusinessAutopilot() {
                         <button
                           type="button"
                           onClick={() => runTask(task)}
-                          className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                         >
                           Edit
                         </button>
                         <button
                           type="button"
                           onClick={() => updateTaskStatus(task, 'approved')}
-                          className="rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-200 transition hover:bg-emerald-300/15"
+                          className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                         >
                           Approve
                         </button>
                         <button
                           type="button"
                           onClick={() => updateTaskStatus(task, 'skipped')}
-                          className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 transition hover:bg-white/10"
+                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 transition hover:bg-slate-100"
                         >
                           Skip
                         </button>
@@ -578,9 +578,9 @@ export default function BusinessAutopilot() {
 
         <section className="mb-12 grid gap-4 md:grid-cols-3">
           {automationRules.map(([title, text]) => (
-            <article key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">{title}</p>
-              <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+            <article key={title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">{title}</p>
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{text}</p>
             </article>
           ))}
         </section>
@@ -594,11 +594,11 @@ export default function BusinessAutopilot() {
 
         <section className="mb-12">
           <div className="mb-6 max-w-3xl">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Automation map</p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">Automation map</p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
               Every process is automated, but user stays in control.
             </h2>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
               This avoids confusion and avoids unsafe automation. AI prepares the work; the freelancer approves the action.
             </p>
           </div>
@@ -607,18 +607,18 @@ export default function BusinessAutopilot() {
             {automationStages.map((stage) => (
               <article key={stage.id} className={`rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 ${toneClasses[stage.tone] || toneClasses.sky}`}>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-current">{stage.label}</p>
-                <h3 className="mt-3 text-xl font-black text-white">{stage.title}</h3>
+                <h3 className="mt-3 text-xl font-black text-slate-900">{stage.title}</h3>
                 <div className="mt-4 grid gap-3">
-                  <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">AI prepares</p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{stage.automates}</p>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">AI prepares</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{stage.automates}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Human approval</p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{stage.approval}</p>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Human approval</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{stage.approval}</p>
                   </div>
                 </div>
-                <Link to={stage.route} className="mt-5 inline-flex rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10">
+                <Link to={stage.route} className="mt-5 inline-flex rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100">
                   {stage.cta}
                 </Link>
               </article>
@@ -626,12 +626,12 @@ export default function BusinessAutopilot() {
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-yellow-300/20 bg-yellow-300/[0.06] p-6 text-center sm:p-10">
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">Simple promise</p>
-          <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-black tracking-tight text-white sm:text-4xl">
+        <section className="rounded-[2rem] border border-amber-200 bg-yellow-300/[0.06] p-6 text-center sm:p-10">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Simple promise</p>
+          <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
             The user should not think about tools. They should know the next business action.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+          <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
             Business Autopilot makes ClientFlow AI feel like an assistant that runs the process with them: client, proposal, project, invoice, payment, growth.
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">

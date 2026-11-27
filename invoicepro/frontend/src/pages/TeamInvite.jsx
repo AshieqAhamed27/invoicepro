@@ -86,50 +86,50 @@ export default function TeamInvite() {
           <div className="premium-panel p-6 sm:p-10">
             {loading ? (
               <div className="space-y-4">
-                <div className="h-5 w-40 animate-pulse rounded-full bg-white/5" />
-                <div className="h-12 w-full animate-pulse rounded-2xl bg-white/5" />
-                <div className="h-32 w-full animate-pulse rounded-3xl bg-white/5" />
+                <div className="h-5 w-40 animate-pulse rounded-full bg-slate-100" />
+                <div className="h-12 w-full animate-pulse rounded-2xl bg-slate-100" />
+                <div className="h-32 w-full animate-pulse rounded-3xl bg-slate-100" />
               </div>
             ) : error ? (
               <div className="text-center">
-                <p className="text-[10px] font-black uppercase tracking-widest text-red-300">Invite unavailable</p>
-                <h1 className="mt-3 text-3xl font-black text-white">This invite cannot be opened</h1>
-                <p className="mx-auto mt-3 max-w-xl text-sm font-medium leading-relaxed text-zinc-500">{error}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-rose-700">Invite unavailable</p>
+                <h1 className="mt-3 text-3xl font-black text-slate-900">This invite cannot be opened</h1>
+                <p className="mx-auto mt-3 max-w-xl text-sm font-medium leading-relaxed text-slate-600">{error}</p>
                 <Link to="/" className="btn btn-primary mt-8 inline-flex px-6 py-4">
                   Go Home
                 </Link>
               </div>
             ) : (
               <>
-                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Freelancer team invite</p>
-                <h1 className="mt-3 text-4xl font-black tracking-tight text-white">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Freelancer team invite</p>
+                <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-900">
                   Join {project?.title || 'this project'}
                 </h1>
-                <p className="mt-4 text-base font-medium leading-relaxed text-zinc-400">
+                <p className="mt-4 text-base font-medium leading-relaxed text-slate-600">
                   {project?.ownerName || 'A project owner'} invited you to collaborate in ClientFlow AI.
                 </p>
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Client</p>
-                    <p className="mt-2 text-lg font-black text-white">{project?.clientName || 'Not set'}</p>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Client</p>
+                    <p className="mt-2 text-lg font-black text-slate-900">{project?.clientName || 'Not set'}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Deadline</p>
-                    <p className="mt-2 text-lg font-black text-white">{formatDate(project?.deadline)}</p>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Deadline</p>
+                    <p className="mt-2 text-lg font-black text-slate-900">{formatDate(project?.deadline)}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Your role</p>
-                    <p className="mt-2 text-lg font-black text-white">{invite?.roleLabel || String(invite?.role || 'viewer').replace(/_/g, ' ')}</p>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Your role</p>
+                    <p className="mt-2 text-lg font-black text-slate-900">{invite?.roleLabel || String(invite?.role || 'viewer').replace(/_/g, ' ')}</p>
                   </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Group</p>
-                    <p className="mt-2 text-lg font-black text-white">{invite?.groupName || 'All project'}</p>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Group</p>
+                    <p className="mt-2 text-lg font-black text-slate-900">{invite?.groupName || 'All project'}</p>
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-3xl border border-sky-400/15 bg-sky-400/[0.04] p-5">
-                  <p className="text-sm font-semibold leading-relaxed text-sky-100">
+                <div className="mt-6 rounded-3xl border border-sky-200 bg-sky-400/[0.04] p-5">
+                  <p className="text-sm font-semibold leading-relaxed text-sky-700">
                     {invite?.roleDescription || roleCopy[invite?.role] || roleCopy.viewer}
                   </p>
                 </div>

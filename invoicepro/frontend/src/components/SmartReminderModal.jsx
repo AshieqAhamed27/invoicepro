@@ -38,7 +38,7 @@ export default function SmartReminderModal({ isOpen, onClose, invoice, onSuccess
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white backdrop-blur-sm animate-fade-in">
       <div className="relative w-full max-w-lg p-6 bg-white border border-slate-200 rounded-2xl shadow-2xl text-slate-900">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div>
@@ -52,7 +52,7 @@ export default function SmartReminderModal({ isOpen, onClose, invoice, onSuccess
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"
+            className="text-slate-600 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"
           >
             ✕
           </button>
@@ -62,8 +62,8 @@ export default function SmartReminderModal({ isOpen, onClose, invoice, onSuccess
           <div
             className={`mt-4 p-3 rounded-lg text-sm ${
               status.type === 'error'
-                ? 'bg-red-500/10 text-red-600 border border-red-500/20'
-                : 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20'
+                ? 'bg-rose-50 text-red-600 border border-red-500/20'
+                : 'bg-emerald-50 text-emerald-700 border border-emerald-500/20'
             }`}
           >
             {status.text}
@@ -89,7 +89,7 @@ export default function SmartReminderModal({ isOpen, onClose, invoice, onSuccess
 
           <div>
             <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
-              Custom Note / Message Override <span className="text-slate-400 font-normal lowercase">(Optional)</span>
+              Custom Note / Message Override <span className="text-slate-600 font-normal lowercase">(Optional)</span>
             </label>
             <textarea
               rows={3}
@@ -110,7 +110,7 @@ export default function SmartReminderModal({ isOpen, onClose, invoice, onSuccess
             <button
               onClick={handleSendReminder}
               disabled={isSending}
-              className="py-2 px-5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-amber-500/20 disabled:opacity-50"
+              className="py-2 px-5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-900 text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-amber-500/20 disabled:opacity-50"
             >
               {isSending ? 'Dispatching...' : '🔔 Send Payment Reminder'}
             </button>

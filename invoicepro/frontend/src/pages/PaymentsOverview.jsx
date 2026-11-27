@@ -114,9 +114,9 @@ const checkoutSteps = [
 ];
 
 const toneClass = {
-  sky: 'border-sky-300/25 bg-sky-300/[0.06]',
+  sky: 'border-sky-200 bg-sky-300/[0.06]',
   yellow: 'border-yellow-300/35 bg-yellow-300/[0.08]',
-  emerald: 'border-emerald-300/30 bg-emerald-300/[0.07]',
+  emerald: 'border-emerald-200 bg-emerald-300/[0.07]',
   purple: 'border-purple-300/25 bg-purple-300/[0.06]'
 };
 
@@ -199,28 +199,28 @@ export default function PaymentsOverview() {
       <Navbar />
 
       <main>
-        <section className="border-b border-white/5 bg-zinc-950/70 py-14 sm:py-16 lg:py-20">
+        <section className="border-b border-slate-200 bg-white py-14 sm:py-16 lg:py-20">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Simple Freelancer Pricing</p>
-              <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-5xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Simple Freelancer Pricing</p>
+              <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
                 Transparent plans. Zero hidden fees.
               </h1>
-              <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400">
+              <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-slate-600">
                 Start with 30 days of full software access — no credit card required. Pick a software plan when you're ready to power your freelance career.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button type="button" onClick={startFree} className="btn btn-primary px-7 py-4 text-sm">
                   {loggedIn ? 'Open Workspace' : 'Start 30 Days Free →'}
                 </button>
-                <a href="#software-plans" className="rounded-2xl border border-white/15 bg-white/[0.04] px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/[0.09]">
+                <a href="#software-plans" className="rounded-2xl border border-slate-200 bg-slate-50 px-7 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-50">
                   View Pro Plans ↓
                 </a>
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] border border-white/10 bg-black/30 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Select Currency / Region</p>
+            <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Select Currency / Region</p>
               <div className="mt-4 grid gap-3">
                 {Object.entries(markets).map(([id, option]) => (
                   <button
@@ -229,12 +229,12 @@ export default function PaymentsOverview() {
                     onClick={() => updateMarket(id)}
                     className={`rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 ${
                       market === id
-                        ? 'border-yellow-300/45 bg-yellow-300/10 text-white'
-                        : 'border-white/8 bg-white/[0.03] text-zinc-400 hover:border-white/15 hover:bg-white/[0.06] hover:text-white'
+                        ? 'border-yellow-300/45 bg-amber-50 text-slate-900'
+                        : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-indigo-700'
                     }`}
                   >
                     <span className="block text-sm font-black">{option.label}</span>
-                    <span className="mt-1 block text-xs font-semibold leading-relaxed text-zinc-500">{option.detail}</span>
+                    <span className="mt-1 block text-xs font-semibold leading-relaxed text-slate-600">{option.detail}</span>
                   </button>
                 ))}
               </div>
@@ -242,18 +242,18 @@ export default function PaymentsOverview() {
           </div>
         </section>
 
-        <section id="software-plans" className="border-b border-white/5 py-14 sm:py-16 scroll-mt-10">
+        <section id="software-plans" className="border-b border-slate-200 py-14 sm:py-16 scroll-mt-10">
           <div className="container-custom">
             <div className="mb-8 max-w-3xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Software Access Plans</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">Software Access Plans</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Choose the plan that fits your business.
               </h2>
-              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
                 All plans include full software capabilities: GST invoicing, Razorpay payment links, AI proposal writer, client deal rooms, and payment reminders.
               </p>
               {loggedIn && freeAccessState.active && (
-                <p className="mt-3 text-sm font-black text-emerald-200">
+                <p className="mt-3 text-sm font-black text-emerald-700">
                   Your free trial has {freeAccessState.daysLeft} day{freeAccessState.daysLeft === 1 ? '' : 's'} remaining.
                 </p>
               )}
@@ -264,22 +264,22 @@ export default function PaymentsOverview() {
                 <div key={option.id} className={`relative flex flex-col justify-between rounded-[1.75rem] border p-6 transition-all hover:-translate-y-1 ${toneClass[option.tone] || toneClass.sky}`}>
                   <div>
                     <div className="flex items-center justify-between">
-                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-400">{option.label}</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">{option.label}</p>
                       {option.badge && (
-                        <span className="rounded-full bg-yellow-400/20 border border-yellow-400/40 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-yellow-300">
+                        <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-amber-700">
                           {option.badge}
                         </span>
                       )}
                     </div>
-                    <h3 className="mt-3 text-xl font-black leading-tight text-white">{option.title}</h3>
-                    <p className="mt-4 text-3xl font-black text-white">{priceFor(option)}</p>
-                    <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">{option.detail}</p>
-                    <p className="mt-4 rounded-xl border border-white/8 bg-black/20 p-3 text-xs font-bold leading-relaxed text-zinc-300">
+                    <h3 className="mt-3 text-xl font-black leading-tight text-slate-900">{option.title}</h3>
+                    <p className="mt-4 text-3xl font-black text-slate-900">{priceFor(option)}</p>
+                    <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">{option.detail}</p>
+                    <p className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold leading-relaxed text-slate-700">
                       {option.bestFor}
                     </p>
                     <div className="mt-5 grid gap-2">
                       {option.points.map((point) => (
-                        <p key={point} className="text-xs font-semibold leading-relaxed text-zinc-400 flex items-center gap-2">
+                        <p key={point} className="text-xs font-semibold leading-relaxed text-slate-600 flex items-center gap-2">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
                           {point}
                         </p>
@@ -292,7 +292,7 @@ export default function PaymentsOverview() {
                     className={`mt-6 w-full rounded-2xl px-5 py-4 text-sm font-black transition-all active:scale-95 ${
                       option.id === 'monthly' || option.id === 'founder90'
                         ? 'bg-yellow-400 text-black hover:bg-yellow-300 shadow-lg shadow-yellow-400/10'
-                        : 'border border-white/10 bg-white/[0.04] text-white hover:bg-white/10'
+                        : 'border border-slate-200 bg-slate-50 text-slate-900 hover:bg-slate-100'
                     }`}
                   >
                     {freeFullAccessEnabled && option.id !== 'free' && freeAccessState.active
@@ -309,19 +309,19 @@ export default function PaymentsOverview() {
 
 
 
-        <section className="border-b border-white/5 bg-emerald-400/[0.035] py-14 sm:py-16">
+        <section className="border-b border-slate-200 bg-emerald-400/[0.035] py-14 sm:py-16">
           <div className="container-custom">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Why pay?</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">Why pay?</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 The value is business control, not just buttons.
               </h2>
             </div>
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
               {whyPay.map(([title, text]) => (
-                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5">
-                  <h3 className="text-lg font-black text-white">{title}</h3>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+                  <h3 className="text-lg font-black text-slate-900">{title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{text}</p>
                 </div>
               ))}
             </div>
@@ -331,24 +331,24 @@ export default function PaymentsOverview() {
         <section className="py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Payment flow</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Payment flow</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 Simple path before checkout.
               </h2>
-              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
                 Users should understand what they are paying for before they reach the checkout page.
               </p>
-              <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-500">
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600">
                 Billing support: {SUPPORT_EMAIL}
               </p>
             </div>
 
             <div className="grid gap-4">
               {checkoutSteps.map(([title, text], index) => (
-                <div key={title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Step {index + 1}</p>
-                  <h3 className="mt-2 text-lg font-black text-white">{title}</h3>
-                  <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{text}</p>
+                <div key={title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Step {index + 1}</p>
+                  <h3 className="mt-2 text-lg font-black text-slate-900">{title}</h3>
+                  <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{text}</p>
                 </div>
               ))}
             </div>

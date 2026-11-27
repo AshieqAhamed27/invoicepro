@@ -86,7 +86,7 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white backdrop-blur-sm animate-fade-in">
       <div className="relative w-full max-w-xl p-6 bg-white border border-slate-200 rounded-2xl shadow-2xl text-slate-900 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div>
@@ -97,7 +97,7 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"
+            className="text-slate-600 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition"
           >
             ✕
           </button>
@@ -107,8 +107,8 @@ export default function AIFollowUpModal({ isOpen, onClose, resourceType = 'lead'
           <div
             className={`mt-4 p-3 rounded-lg text-sm ${
               statusMessage.type === 'error'
-                ? 'bg-red-500/10 text-red-600 border border-red-500/20'
-                : 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20'
+                ? 'bg-rose-50 text-red-600 border border-red-500/20'
+                : 'bg-emerald-50 text-emerald-700 border border-emerald-500/20'
             }`}
           >
             {statusMessage.text}

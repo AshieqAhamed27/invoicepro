@@ -22,13 +22,13 @@ export default function ProFeatureGate({
       <main className="container-custom flex min-h-[calc(100vh-5rem)] items-center py-10 sm:py-16">
         <section className="mx-auto grid w-full max-w-5xl gap-8">
           <div className="premium-panel p-6 sm:p-10">
-            <div className="mb-5 inline-flex rounded-full border border-yellow-300/20 bg-yellow-300/10 px-3 py-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">30-Day Free Access</span>
+            <div className="mb-5 inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">30-Day Free Access</span>
             </div>
-            <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">
+            <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl">
               {title}
             </h1>
-            <p className="mt-5 max-w-2xl text-base font-medium leading-relaxed text-zinc-400">
+            <p className="mt-5 max-w-2xl text-base font-medium leading-relaxed text-slate-600">
               {description}
             </p>
 
@@ -50,16 +50,16 @@ export default function ProFeatureGate({
           </div>
 
           <aside className="premium-panel p-6 sm:p-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">What unlocks after login</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">What unlocks after login</p>
             <div className="mt-6 grid gap-4">
               {proBenefits.map((benefit) => (
-                <div key={benefit} className="flex gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                <div key={benefit} className="flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-yellow-300" />
-                  <p className="text-sm font-semibold leading-relaxed text-zinc-300">{benefit}</p>
+                  <p className="text-sm font-semibold leading-relaxed text-slate-700">{benefit}</p>
                 </div>
               ))}
             </div>
-            <p className="mt-6 text-xs font-semibold leading-relaxed text-zinc-500">
+            <p className="mt-6 text-xs font-semibold leading-relaxed text-slate-600">
               Software access is free for 30 days after signup. Paid setup services remain optional for users who want hands-on help.
             </p>
           </aside>

@@ -176,27 +176,27 @@ export default function UserOnboardingModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 p-6 sm:p-8 shadow-2xl shadow-black/80">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xl">
         
         {/* Glow Ambient Decoration */}
-        <div className="pointer-events-none absolute -top-24 -left-24 h-48 w-48 rounded-full bg-emerald-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-sky-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute -top-24 -left-24 h-48 w-48 rounded-full bg-emerald-50 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-sky-50 blur-3xl" />
 
         {/* Header */}
         <div className="relative">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-emerald-400/10 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-300 border border-emerald-400/20">
+            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-700 border border-emerald-200">
               {step === 1 ? 'Step 1 of 2' : 'Step 2 of 2'}
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
               Required Setup · 5 Seconds
             </span>
           </div>
-          <h2 className="mt-2 text-2xl font-black tracking-tight text-white">
+          <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-900">
             {step === 1 ? 'Who are you?' : 'How much experience do you have?'}
           </h2>
-          <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-400">
+          <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">
             {step === 1
               ? 'Please select your role to customize your workspace, invoice templates, and payment tools.'
               : 'This helps us configure recommended rates, client tips, and invoice reminders.'}
@@ -204,7 +204,7 @@ export default function UserOnboardingModal() {
         </div>
 
         {error && (
-          <div className="relative mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs font-bold text-red-300">
+          <div className="relative mt-4 rounded-xl border border-red-500/20 bg-rose-50 p-3 text-xs font-bold text-rose-700">
             {error}
           </div>
         )}
@@ -221,30 +221,30 @@ export default function UserOnboardingModal() {
                   className={`group flex cursor-pointer items-center justify-between rounded-2xl border p-3.5 transition-all ${
                     isSelected
                       ? 'border-emerald-500/60 bg-emerald-500/[0.08] shadow-lg shadow-emerald-500/10 ring-1 ring-emerald-500/50'
-                      : 'border-white/5 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]'
+                      : 'border-slate-200 bg-slate-50 hover:border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
                     <span className="text-2xl">{role.icon}</span>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className={`text-sm font-black transition ${isSelected ? 'text-white' : 'text-zinc-200 group-hover:text-white'}`}>
+                        <p className={`text-sm font-black transition ${isSelected ? 'text-slate-900' : 'text-slate-800 group-hover:text-indigo-700'}`}>
                           {role.title}
                         </p>
                         {role.badge && (
-                          <span className="rounded-full bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.2 text-[8px] font-black uppercase tracking-wider text-emerald-300">
+                          <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.2 text-[8px] font-black uppercase tracking-wider text-emerald-700">
                             {role.badge}
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] font-medium text-zinc-500">{role.desc}</p>
+                      <p className="text-[11px] font-medium text-slate-600">{role.desc}</p>
                     </div>
                   </div>
 
                   <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
                     isSelected
                       ? 'border-emerald-400 bg-emerald-400 text-zinc-950 font-black text-xs'
-                      : 'border-white/20 bg-transparent'
+                      : 'border-slate-200 bg-transparent'
                   }`}>
                     {isSelected && '✓'}
                   </div>
@@ -266,18 +266,18 @@ export default function UserOnboardingModal() {
                   className={`group flex cursor-pointer items-center justify-between rounded-2xl border p-3.5 transition-all ${
                     isSelected
                       ? 'border-sky-500/60 bg-sky-500/[0.08] shadow-lg shadow-sky-500/10 ring-1 ring-sky-500/50'
-                      : 'border-white/5 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]'
+                      : 'border-slate-200 bg-slate-50 hover:border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
                     <span className="text-2xl">{exp.icon}</span>
                     <div>
-                      <p className={`text-sm font-black transition ${isSelected ? 'text-white' : 'text-zinc-200 group-hover:text-white'}`}>
+                      <p className={`text-sm font-black transition ${isSelected ? 'text-slate-900' : 'text-slate-800 group-hover:text-indigo-700'}`}>
                         {exp.title}
                       </p>
-                      <p className="text-[11px] font-medium text-zinc-500">{exp.desc}</p>
+                      <p className="text-[11px] font-medium text-slate-600">{exp.desc}</p>
                       {exp.highlight && isSelected && (
-                        <p className="mt-1 text-[10px] font-bold text-sky-300">✨ {exp.highlight}</p>
+                        <p className="mt-1 text-[10px] font-bold text-sky-700">✨ {exp.highlight}</p>
                       )}
                     </div>
                   </div>
@@ -285,7 +285,7 @@ export default function UserOnboardingModal() {
                   <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
                     isSelected
                       ? 'border-sky-400 bg-sky-400 text-zinc-950 font-black text-xs'
-                      : 'border-white/20 bg-transparent'
+                      : 'border-slate-200 bg-transparent'
                   }`}>
                     {isSelected && '✓'}
                   </div>
@@ -303,7 +303,7 @@ export default function UserOnboardingModal() {
                 type="button"
                 onClick={() => setStep(1)}
                 disabled={submitting}
-                className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3.5 text-xs font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/[0.08] hover:text-white"
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-xs font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-50 hover:text-indigo-700"
               >
                 Back
               </button>
@@ -321,7 +321,7 @@ export default function UserOnboardingModal() {
             </button>
           </div>
 
-          <p className="text-center text-[11px] font-semibold text-zinc-500">
+          <p className="text-center text-[11px] font-semibold text-slate-600">
             🔒 One-time 5-second setup · You can change this anytime in Settings
           </p>
         </div>

@@ -34,7 +34,7 @@ export default function LoadingScreen({
       <div className={`relative flex items-center justify-center ${isCompact ? 'h-16 w-16' : 'h-24 w-24 sm:h-28 sm:w-28'}`}>
         {/* Radar Ring Wave */}
         <div
-          className={`absolute rounded-full border border-emerald-400/30 loader-radar ${
+          className={`absolute rounded-full border border-emerald-200 loader-radar ${
             isCompact ? 'inset-0' : '-inset-2'
           }`}
         />
@@ -60,7 +60,7 @@ export default function LoadingScreen({
         </div>
 
         {/* Center Brand Glyph */}
-        <div className="relative flex items-center justify-center rounded-2xl border border-white/10 bg-[#0d111a]/80 p-2 shadow-inner backdrop-blur-sm">
+        <div className="relative flex items-center justify-center rounded-2xl border border-slate-200 bg-[#0d111a]/80 p-2 shadow-inner backdrop-blur-sm">
           <div className="flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-emerald-500/25">
             CF
           </div>
@@ -71,9 +71,9 @@ export default function LoadingScreen({
       <div className="relative mt-6 flex flex-col items-center text-center">
         {/* Brand Label Pill */}
         {!isCompact && (
-          <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-400/[0.08] px-3 py-1">
+          <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-400/[0.08] px-3 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700">
               {COMPANY_SHORT_NAME}
             </span>
           </div>
@@ -95,7 +95,7 @@ export default function LoadingScreen({
 
         {/* Subtext */}
         {subtext && !isCompact && (
-          <p className="mt-2 max-w-xs sm:max-w-md text-xs font-semibold leading-relaxed text-zinc-500">
+          <p className="mt-2 max-w-xs sm:max-w-md text-xs font-semibold leading-relaxed text-slate-600">
             {subtext}
           </p>
         )}
@@ -117,10 +117,10 @@ export default function LoadingScreen({
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-0 z-[9999] flex min-h-screen flex-col items-center justify-center bg-[#07090e] text-white overflow-hidden px-4"
+      className="fixed inset-0 z-[9999] flex min-h-screen flex-col items-center justify-center bg-[#07090e] text-slate-900 overflow-hidden px-4"
     >
       {/* Top Indeterminate Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 h-[3px] bg-black/60 overflow-hidden z-[10000]">
+      <div className="fixed top-0 left-0 right-0 h-[3px] bg-slate-50 overflow-hidden z-[10000]">
         <div className="h-full w-1/3 bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 shadow-[0_0_16px_rgba(52,211,153,0.9)] loader-top-bar" />
       </div>
 

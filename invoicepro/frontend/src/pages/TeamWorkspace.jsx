@@ -101,15 +101,15 @@ const getRoleLabel = (role, roleOptions = fallbackRoleOptions) => {
 
 const getStatusClass = (status) => {
   if (status === 'completed' || status === 'done') {
-    return 'border-emerald-300/20 bg-emerald-300/[0.08] text-emerald-200';
+    return 'border-emerald-200 bg-emerald-300/[0.08] text-emerald-700';
   }
   if (status === 'review' || status === 'doing') {
-    return 'border-sky-300/20 bg-sky-300/[0.08] text-sky-200';
+    return 'border-sky-200 bg-sky-300/[0.08] text-sky-700';
   }
   if (status === 'blocked' || status === 'paused') {
-    return 'border-red-300/20 bg-red-300/[0.08] text-red-200';
+    return 'border-rose-200 bg-red-300/[0.08] text-rose-700';
   }
-  return 'border-yellow-300/20 bg-yellow-300/[0.08] text-yellow-200';
+  return 'border-amber-200 bg-yellow-300/[0.08] text-amber-700';
 };
 
 const buildSummary = (projects = []) => ({
@@ -603,32 +603,32 @@ export default function TeamWorkspace() {
       <main className="container-custom py-8 sm:py-10 md:py-14">
         <section className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.42fr)] lg:items-end">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
-              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">
                 Client Workroom
               </span>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               Run each client project from scope to payment.
             </h1>
-            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-zinc-400 sm:text-lg">
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-600 sm:text-lg">
               One place for scope, milestones, collaborator invites, project updates, delivery proof, invoices, and payment follow-up. This is the practical system freelancers need after they win a client.
             </p>
           </div>
 
-          <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.04] p-5 shadow-2xl shadow-black/20">
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Workroom health</p>
+          <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 shadow-2xl shadow-black/20">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Workroom health</p>
             <div className="mt-4 flex items-end justify-between gap-4">
               <div>
-                <p className="text-5xl font-black text-white">{health.score}</p>
-                <p className="mt-1 text-sm font-semibold text-zinc-500">{health.label}</p>
+                <p className="text-5xl font-black text-slate-900">{health.score}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-600">{health.label}</p>
               </div>
               <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${getStatusClass(activeProject?.status || 'planning')}`}>
                 {statusLabel(activeProject?.status || 'planning')}
               </span>
             </div>
-            <p className="mt-4 rounded-2xl border border-white/8 bg-black/25 p-4 text-sm font-semibold leading-relaxed text-zinc-300">
+            <p className="mt-4 rounded-2xl border border-slate-200 bg-black/25 p-4 text-sm font-semibold leading-relaxed text-slate-700">
               {health.nextAction}
             </p>
           </div>
@@ -637,8 +637,8 @@ export default function TeamWorkspace() {
         {(message || error) && (
           <section className={`mb-6 rounded-2xl border p-4 ${
             error
-              ? 'border-red-300/20 bg-red-300/[0.08] text-red-100'
-              : 'border-emerald-300/20 bg-emerald-300/[0.08] text-emerald-100'
+              ? 'border-rose-200 bg-red-300/[0.08] text-rose-700'
+              : 'border-emerald-200 bg-emerald-300/[0.08] text-emerald-700'
           }`}>
             <p className="text-sm font-bold">{error || message}</p>
           </section>
@@ -651,9 +651,9 @@ export default function TeamWorkspace() {
             ['Open tasks', computedSummary.openTasks || 0],
             ['Proof links', computedSummary.proofLinks || 0]
           ].map(([label, value]) => (
-            <div key={label} className="rounded-[1.25rem] border border-white/8 bg-white/[0.03] p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">{label}</p>
-              <p className="mt-3 text-3xl font-black text-white">{value}</p>
+            <div key={label} className="rounded-[1.25rem] border border-slate-200 bg-slate-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">{label}</p>
+              <p className="mt-3 text-3xl font-black text-slate-900">{value}</p>
             </div>
           ))}
         </section>
@@ -666,26 +666,26 @@ export default function TeamWorkspace() {
             ['4', 'Create invoice', 'Turn delivered work into payment.'],
             ['5', 'Collect payment', 'Follow up before cash gets stuck.']
           ].map(([step, title, text]) => (
-            <div key={step} className="rounded-[1.25rem] border border-white/8 bg-black/25 p-4 transition-all hover:-translate-y-1 hover:border-emerald-300/25">
+            <div key={step} className="rounded-[1.25rem] border border-slate-200 bg-black/25 p-4 transition-all hover:-translate-y-1 hover:border-emerald-200">
               <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-300 text-sm font-black text-slate-950">{step}</span>
-              <h2 className="mt-4 text-lg font-black text-white">{title}</h2>
-              <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{text}</p>
+              <h2 className="mt-4 text-lg font-black text-slate-900">{title}</h2>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{text}</p>
             </div>
           ))}
         </section>
 
         <section className="space-y-6">
           <aside className={`grid gap-5 ${(createOpen || !projects.length) ? 'lg:grid-cols-2 lg:items-start' : ''}`}>
-            <div className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
+            <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Projects</p>
-                  <h2 className="mt-2 text-2xl font-black text-white">Client list</h2>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Projects</p>
+                  <h2 className="mt-2 text-2xl font-black text-slate-900">Client list</h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => setCreateOpen((open) => !open)}
-                  className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/15"
+                  className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                 >
                   New
                 </button>
@@ -693,9 +693,9 @@ export default function TeamWorkspace() {
 
               <div className="mt-5 space-y-3">
                 {loading ? (
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <div className="h-3 w-2/3 rounded-full bg-white/10" />
-                    <div className="mt-3 h-3 w-1/2 rounded-full bg-white/5" />
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="h-3 w-2/3 rounded-full bg-slate-100" />
+                    <div className="mt-3 h-3 w-1/2 rounded-full bg-slate-100" />
                   </div>
                 ) : projects.length ? (
                   projects.map((project) => (
@@ -705,26 +705,26 @@ export default function TeamWorkspace() {
                       onClick={() => setActiveProjectId(project._id)}
                       className={`w-full rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 ${
                         activeProject?._id === project._id
-                          ? 'border-emerald-300/30 bg-emerald-300/[0.08]'
-                          : 'border-white/8 bg-black/20 hover:border-white/15 hover:bg-white/[0.04]'
+                          ? 'border-emerald-200 bg-emerald-300/[0.08]'
+                          : 'border-slate-200 bg-slate-50 hover:border-slate-200 hover:bg-slate-50'
                       }`}
                     >
-                      <p className="text-sm font-black text-white">{project.title}</p>
-                      <p className="mt-1 text-xs font-semibold text-zinc-500">{project.clientName || 'Client not added'}</p>
+                      <p className="text-sm font-black text-slate-900">{project.title}</p>
+                      <p className="mt-1 text-xs font-semibold text-slate-600">{project.clientName || 'Client not added'}</p>
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         <span className={`rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${getStatusClass(project.status)}`}>
                           {statusLabel(project.status)}
                         </span>
-                        <span className="rounded-full border border-white/8 bg-white/[0.04] px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-slate-600">
                           {(project.tasks || []).filter((task) => task.status !== 'done').length} open
                         </span>
                       </div>
                     </button>
                   ))
                 ) : (
-                  <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                    <p className="text-sm font-black text-white">No client workroom yet.</p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-sm font-black text-slate-900">No client workroom yet.</p>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">
                       Create one when a client shows interest or accepts a proposal.
                     </p>
                   </div>
@@ -733,12 +733,12 @@ export default function TeamWorkspace() {
             </div>
 
             {(createOpen || !projects.length) && (
-              <form onSubmit={createWorkroom} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5">
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Create workroom</p>
-                <h2 className="mt-3 text-2xl font-black text-white">New client project</h2>
+              <form onSubmit={createWorkroom} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Create workroom</p>
+                <h2 className="mt-3 text-2xl font-black text-slate-900">New client project</h2>
                 {!canCreateProjects && (
-                  <div className="mt-4 rounded-2xl border border-yellow-300/20 bg-yellow-300/[0.08] p-4">
-                    <p className="text-sm font-semibold leading-relaxed text-yellow-100">
+                  <div className="mt-4 rounded-2xl border border-amber-200 bg-yellow-300/[0.08] p-4">
+                    <p className="text-sm font-semibold leading-relaxed text-amber-700">
                       Creating client workrooms is a Pro feature because it stores projects, collaborators, notes, and delivery proof.
                     </p>
                     <button
@@ -775,40 +775,40 @@ export default function TeamWorkspace() {
 
           <section className="min-w-0">
             {!activeProject ? (
-              <div className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-8 text-center">
-                <h2 className="text-3xl font-black text-white">Create your first client workroom</h2>
-                <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+              <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8 text-center">
+                <h2 className="text-3xl font-black text-slate-900">Create your first client workroom</h2>
+                <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                   Use it when a lead becomes serious. Keep the scope, work, proof, invoice, and payment follow-up together.
                 </p>
               </div>
             ) : (
               <div className="space-y-6">
-                <section className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-7">
+                <section className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 shadow-2xl shadow-black/20 sm:p-7">
                   <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.38fr)] lg:items-start">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${getStatusClass(activeProject.status)}`}>
                           {statusLabel(activeProject.status)}
                         </span>
-                        <span className="rounded-full border border-white/8 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                        <span className="rounded-full border border-slate-200 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                           {getRoleLabel(activeProject.accessRole || 'owner', roleOptions)}
                         </span>
                       </div>
-                      <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                      <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                         {activeProject.title}
                       </h2>
-                      <p className="mt-3 text-base font-semibold text-zinc-400">
-                        Client: <span className="text-white">{activeProject.clientName || 'Not added'}</span>
+                      <p className="mt-3 text-base font-semibold text-slate-600">
+                        Client: <span className="text-slate-900">{activeProject.clientName || 'Not added'}</span>
                       </p>
-                      <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
+                      <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600">
                         {activeProject.projectBrief || 'Add scope so the client, freelancer, and collaborators know exactly what is included before payment is requested.'}
                       </p>
                     </div>
 
-                    <div className="rounded-[1.5rem] border border-white/8 bg-black/25 p-5">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Commercials</p>
-                      <p className="mt-3 text-3xl font-black text-white">{formatCurrency(activeProject.budget, activeProject.currency)}</p>
-                      <p className="mt-1 text-sm font-semibold text-zinc-500">Deadline: {formatDate(activeProject.deadline)}</p>
+                    <div className="rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Commercials</p>
+                      <p className="mt-3 text-3xl font-black text-slate-900">{formatCurrency(activeProject.budget, activeProject.currency)}</p>
+                      <p className="mt-1 text-sm font-semibold text-slate-600">Deadline: {formatDate(activeProject.deadline)}</p>
                       <select
                         className="input mt-5"
                         value={activeProject.status || 'planning'}
@@ -838,27 +838,27 @@ export default function TeamWorkspace() {
 
                 <section className="space-y-6">
                   <div className="space-y-6">
-                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                    <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Milestones</p>
-                          <h3 className="mt-2 text-2xl font-black text-white">Work that must finish</h3>
+                          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Milestones</p>
+                          <h3 className="mt-2 text-2xl font-black text-slate-900">Work that must finish</h3>
                         </div>
-                        <span className="rounded-full border border-white/8 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                        <span className="rounded-full border border-slate-200 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                           {tasks.filter((task) => task.status === 'done').length}/{tasks.length || 0} done
                         </span>
                       </div>
 
                       <div className="mt-5 space-y-3">
                         {tasks.length ? tasks.map((task) => (
-                          <div key={task._id || task.title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <div key={task._id || task.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                             <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_180px] md:items-center">
                               <div>
-                                <p className="text-base font-black text-white">{task.title}</p>
-                                <p className="mt-1 text-sm font-semibold text-zinc-500">
+                                <p className="text-base font-black text-slate-900">{task.title}</p>
+                                <p className="mt-1 text-sm font-semibold text-slate-600">
                                   {task.owner || 'Unassigned'} - {formatDate(task.dueDate)}
                                 </p>
-                                {task.notes && <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">{task.notes}</p>}
+                                {task.notes && <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{task.notes}</p>}
                               </div>
                               <select
                                 className="input"
@@ -871,13 +871,13 @@ export default function TeamWorkspace() {
                             </div>
                           </div>
                         )) : (
-                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-sm font-semibold text-zinc-500">No milestones yet. Add the first delivery task below.</p>
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <p className="text-sm font-semibold text-slate-600">No milestones yet. Add the first delivery task below.</p>
                           </div>
                         )}
                       </div>
 
-                      <form onSubmit={addTask} className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <form onSubmit={addTask} className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <input className="input" value={taskForm.title} onChange={(event) => setTaskForm({ ...taskForm, title: event.target.value })} placeholder="Add milestone or task" />
                         <div className="grid gap-3 md:grid-cols-3">
                           <input className="input" value={taskForm.owner} onChange={(event) => setTaskForm({ ...taskForm, owner: event.target.value })} placeholder="Owner" />
@@ -895,11 +895,11 @@ export default function TeamWorkspace() {
                       </form>
                     </div>
 
-                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                    <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Proof and files</p>
-                          <h3 className="mt-2 text-2xl font-black text-white">Links the client can trust</h3>
+                          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">Proof and files</p>
+                          <h3 className="mt-2 text-2xl font-black text-slate-900">Links the client can trust</h3>
                         </div>
                         <Link to="/cloud-documents" className="btn btn-dark">
                           Open Cloud Docs
@@ -913,20 +913,20 @@ export default function TeamWorkspace() {
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-2xl border border-white/8 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-sky-300/25"
+                            className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:-translate-y-0.5 hover:border-sky-200"
                           >
-                            <p className="text-sm font-black text-white">{resource.label}</p>
-                            <p className="mt-1 text-xs font-black uppercase tracking-widest text-sky-300">{statusLabel(resource.type || 'document')}</p>
-                            {resource.notes && <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">{resource.notes}</p>}
+                            <p className="text-sm font-black text-slate-900">{resource.label}</p>
+                            <p className="mt-1 text-xs font-black uppercase tracking-widest text-sky-700">{statusLabel(resource.type || 'document')}</p>
+                            {resource.notes && <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">{resource.notes}</p>}
                           </a>
                         )) : (
-                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 md:col-span-2">
-                            <p className="text-sm font-semibold text-zinc-500">Add proposal, design, drive, preview, contract, or delivery proof links here.</p>
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
+                            <p className="text-sm font-semibold text-slate-600">Add proposal, design, drive, preview, contract, or delivery proof links here.</p>
                           </div>
                         )}
                       </div>
 
-                      <form onSubmit={addResource} className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <form onSubmit={addResource} className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <div className="grid gap-3 md:grid-cols-[1fr_160px]">
                           <input className="input" value={resourceForm.label} onChange={(event) => setResourceForm({ ...resourceForm, label: event.target.value })} placeholder="Link label" />
                           <select className="input" value={resourceForm.type} onChange={(event) => setResourceForm({ ...resourceForm, type: event.target.value })}>
@@ -945,24 +945,24 @@ export default function TeamWorkspace() {
                       </form>
                     </div>
 
-                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
-                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Delivery notes</p>
-                      <h3 className="mt-2 text-2xl font-black text-white">Scope, approvals, handover</h3>
+                    <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Delivery notes</p>
+                      <h3 className="mt-2 text-2xl font-black text-slate-900">Scope, approvals, handover</h3>
                       <div className="mt-5 grid gap-3 md:grid-cols-2">
                         {docs.length ? docs.map((doc) => (
-                          <article key={doc._id || doc.title} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-sm font-black text-white">{doc.title}</p>
-                            <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-yellow-300">{statusLabel(doc.category || 'note')}</p>
-                            <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-500">{doc.content}</p>
+                          <article key={doc._id || doc.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <p className="text-sm font-black text-slate-900">{doc.title}</p>
+                            <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-amber-700">{statusLabel(doc.category || 'note')}</p>
+                            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{doc.content}</p>
                           </article>
                         )) : (
-                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4 md:col-span-2">
-                            <p className="text-sm font-semibold text-zinc-500">Save important agreements, revision notes, client approval, and final handover details.</p>
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 md:col-span-2">
+                            <p className="text-sm font-semibold text-slate-600">Save important agreements, revision notes, client approval, and final handover details.</p>
                           </div>
                         )}
                       </div>
 
-                      <form onSubmit={addDeliveryNote} className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <form onSubmit={addDeliveryNote} className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <input className="input" value={noteForm.title} onChange={(event) => setNoteForm({ ...noteForm, title: event.target.value })} placeholder="Note title" />
                         <select className="input" value={noteForm.category} onChange={(event) => setNoteForm({ ...noteForm, category: event.target.value })}>
                           <option value="client">Client agreement</option>
@@ -980,9 +980,9 @@ export default function TeamWorkspace() {
                   </div>
 
                   <aside className={`grid gap-6 ${canViewAudit ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
-                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
-                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Payment path</p>
-                      <h3 className="mt-2 text-2xl font-black text-white">Get paid without confusion</h3>
+                    <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Payment path</p>
+                      <h3 className="mt-2 text-2xl font-black text-slate-900">Get paid without confusion</h3>
                       <div className="mt-5 space-y-3">
                         {[
                           ['Scope agreed', activeProject.projectBrief ? 'Ready' : 'Missing scope'],
@@ -990,9 +990,9 @@ export default function TeamWorkspace() {
                           ['Proof saved', resources.length || docs.length ? 'Ready' : 'Add proof'],
                           ['Invoice', 'Create when delivery is ready']
                         ].map(([label, value]) => (
-                          <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                            <p className="mt-1 text-sm font-black text-white">{value}</p>
+                          <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
+                            <p className="mt-1 text-sm font-black text-slate-900">{value}</p>
                           </div>
                         ))}
                       </div>
@@ -1006,28 +1006,28 @@ export default function TeamWorkspace() {
                       </div>
                     </div>
 
-                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
+                    <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
                       <p className="text-[10px] font-black uppercase tracking-[0.22em] text-purple-300">Collaborators</p>
-                      <h3 className="mt-2 text-2xl font-black text-white">Enterprise roles</h3>
+                      <h3 className="mt-2 text-2xl font-black text-slate-900">Enterprise roles</h3>
                       <div className="mt-5 space-y-3">
                         {members.map((member) => (
-                          <div key={member._id || member.email || member.name} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-sm font-black text-white">{member.name || member.email || 'Team member'}</p>
-                            <p className="mt-1 text-xs font-semibold text-zinc-500">{member.email || 'No email'}</p>
+                          <div key={member._id || member.email || member.name} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <p className="text-sm font-black text-slate-900">{member.name || member.email || 'Team member'}</p>
+                            <p className="mt-1 text-xs font-semibold text-slate-600">{member.email || 'No email'}</p>
                             <p className="mt-2 inline-flex rounded-full border border-purple-300/20 bg-purple-300/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-purple-100">
                               {getRoleLabel(member.role, roleOptions)}
                             </p>
                           </div>
                         ))}
                       </div>
-                      <form onSubmit={createInvite} className="mt-5 grid gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <form onSubmit={createInvite} className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <input className="input" value={inviteForm.email} onChange={(event) => setInviteForm({ ...inviteForm, email: event.target.value })} placeholder="Freelancer email optional" />
                         <select className="input" value={inviteForm.role} disabled={!canInvite} onChange={(event) => setInviteForm({ ...inviteForm, role: event.target.value })}>
                           {roleOptions.map((option) => (
                             <option key={option.role} value={option.role}>{option.label}</option>
                           ))}
                         </select>
-                        <p className="text-xs font-semibold leading-relaxed text-zinc-500">
+                        <p className="text-xs font-semibold leading-relaxed text-slate-600">
                           {roleOptions.find((option) => option.role === inviteForm.role)?.description || 'Choose what this person can do.'}
                         </p>
                         <button type="submit" disabled={!canInvite || actionLoading === 'invite'} className="btn btn-secondary w-full">
@@ -1035,8 +1035,8 @@ export default function TeamWorkspace() {
                         </button>
                       </form>
                       {lastInvite?.inviteUrl && (
-                        <div className="mt-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] p-4">
-                          <p className="text-sm font-semibold leading-relaxed text-emerald-100">Invite ready for {lastInvite.role} access.</p>
+                        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-300/[0.08] p-4">
+                          <p className="text-sm font-semibold leading-relaxed text-emerald-700">Invite ready for {lastInvite.role} access.</p>
                           <div className="mt-3 grid gap-2 sm:grid-cols-2">
                             <button type="button" onClick={copyInvite} className="btn btn-dark">Copy</button>
                             <button type="button" onClick={shareInvite} className="btn btn-dark">WhatsApp</button>
@@ -1045,19 +1045,19 @@ export default function TeamWorkspace() {
                       )}
                     </div>
 
-                    <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
-                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Project updates</p>
-                      <h3 className="mt-2 text-2xl font-black text-white">Simple team chat</h3>
+                    <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">Project updates</p>
+                      <h3 className="mt-2 text-2xl font-black text-slate-900">Simple team chat</h3>
                       <div className="mt-5 max-h-80 space-y-3 overflow-y-auto pr-1">
                         {messages.length ? messages.map((item) => (
-                          <div key={item._id || `${item.senderName}-${item.createdAt}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-xs font-black uppercase tracking-widest text-sky-300">{item.senderName || 'Team member'}</p>
-                            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{item.message}</p>
-                            <p className="mt-2 text-[10px] font-semibold text-zinc-600">{formatDateTime(item.createdAt)}</p>
+                          <div key={item._id || `${item.senderName}-${item.createdAt}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <p className="text-xs font-black uppercase tracking-widest text-sky-700">{item.senderName || 'Team member'}</p>
+                            <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{item.message}</p>
+                            <p className="mt-2 text-[10px] font-semibold text-slate-500">{formatDateTime(item.createdAt)}</p>
                           </div>
                         )) : (
-                          <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                            <p className="text-sm font-semibold text-zinc-500">No updates yet. Write what changed, what is blocked, or what the client approved.</p>
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <p className="text-sm font-semibold text-slate-600">No updates yet. Write what changed, what is blocked, or what the client approved.</p>
                           </div>
                         )}
                       </div>
@@ -1070,22 +1070,22 @@ export default function TeamWorkspace() {
                     </div>
 
                     {canViewAudit && (
-                      <div className="rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-5 sm:p-6">
-                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Audit trail</p>
-                        <h3 className="mt-2 text-2xl font-black text-white">Who changed what</h3>
+                      <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                        <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Audit trail</p>
+                        <h3 className="mt-2 text-2xl font-black text-slate-900">Who changed what</h3>
                         <div className="mt-5 max-h-96 space-y-3 overflow-y-auto pr-1">
                           {auditLogs.length ? auditLogs.slice(0, 12).map((log) => (
-                            <div key={log.id || `${log.action}-${log.createdAt}`} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{statusLabel(log.action)}</p>
-                              <p className="mt-2 text-sm font-black text-white">{log.label || 'Project activity'}</p>
-                              <p className="mt-1 text-xs font-semibold text-zinc-500">
+                            <div key={log.id || `${log.action}-${log.createdAt}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">{statusLabel(log.action)}</p>
+                              <p className="mt-2 text-sm font-black text-slate-900">{log.label || 'Project activity'}</p>
+                              <p className="mt-1 text-xs font-semibold text-slate-600">
                                 {log.actor?.name || log.actor?.email || 'Team member'} - {getRoleLabel(log.actor?.role, roleOptions)}
                               </p>
-                              <p className="mt-2 text-[10px] font-semibold text-zinc-600">{formatDateTime(log.createdAt)}</p>
+                              <p className="mt-2 text-[10px] font-semibold text-slate-500">{formatDateTime(log.createdAt)}</p>
                             </div>
                           )) : (
-                            <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                              <p className="text-sm font-semibold text-zinc-500">Audit entries will appear after project changes, invites, messages, files, docs, and AI actions.</p>
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                              <p className="text-sm font-semibold text-slate-600">Audit entries will appear after project changes, invites, messages, files, docs, and AI actions.</p>
                             </div>
                           )}
                         </div>
@@ -1099,12 +1099,12 @@ export default function TeamWorkspace() {
         </section>
 
         {!isPro && (
-          <section className="mt-8 rounded-[1.75rem] border border-yellow-300/20 bg-yellow-300/[0.08] p-5 sm:p-6">
+          <section className="mt-8 rounded-[1.75rem] border border-amber-200 bg-yellow-300/[0.08] p-5 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">Pro workflow</p>
-                <h2 className="mt-2 text-2xl font-black text-white">Workrooms become valuable when you use them for real client delivery.</h2>
-                <p className="mt-2 text-sm font-semibold leading-relaxed text-yellow-100/80">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Pro workflow</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-900">Workrooms become valuable when you use them for real client delivery.</h2>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-amber-700/80">
                   Upgrade when you want saved client projects, collaborator invites, delivery proof, and payment workflow in one place.
                 </p>
               </div>

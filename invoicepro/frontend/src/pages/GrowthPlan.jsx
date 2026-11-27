@@ -525,17 +525,17 @@ export default function GrowthPlan() {
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal mb-10 grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)] lg:items-stretch">
-          <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
-            <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2">
+          <div className="rounded-[2rem] border border-emerald-200 bg-emerald-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
+            <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">
                 Freelancer survival and growth plan
               </p>
             </div>
-            <h1 className="mt-5 max-w-4xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl">
+            <h1 className="mt-5 max-w-4xl text-4xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl">
               Build stable freelance income so going back to a 9-to-5 is not the backup plan.
             </h1>
-            <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+            <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
               Set a monthly income target. ClientFlow AI works backward into leads, proposals, prices,
               payment collection, recurring clients, and daily actions.
             </p>
@@ -558,29 +558,29 @@ export default function GrowthPlan() {
             </div>
           </div>
 
-          <aside className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/20 sm:p-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-600">Freelance Stability Score</p>
+          <aside className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-black/20 sm:p-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-500">Freelance Stability Score</p>
             <div className="mt-5 flex items-end justify-between gap-4">
-              <p className="text-6xl font-black tracking-tight text-white">{loading ? '--' : jobEscape.score}</p>
+              <p className="text-6xl font-black tracking-tight text-slate-900">{loading ? '--' : jobEscape.score}</p>
               <span className={`mb-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
                 jobEscape.score >= 78
-                  ? 'border-emerald-300/20 bg-emerald-300/10 text-emerald-200'
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                   : jobEscape.score >= 58
-                    ? 'border-sky-300/20 bg-sky-300/10 text-sky-200'
-                    : 'border-yellow-300/20 bg-yellow-300/10 text-yellow-200'
+                    ? 'border-sky-200 bg-sky-50 text-sky-700'
+                    : 'border-amber-200 bg-amber-50 text-amber-700'
               }`}>
                 {loading ? 'Checking' : jobEscape.label}
               </span>
             </div>
-            <p className="mt-4 text-sm font-semibold leading-relaxed text-zinc-400">{jobEscape.advice}</p>
+            <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600">{jobEscape.advice}</p>
             <div className="mt-6 grid gap-3">
               {jobEscape.parts.map(([label, value, note]) => (
-                <div key={label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex items-start justify-between gap-3">
-                    <p className="text-xs font-black text-white">{label}</p>
-                    <p className="shrink-0 text-sm font-black text-emerald-300">{value}</p>
+                    <p className="text-xs font-black text-slate-900">{label}</p>
+                    <p className="shrink-0 text-sm font-black text-emerald-700">{value}</p>
                   </div>
-                  <p className="mt-1 text-[11px] font-semibold leading-relaxed text-zinc-600">{note}</p>
+                  <p className="mt-1 text-[11px] font-semibold leading-relaxed text-slate-500">{note}</p>
                 </div>
               ))}
             </div>
@@ -588,44 +588,44 @@ export default function GrowthPlan() {
         </section>
 
         {error && (
-          <div className="mb-8 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm font-bold text-red-200">
+          <div className="mb-8 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
             {error}
           </div>
         )}
 
         {loading ? (
           <section className="premium-panel p-6 sm:p-8">
-            <div className="h-6 w-56 animate-pulse rounded-full bg-white/5" />
+            <div className="h-6 w-56 animate-pulse rounded-full bg-slate-100" />
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {[1, 2, 3].map((item) => (
-                <div key={item} className="h-40 animate-pulse rounded-3xl bg-white/5" />
+                <div key={item} className="h-40 animate-pulse rounded-3xl bg-slate-100" />
               ))}
             </div>
           </section>
         ) : (
           <>
-            <section className="reveal reveal-delay-1 mb-10 rounded-[2rem] border border-yellow-400/20 bg-yellow-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
+            <section className="reveal reveal-delay-1 mb-10 rounded-[2rem] border border-amber-200 bg-yellow-400/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]">
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Income Goal</p>
-                    <span className="rounded-full border border-white/10 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Income Goal</p>
+                    <span className="rounded-full border border-slate-200 bg-black/25 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                       Work backward plan
                     </span>
                   </div>
-                  <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                     {formatMoney(incomePlan.target)} monthly target.
                   </h2>
-                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                     The plan converts your income target into how many clients, proposals, and leads you need this month.
                   </p>
 
-                  <div className="mt-6 rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <div className="mt-6 rounded-2xl border border-slate-200 bg-black/25 p-5">
                     <div className="mb-3 flex items-center justify-between gap-4">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Collected this month</p>
-                      <p className="text-xs font-black text-white">{incomePlan.progress}%</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Collected this month</p>
+                      <p className="text-xs font-black text-slate-900">{incomePlan.progress}%</p>
                     </div>
-                    <div className="h-3 overflow-hidden rounded-full bg-white/10">
+                    <div className="h-3 overflow-hidden rounded-full bg-slate-100">
                       <div className="h-full rounded-full bg-yellow-400 transition-all" style={{ width: `${incomePlan.progress}%` }} />
                     </div>
                     <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -643,13 +643,13 @@ export default function GrowthPlan() {
                     <GoalInput label="Close Rate %" value={goal.closeRate} min="5" max="100" onChange={(value) => updateGoal('closeRate', value)} />
                     <GoalInput label="Lead to Proposal %" value={goal.proposalRate} min="5" max="100" onChange={(value) => updateGoal('proposalRate', value)} />
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Service You Sell</p>
+                  <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Service You Sell</p>
                     <input
                       type="text"
                       value={goal.service}
                       onChange={(event) => updateGoal('service', event.target.value)}
-                      className="input mt-3 bg-black/30 py-3 text-sm font-bold"
+                      className="input mt-3 bg-slate-50 py-3 text-sm font-bold"
                       placeholder="Website design, marketing, consulting..."
                     />
                   </div>
@@ -673,10 +673,10 @@ export default function GrowthPlan() {
                   ['With pending', `${incomePlan.projectedWithPending}%`, 'Collected plus pending'],
                   ['Open leads', metrics.openLeads.length, 'Active sales pipeline']
                 ].map(([label, value, note]) => (
-                  <div key={label} className="rounded-2xl border border-white/10 bg-zinc-950/70 p-5">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-                    <p className="mt-3 text-3xl font-black text-white">{value}</p>
-                    <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{note}</p>
+                  <div key={label} className="rounded-2xl border border-slate-200 bg-white p-5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
+                    <p className="mt-3 text-3xl font-black text-slate-900">{value}</p>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{note}</p>
                   </div>
                 ))}
               </div>
@@ -685,8 +685,8 @@ export default function GrowthPlan() {
             <section id="daily-growth-actions" className="reveal reveal-delay-1 mb-10">
               <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">Daily Freelancer Action Plan</p>
-                  <h2 className="mt-2 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">Daily Freelancer Action Plan</p>
+                  <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                     Do these before the day ends.
                   </h2>
                 </div>
@@ -705,39 +705,39 @@ export default function GrowthPlan() {
 
               <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
                 {dailyActions.map((action, index) => (
-                  <article key={action.id} className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-5 transition hover:-translate-y-1 hover:border-sky-300/25">
+                  <article key={action.id} className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-1 hover:border-sky-200">
                     <div className="mb-4 flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-sky-300 text-sm font-black text-slate-950">
                           {index + 1}
                         </span>
-                        <span className="rounded-full border border-sky-300/20 bg-sky-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-200">
+                        <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-700">
                           {action.type}
                         </span>
                       </div>
-                      <p className="shrink-0 text-xs font-black text-emerald-300">{action.impact}</p>
+                      <p className="shrink-0 text-xs font-black text-emerald-700">{action.impact}</p>
                     </div>
-                    <h3 className="text-lg font-black leading-tight text-white">{action.title}</h3>
-                    <p className="mt-3 min-h-[70px] text-sm font-semibold leading-relaxed text-zinc-400">{action.detail}</p>
+                    <h3 className="text-lg font-black leading-tight text-slate-900">{action.title}</h3>
+                    <p className="mt-3 min-h-[70px] text-sm font-semibold leading-relaxed text-slate-600">{action.detail}</p>
                     <div className="mt-5 grid gap-3 sm:grid-cols-3">
                       <button
                         type="button"
                         onClick={() => navigate(action.route)}
-                        className="rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         {action.cta}
                       </button>
                       <button
                         type="button"
                         onClick={() => copyText(action.message, 'Message copied.', 'copy_growth_action_message')}
-                        className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/[0.08]"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-50"
                       >
                         Copy
                       </button>
                       <button
                         type="button"
                         onClick={() => openWhatsAppShare(action.message)}
-                        className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                        className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                       >
                         WhatsApp
                       </button>
@@ -750,20 +750,20 @@ export default function GrowthPlan() {
             <section className="reveal reveal-delay-2 mb-10 grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
               <div className="rounded-[2rem] border border-purple-400/20 bg-purple-400/[0.045] p-5 sm:p-8">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-purple-300">Price Upgrade Coach</p>
-                <h2 className="mt-3 text-3xl font-black tracking-tight text-white">Charge better without guessing.</h2>
-                <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{priceCoach.reason}</p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900">Charge better without guessing.</h2>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{priceCoach.reason}</p>
                 <div className="mt-6 grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
                   {priceCoach.packages.map((pkg) => (
                     <button
                       key={pkg.name}
                       type="button"
                       onClick={() => createPackageDraft(pkg)}
-                      className="rounded-2xl border border-white/10 bg-black/25 p-5 text-left transition hover:-translate-y-1 hover:border-purple-300/30"
+                      className="rounded-2xl border border-slate-200 bg-black/25 p-5 text-left transition hover:-translate-y-1 hover:border-purple-300/30"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <p className="text-base font-black text-white">{pkg.name}</p>
-                          <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{pkg.note}</p>
+                          <p className="text-base font-black text-slate-900">{pkg.name}</p>
+                          <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">{pkg.note}</p>
                         </div>
                         <p className="shrink-0 text-sm font-black text-purple-200">{formatMoney(pkg.price)}</p>
                       </div>
@@ -773,42 +773,42 @@ export default function GrowthPlan() {
                 </div>
               </div>
 
-              <div className="rounded-[2rem] border border-white/10 bg-zinc-950/70 p-5 sm:p-8">
+              <div className="rounded-[2rem] border border-slate-200 bg-white p-5 sm:p-8">
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Recurring Client Builder</p>
-                    <h2 className="mt-3 text-3xl font-black tracking-tight text-white">Turn paid clients into monthly income.</h2>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Recurring Client Builder</p>
+                    <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900">Turn paid clients into monthly income.</h2>
                   </div>
-                  <Link to="/recurring" className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white">
+                  <Link to="/recurring" className="text-xs font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700">
                     Recurring
                   </Link>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
                   {recurringCandidates.length ? recurringCandidates.map((client) => (
-                    <div key={client.clientEmail || client.clientName} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                    <div key={client.clientEmail || client.clientName} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="break-words text-base font-black text-white">{client.clientName}</p>
-                          <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{client.reason}</p>
+                          <p className="break-words text-base font-black text-slate-900">{client.clientName}</p>
+                          <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">{client.reason}</p>
                         </div>
-                        <span className="shrink-0 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black text-emerald-200">
+                        <span className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-black text-emerald-700">
                           {client.score}
                         </span>
                       </div>
-                      <p className="mt-4 text-sm font-black text-emerald-300">{formatMoney(client.suggestedMonthly)}/month</p>
+                      <p className="mt-4 text-sm font-black text-emerald-700">{formatMoney(client.suggestedMonthly)}/month</p>
                       <div className="mt-5 grid gap-3 sm:grid-cols-2">
                         <button
                           type="button"
                           onClick={() => copyText(client.pitch, 'Monthly client pitch copied.', 'copy_growth_recurring_pitch')}
-                          className="rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                          className="rounded-xl border border-slate-200 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                         >
                           Copy Pitch
                         </button>
                         <button
                           type="button"
                           onClick={() => openWhatsAppShare(client.pitch)}
-                          className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                          className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                         >
                           WhatsApp
                         </button>
@@ -824,11 +824,11 @@ export default function GrowthPlan() {
               </div>
             </section>
 
-            <section className="reveal reveal-delay-2 rounded-[2rem] border border-white/10 bg-white/[0.025] p-5 sm:p-8 lg:p-10">
+            <section className="reveal reveal-delay-2 rounded-[2rem] border border-slate-200 bg-slate-50 p-5 sm:p-8 lg:p-10">
               <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Client Retention Agent</p>
-                  <h2 className="mt-3 text-3xl font-black tracking-tight text-white">After payment, ask for the next business move.</h2>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Client Retention Agent</p>
+                  <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900">After payment, ask for the next business move.</h2>
                 </div>
                 <button
                   type="button"
@@ -841,9 +841,9 @@ export default function GrowthPlan() {
 
               <div className="grid gap-4 xl:grid-cols-3">
                 {retentionMessages.length ? retentionMessages.map((client) => (
-                  <div key={client.clientName} className="rounded-[1.75rem] border border-white/10 bg-black/25 p-5">
-                    <p className="text-lg font-black text-white">{client.clientName}</p>
-                    <p className="mt-1 text-xs font-semibold text-zinc-500">{formatMoney(client.paidAmount)} paid history</p>
+                  <div key={client.clientName} className="rounded-[1.75rem] border border-slate-200 bg-black/25 p-5">
+                    <p className="text-lg font-black text-slate-900">{client.clientName}</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-600">{formatMoney(client.paidAmount)} paid history</p>
                     <div className="mt-5 grid gap-3">
                       {[
                         ['Testimonial', client.testimonial],
@@ -855,10 +855,10 @@ export default function GrowthPlan() {
                           key={label}
                           type="button"
                           onClick={() => copyText(message, `${label} message copied.`, 'copy_growth_retention_message')}
-                          className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 text-left transition hover:border-yellow-300/25 hover:bg-yellow-300/10"
+                          className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-amber-200 hover:bg-amber-50"
                         >
-                          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{label}</p>
-                          <p className="mt-2 line-clamp-2 text-xs font-semibold leading-relaxed text-zinc-400">{message}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">{label}</p>
+                          <p className="mt-2 line-clamp-2 text-xs font-semibold leading-relaxed text-slate-600">{message}</p>
                         </button>
                       ))}
                     </div>
@@ -881,25 +881,25 @@ export default function GrowthPlan() {
 function MetricMini({ label, value, tone = 'white' }) {
   return (
     <div>
-      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
-      <p className={`mt-1 text-lg font-black ${tone === 'yellow' ? 'text-yellow-300' : 'text-white'}`}>{value}</p>
+      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
+      <p className={`mt-1 text-lg font-black ${tone === 'yellow' ? 'text-amber-700' : 'text-slate-900'}`}>{value}</p>
     </div>
   );
 }
 
 function GoalInput({ label, prefix = '', value, min, max, onChange }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{label}</p>
+    <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{label}</p>
       <div className="mt-3 flex items-center gap-3">
-        {prefix && <span className="text-sm font-black text-zinc-500">{prefix}</span>}
+        {prefix && <span className="text-sm font-black text-slate-600">{prefix}</span>}
         <input
           type="number"
           min={min}
           max={max}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="input bg-black/30 py-3 text-lg font-black"
+          className="input bg-slate-50 py-3 text-lg font-black"
         />
       </div>
     </div>
@@ -908,9 +908,9 @@ function GoalInput({ label, prefix = '', value, min, max, onChange }) {
 
 function EmptyState({ title, detail }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center md:col-span-2 xl:col-span-3">
-      <p className="text-sm font-black text-white">{title}</p>
-      <p className="mx-auto mt-2 max-w-xl text-xs font-semibold leading-relaxed text-zinc-500">{detail}</p>
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center md:col-span-2 xl:col-span-3">
+      <p className="text-sm font-black text-slate-900">{title}</p>
+      <p className="mx-auto mt-2 max-w-xl text-xs font-semibold leading-relaxed text-slate-600">{detail}</p>
     </div>
   );
 }

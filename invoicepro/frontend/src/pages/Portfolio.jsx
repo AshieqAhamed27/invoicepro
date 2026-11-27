@@ -108,26 +108,26 @@ export default function Portfolio() {
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden border-b border-white/5">
+        <section className="relative overflow-hidden border-b border-slate-200">
           <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-yellow-400/10 via-emerald-400/5 to-transparent" />
           <div className="container-custom responsive-split-even relative py-14 sm:py-16 lg:py-24">
             <div>
-              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-yellow-300/20 bg-yellow-300/10 px-4 py-2">
+              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-amber-200 bg-amber-50 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
-                <span className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">
+                <span className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">
                   Builder portfolio
                 </span>
               </div>
 
-              <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
                 I build AI-assisted products that help freelancers get clients and get paid.
               </h1>
 
-              <p className="mt-6 max-w-2xl text-base font-semibold leading-relaxed text-zinc-300 sm:text-lg">
+              <p className="mt-6 max-w-2xl text-base font-semibold leading-relaxed text-slate-700 sm:text-lg">
                 I am {builderName}, the builder behind {COMPANY_NAME}. I am building practical AI business systems for freelancers, developers, designers, consultants, and small agencies.
               </p>
 
-              <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-500">
+              <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                 My focus is simple: turn confusing freelance work into a clear workflow from lead to payment.
               </p>
 
@@ -141,26 +141,26 @@ export default function Portfolio() {
               </div>
             </div>
 
-            <aside className="rounded-[2rem] border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/30 sm:p-6">
-              <div className="flex items-center justify-between gap-4 border-b border-white/8 pb-5">
+            <aside className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-2xl shadow-black/30 sm:p-6">
+              <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-5">
                 <BrandLogo showText={false} markClassName="h-12 w-12" />
-                <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-200">
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">
                   Building in public
                 </span>
               </div>
 
               <div className="mt-6">
-                <p className="text-3xl font-black text-white">{builderName}</p>
-                <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-400">
+                <p className="text-3xl font-black text-slate-900">{builderName}</p>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">
                   Product builder and AI-assisted SaaS maker based in India.
                 </p>
               </div>
 
               <div className="mt-6 grid gap-3">
                 {highlights.map(([title, detail]) => (
-                  <div key={title} className="rounded-2xl border border-white/8 bg-white/[0.04] p-4">
-                    <p className="text-sm font-black text-white">{title}</p>
-                    <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{detail}</p>
+                  <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-sm font-black text-slate-900">{title}</p>
+                    <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">{detail}</p>
                   </div>
                 ))}
               </div>
@@ -168,22 +168,22 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section className="border-b border-white/5 bg-zinc-950/40 py-14 sm:py-16">
+        <section className="border-b border-slate-200 bg-zinc-950/40 py-14 sm:py-16">
           <div className="container-custom">
             <div className="mb-8 max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Products</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Products</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 What I am building now.
               </h2>
             </div>
 
             <div className="grid gap-5 md:grid-cols-3">
               {projects.map((project) => (
-                <article key={project.title} className="rounded-[1.5rem] border border-white/8 bg-white/[0.035] p-6 transition-all hover:-translate-y-1 hover:border-yellow-300/25">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">{project.label}</p>
-                  <h3 className="mt-4 text-2xl font-black text-white">{project.title}</h3>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{project.description}</p>
-                  <Link to={project.link} className="mt-6 inline-flex rounded-xl border border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10">
+                <article key={project.title} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-6 transition-all hover:-translate-y-1 hover:border-amber-200">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">{project.label}</p>
+                  <h3 className="mt-4 text-2xl font-black text-slate-900">{project.title}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{project.description}</p>
+                  <Link to={project.link} className="mt-6 inline-flex rounded-xl border border-slate-200 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100">
                     {project.cta}
                   </Link>
                 </article>
@@ -195,43 +195,43 @@ export default function Portfolio() {
         <section className="py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Capabilities</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">Capabilities</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 The work I can do with AI-assisted execution.
               </h2>
-              <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
                 I use AI tools, product research, user feedback, and modern web platforms to move from idea to working product faster.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               {capabilities.map((capability) => (
-                <div key={capability} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                  <p className="text-sm font-black text-white">{capability}</p>
+                <div key={capability} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-black text-slate-900">{capability}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="border-y border-white/5 bg-yellow-400/[0.045] py-14 sm:py-16">
+        <section className="border-y border-slate-200 bg-yellow-400/[0.045] py-14 sm:py-16">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Journey</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Journey</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
                 From invoice tool to freelancer business system.
               </h2>
             </div>
 
             <div className="grid gap-4">
               {timeline.map(([title, detail], index) => (
-                <div key={title} className="flex gap-4 rounded-[1.5rem] border border-white/8 bg-black/25 p-5">
+                <div key={title} className="flex gap-4 rounded-[1.5rem] border border-slate-200 bg-black/25 p-5">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-yellow-300 text-sm font-black text-slate-950">
                     {index + 1}
                   </span>
                   <div>
-                    <p className="text-lg font-black text-white">{title}</p>
-                    <p className="mt-1 text-sm font-semibold leading-relaxed text-zinc-400">{detail}</p>
+                    <p className="text-lg font-black text-slate-900">{title}</p>
+                    <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-600">{detail}</p>
                   </div>
                 </div>
               ))}
@@ -240,12 +240,12 @@ export default function Portfolio() {
         </section>
 
         <section id="contact" className="py-14 sm:py-16">
-          <div className="container-custom rounded-[2rem] border border-emerald-300/20 bg-emerald-300/[0.06] p-6 text-center sm:p-10">
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Contact</p>
-            <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-black tracking-tight text-white sm:text-4xl">
+          <div className="container-custom rounded-[2rem] border border-emerald-200 bg-emerald-300/[0.06] p-6 text-center sm:p-10">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-700">Contact</p>
+            <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
               Want to discuss ClientFlow AI, AI cost optimization, or freelancer workflows?
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
+            <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
               Send a message and I will reply with the clearest next step.
             </p>
             <a href={`mailto:${SUPPORT_EMAIL}`} className="btn btn-primary mt-7 inline-flex px-7 py-4 text-sm">

@@ -26,15 +26,15 @@ const toDateInput = (value) => {
 };
 
 const scoreClass = (score) => {
-  if (score >= 75) return 'text-red-300 bg-red-400/10 border-red-400/20';
-  if (score >= 45) return 'text-yellow-300 bg-yellow-400/10 border-yellow-400/20';
-  return 'text-emerald-300 bg-emerald-400/10 border-emerald-400/20';
+  if (score >= 75) return 'text-rose-700 bg-rose-50 border-rose-200';
+  if (score >= 45) return 'text-amber-700 bg-amber-50 border-amber-200';
+  return 'text-emerald-700 bg-emerald-50 border-emerald-200';
 };
 
 const clientScoreClass = (score) => {
-  if (score >= 78) return 'text-emerald-300';
-  if (score >= 55) return 'text-yellow-300';
-  return 'text-red-300';
+  if (score >= 78) return 'text-emerald-700';
+  if (score >= 55) return 'text-amber-700';
+  return 'text-rose-700';
 };
 
 export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
@@ -171,76 +171,76 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
   };
 
   return (
-    <section className="reveal reveal-delay-1 mb-12 overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-emerald-400/[0.035] shadow-2xl shadow-black/20">
-      <div className="border-b border-white/10 p-5 sm:p-8 lg:p-10">
+    <section className="reveal reveal-delay-1 mb-12 overflow-hidden rounded-[2rem] border border-emerald-200 bg-emerald-400/[0.035] shadow-2xl shadow-black/20">
+      <div className="border-b border-slate-200 p-5 sm:p-8 lg:p-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5">
+            <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
                 AI Payment Collection Agent
               </p>
             </div>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
               Get paid faster with follow-up intelligence.
             </h2>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
               ClientFlow AI ranks unpaid invoices, suggests the right WhatsApp tone, tracks promises to pay, and scores client payment behavior.
             </p>
           </div>
 
           {topTarget && (
-            <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 lg:min-w-[260px]">
-              <p className="text-[10px] font-black uppercase tracking-widest text-red-300">Top Target</p>
-              <p className="mt-2 text-lg font-black text-white">{topTarget.clientName}</p>
-              <p className="mt-1 text-xs font-bold text-red-100/80">{topTarget.reason}</p>
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 lg:min-w-[260px]">
+              <p className="text-[10px] font-black uppercase tracking-widest text-rose-700">Top Target</p>
+              <p className="mt-2 text-lg font-black text-slate-900">{topTarget.clientName}</p>
+              <p className="mt-1 text-xs font-bold text-rose-700/80">{topTarget.reason}</p>
             </div>
           )}
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { label: 'Recoverable This Week', value: formatMoney(opportunity.recoverableThisWeek), tone: 'text-emerald-300' },
-            { label: 'Promises Due Now', value: promiseStats.dueNow || 0, tone: 'text-yellow-300' },
-            { label: 'Active Promises', value: promiseStats.active || 0, tone: 'text-white' },
-            { label: 'Overdue Amount', value: formatMoney(opportunity.overdueAmount), tone: 'text-red-300' }
+            { label: 'Recoverable This Week', value: formatMoney(opportunity.recoverableThisWeek), tone: 'text-emerald-700' },
+            { label: 'Promises Due Now', value: promiseStats.dueNow || 0, tone: 'text-amber-700' },
+            { label: 'Active Promises', value: promiseStats.active || 0, tone: 'text-slate-900' },
+            { label: 'Overdue Amount', value: formatMoney(opportunity.overdueAmount), tone: 'text-rose-700' }
           ].map((item) => (
-            <div key={item.label} className="rounded-2xl border border-white/8 bg-black/20 p-5">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
+            <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</p>
               <p className={`mt-3 text-2xl font-black ${item.tone}`}>{item.value}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 rounded-2xl border border-white/10 bg-black/25 p-5 sm:p-6">
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-black/25 p-5 sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`h-2 w-2 rounded-full ${automationOn ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600'}`} />
-                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
                   AI Reminder Automation
                 </p>
-                <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                <span className="rounded-full border border-slate-200 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                   WhatsApp-assisted
                 </span>
               </div>
 
-              <h3 className="mt-3 text-2xl font-black text-white">
+              <h3 className="mt-3 text-2xl font-black text-slate-900">
                 {automationOn ? `${autoQueue.length} reminder${autoQueue.length === 1 ? '' : 's'} ready today` : 'Reminder automation is paused'}
               </h3>
-              <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400">
+              <p className="mt-2 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600">
                 {automationOn
                   ? 'The agent checks due dates, overdue invoices, payment promises, and invoice value to prepare the right follow-up automatically. WhatsApp still needs one click to send.'
                   : 'Turn it on to let ClientFlow AI prepare your daily follow-up queue automatically.'}
               </p>
 
               {nextAutoTarget && automationOn && (
-                <div className="mt-4 rounded-xl border border-emerald-400/15 bg-emerald-400/10 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Next Reminder</p>
-                  <p className="mt-2 text-sm font-black text-white">
+                <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Next Reminder</p>
+                  <p className="mt-2 text-sm font-black text-slate-900">
                     {nextAutoTarget.clientName} / {nextAutoTarget.invoiceNumber} / {formatMoney(nextAutoTarget.amount)}
                   </p>
-                  <p className="mt-1 text-xs font-semibold text-emerald-100/80">
+                  <p className="mt-1 text-xs font-semibold text-emerald-700/80">
                     {nextAutoTarget.automationLabel || nextAutoTarget.reason} / Best time: {nextAutoTarget.automationBestTime || '10:00 AM'}
                   </p>
                 </div>
@@ -253,8 +253,8 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
                 onClick={() => setAutomationOn((value) => !value)}
                 className={`rounded-xl border px-4 py-3 text-[10px] font-black uppercase tracking-widest transition ${
                   automationOn
-                    ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/15'
-                    : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10'
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-50'
+                    : 'border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 {automationOn ? 'Agent On' : 'Turn On'}
@@ -264,7 +264,7 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
                 type="button"
                 disabled={!automationOn || !nextAutoTarget}
                 onClick={() => sendFollowUp(nextAutoTarget, nextAutoTarget?.tone === 'final' ? 'final' : nextAutoTarget?.tone)}
-                className="rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Send Next
               </button>
@@ -273,7 +273,7 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
                 type="button"
                 disabled={!automationOn || (!autoQueue.length && !nextAutoTarget)}
                 onClick={copyAutomationQueue}
-                className="rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-400/15 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-sky-700 transition hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Copy Queue
               </button>
@@ -281,15 +281,15 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
           </div>
 
           {automationOn && (
-            <div className="mt-5 grid gap-3 text-[10px] font-black uppercase tracking-widest text-zinc-600 sm:grid-cols-3">
-              <p className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
-                Ready now: <span className="text-white">{autoQueue.length}</span>
+            <div className="mt-5 grid gap-3 text-[10px] font-black uppercase tracking-widest text-slate-500 sm:grid-cols-3">
+              <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                Ready now: <span className="text-slate-900">{autoQueue.length}</span>
               </p>
-              <p className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
-                Scheduled: <span className="text-white">{scheduledQueue.length}</span>
+              <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                Scheduled: <span className="text-slate-900">{scheduledQueue.length}</span>
               </p>
-              <p className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
-                Queue value: <span className="text-white">{formatMoney(reminderAutomation.queuedAmount || 0)}</span>
+              <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                Queue value: <span className="text-slate-900">{formatMoney(reminderAutomation.queuedAmount || 0)}</span>
               </p>
             </div>
           )}
@@ -300,36 +300,36 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
         <div className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="min-w-0">
-              <h3 className="text-xl font-black text-white">Collection Priority</h3>
-              <p className="mt-1 text-xs font-bold uppercase tracking-widest text-zinc-600">Ranked by risk, due date, amount, and promises</p>
+              <h3 className="text-xl font-black text-slate-900">Collection Priority</h3>
+              <p className="mt-1 text-xs font-bold uppercase tracking-widest text-slate-500">Ranked by risk, due date, amount, and promises</p>
             </div>
           </div>
 
           {collectionPlan.length ? (
             collectionPlan.map((target) => (
-              <div key={target.id} className="rounded-2xl border border-white/8 bg-black/20 p-4 sm:p-5">
+              <div key={target.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${scoreClass(target.priorityScore)}`}>
                         Score {target.priorityScore}
                       </span>
-                      <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                      <span className="rounded-full border border-slate-200 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
                         {target.suggestedAction}
                       </span>
                       {target.promiseStatus && (
-                        <span className="rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-300">
+                        <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-700">
                           Promise {target.promiseStatus.replace('_', ' ')}
                         </span>
                       )}
                     </div>
 
-                    <p className="mt-3 text-lg font-black text-white">{target.clientName}</p>
-                    <p className="mt-1 text-xs font-bold uppercase tracking-widest text-zinc-600">
+                    <p className="mt-3 text-lg font-black text-slate-900">{target.clientName}</p>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-widest text-slate-500">
                       {target.invoiceNumber} / {formatMoney(target.amount)} / {target.reason}
                     </p>
                     {target.paymentPromise?.promisedDate && (
-                      <p className="mt-2 text-xs font-semibold text-sky-200">
+                      <p className="mt-2 text-xs font-semibold text-sky-700">
                         Promised for {formatDate(target.paymentPromise.promisedDate)}
                         {target.paymentPromise.note ? ` - ${target.paymentPromise.note}` : ''}
                       </p>
@@ -340,21 +340,21 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
                     <button
                       type="button"
                       onClick={() => sendFollowUp(target, 'polite')}
-                      className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                      className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                     >
                       Polite WhatsApp
                     </button>
                     <button
                       type="button"
                       onClick={() => sendFollowUp(target, target.tone === 'final' ? 'final' : 'firm')}
-                      className="rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15"
+                      className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-amber-700 transition hover:bg-amber-50"
                     >
                       {target.tone === 'final' ? 'Final WhatsApp' : 'Firm WhatsApp'}
                     </button>
                     <button
                       type="button"
                       onClick={() => openPromiseEditor(target)}
-                      className="rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-400/15 sm:col-span-2"
+                      className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-sky-700 transition hover:bg-sky-50 sm:col-span-2"
                     >
                       Set Promise To Pay
                     </button>
@@ -363,35 +363,35 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
               </div>
             ))
           ) : (
-            <div className="rounded-2xl border border-white/8 bg-black/20 p-8 text-center">
-              <p className="text-sm font-bold text-emerald-300">No unpaid invoices need follow-up right now.</p>
-              <p className="mt-2 text-xs font-semibold text-zinc-500">Create invoices with due dates to unlock collection priority.</p>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center">
+              <p className="text-sm font-bold text-emerald-700">No unpaid invoices need follow-up right now.</p>
+              <p className="mt-2 text-xs font-semibold text-slate-600">Create invoices with due dates to unlock collection priority.</p>
             </div>
           )}
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-2xl border border-white/8 bg-black/20 p-5">
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Client Payment Scores</p>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Client Payment Scores</p>
             <div className="mt-4 space-y-3">
               {clientScores.length ? (
                 clientScores.map((client) => (
-                  <div key={client.clientEmail || client.clientName} className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+                  <div key={client.clientEmail || client.clientName} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-white">{client.clientName}</p>
-                        <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-widest text-zinc-600">{client.label}</p>
+                        <p className="truncate text-sm font-black text-slate-900">{client.clientName}</p>
+                        <p className="mt-1 truncate text-[10px] font-bold uppercase tracking-widest text-slate-500">{client.label}</p>
                       </div>
                       <p className={`text-2xl font-black ${clientScoreClass(client.score)}`}>{client.score}</p>
                     </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
                       <span>{client.paidInvoices} paid</span>
                       <span>{client.pendingInvoices} pending</span>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-sm font-semibold text-zinc-500">Client scores appear after invoices are created.</p>
+                <p className="text-sm font-semibold text-slate-600">Client scores appear after invoices are created.</p>
               )}
             </div>
           </div>
@@ -400,32 +400,32 @@ export default function PaymentCollectionAgent({ insights, onPromiseSaved }) {
 
       {promiseTarget && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 sm:items-center">
-          <div className="w-full max-w-lg rounded-[2rem] border border-white/10 bg-[#0b1120] p-6 shadow-2xl">
-            <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Promise To Pay</p>
-            <h3 className="mt-3 text-2xl font-black text-white">{promiseTarget.clientName}</h3>
-            <p className="mt-1 text-sm font-bold text-zinc-500">
+          <div className="w-full max-w-lg rounded-[2rem] border border-slate-200 bg-[#0b1120] p-6 shadow-2xl">
+            <p className="text-[10px] font-black uppercase tracking-widest text-sky-700">Promise To Pay</p>
+            <h3 className="mt-3 text-2xl font-black text-slate-900">{promiseTarget.clientName}</h3>
+            <p className="mt-1 text-sm font-bold text-slate-600">
               {promiseTarget.invoiceNumber} / {formatMoney(promiseTarget.amount)}
             </p>
 
             <div className="mt-6 grid gap-4">
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Promised Date</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Promised Date</span>
                 <input
                   type="date"
                   value={promiseDate}
                   onChange={(event) => setPromiseDate(event.target.value)}
-                  className="input bg-black/30"
+                  className="input bg-slate-50"
                 />
               </label>
               <label className="grid gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Note</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Note</span>
                 <textarea
                   value={promiseNote}
                   onChange={(event) => setPromiseNote(event.target.value)}
                   rows={3}
                   maxLength={240}
                   placeholder="Example: Client said payment will be done after bank approval."
-                  className="input min-h-[96px] resize-none bg-black/30"
+                  className="input min-h-[96px] resize-none bg-slate-50"
                 />
               </label>
             </div>

@@ -70,9 +70,9 @@ const buildRecommendation = ({ margin, effectiveHourlyIncome, targetHourlyIncome
 };
 
 const toneClasses = {
-  emerald: 'border-emerald-300/25 bg-emerald-300/[0.08] text-emerald-100',
-  yellow: 'border-yellow-300/25 bg-yellow-300/[0.08] text-yellow-100',
-  red: 'border-red-300/25 bg-red-300/[0.08] text-red-100'
+  emerald: 'border-emerald-200 bg-emerald-300/[0.08] text-emerald-700',
+  yellow: 'border-amber-200 bg-yellow-300/[0.08] text-amber-700',
+  red: 'border-rose-200 bg-red-300/[0.08] text-rose-700'
 };
 
 export default function ProfitTracker() {
@@ -256,21 +256,21 @@ export default function ProfitTracker() {
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="mb-10 grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.55fr)] lg:items-end">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2">
               <span className="h-2 w-2 rounded-full bg-emerald-300" />
-              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-200">
+              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">
                 Profit and AI tool cost control
               </span>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-[1.02] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               Know if a project is actually profitable.
             </h1>
-            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-zinc-400 sm:text-lg">
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-600 sm:text-lg">
               ClientFlow AI now checks revenue, AI tools, software subscriptions, payment fees, team cost, and delivery hours so freelancers do not work hard and still lose money.
             </p>
             <div className="mt-5 max-w-3xl rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-3 flex items-center gap-3">
               <span className="text-emerald-400 text-lg">⚡</span>
-              <p className="text-sm font-semibold leading-relaxed text-emerald-200">
+              <p className="text-sm font-semibold leading-relaxed text-emerald-700">
                 Connected to your real workspace invoices. Select an existing client invoice below to auto-import billed revenue and evaluate true take-home margins.
               </p>
             </div>
@@ -278,8 +278,8 @@ export default function ProfitTracker() {
 
           <div className={`rounded-[1.5rem] border p-5 ${toneClasses[recommendation.tone]}`}>
             <p className="text-[10px] font-black uppercase tracking-widest opacity-80">AI Profit Signal</p>
-            <h2 className="mt-3 text-2xl font-black text-white">{recommendation.title}</h2>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-300">{recommendation.text}</p>
+            <h2 className="mt-3 text-2xl font-black text-slate-900">{recommendation.title}</h2>
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700">{recommendation.text}</p>
           </div>
         </section>
 
@@ -290,10 +290,10 @@ export default function ProfitTracker() {
             ['Hourly income', formatCurrency(numbers.effectiveHourlyIncome), `Target: ${formatCurrency(state.targetHourlyIncome)}`],
             ['Minimum next price', formatCurrency(numbers.minimumPriceForTarget), 'Price needed to hit target income']
           ].map(([label, value, detail]) => (
-            <article key={label} className="rounded-[1.5rem] border border-white/8 bg-white/[0.04] p-5 shadow-xl shadow-black/10 transition hover:-translate-y-1 hover:border-white/15">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{label}</p>
-              <p className="mt-3 text-3xl font-black tracking-tight text-white">{value}</p>
-              <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{detail}</p>
+            <article key={label} className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 shadow-xl shadow-black/10 transition hover:-translate-y-1 hover:border-slate-200">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">{label}</p>
+              <p className="mt-3 text-3xl font-black tracking-tight text-slate-900">{value}</p>
+              <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{detail}</p>
             </article>
           ))}
         </section>
@@ -303,9 +303,9 @@ export default function ProfitTracker() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
             <div>
               <span className="violet-pill mb-2 inline-flex text-[10px]">Visual Breakdown</span>
-              <h2 className="text-xl font-black text-white sm:text-2xl">Financial Breakdown Chart</h2>
+              <h2 className="text-xl font-black text-slate-900 sm:text-2xl">Financial Breakdown Chart</h2>
             </div>
-            <div className="flex items-center gap-4 text-xs font-semibold text-zinc-400">
+            <div className="flex items-center gap-4 text-xs font-semibold text-slate-600">
               <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-emerald-400 inline-block" /> Revenue</span>
               <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-rose-400 inline-block" /> Total Costs</span>
               <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-violet-400 inline-block" /> Net Profit</span>
@@ -315,35 +315,35 @@ export default function ProfitTracker() {
           <div className="space-y-4">
             {/* Revenue Bar */}
             <div>
-              <div className="flex justify-between text-xs font-bold text-zinc-300 mb-1.5">
+              <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
                 <span>Client Revenue</span>
                 <span>{formatCurrency(numbers.revenue)} (100%)</span>
               </div>
-              <div className="h-5 w-full rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/10">
+              <div className="h-5 w-full rounded-full bg-slate-50 overflow-hidden p-0.5 border border-slate-200">
                 <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500" style={{ width: '100%' }} />
               </div>
             </div>
 
             {/* Total Costs Bar */}
             <div>
-              <div className="flex justify-between text-xs font-bold text-zinc-300 mb-1.5">
+              <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
                 <span>Total Costs (Collaborators + Tools + Fees + Expenses)</span>
                 <span>{formatCurrency(numbers.totalCosts)} ({numbers.revenue > 0 ? Math.round((numbers.totalCosts / numbers.revenue) * 100) : 0}%)</span>
               </div>
-              <div className="h-5 w-full rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/10">
+              <div className="h-5 w-full rounded-full bg-slate-50 overflow-hidden p-0.5 border border-slate-200">
                 <div className="h-full rounded-full bg-gradient-to-r from-rose-500 to-amber-500 transition-all duration-500" style={{ width: `${Math.min(100, numbers.revenue > 0 ? (numbers.totalCosts / numbers.revenue) * 100 : 0)}%` }} />
               </div>
             </div>
 
             {/* Net Profit Bar */}
             <div>
-              <div className="flex justify-between text-xs font-bold text-zinc-300 mb-1.5">
+              <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
                 <span>Net Take-Home Profit</span>
-                <span className={numbers.netProfit >= 0 ? 'text-violet-300 font-extrabold' : 'text-rose-400 font-extrabold'}>
+                <span className={numbers.netProfit >= 0 ? 'text-violet-700 font-extrabold' : 'text-rose-400 font-extrabold'}>
                   {formatCurrency(numbers.netProfit)} ({numbers.margin}%)
                 </span>
               </div>
-              <div className="h-5 w-full rounded-full bg-white/[0.06] overflow-hidden p-0.5 border border-white/10">
+              <div className="h-5 w-full rounded-full bg-slate-50 overflow-hidden p-0.5 border border-slate-200">
                 <div className={`h-full rounded-full transition-all duration-500 ${numbers.netProfit >= 0 ? 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-400' : 'bg-rose-500'}`} style={{ width: `${Math.max(0, Math.min(100, numbers.revenue > 0 ? (numbers.netProfit / numbers.revenue) * 100 : 0))}%` }} />
               </div>
             </div>
@@ -351,18 +351,18 @@ export default function ProfitTracker() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
-          <div className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-7">
+          <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 shadow-2xl shadow-black/20 sm:p-7">
             {/* ─── Real Workspace Invoice Synchronizer ─── */}
             <div className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/30 p-4 sm:p-5 shadow-inner">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2.5">
                 <div className="flex items-center gap-2">
                   <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs font-black uppercase tracking-wider text-emerald-300">
+                  <span className="text-xs font-black uppercase tracking-wider text-emerald-700">
                     Sync from Live Invoices
                   </span>
                 </div>
                 {selectedInvoiceId && (
-                  <span className="text-[11px] font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
                     ✓ Live Invoice Linked
                   </span>
                 )}
@@ -376,7 +376,7 @@ export default function ProfitTracker() {
                     handleSelectInvoice(inv);
                   }}
                   disabled={loadingInvoices}
-                  className="w-full rounded-xl border border-white/10 bg-black/50 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-white outline-none transition focus:border-emerald-400"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 outline-none transition focus:border-emerald-400"
                 >
                   <option value="">
                     {loadingInvoices
@@ -401,7 +401,7 @@ export default function ProfitTracker() {
                 </button>
               </div>
 
-              <p className="mt-2 text-[11px] text-zinc-400">
+              <p className="mt-2 text-[11px] text-slate-600">
                 {selectedInvoiceId
                   ? 'Billed amount & client details imported. Adjust delivery hours and collaborator expenses below to calculate true net income.'
                   : 'Select any real invoice above to automatically import its amount, or customize project values manually below.'}
@@ -410,13 +410,13 @@ export default function ProfitTracker() {
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Project numbers</p>
-                <h2 className="mt-2 text-2xl font-black text-white">Project Financials</h2>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Project numbers</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-900">Project Financials</h2>
               </div>
               <button
                 type="button"
                 onClick={resetExample}
-                className="rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition hover:bg-white/10"
+                className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700 transition hover:bg-slate-100"
               >
                 Reset to default
               </button>
@@ -424,11 +424,11 @@ export default function ProfitTracker() {
 
             <div className="mt-6 grid gap-4">
               <label className="grid gap-2">
-                <span className="text-xs font-black uppercase tracking-widest text-zinc-500">Project / Client name</span>
+                <span className="text-xs font-black uppercase tracking-widest text-slate-600">Project / Client name</span>
                 <input
                   value={state.projectName}
                   onChange={(event) => updateField('projectName', event.target.value)}
-                  className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-semibold text-white outline-none transition focus:border-yellow-300/50"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-yellow-300/50"
                 />
               </label>
 
@@ -443,13 +443,13 @@ export default function ProfitTracker() {
                   ['otherExpenses', 'Other expenses', 'number']
                 ].map(([field, label, type]) => (
                   <label key={field} className="grid gap-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-zinc-500">{label}</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-600">{label}</span>
                     <input
                       type={type}
                       min="0"
                       value={state[field]}
                       onChange={(event) => updateField(field, event.target.value)}
-                      className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-semibold text-white outline-none transition focus:border-yellow-300/50"
+                      className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-yellow-300/50"
                     />
                   </label>
                 ))}
@@ -457,19 +457,19 @@ export default function ProfitTracker() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/8 bg-white/[0.03] p-5 shadow-2xl shadow-black/20 sm:p-7">
+          <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 shadow-2xl shadow-black/20 sm:p-7">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">AI and software spend</p>
-                <h2 className="mt-2 text-2xl font-black text-white">Allocate tool costs to this project</h2>
-                <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-500">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">AI and software spend</p>
+                <h2 className="mt-2 text-2xl font-black text-slate-900">Allocate tool costs to this project</h2>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600">
                   Add the tools you paid for and estimate how much of each tool was used for this project.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={addTool}
-                className="rounded-xl border border-sky-300/20 bg-sky-300/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-sky-100 transition hover:bg-sky-300/15"
+                className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-sky-700 transition hover:bg-sky-50"
               >
                 Add tool
               </button>
@@ -480,47 +480,47 @@ export default function ProfitTracker() {
                 const allocated = (toNumber(tool.monthlyCost) * Math.min(100, Math.max(0, toNumber(tool.allocation)))) / 100;
 
                 return (
-                  <article key={tool.id} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                  <article key={tool.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_120px_110px_auto] lg:items-end">
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Tool</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Tool</span>
                         <input
                           value={tool.name}
                           onChange={(event) => updateTool(tool.id, 'name', event.target.value)}
-                          className="min-w-0 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm font-semibold text-white outline-none transition focus:border-sky-300/50"
+                          className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-300/50"
                         />
                       </label>
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Monthly Rs</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Monthly Rs</span>
                         <input
                           type="number"
                           min="0"
                           value={tool.monthlyCost}
                           onChange={(event) => updateTool(tool.id, 'monthlyCost', event.target.value)}
-                          className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm font-semibold text-white outline-none transition focus:border-sky-300/50"
+                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-300/50"
                         />
                       </label>
                       <label className="grid gap-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Used %</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Used %</span>
                         <input
                           type="number"
                           min="0"
                           max="100"
                           value={tool.allocation}
                           onChange={(event) => updateTool(tool.id, 'allocation', event.target.value)}
-                          className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm font-semibold text-white outline-none transition focus:border-sky-300/50"
+                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-300/50"
                         />
                       </label>
                       <button
                         type="button"
                         onClick={() => removeTool(tool.id)}
-                        className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-zinc-400 transition hover:border-red-300/30 hover:bg-red-300/10 hover:text-red-100"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-red-100"
                       >
                         Remove
                       </button>
                     </div>
-                    <p className="mt-3 text-xs font-semibold text-zinc-500">
-                      Allocated to this project: <span className="font-black text-white">{formatCurrency(allocated)}</span>
+                    <p className="mt-3 text-xs font-semibold text-slate-600">
+                      Allocated to this project: <span className="font-black text-slate-900">{formatCurrency(allocated)}</span>
                     </p>
                   </article>
                 );
@@ -530,7 +530,7 @@ export default function ProfitTracker() {
         </section>
 
         <section className="mt-10 grid gap-6 lg:grid-cols-3">
-          <article className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 lg:col-span-2">
+          <article className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 lg:col-span-2">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-purple-300">Cost breakdown</p>
             <div className="mt-5 grid gap-3">
               {[
@@ -540,18 +540,18 @@ export default function ProfitTracker() {
                 ['Other expenses', state.otherExpenses],
                 ['Total project cost', numbers.totalCosts]
               ].map(([label, value]) => (
-                <div key={label} className="flex flex-col gap-1 rounded-2xl border border-white/8 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-sm font-bold text-zinc-300">{label}</span>
-                  <span className="text-lg font-black text-white">{formatCurrency(value)}</span>
+                <div key={label} className="flex flex-col gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-sm font-bold text-slate-700">{label}</span>
+                  <span className="text-lg font-black text-slate-900">{formatCurrency(value)}</span>
                 </div>
               ))}
             </div>
           </article>
 
-          <article className="rounded-[1.5rem] border border-yellow-300/20 bg-yellow-300/[0.06] p-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">What this solves</p>
-            <h2 className="mt-3 text-2xl font-black text-white">Freelancers stop guessing profit.</h2>
-            <ul className="mt-5 space-y-3 text-sm font-semibold leading-relaxed text-zinc-300">
+          <article className="rounded-[1.5rem] border border-amber-200 bg-yellow-300/[0.06] p-5">
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">What this solves</p>
+            <h2 className="mt-3 text-2xl font-black text-slate-900">Freelancers stop guessing profit.</h2>
+            <ul className="mt-5 space-y-3 text-sm font-semibold leading-relaxed text-slate-700">
               <li>Shows if the price is too low before repeating the same mistake.</li>
               <li>Connects AI tool cost to actual project profit.</li>
               <li>Protects freelancers from working many hours for weak income.</li>

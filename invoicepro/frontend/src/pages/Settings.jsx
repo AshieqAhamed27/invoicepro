@@ -371,10 +371,10 @@ export default function Settings() {
              <span className="h-px w-8 bg-yellow-400" />
              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400">Business Profile</p>
           </div>
-          <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-white mb-4">
+          <h1 className="text-4xl font-black sm:text-5xl tracking-tight text-slate-900 mb-4">
             Settings
           </h1>
-          <p className="max-w-2xl text-base sm:text-lg text-zinc-500 font-medium leading-relaxed">
+          <p className="max-w-2xl text-base sm:text-lg text-slate-600 font-medium leading-relaxed">
             Manage your company identity, payment collection, branding, automation rules, and product readiness from one place.
           </p>
         </div>
@@ -386,15 +386,15 @@ export default function Settings() {
             { label: 'Branding', value: safeLogoPreviewUrl ? 'Logo Ready' : 'Use Logo', tone: 'sky' },
             { label: 'Automation', value: 'AI Enabled', tone: 'purple' }
           ].map((item) => (
-            <div key={item.label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
+            <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <p className={`text-[10px] font-black uppercase tracking-widest ${
-                item.tone === 'emerald' ? 'text-emerald-300' :
-                  item.tone === 'sky' ? 'text-sky-300' :
-                    item.tone === 'purple' ? 'text-purple-300' : 'text-yellow-300'
+                item.tone === 'emerald' ? 'text-emerald-700' :
+                  item.tone === 'sky' ? 'text-sky-700' :
+                    item.tone === 'purple' ? 'text-purple-300' : 'text-amber-700'
               }`}>
                 {item.label}
               </p>
-              <p className="mt-2 text-xl font-black text-white">{item.value}</p>
+              <p className="mt-2 text-xl font-black text-slate-900">{item.value}</p>
             </div>
           ))}
         </section>
@@ -406,8 +406,8 @@ export default function Settings() {
           <div className="reveal reveal-delay-1 space-y-8">
             <section id="business-profile" className="premium-panel p-5 sm:p-8 relative overflow-hidden group scroll-mt-28">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Business Details</h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Your public invoicing identity</p>
+                <h2 className="text-2xl font-black text-slate-900 leading-none mb-1">Business Details</h2>
+                <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Your public invoicing identity</p>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
@@ -487,27 +487,27 @@ export default function Settings() {
             </section>
 
             <section id="payment-setup" className="premium-panel p-5 sm:p-8 scroll-mt-28 space-y-8">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/5 pb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-6">
                 <div>
-                  <h2 className="text-2xl font-black text-white leading-none mb-1">Payment & Payout Details</h2>
-                  <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Where domestic and international clients send money</p>
+                  <h2 className="text-2xl font-black text-slate-900 leading-none mb-1">Payment & Payout Details</h2>
+                  <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Where domestic and international clients send money</p>
                 </div>
-                <span className="self-start sm:self-auto px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                <span className="self-start sm:self-auto px-3 py-1 rounded-full bg-emerald-50 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
                   Direct Payouts (Zero Escrow)
                 </span>
               </div>
 
               {/* Zero Escrow Guarantee Banner */}
-              <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold text-base">
+              <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-500/20 flex items-start gap-3.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-400 flex items-center justify-center shrink-0 font-bold text-base">
                   ✓
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-emerald-300 mb-1">
+                  <h4 className="text-sm font-bold text-emerald-700 mb-1">
                     100% Direct to Your Bank — We Never Touch Your Client Money
                   </h4>
-                  <p className="text-xs text-zinc-300 leading-relaxed">
-                    ClientFlow AI does not hold, escrow, or deduct commission from your client invoices. When your clients pay via UPI QR, Wise, or Bank Transfer, <strong className="text-white">100% of the funds deposit directly into your personal bank account</strong> with 0% platform fee. ClientFlow AI only makes money when you subscribe to a software Pro plan.
+                  <p className="text-xs text-slate-700 leading-relaxed">
+                    ClientFlow AI does not hold, escrow, or deduct commission from your client invoices. When your clients pay via UPI QR, Wise, or Bank Transfer, <strong className="text-slate-900">100% of the funds deposit directly into your personal bank account</strong> with 0% platform fee. ClientFlow AI only makes money when you subscribe to a software Pro plan.
                   </p>
                 </div>
               </div>
@@ -675,7 +675,7 @@ export default function Settings() {
                   className="w-full rounded-xl bg-white border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/20 transition"
                 />
                 {logoInvalid && (
-                  <div className="mt-3 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-xs font-bold text-red-600 max-w-md">
+                  <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-bold text-red-600 max-w-md">
                     Logo URL looks unsafe for production. Use `/logo.svg` or a public `https://` image URL.
                   </div>
                 )}
@@ -688,8 +688,8 @@ export default function Settings() {
 
             <section id="product-settings" className="premium-panel p-5 sm:p-8 scroll-mt-28">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Product Settings</h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Control the main business modules</p>
+                <h2 className="text-2xl font-black text-slate-900 leading-none mb-1">Product Settings</h2>
+                <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Control the main business modules</p>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
@@ -697,24 +697,24 @@ export default function Settings() {
                   <Link
                     key={setting.title}
                     to={setting.to}
-                    className="group rounded-2xl border border-white/8 bg-black/20 p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/30 hover:bg-white/[0.04]"
+                    className="group rounded-2xl border border-slate-200 bg-slate-50 p-5 transition-all hover:-translate-y-1 hover:border-amber-200 hover:bg-slate-50"
                   >
                     <div className="mb-4 flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{setting.label}</p>
-                        <h3 className="mt-2 text-lg font-black text-white">{setting.title}</h3>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{setting.label}</p>
+                        <h3 className="mt-2 text-lg font-black text-slate-900">{setting.title}</h3>
                       </div>
                       <span className={`rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
                         setting.requiresPro && !isPro
-                          ? 'border-yellow-400/20 bg-yellow-400/10 text-yellow-300'
-                          : 'border-emerald-400/15 bg-emerald-400/10 text-emerald-300'
+                          ? 'border-amber-200 bg-amber-50 text-amber-700'
+                          : 'border-emerald-200 bg-emerald-50 text-emerald-700'
                       }`}>
                         {setting.requiresPro && !isPro ? 'Locked' : setting.status}
                       </span>
                     </div>
-                    <p className="text-sm font-medium leading-relaxed text-zinc-500">{setting.detail}</p>
+                    <p className="text-sm font-medium leading-relaxed text-slate-600">{setting.detail}</p>
                     {setting.requiresPro && !isPro && (
-                      <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-yellow-300">
+                      <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-amber-700">
                         Unlock after Pro payment
                       </p>
                     )}
@@ -726,8 +726,8 @@ export default function Settings() {
             {/* ─── AI ASSISTANT & PREFERENCES ─── */}
             <section id="assistant-settings" className="premium-panel p-5 sm:p-8 scroll-mt-28">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">AI Assistant & Co-Pilot</h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Customize your voice and system controller</p>
+                <h2 className="text-2xl font-black text-slate-900 leading-none mb-1">AI Assistant & Co-Pilot</h2>
+                <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Customize your voice and system controller</p>
               </div>
 
               <div className="space-y-6">
@@ -744,7 +744,7 @@ export default function Settings() {
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition border ${
                           form.agentName === preset
                             ? 'bg-blue-600 border-blue-400 text-white'
-                            : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/20'
+                            : 'border-slate-200 bg-slate-100 text-slate-700 hover:border-slate-200'
                         }`}
                       >
                         {preset}
@@ -757,20 +757,20 @@ export default function Settings() {
                     value={form.agentName}
                     onChange={handleChange}
                     placeholder="Or enter a custom name..."
-                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-yellow-400 focus:outline-none"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-zinc-600 focus:border-yellow-400 focus:outline-none"
                   />
-                  <p className="mt-1.5 text-xs text-zinc-500">The assistant will introduce itself and respond to this name.</p>
+                  <p className="mt-1.5 text-xs text-slate-600">The assistant will introduce itself and respond to this name.</p>
                 </div>
 
-                <div className="flex items-center gap-3 rounded-2xl border border-white/5 bg-black/20 p-4">
+                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <input
                     type="checkbox"
                     id="voiceEnabled"
                     checked={form.voiceEnabled}
                     onChange={(e) => setForm((p) => ({ ...p, voiceEnabled: e.target.checked }))}
-                    className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-yellow-400 focus:ring-yellow-400"
+                    className="h-4 w-4 rounded border-slate-300 bg-white text-indigo-600 focus:ring-indigo-500"
                   />
-                  <label htmlFor="voiceEnabled" className="text-sm font-semibold text-white cursor-pointer">
+                  <label htmlFor="voiceEnabled" className="text-sm font-semibold text-slate-900 cursor-pointer">
                     Enable spoken voice replies (Assistant speaks answers aloud when you talk)
                   </label>
                 </div>
@@ -778,14 +778,14 @@ export default function Settings() {
                 {/* Voice Selection with Live Audio Preview */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-bold text-slate-800 dark:text-zinc-400 uppercase tracking-wider block">
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
                       Assistant Voice Accent & Persona
                     </label>
                     {form.voiceName && (
                       <button
                         type="button"
                         onClick={() => handleTestVoice(form.voiceName)}
-                        className="text-xs font-bold text-yellow-400 hover:text-yellow-300 transition flex items-center gap-1"
+                        className="text-xs font-bold text-amber-700 hover:text-amber-800 transition flex items-center gap-1"
                       >
                         <span>🔊</span>
                         <span>Test Voice</span>
@@ -800,19 +800,19 @@ export default function Settings() {
                       setForm((p) => ({ ...p, voiceName: v }));
                       if (v) handleTestVoice(v);
                     }}
-                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white focus:border-yellow-400 focus:outline-none"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none"
                   >
-                    <option value="" className="bg-slate-900 text-white">Default Assistant Voice (JARVIS British / System)</option>
+                    <option value="" className="bg-white text-slate-900">Default Assistant Voice (JARVIS British / System)</option>
                     {systemVoices
                       .filter((v) => v.lang.startsWith('en'))
                       .concat(systemVoices.filter((v) => !v.lang.startsWith('en')).slice(0, 5))
                       .map((voice) => (
-                        <option key={voice.voiceURI || voice.name} value={voice.voiceURI || voice.name} className="bg-slate-900 text-white">
+                        <option key={voice.voiceURI || voice.name} value={voice.voiceURI || voice.name} className="bg-white text-slate-900">
                           {voice.name} ({voice.lang})
                         </option>
                       ))}
                   </select>
-                  <p className="mt-1.5 text-xs text-zinc-500">
+                  <p className="mt-1.5 text-xs text-slate-600">
                     Choose from British (JARVIS), US (Claude), or any system voice installed in your browser.
                   </p>
                 </div>
@@ -828,7 +828,7 @@ export default function Settings() {
                       value={form.monthlyGoal || ''}
                       onChange={handleChange}
                       placeholder="e.g. 100000"
-                      className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-yellow-400 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-zinc-600 focus:border-yellow-400 focus:outline-none"
                     />
                   </div>
 
@@ -841,7 +841,7 @@ export default function Settings() {
                         name="birthMonth"
                         value={form.birthMonth || ''}
                         onChange={handleChange}
-                        className="rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white focus:border-yellow-400 focus:outline-none"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-900 focus:border-yellow-400 focus:outline-none"
                       >
                         <option value="">Month</option>
                         {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m, i) => (
@@ -852,7 +852,7 @@ export default function Settings() {
                         name="birthDay"
                         value={form.birthDay || ''}
                         onChange={handleChange}
-                        className="rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white focus:border-yellow-400 focus:outline-none"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-900 focus:border-yellow-400 focus:outline-none"
                       >
                         <option value="">Day</option>
                         {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
@@ -867,19 +867,19 @@ export default function Settings() {
 
             <section id="automation-settings" className="premium-panel p-5 sm:p-8 scroll-mt-28">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Automation Settings</h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">What ClientFlow AI handles for the user</p>
+                <h2 className="text-2xl font-black text-slate-900 leading-none mb-1">Automation Settings</h2>
+                <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">What ClientFlow AI handles for the user</p>
               </div>
 
-              <div className="mb-5 rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.06] p-5">
+              <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-300/[0.06] p-5">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300">Device Reminder Automation</p>
-                    <h3 className="mt-2 text-xl font-black text-white">Notify users when action is needed.</h3>
+                    <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-700">Device Reminder Automation</p>
+                    <h3 className="mt-2 text-xl font-black text-slate-900">Notify users when action is needed.</h3>
                     <p className="mt-2 text-sm font-semibold leading-relaxed text-emerald-50/70">
                       Sends browser/device alerts for unpaid invoices, lead follow-ups, proposal follow-ups, accepted proposals, project tasks, and plan expiry. It checks quietly while the app is open and avoids repeat spam.
                     </p>
-                    <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-emerald-100/50">
+                    <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-emerald-700/50">
                       Status: {deviceRemindersEnabled ? 'Enabled on this device' : notificationState === 'denied' ? 'Blocked by browser' : 'Not enabled'}
                     </p>
                   </div>
@@ -896,7 +896,7 @@ export default function Settings() {
                       type="button"
                       onClick={disableDeviceReminders}
                       disabled={!deviceRemindersEnabled}
-                      className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-xs font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Disable
                     </button>
@@ -904,17 +904,17 @@ export default function Settings() {
                 </div>
               </div>
 
-              <div className="divide-y divide-white/5 rounded-2xl border border-white/8 bg-black/20">
+              <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-slate-50">
                 {automationSettings.map((setting) => (
                   <div key={setting.title} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
-                      <h3 className="text-base font-black text-white">{setting.title}</h3>
-                      <p className="mt-1 text-sm font-medium leading-relaxed text-zinc-500">{setting.detail}</p>
+                      <h3 className="text-base font-black text-slate-900">{setting.title}</h3>
+                      <p className="mt-1 text-sm font-medium leading-relaxed text-slate-600">{setting.detail}</p>
                     </div>
                     <span className={`shrink-0 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
                       setting.state === 'Paused'
-                        ? 'border-yellow-400/20 bg-yellow-400/10 text-yellow-300'
-                        : 'border-emerald-400/15 bg-emerald-400/10 text-emerald-300'
+                        ? 'border-amber-200 bg-amber-50 text-amber-700'
+                        : 'border-emerald-200 bg-emerald-50 text-emerald-700'
                     }`}>
                       {setting.state}
                     </span>
@@ -925,8 +925,8 @@ export default function Settings() {
 
             <section id="security-settings" className="premium-panel p-5 sm:p-8 scroll-mt-28">
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">Security & Account</h2>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Production safety settings</p>
+                <h2 className="text-2xl font-black text-slate-900 leading-none mb-1">Security & Account</h2>
+                <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">Production safety settings</p>
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
@@ -935,9 +935,9 @@ export default function Settings() {
                   { title: 'Safe Logo URLs', detail: 'Only local logo files or public https images are accepted.' },
                   { title: 'Payment Verification', detail: 'Paid status should come from verified payment flow, not manual guessing.' }
                 ].map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-white/8 bg-black/20 p-5">
-                    <p className="text-sm font-black text-white">{item.title}</p>
-                    <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-500">{item.detail}</p>
+                  <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-sm font-black text-slate-900">{item.title}</p>
+                    <p className="mt-2 text-xs font-medium leading-relaxed text-slate-600">{item.detail}</p>
                   </div>
                 ))}
               </div>
@@ -946,13 +946,13 @@ export default function Settings() {
 
           <aside className="reveal reveal-delay-2 h-fit space-y-6">
             <div className="premium-panel p-5">
-              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Settings Menu</p>
+              <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Settings Menu</p>
               <div className="grid gap-2">
                 {settingsNav.map((item) => (
                   <a
                     key={item.href}
                     href={item.href}
-                    className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-xs font-black uppercase tracking-widest text-zinc-400 transition-all hover:border-yellow-300/25 hover:bg-yellow-300/10 hover:text-yellow-200"
+                    className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-600 transition-all hover:border-amber-200 hover:bg-amber-50 hover:text-yellow-200"
                   >
                     {item.label}
                   </a>
@@ -961,13 +961,13 @@ export default function Settings() {
             </div>
 
             <div className="premium-panel p-5 sm:p-8 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-8 opacity-5 text-white pointer-events-none group-hover:opacity-10 transition-opacity">
+              <div className="absolute top-0 right-0 p-8 opacity-5 text-slate-900 pointer-events-none group-hover:opacity-10 transition-opacity">
                  <svg className="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2z" /></svg>
               </div>
               
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-8 border-b border-white/5 pb-4">Live Preview Card</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-600 mb-8 border-b border-slate-200 pb-4">Live Preview Card</p>
 
-              <div className="mb-8 flex h-40 items-center justify-center rounded-[2rem] border border-white/5 bg-black/40 overflow-hidden shadow-inner group/logo">
+              <div className="mb-8 flex h-40 items-center justify-center rounded-[2rem] border border-slate-200 bg-slate-50 overflow-hidden shadow-inner group/logo">
                 {safeLogoPreviewUrl ? (
                   <img
                     src={safeLogoPreviewUrl}
@@ -976,36 +976,36 @@ export default function Settings() {
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-3">
-                     <div className="h-12 w-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
-                        <svg className="h-6 w-6 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                     <div className="h-12 w-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
+                        <svg className="h-6 w-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                      </div>
-                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-700">Awaiting Asset</span>
+                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Awaiting Asset</span>
                   </div>
                 )}
               </div>
 
               <div className="mb-10 space-y-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Company</p>
-                  <p className="text-lg font-black text-white truncate">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Company</p>
+                  <p className="text-lg font-black text-slate-900 truncate">
                     {form.companyName || 'Apex Design Studio'}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                    <div>
-                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Tax ID</p>
-                     <p className="text-xs font-bold text-white truncate">{form.gstNumber || '---'}</p>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Tax ID</p>
+                     <p className="text-xs font-bold text-slate-900 truncate">{form.gstNumber || '---'}</p>
                    </div>
                    <div>
-                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">UPI Route</p>
-                     <p className="text-xs font-bold text-yellow-300 truncate">{form.upiId || '---'}</p>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">UPI Route</p>
+                     <p className="text-xs font-bold text-amber-700 truncate">{form.upiId || '---'}</p>
                    </div>
                    <div>
-                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Bank A/C</p>
-                     <p className="text-xs font-bold text-white truncate">{form.accountNumber ? `•••• ${form.accountNumber.slice(-4)}` : '---'}</p>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Bank A/C</p>
+                     <p className="text-xs font-bold text-slate-900 truncate">{form.accountNumber ? `•••• ${form.accountNumber.slice(-4)}` : '---'}</p>
                    </div>
                    <div>
-                     <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Intl Wire</p>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Intl Wire</p>
                      <p className="text-xs font-bold text-emerald-400 truncate">{form.swiftCode || (form.internationalPaymentLink ? 'Link Ready' : '---')}</p>
                    </div>
                 </div>
@@ -1020,14 +1020,14 @@ export default function Settings() {
               </button>
             </div>
             
-            <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.01]">
-               <p className="text-xs font-medium text-zinc-500 leading-relaxed italic">
+            <div className="p-6 rounded-2xl border border-slate-200 bg-slate-50">
+               <p className="text-xs font-medium text-slate-600 leading-relaxed italic">
                  Changes made here will apply to future invoices. Existing invoices keep the business details they were created with.
                </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-white/5 bg-white/[0.01]">
-               <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-zinc-600">Email Diagnostics</p>
+            <div className="p-6 rounded-2xl border border-slate-200 bg-slate-50">
+               <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Email Diagnostics</p>
                <button
                  type="button"
                  onClick={sendTestEmail}
@@ -1036,7 +1036,7 @@ export default function Settings() {
                >
                  {testingEmail ? 'Testing Email...' : 'Send Test Email'}
                </button>
-               <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">
+               <p className="mt-3 text-xs font-medium leading-relaxed text-slate-600">
                  Sends a test email to your login email using the same backend settings as invoice reminders.
                </p>
             </div>

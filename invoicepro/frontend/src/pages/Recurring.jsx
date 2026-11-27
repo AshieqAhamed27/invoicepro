@@ -76,29 +76,29 @@ export default function Recurring() {
   };
 
   return (
-    <div className="premium-page min-h-screen text-white">
+    <div className="premium-page min-h-screen text-slate-900">
       <Navbar />
 
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="min-w-0">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-5">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Automation Layer</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 mb-5">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600">Automation Layer</span>
             </div>
-            <h1 className="text-4xl font-bold sm:text-5xl lg:text-6xl tracking-tight text-white leading-none">
+            <h1 className="text-4xl font-bold sm:text-5xl lg:text-6xl tracking-tight text-slate-900 leading-none">
               Recurring Invoices
             </h1>
-            <p className="mt-4 text-base sm:text-xl text-zinc-500 font-medium max-w-2xl">
+            <p className="mt-4 text-base sm:text-xl text-slate-600 font-medium max-w-2xl">
               Bill retainers automatically. Each cycle creates a fresh invoice link for your client to pay.
             </p>
           </div>
         </section>
 
         <section className="reveal reveal-delay-1 premium-panel overflow-hidden">
-          <div className="px-5 py-6 sm:px-8 lg:px-10 lg:py-8 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="px-5 py-6 sm:px-8 lg:px-10 lg:py-8 border-b border-slate-200 bg-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-white">Schedules</h2>
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1">
+              <h2 className="text-2xl font-bold text-slate-900">Schedules</h2>
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-1">
                 Automated retainers & recurring invoice cycles
               </p>
             </div>
@@ -115,18 +115,18 @@ export default function Recurring() {
             {loading ? (
               <div className="p-5 sm:p-10 space-y-6">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 w-full bg-white/5 rounded-2xl animate-pulse" />
+                  <div key={i} className="h-16 w-full bg-slate-100 rounded-2xl animate-pulse" />
                 ))}
               </div>
             ) : schedules.length === 0 ? (
-              <div className="m-5 rounded-[2rem] border-2 border-dashed border-white/5 p-8 text-center sm:m-10 sm:p-16">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">No recurring schedules yet</p>
-                <p className="text-[10px] font-medium mt-2 text-zinc-600">
+              <div className="m-5 rounded-[2rem] border-2 border-dashed border-slate-200 p-8 text-center sm:m-10 sm:p-16">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-600">No recurring schedules yet</p>
+                <p className="text-[10px] font-medium mt-2 text-slate-500">
                   Bill retainers automatically on a weekly, monthly, or yearly schedule.
                 </p>
                 <Link
                   to="/create-invoice?recurring=true"
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-2 transition"
+                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-100 hover:bg-white/20 text-slate-900 font-bold text-xs px-4 py-2 transition"
                 >
                   + Create Your First Schedule
                 </Link>
@@ -134,7 +134,7 @@ export default function Recurring() {
             ) : (
               <table className="premium-table w-full text-left min-w-[900px]">
                 <thead>
-                  <tr className="text-[10px] font-black uppercase tracking-widest text-zinc-700 bg-white/[0.005]">
+                  <tr className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50">
                     <th className="px-10 py-5">Client</th>
                     <th className="px-10 py-5">Amount</th>
                     <th className="px-10 py-5">Frequency</th>
@@ -143,28 +143,28 @@ export default function Recurring() {
                     <th className="px-10 py-5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-slate-200">
                   {schedules.map((schedule) => (
-                    <tr key={schedule._id} className="group hover:bg-white/[0.02] transition-colors">
+                    <tr key={schedule._id} className="group hover:bg-slate-50 transition-colors">
                       <td className="px-10 py-6">
-                        <p className="font-black text-white text-base leading-none mb-2">{schedule.template?.clientName}</p>
-                        <p className="text-[10px] font-bold text-zinc-700 uppercase tracking-[0.1em]">
+                        <p className="font-black text-slate-900 text-base leading-none mb-2">{schedule.template?.clientName}</p>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.1em]">
                           {schedule.template?.clientEmail}
                         </p>
                       </td>
 
                       <td className="px-10 py-6">
-                        <p className="text-lg font-black text-white tracking-tight">
+                        <p className="text-lg font-black text-slate-900 tracking-tight">
                           {formatMoney(schedule.template?.amount, schedule.template?.currency)}
                         </p>
                       </td>
 
                       <td className="px-10 py-6">
-                        <p className="text-sm font-bold text-zinc-400">{frequencyLabel(schedule)}</p>
+                        <p className="text-sm font-bold text-slate-600">{frequencyLabel(schedule)}</p>
                       </td>
 
                       <td className="px-10 py-6">
-                        <p className="text-sm font-bold text-zinc-400">{formatDate(schedule.nextRunAt)}</p>
+                        <p className="text-sm font-bold text-slate-600">{formatDate(schedule.nextRunAt)}</p>
                       </td>
 
                       <td className="px-10 py-6">

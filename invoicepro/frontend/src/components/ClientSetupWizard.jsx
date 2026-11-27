@@ -101,22 +101,22 @@ export default function ClientSetupWizard({
   };
 
   return (
-    <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-sky-300/20 bg-sky-300/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
+    <section className="reveal reveal-delay-1 mb-12 rounded-[2rem] border border-sky-200 bg-sky-300/[0.045] p-5 shadow-2xl shadow-black/20 sm:p-8 lg:p-10">
       <div className="mb-8 grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(260px,0.35fr)] lg:items-end">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-300">First-time setup wizard</p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-sky-700">First-time setup wizard</p>
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
             Turn a new account into a working business flow.
           </h2>
-          <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
             Save the user&apos;s business type, offer, target client, payment method, and default workflow so ClientFlow AI can open the right next step without confusion.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Workspace readiness</p>
-          <p className="mt-2 text-5xl font-black text-white">{readiness}%</p>
-          <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">
+        <div className="rounded-2xl border border-slate-200 bg-black/25 p-5">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Workspace readiness</p>
+          <p className="mt-2 text-5xl font-black text-slate-900">{readiness}%</p>
+          <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">
             {saved ? 'Setup profile saved.' : 'Save setup to personalize the dashboard.'}
           </p>
         </div>
@@ -205,7 +205,7 @@ export default function ClientSetupWizard({
           <button
             type="button"
             onClick={onOpenAutopilot}
-            className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.08] active:scale-95"
+            className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-xs font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-50 active:scale-95"
           >
             Open Autopilot
           </button>
@@ -218,9 +218,9 @@ export default function ClientSetupWizard({
           ['Market', `${setup.targetClient} with ${setup.paymentMethod}`],
           ['Next path', setupOptions.workflow.find((item) => item.id === setup.workflow)?.label || 'Autopilot']
         ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-            <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">{label}</p>
-            <p className="mt-2 text-sm font-semibold leading-relaxed text-zinc-300">{value}</p>
+          <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-[10px] font-black uppercase tracking-widest text-sky-700">{label}</p>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-700">{value}</p>
           </div>
         ))}
       </div>

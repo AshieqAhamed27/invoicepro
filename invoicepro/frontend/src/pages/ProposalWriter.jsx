@@ -171,21 +171,21 @@ export default function ProposalWriter() {
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal responsive-heading-grid mb-10">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-sky-300/15 bg-sky-300/10 px-3 py-1">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1">
               <span className="h-2 w-2 rounded-full bg-sky-300" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-200">AI Proposal & RFP Writing Agent</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-700">AI Proposal & RFP Writing Agent</span>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               Write stronger proposals and RFP responses in minutes.
             </h1>
-            <p className="mt-5 max-w-3xl text-base font-medium leading-relaxed text-zinc-500 sm:text-lg">
+            <p className="mt-5 max-w-3xl text-base font-medium leading-relaxed text-slate-600 sm:text-lg">
               Turn client requirements into executive summary, scope, timeline, pricing, risks, questions, and a ready proposal draft for ClientFlow AI.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-white/8 bg-black/20 p-5">
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Best For</p>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Best For</p>
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
               Freelancers, agencies, consultants, developers, designers, marketers, and service businesses responding to client briefs or formal RFPs.
             </p>
           </div>
@@ -194,8 +194,8 @@ export default function ProposalWriter() {
         <section className="grid gap-8">
           <div className="reveal reveal-delay-1 premium-panel p-5 sm:p-8">
             <div className="mb-8">
-              <h2 className="text-2xl font-black text-white">Proposal Inputs</h2>
-              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">Use real client details for better output</p>
+              <h2 className="text-2xl font-black text-slate-900">Proposal Inputs</h2>
+              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-slate-500">Use real client details for better output</p>
             </div>
 
             <div className="grid gap-5">
@@ -349,7 +349,7 @@ export default function ProposalWriter() {
               </label>
 
               {error && (
-                <div className="rounded-2xl border border-red-400/15 bg-red-400/10 p-4 text-sm font-bold text-red-200">
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
                   {error}
                 </div>
               )}
@@ -368,9 +368,9 @@ export default function ProposalWriter() {
           <div className="reveal reveal-delay-2 space-y-8">
             {!proposal ? (
               <div className="premium-panel p-8 text-center sm:p-12">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">No Proposal Yet</p>
-                <h2 className="mt-3 text-3xl font-black text-white">Fill the inputs and generate a client-ready proposal.</h2>
-                <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">No Proposal Yet</p>
+                <h2 className="mt-3 text-3xl font-black text-slate-900">Fill the inputs and generate a client-ready proposal.</h2>
+                <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600">
                   The output will include proposal sections, RFP response structure, pricing, questions, follow-up text, and a ready proposal draft.
                 </p>
               </div>
@@ -379,9 +379,9 @@ export default function ProposalWriter() {
                 <section className="premium-panel p-5 sm:p-8">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">{proposal.proposalType}</p>
-                      <h2 className="mt-2 text-3xl font-black text-white">{proposal.title}</h2>
-                      <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-500">{proposal.executiveSummary}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-sky-700">{proposal.proposalType}</p>
+                      <h2 className="mt-2 text-3xl font-black text-slate-900">{proposal.title}</h2>
+                      <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">{proposal.executiveSummary}</p>
                     </div>
 
                     <div className="grid shrink-0 gap-3 sm:grid-cols-2 lg:w-64 lg:grid-cols-1">
@@ -395,7 +395,7 @@ export default function ProposalWriter() {
                       <button
                         type="button"
                         onClick={() => copyText('full-proposal', sectionText(proposal))}
-                        className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 text-xs font-black uppercase tracking-widest text-white hover:bg-white/10"
+                        className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-xs font-black uppercase tracking-widest text-slate-900 hover:bg-slate-100"
                       >
                         {copied === 'full-proposal' ? 'Copied' : 'Copy All'}
                       </button>
@@ -405,22 +405,22 @@ export default function ProposalWriter() {
 
                 <section className="grid gap-5 lg:grid-cols-2">
                   <article className="premium-panel p-5 sm:p-8">
-                    <h3 className="text-xl font-black text-white">Problem</h3>
-                    <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-500">{proposal.problemStatement}</p>
+                    <h3 className="text-xl font-black text-slate-900">Problem</h3>
+                    <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600">{proposal.problemStatement}</p>
                   </article>
                   <article className="premium-panel p-5 sm:p-8">
-                    <h3 className="text-xl font-black text-white">Solution</h3>
-                    <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-500">{proposal.proposedSolution}</p>
+                    <h3 className="text-xl font-black text-slate-900">Solution</h3>
+                    <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600">{proposal.proposedSolution}</p>
                   </article>
                 </section>
 
                 <section className="premium-panel p-5 sm:p-8">
-                  <h3 className="text-xl font-black text-white">Scope of Work</h3>
+                  <h3 className="text-xl font-black text-slate-900">Scope of Work</h3>
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">
                     {(proposal.scopeItems || []).map((item) => (
-                      <div key={item.title} className="rounded-2xl border border-white/8 bg-black/20 p-5">
-                        <p className="text-sm font-black text-white">{item.title}</p>
-                        <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">{item.detail}</p>
+                      <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                        <p className="text-sm font-black text-slate-900">{item.title}</p>
+                        <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{item.detail}</p>
                       </div>
                     ))}
                   </div>
@@ -428,14 +428,14 @@ export default function ProposalWriter() {
 
                 <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
                   <div className="premium-panel p-5 sm:p-8">
-                    <h3 className="text-xl font-black text-white">Timeline</h3>
-                    <div className="mt-5 divide-y divide-white/5 rounded-2xl border border-white/8 bg-black/20">
+                    <h3 className="text-xl font-black text-slate-900">Timeline</h3>
+                    <div className="mt-5 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-slate-50">
                       {(proposal.timeline || []).map((item) => (
                         <div key={`${item.phase}-${item.duration}`} className="grid gap-2 p-5 sm:grid-cols-[7rem_minmax(0,1fr)]">
                           <p className="text-[10px] font-black uppercase tracking-widest text-purple-300">{item.phase}</p>
                           <div>
-                            <p className="text-sm font-black text-white">{item.duration}</p>
-                            <p className="mt-1 text-sm font-medium leading-relaxed text-zinc-500">{item.work}</p>
+                            <p className="text-sm font-black text-slate-900">{item.duration}</p>
+                            <p className="mt-1 text-sm font-medium leading-relaxed text-slate-600">{item.work}</p>
                           </div>
                         </div>
                       ))}
@@ -443,19 +443,19 @@ export default function ProposalWriter() {
                   </div>
 
                   <div className="premium-panel p-5 sm:p-8">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Pricing</p>
-                    <p className="mt-3 text-4xl font-black text-white">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Pricing</p>
+                    <p className="mt-3 text-4xl font-black text-slate-900">
                       {formatMoney(proposal.pricing?.total, proposal.pricing?.currency)}
                     </p>
                     <div className="mt-5 grid gap-3">
                       {(proposal.pricing?.breakdown || []).map((item) => (
-                        <div key={item.label} className="flex items-center justify-between gap-4 rounded-xl border border-white/8 bg-black/20 px-4 py-3">
-                          <span className="text-xs font-bold text-zinc-400">{item.label}</span>
-                          <span className="text-sm font-black text-white">{formatMoney(item.amount, proposal.pricing?.currency)}</span>
+                        <div key={item.label} className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                          <span className="text-xs font-bold text-slate-600">{item.label}</span>
+                          <span className="text-sm font-black text-slate-900">{formatMoney(item.amount, proposal.pricing?.currency)}</span>
                         </div>
                       ))}
                     </div>
-                    <p className="mt-5 text-xs font-medium leading-relaxed text-zinc-500">{proposal.pricing?.paymentTerms}</p>
+                    <p className="mt-5 text-xs font-medium leading-relaxed text-slate-600">{proposal.pricing?.paymentTerms}</p>
                   </div>
                 </section>
 
@@ -466,10 +466,10 @@ export default function ProposalWriter() {
                     { title: 'Discovery Questions', items: proposal.discoveryQuestions || [] }
                   ].map((group) => (
                     <article key={group.title} className="premium-panel p-5 sm:p-8">
-                      <h3 className="text-lg font-black text-white">{group.title}</h3>
+                      <h3 className="text-lg font-black text-slate-900">{group.title}</h3>
                       <div className="mt-5 grid gap-3">
                         {group.items.map((item) => (
-                          <div key={item} className="rounded-xl border border-white/8 bg-black/20 p-4 text-sm font-medium leading-relaxed text-zinc-500">
+                          <div key={item} className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium leading-relaxed text-slate-600">
                             {item}
                           </div>
                         ))}
@@ -479,12 +479,12 @@ export default function ProposalWriter() {
                 </section>
 
                 <section className="premium-panel p-5 sm:p-8">
-                  <h3 className="text-xl font-black text-white">Risks and Mitigation</h3>
+                  <h3 className="text-xl font-black text-slate-900">Risks and Mitigation</h3>
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">
                     {(proposal.risks || []).map((item) => (
-                      <div key={item.risk} className="rounded-2xl border border-white/8 bg-black/20 p-5">
-                        <p className="text-sm font-black text-yellow-200">{item.risk}</p>
-                        <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-500">{item.mitigation}</p>
+                      <div key={item.risk} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                        <p className="text-sm font-black text-amber-700">{item.risk}</p>
+                        <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{item.mitigation}</p>
                       </div>
                     ))}
                   </div>
@@ -493,30 +493,30 @@ export default function ProposalWriter() {
                 <section className="grid gap-5 lg:grid-cols-2">
                   <article className="premium-panel p-5 sm:p-8">
                     <div className="mb-4 flex items-center justify-between gap-4">
-                      <h3 className="text-xl font-black text-white">Closing Message</h3>
+                      <h3 className="text-xl font-black text-slate-900">Closing Message</h3>
                       <button
                         type="button"
                         onClick={() => copyText('closing', proposal.closingMessage)}
-                        className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-100"
                       >
                         {copied === 'closing' ? 'Copied' : 'Copy'}
                       </button>
                     </div>
-                    <p className="text-sm font-medium leading-relaxed text-zinc-500">{proposal.closingMessage}</p>
+                    <p className="text-sm font-medium leading-relaxed text-slate-600">{proposal.closingMessage}</p>
                   </article>
 
                   <article className="premium-panel p-5 sm:p-8">
                     <div className="mb-4 flex items-center justify-between gap-4">
-                      <h3 className="text-xl font-black text-white">Follow-up Message</h3>
+                      <h3 className="text-xl font-black text-slate-900">Follow-up Message</h3>
                       <button
                         type="button"
                         onClick={() => copyText('follow-up', proposal.followUpMessage)}
-                        className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10"
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-100"
                       >
                         {copied === 'follow-up' ? 'Copied' : 'Copy'}
                       </button>
                     </div>
-                    <p className="whitespace-pre-wrap text-sm font-medium leading-relaxed text-zinc-500">{proposal.followUpMessage}</p>
+                    <p className="whitespace-pre-wrap text-sm font-medium leading-relaxed text-slate-600">{proposal.followUpMessage}</p>
                   </article>
                 </section>
               </>

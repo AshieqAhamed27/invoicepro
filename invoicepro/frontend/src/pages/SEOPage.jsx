@@ -179,20 +179,20 @@ export default function SEOPage({ pageKey }) {
       <Navbar />
 
       <main>
-        <section className="border-b border-white/5 py-14 sm:py-20 lg:py-24">
+        <section className="border-b border-slate-200 py-14 sm:py-20 lg:py-24">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-yellow-400/15 bg-yellow-400/8 px-4 py-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-yellow-400/8 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-yellow-300" />
-                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-200">
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">
                   {page.eyebrow}
                 </p>
               </div>
 
-              <h1 className="mt-6 max-w-4xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="mt-6 max-w-4xl text-4xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
                 {page.headline}
               </h1>
-              <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-zinc-400 sm:text-lg">
+              <p className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-slate-600 sm:text-lg">
                 {page.subhead}
               </p>
 
@@ -215,7 +215,7 @@ export default function SEOPage({ pageKey }) {
 
               <div className="mt-8 flex flex-wrap gap-2">
                 {page.keywords.map((keyword) => (
-                  <span key={keyword} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                  <span key={keyword} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-600">
                     {keyword}
                   </span>
                 ))}
@@ -223,27 +223,27 @@ export default function SEOPage({ pageKey }) {
             </div>
 
             <div className="premium-panel p-5 sm:p-8">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">
                 Product snapshot
               </p>
-              <div className="mt-5 rounded-lg border border-white/8 bg-black/25 p-5">
-                <div className="flex items-start justify-between gap-4 border-b border-white/8 pb-5">
+              <div className="mt-5 rounded-lg border border-slate-200 bg-black/25 p-5">
+                <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-5">
                   <div>
-                    <p className="text-sm font-black text-white">{COMPANY_NAME}</p>
-                    <p className="mt-1 text-xs font-semibold text-zinc-500">Udyam No: {UDYAM_REGISTRATION_NUMBER}</p>
+                    <p className="text-sm font-black text-slate-900">{COMPANY_NAME}</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-600">Udyam No: {UDYAM_REGISTRATION_NUMBER}</p>
                   </div>
-                  <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">
                     India-ready
                   </span>
                 </div>
 
                 <div className="mt-6 grid gap-3">
                   {page.workflow.map((step, index) => (
-                    <div key={step} className="flex items-center gap-3 rounded-lg border border-white/8 bg-white/[0.02] p-4">
+                    <div key={step} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-yellow-400 text-xs font-black text-black">
                         {index + 1}
                       </span>
-                      <p className="text-sm font-bold text-zinc-200">{step}</p>
+                      <p className="text-sm font-bold text-slate-800">{step}</p>
                     </div>
                   ))}
                 </div>
@@ -255,37 +255,37 @@ export default function SEOPage({ pageKey }) {
         <section className="py-16 sm:py-20">
           <div className="container-custom">
             <div className="mb-10 max-w-2xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-zinc-500">Why use ClientFlow AI</p>
-              <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-600">Why use ClientFlow AI</p>
+              <h2 className="mt-3 text-3xl font-black text-slate-900 sm:text-4xl">
                 Built for billing work that needs to look real.
               </h2>
             </div>
 
             <div className="grid gap-5 md:grid-cols-3">
               {page.features.map((feature, index) => (
-                <div key={feature} className="rounded-lg border border-white/8 bg-white/[0.03] p-6">
-                  <p className="text-3xl font-black text-white/15">0{index + 1}</p>
-                  <p className="mt-5 text-sm font-semibold leading-relaxed text-zinc-300">{feature}</p>
+                <div key={feature} className="rounded-lg border border-slate-200 bg-slate-50 p-6">
+                  <p className="text-3xl font-black text-slate-900/15">0{index + 1}</p>
+                  <p className="mt-5 text-sm font-semibold leading-relaxed text-slate-700">{feature}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="border-y border-white/5 bg-zinc-950/55 py-16 sm:py-20">
+        <section className="border-y border-slate-200 bg-zinc-950/55 py-16 sm:py-20">
           <div className="container-custom responsive-heading-grid">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">FAQ</p>
-              <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">FAQ</p>
+              <h2 className="mt-3 text-3xl font-black text-slate-900 sm:text-4xl">
                 Questions buyers search before choosing a billing tool.
               </h2>
             </div>
 
             <div className="grid gap-4">
               {page.faqs.map(([question, answer]) => (
-                <div key={question} className="rounded-lg border border-white/8 bg-white/[0.03] p-6">
-                  <h3 className="text-lg font-black text-white">{question}</h3>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">{answer}</p>
+                <div key={question} className="rounded-lg border border-slate-200 bg-slate-50 p-6">
+                  <h3 className="text-lg font-black text-slate-900">{question}</h3>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">{answer}</p>
                 </div>
               ))}
             </div>
@@ -295,11 +295,11 @@ export default function SEOPage({ pageKey }) {
         <section className="py-16 sm:py-20">
           <div className="container-custom">
             <div className="premium-panel p-6 text-center sm:p-10">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-yellow-300">Start free</p>
-              <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black text-white sm:text-4xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-amber-700">Start free</p>
+              <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black text-slate-900 sm:text-4xl">
                 Create your first invoice and see the full workflow.
               </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400">
+              <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600">
                 Use ClientFlow AI for invoices, proposals, PDFs, WhatsApp sharing, payment tracking, and AI billing support.
               </p>
               <Link

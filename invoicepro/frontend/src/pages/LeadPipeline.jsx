@@ -7,12 +7,12 @@ import { trackEvent } from '../utils/analytics';
 import { getWhatsAppShareUrl } from '../utils/whatsapp';
 
 const statusConfig = [
-  { id: 'new', label: 'New', tone: 'border-sky-400/20 bg-sky-400/[0.05] text-sky-300' },
-  { id: 'contacted', label: 'Contacted', tone: 'border-yellow-400/20 bg-yellow-400/[0.05] text-yellow-300' },
-  { id: 'interested', label: 'Interested', tone: 'border-emerald-400/20 bg-emerald-400/[0.05] text-emerald-300' },
+  { id: 'new', label: 'New', tone: 'border-sky-200 bg-sky-400/[0.05] text-sky-700' },
+  { id: 'contacted', label: 'Contacted', tone: 'border-amber-200 bg-yellow-400/[0.05] text-amber-700' },
+  { id: 'interested', label: 'Interested', tone: 'border-emerald-200 bg-emerald-400/[0.05] text-emerald-700' },
   { id: 'proposal_sent', label: 'Proposal Sent', tone: 'border-purple-400/20 bg-purple-400/[0.05] text-purple-300' },
   { id: 'won', label: 'Won', tone: 'border-green-400/20 bg-green-400/[0.05] text-green-300' },
-  { id: 'lost', label: 'Lost', tone: 'border-red-400/20 bg-red-400/[0.05] text-red-300' }
+  { id: 'lost', label: 'Lost', tone: 'border-rose-200 bg-red-400/[0.05] text-rose-700' }
 ];
 
 const defaultForm = {
@@ -309,14 +309,14 @@ export default function LeadPipeline() {
       <main className="container-custom py-8 sm:py-10 md:py-16">
         <section className="reveal mb-10 grid gap-6">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Lead CRM Pipeline</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Lead CRM Pipeline</p>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               Turn searched prospects into paying clients.
             </h1>
-            <p className="mt-5 max-w-2xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+            <p className="mt-5 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
               Save verified leads, follow up from one place, create proposals, and convert won deals into clients.
             </p>
           </div>
@@ -338,9 +338,9 @@ export default function LeadPipeline() {
             { label: 'Interested', value: stats.interested || 0 },
             { label: 'Won Clients', value: stats.won || 0 }
           ].map((item) => (
-            <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
-              <p className="mt-2 text-3xl font-black text-white">{item.value}</p>
+            <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</p>
+              <p className="mt-2 text-3xl font-black text-slate-900">{item.value}</p>
             </div>
           ))}
         </section>
@@ -348,8 +348,8 @@ export default function LeadPipeline() {
         <section className="reveal reveal-delay-2 mb-8 grid gap-8">
           <form onSubmit={createLead} className="premium-panel p-5 sm:p-8">
             <div className="mb-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Add Verified Lead</p>
-              <h2 className="mt-2 text-2xl font-black text-white">Save a real prospect</h2>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Add Verified Lead</p>
+              <h2 className="mt-2 text-2xl font-black text-slate-900">Save a real prospect</h2>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -416,21 +416,21 @@ export default function LeadPipeline() {
           </form>
 
           <aside className="premium-panel p-5 sm:p-8">
-            <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Today Queue</p>
-            <h2 className="mt-2 text-2xl font-black text-white">Follow-ups due</h2>
+            <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Today Queue</p>
+            <h2 className="mt-2 text-2xl font-black text-slate-900">Follow-ups due</h2>
             <div className="mt-5 space-y-3">
               {dueLeads.length ? dueLeads.map((lead) => (
-                <div key={lead._id} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                  <p className="truncate text-sm font-black text-white">{getLeadName(lead)}</p>
-                  <p className="mt-1 text-xs font-semibold text-zinc-500">{formatDate(lead.nextFollowUpAt)}</p>
+                <div key={lead._id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="truncate text-sm font-black text-slate-900">{getLeadName(lead)}</p>
+                  <p className="mt-1 text-xs font-semibold text-slate-600">{formatDate(lead.nextFollowUpAt)}</p>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
                     <button type="button" onClick={() => copyPitch(lead)} className={smallActionClass}>Copy Pitch</button>
                     <button type="button" onClick={() => markContacted(lead)} className={smallActionClass}>Done</button>
                   </div>
                 </div>
               )) : (
-                <div className="rounded-2xl border border-white/8 bg-black/20 p-5 text-center">
-                  <p className="text-sm font-bold text-zinc-400">No follow-ups due today.</p>
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-center">
+                  <p className="text-sm font-bold text-slate-600">No follow-ups due today.</p>
                 </div>
               )}
             </div>
@@ -441,7 +441,7 @@ export default function LeadPipeline() {
           {loading ? (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map((item) => (
-                <div key={item} className="h-52 animate-pulse rounded-2xl border border-white/8 bg-white/[0.04]" />
+                <div key={item} className="h-52 animate-pulse rounded-2xl border border-slate-200 bg-slate-50" />
               ))}
             </div>
           ) : (
@@ -460,29 +460,29 @@ export default function LeadPipeline() {
                       const actions = getContactActions(lead);
 
                       return (
-                        <article key={lead._id} className="flex min-h-[240px] flex-col rounded-2xl border border-white/10 bg-[#080b10]/90 p-4 text-white shadow-xl shadow-black/20">
+                        <article key={lead._id} className="flex min-h-[240px] flex-col rounded-2xl border border-slate-200 bg-[#080b10]/90 p-4 text-slate-900 shadow-xl shadow-black/20">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <h3 className="truncate text-sm font-black text-white">{getLeadName(lead)}</h3>
-                              <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-zinc-600">{lead.niche || 'No niche'}</p>
+                              <h3 className="truncate text-sm font-black text-slate-900">{getLeadName(lead)}</h3>
+                              <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-slate-500">{lead.niche || 'No niche'}</p>
                             </div>
-                            <span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-black uppercase ${lead.urgency === 'high' ? 'border-red-400/30 text-red-300' : 'border-white/10 text-zinc-500'}`}>
+                            <span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-black uppercase ${lead.urgency === 'high' ? 'border-rose-200 text-rose-700' : 'border-slate-200 text-slate-600'}`}>
                               {lead.urgency || 'normal'}
                             </span>
                           </div>
 
-                          <p className="mt-3 line-clamp-3 text-xs font-semibold leading-relaxed text-zinc-400">
+                          <p className="mt-3 line-clamp-3 text-xs font-semibold leading-relaxed text-slate-600">
                             {lead.pain || 'Add pain or opportunity so the pitch becomes sharper.'}
                           </p>
 
                           <div className="mt-4 grid gap-2">
-                            <div className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Budget</span>
-                              <span className="text-xs font-black text-emerald-300">{formatMoney(lead.budget)}</span>
+                            <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Budget</span>
+                              <span className="text-xs font-black text-emerald-700">{formatMoney(lead.budget)}</span>
                             </div>
-                            <div className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Follow-up</span>
-                              <span className={`text-xs font-black ${isDue(lead.nextFollowUpAt) ? 'text-yellow-300' : 'text-zinc-400'}`}>{formatDate(lead.nextFollowUpAt)}</span>
+                            <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Follow-up</span>
+                              <span className={`text-xs font-black ${isDue(lead.nextFollowUpAt) ? 'text-amber-700' : 'text-slate-600'}`}>{formatDate(lead.nextFollowUpAt)}</span>
                             </div>
                           </div>
 
@@ -512,13 +512,13 @@ export default function LeadPipeline() {
                               <button type="button" onClick={() => moveLead(lead, -1)} className={smallActionClass}>Back</button>
                               <button type="button" onClick={() => moveLead(lead, 1)} className={smallActionClass}>Next</button>
                             </div>
-                            <button type="button" onClick={() => createProposal(lead)} className="rounded-lg border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-yellow-300 transition hover:bg-yellow-400/15">
+                            <button type="button" onClick={() => createProposal(lead)} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-amber-700 transition hover:bg-amber-50">
                               Create Proposal
                             </button>
-                            <button type="button" onClick={() => convertToClient(lead)} className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15">
+                            <button type="button" onClick={() => convertToClient(lead)} className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50">
                               Convert Client
                             </button>
-                            <button type="button" onClick={() => deleteLead(lead)} className="rounded-lg border border-red-400/15 bg-red-400/5 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-red-300 transition hover:bg-red-400/10">
+                            <button type="button" onClick={() => deleteLead(lead)} className="rounded-lg border border-rose-200 bg-red-400/5 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-rose-700 transition hover:bg-rose-50">
                               Delete
                             </button>
                           </div>
@@ -527,8 +527,8 @@ export default function LeadPipeline() {
                     })}
 
                     {!groupedLeads[status.id]?.length && (
-                      <div className="rounded-2xl border border-white/8 bg-black/20 p-5 text-center">
-                        <p className="text-xs font-bold text-zinc-400">No leads here.</p>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-center">
+                        <p className="text-xs font-bold text-slate-600">No leads here.</p>
                       </div>
                     )}
                   </div>

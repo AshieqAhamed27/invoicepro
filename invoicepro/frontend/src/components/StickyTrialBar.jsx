@@ -44,8 +44,8 @@ export default function StickyTrialBar() {
         }}
       >
         <div className="min-w-0">
-          <p className="text-sm font-black text-white truncate">Start your 30-day free trial</p>
-          <p className="text-xs font-medium text-zinc-400 truncate">No card required. Full access.</p>
+          <p className="text-sm font-black text-slate-900 truncate">Start your 30-day free trial</p>
+          <p className="text-xs font-medium text-slate-600 truncate">No card required. Full access.</p>
         </div>
         <button
           type="button"

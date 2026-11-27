@@ -57,20 +57,20 @@ export default function Terms() {
 
       <main className="container-custom py-10 sm:py-14 md:py-20">
         <section className="mx-auto max-w-4xl">
-          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-yellow-300">Terms of Use</p>
-          <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl md:text-6xl">
+          <p className="text-[10px] font-black uppercase tracking-[0.24em] text-amber-700">Terms of Use</p>
+          <h1 className="mt-4 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
             Simple terms for using ClientFlow AI responsibly.
           </h1>
-          <p className="mt-6 max-w-3xl text-base font-medium leading-relaxed text-zinc-400 md:text-lg">
+          <p className="mt-6 max-w-3xl text-base font-medium leading-relaxed text-slate-600 md:text-lg">
             These terms summarize the basic expectations for using {COMPANY_NAME} as a billing and invoicing product.
           </p>
-          <p className="mt-4 text-sm font-semibold text-zinc-500">Effective date: {LEGAL_EFFECTIVE_DATE}</p>
+          <p className="mt-4 text-sm font-semibold text-slate-600">Effective date: {LEGAL_EFFECTIVE_DATE}</p>
 
           <div className="mt-12 space-y-5">
             {sections.map((section) => (
-              <div key={section.title} className="rounded-[2rem] border border-white/8 bg-zinc-950/70 p-5 sm:p-8">
-                <h2 className="text-2xl font-black text-white">{section.title}</h2>
-                <p className="mt-4 text-sm font-medium leading-relaxed text-zinc-400">{section.body}</p>
+              <div key={section.title} className="rounded-[2rem] border border-slate-200 bg-white p-5 sm:p-8">
+                <h2 className="text-2xl font-black text-slate-900">{section.title}</h2>
+                <p className="mt-4 text-sm font-medium leading-relaxed text-slate-600">{section.body}</p>
               </div>
             ))}
           </div>

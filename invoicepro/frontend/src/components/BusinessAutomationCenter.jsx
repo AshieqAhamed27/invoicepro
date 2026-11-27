@@ -588,35 +588,35 @@ export default function BusinessAutomationCenter({
   };
 
   return (
-    <section className="reveal reveal-delay-1 mb-12 overflow-hidden rounded-[2rem] border border-sky-400/20 bg-sky-400/[0.035] shadow-2xl shadow-black/20">
-      <div className="border-b border-white/10 p-5 sm:p-8 lg:p-10">
+    <section className="reveal reveal-delay-1 mb-12 overflow-hidden rounded-[2rem] border border-sky-200 bg-sky-400/[0.035] shadow-2xl shadow-black/20">
+      <div className="border-b border-slate-200 p-5 sm:p-8 lg:p-10">
         <div className="responsive-heading-grid">
           <div>
-            <div className="inline-flex flex-wrap items-center gap-2 rounded-lg border border-sky-400/20 bg-sky-400/10 px-3 py-1.5">
+            <div className="inline-flex flex-wrap items-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-1.5">
               <span className="h-2 w-2 rounded-full bg-sky-300" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">
+              <p className="text-[10px] font-black uppercase tracking-widest text-sky-700">
                 Automation Center
               </p>
-              <span className="rounded-full border border-white/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-400">
+              <span className="rounded-full border border-slate-200 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-slate-600">
                 Manual-send safe
               </span>
             </div>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
               All money-moving automations in one place.
             </h2>
-            <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-zinc-400 sm:text-base">
+            <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base">
               The app now watches payments, leads, proposals, income goal pace, recurring revenue chances,
               and risk alerts. It prepares the work automatically, while the user stays in control of sending.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-emerald-400/15 bg-emerald-400/10 p-5">
-            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Automation Health</p>
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Automation Health</p>
             <div className="mt-3 flex items-end justify-between gap-4">
-              <p className="text-4xl font-black text-white">
+              <p className="text-4xl font-black text-slate-900">
                 {automationSummary.reduce((sum, item) => sum + Number(item.value || 0), 0)}
               </p>
-              <p className="max-w-[12rem] text-right text-xs font-semibold leading-relaxed text-zinc-400">
+              <p className="max-w-[12rem] text-right text-xs font-semibold leading-relaxed text-slate-600">
                 active recommendations waiting across the business.
               </p>
             </div>
@@ -625,23 +625,23 @@ export default function BusinessAutomationCenter({
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {automationSummary.map((item) => (
-            <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{item.label}</p>
-              <p className="mt-3 text-3xl font-black text-white">{item.value}</p>
-              <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{item.note}</p>
+            <div key={item.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{item.label}</p>
+              <p className="mt-3 text-3xl font-black text-slate-900">{item.value}</p>
+              <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">{item.note}</p>
             </div>
           ))}
         </div>
       </div>
 
       <div className="grid gap-6 p-5 sm:p-8 lg:grid-cols-2 lg:p-10">
-        <div className="rounded-[1.75rem] border border-white/10 bg-black/20 p-5 sm:p-6">
+        <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Smart Payment Follow-up</p>
-              <h3 className="mt-2 text-2xl font-black text-white">Unpaid invoices ranked by urgency.</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Smart Payment Follow-up</p>
+              <h3 className="mt-2 text-2xl font-black text-slate-900">Unpaid invoices ranked by urgency.</h3>
             </div>
-            <Link to="/dashboard" className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white">
+            <Link to="/dashboard" className="text-xs font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700">
               Dashboard
             </Link>
           </div>
@@ -649,19 +649,19 @@ export default function BusinessAutomationCenter({
           <div className="space-y-3">
             {paymentQueue.slice(0, 3).length ? (
               paymentQueue.slice(0, 3).map((target) => (
-                <div key={target.id || target._id || target.invoiceNumber} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div key={target.id || target._id || target.invoiceNumber} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-red-300">
+                        <span className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-rose-700">
                           Score {target.priorityScore || 0}
                         </span>
-                        <span className="rounded-full border border-white/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-400">
+                        <span className="rounded-full border border-slate-200 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-slate-600">
                           {getPaymentToneLabel(target.tone)}
                         </span>
                       </div>
-                      <p className="mt-3 text-sm font-black text-white">{target.clientName}</p>
-                      <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">
+                      <p className="mt-3 text-sm font-black text-slate-900">{target.clientName}</p>
+                      <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">
                         {target.invoiceNumber} / {formatMoney(target.amount)} / {target.reason || target.automationReason}
                       </p>
                     </div>
@@ -669,14 +669,14 @@ export default function BusinessAutomationCenter({
                       <button
                         type="button"
                         onClick={() => navigate(`/invoice/${target.id || target._id}`)}
-                        className="rounded-xl border border-white/10 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         Open
                       </button>
                       <button
                         type="button"
                         onClick={() => sendPaymentFollowUp(target)}
-                        className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                        className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                       >
                         WhatsApp
                       </button>
@@ -690,13 +690,13 @@ export default function BusinessAutomationCenter({
           </div>
         </div>
 
-        <div className="rounded-[1.75rem] border border-white/10 bg-black/20 p-5 sm:p-6">
+        <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">Lead Follow-up Automation</p>
-              <h3 className="mt-2 text-2xl font-black text-white">1-day, 3-day, 7-day lead nudges.</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Lead Follow-up Automation</p>
+              <h3 className="mt-2 text-2xl font-black text-slate-900">1-day, 3-day, 7-day lead nudges.</h3>
             </div>
-            <Link to="/leads" className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white">
+            <Link to="/leads" className="text-xs font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700">
               Open Leads
             </Link>
           </div>
@@ -704,27 +704,27 @@ export default function BusinessAutomationCenter({
           <div className="space-y-3">
             {leadFollowUps.slice(0, 3).length ? (
               leadFollowUps.slice(0, 3).map((lead) => (
-                <div key={lead._id || getLeadName(lead)} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div key={lead._id || getLeadName(lead)} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
-                      <span className="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-yellow-300">
+                      <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-amber-700">
                         {lead.cadence.replace('day', 'Day ')}
                       </span>
-                      <p className="mt-3 text-sm font-black text-white">{getLeadName(lead)}</p>
-                      <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">{lead.title} / {lead.reason}</p>
+                      <p className="mt-3 text-sm font-black text-slate-900">{getLeadName(lead)}</p>
+                      <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">{lead.title} / {lead.reason}</p>
                     </div>
                     <div className="grid shrink-0 gap-2 sm:min-w-[180px]">
                       <button
                         type="button"
                         onClick={() => sendLeadFollowUp(lead)}
-                        className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-emerald-300 transition hover:bg-emerald-400/15"
+                        className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-50"
                       >
                         WhatsApp
                       </button>
                       <button
                         type="button"
                         onClick={() => copyText(lead.message, 'Lead follow-up copied.', 'copy_automation_lead_followup', { cadence: lead.cadence })}
-                        className="rounded-xl border border-white/10 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         Copy
                       </button>
@@ -741,13 +741,13 @@ export default function BusinessAutomationCenter({
           </div>
         </div>
 
-        <div className="rounded-[1.75rem] border border-white/10 bg-black/20 p-5 sm:p-6">
+        <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-sky-300">Proposal Follow-up</p>
-              <h3 className="mt-2 text-2xl font-black text-white">Nudge proposals before they go cold.</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-sky-700">Proposal Follow-up</p>
+              <h3 className="mt-2 text-2xl font-black text-slate-900">Nudge proposals before they go cold.</h3>
             </div>
-            <Link to="/leads" className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white">
+            <Link to="/leads" className="text-xs font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700">
               Pipeline
             </Link>
           </div>
@@ -755,14 +755,14 @@ export default function BusinessAutomationCenter({
           <div className="space-y-3">
             {proposalFollowUps.slice(0, 3).length ? (
               proposalFollowUps.slice(0, 3).map((proposal) => (
-                <div key={proposal._id || proposal.id || proposal.invoiceNumber} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div key={proposal._id || proposal.id || proposal.invoiceNumber} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
-                      <span className="rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-sky-300">
+                      <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-sky-700">
                         {proposal.title}
                       </span>
-                      <p className="mt-3 text-sm font-black text-white">{proposal.clientName}</p>
-                      <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">
+                      <p className="mt-3 text-sm font-black text-slate-900">{proposal.clientName}</p>
+                      <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">
                         {proposal.invoiceNumber} / {formatMoney(proposal.amount)} / {proposal.reason}
                       </p>
                     </div>
@@ -770,14 +770,14 @@ export default function BusinessAutomationCenter({
                       <button
                         type="button"
                         onClick={() => navigate(`/invoice/${proposal._id || proposal.id}`)}
-                        className="rounded-xl border border-white/10 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         Open
                       </button>
                       <button
                         type="button"
                         onClick={() => sendProposalFollowUp(proposal)}
-                        className="rounded-xl border border-sky-400/20 bg-sky-400/10 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-sky-300 transition hover:bg-sky-400/15"
+                        className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-sky-700 transition hover:bg-sky-50"
                       >
                         WhatsApp
                       </button>
@@ -791,13 +791,13 @@ export default function BusinessAutomationCenter({
           </div>
         </div>
 
-        <div className="rounded-[1.75rem] border border-white/10 bg-black/20 p-5 sm:p-6">
+        <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-purple-300">Recurring Client Detector</p>
-              <h3 className="mt-2 text-2xl font-black text-white">Find clients who can become monthly.</h3>
+              <h3 className="mt-2 text-2xl font-black text-slate-900">Find clients who can become monthly.</h3>
             </div>
-            <Link to="/recurring" className="text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white">
+            <Link to="/recurring" className="text-xs font-black uppercase tracking-widest text-slate-600 hover:text-indigo-700">
               Recurring
             </Link>
           </div>
@@ -805,14 +805,14 @@ export default function BusinessAutomationCenter({
           <div className="space-y-3">
             {recurringCandidates.slice(0, 3).length ? (
               recurringCandidates.slice(0, 3).map((candidate) => (
-                <div key={candidate.clientEmail || candidate.clientName} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div key={candidate.clientEmail || candidate.clientName} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
                       <span className="rounded-full border border-purple-400/20 bg-purple-400/10 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-purple-300">
                         Score {candidate.recurringScore}
                       </span>
-                      <p className="mt-3 text-sm font-black text-white">{candidate.clientName}</p>
-                      <p className="mt-1 text-xs font-semibold leading-relaxed text-zinc-500">
+                      <p className="mt-3 text-sm font-black text-slate-900">{candidate.clientName}</p>
+                      <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600">
                         {candidate.reason} Suggested: {formatMoney(candidate.suggestedMonthly)}/month
                       </p>
                     </div>
@@ -827,7 +827,7 @@ export default function BusinessAutomationCenter({
                       <button
                         type="button"
                         onClick={() => copyText(candidate.pitch, 'Recurring pitch copied.', 'copy_recurring_pitch', { value: candidate.suggestedMonthly })}
-                        className="rounded-xl border border-white/10 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                        className="rounded-xl border border-slate-200 bg-black/25 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                       >
                         Copy Pitch
                       </button>
@@ -842,11 +842,11 @@ export default function BusinessAutomationCenter({
         </div>
       </div>
 
-      <div className="border-t border-white/10 p-5 sm:p-8 lg:p-10">
+      <div className="border-t border-slate-200 p-5 sm:p-8 lg:p-10">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-red-300">Risk Alerts</p>
-            <h3 className="mt-2 text-2xl font-black text-white">Problems the app is watching for.</h3>
+            <p className="text-[10px] font-black uppercase tracking-widest text-rose-700">Risk Alerts</p>
+            <h3 className="mt-2 text-2xl font-black text-slate-900">Problems the app is watching for.</h3>
           </div>
           <button
             type="button"
@@ -856,7 +856,7 @@ export default function BusinessAutomationCenter({
                 localStorage.removeItem('clientflow_dismissed_risk_alerts');
               } catch { }
             }}
-            className="rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/10"
+            className="rounded-xl border border-slate-200 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:bg-slate-100"
           >
             Reset Alerts
           </button>
@@ -865,31 +865,31 @@ export default function BusinessAutomationCenter({
         {riskAlerts.length ? (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {riskAlerts.map((alert) => (
-              <div key={alert.id} className="rounded-2xl border border-red-400/15 bg-red-400/[0.08] p-5">
+              <div key={alert.id} className="rounded-2xl border border-rose-200 bg-red-400/[0.08] p-5">
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <span className={`rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
                     alert.level === 'High'
-                      ? 'border-red-400/20 bg-red-400/10 text-red-300'
+                      ? 'border-rose-200 bg-rose-50 text-rose-700'
                       : alert.level === 'Medium'
-                        ? 'border-yellow-400/20 bg-yellow-400/10 text-yellow-300'
-                        : 'border-sky-400/20 bg-sky-400/10 text-sky-300'
+                        ? 'border-amber-200 bg-amber-50 text-amber-700'
+                        : 'border-sky-200 bg-sky-50 text-sky-700'
                   }`}>
                     {alert.level}
                   </span>
                   <button
                     type="button"
                     onClick={() => dismissRiskAlert(alert.id)}
-                    className="text-[10px] font-black uppercase tracking-widest text-zinc-600 transition hover:text-white"
+                    className="text-[10px] font-black uppercase tracking-widest text-slate-500 transition hover:text-indigo-700"
                   >
                     Dismiss
                   </button>
                 </div>
-                <h4 className="text-lg font-black text-white">{alert.title}</h4>
-                <p className="mt-2 min-h-[54px] text-sm font-semibold leading-relaxed text-zinc-400">{alert.detail}</p>
+                <h4 className="text-lg font-black text-slate-900">{alert.title}</h4>
+                <p className="mt-2 min-h-[54px] text-sm font-semibold leading-relaxed text-slate-600">{alert.detail}</p>
                 <button
                   type="button"
                   onClick={alert.action}
-                  className="mt-5 rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                  className="mt-5 rounded-xl border border-slate-200 bg-black/25 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 transition hover:bg-slate-100"
                 >
                   {alert.actionLabel}
                 </button>
@@ -906,9 +906,9 @@ export default function BusinessAutomationCenter({
 
 function EmptyState({ title, detail }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-      <p className="text-sm font-black text-white">{title}</p>
-      <p className="mt-2 text-xs font-semibold leading-relaxed text-zinc-500">{detail}</p>
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center">
+      <p className="text-sm font-black text-slate-900">{title}</p>
+      <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600">{detail}</p>
     </div>
   );
 }

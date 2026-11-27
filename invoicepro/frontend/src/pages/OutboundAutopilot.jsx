@@ -284,17 +284,17 @@ export default function OutboundAutopilot() {
               <span className="h-2 w-2 rounded-full bg-purple-300" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-200">AI Outbound Agency Autopilot</span>
             </div>
-            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               Turn a service offer into a daily client-getting plan.
             </h1>
-            <p className="mt-5 max-w-3xl text-base font-medium leading-relaxed text-zinc-500 sm:text-lg">
+            <p className="mt-5 max-w-3xl text-base font-medium leading-relaxed text-slate-600 sm:text-lg">
               Create real public searches, outreach messages, follow-up tasks, proposal steps, and invoice actions. The user approves every message before sending.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-white/8 bg-black/20 p-5">
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Autopilot Principle</p>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-zinc-400">
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Autopilot Principle</p>
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
               This is not an auto-spam bot. It prepares the work, ranks the next action, and keeps follow-ups moving while the user stays in control.
             </p>
           </div>
@@ -303,8 +303,8 @@ export default function OutboundAutopilot() {
         <section className="grid gap-8">
           <div className="reveal reveal-delay-1 premium-panel p-5 sm:p-8">
             <div className="mb-8">
-              <h2 className="text-2xl font-black text-white">Campaign Setup</h2>
-              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">Required before generation</p>
+              <h2 className="text-2xl font-black text-slate-900">Campaign Setup</h2>
+              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-slate-500">Required before generation</p>
             </div>
 
             <div className="grid gap-5">
@@ -399,7 +399,7 @@ export default function OutboundAutopilot() {
               </div>
 
               {error && (
-                <div className="rounded-2xl border border-red-400/15 bg-red-400/10 p-4 text-sm font-bold text-red-200">
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-700">
                   {error}
                 </div>
               )}
@@ -417,9 +417,9 @@ export default function OutboundAutopilot() {
           <div className="reveal reveal-delay-2 space-y-8">
             {!plan ? (
               <div className="premium-panel p-8 text-center sm:p-12">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">No Autopilot Yet</p>
-                <h2 className="mt-3 text-3xl font-black text-white">Fill the setup and generate a campaign.</h2>
-                <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-500">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">No Autopilot Yet</p>
+                <h2 className="mt-3 text-3xl font-black text-slate-900">Fill the setup and generate a campaign.</h2>
+                <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-relaxed text-slate-600">
                   The app will not invent clients or send messages automatically. It will create a practical outbound operating plan for real manual outreach.
                 </p>
               </div>
@@ -427,10 +427,10 @@ export default function OutboundAutopilot() {
               <>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   {plan.scoreCards.map((card) => (
-                    <div key={card.label} className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-600">{card.label}</p>
-                      <p className="mt-2 text-3xl font-black text-white">{card.value}</p>
-                      <p className="mt-2 text-xs font-medium text-zinc-500">{card.note}</p>
+                    <div key={card.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{card.label}</p>
+                      <p className="mt-2 text-3xl font-black text-slate-900">{card.value}</p>
+                      <p className="mt-2 text-xs font-medium text-slate-600">{card.note}</p>
                     </div>
                   ))}
                 </div>
@@ -438,13 +438,13 @@ export default function OutboundAutopilot() {
                 <section className="premium-panel p-5 sm:p-8">
                   <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                      <h2 className="text-2xl font-black text-white">Real Lead Search Links</h2>
-                      <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">Open, verify, then save real prospects</p>
+                      <h2 className="text-2xl font-black text-slate-900">Real Lead Search Links</h2>
+                      <p className="mt-2 text-xs font-bold uppercase tracking-widest text-slate-500">Open, verify, then save real prospects</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => navigate('/client-finder')}
-                      className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10"
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-slate-100"
                     >
                       Open Client Finder
                     </button>
@@ -458,25 +458,25 @@ export default function OutboundAutopilot() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => trackEvent('open_outbound_search', { platform: source.platform })}
-                        className="rounded-2xl border border-white/8 bg-black/20 p-5 transition-all hover:-translate-y-1 hover:border-yellow-300/30 hover:bg-white/[0.04]"
+                        className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition-all hover:-translate-y-1 hover:border-amber-200 hover:bg-slate-50"
                       >
-                        <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300">{source.platform}</p>
-                        <p className="mt-3 break-words text-sm font-black text-white">{source.query}</p>
-                        <p className="mt-3 text-xs font-medium leading-relaxed text-zinc-500">{source.note}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">{source.platform}</p>
+                        <p className="mt-3 break-words text-sm font-black text-slate-900">{source.query}</p>
+                        <p className="mt-3 text-xs font-medium leading-relaxed text-slate-600">{source.note}</p>
                       </a>
                     ))}
                   </div>
                 </section>
 
                 <section className="premium-panel p-5 sm:p-8">
-                  <h2 className="text-2xl font-black text-white">Daily Autopilot Tasks</h2>
-                  <div className="mt-6 divide-y divide-white/5 rounded-2xl border border-white/8 bg-black/20">
+                  <h2 className="text-2xl font-black text-slate-900">Daily Autopilot Tasks</h2>
+                  <div className="mt-6 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-slate-50">
                     {plan.tasks.map((task) => (
                       <div key={`${task.day}-${task.title}`} className="grid gap-3 p-5 sm:grid-cols-[7rem_minmax(0,1fr)]">
                         <p className="text-[10px] font-black uppercase tracking-widest text-purple-300">{task.day}</p>
                         <div>
-                          <h3 className="text-base font-black text-white">{task.title}</h3>
-                          <p className="mt-1 text-sm font-medium leading-relaxed text-zinc-500">{task.detail}</p>
+                          <h3 className="text-base font-black text-slate-900">{task.title}</h3>
+                          <p className="mt-1 text-sm font-medium leading-relaxed text-slate-600">{task.detail}</p>
                         </div>
                       </div>
                     ))}
@@ -486,12 +486,12 @@ export default function OutboundAutopilot() {
                 <section className="premium-panel p-5 sm:p-8">
                   <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                      <h2 className="text-2xl font-black text-white">Message Scripts</h2>
-                      <p className="mt-2 text-xs font-bold uppercase tracking-widest text-zinc-600">Copy, edit, and send manually</p>
+                      <h2 className="text-2xl font-black text-slate-900">Message Scripts</h2>
+                      <p className="mt-2 text-xs font-bold uppercase tracking-widest text-slate-500">Copy, edit, and send manually</p>
                     </div>
                     <Link
                       to="/leads"
-                      className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10"
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-900 hover:bg-slate-100"
                     >
                       Open Pipeline
                     </Link>
@@ -499,18 +499,18 @@ export default function OutboundAutopilot() {
 
                   <div className="grid gap-4 lg:grid-cols-2">
                     {plan.messages.map((message) => (
-                      <article key={message.label} className="rounded-2xl border border-white/8 bg-black/20 p-5">
+                      <article key={message.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                         <div className="mb-4 flex items-center justify-between gap-3">
-                          <p className="text-sm font-black text-white">{message.label}</p>
+                          <p className="text-sm font-black text-slate-900">{message.label}</p>
                           <button
                             type="button"
                             onClick={() => copyText(message.label, message.text)}
-                            className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:bg-white/10 hover:text-white"
+                            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-100 hover:text-indigo-700"
                           >
                             {copied === message.label ? 'Copied' : 'Copy'}
                           </button>
                         </div>
-                        <pre className="whitespace-pre-wrap break-words rounded-xl bg-white/[0.03] p-4 text-sm font-medium leading-relaxed text-zinc-400">{message.text}</pre>
+                        <pre className="whitespace-pre-wrap break-words rounded-xl bg-slate-50 p-4 text-sm font-medium leading-relaxed text-slate-600">{message.text}</pre>
                       </article>
                     ))}
                   </div>
@@ -519,12 +519,12 @@ export default function OutboundAutopilot() {
                 <section className="premium-panel p-5 sm:p-8">
                   <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-center">
                     <div>
-                      <h2 className="text-2xl font-black text-white">Quality Rules</h2>
+                      <h2 className="text-2xl font-black text-slate-900">Quality Rules</h2>
                       <div className="mt-5 grid gap-3">
                         {plan.rules.map((rule) => (
-                          <div key={rule} className="flex gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <div key={rule} className="flex gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                             <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-300" />
-                            <p className="text-sm font-medium leading-relaxed text-zinc-400">{rule}</p>
+                            <p className="text-sm font-medium leading-relaxed text-slate-600">{rule}</p>
                           </div>
                         ))}
                       </div>
@@ -541,7 +541,7 @@ export default function OutboundAutopilot() {
                       <button
                         type="button"
                         onClick={() => navigate('/create-invoice')}
-                        className="rounded-2xl border border-yellow-300/20 bg-yellow-300/10 px-5 py-4 text-xs font-black uppercase tracking-widest text-yellow-200 hover:bg-yellow-300/15"
+                        className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-xs font-black uppercase tracking-widest text-amber-700 hover:bg-amber-50"
                       >
                         Create Invoice
                       </button>
